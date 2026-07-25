@@ -9,9 +9,9 @@
 ## §0.0.1 Whole-Answer Mandate (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:26+00:00
+**Reviewed at:** 2026-07-25T20:49:52+00:00
 
-docs/WORKLOG.md and the two staged research audits complete the already-reviewed contract-index navigation propagation without changing project completion claims.
+docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md now includes the remaining named architecture lanes and docs/WORKLOG.md records the continuity.
 
 ## §0 Boldness and Long-Term Build Mandate
 
@@ -23,9 +23,9 @@ docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md organizes durable platform la
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:27+00:00
+**Reviewed at:** 2026-07-25T20:49:54+00:00
 
-Integrated continuation audit for three staged documentation files: §2, §4, and §5 preserve the stabilized parallel links after repeated status checks; §0.3 and §15 propagate the existing docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md navigation into the platform audit, second-pass audit, and worklog; §7 keeps the index explicitly non-authoritative; §9 confirms no artifacts or runtime files; §14 validates all 128 Markdown files with zero broken local links and a clean staged diff; §3 and §20 retain the guarded normal commit. No product behavior, deployment claim, data/config, branch, or decision changes.
+Integrated audit for the final two-file documentation group: §2, §4, and §5 preserve the remaining parallel edits after verifying current main; §0.3 and §10 expand docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md with core loop, minimap coordinates, asset authority, loading/bootstrap, renderer accessibility, input accessibility, and physics readability lanes; §7 keeps each linked contract authoritative and the index navigational; §9 confirms no binary or generated artifact; §14 confirms diff integrity and all 128 Markdown local links; §3 and §20 retain the guarded no-coauthor commit path. No runtime, deployment, product claim, schema, branch, or decision change.
 
 ## §0.1.1 'Anything Else?' Standing Review Prompt (v4)
 
@@ -72,9 +72,9 @@ docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md distinguishes directly ve
 ## §0.3 Documentation Continuity
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:26+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-docs/WORKLOG.md, docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md, and the second-pass audit now share the canonical index pointer.
+docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md adds canonical links only; docs/WORKLOG.md records why the navigation expanded.
 
 ## §0.4.1 Completion Confidence Gate
 
@@ -142,9 +142,9 @@ docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md records source, version, depl
 ## §10 Pattern & Related-Issue Search
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:43:30+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md cross-checks sibling architecture lanes and links each recurring concern to a canonical contract.
+Compared docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md against named contract files and added seven missing lane families without duplicating ownership.
 
 ## §0.11.1 Launch-Claim Registry (v4)
 
@@ -205,9 +205,9 @@ N/A: no new decision; docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md is expl
 ## §12 Product & Domain Alignment
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:50+00:00
+**Reviewed at:** 2026-07-25T20:49:54+00:00
 
-N/A: staged docs/research/ index links do not change the Rigs Unbound product model, gameplay direction, or player workflow.
+N/A: docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md improves architecture navigation without changing game direction or player behavior.
 
 ## §13 Analysis Expectations
 
@@ -233,9 +233,9 @@ docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md records user-facing route
 ## §14 Validation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:50+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-Validated staged docs/WORKLOG.md and both docs/research/ audit edits with git diff check and a 128-file local-link scan reporting zero failures.
+Validated docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md and docs/WORKLOG.md with diff check and 128-file local-link scan.
 
 ## §15 Documentation Rules
 
@@ -310,9 +310,9 @@ The missing curl binary was treated as a tool limitation and replaced by Node fe
 ## §2 Global Working Style: Parallel Agents, Main First
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:26+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-The stabilized parallel edits in docs/research/ and docs/WORKLOG.md were inspected, link-validated, preserved, and staged on main.
+Preserved the stabilized parallel edits in docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md and docs/WORKLOG.md on main.
 
 ## §3 Git Safety Rules
 
@@ -324,16 +324,16 @@ User explicitly authorized add, commit, hook, push, and Sites update; docs/WORKL
 ## §4 Local Work Preservation Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:50+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-Inspected and preserved docs/WORKLOG.md plus both staged docs/research/ audit edits after two stable git status checks.
+Inspected, classified, and staged the two remaining parallel documentation files under docs/ without modifying unrelated source.
 
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:26+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-Rechecked docs/research/ after two five-second stability intervals and included the newly arrived second-pass index pointer in the final staged snapshot.
+Rechecked current Git state at fd1db3d and validated the latest docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md additions before staging.
 
 ## §6 'Pre-existing' Is Not an Excuse
 
@@ -352,9 +352,9 @@ docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md declares itself navigation on
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T20:46:50+00:00
+**Reviewed at:** 2026-07-25T20:49:53+00:00
 
-docs/WORKLOG.md records this three-file late parallel continuation separately from the 414-file runtime and 13-file release commits.
+The two-file docs/research/ navigation completion remains an atomic documentation group separate from runtime and release commits.
 
 ## §9 Artifact Handling
 

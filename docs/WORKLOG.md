@@ -1514,6 +1514,14 @@ explicit controller or constraint question.
   architecture doc now shares the same quick navigation surface.
 - Added the contract index pointer to the second-pass synthesis doc so the
   follow-on audit and the contract lattice share one compact jump point.
+- Expanded the contract index to include the remaining obvious lanes: core
+  loop, minimap/world coordinates, asset authority, web loading/bootstrap,
+  renderer accessibility, and physics readability/speed.
+- Added the accessibility/input lane to the contract index after the filename
+  comparison surfaced one remaining omission in the navigation table.
+- Added a supporting continuity section to the contract index so the
+  exploration map, worklog, master tracker, render plan, and public-readiness
+  register are surfaced alongside the contract lattice.
 
 ### Three-pass review
 
