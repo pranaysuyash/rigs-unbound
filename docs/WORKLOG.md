@@ -512,3 +512,29 @@ The robust end-state is most meaningful when it reveals decisions. A tractor wit
 ### Anything else?
 
 The first public commit should preserve why the project exists and how it will make decisions, while refusing to imply that research artifacts are already a playable game.
+
+## 2026-07-25 — Local checkout renamed to `rigs-unbound`
+
+### Requested change
+
+- The project owner requested that the local `openworld_1` directory use the Rigs Unbound identity as well.
+- Selected the filesystem-safe canonical slug `rigs-unbound`, matching the GitHub repository.
+
+### Migration
+
+- Verified the current checkout had no uncommitted tracked changes.
+- Verified the target `Game_dev/rigs-unbound` directory did not already exist.
+- Moved the complete checkout from `Game_dev/openworld_1` to `Game_dev/rigs-unbound`.
+- Confirmed the old path no longer exists and the new directory retains the same Git repository, `main` branch, `origin`, and commit history.
+- Regenerated the ignored `.agent/` and `docs/context/agent-start/` context surfaces at the new location.
+- Confirmed their project paths and collection identifier now use `Game_dev/rigs-unbound`.
+- Preserved the previous publication entry unchanged as historical evidence of the folder name at that time.
+
+### Boundaries
+
+- No source, design, asset, dependency, gameplay, remote repository, or deployment path was moved outside the checkout.
+- No old context/index collection was deleted; cleanup of shared indexed state requires a separate preservation audit.
+
+### Anything else?
+
+The local folder, GitHub slug, and machine-facing project identifier now express one identity, while the human-facing title remains **Rigs Unbound**.

@@ -59,6 +59,17 @@ GitHub can rename a repository while retaining redirects, and public documentati
 ## Update log
 
 - 2026-07-25: Accepted **Rigs Unbound** as the game/project name and `rigs-unbound` as the GitHub repository slug.
+- 2026-07-25: Aligned the local checkout directory with the canonical slug at `Game_dev/rigs-unbound`.
+
+## Addendum: local checkout alignment
+
+The project owner subsequently chose to align the local checkout with the public identity. The canonical local directory is now:
+
+`Game_dev/rigs-unbound`
+
+This supersedes the earlier allowance to retain `openworld_1` as the local folder name. It does not change the game name, GitHub slug, remote URL, or any gameplay/product decision.
+
+The directory migration preserved the existing `.git` history and `origin` configuration. Machine-generated `.agent/` and `docs/context/agent-start/` files were regenerated after the move so their absolute paths and project collection identifier reference `rigs-unbound`.
 
 ## Anything else?
 
