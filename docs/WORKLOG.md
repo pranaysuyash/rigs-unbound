@@ -1154,6 +1154,14 @@ leading Rapier service hypothesis remain explicit proof gates.
 - 2026-07-25: Cleaned two wording slips in the new synthesis/roadmap docs (`capabililty` -> `capability`, duplicate `boundary boundaries`) so the long-term notes remain readable and search-friendly.
 - 2026-07-25: Added [ADR-0014](decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md) to make the capability/streaming/replay/authority/ECS rollout order explicit, then linked it back into the canonical exploration map and roadmap.
 - 2026-07-25: Implemented a lightweight bounded run-record lane in `src/main.ts` and `src/game/run-record.ts`, capturing commands, input transitions, checkpoints, and saves so the replay gate has a concrete starting point without unbounded tab-lifetime growth. The browser surface now also exposes the structural verifier alongside the record snapshot.
+- 2026-07-25: Extended `docs/research/3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md` with the bounded recorder state and a compact change-plane / machine-centric growth addendum so the canonical analysis now reflects the current replay contract and the later “and more” architecture in one place.
+- 2026-07-25: Extended the same canonical analysis with a data/asset/ingestion addendum and linked that contract layer back into the roadmap so manifests, validation, provenance, and resource budgets are now documented as product architecture rather than implied build steps.
+- 2026-07-25: Corrected the canonical analysis replay row so it now states the bounded input-recording lane and browser-visible verification hook as current reality while keeping durable playback API work explicitly open.
+- 2026-07-25: Added a behavior/event scheduler addendum to the canonical analysis and mirrored the split into the roadmap so behavior selection stays distinct from event recording and presentation.
+- 2026-07-25: Added a streaming-world contract addendum to the canonical analysis and a matching roadmap lane so chunk residency is now described as a manifest-driven lifecycle with explicit activation, unload, and rollback rules.
+- 2026-07-25: Added an ECS/entity-composition addendum to the canonical analysis and a threshold-gated ECS lane in the roadmap so ECS remains a proof-based migration decision instead of an assumption.
+- 2026-07-25: Added an authority-scaling addendum to the canonical analysis and a matching roadmap lane so authoritative mutation, intent queues, and replay-safe rejection handling are now explicit contracts instead of implied future work.
+- 2026-07-25: Added a simulation-layer and resource-governance addendum to the canonical analysis and a matching roadmap lane so cross-domain systems now have an explicit ordered domain table and budget ledger instead of being implicit loop behavior.
 
 ## 2026-07-25 — OpenAI Sites deployment preparation
 

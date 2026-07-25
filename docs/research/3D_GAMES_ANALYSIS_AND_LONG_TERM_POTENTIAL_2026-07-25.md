@@ -231,7 +231,7 @@ Required policy: evidence-first; treat all external optimization claims as hypot
 | Behaviour system | No AI behavior tree/utility/planner system in play loop. | Missing |
 | Event system | No general world-event scheduler/handler graph. | Missing |
 | Modding architecture | Content is data-driven by profiles and world descriptors, but not user extension/mod surface yet. | Partial |
-| Deterministic replay | Deterministic kernel and public snapshot exist; no explicit input recording/replay playback API yet. | Partial |
+| Deterministic replay | Deterministic kernel and public snapshot exist; a bounded input-recording lane plus browser-visible verification hook now exist, but durable playback API remains missing. | Partial |
 | Resource budgets | Runtime exposes draw calls/frame timing, but no explicit cross-system CPU/GPU/battery budget scheduler. | Partial |
 
 ### 3) What is actually strong already
@@ -278,7 +278,7 @@ Scope added: gameplay architecture invariants behind the earlier rendering/perf 
 | ECS migration readiness | Not adopted; data is still module-structured with fixed adapters and deterministic interfaces. | `src/game/contracts.ts`, `src/game/state.ts`, `src/game/physics.ts` | Missing by design (planned) |
 | Streaming world | No chunk lifecycle, no streaming manifest activation, no unload policy yet. | `src/game/terrain.ts`, `src/game/renderer.ts` | Missing |
 | Behavior/event schedulers | No global BT/GOAP/event graph yet; behavior is event-driven in state/contract surface only. | `src/game/state.ts` | Missing |
-| Replay transport | Replay is logically possible from deterministic kernel, but input log → playback mode is not yet a first-class API. | `src/game/state.ts`, `src/main.ts` | Partial |
+| Replay transport | Replay is logically possible from deterministic kernel, and the browser now exposes a bounded run record plus structural verification hook. Durable input-log playback mode is still not a first-class API. | `src/game/state.ts`, `src/main.ts`, `src/game/run-record.ts` | Partial |
 
 ### B) High-signal follow-up ordering (from added content)
 
@@ -307,3 +307,408 @@ Scope added: gameplay architecture invariants behind the earlier rendering/perf 
 ### E) "Additional" closeout
 
 The continuation segment strengthens the first-pass strategy: **kernel quality is already leading**, while **streaming, categories, replay surface, and authority gates are the next architectural backlog**. This maps directly to the existing `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` and `ROADMAP/ADRs` structure and does not require a new stack or a second skill framework to proceed.
+
+## Addendum (2026-07-25): Change planes and machine-centric growth
+
+This repo now has enough evidence to treat the bigger “and more” architecture as a bounded platform problem, not a generic rewrite.
+
+### 1) Separate the four planes of change
+
+- **Invariants**: tick order, save semantics, entity identity, world mutation rules, authority rules, input action model, event ordering.
+- **Capabilities**: drive, tow, harvest, dig, fly, carry, build, repair, scan, dock, and future activity verbs.
+- **Content**: vehicles, terrain, missions, rewards, world regions, weather presets, and encounter sets.
+- **Tuning**: acceleration, traction, friction, reward rates, spawn frequency, camera lag, fuel use, and budgets.
+
+The durable rule is: invariants change rarely, capabilities change occasionally, content changes frequently, and tuning changes constantly. That keeps the engine from being bent by every new activity idea.
+
+### 2) Capabilities should be contracts
+
+For the next layer, capabilities should be versioned contracts rather than booleans. Each capability should have:
+
+- an identifier and version,
+- requirements,
+- actions,
+- state schema,
+- validation rules,
+- telemetry hooks.
+
+That is the right shape for a tractor, drone, mech, or factory module to share the same gameplay verb without sharing the same implementation.
+
+### 3) Commands, events, state, and presentation stay separate
+
+The healthiest runtime shape is:
+
+1. input / AI / network produce commands;
+2. validation and authority accept or reject those commands;
+3. the kernel mutates state in a deterministic order;
+4. events are emitted for replay/debugging;
+5. renderer/audio/UI consume snapshots and events.
+
+This matches the current code direction, and it is the minimum shape needed for replay, multiplayer authority, and long-term debugging.
+
+### 4) Growth should become machine-centric, not vehicle-centric
+
+The later architecture conversation points to a broader abstraction: machines can be vehicles, factories, turrets, drills, cranes, conveyors, or stationary devices. That matters because it lets new gameplay emerge from capability composition instead of adding a separate engine branch for every mode.
+
+The guiding question becomes:
+
+> what new capability does this machine add to the world simulation?
+
+not:
+
+> what new vehicle class do we need?
+
+### 5) Near-term proof sequence
+
+The lowest-risk proof sequence from this addendum is:
+
+1. add one versioned capability contract;
+2. add one command/event boundary in a single lane;
+3. add one non-vehicle machine or activity slice;
+4. add one streaming or visibility contract that uses the same deterministic snapshot path.
+
+For the fuller lane map, keep using `docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md`, `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md`, and `docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md` as the detail chain.
+
+## Addendum (2026-07-25): Data, asset, and ingestion contracts
+
+The long-term architecture is not only about simulation and rendering. It also depends on how data enters the repo and becomes runtime truth.
+
+### 1) Data/config is product code
+
+Any schema, manifest, lookup table, label map, reward table, capability record, or mode contract should be treated as code-like product state:
+
+- version it,
+- validate it,
+- document it,
+- test it,
+- migrate it deliberately.
+
+That includes authored content, generated content, and any AI-assisted content that becomes part of the runtime surface.
+
+### 2) Asset pipeline is a contract chain
+
+The asset path should be seen as:
+
+1. source artifact
+2. normalized export
+3. registry entry
+4. runtime manifest
+5. validated activation
+
+The important fields are not only geometry and texture payloads, but also:
+
+- provenance,
+- license/ownership,
+- hashes,
+- compression profile,
+- LOD intent,
+- compatibility notes,
+- replacement/deprecation path.
+
+This matches the repo’s existing asset-pipeline notes and keeps future modding/public content from becoming a second truth source.
+
+### 3) Ingestion must validate before runtime
+
+Authoring output should be rejected early if it fails:
+
+- schema validation,
+- semantic validation,
+- reference resolution,
+- compatibility checks,
+- budget checks,
+- migration checks.
+
+The runtime should consume immutable, validated records only. It should not be the place where malformed content first becomes visible.
+
+### 4) Budgets need explicit fallback behavior
+
+Resource governance is part of architecture, not a postscript:
+
+- CPU
+- GPU
+- VRAM
+- bandwidth
+- battery/thermal profile
+- draw-call budget
+- content activation budget
+
+Each budget band should have a documented fallback policy so the game degrades visibly and predictably instead of failing silently.
+
+### 5) Why this matters now
+
+This layer is the difference between:
+
+- one canonical content path,
+- and a pile of parallel asset/data interpretations.
+
+It also prepares the repo for the later modding, creator, and public-evidence surfaces already discussed in the exploration map.
+
+### 6) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned content/asset manifest,
+2. one validator that rejects malformed or unlicensed input,
+3. one runtime fallback when a manifest is missing or incompatible,
+4. one test proving the reject path happens before activation.
+
+## Addendum (2026-07-25): Behavior and event scheduling contracts
+
+The next unresolved middle layer is not another renderer tweak. It is the scheduler that sits between intent and presentation.
+
+### 1) Separate behavior from event handling
+
+- **Behavior system** answers: what should this actor or machine do next?
+- **Event system** answers: what happened, in what order, and what should be observable or replayable?
+
+Those are related but not the same. Keeping them distinct avoids turning world updates into a chain of ad hoc side effects.
+
+### 2) Behavior should be contract-based
+
+Behavior should be defined with stable contracts rather than hardcoded mode branches:
+
+- identifier and version,
+- trigger conditions,
+- required capabilities,
+- available actions,
+- preconditions,
+- budget limits,
+- fallback behavior,
+- telemetry hook.
+
+This allows future planners or utility-style systems to sit behind the same interface without replacing the kernel.
+
+### 3) Events should be deterministic and replay-friendly
+
+A useful event layer should:
+
+- assign monotonic sequence numbers,
+- preserve the authoritative mutation order,
+- carry schema versioning,
+- avoid duplicate writes for the same mutation,
+- expose a replay-safe payload format,
+- be consumable by diagnostics and presentation.
+
+That makes events a durable audit trail rather than a second world model.
+
+### 4) Command / behavior / event / presentation order
+
+The target lane is:
+
+1. commands express player or AI intent;
+2. validation and authority approve or reject intent;
+3. behavior chooses the next valid action;
+4. the kernel mutates state;
+5. events describe what changed;
+6. presentation reacts to the resulting snapshot/event stream.
+
+This is the next logical step after the bounded run-record lane, because replay and diagnostics get much more valuable once the behavior and event boundaries are explicit.
+
+### 5) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one deterministic event envelope,
+2. one behavior contract with a versioned schema,
+3. one test proving event order is stable across a fixed input slice,
+4. one test proving a rejected behavior candidate does not mutate state.
+
+## Addendum (2026-07-25): Streaming-world contracts
+
+The last major missing world-scale layer is not just “load more terrain.” It is a chunk lifecycle with explicit ownership, validation, and rollback rules.
+
+### 1) Streaming should be a manifest-driven lifecycle
+
+A streaming world needs a contract such as:
+
+1. request chunk/region,
+2. validate chunk identity and compatibility,
+3. activate chunk into runtime residency,
+4. observe budgets and actor caps,
+5. rollback or unload when out of range or invalid.
+
+This keeps world growth deterministic and testable instead of relying on implicit radius logic.
+
+### 2) Streaming should preserve canonical world truth
+
+The world schema should remain the source of truth, while streaming controls residency only. That means:
+
+- a chunk manifest names what can load,
+- runtime residency decides what is active,
+- unloads preserve or serialize state before eviction,
+- streamed content still passes through validation and migration rules.
+
+### 3) Streaming should be budgeted
+
+Streaming is not free. The contract should include:
+
+- maximum active chunks,
+- maximum active actors per chunk,
+- fallback policy when residency exceeds budget,
+- observability counters for load latency and unload churn.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one `WorldChunkManifest` schema,
+2. one request/activate/unload lifecycle test,
+3. one budget counter for active chunk residency,
+4. one rollback test for invalid or stale chunk activation.
+
+## Addendum (2026-07-25): ECS and entity-composition readiness
+
+The repo’s current architecture is data-driven and module-organized. That is a good place to be, but it is still not ECS. The right next step is to define when composition should become formal ECS, and what proof would justify that move.
+
+### 1) Keep ECS as a threshold-based decision
+
+ECS should not be adopted because it is fashionable. It should be adopted when one or more of these become true:
+
+- actor count becomes high enough that component iteration clearly outperforms current structure,
+- cross-cutting simulation layers become too coupled for the current module shape,
+- one machine class needs many optional capabilities without inheritance sprawl,
+- streaming and event layers need broader entity lifecycle management than the current model can express cleanly.
+
+Until then, the current typed state + adapter model remains the canonical path.
+
+### 2) Formalize composition before full ECS migration
+
+Before any full ECS migration, the repo should lock:
+
+- entity identity,
+- capability instance shape,
+- adapter boundaries,
+- component versioning,
+- lifecycle ownership,
+- migration behavior,
+- event visibility.
+
+That gives the repo a stable composition model even if ECS stays deferred.
+
+### 3) ECS should serve the machine-centric model, not replace it
+
+If ECS ever lands, it should make machine/capability composition easier:
+
+- one machine becomes a set of components,
+- capabilities become attached contracts,
+- systems operate on bounded component sets,
+- runtime ownership stays deterministic and inspectable.
+
+That keeps ECS in service of the platform vision rather than turning it into a new hidden abstraction layer.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one composition schema for an entity with multiple capabilities,
+2. one validation rule that rejects an invalid capability bundle,
+3. one test proving component migration preserves identity,
+4. one threshold note stating when ECS would become justified.
+
+## Addendum (2026-07-25): Authority scaling contracts
+
+The last unresolved top-level architecture gate is authority. The repo is deterministic locally, but it still lacks a first-class authoritative mutation pipeline for shared or replayable sessions.
+
+### 1) Authority should own truth, not presentation
+
+Authority exists to answer:
+
+- which commands are accepted,
+- which state mutations are valid,
+- which actor or host owns the mutation,
+- how conflicts are resolved,
+- what gets recorded for audit and replay.
+
+That keeps simulation truth in one place and prevents client-side drift.
+
+### 2) Authority should be command-driven
+
+The clean shape is:
+
+1. input / AI / network produces intent;
+2. validation checks identity, capability, and world state;
+3. an authority token or host resolves the outcome;
+4. the kernel mutates the canonical state;
+5. events and records capture the result.
+
+This is a stronger version of the current local command path and is the prerequisite for any shared-room or server-authoritative future.
+
+### 3) Authority needs explicit failure and recovery behavior
+
+The contract should include:
+
+- rejected command telemetry,
+- duplicate / replayed command handling,
+- stale-ownership handling,
+- disconnect / reconnection recovery,
+- persistence of authoritative state,
+- replay compatibility with authority decisions.
+
+Without that, authority becomes a hidden network feature instead of a durable simulation contract.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one authoritative mutation token schema,
+2. one intent queue with validation outcomes,
+3. one test proving duplicate commands do not double-mutate state,
+4. one test proving rejected authority candidates emit explicit telemetry.
+
+## Addendum (2026-07-25): Simulation layers and resource governance
+
+The repo’s core world is already deterministic, but several cross-domain systems are still only implicit. The next step is to make simulation layers explicit and give them budget owners.
+
+### 1) Simulation layers should be named domains
+
+Each non-render domain should have a clear responsibility and an update order. Example domains:
+
+- terrain and traversal,
+- physics and collision,
+- weather and atmosphere,
+- economy and resource flow,
+- mission and event logic,
+- AI / behavior,
+- persistence and recovery,
+- presentation feedback.
+
+That keeps “multi-domain simulation” from becoming one opaque loop.
+
+### 2) Layers need ownership and ordering
+
+Every layer should answer:
+
+- what state it owns,
+- what state it may read,
+- what state it may mutate,
+- what it emits downstream,
+- what it must never bypass.
+
+This preserves the current deterministic kernel while making future growth composable instead of ad hoc.
+
+### 3) Resource governance must be cross-layer
+
+Budgets should not live only in rendering. They should be tracked across:
+
+- CPU time,
+- GPU load,
+- active actors/entities,
+- active chunks/residency,
+- event volume,
+- save/migration cost,
+- battery/thermal sensitivity.
+
+Each budget band should trigger an explicit fallback policy rather than hidden degradation.
+
+### 4) Simulation layers should support proof-first expansion
+
+This is the right place for new domains like weather, economy, traffic, and mission directors to enter the architecture: as separate owned layers that can be added one at a time, measured, and rolled back if they destabilize the budget envelope.
+
+### 5) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one owned domain-order table for simulation layers,
+2. one budget ledger that spans at least CPU, GPU, and active actors,
+3. one fallback policy test for a low-budget profile,
+4. one telemetry path that records which layer caused a budget downgrade.

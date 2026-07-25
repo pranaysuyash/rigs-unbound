@@ -16,6 +16,8 @@ This document captures the extra guidance from the “Optimization Gaps” conve
 The companion evidence-and-provenance artifact for this roadmap is
 [3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md).
 It records the `3d-games` skill provenance, a gap-by-gap evidence matrix, and the current acceptance gates.
+The canonical analysis addendum now also covers the change-plane model plus
+data/asset ingestion and resource governance contracts.
 
 The rollout-order ADR is [ADR-0014](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md).
 
@@ -126,6 +128,12 @@ Keep these distinct:
 
 This is the spine for replay, anti-cheat, deterministic testing, and future authority layer.
 
+Behavior should remain a separate contract-based decision layer, not a hidden side effect inside event emission. The useful split is:
+
+- behavior chooses the next valid action;
+- events record the authoritative mutation and its ordering;
+- presentation reacts to the resulting state/event stream.
+
 A minimal bounded recorder hook now exists in `src/main.ts` and
 `src/game/run-record.ts`. It captures commands, input transitions, checkpoints,
 and saves while exposing truncation, and checkpoint entries now carry a stable
@@ -227,6 +235,28 @@ Lane order is intentionally staged to avoid architecture theatre:
   - command latency
   - engine tick budget
   - content activation failures
+
+### Lane F: Streaming world lifecycle
+- Introduce `WorldChunkManifest` and chunk residency states.
+- Add request/validate/activate/unload/rollback tests with active-chunk budget counters.
+- Keep world truth canonical while residency remains a runtime concern only.
+
+### Lane G: ECS threshold and composition readiness
+- Add a versioned composition schema for multi-capability entities.
+- Add validation that rejects invalid capability bundles before runtime.
+- Record the actor-count / coupling thresholds that would justify ECS migration.
+- Keep the current typed state + adapter model canonical until that threshold is met.
+
+### Lane H: Authority envelope
+- Add an authoritative mutation token schema and intent queue.
+- Add duplicate-command, stale-ownership, and rejection telemetry tests.
+- Keep shared-room and server-authoritative claims deferred until the lane proves replay-safe.
+
+### Lane I: Simulation layers and resource governance
+- Add a named domain-order table for the non-render simulation layers.
+- Add a cross-layer budget ledger for CPU, GPU, active actors, and residency.
+- Add fallback-policy telemetry when a layer downgrades due to budget pressure.
+- Keep weather/economy/traffic/mission director domains isolated until their contracts are measured.
 
 ---
 
