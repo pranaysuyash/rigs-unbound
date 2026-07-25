@@ -1,0 +1,60 @@
+# macOS and filesystem metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Editors and local IDE state
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+
+# Logs, caches, and temporary output
+*.log
+logs/
+.cache/
+.tmp/
+tmp/
+temp/
+
+# JavaScript and browser build output
+node_modules/
+.pnpm-store/
+dist/
+build/
+out/
+coverage/
+.vite/
+.next/
+
+# Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Game-engine generated output
+.godot/
+.import/
+*.pck
+
+# Machine-generated agent context
+.agent/
+docs/context/agent-start/
