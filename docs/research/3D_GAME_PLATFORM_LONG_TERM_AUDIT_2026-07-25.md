@@ -59,6 +59,7 @@ These are already implemented (or strongly present) according to source evidence
 
 The status matrix above is still the implementation truth, but the repo now has
 named contract notes for the major growth lanes:
+For a compact lane index, use [3D Game Contract Index](./3D_GAME_CONTRACT_INDEX_2026-07-25.md).
 
 - Culling/visibility and LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
 - Streaming world: [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)

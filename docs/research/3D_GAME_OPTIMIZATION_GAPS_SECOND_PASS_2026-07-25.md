@@ -54,6 +54,7 @@ The follow-on context adds architecture-facing growth risks not limited to rende
 
 The status table above remains the implementation snapshot for this pass, but
 the repo now has named contract notes that own the main follow-on lanes:
+For quick lane navigation, use [3D Game Contract Index](./3D_GAME_CONTRACT_INDEX_2026-07-25.md).
 
 - Culling/visibility and LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
 - Shader strategy: [Shader and Material Strategy Contract](./SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md)

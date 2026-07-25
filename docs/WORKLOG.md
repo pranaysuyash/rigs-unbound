@@ -1510,6 +1510,10 @@ explicit controller or constraint question.
   3D-game research stack now has a single compact navigation entry point.
 - Normalized the synthesis doc pointer to the contract index into a clean
   standalone paragraph for easier scanning.
+- Added the contract index pointer to the platform audit so the top-level
+  architecture doc now shares the same quick navigation surface.
+- Added the contract index pointer to the second-pass synthesis doc so the
+  follow-on audit and the contract lattice share one compact jump point.
 
 ### Three-pass review
 
