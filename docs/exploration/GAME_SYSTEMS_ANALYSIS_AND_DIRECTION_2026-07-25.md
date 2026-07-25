@@ -290,6 +290,25 @@ these files; fixing concurrently risks destroying their work):
    family vs another concept; also gates the pending enemy-ecology visual board.
 5. **License selection** for the public repo (§8.7) — unglamorous, load-bearing.
 
+## Operator decisions — 2026-07-25 (append)
+
+Recorded verbatim from the direction session:
+
+1. **Build target:** "do all" — all four options proceed: the farm/defense
+   slice, the mastery/leveling spine, time trial + ghost replay, and the
+   external-player gate **simulated** for now (fresh-eyes agent playtests
+   standing in for strangers, real external playtest still open). Constraint
+   given: same rules and documentation discipline stay intact.
+2. **Leveling:** adopt the full Journey + Verb Mastery + Insight spine **and**
+   strengthen it with vertical power — levels must make rigs visibly stronger,
+   not only unlock options. Ratified as ADR-0018 (Accepted).
+3. **Engine:** schedule the bakeoff probe. Note: a parallel workstream had
+   already produced `docs/research/ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md`
+   and a physics-lab surface this same day; the probe is scheduled against
+   that contract rather than duplicated. ADR-0001 stays Proposed until probe
+   evidence exists; ADR-0015 keeps Three.js as the v1.x default in the
+   meantime.
+
 ## Anything else?
 
 Yes. Two cross-cutting notes the per-section analysis did not say plainly:

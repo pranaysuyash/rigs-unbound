@@ -24,6 +24,9 @@ export const OBSTACLE_CELL = 13;
 /** Maximum obstacles considered per cell. */
 const SLOTS_PER_CELL = 2;
 
+/** Cap on memoised cell slots before the memo is dropped wholesale. */
+const MAX_CACHED_CELLS = 40_000;
+
 export type ObstacleKind = "tree" | "rock" | "stump";
 
 export interface Obstacle {
@@ -89,6 +92,21 @@ const NO_COLLISION: CollisionOutcome = {
 export class ObstacleField {
   private readonly seed: number;
 
+  /**
+   * Memo of resolved cell slots, including proven-empty ones (`null`).
+   *
+   * `obstacleAt` is a pure function of `(cell, slot, seed)`, but deriving one
+   * candidate costs a `terrain.sample` (five `height()` queries) plus a biome scan
+   * and a route projection. `resolve` examines ~50 candidates per simulation step
+   * and the renderer examines ~1,400 per prop rebuild, so recomputing them was
+   * costing ~250 terrain queries *per step* — measured at 18 ms/step against a
+   * 16.7 ms frame budget, i.e. the kernel alone exceeded the entire frame.
+   *
+   * Because the field is deterministic and static apart from felling (tracked
+   * separately in `GameWorld.felledObstacles`), caching cannot change behaviour.
+   */
+  private readonly cache = new Map<number, Obstacle | null>();
+
   constructor(
     seedText: string,
     private readonly terrain: TerrainField,
@@ -104,6 +122,26 @@ export class ObstacleField {
    * Without those rules the generator would block its own roads.
    */
   private obstacleAt(cx: number, cz: number, slot: number): Obstacle | null {
+    // Pack the cell and slot into one integer key. The 4096 stride matches the
+    // deformation grid's convention and comfortably covers the world disc.
+    const key = ((cz + 2048) * 4096 + (cx + 2048)) * 4 + slot;
+    const cached = this.cache.get(key);
+    if (cached !== undefined) return cached;
+    const resolved = this.resolveObstacleAt(cx, cz, slot);
+    if (this.cache.size >= MAX_CACHED_CELLS) {
+      // Pure memo, so dropping everything is always safe; a session that ranges
+      // far enough to fill this simply pays the derivation cost again.
+      this.cache.clear();
+    }
+    this.cache.set(key, resolved);
+    return resolved;
+  }
+
+  private resolveObstacleAt(
+    cx: number,
+    cz: number,
+    slot: number,
+  ): Obstacle | null {
     const channel = slot * 977;
     const presence = cellRandom(cx, cz, channel + 1, this.seed);
 

@@ -62,6 +62,28 @@ export interface RaycastVehicleConfig {
   maximumSteeringAngle: number;
 }
 
+export interface PhysicalWheelVehicleConfig {
+  id: string;
+  spawn: Vector3Value;
+  heading: number;
+  mass: number;
+  chassisHalfExtents: Vector3Value;
+  centreOfMassYOffset: number;
+  wheelbase: number;
+  track: number;
+  wheelRadius: number;
+  wheelWidth: number;
+  suspensionRestLength: number;
+  suspensionTravel: number;
+  suspensionHertz: number;
+  suspensionDampingRatio: number;
+  maximumSpinSpeed: number;
+  maximumSpinTorque: number;
+  maximumBrakeTorque: number;
+  maximumSteeringTorque: number;
+  maximumSteeringAngle: number;
+}
+
 export interface StaticBoxConfig {
   id: string;
   centre: Vector3Value;
@@ -100,14 +122,15 @@ export interface DynamicsDebugGeometry {
 /**
  * Project-owned capture for a vehicle.
  *
- * This intentionally stores plain body state rather than a solver object or
- * opaque world snapshot. Durable game saves can migrate this shape without
- * understanding Rapier handles or insertion order.
+ * This intentionally stores plain body/assembly state rather than solver
+ * objects or an opaque world snapshot. Durable game saves can migrate this
+ * shape without understanding engine handles or insertion order.
  */
 export interface VehicleDynamicsCapture {
   version: 1;
   vehicleId: string;
   body: BodyState;
+  parts?: readonly BodyState[];
 }
 
 export interface DynamicsVehicle {
@@ -126,9 +149,23 @@ export interface DynamicsService {
   readonly engine: string;
   readonly engineVersion: string;
   createStaticBox(config: StaticBoxConfig): void;
-  createRaycastVehicle(config: RaycastVehicleConfig): DynamicsVehicle;
   step(dt: number): void;
   metrics(): DynamicsMetrics;
   debugGeometry(): DynamicsDebugGeometry;
   dispose(): void;
+}
+
+/**
+ * Vehicle-creation algorithms are explicit service capabilities. The base
+ * world port must not make raycast wheels, physical wheels, tracks, buoyancy,
+ * or any other controller family universal by accident.
+ */
+export interface RaycastVehicleDynamicsService extends DynamicsService {
+  createRaycastVehicle(config: RaycastVehicleConfig): DynamicsVehicle;
+}
+
+export interface PhysicalWheelDynamicsService extends DynamicsService {
+  createPhysicalWheelVehicle(
+    config: PhysicalWheelVehicleConfig,
+  ): DynamicsVehicle;
 }

@@ -50,6 +50,28 @@ The follow-on context adds architecture-facing growth risks not limited to rende
 | Deterministic replay artifact | Partial | Input replay is not first-class yet, limiting QA, ghost, and social replay modes. | Finalize serialized run record, playback verifier, and signed checksum in save/repro bundle |
 | Resource budgets | Partial | There are runtime counters, but no cross-system budget governor (CPU/GPU/VRAM/battery). | Define budget ledger + feature gate by budget band (low/medium/high), fail-soft fallback policies |
 
+### Contract-note bridge
+
+The status table above remains the implementation snapshot for this pass, but
+the repo now has named contract notes that own the main follow-on lanes:
+
+- Culling/visibility and LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
+- Shader strategy: [Shader and Material Strategy Contract](./SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md)
+- Collision matrix: [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)
+- Streaming world: [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
+- Asset pipeline: [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
+- Simulation layers: [Simulation Layers and Resource Governance Contract](./SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md)
+- Behavior/planner: [Behavior System and Planner Contracts](./BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md)
+- Event graph: [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md)
+- Modding: [Modding and Creator Pack Validation Contract](./MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md)
+- Replay artifact: [Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md)
+- Resource governance: [Resource Budget and Fallback Envelope](./RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md)
+- ECS thresholding: [ECS Threshold and Composition Readiness Contract](./ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md)
+- Authority grounding: [Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md)
+
+That means the follow-on recommendations are now owned by durable notes
+instead of only existing as a sequence of audit bullets.
+
 ## Shader path position
 
 No custom shader system is in production in this pass. Current material usage is pragmatic (standard/PBR-style material choices) and appropriate for the prototype stage. This maps to the shader/material skill guidance that says to defer custom GLSL until identity-carrying effects are contract-bound (mud transitions, hazard state, weather cues, danger cues).
@@ -62,6 +84,19 @@ No custom shader system is in production in this pass. Current material usage is
 4. **Authority gating**: simulate mutation intent + ownership before social/small co-op.
 
 No code changes were made in this pass; this is a documentation and validation-gate update only.
+
+## 7) Contract-note map for the execution order
+
+The execution order above is now backed by named contract notes, so the branch
+can be continued from concrete boundaries instead of only from broad sprint
+labels:
+
+1. **Renderer hardening** → [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md), [Camera Feel Contract](./CAMERA_FEEL_CONTRACT_2026-07-25.md), [Performance and Readability Baseline Contract](./PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md)
+2. **Collision-layer and streaming preparation** → [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md), [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
+3. **Replay transport** → [Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md), [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md)
+4. **Authority gating** → [Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md)
+5. **Safe-to-formalize next** → [Kernel Ordering and Mutable Subsystem Gates Contract](./KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md), [Save and Migration Observability Contract](./SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md), [Renderer Performance and Accessibility Contract](./RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md)
+6. **Possible now with low-to-medium effort** → [Capability Contract and Adapter Guardrails](./CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md), [World Affordances and Capability Resolution Contract](./WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md), [Authoring and Reproducible Content Validation Contract](./AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md)
 
 ## 6) Requested "and more" pass closure (2026-07-25)
 

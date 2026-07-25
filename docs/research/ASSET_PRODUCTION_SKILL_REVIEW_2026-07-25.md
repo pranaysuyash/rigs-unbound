@@ -4,7 +4,7 @@ Status: **Slice A implemented; runtime asset integration remains pending discuss
 
 ## Purpose
 
-Apply the imported [`3d-asset-production`](../../../external-skills/calesthio__generative-media-skills/skills/production/3d-craft/3d-asset-production/SKILL.md) skill to the current Rigs Unbound direction: a generated/reference-informed repaired tractor and modular vehicle world that must remain browser-friendly, inspectable, and safe to evolve.
+Apply the imported [`3d-asset-production`](../../../../external-skills/calesthio__generative-media-skills/skills/production/3d-craft/3d-asset-production/SKILL.md) skill to the current Rigs Unbound direction: a generated/reference-informed repaired tractor and modular vehicle world that must remain browser-friendly, inspectable, and safe to evolve.
 
 The skill's useful boundary is asset finishing and delivery, not choosing a generation provider or building the whole world. Its central requirement is a delivery contract: identify the consumer, preserve an editable/source record, create a runtime derivative, and validate in the actual consumer.
 
@@ -135,7 +135,7 @@ remains the behavioral source of truth.
 
 ## Sources
 
-- Imported skill: [`3d-asset-production`](../../../external-skills/calesthio__generative-media-skills/skills/production/3d-craft/3d-asset-production/SKILL.md)
+- Imported skill: [`3d-asset-production`](../../../../external-skills/calesthio__generative-media-skills/skills/production/3d-craft/3d-asset-production/SKILL.md)
 - Khronos glTF 2.0 specification: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html
 - Khronos glTF Validator: https://github.com/KhronosGroup/glTF-Validator
 - Existing project provenance register: [`ASSET_PROVENANCE_REGISTER.md`](ASSET_PROVENANCE_REGISTER.md)

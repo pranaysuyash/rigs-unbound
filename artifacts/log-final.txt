@@ -1,0 +1,7 @@
+plough engaged? Ploughing
+till t=8s {"dist":27,"bearing":"SW","units":1,"salvage":0,"condition":97,"speed":0,"cap":"Ploughing","longFurrow":130}
+till t=16s {"dist":24,"bearing":"S","units":1,"salvage":0,"condition":97,"speed":21,"cap":"Ploughing","longFurrow":137}
+till t=24s {"dist":47,"bearing":"S","units":1,"salvage":0,"condition":97,"speed":21,"cap":"Ploughing","longFurrow":196}
+till t=36s {"dist":44,"bearing":"S","units":3,"salvage":0,"condition":97,"speed":0,"cap":"Ploughing","longFurrow":202}
+till t=45s {"dist":40,"bearing":"S","units":3,"salvage":0,"condition":97,"speed":3,"cap":"Ploughing","longFurrow":207}
+FINAL {"dist":28,"bearing":"E","units":3,"salvage":0,"condition":97,"speed":0,"cap":"plough · tow","longFurrow":204}

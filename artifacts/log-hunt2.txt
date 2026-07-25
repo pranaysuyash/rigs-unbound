@@ -1,0 +1,34 @@
+steer: 42.0 -> 38.0 bearing=SW units=1 spd=1
+steer: 40.0 -> 39.0 bearing=W units=1 spd=18
+steer: 39.0 -> 41.0 bearing=W units=1 spd=34
+steer: 39.0 -> 44.0 bearing=SW units=3 spd=0
+steer: 44.0 -> 44.0 bearing=SW units=3 spd=0
+steer: 44.0 -> 44.0 bearing=SW units=3 spd=0
+steer: 44.0 -> 44.0 bearing=SW units=3 spd=2
+steer: 44.0 -> 44.0 bearing=SW units=3 spd=0
+steer: 45.0 -> 45.0 bearing=SW units=3 spd=4
+steer: 44.0 -> 46.0 bearing=W units=3 spd=3
+steer: 43.0 -> 42.0 bearing=W units=3 spd=0
+steer: 42.0 -> 41.0 bearing=W units=3 spd=0
+steer: 40.0 -> 40.0 bearing=W units=3 spd=0
+steer: 38.0 -> 37.0 bearing=W units=3 spd=0
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.screenshot: Target page, context or browser has been closed
+Call log:
+[2m  - taking page screenshot[22m
+[2m  - waiting for fonts to load...[22m
+[2m  - fonts loaded[22m
+
+    at shot (/Users/pranay/Projects/Game_dev/rigs-unbound/artifacts/playtest-hunter2.cjs:31:28)
+    at /Users/pranay/Projects/Game_dev/rigs-unbound/artifacts/playtest-hunter2.cjs:84:9 {
+  log: [
+    '  - taking page screenshot',
+    '  - waiting for fonts to load...',
+    '  - fonts loaded'
+  ]
+}
+
+Node.js v24.13.0

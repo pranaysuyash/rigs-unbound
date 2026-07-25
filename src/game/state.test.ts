@@ -31,6 +31,8 @@ import {
   settleWorld,
   stepGame,
   switchActiveRig,
+  selectActiveRig,
+  toggleBladeMode,
   winchRecover,
 } from "./state";
 import { HOME_SITE, SURFACES, findSite } from "./world";
@@ -1079,5 +1081,102 @@ describe("surface grip identity", () => {
     // fraction of what the surface lacks: ~1.25x in mud, ~1.9x in standing water.
     expect(grip("mud", tractor)).toBeGreaterThan(grip("mud", buggy) * 1.2);
     expect(grip("water", tractor)).toBeGreaterThan(grip("water", buggy) * 1.7);
+  });
+});
+
+describe("blade mode", () => {
+  it("cuts by default and fills when flipped, changing what the ground is", () => {
+    const field = findSite("long-furrow")!;
+    const { state, world } = scenario("BLADE");
+    const rig = activeRig(state);
+    const plough = rig.attachments.find((a) => a.id === "field-plough")!;
+    expect(plough.mode).toBe("cut");
+
+    // Cut a trench first so there is something to fill back.
+    rig.x = field.x;
+    rig.z = field.z;
+    settleWorld(state, world);
+    const baseline = world.terrain.height(field.x, field.z);
+    for (let i = 0; i < 30; i += 1) {
+      world.terrain.deform(field.x, field.z, -0.05, 0);
+    }
+    const cutHeight = world.terrain.height(field.x, field.z);
+    expect(cutHeight).toBeLessThan(baseline);
+
+    toggleBladeMode(state);
+    expect(plough.mode).toBe("fill");
+    expect(state.lastDiagnostic).toContain("FILL");
+
+    // Fill mode raises the same ground back up.
+    for (let i = 0; i < 30; i += 1) {
+      world.terrain.deform(field.x, field.z, 0.05, 0);
+    }
+    expect(world.terrain.height(field.x, field.z)).toBeGreaterThan(cutHeight);
+
+    toggleBladeMode(state);
+    expect(plough.mode).toBe("cut");
+  });
+
+  it("refuses on a rig with no blade and says which rig has one", () => {
+    const { state } = scenario("BLADE-NONE", "toy-buggy");
+    toggleBladeMode(state);
+    expect(state.lastDiagnostic).toContain("no blade");
+    expect(state.lastDiagnostic).toContain("Torque");
+  });
+
+  it("persists the blade mode through a save round trip", () => {
+    const { state } = scenario("BLADE-SAVE");
+    toggleBladeMode(state);
+    const recovered = recoverState(
+      JSON.parse(JSON.stringify(state)) as unknown,
+    );
+    const plough = recovered!.rigs["utility-tractor"].attachments.find(
+      (a) => a.id === "field-plough",
+    )!;
+    expect(plough.mode).toBe("fill");
+  });
+
+  it("defaults a pre-blade save record to cut rather than undefined", () => {
+    const state = createInitialState("BLADE-LEGACY");
+    const serialized = JSON.parse(JSON.stringify(state)) as {
+      rigs: Record<string, { attachments: { id: string; mode?: unknown }[] }>;
+    };
+    for (const attachment of serialized.rigs["utility-tractor"]!.attachments) {
+      delete attachment.mode;
+    }
+    const recovered = recoverState(serialized);
+    const plough = recovered!.rigs["utility-tractor"].attachments.find(
+      (a) => a.id === "field-plough",
+    )!;
+    expect(plough.mode).toBe("cut");
+  });
+});
+
+describe("rig switching is a place, not a menu", () => {
+  it("refuses to switch to a rig that is too far away, and says how far", () => {
+    const { state } = scenario("SWITCH-FAR");
+    // The skimmer berths at the Sunken Flats, ~180 m from the home pad.
+    selectActiveRig(state, "marsh-skimmer");
+    expect(state.activeRigId).toBe("utility-tractor");
+    expect(state.lastDiagnostic).toMatch(/Drift is \d+ m away/);
+  });
+
+  it("allows a switch once the rigs are within range", () => {
+    const { state, world } = scenario("SWITCH-NEAR");
+    const skimmer = state.rigs["marsh-skimmer"];
+    const tractor = state.rigs["utility-tractor"];
+    tractor.x = skimmer.x + 6;
+    tractor.z = skimmer.z;
+    settleWorld(state, world);
+
+    selectActiveRig(state, "marsh-skimmer");
+    expect(state.activeRigId).toBe("marsh-skimmer");
+  });
+
+  it("still lets the two home-pad rigs swap at spawn", () => {
+    // Onboarding must not open with a refusal.
+    const { state } = scenario("SWITCH-SPAWN");
+    switchActiveRig(state);
+    expect(state.activeRigId).not.toBe("utility-tractor");
   });
 });

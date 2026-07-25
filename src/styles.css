@@ -321,6 +321,22 @@ select:focus-visible,
   font-size: 0.64rem;
 }
 
+.physics-lab-link {
+  border: 1px solid rgb(236 226 199 / 28%);
+  border-radius: 0.3rem;
+  padding: 0.45rem 0.62rem;
+  color: inherit;
+  background: rgb(24 34 30 / 74%);
+  text-decoration: none;
+}
+
+.physics-lab-link:hover,
+.physics-lab-link:focus-visible {
+  border-color: var(--amber);
+  outline: 2px solid rgb(226 180 76 / 35%);
+  outline-offset: 2px;
+}
+
 kbd {
   color: var(--workshop-bone);
   font-family: "SFMono-Regular", Consolas, monospace;

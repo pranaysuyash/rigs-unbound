@@ -55,6 +55,28 @@ These are already implemented (or strongly present) according to source evidence
 | Authority scaling | Server-authoritative mutation model | Not introduced; local-only deterministic | **Missing** | Add intent queue + validation token model after replay+event lanes are stable. |
 | Machine-centric growth | Treat abilities as capabilities; machines not vehicles | Early capability abstraction in profiles; no machine plugin graph | **Partial** | Add machine-definition schema and composition rules for non-mobility machines. |
 
+### 2.1) Contract-note reconciliation
+
+The status matrix above is still the implementation truth, but the repo now has
+named contract notes for the major growth lanes:
+
+- Culling/visibility and LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
+- Streaming world: [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
+- Collision matrix: [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)
+- Asset pipeline: [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
+- Simulation layers: [Simulation Layers and Resource Governance Contract](./SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md)
+- Behavior system: [Behavior System and Planner Contracts](./BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md)
+- Event system: [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md)
+- Modding: [Modding and Creator Pack Validation Contract](./MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md)
+- Replay: [Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md)
+- Resource governance: [Resource Budget and Fallback Envelope](./RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md)
+- Authority: [Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md)
+- Machine-centric growth: [ECS Threshold and Composition Readiness Contract](./ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md)
+
+That means this audit can now point to a named boundary for each major
+platform-direction question instead of treating them as a single open-ended
+future list.
+
 ## 3) What is already possible vs what is currently possible but intentionally deferred
 
 ### Already possible with current architecture

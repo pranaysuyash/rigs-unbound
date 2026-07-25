@@ -145,26 +145,18 @@ Ordered by how badly each would have misled a player or a reviewer.
   Nobody has listened to it in this session. Unheard audio is not shipped audio.
 - **Any device or production performance.** No cold-cache, low-power, mobile, or
   deployed measurement exists.
-- **Mobile layout after this pass — two open findings, measured but unresolved.**
-  A `390 × 844` check was started and gave real numbers before the browser session
-  became unusable (contended with the parallel agent's own browser client):
-  - **Good:** no horizontal overflow, and a 90.5 px gap between the field kit and
-    the touch controls, so the overlap fixed during Rig Lab 01 has not returned.
-  - **Open:** `#touch-controls` measured `top 813.4 / bottom 899.4` against an
-    `innerHeight` of 844 — the action row overflows the bottom of the viewport by
-    ~55 px, which would put buttons off-screen. Five touch actions now wrap to
-    three rows at this width where there were four in one row. Needs confirming in
-    a clean session before fixing, since the CSS was also being edited concurrently.
-  - **Open:** the workshop panel stayed hidden while the rig sat on the workshop
-    pad at `(0, 12)`. Either `workshopInReach` did not resolve or `updateInterface`
-    had not run in a throttled tab; not diagnosed. The equivalent desktop path was
-    observed working (the panel rendered and refused a purchase with a price), so
-    this is likely a narrow-layout or timing issue rather than the gate itself.
-
-  Neither was fixed. Both are cheap to confirm and should be the first thing
-  checked in the next session.
-- **Rollover.** The reduced-DOF model cannot tumble. Accepted; ADR-0007 §3 records
-  the trigger that moves this layer to Rapier.
+- **Mobile layout — RESOLVED 2026-07-25, after this review was first written.**
+  The earlier reading (`#touch-controls` bottom 899.4 against an `innerHeight` of
+  844, i.e. ~55 px of action row off-screen) came from the local tree *while the
+  stylesheet was being edited concurrently*, and was never a property of a built
+  artifact. Re-measured on the deployed site at 390 x 844: touch controls sit
+  10.4 px **inside** the viewport, there is a 54 px gap above the field kit, and
+  horizontal overflow is 0. All five touch actions are on-screen and reachable.
+  Recorded here rather than deleted, because "measured on a tree mid-refactor" is
+  a real failure mode worth remembering.
+  - Remaining polish, not a blocker: at 390 px the field-kit panel overlaps the rig
+    itself. The portrait chase camera should pull back further, or the kit should
+    shrink, so the machine is never behind its own instruments.
 
 ## Anything else?
 

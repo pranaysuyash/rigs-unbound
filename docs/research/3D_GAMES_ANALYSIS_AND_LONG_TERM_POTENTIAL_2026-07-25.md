@@ -228,6 +228,9 @@ Addendum (2026-07-25): `docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_
 Addendum (2026-07-25): `docs/research/AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md` now binds the manifest-validation boundary so activities and world modules stay reproducible.
 Addendum (2026-07-25): `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md` now binds the umbrella policy layer so the shared thresholds stay measurable and readable.
 Addendum (2026-07-25): `docs/research/SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md` now binds the second motion grammar and cross-mode continuity boundary so new rigs preserve shared actions and rollback.
+Addendum (2026-07-25): `docs/research/AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md` now binds the local-first authority boundary so durable state stays future-gated and explicit.
+Addendum (2026-07-25): `docs/research/ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md` now binds the bounded backend-comparison boundary so alternates stay disposable unless evidence justifies migration.
+Addendum (2026-07-25): `docs/research/VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md` now binds the evidence-harness boundary so confidence changes are reproducible and auditable.
 
 ## Addendum (2026-07-25): Untrusted ChatGPT optimization-context audit
 
@@ -397,6 +400,12 @@ The lowest-risk proof sequence from this addendum is:
 3. add one non-vehicle machine or activity slice;
 4. add one streaming or visibility contract that uses the same deterministic snapshot path.
 
+The dedicated contract notes now live at
+[World and Architecture Scalability Contract](./WORLD_AND_ARCHITECTURE_SCALABILITY_CONTRACT_2026-07-25.md)
+and [Simulation Layers and Resource Governance Contract](./SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md),
+so the machine-centric growth lane now points at named boundaries instead of
+staying only in the synthesis prose.
+
 For the fuller lane map, keep using `docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md`, `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md`, and `docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md` as the detail chain.
 
 ## Addendum (2026-07-25): Data, asset, and ingestion contracts
@@ -463,6 +472,12 @@ Resource governance is part of architecture, not a postscript:
 - content activation budget
 
 Each budget band should have a documented fallback policy so the game degrades visibly and predictably instead of failing silently.
+
+The dedicated contract notes now live at
+[Web Asset Ingest and Compression Contract](./WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25.md)
+and [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md),
+so the data and ingestion lane now points at named boundaries instead of
+remaining a broad content note.
 
 ### 5) Why this matters now
 
@@ -543,6 +558,12 @@ The smallest durable proof for this addendum is:
 3. one test proving event order is stable across a fixed input slice,
 4. one test proving a rejected behavior candidate does not mutate state.
 
+The dedicated contract notes now live at
+[Behavior System and Planner Contracts](./BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md)
+and [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md),
+so the scheduler lane now points at named boundaries instead of staying folded
+into the prose.
+
 ## Addendum (2026-07-25): Streaming-world contracts
 
 The last major missing world-scale layer is not just “load more terrain.” It is a chunk lifecycle with explicit ownership, validation, and rollback rules.
@@ -585,6 +606,11 @@ The smallest durable proof for this addendum is:
 2. one request/activate/unload lifecycle test,
 3. one budget counter for active chunk residency,
 4. one rollback test for invalid or stale chunk activation.
+
+The dedicated contract note now lives at
+[Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md),
+so the streaming lane now points at a named boundary instead of leaving the
+resident-chunk policy implicit.
 
 ## Addendum (2026-07-25): ECS and entity-composition readiness
 
@@ -635,6 +661,10 @@ The smallest durable proof for this addendum is:
 3. one test proving component migration preserves identity,
 4. one threshold note stating when ECS would become justified.
 
+The dedicated contract note now lives at
+[ECS Threshold and Composition Readiness Contract](./ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md),
+so the proof threshold is named separately from the broader analysis.
+
 ## Addendum (2026-07-25): Authority scaling contracts
 
 The last unresolved top-level architecture gate is authority. The repo is deterministic locally, but it still lacks a first-class authoritative mutation pipeline for shared or replayable sessions.
@@ -684,6 +714,11 @@ The smallest durable proof for this addendum is:
 2. one intent queue with validation outcomes,
 3. one test proving duplicate commands do not double-mutate state,
 4. one test proving rejected authority candidates emit explicit telemetry.
+
+The dedicated contract note now lives at
+[Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md),
+so the authority lane now points at a named boundary instead of staying as a
+general future-state note.
 
 ## Addendum (2026-07-25): Simulation layers and resource governance
 
@@ -742,6 +777,11 @@ The smallest durable proof for this addendum is:
 2. one budget ledger that spans at least CPU, GPU, and active actors,
 3. one fallback policy test for a low-budget profile,
 4. one telemetry path that records which layer caused a budget downgrade.
+
+The dedicated contract note now lives at
+[Simulation Layers and Resource Governance Contract](./SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md),
+so the simulation-governance lane now points at a named boundary instead of
+remaining implicit.
 
 ## Addendum (2026-07-25): Modding and creator-pack architecture
 
@@ -806,6 +846,11 @@ The smallest durable proof for this addendum is:
 3. one dependency/provenance rejection test,
 4. one safe disable/rollback path for an invalid pack.
 
+The dedicated contract note now lives at
+[Modding and Creator-Pack Validation Contract](./MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md),
+so the modding lane now points at a named boundary instead of remaining a
+generic growth idea.
+
 ## Addendum (2026-07-25): Event system and deterministic event graph
 
 The repo still lacks a general world-event scheduler/handler graph. That layer should not be ad hoc scripts attached to features; it should be a versioned event contract that sits between simulation and presentation.
@@ -853,6 +898,11 @@ The smallest durable proof for this addendum is:
 2. one ordered event-graph test across a fixed input slice,
 3. one deduplication test for repeated events,
 4. one telemetry hook that records the event origin domain.
+
+The dedicated contract note now lives at
+[Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md),
+so the event lane now points at a named boundary instead of only describing the
+desired behavior.
 
 ## Addendum (2026-07-25): Asset pipeline and provenance contracts
 
@@ -913,6 +963,11 @@ The smallest durable proof for this addendum is:
 3. one rejection test for a missing or incompatible asset record,
 4. one safe replacement/deprecation path for a runtime asset entry.
 
+The dedicated contract note now lives at
+[Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md),
+so the asset lane now points at a named boundary instead of remaining a broad
+pipeline description.
+
 ## Addendum (2026-07-25): Behavior system and planner contracts
 
 The repo still lacks a first-class AI behavior tree / utility / planner system in the play loop. The right way to add it is as a versioned behavior contract that chooses actions without mutating state directly.
@@ -956,6 +1011,11 @@ The smallest durable proof for this addendum is:
 2. one fixed-slice test proving a planner choice is deterministic,
 3. one rejection test for a behavior candidate with missing capabilities,
 4. one telemetry hook that records why a behavior branch lost the decision.
+
+The dedicated contract note now lives at
+[Behavior System and Planner Contracts](./BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md),
+so the behavior lane now points at a named boundary instead of staying in the
+analysis prose.
 
 ## Addendum (2026-07-25): World affordances and capability resolution
 
@@ -1006,6 +1066,11 @@ The smallest durable proof for this addendum is:
 2. one capability-to-affordance compatibility test,
 3. one validation failure test for an incompatible action,
 4. one telemetry hook that records the affordance that rejected the action.
+
+The dedicated contract note now lives at
+[World Affordances and Capability Resolution Contract](./WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md),
+so the affordance lane now points at a named boundary instead of remaining an
+implicit runtime idea.
 
 ## Addendum (2026-07-25): Visibility-stage culling and LOD contracts
 
@@ -1059,6 +1124,11 @@ The smallest durable proof for this addendum is:
 3. one draw-call budget counter with a fail-soft path,
 4. one LOD downgrade test for at least one non-geometry subsystem.
 
+The dedicated contract note now lives at
+[Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md),
+so the visibility lane now points at a named boundary instead of staying in the
+optimization prose.
+
 ## Addendum (2026-07-25): Collision categories and mask contracts
 
 The physics layer is still intentionally lightweight, but it should stop relying on a single generalized obstacle path once more actors, projectiles, and hazards enter the world. The contract should name collision categories and masks explicitly.
@@ -1111,9 +1181,18 @@ The smallest durable proof for this addendum is:
 3. one test proving trigger / sensor contacts do not mutate physics state,
 4. one telemetry hook that records an unexpected collision-category pair.
 
+The dedicated contract note now lives at
+[Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md),
+so the collision lane now points at a named boundary instead of remaining an
+inline physics note.
+
 ## Addendum (2026-07-25): Camera feel contracts
 
 The camera already contributes strongly to feel, but the current behavior still reads like a stateful heuristic bundle rather than a named contract. For a long-lived machine platform, camera policy should be explicit: what mode is active, why it transitions, how it handles obstructions, and how it respects motion comfort.
+
+The dedicated contract note now lives at
+[Camera Feel Contract](./CAMERA_FEEL_CONTRACT_2026-07-25.md), so this addendum
+now points at the named boundary instead of leaving camera policy implied.
 
 ### 1) Camera should be a policy surface, not only a rig
 
@@ -1161,6 +1240,11 @@ The smallest durable proof for this addendum is:
 ## Addendum (2026-07-25): Deterministic replay artifact
 
 The repo already has a deterministic kernel and a bounded run-record foundation, which is enough to show the direction but not yet enough to treat replay as a first-class product surface. The missing contract is a portable replay artifact: not just a recorded input history, but a validated playback path that can reproduce a run, explain divergence, and preserve the same outcome ordering for debugging and future authority work.
+
+The dedicated contract note now lives at
+[Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md),
+so replay now points at a named product boundary instead of only a capability
+description.
 
 ### 1) Replay should be a first-class artifact
 
@@ -1259,6 +1343,11 @@ The smallest durable proof for this addendum is:
 4. one test or capture proving a weather or surface cue remains legible on the fallback path,
 5. one operator-visible note or debug field identifying the active material strategy.
 
+The dedicated contract note now lives at
+[Shader and Material Strategy Contract](./SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md),
+so the shader lane now points at a named boundary instead of staying as a
+rendering aside.
+
 ## Addendum (2026-07-25): Spatial culling and render streaming
 
 The repo already benefits from bounded local terrain and a deterministic render path, but the long-term scale contract still needs to state how the world sheds spatial load. Distance, portal, and chunk-style streaming are not separate optimizations in practice; they are the same spatial budget problem at different scales.
@@ -1311,6 +1400,11 @@ The smallest durable proof for this addendum is:
 4. one observable counter for load/unload churn,
 5. one fallback path for a tier that cannot load in time.
 
+The dedicated contract notes now live at
+[Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
+and [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md),
+so the spatial lane now points at named boundaries instead of staying implicit.
+
 ## Addendum (2026-07-25): LOD hierarchy and subsystem degradation
 
 The repo’s current visibility work proves the value of scale-aware rendering, but the long-term contract still needs to say what degrades, when it degrades, and which subsystems share the same downgrade logic. LOD is not only a geometry issue; it is a cross-system budget policy.
@@ -1359,6 +1453,11 @@ The smallest durable proof for this addendum is:
 3. one non-geometry downgrade test for animation, AI, physics, or particles,
 4. one telemetry field that records the active tier,
 5. one fallback rule that preserves gameplay meaning when a tier is collapsed.
+
+The dedicated contract note now lives at
+[Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md),
+so the LOD lane now points at a named boundary instead of remaining a shared
+optimization idea.
 
 ## Addendum (2026-07-25): Resource budgets and fallback envelope
 
@@ -1409,6 +1508,11 @@ The smallest durable proof for this addendum is:
 4. one test proving a degrade path activates before an overload becomes silent failure,
 5. one operator-visible summary of current budget pressure.
 
+The dedicated contract note now lives at
+[Resource Budget and Fallback Envelope](./RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md),
+so the budget lane now points at a named boundary instead of staying embedded
+in the larger performance discussion.
+
 ## Addendum (2026-07-25): Portal visibility and bounded rooms
 
 The repo’s world already has authored sites, but the visibility contract still needs an explicit room/portal model for enclosed or semi-enclosed spaces. Portal visibility is not a separate gimmick; it is the indoor version of spatial culling, and it should be named as such so building-scale content can scale without special-case rendering hacks.
@@ -1456,6 +1560,11 @@ The smallest durable proof for this addendum is:
 3. one test proving an open portal admits visibility to the connected room,
 4. one fallback path when portal data is missing,
 5. one telemetry field that identifies the active room or portal path.
+
+The dedicated contract note now lives at
+[Portal Visibility and Bounded Rooms Contract](./PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md),
+so the indoor-visibility lane now points at a named boundary instead of staying
+as a rendering aside.
 
 ## Addendum (2026-07-25): Lighting and atmosphere strategy
 
@@ -1506,9 +1615,19 @@ The smallest durable proof for this addendum is:
 4. one low-cost atmosphere cue for weather or time-of-day readability,
 5. one telemetry or debug field that identifies the active lighting tier.
 
+The dedicated contract note now lives at
+[Lighting and Atmosphere Strategy Contract](./LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md),
+so the lighting lane now points at a named boundary instead of leaving the
+policy implied.
+
 ## Addendum (2026-07-25): Accessibility and input contracts
 
 The repo already has input paths and reduced-motion behavior in pieces, but accessibility still needs a named contract so remapping, comfort, contrast, and device parity stay explicit. For a long-lived 3D game, input is not just control plumbing; it is part of how the player understands, survives, and returns to the world.
+
+The dedicated contract note now lives at
+[Accessibility and Input Contract](./ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md),
+so the accessibility lane now points at a named boundary rather than a broad
+requirements paragraph.
 
 ### 1) Input should be action-based, not control-based
 
@@ -1607,9 +1726,19 @@ The smallest durable proof for this addendum is:
 4. one telemetry field that identifies the active kernel stage,
 5. one test proving renderer-only code cannot mutate world state.
 
+The dedicated contract note now lives at
+[Kernel Ordering and Mutable Subsystem Gates Contract](./KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md),
+so the kernel-order lane now points at a named boundary instead of staying in
+the deterministic-simulation prose.
+
 ## Addendum (2026-07-25): World and architecture scalability
 
-The repo already has strong local foundations, but the next long-term contract still needs to say how the world grows without turning every new activity into a separate engine branch. Scalability here means both content growth and architecture growth: chunk migration, activity packing, machine expansion, and the future shape of online or shared-state readiness.
+The repo already has strong local foundations, and the next long-term contract now names how the world grows without turning every new activity into a separate engine branch. Scalability here means both content growth and architecture growth: chunk migration, activity packing, machine expansion, and the future shape of online or shared-state readiness.
+
+The dedicated contract note now lives at
+[World and Architecture Scalability Contract](./WORLD_AND_ARCHITECTURE_SCALABILITY_CONTRACT_2026-07-25.md),
+so the growth lane now points at a named boundary instead of staying a generic
+future-direction statement.
 
 ### 1) World growth should remain bounded and testable
 
@@ -1654,6 +1783,8 @@ The smallest durable proof for this addendum is:
 3. one observability counter for growth pressure or churn,
 4. one explicit future-only boundary note for shared-state or online readiness,
 5. one proof that activity growth can be added without rewriting the kernel order.
+
+The contract note now exists at [World and Architecture Scalability Contract](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/WORLD_AND_ARCHITECTURE_SCALABILITY_CONTRACT_2026-07-25.md), so this addendum now points at a named boundary instead of leaving the growth question open.
 
 ## Addendum (2026-07-25): Save and migration observability
 
@@ -1701,6 +1832,11 @@ The smallest durable proof for this addendum is:
 3. one migration observability event for success or fallback,
 4. one replay-safe recovery note that preserves source version information,
 5. one operator-visible summary of the latest save/migration action.
+
+The contract note now exists at
+[Save and Migration Observability Contract](./SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md),
+so the persistence observability lane now points at a named boundary instead of
+stopping at the addendum prose.
 
 ## Addendum (2026-07-25): Physics quality envelope
 
@@ -1757,6 +1893,11 @@ The current physics quality envelope evidence and proof slice now live in
 ## Addendum (2026-07-25): Authoring and reproducible content validation
 
 The repo’s content model is already data-driven, but the authoring path still needs a named contract so activities, world modules, and imported content cannot bypass validation just because they came from a tool, editor, or generated manifest. This is the place where validator-first content becomes a durable part of the architecture instead of a one-off workflow.
+
+The dedicated contract note now lives at
+[Authoring and Reproducible Content Validation Contract](./AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md),
+so the authoring lane now points at the named validation boundary instead of a
+generic workflow paragraph.
 
 ### 1) Content should enter through validated manifests
 
@@ -1836,13 +1977,17 @@ That keeps the baseline useful as a product/ops artifact, not just an internal n
 
 This addendum should sit above the already named contracts for:
 
-- spatial culling,
-- LOD hierarchy,
-- camera feel,
-- lighting and atmosphere,
-- accessibility and input,
-- collision categories and masks,
-- physics quality.
+- [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md),
+- [Camera Feel Contract](./CAMERA_FEEL_CONTRACT_2026-07-25.md),
+- [Lighting and Atmosphere Strategy Contract](./LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md),
+- [Accessibility and Input Contract](./ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md),
+- [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md),
+- [Physics Quality Envelope Contract](./PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md).
+
+The dedicated contract note now lives at
+[Performance and Readability Baseline Contract](./PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md),
+so the umbrella policy now points at a named boundary instead of only listing
+the lower-level contracts it sits above.
 
 That makes it the umbrella policy, not a replacement.
 
@@ -1904,6 +2049,11 @@ The smallest durable proof for this addendum is:
 4. one continuity test showing the mapped actions behave predictably across modes,
 5. one explicit rollback or failure path if the adapter cannot activate.
 
+The dedicated contract note now lives at
+[Second Locomotion Family and Cross-Mode Continuity Contract](./SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md),
+so the second locomotion lane now points at a named boundary instead of a
+generic growth description.
+
 ## Addendum (2026-07-25): Authority model groundwork
 
 Local simulation is still the canonical current mode, but the architecture is now far enough along that the authority boundary should be named explicitly before any shared-room or durable remote mutation work is attempted. The goal here is not multiplayer in itself; it is a clear contract for how client-side simulation, authenticated mutation, and durable values relate when the product eventually needs that shape.
@@ -1952,6 +2102,11 @@ The smallest durable proof for this addendum is:
 4. one durable-value recovery note,
 5. one telemetry field that identifies the authoritative mutation outcome.
 
+The dedicated contract note now lives at
+[Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md),
+so the authority lane now points at a named boundary instead of leaving the
+future-only claim implicit.
+
 ## Addendum (2026-07-25): Engine branch evaluation and alternate backend gating
 
 Three.js remains the canonical v1 path, but the architecture should still name when an alternate engine or rendering backend is worth a bounded benchmark branch. This is not a rewrite proposal; it is a disciplined evaluation gate for the case where mobile budgets, platform support, or renderer constraints force a comparison.
@@ -1998,6 +2153,11 @@ The smallest durable proof for this addendum is:
 3. one measurable trigger for evaluating an alternate backend,
 4. one contract-comparison checklist for the benchmark branch,
 5. one decision record template for branch acceptance or rejection.
+
+The dedicated contract note now lives at
+[Engine Branch Evaluation and Alternate Backend Gating Contract](./ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md),
+so the engine-branch lane now points at a named boundary instead of a generic
+comparison paragraph.
 
 ## Addendum (2026-07-25): Replay and ghost product feature
 
@@ -2047,6 +2207,11 @@ The smallest durable proof for this addendum is:
 4. one explicit mismatch or incompatibility state,
 5. one note describing how the artifact can be shared or inspected socially/debug-wise.
 
+The dedicated contract note now lives at
+[Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md),
+so the replay/ghost lane now points at a named boundary instead of only a
+feature description.
+
 ## Addendum (2026-07-25): Verification harness and confidence gates
 
 The analysis already names the tests needed to raise confidence above Tier-2, but the repo still needs a first-class contract for how those proofs are organized, reproduced, and recorded. This is the layer that turns recommended checks into an explicit evidence harness for the architecture.
@@ -2094,3 +2259,9 @@ The smallest durable proof for this addendum is:
 3. one tiered evidence summary that distinguishes source/test/runtime proof,
 4. one failure-report format that preserves the violated contract and missing tier,
 5. one reproducible run note that identifies the fixture inputs used.
+
+The dedicated contract note now lives at
+[Verification Harness and Confidence Gates Contract](./VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md),
+so the proof harness lane now points at a named boundary instead of only a
+general evidence discussion.
+- Addendum (2026-07-25): the Physics Lab browser-experience gap now has a dedicated contract note, so the separate lab route and acceptance runner are tracked as an evidence fixture instead of an implicit side page.

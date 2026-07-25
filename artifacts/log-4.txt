@@ -1,0 +1,6 @@
+shot: 16-spawn
+shot: 17-a
+shot: 18-b
+shot: 19-c
+shot: 20-d
+shot: 21-e

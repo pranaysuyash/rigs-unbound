@@ -1,0 +1,369 @@
+:root {
+  color: #eef3ef;
+  background: #11191e;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+.physics-lab {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+button,
+select,
+a {
+  font: inherit;
+}
+
+button,
+select,
+.lab-header a {
+  border: 1px solid rgb(232 243 239 / 24%);
+  border-radius: 0.3rem;
+  color: #eef3ef;
+  background: rgb(12 20 24 / 82%);
+}
+
+button,
+.lab-header a {
+  padding: 0.58rem 0.76rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+button:hover,
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  border-color: #f1c55b;
+  outline: 2px solid rgb(241 197 91 / 42%);
+  outline-offset: 2px;
+}
+
+button[aria-pressed="true"] {
+  color: #101718;
+  border-color: #f1c55b;
+  background: #f1c55b;
+}
+
+#physics-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+.lab-skip {
+  position: fixed;
+  z-index: 20;
+  top: -4rem;
+  left: 1rem;
+  padding: 0.7rem;
+  color: #101718;
+  background: #f1c55b;
+}
+
+.lab-skip:focus {
+  top: 1rem;
+}
+
+.lab-header {
+  position: fixed;
+  z-index: 4;
+  inset: 1rem 1rem auto 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  pointer-events: none;
+}
+
+.lab-header > div,
+.lab-header nav,
+.lab-telemetry,
+.lab-controls {
+  border: 1px solid rgb(225 239 235 / 17%);
+  background: rgb(13 21 25 / 88%);
+  box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 22%);
+  backdrop-filter: blur(12px);
+}
+
+.lab-header > div {
+  padding: 0.78rem 0.92rem;
+}
+
+.lab-header span,
+.lab-telemetry__eyebrow,
+.lab-header p,
+dt,
+.lab-controls {
+  color: #93aba9;
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lab-header strong {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.lab-header p {
+  margin: 0.15rem 0 0;
+  color: #f1c55b;
+}
+
+.lab-header nav {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0.45rem;
+  pointer-events: auto;
+}
+
+.lab-telemetry {
+  position: fixed;
+  z-index: 4;
+  top: 8.4rem;
+  left: 1rem;
+  width: min(24rem, calc(100vw - 2rem));
+  padding: 1rem;
+}
+
+.lab-telemetry__eyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0;
+}
+
+#surface-value {
+  color: #f1c55b;
+}
+
+.lab-telemetry h1 {
+  margin: 0.65rem 0 1rem;
+  max-width: 21rem;
+  font-size: clamp(1.16rem, 2vw, 1.7rem);
+  line-height: 1.08;
+}
+
+.lab-telemetry dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid rgb(225 239 235 / 12%);
+  border-left: 1px solid rgb(225 239 235 / 12%);
+}
+
+.lab-telemetry dl div {
+  min-width: 0;
+  padding: 0.62rem;
+  border-right: 1px solid rgb(225 239 235 / 12%);
+  border-bottom: 1px solid rgb(225 239 235 / 12%);
+}
+
+dt {
+  margin-bottom: 0.18rem;
+}
+
+dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+
+.wheel-bars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.38rem;
+  margin-top: 0.78rem;
+}
+
+.wheel-bars span {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr;
+  align-items: center;
+  gap: 0.3rem;
+  color: #93aba9;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.wheel-bars i {
+  display: block;
+  width: 20%;
+  height: 0.35rem;
+  background: #f1c55b;
+  transition: width 80ms linear;
+}
+
+#lab-status {
+  margin: 0.75rem 0 0;
+  color: #b8cac7;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.lab-controls {
+  position: fixed;
+  z-index: 4;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  max-width: min(62rem, calc(100vw - 2rem));
+  padding: 0.55rem 0.65rem;
+}
+
+.lab-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.lab-controls select {
+  padding: 0.38rem;
+}
+
+kbd {
+  color: #e7efed;
+  font-family: inherit;
+}
+
+.lab-touch {
+  display: none;
+}
+
+.lab-error {
+  position: fixed;
+  z-index: 12;
+  inset: 50% auto auto 50%;
+  width: min(30rem, calc(100vw - 2rem));
+  padding: 1.2rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid #d9856b;
+  background: #1d2021;
+}
+
+.lab-error a {
+  color: #f1c55b;
+}
+
+@media (max-width: 760px), (pointer: coarse) {
+  .lab-header {
+    inset: 0.55rem 0.55rem auto;
+  }
+
+  .lab-header > div {
+    padding: 0.55rem 0.65rem;
+  }
+
+  .lab-header nav {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 0.3rem;
+  }
+
+  .lab-header nav a,
+  .lab-header nav button {
+    padding: 0.42rem 0.52rem;
+    font-size: 0.7rem;
+  }
+
+  .lab-header nav #reset-lab {
+    display: none;
+  }
+
+  .lab-telemetry {
+    top: 8.6rem;
+    left: 0.55rem;
+    width: min(18.5rem, calc(100vw - 1.1rem));
+    padding: 0.72rem;
+  }
+
+  .lab-telemetry h1 {
+    margin: 0.45rem 0 0.6rem;
+    font-size: 1rem;
+  }
+
+  .lab-telemetry dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .lab-telemetry dl div {
+    padding: 0.42rem;
+  }
+
+  dt {
+    font-size: 0.56rem;
+  }
+
+  dd {
+    font-size: 0.72rem;
+  }
+
+  .wheel-bars,
+  #lab-status {
+    display: none;
+  }
+
+  .lab-controls {
+    right: 0.55rem;
+    bottom: 6rem;
+    left: 0.55rem;
+    justify-content: center;
+  }
+
+  .lab-controls > span {
+    display: none;
+  }
+
+  .lab-touch {
+    position: fixed;
+    z-index: 5;
+    right: 0.55rem;
+    bottom: 0.6rem;
+    left: 0.55rem;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem;
+  }
+
+  .lab-touch button {
+    min-height: 4.4rem;
+    font-size: 1.35rem;
+    touch-action: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

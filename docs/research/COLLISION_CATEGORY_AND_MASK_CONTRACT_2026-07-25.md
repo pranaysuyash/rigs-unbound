@@ -101,3 +101,26 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The collision model already does the important first-playable job. This contract makes the next step explicit: separate passive observation, state-changing triggers, and blocking contacts before more systems start sharing the same space.
+
+## Addendum (2026-07-25): solver-comparison consequence
+
+The Box3D comparison makes the category/mask contract more urgent and clarifies
+its ownership. Rapier collision groups, Box3D filters, and later Jolt object
+layers are implementation mechanisms; none may become the gameplay vocabulary.
+
+The comparison harness should add one shared contact scenario containing:
+
+- a blocking rock;
+- a fellable tree;
+- a non-blocking delivery trigger;
+- a non-blocking survey sensor;
+- a damaging hazard;
+- an attachment/cargo pair;
+- a thin high-speed barrier for CCD evidence.
+
+Each adapter must translate native contacts into the same semantic outcome
+record. Unknown or incompatible pairs must increment visible telemetry and use a
+documented fail-closed response. The current Box3D probe's wheel-contact value
+is only an AABB proximity estimate because the young wrapper exposes event
+arrays but not a persistent contact query. It must not be presented as a
+general collision-semantic proof.

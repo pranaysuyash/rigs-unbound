@@ -1,0 +1,15 @@
+[
+  {"clickText": "ENTER THE FIELD"},
+  {"wait": 500},
+  {"shot": "16-spawn"},
+  {"key": "w", "ms": 1500},
+  {"shot": "17-a"},
+  {"key": "w", "ms": 1500},
+  {"shot": "18-b"},
+  {"keys": ["w", "a"], "ms": 700},
+  {"shot": "19-c"},
+  {"key": "w", "ms": 1500},
+  {"shot": "20-d"},
+  {"key": "w", "ms": 1500},
+  {"shot": "21-e"}
+]

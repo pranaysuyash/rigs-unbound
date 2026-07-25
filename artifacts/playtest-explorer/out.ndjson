@@ -1,0 +1,29 @@
+{"t":"2026-07-25T19:08:13.289Z","ok":"booted"}
+{"t":"2026-07-25T19:09:49.968Z","err":"click failed: page.click: Timeout 3000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('text=Enter the field')\u001b[22m\n"}
+{"t":"2026-07-25T19:09:53.558Z","ok":"waited"}
+{"t":"2026-07-25T19:10:08.677Z","ok":"pressed r"}
+{"t":"2026-07-25T19:10:10.177Z","ok":"waited"}
+{"t":"2026-07-25T19:10:42.873Z","err":"shot failed: page.screenshot: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - taking page screenshot\u001b[22m\n\u001b[2m  - waiting for fonts to load...\u001b[22m\n\u001b[2m  - fonts loaded\u001b[22m\n"}
+{"t":"2026-07-25T19:10:47.687Z","text":"Skip to playable world\nFIELD 02 · TERRAIN TRAVERSAL\nRIGS UNBOUND\nDAY\n07:39\nSOUND ON\nFULLSCREEN\n\nHARDPAN TRACK · HOME VALLEY\n\nHome Silo workshop · fit modules, 0 salvage in the bin\n◍\nGRIP\n97%\n△\nGRADE\nlevel\nRIG\nSpark\nSPEED\n0 km/h\nCAPABILITY\ntow · jump\nCONDITION\n100%\nSALVAGE\n0\nSURVEYED\n7%\n\nLocal field record · 90.4 fps · 66 calls · 22.4 MB\n\nSIGNALS ON THE HORIZON\n\nHome Silo\nRESTORE\nfound\nLong Furrow\nTILL\n60 m\nQuarry Shelf\nHAUL\n94 m\nRustline Salvage\nTOW\n193 m\nToy Grove\nSHRINK\n180 m\nSunken Flats\nWADE\n184 m\nLaunch Ridge\nASCEND\n201 m\nWASD drive\nSpace act\nR rig\nC cycle view\nM map\nB blade\nX winch\nN lig"}
+{"t":"2026-07-25T19:11:34.588Z","ok":"shot 87b-state"}
+{"t":"2026-07-25T19:11:35.554Z","eval":"[\"Sound on\",\"Fullscreen\",\"Reset field\",\"Enter the field\"]"}
+{"t":"2026-07-25T19:11:59.772Z","ok":"held w"}
+{"t":"2026-07-25T19:12:00.802Z","text":"Skip to playable world\nFIELD 02 · TERRAIN TRAVERSAL\nRIGS UNBOUND\nDAY\n08:09\nSOUND ON\nFULLSCREEN\n\nTILLED SOIL · TERRACE FARMLAND\n\nS · salvage 32 m · 1 unit\n◍\nGRIP\n54%\n△\nGRADE\nlevel\nRIG\nSpark\nSPEED\n57 km/h\nCAPABILITY\ntow · jump\nCONDITION\n100%\nSALVAGE\n0\nSURVEYED\n11%\n\nLocal field record · 114.5 fps · 25 calls · 21.5 MB\n\nSIGNALS ON TH"}
+{"t":"2026-07-25T19:12:18.411Z","ok":"shot 88-spark-fast"}
+{"t":"2026-07-25T19:12:18.431Z","ok":"down w"}
+{"t":"2026-07-25T19:12:18.488Z","ok":"down a"}
+{"t":"2026-07-25T19:12:19.427Z","ok":"waited"}
+{"t":"2026-07-25T19:12:19.567Z","ok":"up a"}
+{"t":"2026-07-25T19:12:22.340Z","ok":"waited"}
+{"t":"2026-07-25T19:12:22.477Z","text":"Skip to playable world\nFIELD 02 · TERRAIN TRAVERSAL\nRIGS UNBOUND\nDAY\n08:18\nSOUND ON\nFULLSCREEN\n\nPASTURE · TERRACE FARMLAND\n\nSW · salvage 34 m · 1 unit\n◍\nGRIP\nslipping\n△\nGRADE\nsteep up 26%\nRIG\nSpark\nSPEED\n23 km/h\nCAPABILITY\ntow · jump\nCONDITION\n100%\nSALVAGE\n0\nSURVEYED\n12%\n\nLocal field record · 117.1 fps · 46 calls · 23.4 MB\n\nSIGN"}
+{"t":"2026-07-25T19:12:45.326Z","ok":"shot 89-spark-offroad"}
+{"t":"2026-07-25T19:12:46.091Z","ok":"up w"}
+{"t":"2026-07-25T19:14:40.595Z","ok":"down w"}
+{"t":"2026-07-25T19:14:44.486Z","ok":"waited"}
+{"t":"2026-07-25T19:14:46.099Z","ok":"pressed  "}
+{"t":"2026-07-25T19:14:46.517Z","ok":"waited"}
+{"t":"2026-07-25T19:15:01.165Z","ok":"shot 90-spark-jump"}
+{"t":"2026-07-25T19:15:02.395Z","ok":"waited"}
+{"t":"2026-07-25T19:15:16.427Z","ok":"shot 91-spark-landed"}
+{"t":"2026-07-25T19:15:17.233Z","text":"Skip to playable world\nFIELD 02 · TERRAIN TRAVERSAL\nRIGS UNBOUND\nDAY\n09:28\nSOUND ON\nFULLSCREEN\n\nPASTURE · TERRACE FARMLAND\n\nToo steep for this gearing. Back off or find a line.\n◍\nGRIP\nstalled\n△\nGRADE\nsteep up 32%\nRIG\nSpark\nSPEED\n1 km/h\nCAPABILITY\ntow · jump\nCONDITION\n100%\nSALVAGE\n0\nSURVEYED\n16%\n\nLocal field record · 120.5 fps · "}
+{"t":"2026-07-25T19:15:17.442Z","ok":"up w"}

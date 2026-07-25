@@ -7,11 +7,11 @@ import type {
   BodyState,
   DynamicsDebugGeometry,
   DynamicsMetrics,
-  DynamicsService,
   DynamicsSurfaceProfile,
   DynamicsVehicle,
   QuaternionValue,
   RaycastVehicleConfig,
+  RaycastVehicleDynamicsService,
   StaticBoxConfig,
   Vector3Value,
   VehicleDynamicsCapture,
@@ -47,18 +47,9 @@ function rotateVector(
   const ty = 2 * (rotation.z * value.x - rotation.x * value.z);
   const tz = 2 * (rotation.x * value.y - rotation.y * value.x);
   return {
-    x:
-      value.x +
-      rotation.w * tx +
-      (rotation.y * tz - rotation.z * ty),
-    y:
-      value.y +
-      rotation.w * ty +
-      (rotation.z * tx - rotation.x * tz),
-    z:
-      value.z +
-      rotation.w * tz +
-      (rotation.x * ty - rotation.y * tx),
+    x: value.x + rotation.w * tx + (rotation.y * tz - rotation.z * ty),
+    y: value.y + rotation.w * ty + (rotation.z * tx - rotation.x * tz),
+    z: value.z + rotation.w * tz + (rotation.x * ty - rotation.y * tx),
   };
 }
 
@@ -115,10 +106,7 @@ class RapierRaycastVehicle implements DynamicsVehicle {
       );
     }
     for (let index = 0; index < controller.numWheels(); index += 1) {
-      controller.setWheelSuspensionStiffness(
-        index,
-        config.suspensionStiffness,
-      );
+      controller.setWheelSuspensionStiffness(index, config.suspensionStiffness);
       controller.setWheelSuspensionCompression(
         index,
         config.suspensionCompressionDamping,
@@ -127,10 +115,7 @@ class RapierRaycastVehicle implements DynamicsVehicle {
         index,
         config.suspensionRelaxationDamping,
       );
-      controller.setWheelMaxSuspensionTravel(
-        index,
-        config.suspensionTravel,
-      );
+      controller.setWheelMaxSuspensionTravel(index, config.suspensionTravel);
       controller.setWheelMaxSuspensionForce(
         index,
         config.maximumSuspensionForce,
@@ -153,9 +138,7 @@ class RapierRaycastVehicle implements DynamicsVehicle {
       1 - Math.min(1, Math.abs(speed) / 24) * 0.64,
     );
     const steering =
-      intent.steering *
-      this.config.maximumSteeringAngle *
-      speedSteeringScale;
+      intent.steering * this.config.maximumSteeringAngle * speedSteeringScale;
     this.lastSteering = steering;
 
     const engine =
@@ -163,8 +146,7 @@ class RapierRaycastVehicle implements DynamicsVehicle {
       this.config.maximumEngineForce *
       (intent.boost ? 1.18 : 1);
     const brake = intent.brake * this.config.maximumBrakeImpulse;
-    const handbrake =
-      intent.handbrake * this.config.maximumHandbrakeImpulse;
+    const handbrake = intent.handbrake * this.config.maximumHandbrakeImpulse;
 
     for (let index = 0; index < this.controller.numWheels(); index += 1) {
       const front = index < 2;
@@ -287,14 +269,12 @@ class RapierRaycastVehicle implements DynamicsVehicle {
     const forward = rotateVector(this.body.rotation(), { x: 0, y: 0, z: 1 });
     const velocity = this.body.linvel();
     return (
-      velocity.x * forward.x +
-      velocity.y * forward.y +
-      velocity.z * forward.z
+      velocity.x * forward.x + velocity.y * forward.y + velocity.z * forward.z
     );
   }
 }
 
-export class RapierDynamicsService implements DynamicsService {
+export class RapierDynamicsService implements RaycastVehicleDynamicsService {
   readonly engine = "Rapier 3D";
   readonly engineVersion = RAPIER.version();
 

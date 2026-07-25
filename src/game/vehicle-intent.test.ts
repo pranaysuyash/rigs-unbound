@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  IDLE_VEHICLE_INTENT,
-  normalizeVehicleIntent,
-} from "./vehicle-intent";
+import { IDLE_VEHICLE_INTENT, normalizeVehicleIntent } from "./vehicle-intent";
 
 describe("normalizeVehicleIntent", () => {
   it("returns a neutral semantic frame when input is absent", () => {

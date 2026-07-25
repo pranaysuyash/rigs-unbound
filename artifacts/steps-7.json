@@ -1,0 +1,8 @@
+[
+  {"clickText": "Physics Lab"},
+  {"wait": 2500},
+  {"shot": "95-physics-lab"},
+  {"tap": "p"},
+  {"wait": 500},
+  {"shot": "96-lab-pause"}
+]

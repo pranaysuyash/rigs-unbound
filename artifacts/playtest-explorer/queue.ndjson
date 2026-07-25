@@ -1,0 +1,28 @@
+{"op":"click","text":"Enter the field"}
+{"op":"wait","ms":2500}
+{"op":"press","key":"r"}
+{"op":"wait","ms":1200}
+{"op":"shot","name":"87-spark-switch"}
+{"op":"text","n":600}
+{"op":"shot","name":"87b-state"}
+{"op":"eval","js":"[...document.querySelectorAll('button')].filter(b=>b.offsetParent!==null).map(b=>b.textContent.trim())"}
+{"op":"hold","key":"w","ms":3500}
+{"op":"text","n":330}
+{"op":"shot","name":"88-spark-fast"}
+{"op":"keydown","key":"w"}
+{"op":"keydown","key":"a"}
+{"op":"wait","ms":900}
+{"op":"keyup","key":"a"}
+{"op":"wait","ms":2500}
+{"op":"text","n":330}
+{"op":"shot","name":"89-spark-offroad"}
+{"op":"keyup","key":"w"}
+{"op":"keydown","key":"w"}
+{"op":"wait","ms":2500}
+{"op":"press","key":" "}
+{"op":"wait","ms":400}
+{"op":"shot","name":"90-spark-jump"}
+{"op":"wait","ms":1200}
+{"op":"shot","name":"91-spark-landed"}
+{"op":"text","n":330}
+{"op":"keyup","key":"w"}

@@ -12,17 +12,30 @@ export default defineConfig(async () => {
   return {
     server: {
       host: "0.0.0.0",
-      port: 4174,
+      port: 4173,
       strictPort: true,
     },
     preview: {
       host: "0.0.0.0",
-      port: 4174,
+      port: 4173,
       strictPort: true,
     },
     build: {
       target: "es2022",
       sourcemap: true,
+    },
+    environments: {
+      client: {
+        build: {
+          rollupOptions: {
+            input: {
+              field: "index.html",
+              physicsLab: "physics-lab.html",
+              box3dLab: "box3d-lab.html",
+            },
+          },
+        },
+      },
     },
     plugins: [
       wasm(),

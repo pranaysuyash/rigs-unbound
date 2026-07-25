@@ -1,0 +1,153 @@
+shot: 05-map
+shot: 07-plough
+shot: 08-drive4
+[text] {
+  "schemaVersion": 4,
+  "seed": "UNBOUND-260725",
+  "elapsedMs": 24950,
+  "phase": "day",
+  "cameraMode": "chase",
+  "paused": false,
+  "mapOpen": false,
+  "activeRigId": "utility-tractor",
+  "activeRig": {
+    "id": "utility-tractor",
+    "x": -9.435,
+    "y": 3.008,
+    "z": -47.295,
+    "heading": 3.9729,
+    "pitch": 0.1514,
+    "roll": 0.1107,
+    "speed": -0.502,
+    "stable": true,
+    "mobility": {
+      "kind": "ground",
+      "grounded": true,
+      "verticalVelocity": -0.111,
+      "wheelRotation": 103.5958,
+      "wheels": [
+        {
+          "compression": 0.416,
+          "contact": true
+        },
+        {
+          "compression": 0.502,
+          "contact": true
+        },
+        {
+          "compression": 0.493,
+          "contact": true
+        },
+        {
+          "compression": 0.411,
+          "contact": true
+        }
+      ]
+    },
+    "condition": 100,
+    "strain": 0.025,
+    "distanceTravelled": 72.97,
+    "attachments": [
+      {
+        "id": "field-plough",
+        "engaged": false
+      },
+      {
+        "id": "tow-hook",
+        "engaged": false
+      }
+    ],
+    "modules": [],
+    "capabilities": [
+      "plough",
+      "tow"
+    ],
+    "surveyRange": 46,
+    "terrain": {
+      "surface": "tilled",
+      "grade": 0.15,
+      "grip": 0.711,
+      "slip": 0,
+      "waterDepth": 0,
+      "stalled": false
+    }
+  },
+  "rigs": {
+    "utility-tractor": {
+      "id": "utility-tractor",
+      "x": -9.435,
+      "y": 3.008,
+      "z": -47.295,
+      "heading": 3.9729,
+      "pitch": 0.1514,
+      "roll": 0.1107,
+      "speed": -0.502,
+      "stable": true,
+      "mobility": {
+        "kind": "ground",
+        "grounded": true,
+        "verticalVelocity": -0.111,
+        "wheelRotation": 103.5958,
+        "wheels": [
+          {
+            "compression": 0.416,
+            "contact": true
+          },
+          {
+            "compression": 0.502,
+            "contact": true
+          },
+          {
+            "compression": 0.493,
+            "contact": true
+          },
+          {
+            "compression": 0.411,
+            "contact": true
+          }
+        ]
+      },
+      "condition": 100,
+      "strain": 0.025,
+      "distanceTravelled": 72.97,
+      "attachments": [
+        {
+          "id": "field-plough",
+          "engaged": false
+        },
+        {
+          "id": "tow-hook",
+          "engaged": false
+        }
+      ],
+      "modules": [],
+      "capabilities": [
+        "plough",
+        "tow"
+      ],
+      "surveyRange": 46,
+      "terrain": {
+        "surface": "tilled",
+        "grade": 0.15,
+        "grip": 0.711,
+        "slip": 0,
+        "waterDepth": 0,
+        "stalled": false
+      }
+    },
+    "toy-buggy": {
+      "id": "toy-buggy",
+      "x": -5,
+      "y": 2.422,
+      "z": 9,
+      "heading": 3.1416,
+      "pitch": -0.006,
+      "roll": 0.0038,
+      "speed": 0,
+      "stable": true,
+      "mobility": {
+        "kind": "ground",
+        "grounded": true,
+        "verticalVelocity
+shot: 09-drive5
+shot: 10-drive6

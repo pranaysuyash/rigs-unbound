@@ -40,7 +40,14 @@ export type ActivityStatus = "ready" | "active" | "complete";
 export type ContinuousAction =
   "accelerate" | "brake" | "steerLeft" | "steerRight";
 export type TapAction =
-  "primary" | "switchRig" | "camera" | "phase" | "pause" | "map" | "recover";
+  | "primary"
+  | "switchRig"
+  | "camera"
+  | "phase"
+  | "pause"
+  | "map"
+  | "recover"
+  | "blade";
 
 export interface InputFrame {
   accelerate: boolean;
@@ -432,9 +439,25 @@ export function effectiveProfile(
 // Rig runtime state
 // -----------------------------------------------------------------------------
 
+/**
+ * Which way the plough blade works.
+ *
+ * `cut` lowers terrain (the original behaviour). `fill` raises it. Both are
+ * bounded by `DEFORM_MIN`/`DEFORM_MAX` in `terrain.ts`, and because `surfaceFor`
+ * derives material from height, filling a wet cell far enough turns mud into
+ * pasture. Raising ground was implemented in the terrain field from the start and
+ * had no caller until now.
+ */
+export type BladeMode = "cut" | "fill";
+
 export interface AttachmentState {
   id: AttachmentId;
   engaged: boolean;
+  /**
+   * Blade direction, for implements that move soil. Optional so older save
+   * records load unchanged and default to `cut`.
+   */
+  mode?: BladeMode;
 }
 
 /** Per-wheel suspension and contact state. Four entries, front-left first. */

@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit && npm --prefix experiments/deterministic-kernel-probe run typecheck",
     "test": "vitest run && npm run test:kernel-probe",
     "test:browser": "node tools/rig-lab-browser-acceptance.cjs",
+    "test:physics-lab": "node tools/physics-lab-browser-acceptance.cjs",
+    "test:box3d-lab": "node tools/box3d-lab-browser-acceptance.cjs",
     "assets:preflight": "node tools/asset-preflight.mjs assets/asset-manifest.json",
     "test:assets": "node --test tools/asset-preflight.test.mjs",
     "test:kernel-probe": "npm --prefix experiments/deterministic-kernel-probe test",
@@ -19,6 +21,7 @@
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.19.3",
+    "box3d-wasm": "0.2.0",
     "three": "^0.185.1"
   },
   "devDependencies": {

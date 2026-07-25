@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeVehicleIntent } from "../game/vehicle-intent";
-import type {
-  DynamicsSurfaceProfile,
-  RaycastVehicleConfig,
-} from "./contracts";
+import type { DynamicsSurfaceProfile, RaycastVehicleConfig } from "./contracts";
 import { RapierDynamicsService } from "./rapier-dynamics";
 
 const ASPHALT: DynamicsSurfaceProfile = {

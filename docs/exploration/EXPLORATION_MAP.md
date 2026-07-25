@@ -65,12 +65,12 @@ RunSpec → ephemeral RunDirector → reproducible RunRecord
 
 Definitions, owned state, compiled world output, runtime orchestration, and run evidence must remain separate. See [ADR-0003](../decisions/ADR-0003-versioned-gameplay-content-composition.md).
 
-| Question                                                                    |                            Status | Probe                                                                 |
-| --------------------------------------------------------------------------- | --------------------------------: | --------------------------------------------------------------------- |
+| Question                                                                    |                            Status | Probe                                                                                                |
+| --------------------------------------------------------------------------- | --------------------------------: | ---------------------------------------------------------------------------------------------------- |
 | Are activities found spatially or selected from a menu?                     | Proposed: spatial discovery first | The loop contract now favors spatial discovery first, with garage/workshop guidance as the fallback. |
-| Does failure cost resources, time, condition, opportunity, or only restart? |                           Proposed | The loop contract now treats condition, time, opportunity, and recovery effort as the primary costs. |
-| Is the garage a menu, explorable place, or both?                            |                           Proposed | The loop contract now says both: planning surface plus place with identity. |
-| How does a player always know the next interesting possibility?             |                           Proposed | The loop contract now names an opportunity compass that reveals verbs, not quest spam. |
+| Does failure cost resources, time, condition, opportunity, or only restart? |                          Proposed | The loop contract now treats condition, time, opportunity, and recovery effort as the primary costs. |
+| Is the garage a menu, explorable place, or both?                            |                          Proposed | The loop contract now says both: planning surface plus place with identity.                          |
+| How does a player always know the next interesting possibility?             |                          Proposed | The loop contract now names an opportunity compass that reveals verbs, not quest spam.               |
 
 ## Vehicle system
 
@@ -373,20 +373,38 @@ Areas:
 The following table updates the same queue from the `3D_GAMES_ANALYSIS` addendum and
 the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
 
-| Topic                                      | Current status                   | Next evidence gate                                                                                                      |
-| ------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Frustum/distance culling                   | Proposed hardening               | Add visible-actor culling fixture and verify non-visible entities are excluded from draw path.                          |
-| Occlusion integration                      | Partial (`terrain`-only pull-in) | Move from camera-only pull-in to visibility-stage contract before draw submission.                                      |
-| LOD by distance/subsystem                  | Missing explicit tiering         | Add renderer/physics/AI update policy and threshold matrix.                                                             |
-| Portal/cluster stream visibility           | Missing                          | Add route/cluster streaming manifest and activation order.                                                              |
-| Shader contract for terrain/weather/hazard | Missing                          | Add minimal shared material constants + fallback policy behind contract.                                                |
-| Collision category/mask                    | Partial                          | Add semantic response matrix for obstacle/hazard/trigger/particle categories.                                           |
-| Replay/input log artifact                  | Partial (bounded run-record window) | Add durable versioned replay storage + playback verifier (deterministic input stream first).                            |
-| Chunked world scaling                      | Missing                          | Add streaming manifest + unload policy + regression tests before more activity classes.                                 |
-| ECS migration readiness                    | Missing                          | Keep profile/adapters today; add ECS only if actor count or simulation graph complexity crosses a proven threshold.     |
-| Behavior/event model                       | Missing                          | Introduce deterministic event/behavior scheduler with payload validation and deterministic update ordering.             |
-| Modding and external packs                 | Partial                          | Add schema-vetted content packs, compatibility matrix, and moderation/review gate before external extension paths open. |
-| Resource governance                        | Partial                          | Add cross-system budget envelopes (CPU/GPU/VRAM/frame) and graceful degradations per device class.                      |
+| Topic                                      | Current status                         | Next evidence gate                                                                                                      |
+| ------------------------------------------ | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Frustum/distance culling                   | Named contract, implementation pending | Add visible-actor culling fixture and verify non-visible entities are excluded from draw path.                          |
+| Occlusion integration                      | Named contract, implementation pending | Move from camera-only pull-in to visibility-stage contract before draw submission.                                      |
+| LOD by distance/subsystem                  | Named contract, implementation pending | Add renderer/physics/AI update policy and threshold matrix.                                                             |
+| Portal/cluster stream visibility           | Named contract, implementation pending | Add route/cluster streaming manifest and activation order.                                                              |
+| Shader contract for terrain/weather/hazard | Named contract, implementation pending | Add minimal shared material constants + fallback policy behind contract.                                                |
+| Collision category/mask                    | Named contract, implementation pending | Add semantic response matrix for obstacle/hazard/trigger/particle categories.                                           |
+| Replay/input log artifact                  | Named contract, implementation pending | Add durable versioned replay storage + playback verifier (deterministic input stream first).                            |
+| Chunked world scaling                      | Named contract, implementation pending | Add streaming manifest + unload policy + regression tests before more activity classes.                                 |
+| ECS migration readiness                    | Named contract, implementation pending | Keep profile/adapters today; add ECS only if actor count or simulation graph complexity crosses a proven threshold.     |
+| Behavior/event model                       | Named contract, implementation pending | Introduce deterministic event/behavior scheduler with payload validation and deterministic update ordering.             |
+| Modding and external packs                 | Named contract, implementation pending | Add schema-vetted content packs, compatibility matrix, and moderation/review gate before external extension paths open. |
+| Resource governance                        | Named contract, implementation pending | Add cross-system budget envelopes (CPU/GPU/VRAM/frame) and graceful degradations per device class.                      |
+
+The behavior/planner contract now lives in
+[BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md](../research/BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md),
+and the simulation-layer/resource-governance contract now lives in
+[SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md](../research/SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md).
+These rows remain backlog items, but they are no longer unnamed gaps.
+
+The remaining queue items now map to named contract notes as well:
+
+- chunked world scaling → [STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md](../research/STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
+- ECS migration readiness → [ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md)
+- LOD by distance/subsystem → [VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md](../research/VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
+- portal/cluster stream visibility → [PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md](../research/PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md)
+- shader contract for terrain/weather/hazard → [SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md](../research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md)
+- collision category/mask → [COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md](../research/COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)
+- replay/input log artifact → [REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md](../research/REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md)
+- modding and external packs → [MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md](../research/MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md)
+- resource governance → [SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md](../research/SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md)
 
 The current visibility-stage and LOD analysis now lives in
 [Visibility Stage and LOD Contract](../research/VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md),
@@ -428,6 +446,7 @@ The immediate consequence is that the project should harden visibility, collisio
 - The physics quality envelope contract now lives in [Physics Quality Envelope Contract](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md), which makes the deterministic traversal model, fallback expectations, and stability-state visibility explicit.
 - The resource budget and fallback envelope now lives in [Resource Budget and Fallback Envelope](../research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md), which makes the current measured frame/draw/memory posture explicit and keeps low-budget fallback policy visible.
 - The event graph and deterministic handlers contract now lives in [Event Graph and Deterministic Handlers Contract](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md), which makes the command/checkpoint/save flow explicit and keeps replay-safe event ownership visible.
+- The ECS threshold contract now lives in [ECS Threshold and Composition Readiness Contract](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md), which makes the actor-count and coupling threshold explicit and keeps composition migration proof-based.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,
@@ -884,6 +903,53 @@ arm, not a pile of anonymous cubes. That comparison tests joint stability,
 control expression, cargo consequence, browser cost, snapshotting, and whether
 a general solver actually serves a vehicle fantasy.
 
+## Addendum — 2026-07-25 Physics Lab 01 changes the physics evidence map
+
+Physics Lab 01 executes the first bounded Rapier slice behind project-owned
+intent and dynamics contracts. It now supplies local evidence for a dynamic
+chassis, raycast wheels, four surface profiles, fixed stepping, plain-data
+capture/restore, six camera policies, debug geometry, performance telemetry,
+positive-front direction, and narrow touch layout.
+
+This does not narrow the product to wheeled vehicles. It creates a comparison
+fixture for one controller family. The exploration lattice still requires
+balance, tracked, hover/buoyancy, flight, six-degree, articulated, and hybrid
+evidence as concrete rig fantasies demand them.
+
+The Adjacent Activity Expansion questions remain standing review gates:
+
+- semantic actions before controller logic;
+- capability queries before vehicle-name checks;
+- bounded controller families instead of a universal flag matrix;
+- renderer extraction without solver ownership;
+- camera policies with rig-aware framing;
+- versioned project-owned persistence;
+- one activity solvable through different rig strengths;
+- loading, frame, state, save/recovery, and console observability.
+
+Current static audit found no repeated shared-runtime tractor-name branch. The
+historical tractor-specific recovery path remains bounded to legacy save
+migration. The existing cargo relay provides the shared towing/delivery
+activity evidence; the new lab provides replaceable-solver evidence.
+
+### Next highest-information physics slice
+
+Add an unstable towable trailer and motorized lifting arm, then compose one
+short rescue, construction, or recovery activity. Compare:
+
+- constraint stability and failure readability;
+- torque, load, attachment, and cargo consequence;
+- capture/replay and recovery behavior;
+- first-control, average/p95 step/frame, memory, and bundle cost;
+- whether the same semantic input, capability, camera, activity, and evidence
+  contracts survive without rig-name branching.
+
+### Anything else?
+
+The map should keep both kinds of evidence visible: adjacent capabilities expose
+hidden product assumptions, while different motion families expose hidden
+controller assumptions. Neither alone proves the vehicle-universe thesis.
+
 ## Addendum — 2026-07-25 3D web delivery and accessibility runway
 
 ### Current status (Web-delivery layer)
@@ -925,6 +991,15 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the rig-capability surface now has a dedicated contract note, so capability checks, adapters, and affordance resolution are tracked as a first-class boundary rather than a loose typed convenience layer.
 - Addendum (2026-07-25): the behavior/planner gap now has a dedicated contract note, so intent capture, deterministic choice, and read-only decision logic are tracked before any AI or activity layer grows into the kernel.
 - Addendum (2026-07-25): the streaming-world gap now has a dedicated contract note, so chunk manifests, residency, and rollback are tracked before the world scale grows past the current canonical substrate.
+- Addendum (2026-07-25): Box3D is promoted from a passive alpha watch to a
+  mandatory bounded physical-wheel browser experiment after its official
+  feature direction and the newly available third-party `box3d-wasm` package
+  were verified. The comparison now explicitly follows physics into collision
+  roles, CCD/recovery, camera obstruction, minimap/world-coordinate fidelity,
+  terrain/material identity, chunk residency, attachments, perception feedback,
+  and replay diagnostics. The new
+  [Minimap and World-Coordinate Contract](../research/MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md)
+  keeps solver-local coordinates from becoming map or save authority.
 - Addendum (2026-07-25): the simulation-layer gap now has a dedicated contract note, so domain order, ownership, and fallback governance are tracked before weather/economy/traffic logic becomes implicit.
 - Addendum (2026-07-25): the modding gap now has a dedicated contract note, so creator packs, compatibility, and rollback are tracked before public UGC becomes a second runtime.
 - Addendum (2026-07-25): the world-affordance gap now has a dedicated contract note, so world verbs, capability claims, and deterministic resolution are tracked before they collapse into special-case branches.
@@ -938,3 +1013,45 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the authoring/content-validation gap now has a dedicated contract note, so manifests, provenance, and runtime-ready status stay reproducible.
 - Addendum (2026-07-25): the performance/readability baseline now has a dedicated contract note, so the shared thresholds stay readable as one umbrella policy.
 - Addendum (2026-07-25): the second locomotion family now has a dedicated contract note, so the hover/ground boundary stays explicit across save/reload and rollback.
+- Addendum (2026-07-25): the authority-model gap now has a dedicated contract note, so shared-state and server-authoritative behavior remain future-only.
+- Addendum (2026-07-25): the engine-branch gap now has a dedicated contract note, so alternate backends remain bounded comparison branches instead of shadow products.
+- Addendum (2026-07-25): the verification-harness gap now has a dedicated contract note, so confidence changes stay reproducible and auditable.
+- Addendum (2026-07-25): the Physics Lab browser-experience gap now has a dedicated contract note, so the separate lab route and acceptance runner stay visible as a browser evidence fixture rather than an untracked side page.
+- Addendum (2026-07-25): the world-and-architecture scalability gap now has a dedicated contract note, so chunk growth, activity packs, migration boundaries, and shared-state readiness stay bounded and testable.
+- Addendum (2026-07-25): the progression/leveling gap is now decided — ADR-0018 (Accepted) ratifies the Journey + Verb Mastery + Insight spine with situation-weighted accrual and bounded in-verb power; analysis and operator decisions live in `docs/exploration/GAME_SYSTEMS_ANALYSIS_AND_DIRECTION_2026-07-25.md`.
+- Addendum (2026-07-25): the first-playable slice (ADR-0002) now has an active implementation plan — `docs/plans/FARMFALL_SLICE_01_2026-07-25.md` (crops, signature ecology, night threats, dawn consequences, mastery kernel).
+- Addendum (2026-07-25): the external player-language gate is being exercised via uncontaminated simulated playtests (casual/achiever/explorer, `docs/reviews/PLAYTEST_SIM_*_2026-07-25.md`); real external sessions remain open.
+- Addendum (2026-07-25): the engine-bakeoff decision unit is reclassified from orphaned to scheduled — the probe runs against `docs/research/ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md`; ADR-0001 stays Proposed until probe evidence exists, ADR-0015 keeps Three.js as v1.x default.
+- Addendum (2026-07-25): the renderer/perf lane now has a prioritized backlog — `docs/research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md` (P1 context-loss + boot-progress, P2 honest input-ready metrics + hot-path allocations, P3 sourcemap/caching/PWA policy, W1 WebGPU probe gated on device-matrix data). P1–P2 items do not collide with Farmfall Phase A surfaces.
+- Addendum (2026-07-25): first playtest evidence (achiever) reclassifies "external player language" from fully-open to partially-answered — fantasy-level rig differentiation confirmed by an uncontaminated player; the blocking fun gap is now "first reward reachability" (economy onboarding), routed into Farmfall Slice 01 scope along with four bugs.
+
+## Addendum — 2026-07-26 canonical execution routing
+
+The exploration map remains the product/research space. Execution status is now
+normalized in [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md),
+where every active, ready, decision-gated, researching, and deferred item has a
+closure gate. This avoids turning the exploration map into a second partially
+maintained task board.
+
+Current evidence changes:
+
+- Field 02 passed the full browser acceptance flow on both local ports `4173`
+  and `4174`;
+- the Rapier raycast-wheel laboratory and Box3D physical-wheel probe passed
+  their browser acceptance flows with desktop/narrow evidence and no console
+  problems;
+- three simulated fresh-eyes playtests agree that rigs communicate different
+  fantasies, while also exposing a missing first reward rung and four P0
+  comprehension/recovery/phase defects;
+- the next product dependency is therefore first-rung repair → Farmfall
+  day/night consequence loop → repeated external playtest;
+- collision/attachment comparison, additional motion families, streaming,
+  WebGPU, social systems, and production-intent asset expansion stay visible
+  but must answer questions generated by the playable loop.
+
+### Anything else?
+
+Yes. Research breadth is no longer the limiting factor. The next exploration
+updates should be driven by observed player decisions and failure modes, so the
+catalog keeps opening useful possibilities without becoming a substitute for
+finishing the first coherent game.

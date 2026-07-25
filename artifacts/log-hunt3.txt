@@ -1,0 +1,5 @@
+stuck; reverse+turn
+stuck; reverse+turn
+stuck; reverse+turn
+stuck; reverse+turn
+FINAL {"dist":26,"bearing":"S","units":2,"salvage":0,"condition":22,"surveyed":30,"speed":0,"headline":null}

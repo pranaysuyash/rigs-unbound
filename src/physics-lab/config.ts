@@ -1,6 +1,7 @@
 import type {
   DynamicsService,
   DynamicsSurfaceProfile,
+  PhysicalWheelVehicleConfig,
   RaycastVehicleConfig,
 } from "../dynamics/contracts";
 
@@ -67,6 +68,28 @@ export const LAB_VEHICLE_CONFIG: RaycastVehicleConfig = {
   maximumEngineForce: 8_400,
   maximumBrakeImpulse: 72,
   maximumHandbrakeImpulse: 95,
+  maximumSteeringAngle: 0.46,
+};
+
+export const BOX3D_LAB_VEHICLE_CONFIG: PhysicalWheelVehicleConfig = {
+  id: "physical-buggy-01",
+  spawn: { x: 0, y: 1.8, z: -52 },
+  heading: 0,
+  mass: 920,
+  chassisHalfExtents: { x: 0.86, y: 0.38, z: 1.65 },
+  centreOfMassYOffset: 0.28,
+  wheelbase: 2.4,
+  track: 1.52,
+  wheelRadius: 0.42,
+  wheelWidth: 0.28,
+  suspensionRestLength: 0.34,
+  suspensionTravel: 0.24,
+  suspensionHertz: 4.6,
+  suspensionDampingRatio: 0.86,
+  maximumSpinSpeed: 42,
+  maximumSpinTorque: 1_850,
+  maximumBrakeTorque: 3_800,
+  maximumSteeringTorque: 2_400,
   maximumSteeringAngle: 0.46,
 };
 

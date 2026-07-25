@@ -186,3 +186,27 @@ build; it does not make every rig behave like the laboratory buggy.
   map. This supersedes the research-only adoption gate in the earlier browser
   physics catalog while preserving its requirement for project-owned ports,
   fixed stepping, observability, snapshot evidence, and clean replacement.
+- 2026-07-25: Box3D's public alpha, physical 3D wheel joints, browser build,
+  recording/replay tooling, and large-world feature direction materially
+  changed the comparison evidence. Box3D is promoted from a passive feasibility
+  watch to a mandatory bounded browser experiment alongside Rapier and Jolt.
+  This does not suspend the project-owned architecture while the comparison
+  runs. Instead, the dynamics port is refined so the base service owns only
+  shared world responsibilities, while raycast-wheel and physical-wheel
+  creation are explicit service capabilities. A candidate may implement one or
+  both without pretending that every rig uses the same wheel algorithm.
+- 2026-07-25: The operator-supplied statement that no ready-made npm package
+  exists is now stale. The third-party `box3d-wasm` package appeared on
+  2026-07-02 and provides single-thread and threaded browser builds plus a
+  Three.js vehicle example. It is young, unofficial, lacks TypeScript
+  declarations, and does not currently prove that Box3D's recording API is
+  bound. The first experiment therefore pins one reviewed version, uses the
+  single-thread build, owns a narrow adapter, reports these limitations, and
+  gives the package no save, replay, or product-runtime authority.
+- 2026-07-25: Box3D comparison acceptance is defined in
+  `docs/plans/BOX3D_BROWSER_COMPARISON_01_2026-07-25.md`. The first coherent
+  implementation is a physical-wheel browser probe using the same semantic
+  intent, camera vocabulary, telemetry envelope, fixed-step discipline, and
+  recovery expectations as Physics Lab 01. Later falling-tree, articulated,
+  compound-streaming, and replay scenes remain evidence gates rather than
+  claims about the initial probe.

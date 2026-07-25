@@ -7,12 +7,36 @@ const playwrightModule =
 const { chromium } = require(playwrightModule);
 
 const TARGET_URL =
-  process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4174/?acceptance=field-02";
+  process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4173/?acceptance=field-02";
 const artifactDirectory = path.resolve(__dirname, "../docs/reviews/assets");
 let browser;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+/**
+ * Switch to another rig, honouring the proximity contract.
+ *
+ * `selectActiveRig` now refuses to swap into a machine more than
+ * `RIG_SWITCH_RANGE` metres away, because rigs are objects in the world rather
+ * than entries in a menu. Acceptance runs therefore have to bring the active rig
+ * to the target first; teleporting is what the `placeRig` test hook is for.
+ */
+async function switchToRig(page, rigId) {
+  await page.evaluate((id) => {
+    const before = JSON.parse(window.render_game_to_text());
+    const target = before.rigs[id];
+    if (!target) throw new Error(`Unknown rig id: ${id}`);
+    window.placeRig(target.x, target.z);
+    window.selectRig(id);
+    const after = JSON.parse(window.render_game_to_text());
+    if (after.activeRigId !== id) {
+      throw new Error(
+        `Rig switch to ${id} was refused: ${after.lastDiagnostic}`,
+      );
+    }
+  }, rigId);
 }
 
 async function state(page) {
@@ -240,7 +264,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   assert(delivered.activity.status === "complete", "Relay did not complete");
   assert(delivered.activity.delivered, "Cargo is not marked delivered");
 
-  await page.evaluate(() => window.selectRig("toy-buggy"));
+  await switchToRig(page, "toy-buggy");
   const buggyStart = await state(page);
   const rampApproach = await driveTo(
     page,
@@ -268,9 +292,10 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   );
 
   // Settle Spark before switching: the shared action contract deliberately
-  // refuses to abandon an unstable rig.
+  // refuses to abandon an unstable rig, and now also refuses to reach a rig that
+  // is not nearby.
   await page.evaluate(() => window.placeRig(0, 0));
-  await page.evaluate(() => window.selectRig("marsh-skimmer"));
+  await switchToRig(page, "marsh-skimmer");
   // Use Drift's offset berth rather than aiming the chase camera through the
   // site's navigation mast at the basin centre.
   await page.evaluate(() => window.placeRig(-118, -123));

@@ -249,6 +249,7 @@ Lane order is intentionally staged to avoid architecture theatre:
 - Add validation that rejects invalid capability bundles before runtime.
 - Record the actor-count / coupling thresholds that would justify ECS migration.
 - Keep the current typed state + adapter model canonical until that threshold is met.
+- ECS contract note: [ECS Threshold and Composition Readiness Contract](./ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md) now captures the proof boundary and the migration trigger.
 
 ### Lane H: Authority envelope
 - Add an authoritative mutation token schema and intent queue.
@@ -380,6 +381,7 @@ Lane order is intentionally staged to avoid architecture theatre:
 - Add activity-pack activation tests with rollback and churn observability.
 - Add a future-only boundary note for shared-state or online readiness so local play stays the canonical current mode.
 - Keep activity growth packable and measurable so new content does not require a kernel rewrite.
+- World-scalability contract note: [WORLD_AND_ARCHITECTURE_SCALABILITY_CONTRACT_2026-07-25.md](./WORLD_AND_ARCHITECTURE_SCALABILITY_CONTRACT_2026-07-25.md) now captures the growth boundary.
 
 ---
 
@@ -476,21 +478,33 @@ Linked decision artifact for this architecture phase:
 - Add authenticated mutation request/response shapes plus explicit reject behavior.
 - Add durable-value recovery and telemetry for authority outcomes.
 - Keep durable world changes distinct from speculative client simulation.
+- Authority contract note: [AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md) now captures the future-only authority boundary.
+- The current authority evidence and proof slice live in [AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md).
 
 ### Lane AG: Engine branch evaluation and alternate backend gating
 - Keep Three.js as the canonical v1 path while defining a bounded benchmark branch for alternates.
 - Trigger branch evaluation only on measurable budget failure or platform constraint.
 - Compare alternates against the same culling, LOD, camera, collision, lighting, and observability contracts.
 - Keep alternate backend work disposable unless evidence justifies migration.
+- Engine-branch contract note: [ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md](./ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md) now captures the bounded comparison boundary.
 
 ### Lane AH: Replay and ghost product feature
 - Add a shareable replay or ghost artifact schema with run identity, seed/origin, version, and compatibility status.
 - Add deterministic playback verification plus mismatch handling for shared artifacts.
 - Add clear trust boundaries for replay-only versus diagnostics-only surfaces.
 - Keep replay as a product feature that still respects the deterministic simulation contract.
+- Replay contract note: [REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md) now captures the shareable-artifact boundary.
 
 ### Lane AI: Verification harness and confidence gates
 - Add deterministic fixture scenes or equivalent scenarios for culling, camera, collision, migration, and fallback checks.
 - Add tiered evidence summaries that distinguish source/test/runtime proof.
 - Add failure-report formats that preserve violated contracts and missing evidence tiers.
 - Keep proof work reproducible so confidence changes are auditable instead of implied.
+- Verification contract note: [VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md](./VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md) now captures the evidence-harness boundary.
+- The harness should treat Physics Lab 01 as one of the canonical browser-visible fixtures once the acceptance trail is reviewed.
+
+### Lane AJ: Physics lab browser experience and acceptance
+- Keep Physics Lab 01 as a separate browser-experience evidence fixture with its own acceptance path.
+- Add a dedicated runner or shared scenario entry for lab boot, controls, pause/debug/reset, fallback, and recovery.
+- Keep Field 02 canonical so the lab supplements rather than competes with the public game path.
+- Physics-lab contract note: [PHYSICS_LAB_BROWSER_EXPERIENCE_AND_ACCEPTANCE_CONTRACT_2026-07-25.md](./PHYSICS_LAB_BROWSER_EXPERIENCE_AND_ACCEPTANCE_CONTRACT_2026-07-25.md) now captures the lab boundary.

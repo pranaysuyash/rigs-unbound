@@ -103,6 +103,21 @@ We reviewed the existing repository and applied this directly to implementation 
 | Chunk/world streaming | `src/game/gameworld.ts`, `docs/exploration/EXPLORATION_MAP.md` | Missing | The world is bounded and persistent, but not yet residency-streamed. |
 | Observability | `src/game/performance.ts`, `src/main.ts` | Partial | Runtime metrics and user-visible telemetry exist, but budget enforcement is still manual. |
 
+### 2.2) Contract-note reconciliation
+
+The current implementation status above remains the source of truth, but the
+repo now also has named contract notes for the main follow-on lanes:
+
+- Culling/LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
+- Collision matrix: [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)
+- Capability model: [Capability Contract and Adapter Guardrails](./CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md)
+- Replay/event lane: [Replay Artifact and Ghost Contract](./REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md) and [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md)
+- Chunk/world streaming: [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
+- Observability/resource control: [Resource Budget and Fallback Envelope](./RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md) and [Performance and Readability Baseline Contract](./PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md)
+
+That means the synthesis no longer depends on the table alone for ownership;
+the durable contract notes now carry the implementation runway forward.
+
 ## 3) What is possible next (low-risk, high leverage)
 
 1. **Frustum + distance cull + LOD contracts**

@@ -70,12 +70,7 @@ export class PhysicsLabRenderer {
     const position = telemetry.body.position;
     const rotation = telemetry.body.rotation;
     this.chassis.position.set(position.x, position.y, position.z);
-    this.chassis.quaternion.set(
-      rotation.x,
-      rotation.y,
-      rotation.z,
-      rotation.w,
-    );
+    this.chassis.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
 
     const bodyQuaternion = this.chassis.quaternion;
     const suspensionPositions = new Float32Array(telemetry.wheels.length * 6);
@@ -331,9 +326,7 @@ export class PhysicsLabRenderer {
         .addScaledVector(forward, -1.5)
         .addScaledVector(WORLD_UP, 3.1);
     } else if (mode === "tactical") {
-      desired
-        .addScaledVector(forward, -6)
-        .addScaledVector(WORLD_UP, 13.5);
+      desired.addScaledVector(forward, -6).addScaledVector(WORLD_UP, 13.5);
     } else if (mode === "top-down") {
       desired.addScaledVector(WORLD_UP, 24);
     } else {

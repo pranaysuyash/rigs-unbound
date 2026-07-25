@@ -55,6 +55,27 @@ const PHASE_ORDER: readonly WorldPhase[] = ["day", "gloam", "night"];
 /** Depth the plough cuts per pass, in metres. */
 const PLOUGH_DEPTH = -0.13;
 
+/**
+ * Height the blade adds per pass in fill mode, in metres.
+ *
+ * Smaller than the cut depth because `DEFORM_MAX` (+0.3 m) is a third of the
+ * available cut, so filling should take proportionally more passes than digging.
+ * Filling a wet cell far enough crosses the mud/grass threshold in `surfaceFor`,
+ * which is the point: soil moved by the player changes what the ground *is*.
+ */
+const PLOUGH_FILL = 0.075;
+
+/**
+ * How close two rigs must be to swap between them, in metres.
+ *
+ * Without this, switching rigs teleported the player's attention across the whole
+ * world for free — which deleted logistics from a game whose entire substrate is
+ * logistics. With it, where you park is a decision, fetching a stranded machine is
+ * an errand, and the winch and the module fitted to the rig you left behind both
+ * start to matter.
+ */
+export const RIG_SWITCH_RANGE = 34;
+
 /** Salvage cost to restore a rig to full condition. */
 export const REPAIR_COST = 3;
 
@@ -118,7 +139,7 @@ function createRig(id: RigId, x: number, z: number): RigState {
     attachments:
       id === "utility-tractor"
         ? [
-            { id: "field-plough", engaged: false },
+            { id: "field-plough", engaged: false, mode: "cut" },
             { id: "tow-hook", engaged: false },
           ]
         : [{ id: "tow-hook", engaged: false }],
@@ -434,6 +455,24 @@ export function selectActiveRig(state: GameState, rigId: RigId): void {
       "Stabilize the active rig before switching machines.";
     return;
   }
+
+  // Rigs are objects in the world, not entries in a menu.
+  const target = state.rigs[rigId];
+  const distance = Math.hypot(target.x - current.x, target.z - current.z);
+  if (distance > RIG_SWITCH_RANGE) {
+    const targetProfile = effectiveProfile(rigId, target.modules);
+    const nearest = WORLD_SITES.reduce<{ name: string; d: number } | null>(
+      (best, site) => {
+        const d = Math.hypot(target.x - site.x, target.z - site.z);
+        return best === null || d < best.d ? { name: site.name, d } : best;
+      },
+      null,
+    );
+    const where = nearest && nearest.d < 60 ? ` at the ${nearest.name}` : "";
+    state.lastDiagnostic = `${targetProfile.fieldName} is ${Math.round(distance)} m away${where}. Drive to it.`;
+    return;
+  }
+
   current.speed = 0;
   current.steering = 0;
   state.activeRigId = rigId;
@@ -443,6 +482,27 @@ export function selectActiveRig(state: GameState, rigId: RigId): void {
 
 export function switchActiveRig(state: GameState): void {
   selectActiveRig(state, cycle(RIG_IDS, state.activeRigId));
+}
+
+/**
+ * Flip the blade between cutting and filling.
+ *
+ * Refuses on a rig with no blade, and says which rig has one, because a silent
+ * no-op on a keypress is indistinguishable from a broken key.
+ */
+export function toggleBladeMode(state: GameState): void {
+  const rig = activeRig(state);
+  const plough = attachment(rig, "field-plough");
+  const profile = effectiveProfile(rig.id, rig.modules);
+  if (!plough || !profile.capabilities.includes("plough")) {
+    state.lastDiagnostic = `${profile.fieldName} carries no blade. Torque does.`;
+    return;
+  }
+  plough.mode = plough.mode === "fill" ? "cut" : "fill";
+  state.lastDiagnostic =
+    plough.mode === "fill"
+      ? "Blade set to FILL. Soft ground rises behind you, and wet ground dries."
+      : "Blade set to CUT. Furrows deepen behind you.";
 }
 
 export function cyclePhase(state: GameState): void {
@@ -611,7 +671,8 @@ export function stepGame(
       ? Math.hypot(markX - last.x, markZ - last.z)
       : Infinity;
     if (distanceFromLast >= FURROW_SPACING) {
-      if (world.terrain.deform(markX, markZ, PLOUGH_DEPTH, 1)) {
+      const bladeDelta = plough.mode === "fill" ? PLOUGH_FILL : PLOUGH_DEPTH;
+      if (world.terrain.deform(markX, markZ, bladeDelta, 1)) {
         state.furrows.push({
           x: markX,
           z: markZ,
@@ -779,6 +840,18 @@ export function publicState(state: GameState, world: GameWorld): object {
       deliveryPosition: { x: CARGO_DELIVERY.x, z: CARGO_DELIVERY.z },
       rampPosition: { x: BUGGY_RAMP.x, z: BUGGY_RAMP.z },
     },
+    // The authored world layout, so external tools (acceptance runs, the trailer
+    // capture) can target a named place instead of hardcoding coordinates that
+    // drift whenever `WORLD_SITES` is retuned.
+    sites: WORLD_SITES.map((site) => ({
+      id: site.id,
+      name: site.name,
+      verb: site.verb,
+      x: site.x,
+      z: site.z,
+      discoverRadius: site.discoverRadius,
+      workshop: site.workshop === true,
+    })),
     worldMemory: {
       furrowCount: state.furrows.length,
       deformedCells: world.terrain.deformationCount(),
@@ -954,8 +1027,15 @@ function recoverRig(
       const entry = item as {
         id: RigState["attachments"][number]["id"];
         engaged: boolean;
+        mode?: unknown;
       };
-      return { id: entry.id, engaged: entry.engaged };
+      // Any unrecognised or absent blade direction becomes `cut`, so records
+      // written before the blade had a direction load without special-casing.
+      return {
+        id: entry.id,
+        engaged: entry.engaged,
+        mode: entry.mode === "fill" ? ("fill" as const) : ("cut" as const),
+      };
     });
   if (attachments.length !== validAttachments.size) return null;
 

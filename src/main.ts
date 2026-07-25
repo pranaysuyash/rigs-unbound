@@ -61,6 +61,7 @@ import {
   settleWorld,
   stepGame,
   switchActiveRig,
+  toggleBladeMode,
   togglePause,
   toggleMap,
   winchRecover,
@@ -88,6 +89,7 @@ declare global {
     getRigPerceptionEvidence: (rigId?: RigId) => RigPerceptionEvidence;
     installRigModule: (moduleId: ModuleId) => string;
     winchRecoverRig: () => string;
+    toggleBlade: () => string;
     toggleFieldMap: () => string;
     /**
      * Test hook: place the active rig anywhere and settle it.
@@ -297,6 +299,9 @@ function boot(): void {
       toggleMap(state);
       mapOverlay.hidden = !state.mapOpen;
       if (state.mapOpen) fieldMap.draw(state);
+    } else if (action === "blade") {
+      toggleBladeMode(state);
+      announce();
     } else if (action === "recover") {
       winchRecover(state, world);
       announce();
@@ -341,6 +346,8 @@ function boot(): void {
       tap("phase");
     } else if (event.code === "KeyM") {
       tap("map");
+    } else if (event.code === "KeyB") {
+      tap("blade");
     } else if (event.code === "KeyX") {
       tap("recover");
     } else if (event.code === "KeyT") {
@@ -496,7 +503,12 @@ function boot(): void {
     capabilityValue.textContent = towing
       ? "Towing"
       : plough?.engaged
-        ? "Ploughing"
+        ? // Blade direction is part of the current verb, not a hidden setting: the
+          // player needs to know which way the soil is going before they commit a
+          // pass they cannot easily undo.
+          plough.mode === "fill"
+          ? "Filling"
+          : "Ploughing"
         : profile.capabilities.join(" · ");
     conditionValue.textContent = `${Math.round(rig.condition)}%`;
     salvageValue.textContent = String(state.salvage);
@@ -729,6 +741,10 @@ function boot(): void {
   window.installRigModule = (moduleId: ModuleId) => {
     recordCommand("installRigModule", { moduleId });
     installModule(state, world, moduleId);
+    return settleAndReport();
+  };
+  window.toggleBlade = () => {
+    toggleBladeMode(state);
     return settleAndReport();
   };
   window.winchRecoverRig = () => {

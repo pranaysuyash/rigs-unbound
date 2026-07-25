@@ -11,7 +11,7 @@
     - what can be formalized immediately,
     - what is possible now,
     - and what is deferred until tests close.
-- Ensured map-level gate status remains aligned with the open queue in [docs/exploration/EXPLORATION_MAP.md](../../docs/exploration/EXPLORATION_MAP.md), including culling/LOD/streaming/replay/authority gates.
+- Ensured map-level gate status remains aligned with the open queue in [docs/exploration/EXPLORATION_MAP.md](exploration/EXPLORATION_MAP.md), including culling/LOD/streaming/replay/authority gates.
 
 ### Evidence and status
 
@@ -1160,6 +1160,7 @@ leading Rapier service hypothesis remain explicit proof gates.
 - 2026-07-25: Added a behavior/event scheduler addendum to the canonical analysis and mirrored the split into the roadmap so behavior selection stays distinct from event recording and presentation.
 - 2026-07-25: Added a streaming-world contract addendum to the canonical analysis and a matching roadmap lane so chunk residency is now described as a manifest-driven lifecycle with explicit activation, unload, and rollback rules.
 - 2026-07-25: Added an ECS/entity-composition addendum to the canonical analysis and a threshold-gated ECS lane in the roadmap so ECS remains a proof-based migration decision instead of an assumption.
+- 2026-07-25: Added [ECS Threshold and Composition Readiness Contract](research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md) so the composition threshold, migration trigger, and identity-preservation proof slice now live as a dedicated contract note and are linked from analysis, roadmap, and exploration.
 - 2026-07-25: Added an authority-scaling addendum to the canonical analysis and a matching roadmap lane so authoritative mutation, intent queues, and replay-safe rejection handling are now explicit contracts instead of implied future work.
 - 2026-07-25: Added a simulation-layer and resource-governance addendum to the canonical analysis and a matching roadmap lane so cross-domain systems now have an explicit ordered domain table and budget ledger instead of being implicit loop behavior.
 - 2026-07-25: Added a modding and creator-pack addendum to the canonical analysis and a matching roadmap lane so user-authored content is now framed as versioned, validated packs with explicit compatibility and rollback rules.
@@ -1299,5 +1300,230 @@ leading Rapier service hypothesis remain explicit proof gates.
 - 2026-07-25: Created `docs/research/KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md` to formalize the authoritative step order and mutable subsystem gates.
 - 2026-07-25: Created `docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md` to formalize versioned persistence, migration observability, and recovery summaries.
 - 2026-07-25: Created `docs/research/AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md` to formalize manifest validation, provenance metadata, and runtime-ready status.
+- 2026-07-25: Updated the exploration map so the behavior/planner and simulation-layer/resource-governance backlog rows now point at their existing contract notes instead of reading as unnamed gaps.
+- 2026-07-25: Reconciled the remaining exploration-map backlog rows to their named contract notes so chunked world scaling, ECS, LOD, portal visibility, shader/material, collision, replay, modding, and resource governance are all discoverable from the canonical map.
+- 2026-07-25: Normalized the exploration backlog table wording from raw Missing/Partial labels to named-contract status so the canonical map now reflects documented ownership even where implementation is still pending.
+- 2026-07-25: Normalized the occlusion-integration row to named-contract status so visibility-stage work is now described consistently with the existing contract note.
+- 2026-07-25: Normalized the frustum/distance culling row to named-contract status so the visibility-stage backlog block is now fully described in contract terms.
+- 2026-07-25: Added a contract-note reconciliation section to the optimization synthesis doc so the major follow-on lanes now point at the exact durable notes that own them.
+- 2026-07-25: Added a contract-note reconciliation section to the platform long-term audit so each major platform-growth lane now has a named boundary note.
+- 2026-07-25: Added a contract-note bridge to the second-pass optimization audit so the extended follow-on recommendations now point at the named durable notes that own them.
+- 2026-07-25: Expanded the second-pass audit bridge to include shader/material, asset-pipeline, and simulation-layer contract notes so the full follow-on trail is linked rather than partial.
+- 2026-07-25: Replaced the umbrella-baseline addendum's generic contract list with explicit links to the named contract notes for visibility, camera, lighting, accessibility, collision, and physics.
+- 2026-07-25: Added explicit contract links to the camera, replay, accessibility, world-scaling, and authoring addenda in the main analysis doc so those lanes now point at named boundaries instead of broad prose.
+- 2026-07-25: Added an explicit contract anchor to the save/migration observability addendum so the persistence observability lane now points at the named boundary.
+- 2026-07-25: Added an explicit contract anchor to the lighting and atmosphere addendum so the lighting lane now points at the named boundary.
+- 2026-07-25: Added an explicit contract anchor to the performance/readability baseline addendum so the umbrella policy now points at its named boundary.
+- 2026-07-25: Added explicit contract anchors to the second-locomotion, authority, engine-branch, replay, and verification-harness addenda so the remaining growth lanes now point at named boundaries.
+- 2026-07-25: Added an explicit contract anchor to the streaming addendum so chunk residency now points at the named boundary.
+- 2026-07-25: Added a contract-note map to the second-pass audit execution order so the renderer, collision, replay, authority, and formalization lanes now point at exact owning notes.
 - 2026-07-25: Created `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md` to formalize the umbrella policy over culling, LOD, camera, collision, and transition budgets.
 - 2026-07-25: Created `docs/research/SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md` to formalize the second motion grammar, shared actions, and rollback continuity.
+- 2026-07-25: Created `docs/research/AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md` to formalize the local-first authority boundary and future-only shared-state wording.
+- 2026-07-25: Created `docs/research/ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md` to formalize the bounded backend-comparison gate.
+- 2026-07-25: Created `docs/research/VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md` to formalize deterministic fixtures, evidence tiers, and confidence gates.
+
+## 2026-07-25 — Physics Lab 01: replaceable chassis and raycast-wheel dynamics
+
+- Executed ADR-0017's first coherent physics slice with Rapier `0.19.3` behind
+  project-owned intent and dynamics contracts.
+- Added a separate Physics Lab entry with a dynamic chassis, four raycast
+  wheels, asphalt/gravel/mud/ice response, fixed-step controls, plain-data
+  capture/reset, debug geometry, automatic recovery, and six camera policies.
+- Made the visual front explicit and added browser proof that positive throttle
+  moves the front toward local positive Z.
+- Added focused intent/dynamics tests and a reusable browser acceptance tool.
+- Captured and inspected desktop, top-down, debug, and `390 × 844` evidence.
+- Continued the Adjacent Activity Expansion audit: no repeated
+  tractor-name-gated shared-runtime behavior or universal controller appeared;
+  the direct tractor migration path remains bounded to historical save input.
+- Recorded the decision, plan, research/exploration updates, acceptance
+  contract, tool use, and known articulation/device/player-feel gaps.
+- A parallel process updated `main` during this work and included part of the
+  physics foundation in `aa82cee`; this task did not create or push that commit.
+
+### Anything else?
+
+The next physics evidence should compose unstable towing and motorized lifting
+into one rescue, construction, or recovery activity. More isolated chassis
+tuning would now provide less information than testing articulation, load, and
+capability ownership together.
+- 2026-07-25: Added a Physics Lab browser-experience addendum and roadmap lane so the standalone lab stays a browser evidence fixture with explicit boot, accessibility, fallback, and acceptance boundaries.
+- 2026-07-25: Linked the replay and ghost roadmap lane back to the existing replay contract so the shareable-artifact boundary is no longer an orphaned bullet list.
+- 2026-07-25: Linked the authority roadmap lane back to the existing authority contract so future shared-state behavior remains explicitly future-gated.
+- 2026-07-25: Added a world-and-architecture scalability contract so chunk growth, activity packs, migration boundaries, and shared-state readiness stay bounded and testable.
+- 2026-07-25: Folded Physics Lab 01 into the verification-harness contract so the browser-visible fixture now anchors the confidence-gates trail as well as the lab-specific acceptance review.
+
+## 2026-07-25 — Direction session: game-systems analysis, ADR-0018, Farmfall plan, simulated playtests
+
+- Full instruction-stack session: explored code, docs, and all 16 ADRs;
+  verified ground truth (typecheck + 83 root tests + 7 kernel-probe tests
+  green at session start).
+- Created `docs/exploration/GAME_SYSTEMS_ANALYSIS_AND_DIRECTION_2026-07-25.md`:
+  verified-state assessment, the "engine without a game" gap analysis,
+  first-principles leveling/mechanics/modes/scenes/characters proposals, and
+  documentation-hygiene findings.
+- Operator decisions recorded verbatim in that doc: build all four
+  workstreams (farm/defense slice, mastery spine, time trial + ghost,
+  external-player gate simulated for now); leveling = full spine **plus**
+  in-verb vertical power; engine bakeoff probe scheduled against the existing
+  engine-branch gating contract (not duplicated).
+- Created ADR-0018 (Accepted): Journey + Verb Mastery + Insight progression
+  spine with situation-weighted accrual and bounded in-verb power composed
+  through `effectiveProfile()`.
+- Created `docs/plans/FARMFALL_SLICE_01_2026-07-25.md`: crops, noise/light
+  signature ecology, night threats, dawn consequences, and the mastery
+  kernel, with explicit scope boundaries against parallel physics-lab work.
+- Launched three uncontaminated simulated-player agents (casual / achiever /
+  explorer) against the live build; reports land in
+  `docs/reviews/PLAYTEST_SIM_*_2026-07-25.md` with screenshots under
+  `artifacts/playtest-*`.
+
+### Anything else?
+
+Yes. The multi-agent stale-state rule was applied wrong at first in this
+session (shared docs were avoided instead of re-read); corrected in the same
+session — append-only edits with fresh anchors are the motto-conformant path,
+and that is how this entry was made.
+
+- 2026-07-25: Created `docs/research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md` after the operator loaded the `webgpu` and `web-performance-optimization` skills — full renderer/boot/bundle/caching audit with a prioritized P1–P3 work-item list; headline findings: zero custom GLSL makes WebGPU portability cheap, no context-loss handling exists, boot is a synchronous terrain-build wall with no loading state, `firstControllableMs` measures first render not input-readiness, and WASM payloads are correctly isolated.
+- 2026-07-25: Fresh production build recorded in that analysis: game boot ~667 kB raw / ~178 kB gzip; the 2.77 MB three.module sourcemap ships publicly (policy item P3-a).
+- 2026-07-25: First simulated playtest (achiever) accepted into evidence: rig fantasy language gate passed ("planted/deliberate/stubborn/honest" vs "skittish/eager/reckless/brittle"), but the economy first rung is unreachable (0 salvage banked in 10+ min, pickup untaught); four bugs routed into Farmfall scope (intro modal re-opens mid-drive, spawn camera blocked by silo wall, no wreck state at 0% condition, Physics Lab dev button exposed in player UI).
+- 2026-07-25: Casual and explorer playtests completed (both agents hit the 2h cap still playing, resumed in report-only mode). Casual 4/10 (tab-close at ~6–8 min): Torque "planted/lumbering/sturdy", Spark "twitchy/eager/fragile", Drift "floaty/slidy/ghostly"; found hood camera broken and Drift's 320%-grade climb. Explorer 7/10: "alive as a system, empty as a place — a beautifully instrumented ghost valley"; confirmed persistence works (world restored even a drowned rig); found the salvage-collection defect, day/night clock derail, and the drowned-rig soft-lock.
+- 2026-07-25: Created `docs/reviews/PLAYTEST_SIM_SYNTHESIS_2026-07-25.md` — three-persona cross-tabulation: fantasy-differentiation gate PASSED by all personas; blocking fun gap = missing first rung (0 salvage banked by everyone); 12-bug consolidated list (4× P0); scores 4/6/7 with a named cheap path to 7–8. Meta-finding: fresh-eyes simulation caught P0s that all prior tests missed because every prior test knew how the game was supposed to be played; the lane is now proven and repeats after Farmfall.
+- 2026-07-25: Farmfall Slice 01 plan revised — Phase 0 (playability repair: B1–B4 P0s + reachable first salvage + P1/P2 cheap fixes) prepended ahead of the kernel phase; implementation launched with regression-test-first mandate.
+
+## 2026-07-25 — Box3D Probe 01 and expanded solver evidence map
+
+- Re-verified Box3D against its official announcement, repository, simulation
+  docs, and recording docs; verified the new third-party `box3d-wasm@0.2.0`
+  package, so the earlier “no ready npm package” statement is now recorded as
+  stale.
+- Updated ADR-0017 before implementation: Box3D is now a mandatory bounded
+  physical-wheel experiment, while Rapier remains the raycast-wheel proof and
+  the product architecture stays solver-independent.
+- Split the dynamics service into a shared world port plus explicit raycast and
+  physical-wheel creation capabilities.
+- Added a single-thread Box3D adapter with four physical wheel bodies/joints,
+  semantic intent, telemetry, complete assembly capture/restore, explicit
+  lifecycle disposal, exact dependency integrity, and no save/activity
+  authority.
+- Added the separate `/box3d-lab.html` route through the existing Physics Lab
+  runner and renderer. Six views, correct positive-front direction, desktop and
+  narrow controls, and browser-readable state all passed.
+- Added a Box3D browser acceptance runner and inspected desktop, top-down, and
+  narrow screenshots. Positive throttle advanced `+7.96 m` in the acceptance
+  run, steering rotated the chassis, all views selected, reset restored four
+  wheel bodies, and console problems were empty.
+- Expanded the comparison programme into collision roles/masks, CCD, camera
+  obstruction, minimap/world-frame fidelity, terrain/material identity,
+  streaming, attachments, feedback/audio, and replay diagnostics. Added the
+  minimap/world-coordinate contract rather than letting solver-local
+  coordinates become map or save truth.
+- Verification: 102 root tests + 7 kernel tests passed; typecheck passed;
+  production build passed with separate 520.91 kB Box3D WASM and 31.97 kB
+  adapter chunks; Box3D, Rapier Physics Lab, and canonical Field 02 browser
+  workflows passed.
+- The first full test attempt exposed severe CPU contention from a live
+  Playwright Chrome GPU process. The daemon was stopped, simulation files were
+  made file-serial without raising the five-second per-test timeout, and the
+  complete suite then passed in 6.26 seconds.
+- No commit, push, branch, deployment, system-wide Emscripten installation,
+  deletion, or cleanup was performed. Parallel Farmfall/playtest/progression
+  work was preserved.
+
+### Anything else?
+
+Box3D is now executable evidence, not an architectural anchor. The next
+high-information proof is the shared semantic collision/attachment scene plus a
+world-frame/minimap inset; Jolt should enter only when that harness has an
+explicit controller or constraint question.
+
+## 2026-07-26 — Integration, two-port acceptance, and master tracker
+
+### Baseline and preservation
+
+- Loaded the global/project instruction stack, full project `motto_v4.md`,
+  generated context pack, Git Commit Helper skill, and Sites hosting skill.
+- `agent-start --project` reached its documented shared-context fallback, then
+  hung after the timeout; the process was stopped and the required fallback
+  loop was completed from the live instruction files and generated pack.
+- Confirmed the ambient `openworld_1` path is stale and the authoritative
+  checkout is `/Users/pranay/Projects/Game_dev/rigs-unbound`.
+- Confirmed one `main` worktree, no stash, and `HEAD == origin/main ==
+  aa82cee` before the integration commit.
+- Classified the local set as source changes, research/decision continuity,
+  curated visual/video evidence, reusable browser tools, and raw simulated
+  playtest evidence. No files exceeded GitHub's single-file limit and the
+  repository scan found no credential pattern in the candidate set.
+
+### Verification
+
+- `npm run typecheck` — passed.
+- `npm test` — 102 root tests and seven deterministic-kernel tests passed.
+- `npm run test:assets` — five asset tests passed.
+- `npm run format:check` — passed.
+- `npm run build` — passed; Field 02, Rapier Physics Lab, and Box3D Probe
+  entries built separately. Vite retained the advisory for the 548.69 kB
+  Three.js chunk.
+- `RIGS_UNBOUND_URL=http://127.0.0.1:4173/?acceptance=field-02 npm run
+  test:browser` — passed with zero console/page problems.
+- The same Field 02 acceptance on port `4174` — passed with zero console/page
+  problems.
+- Rapier Physics Lab browser acceptance on `4173` — passed across movement,
+  steering, four surfaces, six cameras, reset, and narrow layout.
+- Box3D Probe browser acceptance on `4173` — passed across physical-wheel
+  movement, steering, six cameras, full-assembly reset, and narrow layout.
+- Sites read-only provenance check — version 4 is sourced from `aa82cee` and
+  the current public URL is active.
+
+### Documentation continuity
+
+- Added `docs/plans/MASTER_EXECUTION_TRACKER.md` as the canonical task ledger
+  with explicit states, dependencies, evidence, and closure gates.
+- Corrected `progress.md` deployment provenance and added the current
+  integration evidence and next-risk summary.
+- Added a dated supersession note to the build-in-public kit: trailer capture
+  now exists, field-vs-lab engine wording is precise, current test claims are
+  accurate, and deployment remains a pre-flight gate.
+- Continued the 3D-games analysis continuity pass by anchoring the remaining
+  prose-only addenda to named contract notes for behavior/event scheduling,
+  authority, simulation layers, modding, event graphs, asset pipeline,
+  affordances, visibility, collision, spatial culling, LOD, budgets, portals,
+  and kernel ordering.
+- Also bridged the earlier data/asset ingestion lane, machine-centric growth
+  synthesis, and shader/material strategy to their named contract notes so the
+  full analysis trail is now contract-backed instead of partially descriptive.
+
+### Three-pass review
+
+1. **Immediate correctness and completeness:** checked the complete local
+   inventory, representative visuals, dependency/build changes, source
+   contracts, test suites, both local ports, laboratories, and public Sites
+   provenance. No candidate file was silently dropped.
+2. **Architecture and long-term viability:** confirmed Field 02 remains the
+   canonical game runtime; Rapier raycast wheels and Box3D physical wheels are
+   separate bounded capabilities behind project-owned ports; the master
+   tracker prioritizes the first game loop ahead of additional engine breadth.
+3. **Rule compliance and supervision readiness:** rechecked v4 hook and
+   co-author guards, evidence tiers, append-only decision continuity,
+   deployment-source alignment, known P0 playtest gaps, and the final
+   acceptance-report requirements.
+
+### Evidence and boundaries
+
+- Tier 2: typecheck, unit/integration suites, asset tests, formatting, build.
+- Tier 4: visible browser acceptance on 4173/4174 and both dynamics labs,
+  including desktop/narrow layouts and console capture.
+- Tier 5 is not claimed. Real-phone thermals/touch/audio, cold-cache production
+  loading, WebGL context recovery, and real human fun/taste remain open.
+- The raw playtest corpus is retained because it documents discovery and failed
+  paths; a future evidence-retention policy must bound growth without deleting
+  historical material.
+
+### Anything else?
+
+Yes. The current systems playground is stronger than its first-session game
+loop. The dependency order is now explicit: publish this evidence, repair the
+first rung, complete Farmfall, repeat external playtests, then let those results
+choose the next physics, world, social, or asset expansion.

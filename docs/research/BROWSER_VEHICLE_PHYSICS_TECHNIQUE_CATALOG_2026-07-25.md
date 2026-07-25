@@ -262,3 +262,32 @@ Adopt Rapier behind a `DynamicsService` port only if the experiment proves:
 Yes. The next physics question should be attached to a player fantasy. A solver
 benchmark with falling cubes proves throughput; an excavator lifting unstable
 cargo proves whether the system serves Rigs Unbound.
+
+## Addendum — 2026-07-25 Physics Lab 01 executes the first foundation slice
+
+ADR-0017 supersedes the earlier research-only posture for the first bounded
+slice. Rapier `0.19.3` is now the initial project-owned dynamics implementation
+behind `DynamicsService`, with a dynamic chassis, raycast wheels, plain-data
+capture/restore, fixed stepping, extracted telemetry, debug geometry, and a
+separate Physics Lab browser entry.
+
+The earlier experiment contract remains useful as a staged adoption map:
+
+- dynamic cargo, articulated trailer constraints, and a motorized excavator arm
+  remain open;
+- cross-reload and cross-platform determinism remain open;
+- worker comparison, representative-device budgets, and snapshot-size evidence
+  remain open;
+- Jolt remains a later comparison only when the same vehicle fantasy and
+  acceptance harness can be run fairly.
+
+The key change is sequencing. A chassis-and-surface laboratory now supplies the
+baseline before articulation. Rapier remains replaceable, and the product still
+owns intent, rig identity, capabilities, cameras, activities, persistence,
+telemetry, and gameplay interpretation.
+
+### Anything else?
+
+The next experiment should compose a player capability from physics—tow, lift,
+push, break, or recover—so the solver is judged by what a rig can meaningfully
+do, not by solver feature coverage alone.

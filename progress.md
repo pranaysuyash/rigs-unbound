@@ -4,13 +4,25 @@ Original prompt: Explore and document a public browser-based open-world game in 
 
 ## Current state
 
-- Stage: contrasting-rig capability validation
-- Playable build: local **Rig Lab 01** at `http://127.0.0.1:4174/`
-- Engine decision: open
-- Reference runtime: provisional Three.js + Vite + TypeScript
+- Stage: terrain traversal, rig differentiation, and replaceable-dynamics
+  laboratories validated locally; the first understandable game loop and real
+  human playtest remain open
+- Playable build: **Field 02** — public at
+  [rigs-unbound.suyashpranay.chatgpt.site](https://rigs-unbound.suyashpranay.chatgpt.site),
+  local at `http://127.0.0.1:4174/`
+- Engine decision: open. Three.js renders; the traversal model is project-owned
+  (ADR-0007) and Rapier is now present behind the replaceable-dynamics boundary
+  (ADR-0017) rather than as the vehicle model
+- Reference runtime: Three.js + Vite + TypeScript on Cloudflare Workers via the
+  Sites adapter (ADR-0013)
 - Project name: **Rigs Unbound**
 - GitHub repository: `pranaysuyash/rigs-unbound`
-- Public deployment: none
+- Public deployment: **live**, Sites version 4 sourced from commit `aa82cee`.
+  Note the live build trails `main` whenever a newer commit has not been
+  released; see the
+  [deploy runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
+- Canonical task list:
+  [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 
 ## Playable foundation — 2026-07-25
 
@@ -244,3 +256,78 @@ questions.
 Local evidence is Tier 4 for the implemented interaction chain. Player feel,
 mobile-device budgets, haptics, prop-aware camera occlusion, and Rapier dynamics
 remain open with named closure paths.
+
+## Physics Lab 01 — 2026-07-25
+
+- Added Rapier `0.19.3` as the first replaceable `DynamicsService`.
+- Added normalized semantic vehicle intent and plain dynamics contracts.
+- Added a separate, live Physics Lab with dynamic chassis, four raycast wheels,
+  four surface profiles, fixed-step/time controls, reset/recovery, telemetry,
+  debug geometry, and six directly selectable camera views.
+- Kept the Field 02 entry separate from the Rapier WebAssembly payload.
+- Added deterministic/capture tests and browser acceptance covering positive
+  front direction, steering, surfaces, cameras, reset, narrow layout, and
+  console health.
+- Added ADR-0017, plan, acceptance, research/exploration continuity, and
+  reviewed visual evidence.
+- Continuing gap: articulated trailer/lifting capability, cross-platform
+  determinism, representative-device performance, and external player-feel
+  evidence.
+
+## Anything else?
+
+This proves an executable solver boundary for one wheeled family. It does not
+promote a buggy, tractor, wheels, or Rapier into the definition of Rigs Unbound.
+
+## Direction session and Farmfall Slice 01 kickoff — 2026-07-25
+
+- Full-stack exploration and analysis recorded in
+  `docs/exploration/GAME_SYSTEMS_ANALYSIS_AND_DIRECTION_2026-07-25.md`;
+  central finding: strong verified engine, but the ADR-0002 game slice is the
+  least-implemented accepted direction ("engine without a game").
+- Operator decisions: build all four workstreams; progression spine adopted
+  with in-verb vertical power (ADR-0018, Accepted); engine probe scheduled
+  against the existing engine-branch gating contract.
+- Active plan: `docs/plans/FARMFALL_SLICE_01_2026-07-25.md` — crops,
+  noise/light signature ecology, night threats, dawn consequences, mastery
+  kernel (Phase A), then presentation + browser acceptance (Phase B).
+- Three simulated fresh-eyes playtests (casual/achiever/explorer) running
+  against the live build; reports in `docs/reviews/PLAYTEST_SIM_*`.
+
+## Anything else?
+
+The direction session reframes the roadmap: fun evidence (the slice, the
+ecology, the mastery loop) now leads; architecture lanes (replay, streaming,
+authority) follow behind the slice's needs rather than ahead of them.
+
+## 2026-07-26 integration gate
+
+- Preserved the complete parallel work set: gameplay, physics laboratories,
+  Box3D comparison, research/ADRs, playtest evidence, public trailer assets,
+  and reusable verification tools.
+- Verified 102 root tests, seven deterministic-kernel tests, five asset tests,
+  TypeScript, formatting, and the production multi-entry build.
+- Ran Field 02 browser acceptance against both local ports `4173` and `4174`;
+  both completed the cargo relay, rig/camera/perception checks, persistence,
+  and `390 × 844` layout with zero console/page errors.
+- Ran Rapier Physics Lab and Box3D Probe browser acceptance. Both moved and
+  steered along the declared front direction, selected all six cameras,
+  recovered from captures, fit the narrow viewport, and emitted no console
+  problems.
+- Visually inspected the curated Field 02, Physics Lab, Box3D, and trailer
+  evidence. Raw playtest captures remain preserved as discovery history.
+- Added the canonical
+  [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md), which
+  separates done, active, ready, decision-gated, researching, and deferred
+  work and provides a closure gate for every item.
+- The build is green but still reports a >500 kB Three.js chunk advisory.
+  Cold-cache production loading, real-phone touch/thermals/audio, WebGL context
+  loss, and human taste evidence remain unverified.
+
+## Anything else?
+
+Yes. The highest-value next work is the playtest-discovered first-rung repair
+(title re-entry, salvage reachability/collection, zero-condition recovery, and
+phase-clock consistency), followed by the complete Farmfall loop. More engine
+or scenery breadth before that would strengthen the playground while leaving
+the game itself hard to find.

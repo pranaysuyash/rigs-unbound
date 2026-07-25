@@ -27,7 +27,18 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:4174/](http://127.0.0.1:4174/).
+Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/).
+
+The replaceable-dynamics evidence fixture is available at
+[Physics Lab 01](http://127.0.0.1:4173/physics-lab.html). It uses a separate
+Vite entry so its Rapier WebAssembly dependency does not define or block the
+Field 02 runtime.
+
+The bounded physical-wheel comparison is available at
+[Box3D Probe 01](http://127.0.0.1:4173/box3d-lab.html). It uses an exact
+`box3d-wasm` pin, project-owned TypeScript declarations and adapter, and a
+separately loaded Box3D WASM route. It is evidence, not the product runtime or a
+final solver decision.
 
 Current controls:
 
@@ -37,6 +48,8 @@ Current controls:
   and marsh skimmer (**Drift**);
 - `C`: cycle Chase, Hood, Side, Tactical, Top-down, and Survey views;
 - `View` selector: jump directly to any camera policy;
+- `B`: switch Torque's blade between cut and fill;
+- `X`: use a fitted recovery winch;
 - `N`: day/gloam/night presentation;
 - `P` or `Escape`: pause.
 
@@ -63,6 +76,7 @@ reproducible primitive geometry—not a final-engine decision.
 
 ## Start here
 
+- [Master execution tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 - [Exploration map](docs/exploration/EXPLORATION_MAP.md)
 - [Wide-open concept exploration](docs/exploration/OPEN_WORLD_VEHICLE_GAME_BRAINSTORM_2026-07-25.md)
 - [Visual direction preference and variants](docs/exploration/VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md)
@@ -75,6 +89,11 @@ reproducible primitive geometry—not a final-engine decision.
 - [Asset provenance register](docs/research/ASSET_PROVENANCE_REGISTER.md)
 - [Kenney asset library audit](docs/research/KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md)
 - [Browser vehicle-physics technique catalog](docs/research/BROWSER_VEHICLE_PHYSICS_TECHNIQUE_CATALOG_2026-07-25.md)
+- [Physics Lab 01 plan](docs/plans/PHYSICS_LAB_01_2026-07-25.md)
+- [Physics Lab 01 acceptance](docs/reviews/PHYSICS_LAB_01_ACCEPTANCE_2026-07-25.md)
+- [Box3D browser comparison plan](docs/plans/BOX3D_BROWSER_COMPARISON_01_2026-07-25.md)
+- [Box3D Probe 01 acceptance](docs/reviews/BOX3D_PROBE_01_ACCEPTANCE_2026-07-25.md)
+- [Minimap and world-coordinate contract](docs/research/MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md)
 - [ADR-0001: architecture experiments](docs/decisions/ADR-0001-headless-gameplay-kernel-and-engine-bakeoff.md)
 - [ADR-0002: first playable hypothesis](docs/decisions/ADR-0002-first-playable-tractor-day-night-loop.md)
 - [ADR-0003: versioned gameplay-content composition](docs/decisions/ADR-0003-versioned-gameplay-content-composition.md)
@@ -88,6 +107,8 @@ reproducible primitive geometry—not a final-engine decision.
 - [ADR-0011: command, capability, affordance, and state separation](docs/decisions/ADR-0011-command-capability-affordance-state-separation.md)
 - [ADR-0012: shared rig-perception chain](docs/decisions/ADR-0012-rig-perception-chain.md)
 - [ADR-0013: Sites deployment adapter](docs/decisions/ADR-0013-sites-deployment-adapter.md)
+- [ADR-0017: replaceable dynamics foundation](docs/decisions/ADR-0017-replaceable-dynamics-foundation.md)
+- [ADR-0018: Rig Journey, Verb Mastery, and Insight](docs/decisions/ADR-0018-journey-mastery-insight-progression-spine.md)
 - [Sites update and deployment runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - [Latest motto compliance review](docs/reviews/motto_review.md)
 - [Playable foundation plan and acceptance contract](docs/plans/PLAYABLE_FOUNDATION_2026-07-25.md)
@@ -113,12 +134,18 @@ reproducible primitive geometry—not a final-engine decision.
 
 ## Evidence status
 
-Current evidence includes planning and primary-source research (Tier 1), 83
+Current evidence includes planning and primary-source research (Tier 1), 102
 passing root tests plus seven preserved kernel-probe tests and clean TypeScript
 checks (Tier 2), a production build plus automated terrain, camera, cargo, jump,
 hover, perception-chain, reduced-motion, and schema-v4 save interaction checks
-(Tier 3), and observed
-desktop/narrow local browser play (Tier 4). The public Sites version is accepted
+(Tier 3), a separate Physics Lab build plus automated dynamic-chassis,
+raycast-wheel, surface, capture/reset, and camera checks (Tier 3), and observed
+desktop/narrow local browser play (Tier 4). A separate Box3D experiment now adds
+physical wheel joints, same-runtime repeatability, full-assembly recovery,
+semantic forward/steering input, all six views, desktop/narrow evidence, and a
+production-route load check (Tier 3/4); collision semantics, minimap integration,
+native recording bindings, and like-for-like Jolt comparison remain open. The
+public Sites version is accepted
 with a terminal `succeeded` status, an HTTP 200 response, and a live headless
 browser check of the welcome flow, schema-v4 state, three-rig roster, and console
 health (Tier 4). This does not add representative-device benchmark,

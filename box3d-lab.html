@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Rigs Unbound Box3D Probe 01 — a bounded physical-wheel browser experiment."
+    />
+    <meta name="theme-color" content="#11191e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Rigs Unbound — Box3D Probe 01</title>
+  </head>
+  <body data-dynamics-engine="box3d">
+    <a class="lab-skip" href="#physics-canvas">Skip to Box3D probe</a>
+    <main class="physics-lab">
+      <canvas
+        id="physics-canvas"
+        aria-label="Playable Box3D physical-wheel vehicle probe"
+        tabindex="0"
+      ></canvas>
+
+      <header class="lab-header">
+        <div>
+          <span>Bounded solver experiment / evidence fixture</span>
+          <strong>Box3D Probe 01</strong>
+          <p>Dynamic chassis + physical wheel joints</p>
+        </div>
+        <nav aria-label="Laboratory navigation">
+          <a href="/">Field 02</a>
+          <a href="/physics-lab.html">Rapier lab</a>
+          <button id="pause-button" type="button" aria-pressed="false">
+            Pause
+          </button>
+          <button id="debug-button" type="button" aria-pressed="false">
+            Debug contract
+          </button>
+          <button id="reset-lab" type="button">Reset rig</button>
+        </nav>
+      </header>
+
+      <aside class="lab-telemetry" aria-label="Box3D telemetry">
+        <p class="lab-telemetry__eyebrow">
+          <span id="engine-value">Box3D WASM loading</span>
+          <span id="surface-value">Asphalt</span>
+        </p>
+        <h1 id="lab-prompt">
+          Drive the same route with physical wheels and suspension.
+        </h1>
+        <dl>
+          <div>
+            <dt>Speed</dt>
+            <dd><span id="speed-value">0.0</span> km/h</dd>
+          </div>
+          <div>
+            <dt>Slip estimate</dt>
+            <dd id="slip-value">0%</dd>
+          </div>
+          <div>
+            <dt>Wheel proximity</dt>
+            <dd id="contact-value">0 / 4</dd>
+          </div>
+          <div>
+            <dt>Physics</dt>
+            <dd id="physics-ms-value">0.00 ms</dd>
+          </div>
+          <div>
+            <dt>Frame</dt>
+            <dd id="frame-value">-- fps</dd>
+          </div>
+          <div>
+            <dt>Bodies / shapes</dt>
+            <dd id="body-value">0 / 0</dd>
+          </div>
+        </dl>
+        <div class="wheel-bars" aria-label="Suspension compression">
+          <span>FL<i id="wheel-0"></i></span>
+          <span>FR<i id="wheel-1"></i></span>
+          <span>RL<i id="wheel-2"></i></span>
+          <span>RR<i id="wheel-3"></i></span>
+        </div>
+        <p id="lab-status" role="status">
+          Loading the reviewed single-thread Box3D wrapper. The bright nose is
+          the front.
+        </p>
+      </aside>
+
+      <section class="lab-controls" aria-label="Box3D probe controls">
+        <span><kbd>W/S</kbd> throttle / reverse</span>
+        <span><kbd>A/D</kbd> steer</span>
+        <span><kbd>Space</kbd> brake</span>
+        <span><kbd>Shift</kbd> handbrake</span>
+        <span><kbd>C</kbd> view</span>
+        <span><kbd>R</kbd> reset</span>
+        <label for="lab-camera">
+          View
+          <select id="lab-camera" aria-label="Box3D probe camera">
+            <option value="chase">Chase</option>
+            <option value="hood">Hood</option>
+            <option value="side">Side</option>
+            <option value="tactical">Tactical</option>
+            <option value="top-down">Top-down</option>
+            <option value="survey">Survey</option>
+          </select>
+        </label>
+        <label for="physics-frequency">
+          Solver
+          <select id="physics-frequency" aria-label="Physics frequency">
+            <option value="30">30 Hz</option>
+            <option value="60" selected>60 Hz</option>
+            <option value="120">120 Hz</option>
+          </select>
+        </label>
+        <label for="time-scale">
+          Time
+          <select id="time-scale" aria-label="Physics time scale">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="lab-touch" aria-label="Touch vehicle controls">
+        <button type="button" data-hold="left" aria-label="Steer left">
+          ←
+        </button>
+        <button type="button" data-hold="forward" aria-label="Throttle">
+          ↑
+        </button>
+        <button type="button" data-hold="brake" aria-label="Brake">■</button>
+        <button type="button" data-hold="reverse" aria-label="Reverse">
+          ↓
+        </button>
+        <button type="button" data-hold="right" aria-label="Steer right">
+          →
+        </button>
+      </section>
+
+      <section id="lab-error" class="lab-error" hidden>
+        <strong>Box3D probe could not start.</strong>
+        <p id="lab-error-message"></p>
+        <a href="/physics-lab.html">Return to Rapier Physics Lab 01</a>
+      </section>
+    </main>
+    <script type="module" src="/src/physics-lab/main.ts"></script>
+  </body>
+</html>
