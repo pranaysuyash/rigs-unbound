@@ -2,7 +2,7 @@
 
 **Rigs Unbound** is a public browser-game exploration about **vehicles as the playable characters**. A bicycle, tractor, toy car, rocket, fantasy machine, or hybrid vehicle should not merely be a skin: its shape, movement, tools, limitations, history, and upgrades should change which stories and mechanics become possible.
 
-The project is deliberately in **exploration**, not production. No engine, final art direction, backend, economy, or multiplayer model has been accepted yet.
+The project is deliberately in **exploration**, not production. A local 3D field test is now playable, but no engine, final art direction, backend, economy, or multiplayer model has been accepted yet.
 
 Repository: [github.com/pranaysuyash/rigs-unbound](https://github.com/pranaysuyash/rigs-unbound)
 
@@ -17,6 +17,35 @@ The recurring loop under investigation is:
 3. use that vehicle's capabilities to race, build, farm, fight, haul, explore, or rescue;
 4. bring back parts, knowledge, relationships, damage, and stories;
 5. modify the vehicle and unlock genuinely different possibilities.
+
+## Run Field 02
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://127.0.0.1:4174/](http://127.0.0.1:4174/).
+
+Current controls:
+
+- `WASD` or arrow keys: drive and reverse;
+- `Space` or `E`: use the current capability—attach/release cargo, or operate the tractor plough when no cargo is in reach;
+- `R`: switch between the persistent utility tractor (**Torque**) and toy buggy (**Spark**);
+- `C`: cycle Chase, Hood, Side, Tactical, Top-down, and Survey views;
+- `View` selector: jump directly to any camera policy;
+- `N`: day/gloam/night presentation;
+- `P` or `Escape`: pause.
+
+Gamepad driving and responsive touch controls use the same named actions. Both
+rigs, cargo-relay progress, condition, terrain deformation, salvage, modules,
+plough marks, surveyed cells, and discoveries are stored in one validated local
+browser record. Existing Field Test 001 and Rig Lab 01 saves migrate into the
+v3 Field 02 schema.
+
+`window.render_game_to_text()`, `window.advanceTime(ms)`, `window.applyRigInput(input, ms)`, `window.selectRig(id)`, `window.selectCamera(mode)`, `window.performRigAction()`, and `window.getPerformanceSnapshot()` expose the browser-test and observability contract.
+
+The current activity asks both rigs to tow one relay crate to the same gate. Torque is slower and stable under load; Spark accelerates and turns faster, loses more speed while towing, and can launch from the relay ramp. This is a provisional Three.js reference runtime using reproducible primitive geometry—not a final-engine decision or a claim that two ground vehicles define the universe.
 
 ## Start here
 
@@ -35,7 +64,14 @@ The recurring loop under investigation is:
 - [ADR-0003: versioned gameplay-content composition](docs/decisions/ADR-0003-versioned-gameplay-content-composition.md)
 - [ADR-0004: versioned public evidence surfaces](docs/decisions/ADR-0004-versioned-public-evidence-surfaces.md)
 - [ADR-0005: Rigs Unbound project identity](docs/decisions/ADR-0005-rigs-unbound-project-identity.md)
+- [ADR-0006: rig profiles, capabilities, and contrasting evidence](docs/decisions/ADR-0006-rig-capability-portability.md)
+- [ADR-0007: terrain as the simulation substrate](docs/decisions/ADR-0007-terrain-as-simulation-substrate.md)
+- [ADR-0008: camera policies and direct view selection](docs/decisions/ADR-0008-camera-policies-and-direct-view-selection.md)
 - [Latest motto compliance review](docs/reviews/motto_review.md)
+- [Playable foundation plan and acceptance contract](docs/plans/PLAYABLE_FOUNDATION_2026-07-25.md)
+- [Rig Lab 01 plan](docs/plans/RIG_LAB_01_2026-07-25.md)
+- [Open-world traversal foundation](docs/plans/OPEN_WORLD_TRAVERSAL_2026-07-25.md)
+- [Rig Lab 01 acceptance review](docs/reviews/RIG_LAB_01_ACCEPTANCE_2026-07-25.md)
 - [Design direction](DESIGN.md)
 - [Worklog and evidence](docs/WORKLOG.md)
 - [Implementation progress](progress.md)
@@ -51,7 +87,13 @@ The recurring loop under investigation is:
 
 ## Evidence status
 
-Current artifacts are planning and primary-source research evidence (Tier 1), plus recorded local structural checks on the documents (Tier 2). There is no runtime, browser, multiplayer, production, or player-test evidence yet.
+Current evidence includes planning and primary-source research (Tier 1), 81
+passing terrain/state/kernel tests and clean TypeScript checks (Tier 2), a
+production build plus automated terrain, camera, cargo, jump, and schema-v3 save
+interaction checks (Tier 3), and observed desktop/narrow local browser play
+(Tier 4). There is no public deployment, representative-device benchmark,
+external-player comprehension, multiplayer, production, or commercial-launch
+evidence yet.
 
 ## Anything else?
 

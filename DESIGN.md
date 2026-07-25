@@ -30,6 +30,26 @@ Current interpretation:
 
 Concept-art depth-of-field, darkness, and spectacle are not runtime targets until active-play readability and performance are measured.
 
+## Runtime field-test interpretation — 2026-07-25
+
+Field Test 001 translates Patchwork Atlas into reproducible primitive geometry rather than treating the concept board as production art.
+
+The current runtime uses:
+
+- a repaired rust/bone tractor silhouette with a physically legible plough;
+- a low-chrome DOM field kit rather than a generic dashboard;
+- distance-spaced furrows as the signature world-memory element;
+- harvest-gold world-state labels and cyan opportunity signals;
+- warm day, separated gloam, and cool night presentation states;
+- chase framing for machine personality and a tighter overhead frame for world information;
+- four horizon signals—restore, tow, shrink, ascend—to keep the wider world promise visible without claiming those activities are complete.
+
+The screenshot review corrected two issues in the same pass: the first tactical camera left excessive empty space, and the initial mobile control stack overlapped the field kit. The current camera keeps the rig and its trace central; the `390 × 844` layout leaves a measured gap between instruments and touch controls.
+
+Dynamic shadow maps were replaced with a rig-attached blob shadow after Chrome reported a texture-storage warning during lifecycle testing. This is also the better first-field performance posture; richer shadows require measured visual value.
+
+Known visual gap: nearby tall scenery can still dominate tactical framing because camera collision/occlusion is not implemented. Add that system before increasing prop density or accepting the camera grammar.
+
 ## Experience promise
 
 Vehicles are characters. The player should be able to recognize a machine by silhouette, movement, sound, wear, attached tools, and the stories visible on its body—not only by a nameplate or rarity color.
@@ -158,3 +178,21 @@ See the [Kenney asset library audit](docs/research/KENNEY_ASSET_LIBRARY_AUDIT_20
 ## Anything else?
 
 The design test is not “does this look like a polished game?” It is “can a player infer what this machine can do, what has happened to it, and what possibility is calling from the world?”
+
+## Rig Lab 01 visual translation — 2026-07-25
+
+The live runtime now tests visual contrast rather than using distant landmarks alone to imply breadth:
+
+- **Torque** retains the rust/bone repaired utility silhouette, large rear stance, cab, exhaust, beacon, plough, and stable chase framing.
+- **Spark** uses a low cyan/gold toy-buggy silhouette, exposed wheels, roll bar, compact tow hook, close camera, and visible airborne state.
+- Relay cargo uses a gold-banded rust crate and cyan beacon.
+- Pickup, ramp, and delivery gate form a readable route without a mode-selection menu.
+- The same field-kit grammar changes rig name, capability, relay status, condition, speed, and camera without becoming separate genre HUDs.
+
+The first narrow-screen pass revealed that the six-instrument field kit overlapped touch controls. The final `390 × 844` review has a measured 10.41 px vertical gap. Portrait chase distance and height now pull back to keep the active rig readable behind the interface.
+
+Remaining visual gap: geometry communicates different silhouette and jump posture, but sound, suspension compression, tire slip, dust, towing strain, and animation do not yet communicate the full handling contrast. External-player language is the gate: if people describe only different speeds, the audiovisual and motion grammar needs another pass before more rigs are added.
+
+### Anything else?
+
+The buggy should not become the new anchor. Its job is to prove contrast. Later rigs may reject wheels, ground contact, chase framing, or the current scale entirely while retaining semantic actions and persistent identity.

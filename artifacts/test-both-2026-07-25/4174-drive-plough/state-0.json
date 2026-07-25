@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "seed": "UNBOUND-260725",
+  "elapsedMs": 3100,
+  "phase": "day",
+  "cameraMode": "chase",
+  "paused": false,
+  "vehicle": {
+    "x": 0.037,
+    "z": -0.822,
+    "heading": 3.084,
+    "speed": 0,
+    "ploughLowered": true,
+    "distanceTravelled": 0.82
+  },
+  "worldMemory": {
+    "furrowCount": 1,
+    "discoveries": []
+  },
+  "lastDiagnostic": null
+}

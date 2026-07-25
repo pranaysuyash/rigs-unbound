@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rigs-unbound",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4174", "--strictPort"],
+      "port": 4174,
+      "url": "http://localhost:4174"
+    }
+  ]
+}

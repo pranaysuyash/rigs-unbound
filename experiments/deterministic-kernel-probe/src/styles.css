@@ -1,0 +1,308 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #101712;
+  color: #f2ead8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(238, 190, 92, 0.035) 1px, transparent 1px), #101712;
+  background-size: 100% 28px;
+}
+
+button {
+  font: inherit;
+}
+
+.game-shell {
+  width: min(1480px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: clamp(16px, 2.4vw, 34px);
+  display: grid;
+  align-content: center;
+  gap: 16px;
+}
+
+.field-header {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(300px, 1.2fr);
+  align-items: end;
+  gap: 24px;
+  border-left: 5px solid #d6913b;
+  padding-left: 16px;
+}
+
+.field-header h1 {
+  margin: 2px 0 0;
+  font-size: clamp(24px, 3vw, 44px);
+  letter-spacing: -0.04em;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #d9b875;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.objective {
+  margin: 0;
+  max-width: 680px;
+  color: #c9c4ae;
+  font-size: clamp(15px, 1.5vw, 20px);
+}
+
+.playfield {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #475141;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.35),
+    0 0 0 5px #172019;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #876d3e;
+  outline: none;
+}
+
+.instrument-strip {
+  min-height: 42px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  align-items: center;
+  padding: 8px 16px;
+  border-top: 1px solid #475141;
+  background: #182119;
+  color: #d6d0bc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.instrument-strip b {
+  color: #d6923b;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.start-panel {
+  position: absolute;
+  inset: 0 0 42px;
+  display: grid;
+  place-items: center start;
+  padding: clamp(24px, 6vw, 90px);
+  background:
+    linear-gradient(90deg, rgba(9, 15, 11, 0.96) 0 42%, transparent 76%),
+    linear-gradient(0deg, rgba(9, 15, 11, 0.2), rgba(9, 15, 11, 0.2));
+}
+
+.start-panel[hidden] {
+  display: none;
+}
+
+.start-copy {
+  width: min(560px, 88%);
+}
+
+.start-copy h2 {
+  margin: 8px 0 14px;
+  max-width: 420px;
+  font-size: clamp(34px, 5vw, 72px);
+  line-height: 0.94;
+  letter-spacing: -0.06em;
+}
+
+.start-copy > p:not(.eyebrow) {
+  color: #d8d0b8;
+  font-size: clamp(14px, 1.35vw, 18px);
+  line-height: 1.55;
+}
+
+.controls-copy {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px !important;
+}
+
+#start-btn {
+  margin-top: 12px;
+  padding: 13px 20px;
+  border: 1px solid #f1c56e;
+  background: #d78534;
+  color: #141711;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+#start-btn:hover,
+#start-btn:focus-visible {
+  background: #f0b657;
+  outline: 3px solid #f4d38d;
+  outline-offset: 3px;
+}
+
+.touch-controls {
+  display: none;
+  position: absolute;
+  inset: auto 14px 60px;
+  justify-content: space-between;
+  align-items: end;
+  pointer-events: none;
+}
+
+.touch-controls > button,
+.touch-controls > div {
+  pointer-events: auto;
+}
+
+.touch-controls button {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(239, 218, 170, 0.55);
+  background: rgba(16, 24, 18, 0.76);
+  color: #f2ead8;
+  font-weight: 900;
+  touch-action: none;
+}
+
+.touch-controls .action {
+  width: 76px;
+  background: rgba(193, 102, 43, 0.88);
+  font-size: 12px;
+}
+
+footer {
+  color: #818b7f;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .game-shell {
+    padding: 10px;
+    align-content: start;
+  }
+
+  .field-header {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .objective {
+    font-size: 14px;
+  }
+
+  .instrument-strip {
+    gap: 6px 14px;
+    font-size: 11px;
+  }
+
+  .playfield {
+    padding-bottom: 100px;
+    background: #131c15;
+  }
+
+  .start-panel {
+    inset: 0;
+    place-items: center;
+    padding: 18px 24px;
+    background: #090f0b;
+  }
+
+  .start-copy {
+    width: 100%;
+  }
+
+  .start-copy h2 {
+    margin: 6px 0 10px;
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 1;
+  }
+
+  .start-copy > p:not(.eyebrow) {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .controls-copy {
+    font-size: 10px !important;
+  }
+
+  #start-btn {
+    margin-top: 6px;
+    padding: 11px 16px;
+  }
+
+  .start-panel:not([hidden]) ~ .touch-controls {
+    display: none;
+  }
+
+  .touch-controls {
+    inset: auto 14px 12px;
+  }
+}
+
+@media (pointer: coarse), (max-width: 900px) {
+  .touch-controls {
+    display: flex;
+  }
+}
+
+@media (max-width: 760px) {
+  .touch-controls {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    align-items: center;
+  }
+
+  .touch-controls > div {
+    display: contents;
+  }
+
+  .touch-controls button,
+  .touch-controls .action {
+    width: 100%;
+    max-width: 58px;
+  }
+
+  .start-panel:not([hidden]) ~ .touch-controls {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

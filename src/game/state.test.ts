@@ -1,0 +1,945 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+  BUGGY_RAMP,
+  CAMERA_MODES,
+  CARGO_DELIVERY,
+  CARGO_PICKUP,
+  effectiveProfile,
+  FIXED_STEP_SECONDS,
+  LANDMARKS,
+  MODULES,
+  RIG_PROFILES,
+  type GameState,
+  type RigId,
+} from "./contracts";
+import { GameWorld } from "./gameworld";
+import { driveForce, effectiveGrip } from "./physics";
+import { SALVAGE_PICKUP_RADIUS } from "./exploration";
+import {
+  activeRig,
+  advanceGame,
+  createInitialState,
+  cycleCamera,
+  cyclePhase,
+  hasCapability,
+  installModule,
+  performPrimaryAction,
+  publicState,
+  recoverState,
+  repairRig,
+  selectCamera,
+  settleWorld,
+  stepGame,
+  switchActiveRig,
+  winchRecover,
+} from "./state";
+import { HOME_SITE, SURFACES, findSite } from "./world";
+
+const ACCELERATE = {
+  accelerate: true,
+  brake: false,
+  steerLeft: false,
+  steerRight: false,
+} as const;
+
+const IDLE = {
+  accelerate: false,
+  brake: false,
+  steerLeft: false,
+  steerRight: false,
+} as const;
+
+/** Build a state and its world together, settled and ready to step. */
+function scenario(seed: string, activeRigId: RigId = "utility-tractor") {
+  const state = createInitialState(seed);
+  state.activeRigId = activeRigId;
+  const world = new GameWorld(seed);
+  settleWorld(state, world);
+  return { state, world };
+}
+
+/** Drive a rig on flat home ground, away from obstacles, for N steps. */
+function driveFlat(state: GameState, world: GameWorld, steps: number): void {
+  for (let index = 0; index < steps; index += 1) {
+    stepGame(state, world, ACCELERATE, FIXED_STEP_SECONDS);
+  }
+}
+
+describe("rig gameplay kernel", () => {
+  it("settles both rigs onto the terrain instead of the old zero plane", () => {
+    const { state, world } = scenario("SETTLE");
+    for (const id of ["utility-tractor", "toy-buggy"] as const) {
+      const rig = state.rigs[id];
+      const profile = effectiveProfile(id, rig.modules);
+      const ground = world.terrain.height(rig.x, rig.z);
+      expect(rig.y).toBeGreaterThan(ground);
+      expect(rig.y - ground).toBeLessThan(profile.rideHeight + 0.6);
+      expect(rig.grounded).toBe(true);
+    }
+  });
+
+  it("moves contrasting rigs through the same named input contract", () => {
+    const tractor = scenario("MOVE", "utility-tractor");
+    const buggy = scenario("MOVE", "toy-buggy");
+
+    driveFlat(tractor.state, tractor.world, 180);
+    driveFlat(buggy.state, buggy.world, 180);
+
+    const tractorRig = activeRig(tractor.state);
+    const buggyRig = activeRig(buggy.state);
+    expect(tractorRig.distanceTravelled).toBeGreaterThan(10);
+    expect(buggyRig.distanceTravelled).toBeGreaterThan(
+      tractorRig.distanceTravelled,
+    );
+    expect(buggyRig.speed).toBeGreaterThan(tractorRig.speed);
+    expect(publicState(buggy.state, buggy.world)).not.toHaveProperty(
+      "renderer",
+    );
+  });
+
+  it("queries capabilities from composed profiles rather than rig-name branches", () => {
+    const { state } = scenario("CAPABILITIES");
+    const tractor = state.rigs["utility-tractor"];
+    const buggy = state.rigs["toy-buggy"];
+
+    expect(hasCapability(tractor, "plough")).toBe(true);
+    expect(hasCapability(buggy, "plough")).toBe(false);
+    expect(hasCapability(tractor, "tow")).toBe(true);
+    expect(hasCapability(buggy, "jump")).toBe(true);
+    expect(hasCapability(tractor, "winch")).toBe(false);
+
+    tractor.modules.push("winch");
+    expect(hasCapability(tractor, "winch")).toBe(true);
+  });
+
+  it("cycles presentation state without replacing either rig", () => {
+    const { state } = scenario("PHASE");
+    const tractor = state.rigs["utility-tractor"];
+    const buggy = state.rigs["toy-buggy"];
+
+    cyclePhase(state);
+    cycleCamera(state);
+
+    expect(state.phase).toBe("gloam");
+    expect(state.cameraMode).toBe("hood");
+    expect(state.rigs["utility-tractor"]).toBe(tractor);
+    expect(state.rigs["toy-buggy"]).toBe(buggy);
+  });
+
+  it("offers every camera policy through direct selection and ordered cycling", () => {
+    const { state } = scenario("CAMERA-POLICIES");
+
+    for (const mode of CAMERA_MODES) {
+      selectCamera(state, mode);
+      expect(state.cameraMode).toBe(mode);
+    }
+
+    selectCamera(state, "chase");
+    for (const mode of CAMERA_MODES.slice(1)) {
+      cycleCamera(state);
+      expect(state.cameraMode).toBe(mode);
+    }
+    cycleCamera(state);
+    expect(state.cameraMode).toBe("chase");
+  });
+
+  it("preserves independent rig history while switching the active identity", () => {
+    const { state, world } = scenario("SWITCH");
+    const tractor = state.rigs["utility-tractor"];
+    stepGame(state, world, ACCELERATE, 0.1);
+    const tractorDistance = tractor.distanceTravelled;
+
+    switchActiveRig(state);
+    stepGame(state, world, ACCELERATE, 0.1);
+
+    expect(state.activeRigId).toBe("toy-buggy");
+    expect(state.rigs["utility-tractor"]).toBe(tractor);
+    expect(tractor.distanceTravelled).toBe(tractorDistance);
+    expect(tractor.speed).toBe(0);
+    expect(state.rigs["toy-buggy"].distanceTravelled).toBeGreaterThan(0);
+  });
+
+  it("keeps control on an airborne rig until it lands", () => {
+    const { state } = scenario("AIRBORNE-SWITCH", "toy-buggy");
+    state.rigs["toy-buggy"].grounded = false;
+    state.rigs["toy-buggy"].y += 4;
+
+    switchActiveRig(state);
+
+    expect(state.activeRigId).toBe("toy-buggy");
+    expect(state.lastDiagnostic).toContain("Land");
+  });
+
+  it("discovers spatial opportunities through either active rig", () => {
+    const { state, world } = scenario("DISCOVERY", "toy-buggy");
+    const target = LANDMARKS.find(
+      (landmark) => landmark.id === "salvage-yard",
+    )!;
+    const buggy = activeRig(state);
+    buggy.x = target.x;
+    buggy.z = target.z;
+    stepGame(state, world);
+
+    expect(state.discoveries.map((item) => item.id)).toContain(target.id);
+  });
+
+  it("supports deterministic external stepping with a bounded duration", () => {
+    const left = scenario("STEP");
+    const right = scenario("STEP");
+
+    advanceGame(left.state, left.world, 1000);
+    advanceGame(right.state, right.world, 1000);
+
+    expect(publicState(left.state, left.world)).toEqual(
+      publicState(right.state, right.world),
+    );
+    expect(left.state.elapsedMs).toBeCloseTo(1000, 5);
+  });
+
+  it("is deterministic under an identical input sequence", () => {
+    const left = scenario("DETERMINISM");
+    const right = scenario("DETERMINISM");
+    const inputs = [ACCELERATE, IDLE, { ...ACCELERATE, steerLeft: true }];
+
+    for (let index = 0; index < 240; index += 1) {
+      const input = inputs[index % inputs.length]!;
+      stepGame(left.state, left.world, input, FIXED_STEP_SECONDS);
+      stepGame(right.state, right.world, input, FIXED_STEP_SECONDS);
+    }
+
+    expect(publicState(left.state, left.world)).toEqual(
+      publicState(right.state, right.world),
+    );
+  });
+});
+
+describe("traversal model", () => {
+  it("shapes drive force so the tractor pulls from rest and the buggy needs a run-up", () => {
+    // This is the whole gearing model: nobody authors a "climb stat".
+    const tractor = effectiveProfile("utility-tractor", []);
+    const buggy = effectiveProfile("toy-buggy", []);
+
+    // From a dead stop the tractor has far more to give, despite less peak power.
+    expect(driveForce(tractor, 0)).toBeGreaterThan(driveForce(buggy, 0) * 2);
+    // The tractor's force is flat from rest; the buggy's climbs with momentum.
+    expect(driveForce(tractor, 0)).toBeGreaterThan(
+      driveForce(tractor, tractor.lugSpeed) * 0.95,
+    );
+    expect(driveForce(buggy, buggy.lugSpeed)).toBeGreaterThan(
+      driveForce(buggy, 0) * 2.5,
+    );
+    // And both still fall away toward their top speed.
+    expect(driveForce(buggy, buggy.topSpeed)).toBeLessThan(
+      driveForce(buggy, buggy.lugSpeed) * 0.5,
+    );
+  });
+
+  it("makes low-range gearing restore pulling force from rest", () => {
+    const stock = effectiveProfile("toy-buggy", []);
+    const geared = effectiveProfile("toy-buggy", ["low-range-gearing"]);
+    expect(driveForce(geared, 0)).toBeGreaterThan(driveForce(stock, 0) * 2.5);
+    // Paid for with top speed, so the module is a choice rather than an upgrade.
+    expect(geared.topSpeed).toBeLessThan(stock.topSpeed);
+  });
+
+  it("makes lug tyres matter most where grip is worst", () => {
+    const tractor = effectiveProfile("utility-tractor", []);
+    const buggy = effectiveProfile("toy-buggy", []);
+
+    const mudTractor = effectiveGrip(
+      SURFACES.mud.grip,
+      tractor.tireGrip,
+      tractor.lugBonus,
+    );
+    const mudBuggy = effectiveGrip(
+      SURFACES.mud.grip,
+      buggy.tireGrip,
+      buggy.lugBonus,
+    );
+    const trackTractor = effectiveGrip(
+      SURFACES.track.grip,
+      tractor.tireGrip,
+      tractor.lugBonus,
+    );
+    const trackBuggy = effectiveGrip(
+      SURFACES.track.grip,
+      buggy.tireGrip,
+      buggy.lugBonus,
+    );
+
+    // Tractor wins in mud, buggy wins on hardpan: a real contrast, not a tier.
+    expect(mudTractor).toBeGreaterThan(mudBuggy);
+    expect(trackBuggy).toBeGreaterThan(trackTractor);
+  });
+
+  it("slows a rig climbing a grade and speeds it descending the same grade", () => {
+    const ridge = findSite("launch-ridge")!;
+    const uphill = scenario("GRADE-UP");
+    const downhill = scenario("GRADE-DOWN");
+
+    // Place both on the same sloped ground, facing opposite ways.
+    const midX = (HOME_SITE.x + ridge.x) * 0.42;
+    const midZ = (HOME_SITE.z + ridge.z) * 0.42;
+    const toRidge = Math.atan2(ridge.x - midX, ridge.z - midZ);
+
+    for (const [runner, heading] of [
+      [uphill, toRidge],
+      [downhill, toRidge + Math.PI],
+    ] as const) {
+      const rig = activeRig(runner.state);
+      rig.x = midX;
+      rig.z = midZ;
+      rig.heading = heading;
+      settleWorld(runner.state, runner.world);
+      driveFlat(runner.state, runner.world, 150);
+    }
+
+    const climbing = activeRig(uphill.state);
+    const descending = activeRig(downhill.state);
+    expect(Math.abs(descending.speed)).toBeGreaterThan(
+      Math.abs(climbing.speed),
+    );
+  });
+
+  it("lets low-range gearing climb from rest where the stock buggy bogs", () => {
+    // The progression promise, asserted: a module changes what terrain is passable.
+    // The test finds real terrain in the band the gate is meant to cover rather
+    // than assuming a hand-picked coordinate stays valid as the world is tuned.
+    const probe = new GameWorld("CLIMB-GATE");
+    let siteX = 0;
+    let siteZ = 0;
+    let siteHeading = 0;
+    for (let index = 1; index < 4000; index += 1) {
+      const angle = index * 2.399963;
+      const radius = Math.sqrt(index / 4000) * 180;
+      const x = Math.cos(angle) * radius;
+      const z = Math.sin(angle) * radius;
+      if (probe.terrain.surfaceIdAt(x, z) !== "grass") continue;
+      // Face directly uphill along the terrain gradient.
+      const east =
+        probe.terrain.height(x + 1, z) - probe.terrain.height(x - 1, z);
+      const north =
+        probe.terrain.height(x, z + 1) - probe.terrain.height(x, z - 1);
+      const gradient = Math.hypot(east, north) / 2;
+      if (gradient < 0.36 || gradient > 0.46) continue;
+      siteX = x;
+      siteZ = z;
+      siteHeading = Math.atan2(east, north);
+      break;
+    }
+    expect(siteHeading === 0 && siteX === 0).toBe(false);
+
+    const climbed: number[] = [];
+    for (const modules of [[], ["low-range-gearing"]] as const) {
+      const { state, world } = scenario("CLIMB-GATE", "toy-buggy");
+      const rig = activeRig(state);
+      rig.modules = [...modules];
+      rig.x = siteX;
+      rig.z = siteZ;
+      rig.heading = siteHeading;
+      settleWorld(state, world);
+      const startHeight = rig.y;
+      driveFlat(state, world, 420);
+      climbed.push(rig.y - startHeight);
+    }
+
+    const [stock, geared] = climbed as [number, number];
+    expect(geared).toBeGreaterThan(stock + 0.5);
+  });
+
+  it("removes steering authority while airborne", () => {
+    const { state, world } = scenario("AIR-STEER", "toy-buggy");
+    const rig = activeRig(state);
+    rig.speed = 12;
+    rig.grounded = false;
+    rig.y += 6;
+    const heading = rig.heading;
+
+    stepGame(
+      state,
+      world,
+      { accelerate: false, brake: false, steerLeft: true, steerRight: false },
+      FIXED_STEP_SECONDS,
+    );
+
+    expect(rig.heading).toBe(heading);
+    expect(rig.grounded).toBe(false);
+  });
+
+  it("bounds the rig inside the world disc", () => {
+    const { state, world } = scenario("BOUNDARY");
+    const rig = activeRig(state);
+    rig.x = 244;
+    rig.z = 0;
+    rig.heading = Math.PI / 2;
+    rig.speed = 10;
+    for (let index = 0; index < 120; index += 1) {
+      stepGame(state, world, ACCELERATE, FIXED_STEP_SECONDS);
+    }
+    expect(Math.hypot(rig.x, rig.z)).toBeLessThanOrEqual(246.001);
+  });
+
+  it("reports terrain telemetry the HUD and audio can read", () => {
+    const { state, world } = scenario("TELEMETRY");
+    driveFlat(state, world, 90);
+    const telemetry = activeRig(state).telemetry;
+    expect(typeof telemetry.surfaceId).toBe("string");
+    expect(telemetry.grip).toBeGreaterThan(0);
+    expect(telemetry.slip).toBeGreaterThanOrEqual(0);
+    expect(telemetry.slip).toBeLessThanOrEqual(1);
+  });
+});
+
+describe("world memory", () => {
+  it("cuts the terrain itself when ploughing, and only on soft ground", () => {
+    const field = findSite("long-furrow")!;
+    const { state, world } = scenario("PLOUGH");
+    const rig = activeRig(state);
+    rig.x = field.x - 12;
+    rig.z = field.z;
+    rig.heading = Math.PI / 2;
+    settleWorld(state, world);
+
+    // Probe a fixed point the rig will drive across, not the rig's own moving
+    // position — the ground under the rig is not the ground it ploughed.
+    const probeX = rig.x + 6;
+    const probeZ = rig.z;
+    const before = world.terrain.height(probeX, probeZ);
+
+    performPrimaryAction(state, world);
+    expect(state.lastDiagnostic).toContain("plough");
+
+    driveFlat(state, world, 420);
+
+    expect(state.furrows.length).toBeGreaterThan(3);
+    expect(world.terrain.deformationCount()).toBeGreaterThan(3);
+    expect(world.terrain.height(probeX, probeZ)).toBeLessThan(before);
+    expect(
+      state.furrows.every((mark) => mark.rigId === "utility-tractor"),
+    ).toBe(true);
+  });
+
+  it("does not let a rig without the plough capability cut ground", () => {
+    const field = findSite("long-furrow")!;
+    const { state, world } = scenario("NO-PLOUGH", "toy-buggy");
+    const rig = activeRig(state);
+    rig.x = field.x - 12;
+    rig.z = field.z;
+    rig.heading = Math.PI / 2;
+    settleWorld(state, world);
+
+    performPrimaryAction(state, world);
+    driveFlat(state, world, 300);
+
+    expect(state.furrows).toHaveLength(0);
+    expect(world.terrain.deformationCount()).toBe(0);
+  });
+
+  it("persists and restores spatial memory through the world snapshot", () => {
+    const { state, world } = scenario("MEMORY");
+    world.terrain.deform(HOME_SITE.x + 20, HOME_SITE.z, -0.2, 1);
+    world.fell("t1:2:0");
+    world.collect("3:4");
+    world.noteSurveyed([12345, 12346]);
+
+    const snapshot = JSON.parse(JSON.stringify(world.snapshot())) as unknown;
+    const restored = new GameWorld(state.seed);
+    restored.restore(snapshot);
+
+    expect(restored.felledObstacles.has("t1:2:0")).toBe(true);
+    expect(restored.collectedNodes.has("3:4")).toBe(true);
+    expect(restored.surveyedCells.has(12345)).toBe(true);
+    expect(restored.terrain.deformationCount()).toBe(
+      world.terrain.deformationCount(),
+    );
+  });
+
+  it("drops malformed spatial entries without discarding the good ones", () => {
+    const world = new GameWorld("HOSTILE");
+    world.restore({
+      deformation: [
+        { cx: 1, cz: 1, delta: -0.2 },
+        { cx: Number.NaN, cz: 1, delta: -0.2 },
+        null,
+      ],
+      felled: ["t1:1:0", "", 42, "x".repeat(200)],
+      collected: ["1:1", null],
+      surveyed: [10, -5, Number.POSITIVE_INFINITY],
+    });
+
+    expect(world.terrain.deformationCount()).toBeGreaterThan(0);
+    expect(world.felledObstacles.has("t1:1:0")).toBe(true);
+    expect(world.felledObstacles.size).toBe(1);
+    expect(world.collectedNodes.size).toBe(1);
+    expect(world.surveyedCells.size).toBe(1);
+  });
+});
+
+describe("exploration and progression", () => {
+  it("places salvage off the authored track network", () => {
+    const world = new GameWorld("SALVAGE-PLACEMENT");
+    const nodes = world.exploration.nodesNear(0, 0, 190, new Set());
+    expect(nodes.length).toBeGreaterThan(20);
+    for (const node of nodes) {
+      expect(world.terrain.routeWeight(node.x, node.z)).toBeLessThanOrEqual(
+        0.35,
+      );
+    }
+  });
+
+  it("collects a salvage node once and remembers it is gone", () => {
+    const { state, world } = scenario("COLLECT");
+    const rig = activeRig(state);
+    const node = world.exploration.nodesNear(
+      rig.x,
+      rig.z,
+      190,
+      world.collectedNodes,
+    )[0]!;
+    rig.x = node.x;
+    rig.z = node.z;
+
+    performPrimaryAction(state, world);
+    expect(state.salvage).toBe(node.value);
+    expect(world.collectedNodes.has(node.id)).toBe(true);
+
+    performPrimaryAction(state, world);
+    expect(state.salvage).toBe(node.value);
+    expect(
+      world.exploration.nearestNode(
+        node.x,
+        node.z,
+        SALVAGE_PICKUP_RADIUS,
+        world.collectedNodes,
+      ),
+    ).toBeNull();
+  });
+
+  it("maps more of the world from a higher vantage over the same ground", () => {
+    // The reason to climb: information. Elevation is isolated by holding the
+    // ground position fixed and only raising the eye, so the assertion is about
+    // the sightline mechanic rather than about one hand-picked hilltop.
+    const world = new GameWorld("SURVEY");
+    const ground = world.terrain.height(60, 60);
+
+    const low = new Set<number>();
+    world.exploration.survey(60, ground + 2.5, 60, 150, low);
+
+    const high = new Set<number>();
+    world.exploration.survey(60, ground + 45, 60, 150, high);
+
+    expect(low.size).toBeGreaterThan(0);
+    expect(high.size).toBeGreaterThan(low.size);
+  });
+
+  it("gives a survey mast a wider sweep than the bare rig", () => {
+    const world = new GameWorld("MAST");
+    const bare = effectiveProfile("utility-tractor", []);
+    const masted = effectiveProfile("utility-tractor", ["survey-mast"]);
+    expect(masted.surveyRange).toBeGreaterThan(bare.surveyRange);
+
+    const withoutMast = new Set<number>();
+    const withMast = new Set<number>();
+    const eyeY = world.terrain.height(HOME_SITE.x, HOME_SITE.z) + 3;
+    world.exploration.survey(
+      HOME_SITE.x,
+      eyeY,
+      HOME_SITE.z,
+      bare.surveyRange,
+      withoutMast,
+    );
+    world.exploration.survey(
+      HOME_SITE.x,
+      eyeY,
+      HOME_SITE.z,
+      masted.surveyRange,
+      withMast,
+    );
+    expect(withMast.size).toBeGreaterThan(withoutMast.size);
+  });
+
+  it("surveys cells as the rig drives", () => {
+    const { state, world } = scenario("SURVEY-DRIVE");
+    expect(world.surveyedCells.size).toBe(0);
+    driveFlat(state, world, 300);
+    expect(world.surveyedCells.size).toBeGreaterThan(4);
+  });
+
+  it("only installs modules at the workshop, and only when paid for", () => {
+    const { state, world } = scenario("INSTALL");
+    const rig = activeRig(state);
+
+    // Away from the pad: refused regardless of funds.
+    rig.x = 160;
+    rig.z = -120;
+    state.salvage = 99;
+    installModule(state, world, "winch");
+    expect(rig.modules).toHaveLength(0);
+    expect(state.lastDiagnostic).toContain("workshop");
+
+    // At the pad but broke: refused with the price.
+    rig.x = HOME_SITE.x;
+    rig.z = HOME_SITE.z;
+    state.salvage = 1;
+    installModule(state, world, "winch");
+    expect(rig.modules).toHaveLength(0);
+    expect(state.lastDiagnostic).toContain("salvage");
+
+    // At the pad with funds: fitted, paid for, and not fittable twice.
+    state.salvage = MODULES.winch.cost + 2;
+    installModule(state, world, "winch");
+    expect(rig.modules).toEqual(["winch"]);
+    expect(state.salvage).toBe(2);
+
+    installModule(state, world, "winch");
+    expect(rig.modules).toEqual(["winch"]);
+    expect(state.lastDiagnostic).toContain("already");
+  });
+
+  it("composes module effects onto the immutable blueprint without mutating it", () => {
+    const base = RIG_PROFILES["toy-buggy"];
+    const basePower = base.enginePower;
+    const geared = effectiveProfile("toy-buggy", [
+      "low-range-gearing",
+      "lug-tires",
+    ]);
+
+    expect(geared.enginePower).toBeGreaterThan(basePower);
+    expect(geared.topSpeed).toBeLessThan(base.topSpeed);
+    expect(geared.lugBonus).toBeGreaterThan(base.lugBonus);
+    // The blueprint is untouched, which is what makes a module list a save format.
+    expect(RIG_PROFILES["toy-buggy"].enginePower).toBe(basePower);
+    expect(RIG_PROFILES["toy-buggy"].topSpeed).toBe(base.topSpeed);
+  });
+
+  it("repairs only at the workshop and only for a price", () => {
+    const { state } = scenario("REPAIR");
+    const rig = activeRig(state);
+    rig.condition = 40;
+
+    rig.x = 150;
+    rig.z = 150;
+    state.salvage = 10;
+    repairRig(state);
+    expect(rig.condition).toBe(40);
+
+    rig.x = HOME_SITE.x;
+    rig.z = HOME_SITE.z;
+    state.salvage = 0;
+    repairRig(state);
+    expect(rig.condition).toBe(40);
+
+    state.salvage = 5;
+    repairRig(state);
+    expect(rig.condition).toBe(100);
+    expect(state.salvage).toBe(2);
+  });
+
+  it("gates winch recovery behind the winch module", () => {
+    const { state, world } = scenario("WINCH");
+    const rig = activeRig(state);
+    rig.x = 40;
+    rig.z = 40;
+    settleWorld(state, world);
+    const strandedX = rig.x;
+
+    winchRecover(state, world);
+    expect(rig.x).toBe(strandedX);
+    expect(state.lastDiagnostic).toContain("No winch");
+
+    rig.modules.push("winch");
+    winchRecover(state, world);
+    expect(rig.x).not.toBe(strandedX);
+    expect(world.terrain.routeWeight(rig.x, rig.z)).toBeGreaterThan(0.9);
+    expect(rig.grounded).toBe(true);
+  });
+});
+
+describe("collision", () => {
+  it("generates the same obstacle field for the same seed and a different one otherwise", () => {
+    const a = new GameWorld("OBSTACLES").obstacles.near(0, 0, 90);
+    const b = new GameWorld("OBSTACLES").obstacles.near(0, 0, 90);
+    const c = new GameWorld("OBSTACLES-OTHER").obstacles.near(0, 0, 90);
+
+    expect(a.length).toBeGreaterThan(0);
+    expect(a.map((item) => item.id)).toEqual(b.map((item) => item.id));
+    expect(a.map((item) => item.id)).not.toEqual(c.map((item) => item.id));
+  });
+
+  it("keeps obstacles off the authored tracks and out of the water", () => {
+    const world = new GameWorld("OBSTACLE-RULES");
+    for (const obstacle of world.obstacles.near(0, 0, 190)) {
+      expect(
+        world.terrain.routeWeight(obstacle.x, obstacle.z),
+      ).toBeLessThanOrEqual(0.25);
+      expect(world.obstacles).toBeDefined();
+      expect(obstacle.groundY).toBeGreaterThan(0);
+    }
+  });
+
+  it("lets a heavy rig fell a tree that stops a light one", () => {
+    const world = new GameWorld("FELL");
+    const tree = world.obstacles
+      .near(0, 0, 190)
+      .find((item) => item.kind === "tree" && item.radius <= 0.75)!;
+    expect(tree).toBeDefined();
+
+    const heavy = { x: tree.x + 0.2, z: tree.z, speed: 7, heading: 0 };
+    const heavyOutcome = world.obstacles.resolve(heavy, 1.5, 4.8, new Set());
+    expect(heavyOutcome.felled?.id).toBe(tree.id);
+
+    const light = { x: tree.x + 0.2, z: tree.z, speed: 7, heading: 0 };
+    const lightOutcome = world.obstacles.resolve(light, 1.4, 1.2, new Set());
+    expect(lightOutcome.felled).toBeNull();
+    expect(lightOutcome.blockedBy?.id).toBe(tree.id);
+    expect(Math.hypot(light.x - tree.x, light.z - tree.z)).toBeGreaterThan(0.2);
+  });
+
+  it("ignores obstacles the player already knocked down", () => {
+    const world = new GameWorld("FELLED-IGNORED");
+    const tree = world.obstacles
+      .near(0, 0, 190)
+      .find((item) => item.kind === "tree")!;
+    const rig = { x: tree.x, z: tree.z, speed: 6, heading: 0 };
+    const outcome = world.obstacles.resolve(rig, 1.5, 4.8, new Set([tree.id]));
+    expect(outcome.hit).toBe(false);
+    expect(rig.x).toBe(tree.x);
+  });
+});
+
+describe("cargo relay", () => {
+  it("runs the complete workflow for either towing rig", () => {
+    for (const rigId of ["utility-tractor", "toy-buggy"] as const) {
+      const { state, world } = scenario(`RELAY-${rigId}`, rigId);
+      const rig = activeRig(state);
+      rig.x = CARGO_PICKUP.x;
+      rig.z = CARGO_PICKUP.z;
+      settleWorld(state, world);
+
+      performPrimaryAction(state, world);
+      expect(state.cargoRelay.status).toBe("active");
+      expect(state.cargoRelay.cargo.attachedRigId).toBe(rigId);
+
+      rig.x = CARGO_DELIVERY.x;
+      rig.z = CARGO_DELIVERY.z;
+      stepGame(state, world);
+
+      expect(state.cargoRelay.status).toBe("complete");
+      expect(state.cargoRelay.cargo.delivered).toBe(true);
+      expect(state.cargoRelay.cargo.attachedRigId).toBeNull();
+      expect(state.cargoRelay.bestTimeMs).not.toBeNull();
+    }
+  });
+
+  it("applies towing penalties through profiles while preserving different feel", () => {
+    const tractor = RIG_PROFILES["utility-tractor"];
+    const buggy = RIG_PROFILES["toy-buggy"];
+
+    expect(tractor.topSpeed * tractor.towSpeedMultiplier).toBeGreaterThan(8);
+    expect(buggy.topSpeed * buggy.towSpeedMultiplier).toBeLessThan(
+      buggy.topSpeed * 0.6,
+    );
+    expect(buggy.topSpeed).toBeGreaterThan(tractor.topSpeed);
+    expect(tractor.mass).toBeGreaterThan(buggy.mass * 3);
+  });
+
+  it("lets the jump-capable buggy launch while the tractor stays grounded", () => {
+    const buggyRun = scenario("BUGGY-JUMP", "toy-buggy");
+    const buggy = activeRig(buggyRun.state);
+    buggy.x = BUGGY_RAMP.x;
+    buggy.z = BUGGY_RAMP.z;
+    settleWorld(buggyRun.state, buggyRun.world);
+    buggy.speed = BUGGY_RAMP.minimumSpeed + 1;
+    const buggyRest = buggy.y;
+    stepGame(buggyRun.state, buggyRun.world);
+
+    const tractorRun = scenario("TRACTOR-RAMP");
+    const tractor = activeRig(tractorRun.state);
+    tractor.x = BUGGY_RAMP.x;
+    tractor.z = BUGGY_RAMP.z;
+    settleWorld(tractorRun.state, tractorRun.world);
+    tractor.speed = BUGGY_RAMP.minimumSpeed + 1;
+    stepGame(tractorRun.state, tractorRun.world);
+
+    expect(buggy.grounded).toBe(false);
+    expect(buggy.y).toBeGreaterThan(buggyRest);
+    expect(tractor.grounded).toBe(true);
+  });
+});
+
+describe("save recovery and migration", () => {
+  let world: GameWorld;
+  beforeEach(() => {
+    world = new GameWorld("RECOVERY");
+  });
+
+  it("preserves a selected top-down camera in the current save schema", () => {
+    const saved = createInitialState("CAMERA-RECOVERY");
+    saved.cameraMode = "top-down";
+
+    expect(recoverState(saved)?.cameraMode).toBe("top-down");
+  });
+
+  it("migrates a Field Test 001 (v1) record without discarding its trail", () => {
+    const recovered = recoverState({
+      schemaVersion: 1,
+      seed: "LEGACY",
+      elapsedMs: 2400,
+      phase: "gloam",
+      cameraMode: "tactical",
+      paused: false,
+      vehicle: {
+        x: 12,
+        z: -8,
+        heading: 1.4,
+        speed: 4,
+        steering: 0.25,
+        ploughLowered: true,
+        distanceTravelled: 88,
+        wheelRotation: 42,
+      },
+      furrows: [{ x: 1, z: 2, heading: 0.3, createdAt: 100 }],
+      discoveries: [{ id: "home-silo", discoveredAt: 200 }],
+      lastDiagnostic: null,
+    });
+
+    expect(recovered?.schemaVersion).toBe(3);
+    expect(recovered?.rigs["utility-tractor"].x).toBe(12);
+    expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
+      true,
+    );
+    expect(recovered?.rigs["toy-buggy"].id).toBe("toy-buggy");
+    expect(recovered?.discoveries[0]?.id).toBe("home-silo");
+    expect(recovered?.rigs["utility-tractor"].modules).toEqual([]);
+  });
+
+  it("migrates a Rig Lab 01 (v2) record and re-settles it onto terrain", () => {
+    const v2 = {
+      schemaVersion: 2,
+      seed: "RIGLAB",
+      elapsedMs: 9000,
+      phase: "day",
+      cameraMode: "chase",
+      paused: false,
+      activeRigId: "toy-buggy",
+      rigs: {
+        "utility-tractor": {
+          id: "utility-tractor",
+          x: 30,
+          y: 0,
+          z: -10,
+          heading: 1,
+          speed: 2,
+          steering: 0,
+          verticalVelocity: 0,
+          grounded: true,
+          jumpCooldownMs: 0,
+          distanceTravelled: 120,
+          wheelRotation: 9,
+          condition: 71,
+          attachments: [
+            { id: "field-plough", engaged: true },
+            { id: "tow-hook", engaged: false },
+          ],
+        },
+        "toy-buggy": {
+          id: "toy-buggy",
+          x: -12,
+          y: 0,
+          z: 4,
+          heading: 0,
+          speed: 0,
+          steering: 0,
+          verticalVelocity: 0,
+          grounded: true,
+          jumpCooldownMs: 0,
+          distanceTravelled: 40,
+          wheelRotation: 3,
+          condition: 95,
+          attachments: [{ id: "tow-hook", engaged: false }],
+        },
+      },
+      cargoRelay: {
+        id: "cargo-relay",
+        status: "ready",
+        startedAt: null,
+        completedAt: null,
+        bestTimeMs: null,
+        cargo: {
+          id: "relay-cargo",
+          x: 11,
+          y: 0.65,
+          z: -2,
+          heading: 0,
+          attachedRigId: null,
+          delivered: false,
+        },
+      },
+      furrows: [],
+      discoveries: [],
+      lastDiagnostic: null,
+    };
+
+    const recovered = recoverState(v2);
+    expect(recovered?.schemaVersion).toBe(3);
+    expect(recovered?.activeRigId).toBe("toy-buggy");
+    expect(recovered?.rigs["utility-tractor"].condition).toBe(71);
+    expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
+      true,
+    );
+    expect(recovered?.salvage).toBe(0);
+
+    // Positions from the flat plane must end up on the ground, not under it.
+    settleWorld(recovered!, world);
+    for (const id of ["utility-tractor", "toy-buggy"] as const) {
+      const rig = recovered!.rigs[id];
+      expect(rig.y).toBeGreaterThan(world.terrain.height(rig.x, rig.z));
+    }
+  });
+
+  it("rejects incompatible saves and clamps recoverable values into the disc", () => {
+    expect(recoverState({ schemaVersion: 99 })).toBeNull();
+
+    const state = createInitialState("RECOVER");
+    state.rigs["toy-buggy"].x = 9999;
+    state.rigs["toy-buggy"].z = 0;
+    state.rigs["toy-buggy"].condition = -10;
+    const recovered = recoverState(
+      JSON.parse(JSON.stringify(state)) as unknown,
+    );
+
+    expect(recovered).not.toBeNull();
+    expect(
+      Math.hypot(
+        recovered!.rigs["toy-buggy"].x,
+        recovered!.rigs["toy-buggy"].z,
+      ),
+    ).toBeCloseTo(246, 3);
+    expect(recovered?.rigs["toy-buggy"].condition).toBe(0);
+  });
+
+  it("drops module ids that do not exist or do not fit", () => {
+    const state = createInitialState("MODULE-RECOVERY");
+    const serialized = JSON.parse(JSON.stringify(state)) as {
+      rigs: Record<string, { modules: unknown }>;
+    };
+    serialized.rigs["utility-tractor"]!.modules = [
+      "winch",
+      "not-a-module",
+      "winch",
+      17,
+    ];
+    const recovered = recoverState(serialized);
+    expect(recovered?.rigs["utility-tractor"].modules).toEqual(["winch"]);
+  });
+
+  it("rejects internally contradictory activity state", () => {
+    const state = createInitialState("CONTRADICTORY-RELAY");
+    state.cargoRelay.status = "complete";
+    state.cargoRelay.cargo.delivered = false;
+
+    expect(
+      recoverState(JSON.parse(JSON.stringify(state)) as unknown),
+    ).toBeNull();
+  });
+});

@@ -138,6 +138,28 @@ Probe code may be discarded. Content schemas, test scenarios, and the gameplay k
 
 A feature matrix can identify what to test. It cannot choose the engine because this project’s decisive variable is the friction of composing unlike mechanics around one persistent vehicle identity.
 
+## Addendum — 2026-07-25 first executable reference runtime
+
+The project owner clarified in response to an external review that Rigs Unbound is being built as an open game and that the review should inform rather than anchor the whole product.
+
+Implementation consequence:
+
+- build one executable Three.js reference runtime now;
+- keep fixed-step simulation, named actions, persistence, and exported state outside Three.js;
+- use primitive project-owned geometry so the first public-reproducible runtime does not depend on the private Kenney source bundle;
+- expose several spatial opportunity landmarks so the runtime communicates the wider vehicle/world promise;
+- do not require two engine implementations before obtaining the first handling, camera, world-memory, and browser evidence.
+
+Three.js is **not accepted as the final engine** by this addendum. The original candidate comparison remains available when a real disputed engine question justifies its cost. Any later candidate must consume the same state/action contract and reproduce the same acceptance behaviors.
+
+Decision effect: **status remains Proposed**. The change is from “comparison before any runtime” to “reference runtime first, comparison when evidence identifies the question.”
+
+See [Playable Foundation Plan](../plans/PLAYABLE_FOUNDATION_2026-07-25.md).
+
+### Anything else?
+
+The runtime should make the product feel open without pretending that breadth is already implemented. Distant landmarks are invitations and architectural seams, not claims that every region is complete.
+
 ## Addendum — 2026-07-25 additional workbook research
 
 The incoming 14-engine matrix was inspected and manually recalculated. Its eight criterion weights total 1.0 and its cached values are internally correct:
@@ -171,3 +193,17 @@ Decision effect: **status remains Proposed**. Identifying a fair fixture improve
 ### Anything else?
 
 The source tractor already contains useful wheel nodes, so the bakeoff can test a real importer and vehicle hierarchy instead of giving every engine a custom primitive vehicle that conceals asset-pipeline differences.
+
+## Addendum — 2026-07-25 Rig Lab 01 portability evidence
+
+The project owner clarified that the tractor is one content instance, not a privileged architectural center, and asked the adjacent-capability sequence to continue. [ADR-0006](ADR-0006-rig-capability-portability.md) records the accepted consequence.
+
+The live reference runtime now has two contrasting ground rigs, a profile/capability boundary, a shared towing activity, a v1-to-v2 save migration, and local performance instrumentation. This is evidence that the renderer-independent kernel can support more than one ground-vehicle fantasy without creating a second controller or activity pipeline.
+
+It is not evidence that the current `ground` mobility adapter can model bicycles, tracked vehicles, boats, aircraft, rockets, or spacecraft. Those remain bounded-adapter experiments. Three.js also remains provisional; Rig Lab 01 strengthens the state/action portability seam without accepting the final engine.
+
+Decision effect: **status remains Proposed**.
+
+### Anything else?
+
+The next engine comparison should be triggered by concrete friction—content authoring, physics, target-device performance, or another mobility family—not by the desire to repeat a feature matrix.

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "seed": "UNBOUND-260725",
+  "elapsedMs": 3917,
+  "phase": "day",
+  "cameraMode": "chase",
+  "paused": false,
+  "activeRigId": "utility-tractor",
+  "activeRig": {
+    "id": "utility-tractor",
+    "x": 0.052,
+    "y": 0,
+    "z": -1.993,
+    "heading": 3.0723,
+    "speed": 0,
+    "grounded": true,
+    "condition": 100,
+    "distanceTravelled": 1.99,
+    "attachments": [
+      {
+        "id": "field-plough",
+        "engaged": true
+      },
+      {
+        "id": "tow-hook",
+        "engaged": false
+      }
+    ],
+    "capabilities": [
+      "plough",
+      "tow"
+    ]
+  },
+  "rigs": {
+    "utility-tractor": {
+      "id": "utility-tractor",
+      "x": 0.052,
+      "y": 0,
+      "z": -1.993,
+      "heading": 3.0723,
+      "speed": 0,
+      "grounded": true,
+      "condition": 100,
+      "distanceTravelled": 1.99,
+      "attachments": [
+        {
+          "id": "field-plough",
+          "engaged": true
+        },
+        {
+          "id": "tow-hook",
+          "engaged": false
+        }
+      ],
+      "capabilities": [
+        "plough",
+        "tow"
+      ]
+    },
+    "toy-buggy": {
+      "id": "toy-buggy",
+      "x": -5,
+      "y": 0,
+      "z": 3,
+      "heading": 3.1416,
+      "speed": 0,
+      "grounded": true,
+      "condition": 100,
+      "distanceTravelled": 0,
+      "attachments": [
+        {
+          "id": "tow-hook",
+          "engaged": false
+        }
+      ],
+      "capabilities": [
+        "tow",
+        "jump"
+      ]
+    }
+  },
+  "activity": {
+    "id": "cargo-relay",
+    "status": "ready",
+    "elapsedMs": 0,
+    "bestTimeMs": null,
+    "cargoAttachedTo": null,
+    "delivered": false
+  },
+  "worldMemory": {
+    "furrowCount": 2,
+    "discoveries": []
+  },
+  "lastDiagnostic": "Field plough engaged. The world will remember this pass.",
+  "performance": {
+    "sampledAt": 23835,
+    "firstControllableMs": 1417.9,
+    "averageFrameMs": 167.69,
+    "p95FrameMs": 250,
+    "framesPerSecond": 6,
+    "drawCalls": 90,
+    "triangles": 4926,
+    "heapUsedMb": 16.3,
+    "loadDurationMs": 1.1,
+    "lastSaveDurationMs": 0,
+    "saveBytes": 0
+  }
+}

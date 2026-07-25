@@ -1,5 +1,65 @@
 # Worklog and Evidence Register
 
+## 2026-07-25 — First executable open field
+
+### Operator direction
+
+- Treated the incoming ChatGPT review as critique, not a specification.
+- Preserved the broad Rigs Unbound product horizon after the owner clarified that the game remains open rather than being anchored to every narrowing recommendation.
+- Changed ADR-0001's immediate execution order from “two candidates before runtime” to “one provisional reference runtime, then compare when evidence identifies a concrete engine question.”
+
+### Implementation
+
+- Created a Vite/TypeScript/Three.js browser runtime at the repository root.
+- Kept game state, fixed-step movement, named actions, furrow memory, discovery, validation, serialization, and browser hooks outside Three.js.
+- Built a primitive Patchwork Atlas tractor/world without importing private source-library assets.
+- Added keyboard, gamepad, touch, pause, reset, local recovery, visible diagnostics, DOM instruments, opportunity signals, chase/tactical cameras, and day/gloam/night states.
+- Added 6 live state-kernel tests.
+- Reconciled parallel work under `experiments/deterministic-kernel-probe/`: preserved it as a disposable fixture, scoped Vitest to the live TypeScript runtime, and made root checks run both suites.
+
+### Runtime findings and fixes
+
+- Port conflict: a parallel Python experiment occupied `127.0.0.1:4173`; the 3D Vite runtime moved to `4174` rather than terminating or overwriting the parallel session.
+- Furrow density: the first browser drive created 118 marks over 16 metres because spacing compared the tractor position with the prior rear mark. Spacing now compares consecutive rear-mark coordinates; the same acceptance drive produced 16 marks over 17.41 metres.
+- Camera composition: tactical mode initially left excessive empty space. It now centers the rig/world trace at a lower camera height.
+- Mobile composition: the first `390 × 844` layout overlapped the field kit and stacked action controls. The field kit now ends at `687.20 px` and touch controls begin at `714.41 px`.
+- WebGL lifecycle: dynamic shadow-map testing produced a Chrome texture-storage warning. The field now uses a project-owned blob shadow, and the animation loop stops before renderer disposal. The final acceptance run captured zero console warnings/errors.
+- Persistence test: reload can preserve a bounded number of in-flight furrows newer than the periodic checkpoint through `beforeunload`; the acceptance assertion now checks no-loss plus bounded freshness rather than false exact equality.
+
+### Commands and outcomes
+
+- `npm install`
+  - Installed current local dependency versions and reported 0 audit vulnerabilities.
+- `npm run typecheck`
+  - Passed root strict TypeScript and the deterministic JavaScript probe check.
+- `npm test`
+  - Passed 6 live-runtime tests and 7 deterministic-probe tests.
+- `npm run build`
+  - Passed. Output: HTML 4.73 kB, CSS 8.63 kB, JS 551.01 kB raw / 141.08 kB gzip.
+  - One advisory remains: the single Three.js application chunk exceeds Vite's 500 kB raw warning threshold. Owner: runtime architecture. Closure: measure first controllable frame and split/replace renderer loading only if the profile shows player value; do not hide the warning by raising the threshold.
+- Visible Playwright acceptance against `http://127.0.0.1:4174/`
+  - Drove 17.41 metres, created 16 distance-spaced furrows, switched to tactical/gloam, advanced through the browser hook, recovered local world memory after reload, and passed the narrow-layout non-overlap assertion.
+  - Captured zero final console warnings/errors or page errors.
+
+### Evidence and readiness
+
+- Tier 2: typechecks and 13 targeted state/kernel tests.
+- Tier 3: production build, browser interaction chain, browser-hook stepping, and local persistence recovery.
+- Tier 4: visible desktop and narrow browser observation.
+- Code-ready: yes for the local field-test contract.
+- Feature-ready: partial; it proves drive/tool/world-memory/camera/state seams but landmark verbs are signals, not full activities.
+- Launch-ready: no; there is no public deployment, external player evidence, accepted engine, performance budget, camera-occlusion system, or production asset pipeline.
+
+### Review passes
+
+1. Immediate correctness: fixed furrow spacing, port ambiguity, WebGL lifecycle warning, and mobile overlap.
+2. Architecture: separated live and disposable kernels, preserved renderer-independent state, and kept Three.js provisional.
+3. Supervision readiness: synchronized README, progress, design, ADR, plan, tests, and evidence wording; no commit or push performed.
+
+### Anything else?
+
+Yes. The game now moves without shrinking its future. The next work should make horizon signals produce distinct spatial consequences and measure runtime behavior before expanding scenery or accepting an engine.
+
 ## 2026-07-25 — Exploration foundation
 
 ### Baseline
@@ -538,3 +598,79 @@ The first public commit should preserve why the project exists and how it will m
 ### Anything else?
 
 The local folder, GitHub slug, and machine-facing project identifier now express one identity, while the human-facing title remains **Rigs Unbound**.
+
+## 2026-07-25 — Rig Lab 01: contrasting rigs and adjacent towing capability
+
+### Baseline and decision
+
+- Re-read the global/project instruction stack, project motto v4, generated context pack, 3D-game skill, Browser Daemon skill, current code, decisions, progress, design, and prior vehicle-game memory.
+- Re-ran `agent-start --project Game_dev/rigs-unbound --skip-index`.
+- Baseline `npm run typecheck` passed.
+- Baseline `npm test` passed: 6 live-runtime and 7 preserved deterministic-kernel tests.
+- Recorded Accepted ADR-0006 before refactoring the load-bearing state/save contract.
+
+### Implementation
+
+- Replaced the universal `vehicle`/tractor constants with two persistent rig states and versioned profiles.
+- Added Torque and Spark through one semantic input, fixed-step controller, camera, renderer, save, and public-state path.
+- Added `plough`, `tow`, and `jump` capability queries plus attachment state.
+- Added a complete cargo-relay workflow and a profile-driven buggy ramp launch.
+- Advanced local save schema v1 to v2 with deterministic legacy migration.
+- Added local startup/frame/render/heap/save/load instrumentation.
+- Added reusable `npm run test:browser` visible-Chrome acceptance and project-local screenshot evidence.
+- Preserved `experiments/deterministic-kernel-probe/` and the private-asset boundary untouched.
+
+### Review findings and corrections
+
+#### Pass 1 — immediate correctness and completeness
+
+- Found the tractor-only state and renderer assumptions.
+- Refactored the canonical path instead of adding `BuggyController`.
+- Browser automation initially braked after reaching cargo and rolled outside the interaction radius; corrected the acceptance driver to stop on the semantic reach threshold.
+- Result: attach, tow, deliver, jump, save, reload, and reset are complete local workflows.
+
+#### Pass 2 — architecture and long-term viability
+
+- Confirmed activities query capabilities rather than rig names.
+- Kept `ground` explicit as one mobility adapter rather than a universal physics claim.
+- Replaced per-frame hitch-geometry recreation with updates to one stable position buffer.
+- Preserved renderer-independent state and provisional Three.js status.
+- Result: no second controller, save, activity, renderer, or input source of truth.
+
+#### Pass 3 — rule compliance and supervision readiness
+
+- Initial narrow layout overlapped instruments and touch controls; final layout has a measured 10.41 px gap.
+- Portrait camera was pulled back after screenshot inspection.
+- Separated desktop, save, restored, and narrow performance snapshots.
+- Added the required plan, decision update, design/exploration continuity, 23.5 kB acceptance review, and “Anything else?” sections.
+- Result: local evidence is reviewable; public launch and broad universe portability remain explicitly unproved.
+
+### Final verification
+
+- `npm run typecheck`: passed.
+- `npm test`: 14 live-runtime + 7 preserved experiment tests passed.
+- `npm run format:check`: passed.
+- `npm run build`: passed.
+  - HTML 5.22 kB raw / 1.65 kB gzip.
+  - CSS 8.64 kB raw / 2.59 kB gzip.
+  - JavaScript 568.88 kB raw / 146.38 kB gzip.
+  - Vite's 500 kB advisory remains visible.
+- `npm run test:browser`: passed in visible Chrome.
+  - Cargo attach/delivery and reload persistence passed.
+  - Torque moved 43.87 m; Spark moved 103.23 m.
+  - Spark reached 1.70 m airborne height.
+  - `390 × 844` controls/instruments did not overlap.
+  - Captured console/page errors: zero.
+- Final local desktop sample: 175.0 ms from navigation start to first controllable, 8.89 ms average / 10.0 ms p95 frame time, 41 calls, 1,658 triangles, 23.7 MB reported JS heap; periodic-save snapshot 0.10 ms and 1,260 bytes.
+
+### Artifacts and boundaries
+
+- Created `docs/reviews/assets/rig-lab-01-desktop.png`.
+- Created `docs/reviews/assets/rig-lab-01-narrow.png`.
+- No private source asset was copied.
+- No public deployment was performed.
+- No git staging, commit, push, branch, history, or cleanup action was performed.
+
+### Anything else?
+
+The current technical contrast is real, but player-perceived contrast remains unverified. The next quality gate is whether external players independently describe Torque and Spark with different verbs and emotions rather than only noticing different speed.

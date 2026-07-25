@@ -595,3 +595,29 @@ These are helpful but non-blocking; experiments can continue before answers:
 ## Anything else?
 
 Explore broadly, but make each implementation answer one sharply stated question. The map should grow faster than the runtime until the core is fun; after that, the runtime should grow only along proven paths.
+
+## Addendum — 2026-07-25 Rig Lab 01 changes the evidence map
+
+The project owner rejected tractor anchoring and accepted a broader permanent framing: Rigs Unbound is a vehicle-universe game and experimentation platform. No single vehicle, world, activity, perspective, or mechanic defines the product.
+
+Rig Lab 01 now supplies local evidence for:
+
+- persistent identities for two rigs in one save;
+- semantic actions shared across unlike ground handling profiles;
+- world queries based on `plough`, `tow`, and `jump` capabilities;
+- one cargo-relay activity composed from towing rather than a named vehicle;
+- versioned profile data and a bounded `ground` mobility adapter;
+- v1 tractor-history migration;
+- local startup, frame, renderer, heap, save, and load measurement.
+
+This closes the earlier “second rig” and “measure local performance” evidence units at Tier 2–4. It opens sharper questions:
+
+1. Do players describe Torque and Spark as different fantasies, or merely slow and fast?
+2. Which locomotion family creates the next useful adapter boundary: bicycle balance, tracks, water, or flight?
+3. Can a second activity compose existing capabilities—such as tow + repair rescue—without adding an activity-specific controller?
+4. Which performance costs appear under cold-cache production loading and representative mobile hardware?
+5. How do collision, suspension, sound, animation, and camera communicate capability before the HUD does?
+
+### Anything else?
+
+Breadth should now be measured by new assumptions exposed, not by vehicle count. A third ground mesh with another speed number is less valuable than one real locomotion adapter or one activity that composes capabilities in a new way.

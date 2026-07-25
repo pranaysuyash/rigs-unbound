@@ -1,0 +1,6 @@
+[
+  {
+    "type": "pageerror",
+    "text": "SyntaxError: The requested module '/src/game/state.ts?t=1784975074373' does not provide an export named 'togglePlough'"
+  }
+]

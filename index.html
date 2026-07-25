@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Rigs Unbound — drive a persistent machine across terrain that fights back and remembers."
+    />
+    <meta name="theme-color" content="#17201c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Rigs Unbound — Field 02</title>
+  </head>
+  <body>
+    <main id="game-shell">
+      <canvas
+        id="game-canvas"
+        aria-label="Rigs Unbound playable world"
+      ></canvas>
+
+      <header class="masthead" aria-label="Game status">
+        <div class="wordmark">
+          <span class="wordmark__eyebrow">Field 02 · terrain traversal</span>
+          <strong>Rigs Unbound</strong>
+        </div>
+        <div class="masthead__right">
+          <div class="world-clock" aria-live="polite">
+            <span id="phase-label">Day</span>
+            <span id="time-label">06:40</span>
+          </div>
+          <div class="masthead__buttons">
+            <button id="mute-button" type="button" aria-pressed="false">
+              Sound on
+            </button>
+            <button id="fullscreen-button" type="button">Fullscreen</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="field-kit" aria-label="Rig instruments">
+        <p class="field-kit__kicker">
+          <span id="surface-label">Pasture</span> ·
+          <span id="biome-label">Home Valley</span>
+        </p>
+        <h1 id="current-prompt">Drive toward anything that pulls you.</h1>
+
+        <div class="traction" aria-label="Traction">
+          <div class="traction__row">
+            <span class="traction__icon" aria-hidden="true">◍</span>
+            <span class="traction__name">Grip</span>
+            <div class="traction__track">
+              <div id="grip-bar" class="traction__fill"></div>
+            </div>
+            <span id="grip-text" class="traction__value">100%</span>
+          </div>
+          <div class="traction__row">
+            <span class="traction__icon" aria-hidden="true">△</span>
+            <span class="traction__name">Grade</span>
+            <div class="traction__track">
+              <div
+                id="grade-bar"
+                class="traction__fill traction__fill--grade"
+              ></div>
+            </div>
+            <span id="grade-text" class="traction__value">level</span>
+          </div>
+        </div>
+
+        <dl class="instruments">
+          <div>
+            <dt>Rig</dt>
+            <dd id="rig-value">Torque</dd>
+          </div>
+          <div>
+            <dt>Speed</dt>
+            <dd><span id="speed-value">0</span> km/h</dd>
+          </div>
+          <div>
+            <dt>Capability</dt>
+            <dd id="capability-value">plough · tow</dd>
+          </div>
+          <div>
+            <dt>Condition</dt>
+            <dd id="condition-value">100%</dd>
+          </div>
+          <div>
+            <dt>Salvage</dt>
+            <dd id="salvage-value">0</dd>
+          </div>
+          <div>
+            <dt>Surveyed</dt>
+            <dd id="survey-value">0%</dd>
+          </div>
+        </dl>
+        <p id="save-status" class="save-status">Local field record ready</p>
+      </section>
+
+      <aside class="opportunity-rail" aria-label="World opportunities">
+        <p>Signals on the horizon</p>
+        <ol id="landmark-list"></ol>
+      </aside>
+
+      <section class="controls-strip" aria-label="Controls">
+        <span><kbd>WASD</kbd> drive</span>
+        <span><kbd>Space</kbd> act</span>
+        <span><kbd>R</kbd> rig</span>
+        <span><kbd>C</kbd> cycle view</span>
+        <span><kbd>M</kbd> map</span>
+        <span><kbd>X</kbd> winch</span>
+        <span><kbd>N</kbd> light</span>
+        <span><kbd>P</kbd> pause</span>
+        <label class="view-selector" for="camera-select">
+          <span>View</span>
+          <select id="camera-select" aria-label="Camera view">
+            <option value="chase">Chase</option>
+            <option value="hood">Hood</option>
+            <option value="side">Side</option>
+            <option value="tactical">Tactical</option>
+            <option value="top-down">Top-down</option>
+            <option value="survey">Survey</option>
+          </select>
+        </label>
+        <button id="reset-button" type="button">Reset field</button>
+      </section>
+
+      <section
+        id="touch-controls"
+        class="touch-controls"
+        aria-label="Touch driving controls"
+      >
+        <div class="touch-pad">
+          <button
+            type="button"
+            data-hold-action="steerLeft"
+            aria-label="Steer left"
+          >
+            ←
+          </button>
+          <div>
+            <button
+              type="button"
+              data-hold-action="accelerate"
+              aria-label="Accelerate"
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              data-hold-action="brake"
+              aria-label="Brake or reverse"
+            >
+              ↓
+            </button>
+          </div>
+          <button
+            type="button"
+            data-hold-action="steerRight"
+            aria-label="Steer right"
+          >
+            →
+          </button>
+        </div>
+        <div class="touch-actions">
+          <button type="button" data-tap-action="primary">Act</button>
+          <button type="button" data-tap-action="switchRig">Rig</button>
+          <button type="button" data-tap-action="camera">Cam</button>
+          <button type="button" data-tap-action="map">Map</button>
+          <button type="button" data-tap-action="recover">Winch</button>
+        </div>
+      </section>
+
+      <section
+        id="workshop-panel"
+        class="workshop"
+        aria-label="Workshop"
+        hidden
+      >
+        <header>
+          <strong>Home Silo workshop</strong>
+          <span id="workshop-salvage">0 salvage</span>
+        </header>
+        <p class="workshop__hint">
+          Number keys fit a module. <kbd>T</kbd> repairs for 3 salvage.
+        </p>
+        <ol id="module-list"></ol>
+      </section>
+
+      <section
+        id="map-overlay"
+        class="map-overlay"
+        aria-label="Field map"
+        hidden
+      >
+        <div class="map-overlay__plate">
+          <header>
+            <strong>Field map</strong>
+            <span id="map-progress">0% surveyed</span>
+            <button id="map-close" type="button" aria-label="Close map">
+              Close
+            </button>
+          </header>
+          <canvas id="map-canvas" aria-label="Surveyed terrain"></canvas>
+          <ul class="map-legend">
+            <li><span class="swatch swatch--unknown"></span> unsurveyed</li>
+            <li><span class="swatch swatch--track"></span> graded track</li>
+            <li><span class="swatch swatch--water"></span> water</li>
+            <li>
+              <span class="swatch swatch--salvage"></span> salvage in range
+            </li>
+          </ul>
+          <p class="map-overlay__note">
+            The map only shows ground your rig could see. Climb for sightlines;
+            a survey mast reaches further.
+          </p>
+        </div>
+      </section>
+
+      <section
+        id="welcome-panel"
+        class="welcome-panel"
+        aria-labelledby="welcome-title"
+      >
+        <div class="welcome-panel__plate">
+          <span class="welcome-panel__index">Field 02 / terrain traversal</span>
+          <h2 id="welcome-title">The ground decides.</h2>
+          <p>
+            Torque makes full pulling force from a standstill and claws through
+            mud. Spark is faster on hardpan but bogs off the line and needs a
+            run-up at a hill. Salvage sits off the graded tracks. Spend it at
+            the Home Silo to change what terrain you can cross.
+          </p>
+          <button id="enter-world" type="button">Enter the field</button>
+        </div>
+      </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div id="pause-overlay" class="pause-overlay" hidden>Paused</div>
+      <section id="error-panel" class="error-panel" role="alert" hidden>
+        <h2>The field could not open.</h2>
+        <p id="error-message"></p>
+        <button type="button" onclick="window.location.reload()">
+          Try again
+        </button>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

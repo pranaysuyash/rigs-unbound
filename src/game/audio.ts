@@ -1,0 +1,370 @@
+/**
+ * Procedural rig audio.
+ *
+ * Every sound here is synthesised at runtime from the traversal model's own
+ * numbers — engine load, wheel slip, surface, impact speed. There are no audio
+ * assets, which means no download cost, no licensing surface, and nothing to add
+ * to the asset provenance register.
+ *
+ * More importantly it means the audio *is* telemetry: the engine note rises with
+ * load, the tyre layer roars when `wheel.slip` climbs, and a plume of dust always
+ * arrives with the sound of losing grip. `DESIGN.md` asks for "a layered
+ * mechanical voice: idle, load, traction, damage, tool"; this is the first four.
+ *
+ * ## Autoplay policy
+ *
+ * Browsers refuse to start an `AudioContext` before a user gesture. `unlock()`
+ * must therefore be called from a real click or keypress handler, and everything
+ * else is a no-op until it succeeds. Failure is silent and non-fatal: a muted game
+ * is a far better outcome than a boot exception.
+ *
+ * ## Accessibility
+ *
+ * Audio is never the only channel for anything. Slip has dust, impacts have camera
+ * shake and a condition readout, stalling has a HUD diagnostic. Muting loses
+ * nothing mechanical, per the UI rules in `DESIGN.md`.
+ */
+
+import type { EffectiveRig, RigId, RigState, WorldPhase } from "./contracts";
+import { clamp } from "./noise";
+import { SURFACES, type SurfaceId } from "./world";
+
+/**
+ * Per-rig voice parameters.
+ *
+ * These live here rather than in `RigProfile` because they are presentation, and
+ * the gameplay kernel must stay free of view concerns. The mapping is by rig id,
+ * so adding a rig without a voice degrades to the fallback rather than failing.
+ */
+interface VoiceProfile {
+  /** Idle fundamental, in Hz. */
+  idleHz: number;
+  /** Additional Hz at full engine speed. */
+  spanHz: number;
+  /** Detune of the second oscillator, in cents. Wider reads as rougher. */
+  detune: number;
+  /** Filter cutoff at idle, in Hz. */
+  cutoffIdleHz: number;
+  /** Filter cutoff at full load, in Hz. */
+  cutoffLoadHz: number;
+  /** Master level for this voice. */
+  level: number;
+  /** Oscillator shape. Sawtooth is buzzy; square is hollower. */
+  shape: OscillatorType;
+}
+
+const VOICES: Readonly<Record<RigId, VoiceProfile>> = {
+  // A slow, lugging diesel: low fundamental, wide detune for the uneven beat.
+  "utility-tractor": {
+    idleHz: 42,
+    spanHz: 78,
+    detune: 26,
+    cutoffIdleHz: 260,
+    cutoffLoadHz: 1150,
+    level: 0.3,
+    shape: "sawtooth",
+  },
+  // A small high-revving motor: higher, tighter, brighter.
+  "toy-buggy": {
+    idleHz: 96,
+    spanHz: 340,
+    detune: 11,
+    cutoffIdleHz: 520,
+    cutoffLoadHz: 3200,
+    level: 0.2,
+    shape: "square",
+  },
+};
+
+const FALLBACK_VOICE: VoiceProfile = VOICES["utility-tractor"];
+
+/** Bandpass centre for each surface's tyre layer, in Hz. */
+const SURFACE_TONE: Readonly<Record<SurfaceId, number>> = {
+  track: 1500,
+  grass: 900,
+  tilled: 620,
+  rock: 2100,
+  sand: 780,
+  mud: 420,
+  water: 340,
+};
+
+export class RigAudio {
+  private context: AudioContext | null = null;
+  private master: GainNode | null = null;
+
+  private engineA: OscillatorNode | null = null;
+  private engineB: OscillatorNode | null = null;
+  private engineGain: GainNode | null = null;
+  private engineFilter: BiquadFilterNode | null = null;
+
+  private tyreSource: AudioBufferSourceNode | null = null;
+  private tyreGain: GainNode | null = null;
+  private tyreFilter: BiquadFilterNode | null = null;
+
+  private enabled = true;
+  private currentVoice: RigId | null = null;
+
+  /** True once the browser has allowed an audio context to run. */
+  get running(): boolean {
+    return this.context !== null && this.context.state === "running";
+  }
+
+  /**
+   * Start or resume audio. Safe to call repeatedly; must originate from a user
+   * gesture the first time.
+   */
+  async unlock(): Promise<void> {
+    if (!this.enabled) return;
+    try {
+      if (!this.context) {
+        const Ctor =
+          window.AudioContext ??
+          (window as unknown as { webkitAudioContext?: typeof AudioContext })
+            .webkitAudioContext;
+        if (!Ctor) return;
+        this.context = new Ctor();
+        this.build();
+      }
+      if (this.context.state === "suspended") {
+        await this.context.resume();
+      }
+    } catch {
+      // No audio is an acceptable outcome; never let it break the game loop.
+      this.context = null;
+    }
+  }
+
+  private build(): void {
+    const context = this.context;
+    if (!context) return;
+
+    this.master = context.createGain();
+    this.master.gain.value = this.enabled ? 0.85 : 0;
+    this.master.connect(context.destination);
+
+    // Engine: two detuned oscillators through a lowpass that opens under load.
+    this.engineFilter = context.createBiquadFilter();
+    this.engineFilter.type = "lowpass";
+    this.engineFilter.Q.value = 3.2;
+    this.engineGain = context.createGain();
+    this.engineGain.gain.value = 0;
+    this.engineFilter.connect(this.engineGain).connect(this.master);
+
+    this.engineA = context.createOscillator();
+    this.engineB = context.createOscillator();
+    this.engineA.connect(this.engineFilter);
+    this.engineB.connect(this.engineFilter);
+    this.engineA.start();
+    this.engineB.start();
+
+    // Tyre and surface: looping white noise through a bandpass whose centre is the
+    // surface and whose gain is speed and slip.
+    const seconds = 2;
+    const buffer = context.createBuffer(
+      1,
+      context.sampleRate * seconds,
+      context.sampleRate,
+    );
+    const channel = buffer.getChannelData(0);
+    // A cheap deterministic LCG rather than Math.random: identical every session,
+    // which keeps the mix reproducible when comparing recordings.
+    let seed = 0x2f6e2b1;
+    for (let index = 0; index < channel.length; index += 1) {
+      seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff;
+      channel[index] = (seed / 0x3fffffff - 1) * 0.6;
+    }
+
+    this.tyreFilter = context.createBiquadFilter();
+    this.tyreFilter.type = "bandpass";
+    this.tyreFilter.Q.value = 0.85;
+    this.tyreGain = context.createGain();
+    this.tyreGain.gain.value = 0;
+    this.tyreFilter.connect(this.tyreGain).connect(this.master);
+
+    this.tyreSource = context.createBufferSource();
+    this.tyreSource.buffer = buffer;
+    this.tyreSource.loop = true;
+    this.tyreSource.connect(this.tyreFilter);
+    this.tyreSource.start();
+  }
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (this.master && this.context) {
+      this.master.gain.setTargetAtTime(
+        enabled ? 0.85 : 0,
+        this.context.currentTime,
+        0.05,
+      );
+    }
+  }
+
+  get isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  /**
+   * Track the active rig's state.
+   *
+   * All parameter changes use `setTargetAtTime` so nothing clicks: the fixed step
+   * updates these values 60 times a second, and stepped assignment would be
+   * audible as zipper noise.
+   */
+  update(
+    rig: RigState,
+    profile: EffectiveRig,
+    phase: WorldPhase,
+    paused: boolean,
+  ): void {
+    const context = this.context;
+    if (
+      !context ||
+      !this.engineA ||
+      !this.engineB ||
+      !this.engineGain ||
+      !this.engineFilter ||
+      !this.tyreGain ||
+      !this.tyreFilter
+    ) {
+      return;
+    }
+
+    const voice = VOICES[rig.id] ?? FALLBACK_VOICE;
+    if (this.currentVoice !== rig.id) {
+      this.currentVoice = rig.id;
+      this.engineA.type = voice.shape;
+      this.engineB.type = voice.shape;
+      this.engineB.detune.setValueAtTime(voice.detune, context.currentTime);
+    }
+
+    const now = context.currentTime;
+    const speedRatio = clamp(
+      Math.abs(rig.speed) / Math.max(1, profile.topSpeed),
+      0,
+      1,
+    );
+    // Slip raises perceived revs without raising road speed, which is exactly what
+    // wheelspin sounds like.
+    const revs = clamp(speedRatio + rig.telemetry.slip * 0.55, 0, 1.35);
+    const load = clamp(
+      rig.telemetry.engineLoad * 0.7 + rig.telemetry.slip * 0.5,
+      0,
+      1,
+    );
+
+    const frequency = voice.idleHz + voice.spanHz * revs;
+    this.engineA.frequency.setTargetAtTime(frequency, now, 0.06);
+    this.engineB.frequency.setTargetAtTime(frequency * 1.005, now, 0.06);
+    this.engineFilter.frequency.setTargetAtTime(
+      voice.cutoffIdleHz + (voice.cutoffLoadHz - voice.cutoffIdleHz) * load,
+      now,
+      0.08,
+    );
+
+    const nightDamping = phase === "night" ? 0.82 : 1;
+    const engineLevel = paused
+      ? 0
+      : voice.level * (0.32 + load * 0.68) * nightDamping;
+    this.engineGain.gain.setTargetAtTime(engineLevel, now, 0.08);
+
+    const surface =
+      SURFACES[rig.telemetry.surfaceId as SurfaceId] ?? SURFACES.grass;
+    const tone = SURFACE_TONE[surface.id] ?? 900;
+    this.tyreFilter.frequency.setTargetAtTime(tone, now, 0.12);
+    const contact = rig.wheels.filter((wheel) => wheel.contact).length / 4;
+    const tyreLevel = paused
+      ? 0
+      : clamp(
+          (speedRatio * 0.1 + rig.telemetry.slip * 0.3) *
+            surface.spray *
+            contact,
+          0,
+          0.34,
+        );
+    this.tyreGain.gain.setTargetAtTime(tyreLevel, now, 0.07);
+  }
+
+  /**
+   * One-shot impact: a filtered noise burst with a fast decay.
+   *
+   * Built and discarded per hit rather than kept alive, because impacts are rare
+   * and a pooled voice would need its own envelope bookkeeping for no benefit.
+   */
+  impact(strength: number): void {
+    const context = this.context;
+    if (!context || !this.master || !this.enabled) return;
+    const level = clamp(strength, 0, 1);
+    if (level < 0.05) return;
+
+    const now = context.currentTime;
+    const duration = 0.16 + level * 0.22;
+
+    const buffer = context.createBuffer(
+      1,
+      Math.ceil(context.sampleRate * duration),
+      context.sampleRate,
+    );
+    const channel = buffer.getChannelData(0);
+    let seed = 0x51a3f7;
+    for (let index = 0; index < channel.length; index += 1) {
+      seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff;
+      const decay = 1 - index / channel.length;
+      channel[index] = (seed / 0x3fffffff - 1) * decay * decay;
+    }
+
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    const filter = context.createBiquadFilter();
+    filter.type = "lowpass";
+    // A heavier hit is a duller, lower thud.
+    filter.frequency.value = 900 - level * 520;
+    const gain = context.createGain();
+    gain.gain.value = 0.34 * level;
+    source.connect(filter).connect(gain).connect(this.master);
+    source.start(now);
+    source.stop(now + duration);
+    source.onended = () => {
+      source.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
+  }
+
+  /** A short confirmation chirp for pickups and installs. */
+  chirp(frequency = 660): void {
+    const context = this.context;
+    if (!context || !this.master || !this.enabled) return;
+    const now = context.currentTime;
+    const oscillator = context.createOscillator();
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(frequency, now);
+    oscillator.frequency.exponentialRampToValueAtTime(
+      frequency * 1.5,
+      now + 0.09,
+    );
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.13, now + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+    oscillator.connect(gain).connect(this.master);
+    oscillator.start(now);
+    oscillator.stop(now + 0.22);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      gain.disconnect();
+    };
+  }
+
+  dispose(): void {
+    try {
+      this.engineA?.stop();
+      this.engineB?.stop();
+      this.tyreSource?.stop();
+      void this.context?.close();
+    } catch {
+      // Disposal races during page teardown are not worth reporting.
+    }
+    this.context = null;
+  }
+}

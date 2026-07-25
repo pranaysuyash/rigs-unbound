@@ -1,0 +1,1444 @@
+/**
+ * The view. Reads the world substrate; owns no world truth of its own.
+ *
+ * Before ADR-0007 this module scattered 42 decorative props with a private RNG,
+ * which the kernel could neither collide with nor reason about. It now renders
+ * exactly what `TerrainField`, `ObstacleField`, and `ExplorationField` say is
+ * there, so what you see is what you can hit.
+ *
+ * ## Draw-call discipline
+ *
+ * Everything repeated is instanced: trees, rocks, felled trunks, salvage, and
+ * furrow decals are one draw call each regardless of count. The previous build
+ * added one mesh per furrow, which meant up to 640 draw calls of world memory.
+ *
+ * ## Coordinate contract
+ *
+ * Local **+Z is the front** of a rig (see the header of `physics.ts`). The
+ * previous geometry violated this: the tractor's grille, hood, and headlights sat
+ * at local −Z, the same end as the plough, so it drove cab-first with its lights
+ * pointing backwards. Both rigs are rebuilt front-forward here.
+ */
+
+import * as THREE from "three";
+import {
+  CARGO_DELIVERY,
+  CARGO_PICKUP,
+  BUGGY_RAMP,
+  effectiveProfile,
+  type GameState,
+  MAX_FURROWS,
+  RIG_IDS,
+  type RigId,
+  type WorldPhase,
+} from "./contracts";
+import type { Obstacle } from "./collision";
+import type { SalvageNode } from "./exploration";
+import type { GameWorld } from "./gameworld";
+import { clamp } from "./noise";
+import { SURFACES, WATER_LEVEL, WORLD_RADIUS, WORLD_SITES } from "./world";
+
+const COLORS = {
+  rust: 0xb94f32,
+  bone: 0xead8b8,
+  gold: 0xd9aa52,
+  cyan: 0x6bc9c4,
+  tire: 0x242421,
+  night: 0x13283c,
+} as const;
+
+/** Terrain mesh sample spacing, in metres. */
+const TERRAIN_STEP = 2.6;
+
+/** Span of the terrain mesh, in metres. Slightly wider than the world disc. */
+const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
+
+/** Radius within which obstacles and salvage are instanced for drawing. */
+const PROP_RADIUS = 168;
+
+/** Rig travel that triggers an obstacle/salvage instance rebuild, in metres. */
+const PROP_REBUILD_DISTANCE = 34;
+
+const MAX_TREE_INSTANCES = 900;
+const MAX_ROCK_INSTANCES = 700;
+const MAX_FELLED_INSTANCES = 220;
+const MAX_NODE_INSTANCES = 260;
+const MAX_DUST = 260;
+
+interface RigParts {
+  root: THREE.Group;
+  /** Wheel meshes in the physics order: front-left, front-right, rear-L, rear-R. */
+  wheels: THREE.Mesh[];
+  wheelRestY: number[];
+  ploughPivot: THREE.Group | null;
+  headlights: THREE.SpotLight;
+}
+
+function material(
+  color: number,
+  roughness = 0.82,
+  metalness = 0.04,
+): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+}
+
+function box(
+  width: number,
+  height: number,
+  depth: number,
+  color: number,
+): THREE.Mesh {
+  return new THREE.Mesh(
+    new THREE.BoxGeometry(width, height, depth),
+    material(color),
+  );
+}
+
+function cylinder(
+  radiusTop: number,
+  radiusBottom: number,
+  height: number,
+  segments: number,
+  color: number,
+): THREE.Mesh {
+  return new THREE.Mesh(
+    new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments),
+    material(color),
+  );
+}
+
+export class GameRenderer {
+  private readonly renderer: THREE.WebGLRenderer;
+  private readonly scene = new THREE.Scene();
+  private readonly camera = new THREE.PerspectiveCamera(52, 1, 0.25, 900);
+  private readonly sun = new THREE.DirectionalLight(0xffdeb0, 2.4);
+  private readonly hemisphere = new THREE.HemisphereLight(
+    0xb8ddff,
+    0x5d422d,
+    1.6,
+  );
+
+  private readonly rigs = new Map<RigId, RigParts>();
+  private readonly cargo: THREE.Group;
+  private readonly hitchLine: THREE.Line;
+
+  private terrainMesh!: THREE.Mesh;
+  private terrainHeights!: Float32Array;
+  private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
+  private readonly terrainOrigin = -TERRAIN_SPAN / 2;
+
+  private treeTrunks!: THREE.InstancedMesh;
+  private treeCrowns!: THREE.InstancedMesh;
+  private rocks!: THREE.InstancedMesh;
+  private felledTrunks!: THREE.InstancedMesh;
+  private salvageNodes!: THREE.InstancedMesh;
+  private furrowDecals!: THREE.InstancedMesh;
+  private water!: THREE.Mesh;
+
+  private dust!: THREE.Points;
+  private readonly dustPositions = new Float32Array(MAX_DUST * 3);
+  private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
+  private readonly dustLife = new Float32Array(MAX_DUST);
+  private dustCursor = 0;
+
+  private readonly dummy = new THREE.Object3D();
+  private propAnchorX = Number.POSITIVE_INFINITY;
+  private propAnchorZ = Number.POSITIVE_INFINITY;
+  private renderedFurrows = 0;
+  private lastDeformCount = 0;
+  private currentPhase: WorldPhase | null = null;
+  private lastFrameTime = performance.now();
+  private shake = 0;
+  private cameraInitialised = false;
+
+  /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
+  terrainBuildMs = 0;
+
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly world: GameWorld,
+  ) {
+    this.renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    // Blob shadows rather than shadow maps: a shadow-map allocation warning was
+    // observed in Chrome during lifecycle testing, and this is also the cheaper
+    // first-frame posture on low-power devices. Revisit when measured value exists.
+    this.renderer.shadowMap.enabled = false;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.06;
+
+    this.sun.position.set(-120, 190, -70);
+    this.scene.add(this.sun, this.hemisphere);
+
+    this.buildTerrain();
+    this.buildWater();
+    this.buildInstancedProps();
+    this.buildDust();
+    this.buildSites();
+    this.buildStars();
+
+    const tractor = this.createTractor();
+    const buggy = this.createBuggy();
+    this.rigs.set("utility-tractor", tractor);
+    this.rigs.set("toy-buggy", buggy);
+    this.scene.add(tractor.root, buggy.root);
+
+    this.cargo = this.createCargo();
+    this.hitchLine = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+      ]),
+      new THREE.LineBasicMaterial({ color: COLORS.gold }),
+    );
+    this.hitchLine.visible = false;
+    this.scene.add(this.cargo, this.hitchLine);
+
+    window.addEventListener("resize", this.resize);
+    this.resize();
+  }
+
+  private readonly resize = (): void => {
+    const width = Math.max(1, this.canvas.clientWidth);
+    const height = Math.max(1, this.canvas.clientHeight);
+    this.renderer.setSize(width, height, false);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+  };
+
+  // ---------------------------------------------------------------------------
+  // Terrain
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Build the terrain mesh from the height field.
+   *
+   * Heights come from one bulk `sampleHeightGrid` call and normals are derived
+   * from grid neighbours, which costs one `height()` per vertex instead of the
+   * five a per-vertex `sample()` would need. Vertex colours carry the surface
+   * material, so the world is readable with zero texture assets and zero asset
+   * provenance obligations.
+   */
+  private buildTerrain(): void {
+    const startedAt = performance.now();
+    const cells = this.terrainCells;
+    const size = cells + 1;
+
+    this.terrainHeights = this.world.terrain.sampleHeightGrid(
+      this.terrainOrigin,
+      this.terrainOrigin,
+      cells,
+      TERRAIN_STEP,
+    );
+
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(size * size * 3);
+    const colors = new Float32Array(size * size * 3);
+    const colour = new THREE.Color();
+
+    for (let iz = 0; iz < size; iz += 1) {
+      for (let ix = 0; ix < size; ix += 1) {
+        const index = iz * size + ix;
+        const x = this.terrainOrigin + ix * TERRAIN_STEP;
+        const z = this.terrainOrigin + iz * TERRAIN_STEP;
+        const y = this.terrainHeights[index]!;
+        positions[index * 3] = x;
+        positions[index * 3 + 1] = y;
+        positions[index * 3 + 2] = z;
+
+        const surface = this.world.terrain.surfaceFor(x, z, y);
+        colour.setHex(surface.color);
+        // A stable per-vertex tint keeps large single-surface regions from reading
+        // as flat paint without needing a texture.
+        const tint = 0.9 + ((ix * 7 + iz * 13) % 11) * 0.018;
+        colors[index * 3] = colour.r * tint;
+        colors[index * 3 + 1] = colour.g * tint;
+        colors[index * 3 + 2] = colour.b * tint;
+      }
+    }
+
+    const indices: number[] = [];
+    for (let iz = 0; iz < cells; iz += 1) {
+      for (let ix = 0; ix < cells; ix += 1) {
+        const a = iz * size + ix;
+        const b = a + 1;
+        const c = a + size;
+        const d = c + 1;
+        indices.push(a, c, b, b, c, d);
+      }
+    }
+
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+
+    this.terrainMesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.95,
+        metalness: 0.02,
+      }),
+    );
+    this.terrainMesh.name = "terrain";
+    this.scene.add(this.terrainMesh);
+    this.terrainBuildMs = performance.now() - startedAt;
+  }
+
+  /**
+   * Re-sample terrain vertices inside a box.
+   *
+   * Ploughing writes into the height field, so the mesh has to be told. Only the
+   * neighbourhood of the cut is rebuilt — without this the ground would deform
+   * for physics while looking untouched, which is the worst of both.
+   */
+  private refreshTerrainRegion(
+    centreX: number,
+    centreZ: number,
+    radius: number,
+  ): void {
+    const size = this.terrainCells + 1;
+    const minIx = Math.max(
+      0,
+      Math.floor((centreX - radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const maxIx = Math.min(
+      size - 1,
+      Math.ceil((centreX + radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const minIz = Math.max(
+      0,
+      Math.floor((centreZ - radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const maxIz = Math.min(
+      size - 1,
+      Math.ceil((centreZ + radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    if (minIx > maxIx || minIz > maxIz) return;
+
+    const position = this.terrainMesh.geometry.getAttribute(
+      "position",
+    ) as THREE.BufferAttribute;
+
+    for (let iz = minIz; iz <= maxIz; iz += 1) {
+      for (let ix = minIx; ix <= maxIx; ix += 1) {
+        const index = iz * size + ix;
+        const x = this.terrainOrigin + ix * TERRAIN_STEP;
+        const z = this.terrainOrigin + iz * TERRAIN_STEP;
+        const y = this.world.terrain.height(x, z);
+        this.terrainHeights[index] = y;
+        position.setY(index, y);
+      }
+    }
+    position.needsUpdate = true;
+    this.terrainMesh.geometry.computeVertexNormals();
+  }
+
+  private buildWater(): void {
+    this.water = new THREE.Mesh(
+      new THREE.PlaneGeometry(TERRAIN_SPAN, TERRAIN_SPAN, 1, 1),
+      new THREE.MeshStandardMaterial({
+        color: SURFACES.water.color,
+        transparent: true,
+        opacity: 0.76,
+        roughness: 0.16,
+        metalness: 0.3,
+      }),
+    );
+    this.water.rotation.x = -Math.PI / 2;
+    this.water.position.y = WATER_LEVEL;
+    this.water.name = "water";
+    this.scene.add(this.water);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Instanced props
+  // ---------------------------------------------------------------------------
+
+  private buildInstancedProps(): void {
+    this.treeTrunks = new THREE.InstancedMesh(
+      new THREE.CylinderGeometry(0.24, 0.4, 1, 6),
+      material(0x5f432f),
+      MAX_TREE_INSTANCES,
+    );
+    this.treeCrowns = new THREE.InstancedMesh(
+      new THREE.IcosahedronGeometry(1, 1),
+      material(0x54682f),
+      MAX_TREE_INSTANCES,
+    );
+    this.rocks = new THREE.InstancedMesh(
+      new THREE.DodecahedronGeometry(1, 0),
+      material(0x7d746a),
+      MAX_ROCK_INSTANCES,
+    );
+    this.felledTrunks = new THREE.InstancedMesh(
+      new THREE.CylinderGeometry(0.3, 0.34, 1, 6),
+      material(0x6a5038),
+      MAX_FELLED_INSTANCES,
+    );
+    this.salvageNodes = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      material(0x9a5c39, 0.7, 0.25),
+      MAX_NODE_INSTANCES,
+    );
+
+    this.furrowDecals = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(1.05, 0.07, 1.5),
+      material(0x3a2c1e, 1),
+      MAX_FURROWS,
+    );
+    this.furrowDecals.count = 0;
+
+    for (const mesh of [
+      this.treeTrunks,
+      this.treeCrowns,
+      this.rocks,
+      this.felledTrunks,
+      this.salvageNodes,
+      this.furrowDecals,
+    ]) {
+      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      mesh.frustumCulled = false;
+      this.scene.add(mesh);
+    }
+  }
+
+  /**
+   * Rebuild prop instances around the rig.
+   *
+   * Called only when the rig has travelled `PROP_REBUILD_DISTANCE`, because
+   * regenerating the obstacle field is a hash-and-sample loop and not something to
+   * run per frame.
+   */
+  private refreshProps(state: GameState): void {
+    const rig = state.rigs[state.activeRigId];
+    const obstacles = this.world.obstacles.near(rig.x, rig.z, PROP_RADIUS);
+    const nodes = this.world.exploration.nodesNear(
+      rig.x,
+      rig.z,
+      PROP_RADIUS,
+      this.world.collectedNodes,
+    );
+
+    let trees = 0;
+    let rocks = 0;
+    let felled = 0;
+
+    for (const obstacle of obstacles) {
+      const down = this.world.felledObstacles.has(obstacle.id);
+      if (obstacle.kind === "tree" && !down) {
+        if (trees >= MAX_TREE_INSTANCES) continue;
+        this.placeTree(obstacle, trees);
+        trees += 1;
+      } else if (obstacle.kind === "tree") {
+        if (felled >= MAX_FELLED_INSTANCES) continue;
+        this.placeFelled(obstacle, felled);
+        felled += 1;
+      } else {
+        if (rocks >= MAX_ROCK_INSTANCES) continue;
+        this.placeRock(obstacle, rocks);
+        rocks += 1;
+      }
+    }
+
+    let nodeCount = 0;
+    for (const node of nodes) {
+      if (nodeCount >= MAX_NODE_INSTANCES) break;
+      this.placeNode(node, nodeCount);
+      nodeCount += 1;
+    }
+
+    this.treeTrunks.count = trees;
+    this.treeCrowns.count = trees;
+    this.rocks.count = rocks;
+    this.felledTrunks.count = felled;
+    this.salvageNodes.count = nodeCount;
+
+    this.treeTrunks.instanceMatrix.needsUpdate = true;
+    this.treeCrowns.instanceMatrix.needsUpdate = true;
+    this.rocks.instanceMatrix.needsUpdate = true;
+    this.felledTrunks.instanceMatrix.needsUpdate = true;
+    this.salvageNodes.instanceMatrix.needsUpdate = true;
+
+    this.propAnchorX = rig.x;
+    this.propAnchorZ = rig.z;
+  }
+
+  private placeTree(obstacle: Obstacle, index: number): void {
+    const trunkHeight = obstacle.height * 0.55;
+    this.dummy.position.set(
+      obstacle.x,
+      obstacle.groundY + trunkHeight * 0.5,
+      obstacle.z,
+    );
+    this.dummy.rotation.set(0, obstacle.variation * Math.PI, 0);
+    this.dummy.scale.set(
+      obstacle.radius * 1.6,
+      trunkHeight,
+      obstacle.radius * 1.6,
+    );
+    this.dummy.updateMatrix();
+    this.treeTrunks.setMatrixAt(index, this.dummy.matrix);
+
+    const crownRadius = 1.25 + obstacle.variation * 0.85;
+    this.dummy.position.set(
+      obstacle.x,
+      obstacle.groundY + obstacle.height * 0.78,
+      obstacle.z,
+    );
+    this.dummy.rotation.set(0, obstacle.variation * 4.1, 0);
+    this.dummy.scale.set(crownRadius, crownRadius * 1.3, crownRadius);
+    this.dummy.updateMatrix();
+    this.treeCrowns.setMatrixAt(index, this.dummy.matrix);
+  }
+
+  private placeFelled(obstacle: Obstacle, index: number): void {
+    const length = obstacle.height * 0.8;
+    this.dummy.position.set(
+      obstacle.x,
+      obstacle.groundY + obstacle.radius * 0.9,
+      obstacle.z,
+    );
+    // Lying on its side, so a cleared route is visibly a route you cleared.
+    this.dummy.rotation.set(Math.PI / 2, obstacle.variation * Math.PI, 0.08);
+    this.dummy.scale.set(obstacle.radius * 1.7, length, obstacle.radius * 1.7);
+    this.dummy.updateMatrix();
+    this.felledTrunks.setMatrixAt(index, this.dummy.matrix);
+  }
+
+  private placeRock(obstacle: Obstacle, index: number): void {
+    this.dummy.position.set(
+      obstacle.x,
+      obstacle.groundY + obstacle.radius * 0.35,
+      obstacle.z,
+    );
+    this.dummy.rotation.set(
+      obstacle.variation * 0.6,
+      obstacle.variation * Math.PI * 2,
+      obstacle.variation * 0.4,
+    );
+    this.dummy.scale.set(
+      obstacle.radius,
+      obstacle.radius * (0.6 + obstacle.variation * 0.5),
+      obstacle.radius * (0.85 + obstacle.variation * 0.3),
+    );
+    this.dummy.updateMatrix();
+    this.rocks.setMatrixAt(index, this.dummy.matrix);
+  }
+
+  private placeNode(node: SalvageNode, index: number): void {
+    const scale = 0.8 + node.variation * 0.4;
+    this.dummy.position.set(node.x, node.groundY + scale * 0.5, node.z);
+    this.dummy.rotation.set(0, node.variation * Math.PI, 0);
+    this.dummy.scale.set(scale, scale * 0.8, scale);
+    this.dummy.updateMatrix();
+    this.salvageNodes.setMatrixAt(index, this.dummy.matrix);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Dust
+  // ---------------------------------------------------------------------------
+
+  private buildDust(): void {
+    const geometry = new THREE.BufferGeometry();
+    this.dustPositions.fill(-9999);
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.dustPositions, 3),
+    );
+    this.dust = new THREE.Points(
+      geometry,
+      new THREE.PointsMaterial({
+        color: 0xd8c9a8,
+        size: 0.7,
+        transparent: true,
+        opacity: 0.55,
+        depthWrite: false,
+      }),
+    );
+    this.dust.frustumCulled = false;
+    this.scene.add(this.dust);
+  }
+
+  /**
+   * Emit dust from a slipping wheel.
+   *
+   * Tied to `wheel.slip` and the surface's own `spray`, so the particle plume is a
+   * readout of the traction model rather than decoration: a plume means you are
+   * losing grip right now, on this ground.
+   */
+  private emitDust(
+    x: number,
+    y: number,
+    z: number,
+    strength: number,
+    speed: number,
+  ): void {
+    const bursts = Math.min(3, Math.max(1, Math.round(strength * 3)));
+    for (let burst = 0; burst < bursts; burst += 1) {
+      const index = this.dustCursor;
+      this.dustCursor = (this.dustCursor + 1) % MAX_DUST;
+      const offset = index * 3;
+      this.dustPositions[offset] = x;
+      this.dustPositions[offset + 1] = y;
+      this.dustPositions[offset + 2] = z;
+      // Deterministic-looking spread from the index; visual only, never simulated.
+      const angle = index * 2.399963;
+      this.dustVelocities[offset] = Math.cos(angle) * (0.6 + speed * 0.06);
+      this.dustVelocities[offset + 1] = 0.9 + strength * 1.3;
+      this.dustVelocities[offset + 2] = Math.sin(angle) * (0.6 + speed * 0.06);
+      this.dustLife[index] = 0.55 + strength * 0.5;
+    }
+  }
+
+  private updateDust(delta: number): void {
+    for (let index = 0; index < MAX_DUST; index += 1) {
+      if (this.dustLife[index]! <= 0) continue;
+      const offset = index * 3;
+      this.dustLife[index] = this.dustLife[index]! - delta;
+      if (this.dustLife[index]! <= 0) {
+        this.dustPositions[offset + 1] = -9999;
+        continue;
+      }
+      const velocityY = this.dustVelocities[offset + 1]!;
+      this.dustPositions[offset] =
+        this.dustPositions[offset]! + this.dustVelocities[offset]! * delta;
+      this.dustPositions[offset + 1] =
+        this.dustPositions[offset + 1]! + velocityY * delta;
+      this.dustPositions[offset + 2] =
+        this.dustPositions[offset + 2]! +
+        this.dustVelocities[offset + 2]! * delta;
+      this.dustVelocities[offset + 1] = velocityY - 1.6 * delta;
+    }
+    (
+      this.dust.geometry.getAttribute("position") as THREE.BufferAttribute
+    ).needsUpdate = true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Authored sites
+  // ---------------------------------------------------------------------------
+
+  /** Ground a group at the terrain height of its own position. */
+  private groundAt(group: THREE.Object3D, x: number, z: number): void {
+    group.position.set(x, this.world.terrain.height(x, z), z);
+  }
+
+  private buildSites(): void {
+    for (const site of WORLD_SITES) {
+      const group = new THREE.Group();
+      group.name = `site:${site.id}`;
+
+      // A ring and a mast at every site, so a place is legible before you arrive.
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(site.discoverRadius * 0.7, 0.2, 6, 40),
+        new THREE.MeshBasicMaterial({
+          color: COLORS.cyan,
+          transparent: true,
+          opacity: 0.5,
+        }),
+      );
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 0.5;
+      const mast = cylinder(0.12, 0.26, 11, 6, COLORS.cyan);
+      mast.position.y = 5.5;
+      group.add(ring, mast);
+      group.userData.ring = ring;
+
+      if (site.id === "home-silo") {
+        const barn = box(9, 5.5, 7.5, 0x7d352a);
+        barn.position.set(-9, 2.75, 3);
+        const roof = new THREE.Mesh(
+          new THREE.ConeGeometry(6.6, 2.6, 4),
+          material(0x3b3935, 0.95),
+        );
+        roof.rotation.y = Math.PI / 4;
+        roof.scale.z = 0.8;
+        roof.position.set(-9, 6.6, 3);
+        const silo = cylinder(2.6, 2.6, 11, 12, 0xb6a88e);
+        silo.position.set(6, 5.5, -2);
+        const siloRoof = new THREE.Mesh(
+          new THREE.ConeGeometry(2.9, 2.4, 12),
+          material(0x6c5d4c),
+        );
+        siloRoof.position.set(6, 12.2, -2);
+        group.add(barn, roof, silo, siloRoof);
+
+        // The workshop pad: a visible, standable place that means "you can fit
+        // modules here". Progression needs an address.
+        const pad = new THREE.Mesh(
+          new THREE.CylinderGeometry(9, 9, 0.22, 28),
+          material(0x53504a, 0.9),
+        );
+        pad.position.set(0, 0.11, 0);
+        const gantryLeft = box(0.5, 5.5, 0.5, 0x8a8378);
+        const gantryRight = gantryLeft.clone();
+        const gantryTop = box(9.5, 0.5, 0.6, 0x8a8378);
+        gantryLeft.position.set(-4.4, 2.75, 0);
+        gantryRight.position.set(4.4, 2.75, 0);
+        gantryTop.position.set(0, 5.6, 0);
+        group.add(pad, gantryLeft, gantryRight, gantryTop);
+      }
+
+      if (site.id === "launch-ridge") {
+        const rocketBody = cylinder(1.3, 1.5, 11, 12, COLORS.bone);
+        rocketBody.position.y = 7;
+        const nose = new THREE.Mesh(
+          new THREE.ConeGeometry(1.3, 3.6, 12),
+          material(COLORS.rust),
+        );
+        nose.position.y = 14.3;
+        const finA = box(0.3, 3, 3, COLORS.rust);
+        const finB = finA.clone();
+        finA.position.set(1.5, 2.6, 0);
+        finB.position.set(-1.5, 2.6, 0);
+        group.add(rocketBody, nose, finA, finB);
+      }
+
+      if (site.id === "salvage-yard") {
+        for (let index = 0; index < 8; index += 1) {
+          const height = 1.4 + (index % 3) * 0.8;
+          const crate = box(2.6, height, 2.1, index % 2 ? 0x76513e : 0x8c3f2d);
+          crate.position.set(
+            (index % 4) * 2.9 - 4.4,
+            height / 2,
+            Math.floor(index / 4) * 2.6 - 1.3,
+          );
+          crate.rotation.y = (index - 3) * 0.14;
+          group.add(crate);
+        }
+        const archLeft = box(0.8, 6, 0.8, 0x55382f);
+        const archRight = archLeft.clone();
+        const archTop = box(8.5, 0.8, 0.8, 0x55382f);
+        archLeft.position.set(-3.8, 3, -6);
+        archRight.position.set(3.8, 3, -6);
+        archTop.position.set(0, 6, -6);
+        group.add(archLeft, archRight, archTop);
+      }
+
+      if (site.id === "toy-grove") {
+        const blockColors = [0xc8553d, 0x4d8a92, 0xe1ad52, 0x77578f];
+        for (let index = 0; index < 10; index += 1) {
+          const block = box(2.8, 2.8, 2.8, blockColors[index % 4]!);
+          block.position.set(
+            (index % 4) * 3 - 4.5,
+            1.4 + Math.floor(index / 7) * 2.8,
+            Math.floor(index / 4) * 3 - 3,
+          );
+          block.rotation.y = index * 0.22;
+          group.add(block);
+        }
+      }
+
+      if (site.id === "quarry-shelf") {
+        for (let index = 0; index < 6; index += 1) {
+          const slab = box(4.2, 0.9, 3.2, 0x8b8278);
+          slab.position.set(
+            (index % 3) * 4.6 - 4.6,
+            0.45 + Math.floor(index / 3) * 0.9,
+            Math.floor(index / 3) * 3.5 - 1.7,
+          );
+          slab.rotation.y = index * 0.09;
+          group.add(slab);
+        }
+      }
+
+      this.groundAt(group, site.x, site.z);
+      this.scene.add(group);
+    }
+
+    // Relay route furniture, grounded on real terrain.
+    const pickupRing = new THREE.Mesh(
+      new THREE.TorusGeometry(3.4, 0.14, 8, 32),
+      new THREE.MeshBasicMaterial({ color: COLORS.gold }),
+    );
+    pickupRing.rotation.x = Math.PI / 2;
+    pickupRing.position.set(
+      CARGO_PICKUP.x,
+      this.world.terrain.height(CARGO_PICKUP.x, CARGO_PICKUP.z) + 0.2,
+      CARGO_PICKUP.z,
+    );
+
+    const deliveryRing = new THREE.Mesh(
+      new THREE.TorusGeometry(CARGO_DELIVERY.radius * 0.75, 0.2, 8, 42),
+      new THREE.MeshBasicMaterial({
+        color: COLORS.cyan,
+        transparent: true,
+        opacity: 0.82,
+      }),
+    );
+    deliveryRing.name = "relay-delivery-ring";
+    deliveryRing.rotation.x = Math.PI / 2;
+    deliveryRing.position.set(
+      CARGO_DELIVERY.x,
+      this.world.terrain.height(CARGO_DELIVERY.x, CARGO_DELIVERY.z) + 0.24,
+      CARGO_DELIVERY.z,
+    );
+
+    const rampBase = this.world.terrain.height(BUGGY_RAMP.x, BUGGY_RAMP.z);
+    const ramp = box(6.5, 0.6, 8, 0xd59a43);
+    ramp.name = "relay-ramp";
+    ramp.position.set(BUGGY_RAMP.x, rampBase + 0.85, BUGGY_RAMP.z);
+    ramp.rotation.x = -0.18;
+    const rampStripe = box(5, 0.09, 1.2, COLORS.bone);
+    rampStripe.position.set(BUGGY_RAMP.x, rampBase + 1.45, BUGGY_RAMP.z - 0.4);
+    rampStripe.rotation.x = -0.18;
+
+    this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
+  }
+
+  private buildStars(): void {
+    const positions: number[] = [];
+    for (let index = 0; index < 260; index += 1) {
+      const angle = index * 2.399963;
+      const radius = 300 + ((index * 37) % 200);
+      positions.push(
+        Math.sin(angle) * radius,
+        90 + ((index * 53) % 160),
+        Math.cos(angle) * radius,
+      );
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    const stars = new THREE.Points(
+      geometry,
+      new THREE.PointsMaterial({
+        color: 0xdbeeff,
+        size: 1.4,
+        transparent: true,
+        opacity: 0.85,
+      }),
+    );
+    stars.name = "night-stars";
+    this.scene.add(stars);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Rigs
+  // ---------------------------------------------------------------------------
+
+  private blobShadow(radius: number, opacity: number): THREE.Mesh {
+    const shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(radius, 24),
+      new THREE.MeshBasicMaterial({
+        color: 0x111811,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+      }),
+    );
+    shadow.rotation.x = -Math.PI / 2;
+    return shadow;
+  }
+
+  /**
+   * The utility tractor, built front-forward.
+   *
+   * Layout along local Z, front (+) to rear (−): grille and headlights at +2.6,
+   * hood at +1.2, small steering wheels at +1.65, cab at −1.05, large drive wheels
+   * at −1.25, plough at −3.2. The previous build had the grille, hood, headlights
+   * *and* plough all at −Z, which is why it appeared to drive backwards.
+   */
+  private createTractor(): RigParts {
+    const root = new THREE.Group();
+    root.name = "persistent-rig";
+    root.rotation.order = "YXZ";
+
+    const shadow = this.blobShadow(2.6, 0.3);
+    shadow.position.set(0, 0.04, -0.2);
+    shadow.scale.set(1, 1.65, 1);
+
+    const chassis = box(2.5, 0.7, 4.6, 0x4c3328);
+    chassis.position.y = 0.95;
+    const hood = box(2.1, 1.4, 2.6, COLORS.rust);
+    hood.position.set(0, 1.75, 1.2);
+    const grille = box(1.9, 1, 0.2, 0x292824);
+    grille.position.set(0, 1.7, 2.55);
+    const cab = box(2.4, 2.4, 2.1, COLORS.bone);
+    cab.position.set(0, 2.7, -1.05);
+    const windscreen = new THREE.Mesh(
+      new THREE.BoxGeometry(2.05, 1.2, 0.1),
+      material(0x274d58, 0.3, 0.15),
+    );
+    windscreen.position.set(0, 2.95, 0.02);
+    const roof = box(2.9, 0.22, 2.5, 0x8e3328);
+    roof.position.set(0, 4.05, -1.05);
+    const beacon = cylinder(0.2, 0.28, 0.4, 10, 0xe7a63b);
+    beacon.position.set(0.7, 4.4, -1);
+    const exhaust = cylinder(0.13, 0.17, 2.4, 8, 0x2d2d29);
+    exhaust.position.set(-0.68, 2.9, 1.4);
+
+    const wheels: THREE.Mesh[] = [];
+    const wheelRestY: number[] = [];
+    // Physics order: front-left, front-right, rear-left, rear-right.
+    const layout: ReadonlyArray<readonly [number, number, number]> = [
+      [-1.36, 1.65, 0.62],
+      [1.36, 1.65, 0.62],
+      [-1.5, -1.25, 1.05],
+      [1.5, -1.25, 1.05],
+    ];
+    for (const [x, z, radius] of layout) {
+      const wheel = cylinder(radius, radius, 0.66, 14, COLORS.tire);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(x, radius, z);
+      const hub = cylinder(radius * 0.44, radius * 0.44, 0.7, 10, COLORS.gold);
+      hub.rotation.z = Math.PI / 2;
+      wheel.add(hub);
+      wheels.push(wheel);
+      wheelRestY.push(radius);
+      root.add(wheel);
+    }
+
+    const ploughPivot = new THREE.Group();
+    ploughPivot.position.set(0, 1, -2.5);
+    const ploughBeam = box(3.7, 0.24, 1.5, 0x583930);
+    ploughBeam.position.z = -0.5;
+    const blade = box(4.6, 1.05, 0.24, 0xa94a36);
+    blade.position.set(0, -0.12, -1.3);
+    blade.rotation.x = 0.22;
+    ploughPivot.add(ploughBeam, blade);
+    for (let index = -2; index <= 2; index += 1) {
+      const tooth = box(0.17, 0.52, 0.52, 0x2f2e2a);
+      tooth.position.set(index * 0.88, -0.56, -1.36);
+      ploughPivot.add(tooth);
+    }
+
+    const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xffe7a8 });
+    for (const x of [-0.68, 0.68]) {
+      const lens = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22, 0.22, 0.12, 12),
+        headlightMaterial,
+      );
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(x, 1.85, 2.66);
+      root.add(lens);
+    }
+    // A spotlight aimed forward, so night driving actually lights the road ahead.
+    const headlights = new THREE.SpotLight(0xffd58a, 0, 46, 0.62, 0.45, 1.2);
+    headlights.position.set(0, 2.1, 2.6);
+    headlights.target.position.set(0, 0, 22);
+    root.add(headlights.target);
+
+    root.add(
+      shadow,
+      chassis,
+      hood,
+      grille,
+      cab,
+      windscreen,
+      roof,
+      beacon,
+      exhaust,
+      ploughPivot,
+      headlights,
+    );
+    return { root, wheels, wheelRestY, ploughPivot, headlights };
+  }
+
+  /** The toy buggy, built front-forward: nose and lights at +Z, tow hook at −Z. */
+  private createBuggy(): RigParts {
+    const root = new THREE.Group();
+    root.name = "toy-buggy";
+    root.rotation.order = "YXZ";
+
+    const shadow = this.blobShadow(2.1, 0.26);
+    shadow.position.y = 0.04;
+    shadow.scale.set(1, 1.45, 1);
+
+    const chassis = box(2.4, 0.42, 3.4, 0x283d45);
+    chassis.position.y = 0.62;
+    const nose = box(2.15, 0.62, 1.4, 0xe1ad52);
+    nose.position.set(0, 0.95, 1.15);
+    const cockpit = new THREE.Mesh(
+      new THREE.BoxGeometry(1.7, 0.6, 1.35),
+      material(0x315f6b, 0.28, 0.12),
+    );
+    cockpit.position.set(0, 1.15, -0.55);
+    const rollBar = new THREE.Mesh(
+      new THREE.TorusGeometry(0.85, 0.1, 6, 16, Math.PI),
+      material(COLORS.bone),
+    );
+    rollBar.position.set(0, 1.5, -0.7);
+    rollBar.rotation.z = Math.PI;
+
+    const wheels: THREE.Mesh[] = [];
+    const wheelRestY: number[] = [];
+    for (const [x, z] of [
+      [-1.45, 1.1],
+      [1.45, 1.1],
+      [-1.45, -1.1],
+      [1.45, -1.1],
+    ] as const) {
+      const wheel = cylinder(0.56, 0.56, 0.46, 12, COLORS.tire);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(x, 0.56, z);
+      const hub = cylinder(0.23, 0.23, 0.5, 8, COLORS.cyan);
+      hub.rotation.z = Math.PI / 2;
+      wheel.add(hub);
+      wheels.push(wheel);
+      wheelRestY.push(0.56);
+      root.add(wheel);
+    }
+
+    const towHook = cylinder(0.12, 0.16, 0.6, 8, COLORS.gold);
+    towHook.rotation.x = Math.PI / 2;
+    towHook.position.set(0, 0.5, -2);
+
+    const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xdffcff });
+    for (const x of [-0.62, 0.62]) {
+      const lens = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.18, 0.18, 0.12, 10),
+        headlightMaterial,
+      );
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(x, 1, 1.9);
+      root.add(lens);
+    }
+    const headlights = new THREE.SpotLight(0xc8f8ff, 0, 38, 0.55, 0.4, 1.3);
+    headlights.position.set(0, 1.1, 1.9);
+    headlights.target.position.set(0, 0, 20);
+    root.add(headlights.target);
+
+    root.add(shadow, chassis, nose, cockpit, rollBar, towHook, headlights);
+    return { root, wheels, wheelRestY, ploughPivot: null, headlights };
+  }
+
+  private createCargo(): THREE.Group {
+    const root = new THREE.Group();
+    root.name = "relay-cargo";
+    const pallet = box(2.2, 0.25, 2, 0x604834);
+    pallet.position.y = -0.45;
+    const crate = box(1.75, 1.4, 1.55, 0x8c5236);
+    crate.position.y = 0.3;
+    const bandA = box(1.88, 0.13, 1.68, COLORS.gold);
+    const bandB = bandA.clone();
+    bandA.position.y = 0.07;
+    bandB.position.y = 0.53;
+    const beacon = cylinder(0.18, 0.22, 0.35, 8, COLORS.cyan);
+    beacon.position.y = 1.17;
+    root.add(pallet, crate, bandA, bandB, beacon);
+    return root;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Furrows
+  // ---------------------------------------------------------------------------
+
+  private updateFurrows(state: GameState): void {
+    if (state.furrows.length < this.renderedFurrows) {
+      // A reset or a save restore shortened the list; rebuild from scratch.
+      this.renderedFurrows = 0;
+    }
+    while (this.renderedFurrows < state.furrows.length) {
+      const mark = state.furrows[this.renderedFurrows]!;
+      this.dummy.position.set(
+        mark.x,
+        this.world.terrain.height(mark.x, mark.z) + 0.05,
+        mark.z,
+      );
+      this.dummy.rotation.set(0, mark.heading, 0);
+      this.dummy.scale.set(1, 1, 1);
+      this.dummy.updateMatrix();
+      this.furrowDecals.setMatrixAt(this.renderedFurrows, this.dummy.matrix);
+      this.renderedFurrows += 1;
+    }
+    if (this.furrowDecals.count !== this.renderedFurrows) {
+      this.furrowDecals.count = this.renderedFurrows;
+      this.furrowDecals.instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Presentation state
+  // ---------------------------------------------------------------------------
+
+  private updatePhase(phase: WorldPhase): void {
+    if (phase === this.currentPhase) return;
+    this.currentPhase = phase;
+    const stars = this.scene.getObjectByName("night-stars");
+    const waterMaterial = this.water.material as THREE.MeshStandardMaterial;
+
+    if (phase === "day") {
+      this.scene.background = new THREE.Color(0xbfd5c5);
+      this.scene.fog = new THREE.FogExp2(0x93a982, 0.0035);
+      this.sun.color.setHex(0xffdeb0);
+      this.sun.intensity = 2.5;
+      this.hemisphere.intensity = 1.6;
+      waterMaterial.color.setHex(0x3d6672);
+      for (const rig of this.rigs.values()) rig.headlights.intensity = 0;
+      if (stars) stars.visible = false;
+    } else if (phase === "gloam") {
+      this.scene.background = new THREE.Color(0x9d6b50);
+      this.scene.fog = new THREE.FogExp2(0x7f7256, 0.0042);
+      this.sun.color.setHex(0xff9d66);
+      this.sun.intensity = 1.3;
+      this.hemisphere.intensity = 0.9;
+      waterMaterial.color.setHex(0x4a4a58);
+      for (const rig of this.rigs.values()) rig.headlights.intensity = 60;
+      if (stars) stars.visible = true;
+    } else {
+      this.scene.background = new THREE.Color(COLORS.night);
+      this.scene.fog = new THREE.FogExp2(0x122733, 0.0058);
+      this.sun.color.setHex(0x86a8d6);
+      this.sun.intensity = 0.35;
+      this.hemisphere.intensity = 0.45;
+      waterMaterial.color.setHex(0x1c3340);
+      for (const rig of this.rigs.values()) rig.headlights.intensity = 150;
+      if (stars) stars.visible = true;
+    }
+  }
+
+  /** Register an impact so the camera can react to it. */
+  addShake(amount: number): void {
+    this.shake = Math.min(1.2, this.shake + amount);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Frame
+  // ---------------------------------------------------------------------------
+
+  render(state: GameState): void {
+    const now = performance.now();
+    const delta = Math.min((now - this.lastFrameTime) / 1000, 0.1);
+    this.lastFrameTime = now;
+
+    this.updatePhase(state.phase);
+    this.updateFurrows(state);
+
+    const activeRigState = state.rigs[state.activeRigId];
+    const profile = effectiveProfile(activeRigState.id, activeRigState.modules);
+
+    // Terrain mesh follows the height field when the plough changes it.
+    const deformCount = this.world.terrain.deformationCount();
+    if (deformCount !== this.lastDeformCount) {
+      this.lastDeformCount = deformCount;
+      this.refreshTerrainRegion(activeRigState.x, activeRigState.z, 9);
+    }
+
+    if (
+      Math.hypot(
+        activeRigState.x - this.propAnchorX,
+        activeRigState.z - this.propAnchorZ,
+      ) > PROP_REBUILD_DISTANCE
+    ) {
+      this.refreshProps(state);
+    }
+
+    for (const id of RIG_IDS) {
+      const rigState = state.rigs[id];
+      const parts = this.rigs.get(id);
+      if (!parts) continue;
+
+      parts.root.position.set(rigState.x, rigState.y, rigState.z);
+      parts.root.rotation.y = rigState.heading;
+      // Positive pitch is nose-up; a Y-then-X rotation drops +Z for positive X,
+      // so the sign is inverted here.
+      parts.root.rotation.x = -rigState.pitch;
+      parts.root.rotation.z = rigState.roll;
+
+      for (let index = 0; index < parts.wheels.length; index += 1) {
+        const wheel = parts.wheels[index]!;
+        const rest = parts.wheelRestY[index]!;
+        const wheelState = rigState.wheels[index];
+        wheel.rotation.x = rigState.wheelRotation;
+        if (wheelState) {
+          // Compression 0.5 is the resting position, so the wheel visibly rides
+          // up into the arch over a bump and drops away over a crest.
+          const travel = (wheelState.compression - 0.5) * 2 * 0.5;
+          wheel.position.y = rest + travel * 0.6;
+        }
+      }
+
+      if (parts.ploughPivot) {
+        const plough = rigState.attachments.find(
+          (item) => item.id === "field-plough",
+        );
+        parts.ploughPivot.rotation.x = THREE.MathUtils.lerp(
+          parts.ploughPivot.rotation.x,
+          plough?.engaged ? 0.3 : -0.22,
+          1 - Math.exp(-8 * delta),
+        );
+      }
+    }
+
+    // Dust from the active rig's slipping wheels.
+    const ground = this.world.terrain.sample(
+      activeRigState.x,
+      activeRigState.z,
+      1.2,
+    );
+    const spray = ground.surface.spray;
+    for (let index = 0; index < activeRigState.wheels.length; index += 1) {
+      const wheel = activeRigState.wheels[index]!;
+      if (!wheel.contact) continue;
+      const strength = wheel.slip * spray;
+      if (strength < 0.18) continue;
+      const angle = activeRigState.heading + (index < 2 ? 0.4 : Math.PI - 0.4);
+      const radius = profile.track * 0.5;
+      this.emitDust(
+        activeRigState.x + Math.sin(angle) * radius,
+        ground.height + 0.3,
+        activeRigState.z + Math.cos(angle) * radius,
+        Math.min(1, strength),
+        Math.abs(activeRigState.speed),
+      );
+    }
+    this.updateDust(delta);
+
+    // Cargo and hitch.
+    const cargo = state.cargoRelay.cargo;
+    this.cargo.visible = true;
+    this.cargo.position.set(cargo.x, cargo.y, cargo.z);
+    this.cargo.rotation.y = cargo.heading;
+
+    this.hitchLine.visible = cargo.attachedRigId !== null;
+    if (cargo.attachedRigId) {
+      const attachedRig = state.rigs[cargo.attachedRigId];
+      const positions = this.hitchLine.geometry.getAttribute(
+        "position",
+      ) as THREE.BufferAttribute;
+      positions.setXYZ(0, attachedRig.x, attachedRig.y + 0.4, attachedRig.z);
+      positions.setXYZ(1, cargo.x, cargo.y + 0.35, cargo.z);
+      positions.needsUpdate = true;
+      this.hitchLine.geometry.computeBoundingSphere();
+    }
+
+    const deliveryRing = this.scene.getObjectByName("relay-delivery-ring");
+    if (deliveryRing) {
+      deliveryRing.rotation.z += delta * 0.42;
+      deliveryRing.visible = state.cargoRelay.status !== "complete";
+    }
+
+    for (const site of WORLD_SITES) {
+      const group = this.scene.getObjectByName(`site:${site.id}`);
+      const ring = group?.userData.ring as THREE.Mesh | undefined;
+      if (!ring) continue;
+      ring.rotation.z += delta * 0.3;
+      const discovered = state.discoveries.some((item) => item.id === site.id);
+      (ring.material as THREE.MeshBasicMaterial).opacity = discovered
+        ? 0.18
+        : 0.5;
+    }
+
+    this.updateCamera(state, delta, profile);
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  /**
+   * Position the camera, keeping the rig visible.
+   *
+   * Includes the terrain-occlusion pull-in that `DESIGN.md` records as an
+   * unimplemented gap: the ideal camera position is raymarched against the height
+   * field and pulled toward the rig if a hill is in the way. Without this the
+   * player's own machine disappears behind terrain, which is exactly what the
+   * accepted Rig Lab 01 screenshot shows happening behind a tree.
+   */
+  private updateCamera(
+    state: GameState,
+    delta: number,
+    profile: ReturnType<typeof effectiveProfile>,
+  ): void {
+    const rig = state.rigs[state.activeRigId];
+    const narrow = this.camera.aspect < 0.8;
+    const forward = new THREE.Vector3(
+      Math.sin(rig.heading),
+      0,
+      Math.cos(rig.heading),
+    );
+    const right = new THREE.Vector3(forward.z, 0, -forward.x);
+
+    const focus = new THREE.Vector3(
+      rig.x,
+      rig.y +
+        (state.cameraMode === "chase" ||
+        state.cameraMode === "hood" ||
+        state.cameraMode === "side"
+          ? profile.camera.focusHeight
+          : 0.8),
+      rig.z,
+    );
+
+    let desired: THREE.Vector3;
+    let target: THREE.Vector3;
+
+    if (state.cameraMode === "chase") {
+      const distance = profile.camera.chaseDistance * (narrow ? 1.3 : 1);
+      const height = profile.camera.chaseHeight * (narrow ? 1.15 : 1);
+      desired = new THREE.Vector3(rig.x, rig.y + height, rig.z)
+        .addScaledVector(forward, -distance)
+        .add(
+          new THREE.Vector3(profile.camera.chaseSide, 0, 0).applyAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            rig.heading,
+          ),
+        );
+      target = focus.clone().addScaledVector(forward, 4);
+    } else if (state.cameraMode === "hood") {
+      // A rig-height driving view. The profile supplies only the machine-scale
+      // offset; the policy itself remains shared by every present and future rig.
+      desired = focus
+        .clone()
+        .addScaledVector(forward, 0.75)
+        .add(new THREE.Vector3(0, 0.42, 0));
+      target = desired.clone().addScaledVector(forward, 16);
+      target.y -= 0.25;
+    } else if (state.cameraMode === "side") {
+      // A readable inspection/action view that exposes suspension, attachments,
+      // and towing without encoding any particular vehicle class.
+      desired = focus
+        .clone()
+        .addScaledVector(right, narrow ? 13 : 11)
+        .addScaledVector(forward, -2)
+        .add(new THREE.Vector3(0, narrow ? 5.8 : 4.8, 0));
+      target = focus.clone().addScaledVector(forward, 2.5);
+    } else if (state.cameraMode === "tactical") {
+      desired = new THREE.Vector3(
+        rig.x,
+        rig.y + (narrow ? 34 : 27),
+        rig.z,
+      ).addScaledVector(forward, -3);
+      target = focus;
+    } else if (state.cameraMode === "top-down") {
+      // Exact overhead composition keeps the active rig centered and rotates
+      // screen-up with its heading. This is a policy, not a wheel/ground special
+      // case, so aerial and space rigs can reuse it through bounded adapters.
+      desired = new THREE.Vector3(rig.x, rig.y + (narrow ? 48 : 40), rig.z);
+      target = focus;
+    } else {
+      // Survey: a high, pulled-back vantage for reading the land and planning a
+      // route. Distinct from tactical, which stays close for manoeuvring.
+      desired = new THREE.Vector3(
+        rig.x,
+        rig.y + (narrow ? 78 : 64),
+        rig.z,
+      ).addScaledVector(forward, -46);
+      target = focus;
+    }
+
+    // Occlusion: never let terrain get between the camera and the rig.
+    const clear = this.world.terrain.raymarchBlocked(
+      focus.x,
+      focus.y,
+      focus.z,
+      desired.x,
+      desired.y,
+      desired.z,
+      12,
+      0.9,
+    );
+    if (clear < 1) {
+      const pulled = focus.clone().lerp(desired, Math.max(0.28, clear));
+      // Also lift clear of the ground so the pulled-in camera does not end up
+      // inside the hill it was avoiding.
+      pulled.y = Math.max(
+        pulled.y,
+        this.world.terrain.height(pulled.x, pulled.z) + 2.4,
+      );
+      desired.copy(pulled);
+    } else {
+      desired.y = Math.max(
+        desired.y,
+        this.world.terrain.height(desired.x, desired.z) + 2,
+      );
+    }
+
+    if (!this.cameraInitialised) {
+      this.camera.position.copy(desired);
+      this.cameraInitialised = true;
+    } else {
+      const blend =
+        state.cameraMode === "chase"
+          ? 1 - Math.exp(-6 * delta)
+          : 1 - Math.exp(-3.5 * delta);
+      this.camera.position.lerp(desired, blend);
+    }
+
+    if (this.shake > 0.001) {
+      this.shake = Math.max(0, this.shake - delta * 2.6);
+      const magnitude = this.shake * 0.42;
+      const phase = performance.now() * 0.045;
+      this.camera.position.x += Math.sin(phase) * magnitude;
+      this.camera.position.y += Math.sin(phase * 1.7) * magnitude * 0.7;
+    }
+
+    // Speed opens the field of view slightly; a cheap, readable sense of pace.
+    const speedRatio = clamp(
+      Math.abs(rig.speed) / Math.max(1, profile.topSpeed),
+      0,
+      1,
+    );
+    const targetFov =
+      state.cameraMode === "chase"
+        ? 52 + speedRatio * 8
+        : state.cameraMode === "hood"
+          ? 64 + speedRatio * 5
+          : state.cameraMode === "side"
+            ? 48
+            : state.cameraMode === "top-down"
+              ? 46
+              : 52;
+    if (Math.abs(this.camera.fov - targetFov) > 0.05) {
+      this.camera.fov +=
+        (targetFov - this.camera.fov) * (1 - Math.exp(-4 * delta));
+      this.camera.updateProjectionMatrix();
+    }
+
+    if (state.cameraMode === "top-down") {
+      this.camera.up.copy(forward);
+    } else {
+      this.camera.up.set(0, 1, 0);
+    }
+    this.camera.lookAt(target);
+  }
+
+  metrics(): { drawCalls: number; triangles: number; terrainBuildMs: number } {
+    return {
+      drawCalls: this.renderer.info.render.calls,
+      triangles: this.renderer.info.render.triangles,
+      terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
+    };
+  }
+
+  /** Force a full prop and furrow rebuild, after a reset or a save restore. */
+  invalidate(state: GameState): void {
+    this.renderedFurrows = 0;
+    this.lastDeformCount = -1;
+    this.propAnchorX = Number.POSITIVE_INFINITY;
+    this.propAnchorZ = Number.POSITIVE_INFINITY;
+    this.refreshProps(state);
+    this.rebuildTerrainHeights();
+  }
+
+  /** Re-sample the whole terrain mesh. Used after a reset clears deformation. */
+  private rebuildTerrainHeights(): void {
+    const size = this.terrainCells + 1;
+    const position = this.terrainMesh.geometry.getAttribute(
+      "position",
+    ) as THREE.BufferAttribute;
+    this.terrainHeights = this.world.terrain.sampleHeightGrid(
+      this.terrainOrigin,
+      this.terrainOrigin,
+      this.terrainCells,
+      TERRAIN_STEP,
+    );
+    for (let index = 0; index < size * size; index += 1) {
+      position.setY(index, this.terrainHeights[index]!);
+    }
+    position.needsUpdate = true;
+    this.terrainMesh.geometry.computeVertexNormals();
+  }
+
+  dispose(): void {
+    window.removeEventListener("resize", this.resize);
+    this.renderer.dispose();
+  }
+}

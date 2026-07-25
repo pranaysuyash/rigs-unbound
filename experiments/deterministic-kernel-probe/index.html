@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A deterministic gameplay-kernel laboratory for Rigs Unbound."
+    />
+    <title>Rigs Unbound — Kernel Lab</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="field-header" aria-live="polite">
+        <div>
+          <p class="eyebrow">Rigs Unbound / Kernel Lab</p>
+          <h1 id="phase-label">Dawn repair run</h1>
+        </div>
+        <p id="objective-label" class="objective">
+          Harvest three signal crops to prepare the yard.
+        </p>
+      </header>
+
+      <section class="playfield" aria-label="Gameplay laboratory">
+        <canvas
+          id="game-canvas"
+          width="1280"
+          height="720"
+          aria-label="A tractor moving through a stylized farm laboratory"
+        ></canvas>
+
+        <div class="instrument-strip" aria-label="Vehicle status">
+          <span><b>Hull</b> <output id="condition-output">55%</output></span>
+          <span><b>Scrap</b> <output id="scrap-output">0</output></span>
+          <span><b>Phase</b> <output id="mode-output">farm</output></span>
+          <span><b>Tick</b> <output id="tick-output">0</output></span>
+        </div>
+
+        <div id="start-panel" class="start-panel">
+          <div class="start-copy">
+            <p class="eyebrow">Same bones. Changing verbs.</p>
+            <h2>Wake the old tractor</h2>
+            <p>
+              Work the field, endure the night, then carry the same battered
+              machine into a dawn time trial.
+            </p>
+            <p class="controls-copy">
+              Move with WASD or arrows · work/plow with Space · restart with R ·
+              fullscreen with F
+            </p>
+            <button id="start-btn" type="button">Turn the key</button>
+          </div>
+        </div>
+
+        <div class="touch-controls" aria-label="Touch controls">
+          <button data-control="up" aria-label="Move forward">▲</button>
+          <div>
+            <button data-control="left" aria-label="Steer left">◀</button>
+            <button
+              data-control="action"
+              class="action"
+              aria-label="Work or plow"
+            >
+              PLOW
+            </button>
+            <button data-control="right" aria-label="Steer right">▶</button>
+          </div>
+          <button data-control="down" aria-label="Reverse">▼</button>
+        </div>
+      </section>
+
+      <footer>
+        Diagnostic art only. This probe tests shared state and deterministic
+        stepping; it does not select the final renderer.
+      </footer>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
