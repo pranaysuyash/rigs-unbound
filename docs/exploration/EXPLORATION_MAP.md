@@ -18,6 +18,13 @@ Every meaningful discovery should either update an area below or create a linked
 
 Evidence follows the project tiers from assumption (Tier 0) to production-like/real-data observation (Tier 5). No area below has Tier 3+ game evidence yet.
 
+## Navigation
+
+- [Docs root landing page](../README.md)
+- [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
+- [Worklog](../WORKLOG.md)
+
 ## North star and product identity
 
 | Area              | Current hypothesis                                                                                                    |      Status | Next evidence                                                                                       |
@@ -1056,3 +1063,29 @@ Yes. Research breadth is no longer the limiting factor. The next exploration
 updates should be driven by observed player decisions and failure modes, so the
 catalog keeps opening useful possibilities without becoming a substitute for
 finishing the first coherent game.
+
+## Addendum — 2026-07-26 first-rung state contracts
+
+- Accepted ADR-0019: absolute monotonic world time owns phase derivation;
+  activity elapsed time is separate.
+- Schema v5 now owns world-clock and exceptional-recovery state; Farmfall's
+  crops/signatures/threats/mastery payload advances to schema v6.
+- Exceptional recovery is a safety action, not a universal winch capability:
+  zero-condition rigs return to Home Silo at 25%, award nothing, and increment
+  a persisted audit counter.
+- The authored first salvage cache proves that procedural distribution still
+  needs intentional first-session anchors.
+- RU-0106–RU-0109 are closed locally. The next observed-player lane is B5–B12,
+  then first meaningful spend and Farmfall—not another mechanics catalog.
+
+## Addendum — 2026-07-25 web-experience surface note
+
+- The live `3d-web-experience` check confirms the current Field 02 surface is
+  canvas-first with skip-link and operator visibility hooks.
+- No explicit loading marker appeared in the DOM snapshot (`progress`,
+  `aria-busy`, or similar), so visible loading progression and static fallback
+  policy remain deliberate decision items before broader public/mobile
+  expansion.
+- This is a research cue, not a defect claim; it keeps the browser delivery
+  lane honest about what is intentionally minimal versus what still needs a
+  bounded public-entry affordance.

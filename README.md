@@ -76,6 +76,9 @@ reproducible primitive geometry—not a final-engine decision.
 
 ## Start here
 
+- [Docs root landing page](docs/README.md)
+- [Research landing page](docs/research/README.md)
+- [3D Game Contract Index](docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Master execution tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 - [Exploration map](docs/exploration/EXPLORATION_MAP.md)
 - [Wide-open concept exploration](docs/exploration/OPEN_WORLD_VEHICLE_GAME_BRAINSTORM_2026-07-25.md)
@@ -134,10 +137,10 @@ reproducible primitive geometry—not a final-engine decision.
 
 ## Evidence status
 
-Current evidence includes planning and primary-source research (Tier 1), 102
+Current evidence includes planning and primary-source research (Tier 1), 108
 passing root tests plus seven preserved kernel-probe tests and clean TypeScript
 checks (Tier 2), a production build plus automated terrain, camera, cargo, jump,
-hover, perception-chain, reduced-motion, and schema-v4 save interaction checks
+hover, perception-chain, reduced-motion, and schema-v5 save interaction checks
 (Tier 3), a separate Physics Lab build plus automated dynamic-chassis,
 raycast-wheel, surface, capture/reset, and camera checks (Tier 3), and observed
 desktop/narrow local browser play (Tier 4). A separate Box3D experiment now adds
@@ -148,7 +151,9 @@ native recording bindings, and like-for-like Jolt comparison remain open. The
 public Sites version is accepted
 with a terminal `succeeded` status, an HTTP 200 response, and a live headless
 browser check of the welcome flow, schema-v4 state, three-rig roster, and console
-health (Tier 4). This does not add representative-device benchmark,
+health (Tier 4). The newer schema-v5 candidate has passed the same Field 02
+acceptance on local development and rebuilt production-preview surfaces but is
+not yet the public Sites release. This does not add representative-device benchmark,
 external-player comprehension, multiplayer, production, or commercial-launch
 evidence yet.
 

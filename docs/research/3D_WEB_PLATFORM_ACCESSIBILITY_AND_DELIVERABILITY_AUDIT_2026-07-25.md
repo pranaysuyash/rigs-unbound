@@ -128,3 +128,20 @@ Only after Tier 3+ closure on each lane should we publish public-claim scope wid
 - [WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
 - [RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25.md)
+
+## Addendum (2026-07-25) - Live canvas-first surface check
+
+- Runtime observation at `http://127.0.0.1:4173/?p0-repro=welcome` confirms
+  the current Field 02 surface is intentionally canvas-first:
+  - `#game-canvas` and `#map-canvas` are present,
+  - the skip link to `#game-canvas` is present,
+  - `window.render_game_to_text()` and `window.getPerformanceSnapshot()`
+    remain available for operator visibility.
+- The same DOM snapshot did not expose a separate `progress`, `aria-busy`, or
+  other explicit loading marker.
+- That is not a defect claim by itself, but it does keep the 3d-web-experience
+  question open for slower/public entry:
+  - should the minimal loader be treated as intentional,
+  - or should a bounded loading/fallback affordance be added before broader
+    mobile/public expansion?
+- Evidence tier: Tier 4 runtime/manual observation.

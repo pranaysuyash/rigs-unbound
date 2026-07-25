@@ -11,16 +11,18 @@ import {
   RIG_PROFILES,
   type GameState,
   type RigId,
+  worldMinuteOfDay,
 } from "./contracts";
 import { GameWorld } from "./gameworld";
 import { driveForce, effectiveGrip } from "./physics";
-import { SALVAGE_PICKUP_RADIUS } from "./exploration";
+import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
 import {
   activeRig,
   advanceGame,
   createInitialState,
   cycleCamera,
   cyclePhase,
+  EMERGENCY_RECOVERY_CONDITION,
   hasCapability,
   installModule,
   performPrimaryAction,
@@ -100,6 +102,27 @@ describe("rig gameplay kernel", () => {
     expect(publicState(buggy.state, buggy.world)).not.toHaveProperty(
       "renderer",
     );
+  });
+
+  it("keeps the public checkpoint readable when recovered numeric fields are missing or non-finite", () => {
+    const { state, world } = scenario("PUBLIC-STATE-FALLBACK");
+    const rig = activeRig(state);
+    rig.y = undefined as unknown as number;
+    rig.telemetry.grip = Number.NaN;
+    if (rig.mobility.kind !== "ground") throw new Error("expected ground rig");
+    rig.mobility.verticalVelocity = Number.POSITIVE_INFINITY;
+
+    const exposed = publicState(state, world) as {
+      activeRig: {
+        y: number;
+        mobility: { verticalVelocity: number };
+        terrain: { grip: number };
+      };
+    };
+
+    expect(exposed.activeRig.y).toBe(0);
+    expect(exposed.activeRig.mobility.verticalVelocity).toBe(0);
+    expect(exposed.activeRig.terrain.grip).toBe(0);
   });
 
   it("crosses standing water through hover state rather than fake wheel contacts", () => {
@@ -718,6 +741,96 @@ describe("exploration and progression", () => {
     if (rig.mobility.kind !== "ground") throw new Error("expected ground rig");
     expect(rig.mobility.grounded).toBe(true);
   });
+
+  it("guarantees a reachable first salvage cache and collects it through the canonical action", () => {
+    const { state, world } = scenario("FIRST-SALVAGE");
+    const rig = activeRig(state);
+    const node = world.exploration.nearestNode(
+      rig.x,
+      rig.z,
+      70,
+      world.collectedNodes,
+    );
+
+    expect(node?.id).toBe(FIRST_SALVAGE_NODE.id);
+    expect(Math.hypot(node!.x - rig.x, node!.z - rig.z)).toBeLessThan(30);
+    expect(world.terrain.routeWeight(node!.x, node!.z)).toBeLessThan(0.35);
+    expect(world.terrain.sample(node!.x, node!.z, 1.2).slope).toBeLessThan(0.3);
+
+    rig.x = node!.x;
+    rig.z = node!.z;
+    settleWorld(state, world);
+    performPrimaryAction(state, world);
+
+    expect(state.salvage).toBe(FIRST_SALVAGE_NODE.value);
+    expect(state.salvageCollected).toBe(FIRST_SALVAGE_NODE.value);
+    expect(world.collectedNodes.has(FIRST_SALVAGE_NODE.id)).toBe(true);
+    expect(state.lastDiagnostic).toContain("Recovered");
+  });
+
+  it("disables a zero-condition rig and gives it one auditable emergency recovery", () => {
+    const { state, world } = scenario("EMERGENCY-RECOVERY");
+    const rig = activeRig(state);
+    rig.x = -126;
+    rig.z = -130;
+    rig.condition = 0;
+    settleWorld(state, world);
+    const stranded = { x: rig.x, z: rig.z };
+
+    driveFlat(state, world, 90);
+    expect(rig.x).toBeCloseTo(stranded.x, 3);
+    expect(rig.z).toBeCloseTo(stranded.z, 3);
+
+    winchRecover(state, world);
+
+    expect(Math.hypot(rig.x - HOME_SITE.x, rig.z - HOME_SITE.z)).toBeLessThan(
+      20,
+    );
+    expect(rig.condition).toBe(EMERGENCY_RECOVERY_CONDITION);
+    expect(state.recovery.emergencyCount).toBe(1);
+    expect(state.recovery.lastEmergencyAtMs).toBe(state.elapsedMs);
+    expect(state.salvage).toBe(0);
+    expect(state.lastDiagnostic).toContain("Emergency field recovery");
+
+    const after = { x: rig.x, z: rig.z, condition: rig.condition };
+    winchRecover(state, world);
+    expect({ x: rig.x, z: rig.z, condition: rig.condition }).toEqual(after);
+    expect(state.recovery.emergencyCount).toBe(1);
+    expect(state.lastDiagnostic).toContain("No winch");
+  });
+
+  it("keeps world time monotonic while phase boundaries cycle and persist", () => {
+    const { state, world } = scenario("WORLD-CLOCK");
+    const elapsedAtStart = state.elapsedMs;
+
+    expect(state.worldTimeMinutes).toBe(400);
+    expect(state.phase).toBe("day");
+
+    cyclePhase(state);
+    expect(state.worldTimeMinutes).toBe(1125);
+    expect(state.phase).toBe("gloam");
+    expect(state.elapsedMs).toBe(elapsedAtStart);
+
+    cyclePhase(state);
+    expect(state.worldTimeMinutes).toBe(1340);
+    expect(state.phase).toBe("night");
+
+    const nightTime = state.worldTimeMinutes;
+    cyclePhase(state);
+    expect(state.worldTimeMinutes).toBeGreaterThan(nightTime);
+    expect(worldMinuteOfDay(state.worldTimeMinutes)).toBe(400);
+    expect(state.phase).toBe("day");
+
+    state.worldTimeMinutes = 1124.9;
+    state.phase = "day";
+    advanceGame(state, world, 1000);
+    expect(state.worldTimeMinutes).toBeGreaterThan(1125);
+    expect(state.phase).toBe("gloam");
+
+    const recovered = recoverState(JSON.parse(JSON.stringify(state)));
+    expect(recovered?.worldTimeMinutes).toBeCloseTo(state.worldTimeMinutes, 5);
+    expect(recovered?.phase).toBe("gloam");
+  });
 });
 
 describe("collision", () => {
@@ -876,7 +989,7 @@ describe("save recovery and migration", () => {
       lastDiagnostic: null,
     });
 
-    expect(recovered?.schemaVersion).toBe(4);
+    expect(recovered?.schemaVersion).toBe(5);
     expect(recovered?.rigs["utility-tractor"].x).toBe(12);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
       true,
@@ -909,7 +1022,7 @@ describe("save recovery and migration", () => {
 
     const recovered = recoverState(JSON.parse(JSON.stringify(v3)) as unknown);
 
-    expect(recovered?.schemaVersion).toBe(4);
+    expect(recovered?.schemaVersion).toBe(5);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].distanceTravelled).toBe(143);
     expect(recovered?.rigs["utility-tractor"].mobility.kind).toBe("ground");
@@ -986,7 +1099,7 @@ describe("save recovery and migration", () => {
     };
 
     const recovered = recoverState(v2);
-    expect(recovered?.schemaVersion).toBe(4);
+    expect(recovered?.schemaVersion).toBe(5);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].condition).toBe(71);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(

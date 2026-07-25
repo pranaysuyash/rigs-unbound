@@ -71,6 +71,24 @@
 
 # Worklog and Evidence Register
 
+## 2026-07-25 — 3d-web-experience runtime check
+
+- Used the `3d-web-experience` skill to inspect the live Field 02 browser
+  surface rather than only the static docs.
+- Confirmed the current page is canvas-first and still exposes the expected
+  accessibility and operator hooks:
+  - `#game-canvas`
+  - `#map-canvas`
+  - skip link to `#game-canvas`
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+- The same DOM snapshot did not show a separate `progress`, `aria-busy`, or
+  other explicit loading marker, so the next web-experience question is whether
+  the minimal loading/fallback chrome is intentional or should be made
+  explicit for slower/public entry.
+- Evidence depth: Tier 4 runtime/manual observation on
+  `http://127.0.0.1:4173/?p0-repro=welcome`.
+
 ## 2026-07-25 — Capability and governance runway addendum
 
 ### Objective
@@ -1522,6 +1540,67 @@ explicit controller or constraint question.
 - Added a supporting continuity section to the contract index so the
   exploration map, worklog, master tracker, render plan, and public-readiness
   register are surfaced alongside the contract lattice.
+- Added the contract index to the master execution tracker header so the
+  execution view now has the same quick lane entry point as the research docs.
+- Added a docs-root landing page and linked it from the contract index so the
+  project now has one obvious start-here entry point for docs navigation.
+- Added root-README links to the docs landing page and contract index so the
+  repository itself now points directly at the docs navigation surfaces.
+- Added a navigation block to the exploration map so the map itself now points
+  at the docs root landing page, contract index, tracker, and worklog.
+- Added a research-root landing page and linked it from both the docs root and
+  repository README so the research stack now has a direct entry point.
+- Added back-links from the research landing page to the docs root and root
+  README so the navigation path is bidirectional instead of one-way.
+- Replaced the docs landing page's directory placeholders with concrete
+  research and ADR targets so the page stays clickable and portable.
+- Added the asset pipeline, shipped-mesh authority, and web-ingest contracts
+  to the research landing page so the 3D asset-production lane is now surfaced
+  alongside the rest of the live evidence stack.
+- Added the web performance, accessibility, and loading/bootstrap docs to the
+  research landing page so browser runtime analysis now has a clear entry point
+  beside the asset and architecture lanes.
+- Added the core-loop, capability, replay, and verification contracts to the
+  research landing page so the simulation spine is now visible from the same
+  root navigation surface.
+- Added the streaming, modding, authority, and world-scaling contracts to the
+  research landing page so world-growth governance has the same root entry
+  point as assets, web runtime, and simulation.
+- Added the visibility, collision, camera, shader, lighting, and renderer
+  accessibility contracts to the research landing page so the spatial
+  readability lane is now visible alongside the rest of the research stack.
+- Added the threshold, KPI, readability, and rendering-economy docs to the
+  research landing page so the evidence-and-metrics lane is now a first-class
+  navigation surface as well.
+- Added the accessibility findings, render checklist, vehicle-physics catalog,
+  game reference atlas, multi-skill audit, and tagged skill coverage map to
+  the research landing page so the reference and provenance lane is surfaced
+  beside the other research groups.
+- Added the Kenney audit and tractor intake / reconstruction / preview docs to
+  the research landing page so the asset-intake evidence lane is visible as a
+  first-class research surface too.
+- Added a master synthesis doc and linked it from the research landing page so
+  the repo now has a compact what-exists / what-is-possible / what-next handoff
+  above the lane-specific contracts.
+- Documented and fixed the live boot/public-state crash in `src/game/state.ts`
+  with a runtime note so checkpoint serialization no longer hard-fails on
+  missing numeric fields during boot.
+- Verified the live enter-world path lands focus on `canvas#game-canvas` and
+  recorded that proof in the runtime safety note so the accessibility fix is
+  now browser-confirmed too.
+- Added a live runtime baseline snapshot with the current performance metrics
+  and run-record verifier status so the repo now has a durable observability
+  baseline to compare against on future passes.
+- Clarified the semantics of `firstControllableMs` so the repo now distinguishes
+  controllability timing from any future explicit input-readiness metric.
+- Added a live `firstInputReadyMs` metric and documented its semantics so the
+  runtime now tracks input readiness separately from controllability.
+- Refreshed the live runtime baseline snapshot with the latest observed
+  performance values so the evidence note stays aligned with the current live
+  browser session.
+- Added the accessibility, authoring, behavior, culling, backend, physics lab,
+  portal, budget, and locomotion proof docs to the research landing page so
+  the operational proof lane has a direct entry point too.
 
 ### Three-pass review
 
@@ -1611,3 +1690,44 @@ complete game. The next implementation gate is RU-0106 through RU-0110, with
 the first priority being the title-card re-entry and zero-condition recovery
 soft-lock because they can prevent a player from reaching or recovering the
 core loop.
+
+## 2026-07-26 — First-rung P0 repair (RU-0106 through RU-0109)
+
+### Baseline and decisions
+
+- Reproduced background simulation under the welcome plate. Keyboard focus
+  re-entry did not reproduce in the current baseline, so the acceptance harness
+  now protects both non-reentry and non-simulation contracts.
+- Confirmed there was no guaranteed authored first salvage, condition-zero
+  rigs could drift/soft-lock, and visible phase time mixed unrelated clocks.
+- Accepted ADR-0019: absolute world time, schema-v5 migration, exceptional
+  recovery, explicit world-entry gating, and canonical first-salvage action.
+
+### Implementation
+
+- Added authored `first-recovery-cache`, reachable from Home Silo and collected
+  through `performPrimaryAction`.
+- Added `worldTimeMinutes`, derived phase boundaries, v4→v5 migration, and
+  persisted recovery audit fields.
+- Disabled fixed-step movement at zero condition and added a non-rewarding Home
+  Silo recovery to 25% condition with repeat protection.
+- Gated held input, fixed-step simulation, periodic saves, and input-readiness
+  telemetry behind entry; added immediate welcome `[hidden]` behavior.
+- Added a contextual desktop mouse recovery action while retaining keyboard and
+  responsive touch actions through the same semantic transition.
+
+### Verification and three passes
+
+1. Immediate correctness: TypeScript passed; 62 targeted state/storage tests
+   passed; full suite passed with 108 root tests and seven kernel-probe tests.
+2. Architecture: activity time remains separate from the world clock; normal
+   winch behavior remains capability-gated; v1–v5 save recovery remains one
+   canonical chain; Farmfall is resequenced to schema v6.
+3. Supervision readiness: formatting and production build passed; Field 02
+   browser acceptance passed on `4173` and rebuilt `4174`, covering welcome
+   gating, first salvage, day→gloam→night→dawn, reload, keyboard/mouse/touch
+   recovery, repeat protection, narrow layout, and zero console/page errors.
+
+Remaining before release: final diff/link/security checks, full motto
+attestation, guarded commit/push, exact-source Sites deployment, and production
+smoke. RU-0110 (B5–B12) is the next gameplay work package.

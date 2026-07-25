@@ -24,6 +24,9 @@ Original prompt: Explore and document a public browser-based open-world game in 
   [deploy runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - Canonical task list:
   [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
+- Local release candidate: schema v5 first-rung repair is validated on `4173`
+  and rebuilt production preview `4174`; RU-0106 through RU-0109 are closed in
+  the tracker. It is not yet committed, pushed, or deployed to Sites.
 
 ## Playable foundation — 2026-07-25
 

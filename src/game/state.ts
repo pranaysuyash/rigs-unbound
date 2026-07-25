@@ -22,6 +22,7 @@ import {
   effectiveProfile,
   FIELD_02_SAVE_SCHEMA_VERSION,
   FIXED_STEP_SECONDS,
+  GLOAM_START_MINUTE,
   type FurrowMark,
   type GameState,
   type GroundMobilityState,
@@ -32,6 +33,9 @@ import {
   MAX_FURROWS,
   MODULES,
   type ModuleId,
+  NIGHT_START_MINUTE,
+  phaseForWorldTime,
+  PREVIOUS_SAVE_SCHEMA_VERSION,
   RIG_IDS,
   RIG_LAB_SAVE_SCHEMA_VERSION,
   RIG_PROFILES,
@@ -40,7 +44,11 @@ import {
   type RigState,
   SAVE_SCHEMA_VERSION,
   type WorldPhase,
+  WORLD_CLOCK_START_MINUTES,
+  WORLD_DAY_MINUTES,
   WORLD_LIMIT,
+  WORLD_MINUTES_PER_REAL_SECOND,
+  worldMinuteOfDay,
 } from "./contracts";
 import { SALVAGE_PICKUP_RADIUS, SURVEY_MOVE_THRESHOLD } from "./exploration";
 import type { GameWorld } from "./gameworld";
@@ -81,6 +89,9 @@ export const REPAIR_COST = 3;
 
 /** Condition restored per repair. */
 const REPAIR_AMOUNT = 100;
+
+/** Limp-home condition granted only after a rig is fully disabled. */
+export const EMERGENCY_RECOVERY_CONDITION = 25;
 
 function approach(value: number, target: number, amount: number): number {
   if (value < target) return Math.min(target, value + amount);
@@ -166,6 +177,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
     seed,
+    worldTimeMinutes: WORLD_CLOCK_START_MINUTES,
     elapsedMs: 0,
     phase: "day",
     cameraMode: "chase",
@@ -201,6 +213,10 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     discoveries: [],
     salvage: 0,
     salvageCollected: 0,
+    recovery: {
+      emergencyCount: 0,
+      lastEmergencyAtMs: null,
+    },
     lastDiagnostic: null,
   };
 }
@@ -344,6 +360,32 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
 export function winchRecover(state: GameState, world: GameWorld): void {
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
+
+  if (rig.condition <= 0) {
+    const cargo = state.cargoRelay.cargo;
+    if (cargo.attachedRigId === rig.id) {
+      cargo.attachedRigId = null;
+      cargo.x = rig.x;
+      cargo.z = rig.z;
+      cargo.y = world.terrain.height(cargo.x, cargo.z) + 0.65;
+      attachment(rig, "tow-hook")!.engaged = false;
+    }
+
+    rig.x = HOME_SITE.x + 4;
+    rig.z = HOME_SITE.z - 6;
+    rig.speed = 0;
+    rig.steering = 0;
+    rig.strain = 0;
+    rig.condition = EMERGENCY_RECOVERY_CONDITION;
+    settleRig(rig, profile, world.terrain);
+    state.recovery.emergencyCount = Math.min(
+      999_999,
+      state.recovery.emergencyCount + 1,
+    );
+    state.recovery.lastEmergencyAtMs = state.elapsedMs;
+    state.lastDiagnostic = `Emergency field recovery returned ${profile.fieldName} to Home Silo with a ${EMERGENCY_RECOVERY_CONDITION}% limp-home patch. No salvage awarded.`;
+    return;
+  }
 
   if (!profile.capabilities.includes("winch")) {
     state.lastDiagnostic =
@@ -506,7 +548,26 @@ export function toggleBladeMode(state: GameState): void {
 }
 
 export function cyclePhase(state: GameState): void {
-  state.phase = cycle(PHASE_ORDER, state.phase);
+  const minute = worldMinuteOfDay(state.worldTimeMinutes);
+  let delta: number;
+  if (state.phase === "day") {
+    delta =
+      minute < GLOAM_START_MINUTE
+        ? GLOAM_START_MINUTE - minute
+        : WORLD_DAY_MINUTES - minute + GLOAM_START_MINUTE;
+  } else if (state.phase === "gloam") {
+    delta =
+      minute < NIGHT_START_MINUTE
+        ? NIGHT_START_MINUTE - minute
+        : WORLD_DAY_MINUTES - minute + NIGHT_START_MINUTE;
+  } else {
+    delta =
+      minute < WORLD_CLOCK_START_MINUTES
+        ? WORLD_CLOCK_START_MINUTES - minute
+        : WORLD_DAY_MINUTES - minute + WORLD_CLOCK_START_MINUTES;
+  }
+  state.worldTimeMinutes += delta;
+  state.phase = phaseForWorldTime(state.worldTimeMinutes);
 }
 
 export function cycleCamera(state: GameState): void {
@@ -581,6 +642,22 @@ export function stepGame(
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
   const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
+  const disabled = rig.condition <= 0;
+  if (
+    disabled &&
+    (input.accelerate || input.brake || input.steerLeft || input.steerRight)
+  ) {
+    state.lastDiagnostic = `${profile.fieldName} is disabled. Press X or Winch for emergency field recovery.`;
+  }
+  if (disabled) {
+    rig.speed = 0;
+    rig.steering = 0;
+    settleRig(rig, profile, world.terrain);
+    state.elapsedMs += dt * 1000;
+    state.worldTimeMinutes += dt * WORLD_MINUTES_PER_REAL_SECOND;
+    state.phase = phaseForWorldTime(state.worldTimeMinutes);
+    return;
+  }
 
   const motion = stepRigMotion(rig, profile, input, world.terrain, dt, {
     towing,
@@ -730,6 +807,8 @@ export function stepGame(
   }
 
   state.elapsedMs += dt * 1000;
+  state.worldTimeMinutes += dt * WORLD_MINUTES_PER_REAL_SECOND;
+  state.phase = phaseForWorldTime(state.worldTimeMinutes);
 }
 
 export function advanceGame(
@@ -750,6 +829,14 @@ export function advanceGame(
 // Observability
 // -----------------------------------------------------------------------------
 
+function finiteNumber(value: unknown, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function fixedNumber(value: unknown, digits: number, fallback = 0): number {
+  return Number(finiteNumber(value, fallback).toFixed(digits));
+}
+
 export function publicState(state: GameState, world: GameWorld): object {
   const rigSummary = (rig: RigState) => {
     const profile = effectiveProfile(rig.id, rig.modules);
@@ -758,52 +845,61 @@ export function publicState(state: GameState, world: GameWorld): object {
         ? {
             kind: rig.mobility.kind,
             grounded: rig.mobility.grounded,
-            verticalVelocity: Number(rig.mobility.verticalVelocity.toFixed(3)),
-            wheelRotation: Number(rig.mobility.wheelRotation.toFixed(4)),
+            verticalVelocity: fixedNumber(rig.mobility.verticalVelocity, 3),
+            wheelRotation: fixedNumber(rig.mobility.wheelRotation, 4),
             wheels: rig.mobility.wheels.map((wheel) => ({
-              compression: Number(wheel.compression.toFixed(3)),
+              compression: fixedNumber(wheel.compression, 3),
               contact: wheel.contact,
             })),
           }
         : {
             kind: rig.mobility.kind,
-            liftVelocity: Number(rig.mobility.liftVelocity.toFixed(3)),
-            clearance: Number(rig.mobility.clearance.toFixed(3)),
-            cushionPressure: Number(rig.mobility.cushionPressure.toFixed(3)),
+            liftVelocity: fixedNumber(rig.mobility.liftVelocity, 3),
+            clearance: fixedNumber(rig.mobility.clearance, 3),
+            cushionPressure: fixedNumber(rig.mobility.cushionPressure, 3),
             skirtContact: rig.mobility.skirtContact,
           };
     return {
       id: rig.id,
-      x: Number(rig.x.toFixed(3)),
-      y: Number(rig.y.toFixed(3)),
-      z: Number(rig.z.toFixed(3)),
-      heading: Number(rig.heading.toFixed(4)),
-      pitch: Number(rig.pitch.toFixed(4)),
-      roll: Number(rig.roll.toFixed(4)),
-      speed: Number(rig.speed.toFixed(3)),
+      x: fixedNumber(rig.x, 3),
+      y: fixedNumber(rig.y, 3),
+      z: fixedNumber(rig.z, 3),
+      heading: fixedNumber(rig.heading, 4),
+      pitch: fixedNumber(rig.pitch, 4),
+      roll: fixedNumber(rig.roll, 4),
+      speed: fixedNumber(rig.speed, 3),
       stable: rigIsStable(rig),
       mobility,
-      condition: Number(rig.condition.toFixed(1)),
-      strain: Number(rig.strain.toFixed(3)),
-      distanceTravelled: Number(rig.distanceTravelled.toFixed(2)),
+      condition: fixedNumber(rig.condition, 1),
+      strain: fixedNumber(rig.strain, 3),
+      distanceTravelled: fixedNumber(rig.distanceTravelled, 2),
       attachments: rig.attachments.map((item) => ({ ...item })),
       modules: [...rig.modules],
       capabilities: [...profile.capabilities],
       surveyRange: profile.surveyRange,
       terrain: {
         surface: rig.telemetry.surfaceId,
-        grade: Number(rig.telemetry.grade.toFixed(3)),
-        grip: Number(rig.telemetry.grip.toFixed(3)),
-        slip: Number(rig.telemetry.slip.toFixed(3)),
-        waterDepth: Number(rig.telemetry.waterDepth.toFixed(2)),
+        grade: fixedNumber(rig.telemetry.grade, 3),
+        grip: fixedNumber(rig.telemetry.grip, 3),
+        slip: fixedNumber(rig.telemetry.slip, 3),
+        waterDepth: fixedNumber(rig.telemetry.waterDepth, 2),
         stalled: rig.telemetry.stalled,
       },
     };
   };
+  const currentRig = activeRig(state);
+  const nearestSalvage = world.exploration.nearestNode(
+    currentRig.x,
+    currentRig.z,
+    70,
+    world.collectedNodes,
+  );
 
   return {
     schemaVersion: state.schemaVersion,
     seed: state.seed,
+    worldTimeMinutes: fixedNumber(state.worldTimeMinutes, 4),
+    worldMinuteOfDay: fixedNumber(worldMinuteOfDay(state.worldTimeMinutes), 4),
     elapsedMs: Math.round(state.elapsedMs),
     phase: state.phase,
     cameraMode: state.cameraMode,
@@ -818,6 +914,23 @@ export function publicState(state: GameState, world: GameWorld): object {
       salvage: state.salvage,
       salvageCollected: state.salvageCollected,
       workshopInReach: workshopInReach(state)?.id ?? null,
+      nearestSalvage:
+        nearestSalvage === null
+          ? null
+          : {
+              id: nearestSalvage.id,
+              x: fixedNumber(nearestSalvage.x, 3),
+              z: fixedNumber(nearestSalvage.z, 3),
+              value: nearestSalvage.value,
+              distance: fixedNumber(
+                Math.hypot(
+                  currentRig.x - nearestSalvage.x,
+                  currentRig.z - nearestSalvage.z,
+                ),
+                2,
+              ),
+            },
+      recovery: { ...state.recovery },
     },
     activity: {
       id: state.cargoRelay.id,
@@ -833,9 +946,9 @@ export function publicState(state: GameState, world: GameWorld): object {
       cargoAttachedTo: state.cargoRelay.cargo.attachedRigId,
       delivered: state.cargoRelay.cargo.delivered,
       cargoPosition: {
-        x: Number(state.cargoRelay.cargo.x.toFixed(3)),
-        y: Number(state.cargoRelay.cargo.y.toFixed(3)),
-        z: Number(state.cargoRelay.cargo.z.toFixed(3)),
+        x: fixedNumber(state.cargoRelay.cargo.x, 3),
+        y: fixedNumber(state.cargoRelay.cargo.y, 3),
+        z: fixedNumber(state.cargoRelay.cargo.z, 3),
       },
       deliveryPosition: { x: CARGO_DELIVERY.x, z: CARGO_DELIVERY.z },
       rampPosition: { x: BUGGY_RAMP.x, z: BUGGY_RAMP.z },
@@ -858,8 +971,9 @@ export function publicState(state: GameState, world: GameWorld): object {
       felledObstacles: world.felledObstacles.size,
       collectedNodes: world.collectedNodes.size,
       surveyedCells: world.surveyedCells.size,
-      surveyedFraction: Number(
-        world.exploration.surveyedFraction(world.surveyedCells, 190).toFixed(4),
+      surveyedFraction: fixedNumber(
+        world.exploration.surveyedFraction(world.surveyedCells, 190),
+        4,
       ),
       discoveries: state.discoveries.map((item) => item.id),
     },
@@ -1071,6 +1185,19 @@ function recoverRig(
   };
 }
 
+function legacyWorldTime(candidate: Record<string, unknown>): number {
+  const elapsedMs = isFiniteNumber(candidate.elapsedMs)
+    ? Math.max(0, candidate.elapsedMs)
+    : 0;
+  const base =
+    candidate.phase === "gloam"
+      ? GLOAM_START_MINUTE
+      : candidate.phase === "night"
+        ? NIGHT_START_MINUTE
+        : WORLD_CLOCK_START_MINUTES;
+  return base + Math.floor(elapsedMs / 2400);
+}
+
 function recoverShared(
   candidate: Record<string, unknown>,
   rigs: Record<RigId, RigState>,
@@ -1165,12 +1292,20 @@ function recoverShared(
 
   const cargoRadius = Math.hypot(cargo.x as number, cargo.z as number);
   const cargoScale = cargoRadius > WORLD_LIMIT ? WORLD_LIMIT / cargoRadius : 1;
+  const worldTimeMinutes = isFiniteNumber(candidate.worldTimeMinutes)
+    ? Math.max(0, candidate.worldTimeMinutes)
+    : legacyWorldTime(candidate);
+  const recovery =
+    candidate.recovery && typeof candidate.recovery === "object"
+      ? (candidate.recovery as Record<string, unknown>)
+      : null;
 
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
     seed: String(candidate.seed),
+    worldTimeMinutes,
     elapsedMs: Math.max(0, candidate.elapsedMs as number),
-    phase: candidate.phase as WorldPhase,
+    phase: phaseForWorldTime(worldTimeMinutes),
     cameraMode: CAMERA_MODES.includes(candidate.cameraMode as CameraMode)
       ? (candidate.cameraMode as CameraMode)
       : "chase",
@@ -1204,6 +1339,16 @@ function recoverShared(
       : isFiniteNumber(candidate.salvage)
         ? clamp(Math.floor(candidate.salvage), 0, 999_999)
         : 0,
+    recovery: {
+      emergencyCount:
+        recovery && isFiniteNumber(recovery.emergencyCount)
+          ? clamp(Math.floor(recovery.emergencyCount), 0, 999_999)
+          : 0,
+      lastEmergencyAtMs:
+        recovery && isFiniteNumber(recovery.lastEmergencyAtMs)
+          ? Math.max(0, recovery.lastEmergencyAtMs)
+          : null,
+    },
     lastDiagnostic:
       typeof candidate.lastDiagnostic === "string"
         ? candidate.lastDiagnostic
@@ -1212,11 +1357,21 @@ function recoverShared(
 }
 
 function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
+  const recovery =
+    candidate.recovery && typeof candidate.recovery === "object"
+      ? (candidate.recovery as Record<string, unknown>)
+      : null;
   if (
     typeof candidate.seed !== "string" ||
     candidate.seed.length < 1 ||
+    !isFiniteNumber(candidate.worldTimeMinutes) ||
     !isFiniteNumber(candidate.elapsedMs) ||
     !PHASE_ORDER.includes(candidate.phase as WorldPhase) ||
+    candidate.phase !== phaseForWorldTime(candidate.worldTimeMinutes) ||
+    !recovery ||
+    !isFiniteNumber(recovery.emergencyCount) ||
+    (recovery.lastEmergencyAtMs !== null &&
+      !isFiniteNumber(recovery.lastEmergencyAtMs)) ||
     !isRigId(candidate.activeRigId) ||
     !candidate.rigs ||
     typeof candidate.rigs !== "object"
@@ -1235,6 +1390,38 @@ function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
     "toy-buggy": buggy,
     "marsh-skimmer": skimmer,
   });
+}
+
+/** Migrate the previous v4 field record into explicit world-clock/recovery state. */
+function migrateV4(candidate: Record<string, unknown>): GameState | null {
+  if (
+    typeof candidate.seed !== "string" ||
+    candidate.seed.length < 1 ||
+    !isFiniteNumber(candidate.elapsedMs) ||
+    !PHASE_ORDER.includes(candidate.phase as WorldPhase) ||
+    !isRigId(candidate.activeRigId) ||
+    !candidate.rigs ||
+    typeof candidate.rigs !== "object"
+  ) {
+    return null;
+  }
+
+  const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
+  const tractor = recoverRig(rigValues["utility-tractor"], "utility-tractor");
+  const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy");
+  const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
+  if (!tractor || !buggy || !skimmer) return null;
+
+  const recovered = recoverShared(candidate, {
+    "utility-tractor": tractor,
+    "toy-buggy": buggy,
+    "marsh-skimmer": skimmer,
+  });
+  if (recovered) {
+    recovered.lastDiagnostic =
+      "Schema v4 record migrated to the monotonic field clock and recovery log.";
+  }
+  return recovered;
 }
 
 /**
@@ -1311,7 +1498,8 @@ function migrateV1(candidate: Record<string, unknown>): GameState | null {
 
   const migrated = createInitialState(candidate.seed);
   migrated.elapsedMs = Math.max(0, candidate.elapsedMs);
-  migrated.phase = candidate.phase as WorldPhase;
+  migrated.worldTimeMinutes = legacyWorldTime(candidate);
+  migrated.phase = phaseForWorldTime(migrated.worldTimeMinutes);
   if (CAMERA_MODES.includes(candidate.cameraMode as CameraMode)) {
     migrated.cameraMode = candidate.cameraMode as CameraMode;
   }
@@ -1376,6 +1564,9 @@ export function recoverState(value: unknown): GameState | null {
   const candidate = value as Record<string, unknown>;
   if (candidate.schemaVersion === SAVE_SCHEMA_VERSION) {
     return recoverCurrent(candidate);
+  }
+  if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
+    return migrateV4(candidate);
   }
   if (candidate.schemaVersion === FIELD_02_SAVE_SCHEMA_VERSION) {
     return migrateV3(candidate);

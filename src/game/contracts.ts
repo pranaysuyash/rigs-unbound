@@ -1,11 +1,20 @@
 import { WORLD_SITES } from "./world";
 
-export const SAVE_SCHEMA_VERSION = 4 as const;
+export const SAVE_SCHEMA_VERSION = 5 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 4 as const;
 export const FIELD_02_SAVE_SCHEMA_VERSION = 3 as const;
 export const RIG_LAB_SAVE_SCHEMA_VERSION = 2 as const;
 export const LEGACY_SAVE_SCHEMA_VERSION = 1 as const;
 export const FIXED_STEP_SECONDS = 1 / 60;
 export const MAX_FURROWS = 640;
+
+/** Absolute diegetic minutes at a new field's 06:40 start. */
+export const WORLD_CLOCK_START_MINUTES = 400;
+export const WORLD_DAY_MINUTES = 1440;
+export const GLOAM_START_MINUTE = 18 * 60 + 45;
+export const NIGHT_START_MINUTE = 22 * 60 + 20;
+/** One in-world minute passes every 2.4 real simulation seconds. */
+export const WORLD_MINUTES_PER_REAL_SECOND = 1 / 2.4;
 
 export { WORLD_LIMIT } from "./world";
 
@@ -13,6 +22,22 @@ export { WORLD_LIMIT } from "./world";
 export const GRAVITY = 15.5;
 
 export type WorldPhase = "day" | "gloam" | "night";
+
+export function worldMinuteOfDay(worldTimeMinutes: number): number {
+  const finite = Number.isFinite(worldTimeMinutes) ? worldTimeMinutes : 0;
+  return ((finite % WORLD_DAY_MINUTES) + WORLD_DAY_MINUTES) % WORLD_DAY_MINUTES;
+}
+
+export function phaseForWorldTime(worldTimeMinutes: number): WorldPhase {
+  const minute = worldMinuteOfDay(worldTimeMinutes);
+  if (minute >= GLOAM_START_MINUTE && minute < NIGHT_START_MINUTE) {
+    return "gloam";
+  }
+  if (minute >= NIGHT_START_MINUTE || minute < WORLD_CLOCK_START_MINUTES) {
+    return "night";
+  }
+  return "day";
+}
 export const CAMERA_MODES = [
   "chase",
   "hood",
@@ -559,6 +584,8 @@ export interface CargoRelayState {
 export interface GameState {
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   seed: string;
+  /** Absolute, monotonic diegetic minutes; presentation wraps at 24 hours. */
+  worldTimeMinutes: number;
   elapsedMs: number;
   phase: WorldPhase;
   cameraMode: CameraMode;
@@ -573,6 +600,11 @@ export interface GameState {
   salvage: number;
   /** Lifetime salvage collected, for the progress readout. */
   salvageCollected: number;
+  /** Emergency recovery is exceptional, persisted, and operator-auditable. */
+  recovery: {
+    emergencyCount: number;
+    lastEmergencyAtMs: number | null;
+  };
   lastDiagnostic: string | null;
 }
 

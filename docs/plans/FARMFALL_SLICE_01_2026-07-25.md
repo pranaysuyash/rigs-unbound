@@ -84,16 +84,16 @@ presentation imports, no rig-name branches.
    offsets/multipliers. First verbs: `plough`, `tow`. Journey phase inferred
    (found→working from repair/deeds) — full journey deed-gating lands with a
    later unit; schema must not preclude it.
-6. **Save schema v5**: crops, mastery state, dawn journal, threat snapshot
-   (bounded), phase. Migration v4→v5 preserving everything; v1–v3 chain
-   unchanged. Corrupt/unknown mastery entries dropped with clamps, matching
-   existing recovery posture.
+6. **Save schema v6**: crops, mastery state, dawn journal, threat snapshot
+   (bounded), phase. Migration v5→v6 preserves ADR-0019's absolute world clock
+   and recovery audit; the v1–v5 chain remains readable. Corrupt/unknown
+   mastery entries are dropped with clamps, matching existing recovery posture.
 7. **Tests** (vitest, alongside existing suites): signature determinism +
    phase/tool effects; sow/grow/harvest cycle + bounds; threat spawn only at
    gloam/night, seek behavior, crop consumption, repel cost, dawn dissolve;
    dawn record correctness; mastery diminishing returns (identical repetitions
    → ~zero gain; varied situations → gain), rank thresholds, `effectiveProfile`
-   composition; v4→v5 migration; full-sequence determinism unchanged;
+   composition; v5→v6 migration; full-sequence determinism unchanged;
    no-capability-name branches.
 
 ## Phase B — presentation + acceptance

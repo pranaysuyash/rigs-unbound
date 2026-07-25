@@ -15,7 +15,8 @@ import type { GameState } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
-export const SAVE_KEY = "rigs-unbound.save.v4";
+export const SAVE_KEY = "rigs-unbound.save.v5";
+export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v4";
 export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
 export const RIG_LAB_SAVE_KEY = "rigs-unbound.save.v2";
 export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
@@ -23,6 +24,7 @@ export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 /** Every key this build knows how to read, newest first. */
 const READ_KEYS = [
   SAVE_KEY,
+  PREVIOUS_SAVE_KEY,
   FIELD_02_SAVE_KEY,
   RIG_LAB_SAVE_KEY,
   LEGACY_SAVE_KEY,

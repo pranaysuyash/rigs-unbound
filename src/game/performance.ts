@@ -11,6 +11,7 @@ export interface PerformanceSnapshot extends Omit<
 > {
   sampledAt: number;
   firstControllableMs: number | null;
+  firstInputReadyMs: number | null;
   averageFrameMs: number;
   p95FrameMs: number;
   framesPerSecond: number;
@@ -28,6 +29,7 @@ interface ChromePerformanceMemory {
 export class PerformanceMonitor {
   private readonly frameDurations: number[] = [];
   private firstControllableMs: number | null = null;
+  private firstInputReadyMs: number | null = null;
   private lastSaveDurationMs = 0;
   private saveBytes = 0;
 
@@ -39,6 +41,12 @@ export class PerformanceMonitor {
   markControllable(at = performance.now()): void {
     if (this.firstControllableMs === null) {
       this.firstControllableMs = Math.max(0, at - this.bootStartedAt);
+    }
+  }
+
+  markInputReady(at = performance.now()): void {
+    if (this.firstInputReadyMs === null) {
+      this.firstInputReadyMs = Math.max(0, at - this.bootStartedAt);
     }
   }
 
@@ -75,6 +83,10 @@ export class PerformanceMonitor {
         this.firstControllableMs === null
           ? null
           : Number(this.firstControllableMs.toFixed(1)),
+      firstInputReadyMs:
+        this.firstInputReadyMs === null
+          ? null
+          : Number(this.firstInputReadyMs.toFixed(1)),
       averageFrameMs: Number(averageFrameMs.toFixed(2)),
       p95FrameMs: Number(p95FrameMs.toFixed(2)),
       framesPerSecond:

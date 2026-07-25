@@ -42,6 +42,21 @@ export const SURVEY_MOVE_THRESHOLD = 2.5;
 /** Cells closer than this are mapped without a line-of-sight test. */
 const SURVEY_FREE_RADIUS = 21;
 
+/**
+ * Authored first-session cache.
+ *
+ * Procedural salvage owns the long-term exploration field, but the first verb
+ * cannot depend on a lucky seed. This cache sits just outside the Home Silo
+ * service pad on gentle meadow ground: close enough to teach "leave the track,
+ * press Act", far enough that collecting it is still a spatial decision.
+ */
+export const FIRST_SALVAGE_NODE = {
+  id: "first-recovery-cache",
+  x: -18,
+  z: 5,
+  value: 3,
+} as const;
+
 export function surveyKey(cellX: number, cellZ: number): number {
   return (cellZ + SURVEY_ORIGIN) * SURVEY_STRIDE + (cellX + SURVEY_ORIGIN);
 }
@@ -148,6 +163,24 @@ export class ExplorationField {
     collected: ReadonlySet<string>,
   ): SalvageNode[] {
     const found: SalvageNode[] = [];
+    const firstDx = FIRST_SALVAGE_NODE.x - x;
+    const firstDz = FIRST_SALVAGE_NODE.z - z;
+    if (
+      !collected.has(FIRST_SALVAGE_NODE.id) &&
+      firstDx * firstDx + firstDz * firstDz <= range * range
+    ) {
+      const firstGround = this.terrain.sample(
+        FIRST_SALVAGE_NODE.x,
+        FIRST_SALVAGE_NODE.z,
+        1.2,
+      );
+      found.push({
+        ...FIRST_SALVAGE_NODE,
+        groundY: Math.max(firstGround.height, WATER_LEVEL),
+        biome: this.terrain.biomeAt(FIRST_SALVAGE_NODE.x, FIRST_SALVAGE_NODE.z),
+        variation: 0.42,
+      });
+    }
     const span = Math.ceil(range / SALVAGE_CELL) + 1;
     const centreX = Math.floor(x / SALVAGE_CELL);
     const centreZ = Math.floor(z / SALVAGE_CELL);

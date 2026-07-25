@@ -130,10 +130,80 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     await page.locator("#welcome-panel").isVisible(),
     "Field 02 welcome plate should be visible",
   );
-  await page.locator("#enter-world").click();
+  const coveredBefore = await state(page);
+  await page.waitForTimeout(700);
+  const coveredAfter = await state(page);
+  assert(
+    coveredBefore.welcomeOpen === true &&
+      coveredAfter.elapsedMs === coveredBefore.elapsedMs,
+    `Welcome panel allowed background simulation: ${JSON.stringify({
+      coveredBefore: coveredBefore.elapsedMs,
+      coveredAfter: coveredAfter.elapsedMs,
+    })}`,
+  );
+  await page.keyboard.press("Space");
+  assert(
+    !(await page.locator("#welcome-panel").isVisible()) &&
+      (await state(page)).welcomeOpen === false,
+    "Keyboard entry did not close the welcome panel",
+  );
+  assert(
+    (await page.evaluate(() => document.activeElement?.id)) === "game-canvas",
+    "Welcome entry did not transfer focus to the game canvas",
+  );
+  await page.keyboard.press("Space");
+  assert(
+    !(await page.locator("#welcome-panel").isVisible()),
+    "Primary action re-opened the welcome panel",
+  );
+  assert(
+    (await state(page)).activeRig.attachments.find(
+      (item) => item.id === "field-plough",
+    )?.engaged === true,
+    "Space did not become the primary rig action after entry",
+  );
+  await page.keyboard.press("Space");
 
   const initial = await state(page);
-  assert(initial.schemaVersion === 4, "Expected v4 save contract");
+  assert(initial.schemaVersion === 5, "Expected v5 save contract");
+  assert(
+    initial.progression.nearestSalvage?.id === "first-recovery-cache" &&
+      initial.progression.nearestSalvage.distance < 30,
+    `First salvage cache is not reachable from spawn: ${JSON.stringify(initial.progression.nearestSalvage)}`,
+  );
+  const worldTimes = [initial.worldTimeMinutes];
+  const phases = [];
+  for (let index = 0; index < 3; index += 1) {
+    await page.keyboard.press("KeyN");
+    const cycled = await state(page);
+    worldTimes.push(cycled.worldTimeMinutes);
+    phases.push(cycled.phase);
+  }
+  assert(
+    phases.join(",") === "gloam,night,day" &&
+      worldTimes.every(
+        (value, index) => index === 0 || value > worldTimes[index - 1],
+      ),
+    `World phase cycle is not monotonic: ${JSON.stringify({ phases, worldTimes })}`,
+  );
+
+  const firstSalvage = initial.progression.nearestSalvage;
+  await page.evaluate((node) => window.placeRig(node.x, node.z), firstSalvage);
+  assert(
+    (await page.locator("#current-prompt").textContent()).includes(
+      "press Space or Act",
+    ),
+    "First salvage prompt did not teach the canonical action",
+  );
+  await page.keyboard.press("Space");
+  const firstReward = await state(page);
+  assert(
+    firstReward.progression.salvage === firstSalvage.value &&
+      firstReward.progression.salvageCollected === firstSalvage.value &&
+      firstReward.progression.nearestSalvage?.id !== "first-recovery-cache",
+    `First salvage reward did not complete: ${JSON.stringify(firstReward.progression)}`,
+  );
+  await page.evaluate(() => window.placeRig(4, 6, Math.PI));
   assert(
     initial.rigs["utility-tractor"] && initial.rigs["toy-buggy"],
     "Expected the tractor and buggy orientation fixtures",
@@ -320,9 +390,8 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     skimmerRun.activeRig.condition === skimmerStart.activeRig.condition,
     "Hover traversal incorrectly applied ground-rig drowning damage",
   );
-  assert(
-    (await page.locator("#mobility-label").textContent()) === "Cushion",
-    "HUD did not expose hover authority as cushion pressure",
+  await page.waitForFunction(
+    () => document.querySelector("#mobility-label")?.textContent === "Cushion",
   );
 
   const desktopMetrics = await page.evaluate(() =>
@@ -339,7 +408,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   );
   assert(saveMetrics.saveBytes > 0, "Periodic save size was not measured");
   const stored = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("rigs-unbound.save.v4")),
+    JSON.parse(localStorage.getItem("rigs-unbound.save.v5")),
   );
   assert(
     stored.state.cargoRelay.status === "complete",
@@ -364,6 +433,83 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
       skimmerRun.rigs["marsh-skimmer"].distanceTravelled,
     "Skimmer history regressed across reload",
   );
+  assert(
+    restored.progression.salvageCollected >= firstSalvage.value &&
+      restored.worldTimeMinutes >= worldTimes.at(-1),
+    "First reward or monotonic world time did not survive reload",
+  );
+
+  await page.addInitScript(() => {
+    const payload = JSON.parse(localStorage.getItem("rigs-unbound.save.v5"));
+    if (!payload?.state?.rigs?.["utility-tractor"]) return;
+    payload.state.activeRigId = "utility-tractor";
+    payload.state.rigs["utility-tractor"].x = -126;
+    payload.state.rigs["utility-tractor"].z = -130;
+    payload.state.rigs["utility-tractor"].condition = 0;
+    localStorage.setItem("rigs-unbound.save.v5", JSON.stringify(payload));
+  });
+  await page.reload({ waitUntil: "networkidle" });
+  const disabled = await state(page);
+  await page.keyboard.press("KeyX");
+  const recoveredByKeyboard = await state(page);
+  await page.keyboard.press("KeyX");
+  const repeatedRecovery = await state(page);
+  assert(
+    disabled.activeRig.condition === 0 &&
+      recoveredByKeyboard.activeRig.condition === 25 &&
+      recoveredByKeyboard.progression.recovery.emergencyCount === 1 &&
+      recoveredByKeyboard.progression.workshopInReach === "home-silo" &&
+      repeatedRecovery.progression.recovery.emergencyCount === 1 &&
+      repeatedRecovery.progression.salvageCollected ===
+        recoveredByKeyboard.progression.salvageCollected,
+    `Keyboard recovery or repeat protection failed: ${JSON.stringify({
+      disabled: disabled.activeRig,
+      recovered: recoveredByKeyboard.activeRig,
+      repeated: repeatedRecovery.activeRig,
+      recovery: repeatedRecovery.progression.recovery,
+    })}`,
+  );
+
+  await page.reload({ waitUntil: "networkidle" });
+  const disabledPayload = await page.evaluate(() =>
+    localStorage.getItem("rigs-unbound.save.v5"),
+  );
+  await page.locator("#emergency-recover").click();
+  const recoveredByMouse = await state(page);
+  assert(
+    recoveredByMouse.activeRig.condition === 25 &&
+      recoveredByMouse.progression.recovery.emergencyCount === 2 &&
+      recoveredByMouse.progression.workshopInReach === "home-silo",
+    `Mouse emergency recovery failed: ${JSON.stringify({
+      recovered: recoveredByMouse.activeRig,
+      recovery: recoveredByMouse.progression.recovery,
+    })}`,
+  );
+
+  const touchContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+  });
+  await touchContext.addInitScript(
+    ({ payload }) => {
+      localStorage.setItem("rigs-unbound.save.v5", payload);
+      sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
+    },
+    { payload: disabledPayload },
+  );
+  const touchPage = await touchContext.newPage();
+  await touchPage.goto(TARGET_URL, { waitUntil: "networkidle" });
+  await touchPage.locator('[data-tap-action="recover"]').tap();
+  const recoveredByTouch = await state(touchPage);
+  assert(
+    recoveredByTouch.activeRig.condition === 25 &&
+      recoveredByTouch.progression.recovery.emergencyCount === 2,
+    `Touch emergency recovery failed: ${JSON.stringify({
+      recovered: recoveredByTouch.activeRig,
+      recovery: recoveredByTouch.progression.recovery,
+    })}`,
+  );
+  await touchContext.close();
 
   await page.setViewportSize({ width: 390, height: 844 });
   const narrowLayout = await page.evaluate(() => {
@@ -420,6 +566,11 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   assert(
     desktopMetrics.firstControllableMs !== null,
     "First controllable was not measured",
+  );
+  assert(
+    desktopMetrics.firstInputReadyMs !== null &&
+      desktopMetrics.firstInputReadyMs <= desktopMetrics.firstControllableMs,
+    "First processed input was not measured before the first controllable frame",
   );
   assert(
     desktopMetrics.averageFrameMs > 0,

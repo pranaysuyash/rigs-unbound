@@ -1,4 +1,8 @@
-import type { ContinuousAction, InputFrame } from "./contracts";
+import {
+  IDLE_INPUT,
+  type ContinuousAction,
+  type InputFrame,
+} from "./contracts";
 
 const KEY_ACTIONS: Readonly<Record<string, ContinuousAction>> = {
   KeyW: "accelerate",
@@ -13,7 +17,9 @@ const KEY_ACTIONS: Readonly<Record<string, ContinuousAction>> = {
 
 export class InputController {
   private readonly held = new Set<ContinuousAction>();
+  private enabled = true;
   private readonly onKeyDown = (event: KeyboardEvent): void => {
+    if (!this.enabled) return;
     const action = KEY_ACTIONS[event.code];
     if (action) {
       event.preventDefault();
@@ -40,6 +46,10 @@ export class InputController {
   }
 
   hold(action: ContinuousAction, active: boolean): void {
+    if (!this.enabled) {
+      this.held.delete(action);
+      return;
+    }
     if (active) {
       this.held.add(action);
     } else {
@@ -48,6 +58,7 @@ export class InputController {
   }
 
   sample(): InputFrame {
+    if (!this.enabled) return { ...IDLE_INPUT };
     const gamepad = navigator.getGamepads?.()[0];
     const gamepadX = gamepad?.axes[0] ?? 0;
     const accelerate =
@@ -63,6 +74,11 @@ export class InputController {
       steerLeft: this.held.has("steerLeft") || gamepadX < -0.22,
       steerRight: this.held.has("steerRight") || gamepadX > 0.22,
     };
+  }
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) this.held.clear();
   }
 
   dispose(): void {

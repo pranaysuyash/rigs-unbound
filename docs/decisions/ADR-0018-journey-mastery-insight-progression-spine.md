@@ -13,6 +13,9 @@
   remaining open to further exploration. The vertical-power amendment is
   folded into §Verb Mastery below. Original proposal text preserved in the
   analysis document.
+- 2026-07-26 — Schema sequencing updated after ADR-0019 assigned v5 to the
+  monotonic world clock and recovery audit. The progression decision is
+  unchanged; its first persisted payload now migrates v5→v6.
 
 ## Decision
 
@@ -157,3 +160,11 @@ Yes. Two things this ADR deliberately does not settle:
 2. **Fleet-level identity** (the "character sheet" across rigs) needs a
    legibility design pass once two or more rigs have journey history; a
    garage/fleet view is anticipated but not specified here.
+
+## Addendum — 2026-07-26 save-version sequencing
+
+ADR-0019 assigns schema v5 to the monotonic world clock and exceptional-recovery
+audit. The progression spine remains unchanged, but its first persisted
+mastery/journey payload now migrates v5→v6 rather than v4→v5. Farmfall must
+preserve the v5 absolute clock, derived phase contract, recovery counters, and
+the complete v1–v5 read chain.

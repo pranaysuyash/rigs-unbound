@@ -177,6 +177,24 @@ select:focus-visible,
   letter-spacing: -0.015em;
 }
 
+.emergency-recover {
+  margin: -0.35rem 0 0.85rem;
+  padding: 0.55rem 0.7rem;
+  color: var(--soil-ink);
+  font: inherit;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--harvest-gold);
+  border: 0;
+  cursor: pointer;
+}
+
+.emergency-recover[hidden] {
+  display: none;
+}
+
 .instruments {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -387,6 +405,10 @@ kbd {
   transition:
     opacity 240ms ease,
     visibility 240ms ease;
+}
+
+.welcome-panel[hidden] {
+  display: none;
 }
 
 .welcome-panel--dismissed {

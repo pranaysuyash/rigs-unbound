@@ -4,6 +4,7 @@
 - Started: 2026-07-26
 - Owner: project owner; agents update evidence and status in the same change
 - Product source of truth: [Exploration Map](../exploration/EXPLORATION_MAP.md)
+- Quick lane index: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - Decision source of truth: [ADRs](../decisions/)
 - Evidence source of truth: [Worklog](../WORKLOG.md) and [reviews](../reviews/)
 
@@ -21,6 +22,43 @@ Use only these states:
 
 Every item must name its closure gate. New findings are added here before an
 agent leaves the task. “Done” is never inferred from code existing.
+
+## Current ordered execution queue
+
+This is the operational order. The detailed numbered items below remain the
+canonical scope and acceptance contracts.
+
+| Order | Status | Work package | Why now | Exit before advancing |
+|---:|:---:|---|---|---|
+| 1 | `[x]` | RU-0106–RU-0109: first-session P0 repair | These defects blocked entry, reward, recovery, or coherent time | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
+| 2 | `[-]` | RU-0110: remaining P1/P2 playtest defects | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, and browser-reviewed |
+| 3 | `[ ]` | RU-0601 + RU-0406: guidance and first meaningful spend | A reachable reward is not yet a complete first rung | Fresh profile reaches, understands, earns, and spends without project knowledge |
+| 4 | `[ ]` | RU-0202 + RU-0203: signatures and crops | Establish the deterministic day-side ecology before threats depend on it | Bounded serializable kernel state, failure recovery, telemetry, and tests |
+| 5 | `[ ]` | RU-0204 + RU-0205: night threats and dawn consequence | Complete the first consequence-bearing day→night→dawn loop | Threat failure/retry paths, persisted dawn record, player/operator explanation |
+| 6 | `[ ]` | RU-0206 + RU-0405: mastery and schema v6 | Progression must reward varied rig verbs without grind or save drift | Effective-profile composition, anti-grind tests, v5→v6 migration and recovery summary |
+| 7 | `[ ]` | RU-0207 + RU-0208: presentation and fresh-eyes validation | Kernel completion is not player comprehension or fun evidence | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human |
+| 8 | `[ ]` | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility |
+| 9 | `[ ]` | RU-0304–RU-0307: deeper capability/physics proofs | Let real activities pose the next controller and collision questions | Shared roles, rescue activity, obstruction query, then one genuinely different motion family |
+| 10 | `[ ]` | RU-0701–RU-0703: replay, guest identity, optional account link | Sharing starts with inspectable local artifacts, not real-time authority | Ghost artifact, export/import, then accepted auth/conflict ADR |
+| 11 | `[>]` | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder | High-leverage but depends on stable state, authority, moderation, and recovery | Named dependencies and operational safety gates close first |
+| 12 | `[~]` | RU-0801–RU-0808: continuous research/skill coverage | Research continues in parallel but must produce decisions or probes | Each recommendation is accepted, rejected, deferred, or linked to measured evidence |
+
+### Active work package checklist
+
+- [x] Write failing contracts for RU-0106–RU-0109.
+- [x] Gate background simulation and input behind explicit world entry.
+- [x] Add one authored, reachable first salvage cache and canonical collection.
+- [x] Add condition-zero immobility and auditable, non-rewarding recovery.
+- [x] Separate absolute world time from activity elapsed time; migrate v4→v5.
+- [x] Add keyboard, visible mouse, and touch recovery parity.
+- [x] Pass typecheck, 108 root tests, seven kernel-probe tests, format, and build.
+- [x] Pass Field 02 browser acceptance on ports 4173 and 4174 with zero captured
+  console/page errors.
+- [x] Record ADR/worklog/exploration/playtest closure and reconcile schema-v6
+  planning.
+- [x] Re-run the full gate after documentation settles.
+- [-] Guarded `git add -A`, full motto hook attestation, commit, push, exact-source
+  Sites version, production deployment, and smoke checks.
 
 ## 0. Repository, release, and continuity
 
@@ -94,20 +132,30 @@ agent leaves the task. “Done” is never inferred from code existing.
     browser acceptance suites.
   - Closure: collision/prop queries reuse stable generated cells without
     changing deterministic outcomes.
-- [ ] **RU-0106 — Fix playtest P0 B1: title card re-entry.**
-  - Gate: reproduce through real keyboard focus/Space flow; regression test;
-    the welcome plate cannot reopen or allow background simulation after entry.
-- [ ] **RU-0107 — Fix playtest P0 B2: first salvage collection.**
-  - Gate: place one reachable first node, teach the action, collect through the
-    canonical affordance chain, persist it, and prove the loop in browser.
-- [ ] **RU-0108 — Fix playtest P0 B3: zero-condition recovery soft-lock.**
-  - Gate: drowned/disabled rig with zero salvage always has a clear,
-    auditable, non-exploitable recovery path; reset works by mouse, keyboard,
-    and touch.
-- [ ] **RU-0109 — Fix playtest P0 B4: phase-clock consistency.**
-  - Gate: phase transitions and visible time are monotonic within their
-    contract, survive save/reload, and complete a day→gloam→night→dawn run.
-- [ ] **RU-0110 — Close cheap P1/P2 playtest defects.**
+- [x] **RU-0106 — Fix playtest P0 B1: title card re-entry.**
+  - Evidence: disabled pre-entry input, fixed-step gate, immediate `[hidden]`
+    CSS contract, keyboard focus transfer, second-Space primary action, and
+    two-port browser regression.
+  - Closure: the welcome plate neither reopens nor permits background
+    simulation; focus enters the canvas once.
+- [x] **RU-0107 — Fix playtest P0 B2: first salvage collection.**
+  - Evidence: authored `first-recovery-cache`, reachability/slope tests,
+    canonical primary-action collection, player prompt, save/reload, and
+    two-port browser acceptance.
+  - Closure: a fresh profile can find, understand, collect, and retain the
+    first reward.
+- [x] **RU-0108 — Fix playtest P0 B3: zero-condition recovery soft-lock.**
+  - Evidence: ADR-0019, immobility and repeat-protection tests, persisted
+    recovery audit fields, contextual desktop recovery button, keyboard,
+    mouse, and isolated real-touch browser paths.
+  - Closure: recovery awards nothing, restores 25% condition at Home Silo, and
+    cannot be repeated as a resource exploit.
+- [x] **RU-0109 — Fix playtest P0 B4: phase-clock consistency.**
+  - Evidence: ADR-0019, absolute `worldTimeMinutes`, derived phase boundaries,
+    v4→v5 migration, round-trip tests, and browser day→gloam→night→dawn cycle.
+  - Closure: activity time and world time are separate; visible time is
+    monotonic and survives reload.
+- [-] **RU-0110 — Close cheap P1/P2 playtest defects.**
   - Scope: hood clipping, Drift spawn/recovery and extreme-grade behavior,
     player-vs-lab navigation, default debug telemetry, spawn occlusion,
     prop-aware camera obstruction, action labels, and record naming.
@@ -191,8 +239,10 @@ agent leaves the task. “Done” is never inferred from code existing.
   - Gate: start visibly dilapidated; stabilize and repair; fit one signature
     working attachment and one support choice; body/sound/handling/history show
     the transformation without a universal stat ladder.
-- [ ] **RU-0405 — Save schema v5 and migration observability.**
-  - Gate: crops/mastery/dawn/signature state migrate from v4 with reason-coded
+- [ ] **RU-0405 — Save schema v6 and migration observability.**
+  - Context: schema v5 is now owned by ADR-0019 world-clock and emergency
+    recovery state.
+  - Gate: crops/mastery/dawn/signature state migrate from v5 with reason-coded
     recovery, bounded data, round-trip tests, and operator-visible summary.
 - [ ] **RU-0406 — First job and first meaningful spend.**
   - Gate: a new player reaches, understands, earns, and spends the first Scrap

@@ -119,3 +119,22 @@ bug-net — B1–B4 are real, reproducible-class defects that unit tests and the
 acceptance script all missed, because every prior test knew how the game was
 supposed to be played. Fresh-eyes simulation is now a proven lane in the
 verification harness and should be repeated after Farmfall.
+
+## Closure addendum — 2026-07-26
+
+B1–B4 are closed in the local schema-v5 release candidate:
+
+- B1: explicit entry state gates input and simulation; Space enters once,
+  transfers focus, and then becomes the rig's primary action.
+- B2: one authored cache is reachable from spawn, teaches the action, collects
+  through the canonical affordance chain, and survives reload.
+- B3: a condition-zero rig is immobile and exposes one non-rewarding,
+  auditable Home Silo recovery through keyboard, visible mouse action, and
+  touch.
+- B4: one absolute world clock derives phase; day→gloam→night→dawn remains
+  monotonic and persists through v4→v5 migration and reload.
+
+Evidence: 108 root tests, seven kernel-probe tests, clean typecheck/format/build,
+and Field 02 browser acceptance on development `4173` and rebuilt production
+preview `4174`, with zero captured console/page errors. This does not close
+B5–B12 or replace the required post-Farmfall simulated and human playtests.

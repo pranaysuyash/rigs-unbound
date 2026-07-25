@@ -25,6 +25,7 @@ import {
   type ModuleId,
   type RigId,
   type TapAction,
+  worldMinuteOfDay,
 } from "./game/contracts";
 import { RigAudio } from "./game/audio";
 import { GameWorld } from "./game/gameworld";
@@ -111,9 +112,7 @@ function requiredElement<T extends HTMLElement>(selector: string): T {
 }
 
 function phaseTime(state: GameState): string {
-  const baseMinutes =
-    state.phase === "day" ? 400 : state.phase === "gloam" ? 1125 : 1340;
-  const minutes = (baseMinutes + Math.floor(state.elapsedMs / 2400)) % 1440;
+  const minutes = Math.floor(worldMinuteOfDay(state.worldTimeMinutes));
   const hour = Math.floor(minutes / 60);
   return `${String(hour).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 }
@@ -165,6 +164,7 @@ function boot(): void {
     loadResult.loadDurationMs,
   );
   const runRecord = createRunRecord(state.seed, BOOT_STARTED_AT);
+  const markInputReady = (): void => performanceMonitor.markInputReady();
 
   const recordCommand = (
     name: string,
@@ -210,6 +210,8 @@ function boot(): void {
   const gradeBar = requiredElement<HTMLElement>("#grade-bar");
   const gradeText = requiredElement<HTMLElement>("#grade-text");
   const prompt = requiredElement<HTMLElement>("#current-prompt");
+  const emergencyRecover =
+    requiredElement<HTMLButtonElement>("#emergency-recover");
   const saveStatus = requiredElement<HTMLElement>("#save-status");
   const landmarkList = requiredElement<HTMLOListElement>("#landmark-list");
   const toast = requiredElement<HTMLElement>("#toast");
@@ -227,6 +229,12 @@ function boot(): void {
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
+  let worldEntered =
+    window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true";
+  input.setEnabled(worldEntered);
+  welcomePanel.hidden = worldEntered;
+  welcomePanel.setAttribute("aria-hidden", String(worldEntered));
+  enterWorldButton.disabled = worldEntered;
 
   let statusMessage = loadResult.message;
   saveStatus.textContent = statusMessage;
@@ -275,7 +283,29 @@ function boot(): void {
     if (state.lastDiagnostic) showToast(state.lastDiagnostic);
   };
 
+  const enterWorld = (source: "welcome-panel" | "keyboard"): void => {
+    if (worldEntered) return;
+    markInputReady();
+    recordCommand("enterWorld", { source });
+    worldEntered = true;
+    input.setEnabled(true);
+    enterWorldButton.disabled = true;
+    enterWorldButton.blur();
+    welcomePanel.classList.add("welcome-panel--dismissed");
+    welcomePanel.hidden = true;
+    welcomePanel.setAttribute("aria-hidden", "true");
+    window.sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
+    canvas.focus();
+    void audio.unlock();
+    showToast(
+      "First cache: leave the Home Silo pad, then press Space or Act in reach.",
+    );
+    recordCheckpoint("enterWorld", { source });
+  };
+
   const tap = (action: TapAction): void => {
+    if (!worldEntered) return;
+    markInputReady();
     void audio.unlock();
     recordCommand("tap", { action });
     if (action === "primary") {
@@ -314,6 +344,19 @@ function boot(): void {
 
   window.addEventListener("keydown", (event) => {
     if (event.repeat) return;
+    if (!worldEntered) {
+      if (
+        event.code === "Space" ||
+        event.code === "Enter" ||
+        event.code === "NumpadEnter"
+      ) {
+        event.preventDefault();
+        markInputReady();
+        enterWorld("keyboard");
+      }
+      return;
+    }
+    markInputReady();
     const moduleIndex = Number.parseInt(event.key, 10);
     if (
       Number.isInteger(moduleIndex) &&
@@ -401,6 +444,7 @@ function boot(): void {
       "[data-module-id]",
     );
     if (!item) return;
+    markInputReady();
     void audio.unlock();
     recordCommand("installModule", {
       moduleId: item.dataset.moduleId,
@@ -415,20 +459,16 @@ function boot(): void {
   });
 
   enterWorldButton.addEventListener("click", () => {
-    recordCommand("enterWorld", { source: "welcome-panel" });
-    welcomePanel.classList.add("welcome-panel--dismissed");
-    window.sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
-    canvas.focus();
-    void audio.unlock();
-    showToast("Salvage sits off the graded tracks. Press M for the field map.");
-    recordCheckpoint("enterWorld", { source: "welcome-panel" });
+    markInputReady();
+    enterWorld("welcome-panel");
+  });
+  emergencyRecover.addEventListener("click", () => {
+    markInputReady();
+    tap("recover");
   });
 
-  if (window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true") {
-    welcomePanel.classList.add("welcome-panel--dismissed");
-  }
-
   muteButton.addEventListener("click", () => {
+    markInputReady();
     const next = !audio.isEnabled;
     audio.setEnabled(next);
     muteButton.textContent = next ? "Sound on" : "Sound off";
@@ -437,6 +477,7 @@ function boot(): void {
   });
 
   fullscreenButton.addEventListener("click", () => {
+    markInputReady();
     if (document.fullscreenElement) {
       void document.exitFullscreen();
       fullscreenButton.textContent = "Fullscreen";
@@ -448,9 +489,13 @@ function boot(): void {
     }
   });
 
-  mapClose.addEventListener("click", () => tap("map"));
+  mapClose.addEventListener("click", () => {
+    markInputReady();
+    tap("map");
+  });
 
   cameraSelect.addEventListener("change", () => {
+    markInputReady();
     const cameraMode = cameraSelect.value as CameraMode;
     if (!CAMERA_MODES.includes(cameraMode)) return;
     recordCommand("selectCamera", { cameraMode, source: "ui" });
@@ -461,6 +506,7 @@ function boot(): void {
   });
 
   resetButton.addEventListener("click", () => {
+    markInputReady();
     const confirmed = window.confirm(
       "Reset both rigs, the relay, and everything the world remembers?",
     );
@@ -511,6 +557,7 @@ function boot(): void {
           : "Ploughing"
         : profile.capabilities.join(" · ");
     conditionValue.textContent = `${Math.round(rig.condition)}%`;
+    emergencyRecover.hidden = rig.condition > 0;
     salvageValue.textContent = String(state.salvage);
 
     const surveyed = world.exploration.surveyedFraction(
@@ -543,6 +590,9 @@ function boot(): void {
     const relay = state.cargoRelay;
     if (state.paused) {
       prompt.textContent = "Paused.";
+    } else if (rig.condition <= 0) {
+      prompt.textContent =
+        "Rig disabled · press X or Winch for emergency field recovery";
     } else if (workshop) {
       prompt.textContent = `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
     } else if (relay.cargo.attachedRigId === rig.id) {
@@ -569,7 +619,10 @@ function boot(): void {
       if (node) {
         const distance = Math.round(Math.hypot(rig.x - node.x, rig.z - node.z));
         const units = node.value === 1 ? "unit" : "units";
-        prompt.textContent = `${headingLabel(rig.heading)} · salvage ${distance} m · ${node.value} ${units}`;
+        prompt.textContent =
+          distance <= 5
+            ? `Salvage in reach · press Space or Act · ${node.value} ${units}`
+            : `${headingLabel(rig.heading)} · salvage ${distance} m · ${node.value} ${units}`;
       } else {
         const nearest = LANDMARKS.map((landmark) => ({
           ...landmark,
@@ -646,6 +699,7 @@ function boot(): void {
     JSON.stringify(
       {
         ...publicState(state, world),
+        welcomeOpen: !worldEntered,
         performance: performanceMonitor.snapshot(renderer.metrics()),
         fieldMapBuildMs: Number.isFinite(fieldMap.buildMs)
           ? Number(fieldMap.buildMs.toFixed(1))
@@ -816,11 +870,15 @@ function boot(): void {
     const frameDurationMs = now - previousTime;
     const deltaSeconds = Math.min(frameDurationMs / 1000, 0.1);
     previousTime = now;
-    accumulator += deltaSeconds;
-    saveAccumulator += deltaSeconds;
+    if (worldEntered) {
+      accumulator += deltaSeconds;
+      saveAccumulator += deltaSeconds;
+    } else {
+      accumulator = 0;
+    }
     performanceMonitor.recordFrame(frameDurationMs);
 
-    while (accumulator >= FIXED_STEP_SECONDS) {
+    while (worldEntered && accumulator >= FIXED_STEP_SECONDS) {
       const sampledInput = input.sample();
       if (
         sampledInput.accelerate !== lastRecordedInput.accelerate ||
@@ -855,10 +913,10 @@ function boot(): void {
       state.phase,
       state.paused,
     );
-    performanceMonitor.markControllable();
+    if (worldEntered) performanceMonitor.markControllable();
     updateInterface(now);
 
-    if (saveAccumulator >= 2) {
+    if (worldEntered && saveAccumulator >= 2) {
       persist();
       saveAccumulator = 0;
     }

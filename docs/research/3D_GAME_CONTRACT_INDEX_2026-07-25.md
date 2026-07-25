@@ -77,6 +77,7 @@ current 3D-game architecture map easier to traverse.
 
 ## Supporting continuity artifacts
 
+- [Docs root landing page](../README.md)
 - [Rigs Unbound Exploration Map](../exploration/EXPLORATION_MAP.md)
 - [Worklog](../WORKLOG.md)
 - [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
