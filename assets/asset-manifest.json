@@ -1,0 +1,42 @@
+{
+  "$schema": "./asset-manifest.schema.json",
+  "schemaVersion": 1,
+  "assetRoot": "assets/runtime",
+  "runtimeFormat": "glb",
+  "entries": [
+    {
+      "id": "tractor-patchwork-atlas-model-sheet",
+      "kind": "reference",
+      "status": "concept",
+      "sourceType": "generated-image",
+      "sourcePath": "docs/exploration/assets/design_explorations/tractor_character_model_sheet_2026-07-25.png",
+      "runtimePath": null,
+      "rightsStatus": "review-required-before-distribution",
+      "intendedUse": "Persistent tractor identity and model-sheet reference; not a runtime mesh.",
+      "notes": "Orthographic turnaround and production mesh are still required."
+    },
+    {
+      "id": "tractor-isolated-reconstruction-reference",
+      "kind": "reference",
+      "status": "concept",
+      "sourceType": "generated-image",
+      "sourcePath": "docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png",
+      "runtimePath": null,
+      "rightsStatus": "review-required-before-distribution",
+      "intendedUse": "Admitted single-view reference for future procedural reconstruction analysis; not a runtime mesh.",
+      "sha256": "eb42e00ef63038773db5c45e4d496e3a75a4ac634e0a03980cfe4cfc8b228900",
+      "notes": "img2threejs technical probe and reference admission passed; multi-angle evidence and human review remain required."
+    },
+    {
+      "id": "kenney-car-kit-tractor-fixture",
+      "kind": "static-prop",
+      "status": "proposed",
+      "sourceType": "open-asset",
+      "sourceRef": "Private Kenney Game Assets All-in-1 3.4.0 library; exact pack selection pending.",
+      "runtimePath": null,
+      "rightsStatus": "pack-level-review-required",
+      "intendedUse": "Candidate browser fixture for the first source-to-GLB-to-runtime proof.",
+      "notes": "No asset has been copied into the repository; see the Kenney asset audit."
+    }
+  ]
+}

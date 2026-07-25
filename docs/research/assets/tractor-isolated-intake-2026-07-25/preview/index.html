@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./favicon.svg" />
+    <title>Patchwork Tractor — blockout intake preview</title>
+    <style>
+      :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; }
+      html, body { margin: 0; min-height: 100%; background: #d7d1c8; }
+      body { overflow: hidden; }
+      canvas { display: block; width: 100vw; height: 100vh; }
+      #status { position: fixed; inset: 16px auto auto 16px; padding: 8px 10px; border-radius: 6px; background: rgb(20 24 30 / 78%); font-size: 12px; letter-spacing: .02em; }
+      #status[data-state="error"] { background: rgb(122 30 30 / 90%); }
+    </style>
+  </head>
+  <body>
+    <div id="status" data-state="loading">Loading blockout evaluation preview…</div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

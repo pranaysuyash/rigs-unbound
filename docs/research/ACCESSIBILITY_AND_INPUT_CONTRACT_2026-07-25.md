@@ -1,0 +1,115 @@
+# Accessibility and Input Contract (2026-07-25)
+
+## Skills consulted
+
+1. [3d-web-experience](/Users/pranay/Projects/skills/3d-web/3d-web-experience/SKILL.md)
+
+## Purpose
+
+Turn the repo’s existing input paths and accessibility fallback pieces into a named contract for device-neutral actions, remapping persistence, reduced-motion safety, and readable feedback.
+
+The runtime already supports keyboard and gamepad input, reduced-motion behavior, and a separate render/accessibility smoke-test gate. What it does not yet have is a first-class contract that says how actions, bindings, comfort settings, and device parity are owned.
+
+## Current evidence base
+
+- Browser entry point and action hooks:
+  - [src/main.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/main.ts)
+- Action sampling and device mapping:
+  - [src/game/input.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/game/input.ts)
+- Current accessibility smoke-test gate:
+  - [docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md)
+- Runtime accessibility findings:
+  - [docs/research/ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md)
+- Roadmap lane for accessibility and input:
+  - [docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+
+## What is already there
+
+The repo already has a strong base:
+
+- actions are already present as game semantics rather than raw keys alone,
+- keyboard, gamepad, and touch all exist in the runtime surface,
+- reduced-motion behavior is already partially respected,
+- the accessibility smoke-test gate already names the public-readiness requirement.
+
+That means the input layer can be formalized without changing the game’s control model.
+
+## What is still missing
+
+The current surface still lacks:
+
+- a named-action schema that persists remaps,
+- explicit device-neutral intent definitions,
+- a contract for hold/tap/repeat semantics,
+- visible accessibility or input profile state,
+- clear rules for reduced-motion clamping,
+- explicit contrast/readability guard behavior for core cues,
+- a parity statement for keyboard, gamepad, and touch.
+
+## Contract shape
+
+A durable accessibility/input contract should separate:
+
+1. **Action model**
+   - named actions
+   - device-neutral intent
+   - hold/tap/repeat semantics
+2. **Binding model**
+   - keyboard
+   - gamepad
+   - touch
+   - remap persistence
+3. **Comfort model**
+   - reduced motion
+   - camera shake limits
+   - FOV spike limits
+   - visual contrast / readability
+4. **Parity model**
+   - same gameplay meaning across devices
+   - explicit differences when intentionally unsupported
+5. **Visibility**
+   - current input profile
+   - current accessibility profile
+   - readable fallback state
+
+This keeps accessibility part of gameplay quality instead of a separate settings-only concern.
+
+## Validation rules
+
+The contract should fail visibly if it:
+
+- treats controls as device-specific instead of action-specific,
+- loses remap persistence,
+- allows motion or visual effects to exceed comfort limits in reduced-motion mode,
+- hides the active input/accessibility profile,
+- makes one input device mean a different gameplay action without an explicit reason,
+- lets critical state feedback depend only on motion or color.
+
+## Near-term proof slice
+
+The smallest durable proof for this contract is:
+
+1. one named-action schema with device-neutral intents,
+2. one remapping or binding persistence test,
+3. one reduced-motion clamp for camera or visual feedback,
+4. one contrast/readability check for a core UI or world cue,
+5. one telemetry or debug field identifying the active input or accessibility profile.
+
+## Open questions
+
+- Should the first remap surface cover camera, movement, or both?
+- Should accessibility settings be saved per profile, per save slot, or both?
+- Should device-parity differences be explained in the HUD or only in settings/debug views?
+
+## Linked artifacts
+
+- [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+- [3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md)
+- [EXPLORATION_MAP.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/EXPLORATION_MAP.md)
+- [RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md)
+
+## Anything else?
+
+The runtime already behaves much closer to accessible than a typical canvas shell.
+This contract names the remaining gap so input parity, remaps, and comfort rules
+stay durable as more actions and more devices are added.

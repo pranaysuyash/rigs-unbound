@@ -1162,6 +1162,22 @@ leading Rapier service hypothesis remain explicit proof gates.
 - 2026-07-25: Added an ECS/entity-composition addendum to the canonical analysis and a threshold-gated ECS lane in the roadmap so ECS remains a proof-based migration decision instead of an assumption.
 - 2026-07-25: Added an authority-scaling addendum to the canonical analysis and a matching roadmap lane so authoritative mutation, intent queues, and replay-safe rejection handling are now explicit contracts instead of implied future work.
 - 2026-07-25: Added a simulation-layer and resource-governance addendum to the canonical analysis and a matching roadmap lane so cross-domain systems now have an explicit ordered domain table and budget ledger instead of being implicit loop behavior.
+- 2026-07-25: Added a modding and creator-pack addendum to the canonical analysis and a matching roadmap lane so user-authored content is now framed as versioned, validated packs with explicit compatibility and rollback rules.
+- 2026-07-25: Added an event-system addendum to the canonical analysis and a matching roadmap lane so world events are now framed as versioned deterministic envelopes with ordered handlers and replay-safe telemetry.
+- 2026-07-25: Added an asset-pipeline addendum to the canonical analysis and a matching roadmap lane so runtime assets now flow through versioned manifests with provenance, validation, and safe replacement rules.
+- 2026-07-25: Added a web asset ingest/compression/provenance contract and tied it into the web audit plus roadmap lane so browser-facing assets now have explicit source-to-runtime validation, compression, and reject-path rules.
+- 2026-07-25: Ran a live accessibility browser pass on the current Field 02 runtime, fixed the concrete keyboard gaps (added a skip link and made the canvas a reliable focus target), and rechecked that dismissing the intro now lands focus on `canvas#game-canvas`. Preserved the positive signals too: semantic landmarks, visible focus rings, reduced-motion support, and no console errors.
+- 2026-07-25: Added a visibility-stage and LOD contract after rechecking the live renderer evidence (`render_game_to_text`, `getPerformanceSnapshot`, `selectCamera`) so the instanced world, blob-shadow posture, and current draw-radius strategy are now documented as a deliberate first-pass visibility budget rather than an implicit heuristic.
+- 2026-07-25: Added a replay artifact and ghost contract after rechecking the live bounded recorder hooks (`getRunRecord`, `getRunRecordVerification`) so the current record shape, verification state, and missing playback/divergence rules are now documented as a product surface rather than only a debug log.
+- 2026-07-25: Added a collision category and mask contract after rechecking the live obstacle-resolution code so obstacle kinds, trigger/sensor behavior, and collision telemetry are now documented as an explicit contract instead of only an implicit resolver.
+- 2026-07-25: Added a camera feel contract after rechecking the live camera modes and profile-driven camera work so named modes, obstruction pull-in, reduced-motion clamping, and transition observability are now documented as an explicit contract instead of only renderer behavior.
+- 2026-07-25: Added a physics quality envelope contract after rechecking the live traversal model and performance snapshots so deterministic motion, stability invariants, and fallback behavior are now documented as an explicit contract instead of only physics code.
+- 2026-07-25: Added a resource budget and fallback envelope after rechecking the live performance snapshot so measured frame, draw, triangle, heap, and load posture are now documented as an explicit resource-governance contract instead of only runtime telemetry.
+- 2026-07-25: Added an event graph and deterministic handlers contract after rechecking the command/checkpoint/save flow so event identity, ordering, ownership, and replay-safe payload rules are now documented as an explicit contract instead of only feature-local signaling.
+- 2026-07-25: Added a behavior-system addendum to the canonical analysis and a matching roadmap lane so AI/planner behavior is now a versioned read-only decision layer rather than implicit feature logic.
+- 2026-07-25: Added a world-affordance addendum to the canonical analysis and tightened the roadmap affordance lane so capability resolution now explicitly validates against world-facing interaction surfaces.
+- 2026-07-25: Added a visibility-stage addendum to the canonical analysis and a matching roadmap lane so culling and LOD are now explicit policy with measurable draw budgets and degradations.
+- 2026-07-25: Added a collision-category addendum to the canonical analysis and a matching roadmap lane so physics now distinguishes ground, obstacle, hazard, trigger, projectile, sensor, and decorative roles explicitly.
 
 ## 2026-07-25 — OpenAI Sites deployment preparation
 
@@ -1227,3 +1243,61 @@ leading Rapier service hypothesis remain explicit proof gates.
   replay claim: durable storage and playback parity are still required, even
   though checkpoint hashes, a structural verifier, and a browser-visible
   verification hook are now in place.
+- 2026-07-25: Added a camera-feel addendum to the canonical analysis and a matching roadmap lane so camera policy, transition rules, obstruction handling, reduced-motion behavior, and FOV changes are explicit product contracts.
+- 2026-07-25: Added a deterministic-replay addendum to the canonical analysis and a matching roadmap lane so replay becomes a portable artifact with playback verification, divergence reporting, and operator-visible provenance.
+- 2026-07-25: Added a shader/material addendum to the canonical analysis and a matching roadmap lane so visual identity, readability, weather cues, hazard feedback, and low-end fallbacks are explicit contract surfaces.
+- 2026-07-25: Added a spatial-culling addendum to the canonical analysis and a matching roadmap lane so distance, portal, chunk-residency, and render-streaming behavior are explicit scale contracts.
+- 2026-07-25: Added an LOD addendum to the canonical analysis and a matching roadmap lane so geometry, materials, animation, AI, physics, particles, and feedback all have explicit downgrade contracts.
+- 2026-07-25: Added a resource-budget addendum to the canonical analysis and a matching roadmap lane so CPU, GPU, memory, residency, active actors, and battery/thermal pressure have explicit fallback envelopes.
+- 2026-07-25: Added a portal-visibility addendum to the canonical analysis and a matching roadmap lane so room/portal graphs have explicit bounded-room visibility contracts.
+- 2026-07-25: Added a lighting-and-atmosphere addendum to the canonical analysis and a matching roadmap lane so staged lighting, shadow fallbacks, and low-cost readability cues are explicit contracts.
+- 2026-07-25: Added an accessibility-and-input addendum to the canonical analysis and a matching roadmap lane so named actions, remapping, reduced-motion, contrast, and device parity are explicit contracts.
+- 2026-07-25: Added a kernel-ordering addendum to the canonical analysis and a matching roadmap lane so mutable subsystems must enter through explicit tick-order, write-scope, and replay-safe gates.
+- 2026-07-25: Added a world-and-architecture-scalability addendum to the canonical analysis and a matching roadmap lane so chunk growth, activity packs, migration boundaries, and shared-state readiness stay bounded and testable.
+- 2026-07-25: Added a save-and-migration observability addendum to the canonical analysis and a matching roadmap lane so state mutations, saves, and migrations carry reason codes, version metadata, and explicit recovery visibility.
+- 2026-07-25: Added a physics-quality-envelope addendum to the canonical analysis and a matching roadmap lane so terrain contact, obstacle stability, cornering, and fallback behavior stay deterministic and playable.
+- 2026-07-25: Added an authoring-and-content-validation addendum to the canonical analysis and a matching roadmap lane so content manifests, provenance, and validator-first results are explicit contracts.
+- 2026-07-25: Added a performance-and-readability baseline addendum to the canonical analysis and a matching roadmap lane so culling, LOD, camera, collision, and instrumentation thresholds have one umbrella policy surface.
+- 2026-07-25: Added a second-locomotion-family and cross-mode continuity addendum to the canonical analysis and a matching roadmap lane so capability-first motion expansion preserves shared actions and recovery behavior across modes.
+- 2026-07-25: Added an authority-model groundwork addendum to the canonical analysis and a matching roadmap lane so local-first simulation, authenticated mutation, and durable-value recovery have an explicit future authority boundary.
+- 2026-07-25: Added an engine-branch evaluation addendum to the canonical analysis and a matching roadmap lane so alternate backends are only benchmarked against the canonical Three.js path when budgets or platform constraints justify it.
+- 2026-07-25: Added a replay-and-ghost product feature addendum to the canonical analysis and a matching roadmap lane so shareable replay artifacts stay deterministic, versioned, and trustable.
+- 2026-07-25: Added a verification-harness and confidence-gates addendum to the canonical analysis and a matching roadmap lane so deterministic fixtures, tiered evidence, and failure traces are explicit proof contracts.
+- 2026-07-25: Created `docs/research/RENDERING_POTENTIAL_AND_ECONOMY_2026-07-25.md` as the renderer budget-threshold and visual-language companion note referenced by the canonical analysis.
+- 2026-07-25: Created [ADR-0015](decisions/ADR-0015-renderer-camera-policy-v1x.md) as the v1.x renderer/camera policy ADR referenced by the canonical analysis follow-up list.
+- 2026-07-25: Created `docs/research/RUNTIME_INSTRUMENTATION_KPIS_2026-07-25.md` as the production-like profile KPI note referenced by the canonical analysis follow-up list.
+- 2026-07-25: Created `docs/research/CULLING_LOD_SPIKE_TESTS_2026-07-25.md` as the deterministic culling and LOD spike-test companion note referenced by the canonical analysis follow-up list.
+- 2026-07-25: Created `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md` to answer the first-public-smoke-test accessibility/camera gate and bound the standard/mobile-safe acceptance profiles.
+- 2026-07-25: Updated the canonical 3D analysis to remove the open accessibility smoke-test question and point it at the new renderer/performance/accessibility contract note.
+- 2026-07-25: Updated the multi-skill long-term possibility audit so the renderer/performance/accessibility contract bundle is recorded as the immediate documentation-and-validation track.
+- 2026-07-25: Reconciled the renderer budget and KPI companion notes so their open questions now point to the new first-public-smoke-test contract instead of repeating the same gap.
+- 2026-07-25: Created `docs/research/PHYSICS_READABILITY_AND_SPEED_CONTRACT_2026-07-25.md` to answer the remaining high-speed readability question through the shared perception frame.
+- 2026-07-25: Updated the canonical 3D analysis so the open physics-readability risk is now a named contract instead of a dangling question.
+- 2026-07-25: Created `docs/decisions/ADR-0016-performance-and-readability-threshold-baseline-v1x.md` to bind the shared threshold bands, fallback order, and capture bundle for public acceptance.
+- 2026-07-25: Reconciled the KPI and rendering-economy notes so their threshold questions now point at ADR-0016 rather than behaving like standalone policy gaps.
+- 2026-07-25: Created `docs/research/THRESHOLD_FIXTURE_BASELINE_2026-07-25.md` to name the canonical comparison scenes for threshold captures.
+- 2026-07-25: Updated the KPI and rendering-economy notes so fixture-selection questions now point at the canonical threshold fixture baseline.
+- 2026-07-25: Created `docs/research/THRESHOLD_CAPTURE_SELECTION_PROTOCOL_2026-07-25.md` to map each subsystem to the most explanatory canonical capture.
+- 2026-07-25: Updated the KPI and rendering-economy notes so capture-selection questions now point at the new selection protocol instead of lingering as open policy questions.
+- 2026-07-25: Created `docs/research/READABILITY_METRIC_RUBRIC_2026-07-25.md` to name transition latency as the lead unreadability predictor and rank the supporting signals.
+- 2026-07-25: Updated the KPI, rendering-economy, and canonical analysis notes so the unreadability question now points at the metric rubric instead of lingering open.
+- 2026-07-25: Created `docs/research/CORE_LOOP_AND_PROGRESSION_CONTRACT_2026-07-25.md` to bind the 30-second loop, session loop, long arc, and opportunity guidance.
+- 2026-07-25: Updated the exploration map and canonical analysis so the player-loop contract is now part of the repo’s living architecture instead of an implied design idea.
+- 2026-07-25: Created `docs/research/WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md` to bind browser loading progression, fallback visibility, and profile bootstrap.
+- 2026-07-25: Updated the 3D web audit and canonical analysis so the loading-fallback gap now points at the named bootstrap contract.
+- 2026-07-25: Created `docs/research/CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md` to formalize rig capabilities, adapter binding, reason-coded admission, and world-affordance resolution.
+- 2026-07-25: Created `docs/research/BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md` to formalize the command-to-decision layer, deterministic planner choice, and read-only behavior boundaries.
+- 2026-07-25: Created `docs/research/STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md` to formalize the chunk-manifest lifecycle, residency states, budget counters, and rollback rules.
+- 2026-07-25: Created `docs/research/SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md` to formalize owned simulation layers, update order, and governance fallback visibility.
+- 2026-07-25: Created `docs/research/MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md` to formalize validated creator packs, compatibility rules, and rollback-safe publication staging.
+- 2026-07-25: Created `docs/research/WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md` to formalize the world-verb/capability resolution step and keep interactions deterministic.
+- 2026-07-25: Created `docs/research/ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md` to formalize the source-to-manifest asset path, provenance validation, and runtime replacement rules.
+- 2026-07-25: Created `docs/research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md` to formalize layered materials, readability, and fallback strategy for renderer cues.
+- 2026-07-25: Created `docs/research/LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md` to formalize tiered lighting, shadow fallback, and atmosphere readability.
+- 2026-07-25: Created `docs/research/PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md` to formalize room/portal graphs and bounded-room visibility.
+- 2026-07-25: Created `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md` to formalize named actions, remap persistence, and device-parity controls.
+- 2026-07-25: Created `docs/research/KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md` to formalize the authoritative step order and mutable subsystem gates.
+- 2026-07-25: Created `docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md` to formalize versioned persistence, migration observability, and recovery summaries.
+- 2026-07-25: Created `docs/research/AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md` to formalize manifest validation, provenance metadata, and runtime-ready status.
+- 2026-07-25: Created `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md` to formalize the umbrella policy over culling, LOD, camera, collision, and transition budgets.
+- 2026-07-25: Created `docs/research/SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md` to formalize the second motion grammar, shared actions, and rollback continuity.

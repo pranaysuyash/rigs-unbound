@@ -1,0 +1,120 @@
+# Simulation Layers and Resource Governance Contract (2026-07-25)
+
+## Skills consulted
+
+1. [3d-games](/Users/pranay/Projects/external-skills/davila7__claude-code-templates/cli-tool/components/skills/creative-design/game-development/3d-games/SKILL.md)
+
+## Purpose
+
+Turn the repo’s implicit multi-domain loop into a named simulation-layer contract with explicit ownership and update order.
+
+The engine already separates terrain, physics, collision, persistence, presentation, and observable performance. What it does not yet have is a first-class contract that names the non-render simulation layers, their order, their read/write boundaries, and their downgrade behavior when budgets tighten.
+
+## Current evidence base
+
+- Deterministic kernel and ordered mutation surface:
+  - [src/game/state.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/game/state.ts)
+- World substrate and spatial memory split:
+  - [src/game/gameworld.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/game/gameworld.ts)
+  - [src/game/terrain.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/game/terrain.ts)
+- Observable runtime pressure:
+  - [src/game/performance.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/game/performance.ts)
+  - [src/main.ts](/Users/pranay/Projects/Game_dev/rigs-unbound/src/main.ts)
+- Resource-budget sibling note:
+  - [docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md)
+- Roadmap lane for simulation layers and governance:
+  - [docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+
+## What is already there
+
+The repo already has the ingredients of a layered simulation:
+
+- terrain is canonical and shared,
+- physics and collision are distinct from presentation,
+- game-world memory is bounded and serializable,
+- runtime performance is observable,
+- the kernel already applies state transitions in a fixed order.
+
+That means the architecture is already layered in practice even if the layer contract is not yet named.
+
+## What is still missing
+
+The current surface still lacks:
+
+- a named domain-order table for simulation layers,
+- a clear owner for each layer’s state,
+- explicit read/write boundaries between layers,
+- a declared emit/downstream contract,
+- a governance rule for how budget pressure changes layer behavior,
+- a traceable summary of which layer caused a fallback or downgrade.
+
+## Contract shape
+
+A durable simulation-layer contract should separate:
+
+1. **Domain order**
+   - terrain/traversal
+   - physics/collision
+   - behavior/mission logic
+   - weather/atmosphere
+   - economy/resource flow
+   - persistence/recovery
+   - presentation feedback
+2. **Ownership**
+   - what each layer owns
+   - what each layer may read
+   - what each layer may mutate
+   - what each layer must never bypass
+3. **Budget governance**
+   - CPU budget
+   - GPU budget
+   - active actors/entities
+   - residency/chunk load
+   - save/migration cost
+4. **Fallback policy**
+   - which layer simplifies first
+   - how the downgrade is surfaced
+   - what telemetry is emitted
+   - how recovery is detected
+
+This keeps the simulation loop composable instead of turning it into one opaque “game step.”
+
+## Validation rules
+
+The contract should fail visibly if it:
+
+- lets a layer mutate state outside its ownership boundary,
+- skips the declared order,
+- hides a budget downgrade,
+- degrades a layer without naming the responsible domain,
+- makes fallback depend on hidden heuristics instead of policy,
+- allows a presentation layer to become an authority surface.
+
+## Near-term proof slice
+
+The smallest durable proof for this contract is:
+
+1. one owned domain-order table for non-render layers,
+2. one budget ledger spanning CPU, GPU, active actors, and residency,
+3. one fallback-policy test for a low-budget profile,
+4. one telemetry path that records which layer caused a budget downgrade.
+
+## Open questions
+
+- Which layer should be the canonical first downgrade point when budgets tighten?
+- Should weather and economy start as optional lanes or as always-on no-op layers?
+- Should fallback summaries be surfaced in the HUD, the debug panel, or both?
+
+## Linked artifacts
+
+- [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+- [3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md)
+- [EXPLORATION_MAP.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/EXPLORATION_MAP.md)
+- [RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md)
+
+## Anything else?
+
+The simulation kernel is already strong enough to support multiple domains.
+This contract names the order and the ownership rules so future weather,
+economy, traffic, or mission layers stay measurable instead of becoming
+implicit behavior glued onto the main loop.

@@ -60,17 +60,17 @@ the Vite game runtime.
 
 ## Verification record
 
-| Check | Result | Evidence tier |
-| --- | --- | --- |
-| `npm run typecheck` | Passed | Tier 2 |
-| `npm test` | 83 + 7 passed | Tier 2 |
-| `npm run format:check` | Passed after formatting `tsconfig.json` | Tier 2 |
-| `npm audit --json` | Zero vulnerabilities after patched hosting upgrades | Tier 2 |
-| `npm run build` | Passed; Worker and client artifacts emitted | Tier 3 |
-| `npm run test:browser` on `4174` | Passed full flow, narrow layout, reload, reduced motion; zero console/page errors | Tier 4 local |
-| Sites package validator | Passed for the clean committed source | Tier 3 |
-| Sites production status | `succeeded` | Tier 4 |
-| Production URL load | HTTP 200; title, welcome flow, schema v4, three rigs, zero browser errors | Tier 4 |
+| Check                            | Result                                                                            | Evidence tier |
+| -------------------------------- | --------------------------------------------------------------------------------- | ------------- |
+| `npm run typecheck`              | Passed                                                                            | Tier 2        |
+| `npm test`                       | 83 + 7 passed                                                                     | Tier 2        |
+| `npm run format:check`           | Passed after formatting `tsconfig.json`                                           | Tier 2        |
+| `npm audit --json`               | Zero vulnerabilities after patched hosting upgrades                               | Tier 2        |
+| `npm run build`                  | Passed; Worker and client artifacts emitted                                       | Tier 3        |
+| `npm run test:browser` on `4174` | Passed full flow, narrow layout, reload, reduced motion; zero console/page errors | Tier 4 local  |
+| Sites package validator          | Passed for the clean committed source                                             | Tier 3        |
+| Sites production status          | `succeeded`                                                                       | Tier 4        |
+| Production URL load              | HTTP 200; title, welcome flow, schema v4, three rigs, zero browser errors         | Tier 4        |
 
 ## Production closure
 
@@ -83,6 +83,13 @@ the Vite game runtime.
   activity is not a valid idle contract. The corrected probe used
   `domcontentloaded` plus product assertions and passed.
 - Recent production Worker error logs were empty after the live requests.
+
+## Repeatable agent handoff
+
+The canonical ongoing procedure is
+[Sites update and deployment runbook](../operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md).
+Future agents should append new deployment evidence to that runbook's ledger
+instead of rewriting this initial acceptance snapshot.
 
 ## User, team, and operational value
 
@@ -100,3 +107,10 @@ the Vite game runtime.
 - The 633 kB JavaScript chunk retains Vite's 500 kB advisory. Closure path:
   profile code-splitting by player-visible loading benefit, then re-run browser
   acceptance and representative-device measurements.
+
+## Anything else?
+
+This acceptance record proves the initial public hosting path. It does not
+replace the ongoing runbook, and it does not upgrade device-local persistence
+or public-playable evidence into account, multiplayer, representative-device,
+or commercial-launch readiness.

@@ -116,9 +116,9 @@ Primary objective: continue an end-to-end analysis of what exists, what is possi
 
 ## 5) Proposed docs-to-be-next (not code changes now)
 
-1. `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md` (render budgets + accessibility contract)
-2. `docs/decisions/ADR-0009-render-contract-and-fallback-policy.md` (if approved)
-3. `docs/plans/PLAN_RENDER_PERFORMANCE_ACCESSIBILITY_2026-07-25.md` (gated implementation order)
+1. `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md` now exists as the first public smoke test gate for renderer, camera, and accessibility behavior.
+2. `docs/decisions/ADR-0009-render-contract-and-fallback-policy.md` remains a proposed long-form ADR if the contract thresholds need policy codification.
+3. `docs/plans/PLAN_RENDER_PERFORMANCE_ACCESSIBILITY_2026-07-25.md` remains the gated implementation order if implementation work begins.
 
 These names are proposed; create only after you confirm doc priority.
 
@@ -130,5 +130,5 @@ Yes. The core technical stack is coherent, but the highest unclosed gap is not a
 - we still need contract-level quality gates so every future feature is accepted against existing architecture rather than a separate style or stack.
 
 Next decision required from you:
-1. approve the renderer/performance/accessibility contract bundle as the immediate documentation-and-validation track,
-2. confirm whether to prioritize a second locomotion family or a renderer hardening lane first.
+1. the renderer/performance/accessibility contract bundle is now documented as the immediate documentation-and-validation track,
+2. the next branch point remains whether to prioritize a second locomotion family or a renderer hardening lane first.

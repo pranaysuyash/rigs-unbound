@@ -28,6 +28,25 @@ This register begins during concept exploration so provenance does not become a 
 - Human review: inspected at original resolution; strong identity and functional silhouette, but true orthographic turnarounds and exact patch/socket maps remain required
 - Prompt and critique: [Visual Direction Preference and Variants](../exploration/VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md)
 
+## `tractor_isolated_reconstruction_reference_2026-07-25.png`
+
+- Project path: `docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png`
+- SHA-256: `eb42e00ef63038773db5c45e4d496e3a75a4ac634e0a03980cfe4cfc8b228900`
+- Dimensions: 1747 × 900 RGB PNG
+- Date generated: 2026-07-25
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Input/reference: `tractor_character_model_sheet_2026-07-25.png`; used as identity, repair-language, proportion, and material reference, not as an edit target
+- Intended use: admitted single-view input for future `img2threejs` procedural reconstruction analysis
+- Production status: **concept/reference only; not an approved runtime asset or shipped mesh**
+- Intake evidence: `probe_image.py` passed; `check_reference_admission.py --viewpoint isolated-three-quarter` passed with foreground coverage `0.2924`, largest connected component fraction `1.0`, and pHash `13026260861505449107`
+- Human review: generated output inspected; it has one complete three-quarter tractor with full wheel/silhouette margin and no collage, but it is still one view and contains generated geometry/material uncertainty
+- Rights/terms status: provider/tool terms and intended public distribution context must be reviewed before production or marketing use
+- Replacement path: replace with an approved authored or multi-view reference package before shipping a reconstructed vehicle
+
+### Generation prompt intent
+
+One complete fictional patchwork tractor in a centered three-quarter front view, fully visible with generous silhouette margin, on a uniform light neutral background without a floor, shadow, collage, labels, logos, or extra objects. Preserve the repaired panel language, compact utility proportions, wheels, cab, exhaust, amber beacon, and rust/cream/green palette from the model-sheet reference. The image was requested as an intake reference, not as a final game asset.
+
 ## `tractor_gameplay_camera_board_2026-07-25.png`
 
 - Project path: `docs/exploration/assets/design_explorations/tractor_gameplay_camera_board_2026-07-25.png`

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rigs-unbound.invalid/schemas/asset-manifest-v1.json",
+  "title": "Rigs Unbound Asset Manifest",
+  "type": "object",
+  "required": ["schemaVersion", "assetRoot", "runtimeFormat", "entries"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "assetRoot": { "type": "string", "minLength": 1 },
+    "runtimeFormat": { "const": "glb" },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "entry": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "status",
+        "sourceType",
+        "rightsStatus",
+        "intendedUse"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "kind": { "type": "string", "minLength": 1 },
+        "status": {
+          "enum": [
+            "concept",
+            "proposed",
+            "approved",
+            "runtime-tested",
+            "blocked"
+          ]
+        },
+        "sourceType": { "type": "string", "minLength": 1 },
+        "sourcePath": { "type": "string", "minLength": 1 },
+        "sourceRef": { "type": "string", "minLength": 1 },
+        "runtimePath": { "type": ["string", "null"] },
+        "rightsStatus": { "type": "string", "minLength": 1 },
+        "intendedUse": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -183,3 +183,8 @@ one bounded adapter plus one renderer factory, the experiment has failed.
 - 2026-07-25: Accepted for implementation after Field 02 closed the terrain and
   camera prerequisites and the standing exploration map identified a second
   locomotion family as the next highest-leverage evidence unit.
+- 2026-07-25: ADR-0017 accepted Rapier as the first replaceable browser
+  dynamics foundation after the owner supplied a more specific physics
+  direction. This does not invalidate bounded mobility adapters: controller
+  family and solver implementation remain separate decisions, and the authored
+  ground/hover adapters remain comparison evidence.

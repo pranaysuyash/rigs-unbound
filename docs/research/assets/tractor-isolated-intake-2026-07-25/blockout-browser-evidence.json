@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "url": "http://127.0.0.1:4175/preview/",
+  "viewport": { "width": 1440, "height": 900, "deviceScaleFactor": 1 },
+  "passId": "blockout",
+  "renderer": {
+    "mode": "plain-evaluation-renderer",
+    "toneMapping": "ACESFilmicToneMapping",
+    "exposure": 1.05,
+    "composer": false
+  },
+  "camera": { "azimuthDeg": 42, "elevationDeg": 16, "fov": 38 },
+  "modelBounds": { "min": [-2.1, -1.2, -1.05], "max": [2.1, 2.55, 1.05] },
+  "meshCount": 4,
+  "browserStatus": "ready",
+  "consoleFindings": {
+    "fatalErrors": 0,
+    "warningCount": 0,
+    "nonFatalWarnings": []
+  },
+  "tier1": {
+    "passed": false,
+    "renderHash": "9cd2f1b25dc89c36",
+    "silhouetteIoU": 0.5112,
+    "aspectRatioDelta": 0.7506,
+    "scaleDelta": 0.1431,
+    "bilateralSymmetryError": 0.1172,
+    "required": { "silhouetteIoU": 0.85, "aspectRatioDeltaMax": 0.05, "scaleDeltaMax": 0.08 }
+  },
+  "decision": "stop-and-refine",
+  "notes": [
+    "The current blockout is a coarse macro pass; authored dimensions now survive code generation and the root pivot is hidden from rendering, but the remaining chassis/body boxes are not ready for runtime integration.",
+    "The comparison sheet was generated for visual review; no AI vision score was recorded because the deterministic gate already failed."
+  ]
+}

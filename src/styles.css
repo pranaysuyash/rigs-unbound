@@ -34,18 +34,36 @@ kbd {
   font: inherit;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 button {
   color: inherit;
 }
 
-button:focus-visible {
+button:focus-visible,
+select:focus-visible,
+#game-canvas:focus-visible,
+.skip-link:focus-visible {
   outline: 3px solid var(--signal-cyan);
   outline-offset: 3px;
 }
 
-select:focus-visible {
-  outline: 3px solid var(--signal-cyan);
-  outline-offset: 3px;
+.skip-link {
+  position: absolute;
+  z-index: 20;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  color: var(--soil-ink);
+  background: var(--harvest-gold);
+  border: 0;
+  transform: translateY(-160%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
 }
 
 #game-shell {

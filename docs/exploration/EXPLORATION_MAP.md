@@ -44,6 +44,8 @@ Evidence follows the project tiers from assumption (Tier 0) to production-like/r
 
 `garage/workshop → choose objective or follow curiosity → travel → encounter/activity → consequence → return/recover → modify vehicle → reveal new possibility`
 
+The living loop contract is now captured in [Core Loop and Progression Contract](../research/CORE_LOOP_AND_PROGRESSION_CONTRACT_2026-07-25.md).
+
 ### Long arc
 
 `acquire machines → learn their personalities → earn capabilities and relationships → connect regions/scales → build a strange fleet → change the world`
@@ -65,10 +67,10 @@ Definitions, owned state, compiled world output, runtime orchestration, and run 
 
 | Question                                                                    |                            Status | Probe                                                                 |
 | --------------------------------------------------------------------------- | --------------------------------: | --------------------------------------------------------------------- |
-| Are activities found spatially or selected from a menu?                     | Proposed: spatial discovery first | Put two visible opportunities in the first region and observe choice. |
-| Does failure cost resources, time, condition, opportunity, or only restart? |                              Idea | Test repairable consequence without grind.                            |
-| Is the garage a menu, explorable place, or both?                            |                       Researching | Compare instant workshop overlay with small physical hub.             |
-| How does a player always know the next interesting possibility?             |                       Researching | Opportunity compass that reveals verbs, not quest spam.               |
+| Are activities found spatially or selected from a menu?                     | Proposed: spatial discovery first | The loop contract now favors spatial discovery first, with garage/workshop guidance as the fallback. |
+| Does failure cost resources, time, condition, opportunity, or only restart? |                           Proposed | The loop contract now treats condition, time, opportunity, and recovery effort as the primary costs. |
+| Is the garage a menu, explorable place, or both?                            |                           Proposed | The loop contract now says both: planning surface plus place with identity. |
+| How does a player always know the next interesting possibility?             |                           Proposed | The loop contract now names an opportunity compass that reveals verbs, not quest spam. |
 
 ## Vehicle system
 
@@ -386,6 +388,10 @@ the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
 | Modding and external packs                 | Partial                          | Add schema-vetted content packs, compatibility matrix, and moderation/review gate before external extension paths open. |
 | Resource governance                        | Partial                          | Add cross-system budget envelopes (CPU/GPU/VRAM/frame) and graceful degradations per device class.                      |
 
+The current visibility-stage and LOD analysis now lives in
+[Visibility Stage and LOD Contract](../research/VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md),
+which captures the live renderer's instancing, draw-radius, shadow, and performance-hook posture while keeping the remaining culling and subsystem-tier gates explicit.
+
 ### 3d-games skill synthesis checkpoint
 
 Applied the `3d-games` skill guidance one layer at a time and mapped it to the live repo:
@@ -416,6 +422,12 @@ The immediate consequence is that the project should harden visibility, collisio
   window trims, and adds stable tick hashes to checkpoints. The browser surface
   now also exposes structural verification, but it still needs durable playback
   verification before it graduates from partial to accepted.
+- The replay artifact contract now lives in [Replay Artifact and Ghost Contract](../research/REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md), which makes the current bounded record shape explicit and keeps the missing playback, divergence, and compatibility rules visible.
+- The collision category and mask contract now lives in [Collision Category and Mask Contract](../research/COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md), which makes the current obstacle-resolution path explicit and keeps trigger/sensor/projectile role separation visible.
+- The camera feel contract now lives in [Camera Feel Contract](../research/CAMERA_FEEL_CONTRACT_2026-07-25.md), which makes the current profile-driven camera work explicit and keeps transition, obstruction, and reduced-motion rules visible.
+- The physics quality envelope contract now lives in [Physics Quality Envelope Contract](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md), which makes the deterministic traversal model, fallback expectations, and stability-state visibility explicit.
+- The resource budget and fallback envelope now lives in [Resource Budget and Fallback Envelope](../research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md), which makes the current measured frame/draw/memory posture explicit and keeps low-budget fallback policy visible.
+- The event graph and deterministic handlers contract now lives in [Event Graph and Deterministic Handlers Contract](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md), which makes the command/checkpoint/save flow explicit and keeps replay-safe event ownership visible.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,
@@ -490,6 +502,14 @@ The locally owned Kenney All-in-1 3.4.0 bundle is now a **Proposed** selective p
 Direct project-owner preference now strengthens the tactile repaired-vehicle/diorama/near-isometric direction. New model-sheet, camera, and comparative art boards propose a hierarchy rather than a blended style: Patchwork Atlas as the persistent base, Signal Noir as a danger/information-state transformation, and Salvage Opera as a rare aspiration/event crescendo. Next evidence is an orthographic tractor turnaround, grayscale/mobile silhouette tests, a non-generic enemy ecology, and an actual camera graybox. See [Visual Direction Preference and Variants](VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md).
 
 External premium generation currently lacks local Tripo/Gemini/ElevenLabs credentials; this does not block hand-authored, open-asset, procedural, or built-in image-generation exploration.
+
+## Addendum — 2026-07-25 Asset-production delivery checkpoint
+
+Applied the imported `3d-asset-production` skill as a static review of the current image/reference-to-runtime direction. The review confirms that the project has the right conceptual foundations—GLB/glTF intent, provenance records, a proposed Kenney fixture manifest, and generated concept archives—but lacks a proven delivery bridge from reviewed source to browser-loaded runtime asset.
+
+The recommended next slice is deliberately narrow: define a canonical asset manifest and bounded GLB preflight before importing a broad pack or replacing the procedural renderer. The review and decision questions are recorded in [Asset Production Skill Review](../research/ASSET_PRODUCTION_SKILL_REVIEW_2026-07-25.md).
+
+Slice A is now implemented: the canonical manifest, versioned schema, dependency-free GLB preflight, and focused tests exist. No runtime asset, loader, or renderer behavior changed. The imported `img2threejs` intake gate rejects the original collage model sheet as reconstruction ground truth because foreground coverage is 0.991 and the silhouette is not isolable. A generated isolated three-quarter reference now passes technical probe and reference admission, but it still needs multi-angle/human review before reconstruction or runtime promotion. The authority clarification is now explicit: a validated mesh may be the shipped visual truth for a profile, while a linked vehicle blueprint remains authoritative for behavior and compatibility. See [Asset Authority and Shipped Mesh Contract](../research/ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md). Slice B therefore remains a discussion and rights/fixture-selection decision.
 
 ## Browser, deployment, and performance
 
@@ -882,6 +902,7 @@ a general solver actually serves a vehicle fantasy.
   - startup/late-bind profile selection,
   - explicit reduced-motion application,
   - deterministic loading/error state for world/model content.
+- Live browser evidence now confirms the shell is mostly accessible, and the remaining keyboard landing-point gap has been closed by making the canvas focusable and adding a skip link into the main region.
 
 ### Immediate proof gate for this layer
 
@@ -890,7 +911,9 @@ Add one full chain:
 1. profile selection by startup/runtime budget,
 2. non-blocking fallback to a readable baseline,
 3. reduced-motion safe camera and telemetry behavior,
-4. explicit reject path for oversized/invalid content candidates.
+4. explicit reject path for oversized/invalid content candidates,
+5. reliable keyboard focus landing after world entry,
+6. skip link or equivalent fast path into the main interaction region.
 
 ### Why this is tied to the objective
 
@@ -899,3 +922,19 @@ The same principle applies to the core objective review:
 - **what's possible now** = contract-first 3D web delivery exists in design;
 - **what's not yet true** = enforcement and runtime binding are incomplete;
 - **what's next** = enforce these as implementation gates before public surface expansion.
+- Addendum (2026-07-25): the rig-capability surface now has a dedicated contract note, so capability checks, adapters, and affordance resolution are tracked as a first-class boundary rather than a loose typed convenience layer.
+- Addendum (2026-07-25): the behavior/planner gap now has a dedicated contract note, so intent capture, deterministic choice, and read-only decision logic are tracked before any AI or activity layer grows into the kernel.
+- Addendum (2026-07-25): the streaming-world gap now has a dedicated contract note, so chunk manifests, residency, and rollback are tracked before the world scale grows past the current canonical substrate.
+- Addendum (2026-07-25): the simulation-layer gap now has a dedicated contract note, so domain order, ownership, and fallback governance are tracked before weather/economy/traffic logic becomes implicit.
+- Addendum (2026-07-25): the modding gap now has a dedicated contract note, so creator packs, compatibility, and rollback are tracked before public UGC becomes a second runtime.
+- Addendum (2026-07-25): the world-affordance gap now has a dedicated contract note, so world verbs, capability claims, and deterministic resolution are tracked before they collapse into special-case branches.
+- Addendum (2026-07-25): the asset-pipeline gap now has a dedicated contract note, so source art, provenance, compression, and runtime replacement are tracked before asset delivery becomes a hidden second truth source.
+- Addendum (2026-07-25): the shader/material gap now has a dedicated contract note, so layered materials, readability, and fallback behavior are tracked before visual cues become one-off forks.
+- Addendum (2026-07-25): the lighting gap now has a dedicated contract note, so ambient, shadow, and atmosphere tiers stay readable before lighting becomes an implicit surprise.
+- Addendum (2026-07-25): the portal-visibility gap now has a dedicated contract note, so bounded rooms and indoor spaces stay readable alongside distance and chunk culling.
+- Addendum (2026-07-25): the accessibility/input gap now has a dedicated contract note, so named actions, remaps, and comfort settings stay explicit across keyboard, gamepad, and touch.
+- Addendum (2026-07-25): the kernel-ordering gap now has a dedicated contract note, so mutable subsystems stay gated behind the authoritative step order.
+- Addendum (2026-07-25): the save/migration gap now has a dedicated contract note, so recovery, versioning, and fallback paths stay explainable.
+- Addendum (2026-07-25): the authoring/content-validation gap now has a dedicated contract note, so manifests, provenance, and runtime-ready status stay reproducible.
+- Addendum (2026-07-25): the performance/readability baseline now has a dedicated contract note, so the shared thresholds stay readable as one umbrella policy.
+- Addendum (2026-07-25): the second locomotion family now has a dedicated contract note, so the hover/ground boundary stays explicit across save/reload and rollback.

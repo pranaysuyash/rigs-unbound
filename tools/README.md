@@ -18,11 +18,31 @@ browser workflow:
 - captures local runtime metrics and browser console/page errors;
 - writes reviewed screenshots to `docs/reviews/assets/`.
 
-Start the game on the documented local port, then run:
+Start the game on the canonical Vite port (`4174`), then run:
 
 ```bash
 npm run test:browser
 ```
+
+## Asset manifest preflight
+
+`assets/asset-manifest.json` is the canonical registry for reviewed source and
+runtime asset candidates. It keeps semantic IDs, approval state, rights status,
+source/reference paths, and future `.glb` runtime paths separate from renderer
+code. The registry currently contains concept/proposed records only; no runtime
+asset has been imported.
+
+Run the bounded structural preflight with:
+
+```bash
+npm run assets:preflight
+npm run test:assets
+```
+
+The preflight checks manifest shape, stable IDs, approval/runtime-path
+consistency, repository-relative paths, source existence, GLB v2 headers and
+JSON chunks, embedded BIN sizing, and safe relative external dependencies. It
+is not a replacement for the Khronos glTF Validator or browser import testing.
 
 The tool uses the workspace Browser Daemon skill's Playwright installation by default. Override the module location when needed:
 

@@ -55,3 +55,21 @@ Keep the existing Vite application and add one bounded deployment adapter:
 - multiplayer requires backend routes;
 - the hosting artifact contract changes;
 - the current static asset adapter no longer satisfies runtime requirements.
+
+## Update log
+
+### 2026-07-25 — Operational handoff added
+
+The accepted adapter remains unchanged. The repeatable source-push, build,
+package, version, public-deploy, verification, rollback, and cross-agent
+handoff procedure now lives in
+[Sites update and deployment runbook](../operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md).
+This separates the durable architecture decision from its evolving operational
+procedure without creating a second deployment source of truth.
+
+## Anything else?
+
+No architecture change is required for repeat deployments. Revisit the ADR
+only when hosting, persistence, authority, or public-asset boundaries change;
+routine release evidence belongs in the runbook's append-only deployment
+ledger.

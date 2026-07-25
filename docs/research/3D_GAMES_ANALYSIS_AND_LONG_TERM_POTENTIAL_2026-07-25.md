@@ -177,18 +177,22 @@ This will reduce future drift and preserve long-term coherence with low overhead
 
 ## Concrete follow-up work (ready-to-start)
 
-1. Add `docs/research/RENDERING_POTENTIAL_AND_ECONOMY_2026-07-25.md` with renderer budget thresholds and visual language plan.
-2. Add culling + LOD spike tests tied to deterministic fixture scenes.
-3. Add `ADR` documenting a renderer/camera policy for v1.x to avoid ad-hoc growth.
-4. Add instrumentation KPIs for per-frame actor count, active physics count, and transition latency in production-like profiles.
+1. `docs/research/RENDERING_POTENTIAL_AND_ECONOMY_2026-07-25.md` now captures renderer budget thresholds and a visual language plan.
+2. `docs/research/CULLING_LOD_SPIKE_TESTS_2026-07-25.md` now captures the deterministic culling + LOD spike-test plan tied to fixture scenes.
+3. `docs/decisions/ADR-0015-renderer-camera-policy-v1x.md` now documents the renderer/camera policy for v1.x to avoid ad-hoc growth.
+4. `docs/research/RUNTIME_INSTRUMENTATION_KPIS_2026-07-25.md` now captures the instrumentation KPIs for per-frame actor count, active physics count, and transition latency in production-like profiles.
+5. `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md` now binds the first public smoke test gate across camera, accessibility, and fallback behavior.
+6. `docs/research/PHYSICS_READABILITY_AND_SPEED_CONTRACT_2026-07-25.md` now answers the high-speed readability question by binding physics to the shared perception frame.
+7. `docs/decisions/ADR-0016-performance-and-readability-threshold-baseline-v1x.md` now binds the shared threshold bands, fallback order, and capture bundle for public acceptance.
+8. `docs/research/THRESHOLD_FIXTURE_BASELINE_2026-07-25.md` now names the canonical comparison scenes for threshold capture bundles.
+9. `docs/research/THRESHOLD_CAPTURE_SELECTION_PROTOCOL_2026-07-25.md` now maps each subsystem to the most explanatory canonical capture.
+10. `docs/research/READABILITY_METRIC_RUBRIC_2026-07-25.md` now names the primary predictor and supporting signals for unreadability review.
+11. `docs/research/CORE_LOOP_AND_PROGRESSION_CONTRACT_2026-07-25.md` now names the player loop, progression grammar, and opportunity guidance for the machine-centric first playable.
+12. `docs/research/WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md` now names the browser loading and profile-bootstrap contract so the app never starts as a dead box.
 
 ## Open risks and residual questions
 
-- Will simplified physics remain readable and fun at higher speed without introducing a heavier engine?
-- What minimum camera/visual contract is needed for accessibility before the first public smoke test?
-- Which second locomotion family gives most product value before adding a second camera system?
-- Which online authority surface is worth exposing first (ghost/seed sync vs authoritative room?
-)
+The major open risk list from the initial audit is now converted into named contracts and addenda. Remaining work is fixture-specific threshold tuning, capture selection, capture review, play-loop tuning, and runtime bootstrap enforcement, not policy discovery.
 
 ## Decision notes for long-term continuity
 
@@ -198,6 +202,32 @@ The codebase currently shows a strong base for this direction, and the highest-l
 - lock contracts early,
 - tighten rendering/physics invariants,
 - then expand gameplay breadth through capability-backed modular growth.
+
+Addendum (2026-07-25): the first public smoke test gate is now explicitly documented in `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md`, so accessibility and readability are now acceptance contracts rather than open-ended questions.
+The second locomotion family and authority boundary are also named later in this document as addenda, so they are no longer open risks here.
+Addendum (2026-07-25): the high-speed readability question is now explicitly documented in `docs/research/PHYSICS_READABILITY_AND_SPEED_CONTRACT_2026-07-25.md`, so physics speed is governed as a perception contract rather than a new engine requirement.
+Addendum (2026-07-25): the remaining shared threshold questions are now bound by `docs/decisions/ADR-0016-performance-and-readability-threshold-baseline-v1x.md`, which defines the bands, fallback order, and comparison bundle for public acceptance.
+Addendum (2026-07-25): `docs/research/THRESHOLD_FIXTURE_BASELINE_2026-07-25.md` now names the canonical comparison scenes used when those thresholds are compared over time.
+Addendum (2026-07-25): `docs/research/THRESHOLD_CAPTURE_SELECTION_PROTOCOL_2026-07-25.md` now maps each subsystem to the most explanatory comparison capture.
+Addendum (2026-07-25): `docs/research/READABILITY_METRIC_RUBRIC_2026-07-25.md` now ranks transition latency first when a fixture starts to look unreadable.
+Addendum (2026-07-25): `docs/research/CORE_LOOP_AND_PROGRESSION_CONTRACT_2026-07-25.md` now binds the 30-second loop, session loop, and long arc for the tractor-centric first playable.
+Addendum (2026-07-25): `docs/research/WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md` now binds the browser loading state, profile bootstrap, and fallback visibility.
+Addendum (2026-07-25): `docs/research/CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md` now binds the rig-capability surface, adapter registry, and affordance-resolution questions so capability checks stop being treated as ad hoc unions.
+Addendum (2026-07-25): `docs/research/BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md` now binds the command-to-decision gap, planner determinism, and read-only decision layer so future AI or activity logic stays below the kernel.
+Addendum (2026-07-25): `docs/research/STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md` now binds the chunk-manifest gap, residency lifecycle, and unload/rollback rules so world scale remains deterministic.
+Addendum (2026-07-25): `docs/research/SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md` now binds the owned-domain order, budget governance, and downgrade visibility so multi-domain simulation stays composable.
+Addendum (2026-07-25): `docs/research/MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md` now binds the pack lifecycle, compatibility checks, and safe rollback boundary so creator growth stays versioned and controlled.
+Addendum (2026-07-25): `docs/research/WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md` now binds the world-verb, capability-claim, and deterministic resolution boundary so interactions stay readable and reusable.
+Addendum (2026-07-25): `docs/research/ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md` now binds the source-artifact to runtime-manifest boundary so assets stay validated, versioned, and replaceable.
+Addendum (2026-07-25): `docs/research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md` now binds the layered material, readability, and fallback boundary so visual language stays composable.
+Addendum (2026-07-25): `docs/research/LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md` now binds the tiered lighting, shadow fallback, and atmosphere readability boundary so mood never obscures play.
+Addendum (2026-07-25): `docs/research/PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md` now binds the room-portal graph and bounded-room visibility boundary so interiors scale with the same deterministic rules.
+Addendum (2026-07-25): `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md` now binds the action-model, remap persistence, and device-parity boundary so controls stay readable across input surfaces.
+Addendum (2026-07-25): `docs/research/KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md` now binds the authoritative tick-order and subsystem-gate boundary so future mutable systems stay replay-safe.
+Addendum (2026-07-25): `docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md` now binds the persistence explanation boundary so save and migration events stay auditable.
+Addendum (2026-07-25): `docs/research/AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md` now binds the manifest-validation boundary so activities and world modules stay reproducible.
+Addendum (2026-07-25): `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md` now binds the umbrella policy layer so the shared thresholds stay measurable and readable.
+Addendum (2026-07-25): `docs/research/SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md` now binds the second motion grammar and cross-mode continuity boundary so new rigs preserve shared actions and rollback.
 
 ## Addendum (2026-07-25): Untrusted ChatGPT optimization-context audit
 
@@ -712,3 +742,1355 @@ The smallest durable proof for this addendum is:
 2. one budget ledger that spans at least CPU, GPU, and active actors,
 3. one fallback policy test for a low-budget profile,
 4. one telemetry path that records which layer caused a budget downgrade.
+
+## Addendum (2026-07-25): Modding and creator-pack architecture
+
+The current content model is data-driven, but it is not yet a safe modding surface. The next step is to define content packs as validated contracts so creator growth does not become a second mutable truth source.
+
+### 1) Modding should be data-only by default
+
+User-authored extensions should enter the game as validated data packs, not arbitrary runtime code. The default contract should support:
+
+- manifest metadata,
+- declared dependencies,
+- version tags,
+- capability and activity compatibility,
+- asset provenance,
+- rollback and disable behavior.
+
+This matches the repo’s creator-ladder direction while keeping runtime authority in the core game.
+
+### 2) Packs need explicit validation and compatibility rules
+
+A pack should be rejected if it:
+
+- references missing or incompatible schemas,
+- violates asset provenance or licensing rules,
+- exceeds budget or activation constraints,
+- requests disallowed runtime behavior,
+- introduces unresolved dependency loops.
+
+That keeps modding safe without turning it into a free-for-all.
+
+### 3) Creator surfaces should be staged
+
+The natural sequence is:
+
+1. inspectable pack manifest,
+2. local/private validation,
+3. shareable validated pack,
+4. curated public publication,
+5. moderation / rollback / deprecation handling.
+
+The repo should not jump straight to open UGC. The safe path is validated content first, publication later.
+
+### 4) Modding should reuse the existing contract layers
+
+Pack validation should reuse:
+
+- capability contracts,
+- activity contracts,
+- world affordance rules,
+- resource budgets,
+- migration/versioning,
+- replay/telemetry hooks.
+
+That prevents modding from becoming a parallel rules engine.
+
+### 5) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned pack manifest,
+2. one compatibility validator,
+3. one dependency/provenance rejection test,
+4. one safe disable/rollback path for an invalid pack.
+
+## Addendum (2026-07-25): Event system and deterministic event graph
+
+The repo still lacks a general world-event scheduler/handler graph. That layer should not be ad hoc scripts attached to features; it should be a versioned event contract that sits between simulation and presentation.
+
+### 1) Events should be first-class simulation artifacts
+
+An event should answer:
+
+- what happened,
+- when it happened,
+- which subsystem emitted it,
+- which state transition it corresponds to,
+- whether it is replayable or diagnostics-only.
+
+That makes events durable records instead of loose callbacks.
+
+### 2) The event graph should be deterministic
+
+The event system should preserve:
+
+- monotonic ordering,
+- schema versioning,
+- deduplication rules,
+- explicit fan-out ownership,
+- replay-safe payloads,
+- visibility to diagnostics and UI.
+
+This keeps the event layer aligned with the deterministic kernel and the bounded recorder work already in place.
+
+### 3) Event handlers should be owned by domains
+
+Each domain should declare which events it consumes and which events it emits. For example:
+
+- simulation domains emit authoritative state-change events,
+- presentation domains consume those events for HUD/audio/visual feedback,
+- diagnostics consume the same stream without mutating state.
+
+This avoids a second hidden world model.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned event envelope,
+2. one ordered event-graph test across a fixed input slice,
+3. one deduplication test for repeated events,
+4. one telemetry hook that records the event origin domain.
+
+## Addendum (2026-07-25): Asset pipeline and provenance contracts
+
+The repo has strong asset provenance notes, but it still lacks a formal runtime asset pipeline. The next step is to make asset ingestion a versioned contract from source artifact to runtime manifest.
+
+### 1) Asset flow should be explicit
+
+The contract should look like:
+
+1. source artifact,
+2. normalized export,
+3. manifest entry,
+4. validation,
+5. runtime activation,
+6. deprecation or replacement.
+
+This keeps the path from Blender/source art to runtime truth deterministic and inspectable.
+
+### 2) Asset records should carry provenance
+
+Every runtime-relevant asset record should include:
+
+- source path or source ID,
+- hash,
+- license / ownership status,
+- modification history,
+- compression profile,
+- LOD intent,
+- replacement/deprecation path.
+
+That prevents the asset layer from becoming a second hidden truth source.
+
+### 3) Pipeline validation should reject bad inputs early
+
+The pipeline should fail fast if an asset:
+
+- lacks provenance or license metadata,
+- exceeds the allowed budget or compression policy,
+- violates naming or schema rules,
+- references incompatible runtime expectations,
+- has missing derived artifacts.
+
+### 4) Asset pipeline should support staged runtime use
+
+The runtime should only consume validated manifests, not raw source files. That means:
+
+- candidate imports can be reviewed privately,
+- validated packs can be promoted,
+- deprecated assets can be replaced without ambiguity,
+- the game can keep a consistent asset registry across sessions.
+
+### 5) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned asset manifest schema,
+2. one provenance/license validator,
+3. one rejection test for a missing or incompatible asset record,
+4. one safe replacement/deprecation path for a runtime asset entry.
+
+## Addendum (2026-07-25): Behavior system and planner contracts
+
+The repo still lacks a first-class AI behavior tree / utility / planner system in the play loop. The right way to add it is as a versioned behavior contract that chooses actions without mutating state directly.
+
+### 1) Behavior should be a decision layer
+
+Behavior should answer:
+
+- what this actor or machine wants to do next,
+- which capabilities it can use,
+- which world affordances it can react to,
+- what its fallback is when the preferred action is unavailable,
+- how expensive the decision is allowed to be.
+
+That keeps behavior distinct from both event emission and state mutation.
+
+### 2) Behavior contracts should be versioned and composable
+
+A behavior record should carry:
+
+- identifier and version,
+- trigger conditions,
+- required capabilities,
+- candidate actions,
+- scoring or priority rules,
+- budget limits,
+- rejection reasons,
+- telemetry hooks.
+
+This lets the repo layer planners or utility-style systems on top of the same deterministic kernel.
+
+### 3) Behavior must remain read-only relative to state mutation
+
+Behavior chooses, validation approves, kernel mutates. That separation is important so the AI layer cannot become a hidden world model or a second authority surface.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned behavior schema,
+2. one fixed-slice test proving a planner choice is deterministic,
+3. one rejection test for a behavior candidate with missing capabilities,
+4. one telemetry hook that records why a behavior branch lost the decision.
+
+## Addendum (2026-07-25): World affordances and capability resolution
+
+The repo already talks about affordances, but the contract should be explicit in its own right: world objects expose what they allow, and capabilities resolve against that surface before any state change.
+
+### 1) Affordances are the world-facing contract
+
+An affordance should describe what the world offers, not what an actor wants. Examples:
+
+- `harvestable`
+- `towable`
+- `dockable`
+- `damageable`
+- `buildable-surface`
+- `scan-target`
+
+That keeps the world readable to capabilities and behavior systems.
+
+### 2) Capability resolution should be deterministic
+
+Capability resolution should answer:
+
+- whether the affordance exists,
+- whether the capability is compatible,
+- whether the action is budgeted,
+- what fallback or rejection path applies.
+
+That makes capability admission a validation problem, not a hidden branch.
+
+### 3) Affordances should be versioned and validated
+
+Each affordance record should carry:
+
+- identifier and version,
+- owning domain,
+- constraints,
+- budget impact,
+- visibility to behavior/capability systems,
+- rejection telemetry.
+
+That prevents the affordance surface from drifting away from the runtime truth.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned affordance schema,
+2. one capability-to-affordance compatibility test,
+3. one validation failure test for an incompatible action,
+4. one telemetry hook that records the affordance that rejected the action.
+
+## Addendum (2026-07-25): Visibility-stage culling and LOD contracts
+
+The renderer still needs an explicit visibility stage. Batching and instancing help, but the repo should name the visibility contract itself: what can be seen, what should be drawn, and what should degrade as distance increases.
+
+### 1) Visibility should be staged before draw submission
+
+The draw path should answer, in order:
+
+- is the object in view,
+- is it close enough to matter,
+- is it blocked or hidden by a better candidate,
+- what LOD tier should it use,
+- should it be submitted at all.
+
+That keeps culling and LOD as policy, not incidental renderer behavior.
+
+### 2) LOD should be multi-subsystem, not just geometry
+
+LOD should be able to degrade:
+
+- geometry detail,
+- material complexity,
+- animation sampling,
+- AI update frequency,
+- physics update frequency,
+- particle density,
+- audio richness.
+
+This keeps distant objects readable without paying full simulation cost.
+
+### 3) Visibility policy should be measured
+
+The contract should expose:
+
+- per-frame visible/drawn counts,
+- draw-call budget,
+- distance bucket counts,
+- rejected/culled counts,
+- fallback behavior when budgets are exceeded,
+- camera-aware occlusion/pull-in interactions.
+
+That gives the repo a measurable hardening target instead of a vague optimization wish.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one visibility-policy schema with `near/mid/far` tiers,
+2. one fixed-slice test for frustum and distance culling behavior,
+3. one draw-call budget counter with a fail-soft path,
+4. one LOD downgrade test for at least one non-geometry subsystem.
+
+## Addendum (2026-07-25): Collision categories and mask contracts
+
+The physics layer is still intentionally lightweight, but it should stop relying on a single generalized obstacle path once more actors, projectiles, and hazards enter the world. The contract should name collision categories and masks explicitly.
+
+### 1) Collision should be category-driven
+
+The world should distinguish at least these categories:
+
+- ground,
+- obstacle,
+- hazard,
+- trigger,
+- projectile,
+- sensor,
+- decorative / non-colliding.
+
+That makes collision intent visible instead of hiding it inside one broad resolver.
+
+### 2) Masks should control who can interact
+
+Each body or query should carry:
+
+- a category,
+- a mask,
+- a collision intent,
+- a fallback / ignore rule,
+- telemetry for unexpected intersections.
+
+This keeps the physics layer deterministic and easy to reason about when new locomotion families or hazards are introduced.
+
+### 3) Collision behavior should be explicit per role
+
+The contract should allow different handling for:
+
+- solid obstacle resolution,
+- trigger-only overlaps,
+- hazard contact,
+- projectile impact,
+- sensor / line-of-sight queries,
+- decorative non-interaction.
+
+That prevents collision from becoming a single monolithic branch that handles everything the same way.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one collision-category/mask schema,
+2. one fixed-slice test proving ignored collisions stay ignored,
+3. one test proving trigger / sensor contacts do not mutate physics state,
+4. one telemetry hook that records an unexpected collision-category pair.
+
+## Addendum (2026-07-25): Camera feel contracts
+
+The camera already contributes strongly to feel, but the current behavior still reads like a stateful heuristic bundle rather than a named contract. For a long-lived machine platform, camera policy should be explicit: what mode is active, why it transitions, how it handles obstructions, and how it respects motion comfort.
+
+### 1) Camera should be a policy surface, not only a rig
+
+The contract should separate:
+
+- camera mode or policy,
+- target and follow offset,
+- transition source and destination,
+- interpolation or damping rule,
+- obstruction or pull-in fallback,
+- FOV target and ramp rate,
+- comfort / reduced-motion profile,
+- debug reason for the current state.
+
+This keeps the camera readable as a product system instead of a hidden collection of per-machine tweaks.
+
+### 2) Camera behavior should be intentional
+
+The contract should explicitly cover:
+
+- smooth following,
+- look-ahead,
+- pull-in or push-out around terrain and props,
+- speed-sensitive FOV changes,
+- transition smoothing between modes,
+- reduced-motion clamping,
+- accessibility-friendly overrides.
+
+That makes the camera easier to tune, explain, and validate when new machine types or activities arrive.
+
+### 3) Obstruction handling needs its own fallback path
+
+If the camera is obstructed by trees, walls, terrain, or large props, the fallback should be observable and deterministic. The system should record why the fallback happened and what mode or offset changed as a result. That avoids accidental snapping, silent collision between camera and environment, or inconsistent behavior between rigs.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one camera-policy schema with named modes and transition inputs,
+2. one fixed-slice test proving mode transitions keep the intended target without unexpected snapping,
+3. one reduced-motion path that clamps motion and FOV changes,
+4. one obstruction-handling path that records why pull-in happened,
+5. one debug or telemetry field that exposes the active policy and transition reason.
+
+## Addendum (2026-07-25): Deterministic replay artifact
+
+The repo already has a deterministic kernel and a bounded run-record foundation, which is enough to show the direction but not yet enough to treat replay as a first-class product surface. The missing contract is a portable replay artifact: not just a recorded input history, but a validated playback path that can reproduce a run, explain divergence, and preserve the same outcome ordering for debugging and future authority work.
+
+### 1) Replay should be a first-class artifact
+
+The replay contract should separate:
+
+- captured input stream,
+- simulation tick or sequence anchor,
+- checksum or run hash,
+- snapshot or recovery boundary,
+- playback verifier,
+- divergence report,
+- operator-visible provenance.
+
+That makes replay useful as a product feature, a debugging tool, and an architecture gate.
+
+### 2) Replay should prove ordering, not just logging
+
+The important property is not “did we record something?” but “can we reproduce the same state transitions in the same order?”. The contract should therefore expose whether playback matched:
+
+- tick ordering,
+- state mutation sequence,
+- event emission order,
+- recovery points,
+- final summary hash.
+
+This keeps replay tied to deterministic simulation instead of turning it into a passive recording feature.
+
+### 3) Replay should fail visibly
+
+If playback diverges, the system should say why. Useful failure modes include:
+
+- missing input segment,
+- checksum mismatch,
+- schema version mismatch,
+- unsupported recovery boundary,
+- divergent state transition,
+- missing replay metadata.
+
+That makes replay a real confidence tool instead of a silent best-effort viewer.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned replay artifact schema,
+2. one playback path that reuses the deterministic kernel,
+3. one checksum or run-hash comparison that reports divergence,
+4. one visible failure mode for incompatible or incomplete replay data,
+5. one operator-visible provenance field for the replay source and version.
+
+## Addendum (2026-07-25): Shader and material strategy
+
+The repo currently leans on baseline materials and vertex-color terrain, which is fine for a first playable surface. The long-term contract still needs to say how identity, readability, weather cues, hazard feedback, and surface transitions will be handled without turning every visual effect into a bespoke one-off.
+
+### 1) Materials should be layered, not duplicated
+
+The render contract should distinguish:
+
+- base surface material,
+- surface modifiers,
+- weather modifiers,
+- damage or wear modifiers,
+- hazard/readability overlays,
+- low-cost atmospheric cues.
+
+That keeps visual variety composable instead of requiring one-off material forks for every machine or terrain type.
+
+### 2) Shader strategy should serve readability first
+
+The first job of custom shader work should be to make the world easier to read:
+
+- terrain transitions,
+- mud/snow/wetness boundaries,
+- hazard state cues,
+- time-of-day or weather cues,
+- vehicle state feedback,
+- low-cost atmospheric distance cues.
+
+That keeps visual identity aligned with gameplay clarity instead of chasing effect density for its own sake.
+
+### 3) Baseline fallback must remain valid
+
+If a material or shader path is unavailable, the fallback should still produce a coherent scene. That means:
+
+- no required effect can be the only source of important gameplay information,
+- the world must still be legible under the simplest supported material path,
+- the low-end path should be deliberately designed, not accidental.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one material-layer schema that separates base surface and modifiers,
+2. one custom shader or material module for a gameplay-relevant readability cue,
+3. one fallback path that preserves clarity when the custom path is unavailable,
+4. one test or capture proving a weather or surface cue remains legible on the fallback path,
+5. one operator-visible note or debug field identifying the active material strategy.
+
+## Addendum (2026-07-25): Spatial culling and render streaming
+
+The repo already benefits from bounded local terrain and a deterministic render path, but the long-term scale contract still needs to state how the world sheds spatial load. Distance, portal, and chunk-style streaming are not separate optimizations in practice; they are the same spatial budget problem at different scales.
+
+### 1) Spatial scale should be staged
+
+The contract should separate:
+
+- distance culling,
+- frustum culling,
+- occlusion culling,
+- portal graph visibility,
+- sector or chunk residency,
+- local prop rebuild radius.
+
+That keeps the renderer from becoming one giant hidden visibility heuristic.
+
+### 2) Render streaming should have residency rules
+
+The system should define:
+
+- what is always resident,
+- what is loaded by distance,
+- what is loaded by portal or room access,
+- what is loaded by chunk proximity,
+- what is only present in the local render radius,
+- what gets evicted and when.
+
+That gives the engine a clear answer to “what does the player need right now?” instead of letting every layer guess.
+
+### 3) Spatial contracts should stay measurable
+
+Every visibility tier should produce observable output:
+
+- residency counts,
+- load/unload churn,
+- draw-call pressure,
+- missed-cull counts,
+- fallback counts when a tier cannot load in time.
+
+That makes spatial scaling auditable rather than anecdotal.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one distance-culling policy,
+2. one portal or room-visibility graph test,
+3. one chunk-residency or render-radius test,
+4. one observable counter for load/unload churn,
+5. one fallback path for a tier that cannot load in time.
+
+## Addendum (2026-07-25): LOD hierarchy and subsystem degradation
+
+The repo’s current visibility work proves the value of scale-aware rendering, but the long-term contract still needs to say what degrades, when it degrades, and which subsystems share the same downgrade logic. LOD is not only a geometry issue; it is a cross-system budget policy.
+
+### 1) LOD should be explicit across subsystems
+
+The contract should define tiers for:
+
+- geometry,
+- materials,
+- animation,
+- AI or behavior,
+- physics,
+- particles or effects,
+- audio or feedback.
+
+That keeps “far away” from meaning “undefined” and makes the degradation path reviewable.
+
+### 2) Each subsystem should have its own downgrade rule
+
+The contract should answer:
+
+- what the near tier does,
+- what the mid tier removes or simplifies,
+- what the far tier collapses into,
+- whether the subsystem can pause entirely,
+- what telemetry records the downgrade.
+
+This avoids pretending all subsystems can share one generic LOD switch.
+
+### 3) Degradation must preserve gameplay meaning
+
+The purpose of LOD is not just saving work; it is keeping distant or low-priority simulation readable and stable. If a subsystem degrades, the player should still understand:
+
+- what the object is,
+- whether it is active,
+- whether it can affect the current task,
+- whether it is safe to ignore until closer.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one cross-subsystem LOD schema with near/mid/far tiers,
+2. one geometry downgrade test,
+3. one non-geometry downgrade test for animation, AI, physics, or particles,
+4. one telemetry field that records the active tier,
+5. one fallback rule that preserves gameplay meaning when a tier is collapsed.
+
+## Addendum (2026-07-25): Resource budgets and fallback envelope
+
+The repo already exposes some runtime timing and draw-call evidence, but the long-term contract still needs a named budget envelope. Resource management should not be an afterthought buried inside rendering or simulation; it should be a first-class rule for when the system must simplify, defer, or shed work.
+
+### 1) Budgets should be explicit and cross-system
+
+The contract should track at least:
+
+- CPU time,
+- GPU time or draw pressure,
+- memory / residency pressure,
+- active actor or entity count,
+- battery or thermal sensitivity where relevant,
+- save/migration cost when state is changing rapidly.
+
+That makes resource pressure legible across the whole engine instead of only in the renderer.
+
+### 2) Budget pressure should trigger named fallbacks
+
+The contract should define what happens when pressure rises:
+
+- which systems downgrade first,
+- which systems pause,
+- which systems keep priority,
+- which telemetry field records the downgrade reason.
+
+The fallback should be deliberate and named, not implicit and hidden.
+
+### 3) Budgets should support operator decisions
+
+If the system is over budget, the operator should be able to tell:
+
+- what resource was exceeded,
+- which subsystem caused it,
+- whether the state is temporary or persistent,
+- whether the world is safe to continue or should be simplified.
+
+That keeps performance work actionable instead of mysterious.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one cross-system budget ledger covering CPU, GPU, memory/residency, and active actors,
+2. one low-budget fallback profile,
+3. one telemetry path that names the oversubscribed resource,
+4. one test proving a degrade path activates before an overload becomes silent failure,
+5. one operator-visible summary of current budget pressure.
+
+## Addendum (2026-07-25): Portal visibility and bounded rooms
+
+The repo’s world already has authored sites, but the visibility contract still needs an explicit room/portal model for enclosed or semi-enclosed spaces. Portal visibility is not a separate gimmick; it is the indoor version of spatial culling, and it should be named as such so building-scale content can scale without special-case rendering hacks.
+
+### 1) Portal visibility should be a graph, not an ad hoc exception
+
+The contract should define:
+
+- rooms or bounded spaces,
+- portal edges between spaces,
+- open/closed state for each portal,
+- visibility propagation across the graph,
+- fallback behavior when graph data is missing.
+
+That keeps indoor scale readable and lets authored spaces reason about what can actually be seen through a doorway, hatch, or connection.
+
+### 2) Portal visibility should cooperate with broader spatial culling
+
+The portal graph should not replace distance or chunk-based visibility. It should complement them:
+
+- distance culling still applies outside the space,
+- chunk residency still applies for world streaming,
+- portal visibility narrows what is visible inside a bounded region,
+- obstruction handling can still trim the final camera or render set.
+
+That makes room-scale visibility part of the same architecture instead of a separate rendering system.
+
+### 3) Portal contracts should stay observable
+
+The system should report:
+
+- which room is active,
+- which portal admitted visibility,
+- when a portal is closed or unresolved,
+- when fallback visibility was used instead of graph traversal.
+
+That makes indoor visibility debuggable and prevents silent leaks where an unused room still renders or an open passage disappears from the graph.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one room/portal graph schema,
+2. one test proving a closed portal blocks visibility propagation,
+3. one test proving an open portal admits visibility to the connected room,
+4. one fallback path when portal data is missing,
+5. one telemetry field that identifies the active room or portal path.
+
+## Addendum (2026-07-25): Lighting and atmosphere strategy
+
+The repo’s current lighting posture is allowed to stay conservative, but the contract still needs to state how lighting and atmosphere scale across tiers. Lighting is part of readability and mood, not just visual polish, so the fallback path has to remain intentional and legible.
+
+### 1) Lighting should be tiered, not assumed
+
+The contract should define:
+
+- baseline ambient lighting,
+- directional key lighting,
+- local point or spot accents,
+- shadow quality tiers,
+- baked or probe-driven static lighting,
+- low-cost atmosphere cues for weather and time of day.
+
+That keeps the world readable when expensive lighting features are reduced.
+
+### 2) Shadow strategy should have explicit fallbacks
+
+The contract should say:
+
+- when real-time shadows are allowed,
+- when baked/probe lighting is preferred,
+- when blob or simplified shadowing is acceptable,
+- what happens if shadow budgets are exceeded.
+
+That prevents shadow quality from becoming an implicit runtime surprise.
+
+### 3) Lighting and atmosphere should preserve gameplay clarity
+
+Even on the lowest tier, the player should still be able to tell:
+
+- where the ground plane is,
+- which surfaces are important,
+- whether an area is dangerous or calm,
+- what time/state the world is in.
+
+Lighting therefore needs to support the readability contract, not compete with it.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one staged lighting policy with at least ambient and directional tiers,
+2. one shadow fallback path for a reduced-budget tier,
+3. one baked or probe-based static lighting rule,
+4. one low-cost atmosphere cue for weather or time-of-day readability,
+5. one telemetry or debug field that identifies the active lighting tier.
+
+## Addendum (2026-07-25): Accessibility and input contracts
+
+The repo already has input paths and reduced-motion behavior in pieces, but accessibility still needs a named contract so remapping, comfort, contrast, and device parity stay explicit. For a long-lived 3D game, input is not just control plumbing; it is part of how the player understands, survives, and returns to the world.
+
+### 1) Input should be action-based, not control-based
+
+The contract should separate:
+
+- named actions,
+- bindings per device,
+- device-neutral intent,
+- hold/tap/repeat semantics,
+- remapping and persistence.
+
+That keeps keyboard, gamepad, and touch from diverging into separate gameplay meanings.
+
+### 2) Accessibility should cover motion and perception
+
+The contract should explicitly define support for:
+
+- reduced-motion behavior,
+- camera shake limits,
+- FOV spike limits,
+- visual contrast / readability,
+- text and icon clarity,
+- comfort-preserving defaults.
+
+That makes accessibility a gameplay quality gate, not just a settings screen concern.
+
+### 3) Device parity should be deliberate
+
+If a control exists on one device, the contract should say how the same action is expressed elsewhere or whether it is intentionally absent. This should be observable for:
+
+- keyboard,
+- gamepad,
+- touch,
+- pause/reset/recovery flows,
+- accessibility toggles.
+
+That reduces hidden feature drift between input surfaces.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one named-action schema with device-neutral intents,
+2. one remapping or binding persistence test,
+3. one reduced-motion clamp for camera or visual feedback,
+4. one contrast/readability check for a core UI or world cue,
+5. one telemetry or debug field that identifies the active input or accessibility profile.
+
+## Addendum (2026-07-25): Kernel ordering and mutable subsystem gates
+
+The deterministic kernel is a major strength, but the contract still needs to state how future mutable systems are allowed to enter the step order. If AI, missions, economy, traffic, or similar hooks are added, they must not become hidden state mutation paths that bypass the kernel’s ordering guarantees.
+
+### 1) Kernel ordering should be explicit
+
+The contract should define:
+
+- the authoritative tick order,
+- which systems may read state,
+- which systems may mutate state,
+- which systems are presentation-only,
+- where validation happens before mutation,
+- where replay-relevant events are emitted.
+
+That keeps the kernel as the source of truth even as the world gains more subsystems.
+
+### 2) New mutable subsystems should enter through gates
+
+Any new subsystem that can change world state should declare:
+
+- its write scope,
+- its ordering dependency,
+- its failure mode,
+- its replay impact,
+- its telemetry signal.
+
+That prevents “just one more hook” from turning into a hidden second simulation loop.
+
+### 3) Renderer-only and kernel-only responsibilities should stay separated
+
+The contract should preserve a clean line between:
+
+- state mutation,
+- snapshot generation,
+- render interpretation,
+- debug/observability output.
+
+That way the renderer can observe, but not authoritatively mutate, and future mutable layers remain easy to audit.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one ordered subsystem table showing read/write authority,
+2. one validation gate that blocks a mutation outside the kernel order,
+3. one replay-safe event emission point for a mutable subsystem,
+4. one telemetry field that identifies the active kernel stage,
+5. one test proving renderer-only code cannot mutate world state.
+
+## Addendum (2026-07-25): World and architecture scalability
+
+The repo already has strong local foundations, but the next long-term contract still needs to say how the world grows without turning every new activity into a separate engine branch. Scalability here means both content growth and architecture growth: chunk migration, activity packing, machine expansion, and the future shape of online or shared-state readiness.
+
+### 1) World growth should remain bounded and testable
+
+The contract should define:
+
+- chunk or region lifecycle,
+- load radius and unload policy,
+- route or activity activation order,
+- migration boundaries for saved state,
+- observability for growth pressure.
+
+That keeps world expansion deterministic instead of letting it depend on implicit radius logic.
+
+### 2) Activity growth should be packable
+
+Activities, missions, and machine families should be able to enter as bounded packs with clear validation and rollout rules. The contract should answer:
+
+- what is the smallest stable activity bundle,
+- what dependencies it needs,
+- what state it owns,
+- how it is rolled back,
+- how it is measured.
+
+That keeps content expansion from becoming a second mutable truth source.
+
+### 3) Online and shared-state readiness should remain future-gated
+
+The contract should preserve a clear boundary between:
+
+- local deterministic play,
+- replayable state,
+- future authority or shared-room concerns.
+
+That way, multiplayer or shared-world features can be staged when the product genuinely needs them, not assumed into the current architecture.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one world-scaling policy for load radius, unload, and migration boundaries,
+2. one pack or activity activation test with rollback,
+3. one observability counter for growth pressure or churn,
+4. one explicit future-only boundary note for shared-state or online readiness,
+5. one proof that activity growth can be added without rewriting the kernel order.
+
+## Addendum (2026-07-25): Save and migration observability
+
+Save/version recovery is already present, but the contract still needs to say how mutation, save, and migration events are explained when they happen. Without an explicit observability layer, versioned recovery exists but is harder to audit, debug, or replay with confidence.
+
+### 1) Mutation paths should emit reason and version metadata
+
+Every state-changing path should be able to report:
+
+- why the mutation happened,
+- which versioned schema or state shape it touched,
+- whether the change is persisted, transient, or replay-only,
+- which subsystem initiated it.
+
+That makes state changes auditable instead of just structurally valid.
+
+### 2) Save and migration events should be visible to operators
+
+The contract should expose:
+
+- save start / save success / save failure,
+- migration start / migration success / migration fallback,
+- schema-version boundaries,
+- recovery or rollback path taken.
+
+That keeps the persistence layer from becoming a hidden black box.
+
+### 3) Recovery should preserve explanation, not just data
+
+When a world is restored or migrated, the system should keep enough metadata to explain:
+
+- what version it came from,
+- what changed during migration,
+- what data was recovered directly,
+- what had to be normalized or dropped.
+
+That makes future corruption handling and support work much more tractable.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one reason-code and version-metadata field on a world mutation path,
+2. one save observability event for success or failure,
+3. one migration observability event for success or fallback,
+4. one replay-safe recovery note that preserves source version information,
+5. one operator-visible summary of the latest save/migration action.
+
+## Addendum (2026-07-25): Physics quality envelope
+
+The physics layer is intentionally lightweight today, which is a sensible first-playable decision. The contract still needs to define the quality envelope so future interactions do not quietly break the game’s feel or stability as terrain, obstacles, water, speed, and stacked objects become more complex.
+
+### 1) Physics should stay deterministic and bounded
+
+The contract should preserve:
+
+- fixed-step determinism,
+- bounded collision checks,
+- controlled locomotion envelopes,
+- explicit failure states instead of hidden unstable behavior.
+
+That keeps the physics layer predictable as more machine types arrive.
+
+### 2) Stability needs named invariants
+
+The physics contract should specify invariants for:
+
+- terrain contact,
+- obstacle contact,
+- slope handling,
+- high-speed cornering,
+- stacking or near-overlap situations,
+- water or fluid-adjacent behavior where relevant.
+
+That makes the “feel” of motion auditable instead of implicit.
+
+### 3) Reduced-complexity fallback should stay playable
+
+If the physics model has to simplify, it should still preserve:
+
+- locomotion clarity,
+- collision intent,
+- stable recovery from bad contact,
+- visible degradation rather than silent failure.
+
+This keeps simplification from turning into a player-facing bug.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one terrain-contact invariant test,
+2. one obstacle-stability regression test,
+3. one high-speed cornering or slope-handling test,
+4. one fallback rule for water or fluid-adjacent behavior,
+5. one telemetry or debug field for physics stability state.
+
+The current physics quality envelope evidence and proof slice now live in
+[PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md).
+
+## Addendum (2026-07-25): Authoring and reproducible content validation
+
+The repo’s content model is already data-driven, but the authoring path still needs a named contract so activities, world modules, and imported content cannot bypass validation just because they came from a tool, editor, or generated manifest. This is the place where validator-first content becomes a durable part of the architecture instead of a one-off workflow.
+
+### 1) Content should enter through validated manifests
+
+The contract should require:
+
+- a manifest or pack description,
+- schema validation,
+- dependency and compatibility validation,
+- provenance or source metadata,
+- reproducible validation results.
+
+That makes authoring artifacts reviewable and comparable across runs.
+
+### 2) Tooling should report failures in a stable, reproducible way
+
+The contract should define how tools report:
+
+- missing fields,
+- incompatible dependencies,
+- invalid or unsupported world/activity combinations,
+- rejected generated content,
+- validation-only versus runtime-ready status.
+
+That keeps authoring output useful to humans and automation alike.
+
+### 3) Authoring should not bypass runtime contracts
+
+Anything imported from a tool, editor, or AI-generated pipeline should still respect:
+
+- capability contracts,
+- affordance rules,
+- migration/versioning,
+- resource budgets,
+- replay/debug visibility.
+
+That prevents the tooling layer from becoming a second mutable truth source.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one versioned content-manifest schema for activities or world modules,
+2. one validator-first rejection test,
+3. one reproducible validation result artifact,
+4. one provenance/source metadata field,
+5. one runtime-ready vs validation-only status signal.
+
+## Addendum (2026-07-25): Performance and readability baseline
+
+The repo has now separated enough subsystems that the next useful contract is an umbrella baseline that ties their shared thresholds together. This is not a new engine layer; it is the named policy that binds the existing rendering, camera, collision, and observability contracts into one readable v1.x envelope.
+
+### 1) The baseline should bind the shared thresholds
+
+The contract should define a single policy surface for:
+
+- culling thresholds,
+- LOD tiers,
+- camera mode matrix,
+- collision layer semantics,
+- per-frame actor and physics budgets,
+- transition latency and budget counters.
+
+That prevents each subsystem from quietly drifting on its own scale assumptions.
+
+### 2) The baseline should be readable to operators and future maintainers
+
+The contract should answer:
+
+- what counts as within budget,
+- what counts as degraded but acceptable,
+- what counts as fail-soft fallback,
+- what counters or alerts expose the degradation.
+
+That keeps the baseline useful as a product/ops artifact, not just an internal note.
+
+### 3) The baseline should map to the existing fine-grained contracts
+
+This addendum should sit above the already named contracts for:
+
+- spatial culling,
+- LOD hierarchy,
+- camera feel,
+- lighting and atmosphere,
+- accessibility and input,
+- collision categories and masks,
+- physics quality.
+
+That makes it the umbrella policy, not a replacement.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one ADR or policy document binding the shared thresholds,
+2. one visible budget table for culling, LOD, camera, and collision semantics,
+3. one per-frame instrumentation set for actor count, physics count, and transition latency,
+4. one fail-soft path that clearly records which threshold was exceeded,
+5. one note showing how the umbrella policy maps to the existing fine-grained contracts.
+
+## Addendum (2026-07-25): Second locomotion family and cross-mode continuity
+
+The repo’s current first-playable slice is strong enough that the next proof-oriented growth step should be a second locomotion family using the same contract stack, not a bespoke side branch. The expansion needs to prove that the capability model can carry a different motion grammar while preserving a shared action vocabulary and a predictable presentation continuity.
+
+### 1) The second locomotion family should use the same contract shape
+
+The contract should require:
+
+- a profile or adapter parallel to the existing ground family,
+- explicit locomotion capabilities and limits,
+- state validation before runtime activation,
+- preserved save/reload behavior,
+- explicit failure or rollback if the adapter cannot initialize safely.
+
+That proves the system can grow by composition instead of by special casing one vehicle type.
+
+### 2) Semantic actions should stay shared across modes
+
+At least one non-chase presentation mode should reuse the same semantic action set so players do not have to relearn core controls when the camera or view changes. The contract should define:
+
+- the shared action names,
+- how each mode maps them,
+- which actions are intentionally unavailable,
+- how the mapping is observed or debugged.
+
+That keeps cross-mode continuity a product feature instead of a hope.
+
+### 3) The proof should include continuity, not only new capability
+
+A successful second locomotion slice should show:
+
+- the new family can move, stop, and recover,
+- the shared action set still behaves consistently,
+- camera and input remain intelligible across the mode change,
+- fallback or rollback is visible if the new family fails.
+
+That prevents the expansion from adding breadth while losing ergonomics.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one second locomotion adapter or family definition,
+2. one shared semantic action set used in at least one non-chase presentation mode,
+3. one save/reload or recovery test for the new family,
+4. one continuity test showing the mapped actions behave predictably across modes,
+5. one explicit rollback or failure path if the adapter cannot activate.
+
+## Addendum (2026-07-25): Authority model groundwork
+
+Local simulation is still the canonical current mode, but the architecture is now far enough along that the authority boundary should be named explicitly before any shared-room or durable remote mutation work is attempted. The goal here is not multiplayer in itself; it is a clear contract for how client-side simulation, authenticated mutation, and durable values relate when the product eventually needs that shape.
+
+### 1) Client simulation should stay local-first
+
+The contract should preserve:
+
+- local deterministic simulation as the default path,
+- client-side responsiveness for immediate feedback,
+- authoritative validation before durable world mutation,
+- explicit boundaries for what remains speculative versus durable.
+
+That keeps current play responsive while making the future authority boundary legible.
+
+### 2) Durable values should flow through authenticated mutation
+
+The contract should define how durable world changes are handled when an authority layer exists:
+
+- request from local simulation or intent producer,
+- validation by the authoritative layer,
+- accepted mutation written to durable state,
+- rejected mutation reported explicitly,
+- recovery metadata preserved.
+
+That prevents durable state from being conflated with speculative client state.
+
+### 3) Shared-state readiness should remain gated
+
+The contract should make it obvious that:
+
+- shared-room or server-authoritative behavior is future-only,
+- replay-safe mutation is a prerequisite,
+- current local play does not depend on remote infrastructure,
+- durable values will still need audit and recovery traces.
+
+That keeps future authority work staged instead of assumed.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one local-first authority note with explicit future-only shared-state wording,
+2. one authenticated mutation request/response shape,
+3. one reject path that leaves local speculative state unchanged,
+4. one durable-value recovery note,
+5. one telemetry field that identifies the authoritative mutation outcome.
+
+## Addendum (2026-07-25): Engine branch evaluation and alternate backend gating
+
+Three.js remains the canonical v1 path, but the architecture should still name when an alternate engine or rendering backend is worth a bounded benchmark branch. This is not a rewrite proposal; it is a disciplined evaluation gate for the case where mobile budgets, platform support, or renderer constraints force a comparison.
+
+### 1) Canonical path should stay explicit
+
+The contract should state:
+
+- Three.js remains the default canonical path,
+- alternates are only evaluated through a short benchmark branch,
+- the benchmark branch is disposable unless evidence justifies migration.
+
+That keeps the current product path stable while preserving room for measured comparison.
+
+### 2) Alternate evaluation should be budget-driven
+
+The decision to branch should be tied to measurable pressure, such as:
+
+- mobile or low-end budget failure,
+- unacceptable frame-time or memory behavior,
+- missing platform capability in the canonical path,
+- an inability to preserve the existing gameplay contracts.
+
+That keeps evaluation grounded in product constraints rather than taste.
+
+### 3) The benchmark branch should compare the same contracts
+
+If an alternate backend is evaluated, it should be measured against the same:
+
+- culling and LOD thresholds,
+- camera policy,
+- collision semantics,
+- lighting/readability requirements,
+- instrumentation and recovery visibility.
+
+That makes the branch comparable instead of just different.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one explicit canonical-path note naming Three.js as default v1,
+2. one bounded benchmark branch definition with a stop condition,
+3. one measurable trigger for evaluating an alternate backend,
+4. one contract-comparison checklist for the benchmark branch,
+5. one decision record template for branch acceptance or rejection.
+
+## Addendum (2026-07-25): Replay and ghost product feature
+
+The deterministic replay artifact is already a real architecture contract. The next step is to define the product surface around it: shareable runs, ghost playback, seed-based comparisons, and social/debug distribution. This is where replay stops being only a diagnostic tool and becomes part of the game’s long-term identity.
+
+### 1) Replay should produce a shareable artifact
+
+The contract should define a replay artifact that can carry:
+
+- run identity,
+- seed or equivalent deterministic origin,
+- version information,
+- input or command history reference,
+- validation or compatibility status.
+
+That makes replay something players or testers can exchange, not just inspect locally.
+
+### 2) Ghost playback should remain reproducible
+
+If a ghost or replay is shown back, it should still be anchored to the same deterministic simulation contract:
+
+- same ordered inputs or command stream,
+- same versioned state schema,
+- same recovery boundaries,
+- explicit mismatch handling if the replay cannot be trusted.
+
+That keeps the ghost feature from becoming an approximate video instead of a true state trace.
+
+### 3) Sharing and social surfaces should not weaken trust
+
+The contract should make explicit:
+
+- what is safe to share,
+- what is replay-only or diagnostics-only,
+- what the viewer can trust,
+- what compatibility failures look like.
+
+That preserves the integrity of the replay artifact when it moves beyond the local machine.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one shareable replay or ghost artifact schema,
+2. one deterministic playback verification path for the artifact,
+3. one version/seed identity field,
+4. one explicit mismatch or incompatibility state,
+5. one note describing how the artifact can be shared or inspected socially/debug-wise.
+
+## Addendum (2026-07-25): Verification harness and confidence gates
+
+The analysis already names the tests needed to raise confidence above Tier-2, but the repo still needs a first-class contract for how those proofs are organized, reproduced, and recorded. This is the layer that turns recommended checks into an explicit evidence harness for the architecture.
+
+### 1) Proof work should use deterministic fixture scenes
+
+The contract should require stable fixture scenes or equivalent deterministic inputs for:
+
+- culling correctness,
+- camera transition determinism,
+- collision invariants on steep or extreme terrain,
+- save/version migration negative cases,
+- renderer fallback behavior under reduced capability.
+
+That keeps evidence reproducible instead of dependent on ad hoc manual setup.
+
+### 2) Confidence should be tied to named evidence tiers
+
+The contract should define what it means to move from:
+
+- source-level evidence,
+- targeted test evidence,
+- integration or browser-visible evidence,
+- runtime/manual proof.
+
+That keeps the proof process auditable and prevents test results from being overstated.
+
+### 3) Failures should leave a useful trace
+
+When a proof slice fails, the contract should ensure it reports:
+
+- which fixture or scenario failed,
+- what contract was violated,
+- whether the failure is regression, missing coverage, or environment-only,
+- what evidence tier is still missing.
+
+That makes the proof harness useful for continuation rather than just pass/fail output.
+
+### 4) Near-term proof slice
+
+The smallest durable proof for this addendum is:
+
+1. one deterministic fixture-scene schema or equivalent scenario definition,
+2. one test for each named confidence gate category,
+3. one tiered evidence summary that distinguishes source/test/runtime proof,
+4. one failure-report format that preserves the violated contract and missing tier,
+5. one reproducible run note that identifies the fixture inputs used.

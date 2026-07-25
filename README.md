@@ -27,7 +27,7 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/).
+Open [http://127.0.0.1:4174/](http://127.0.0.1:4174/).
 
 Current controls:
 
@@ -68,6 +68,7 @@ reproducible primitive geometry—not a final-engine decision.
 - [Visual direction preference and variants](docs/exploration/VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md)
 - [Tractor restoration and modular growth](docs/exploration/TRACTOR_RESTORATION_AND_MODULAR_GROWTH_2026-07-25.md)
 - [Technology and engine options](docs/research/TECHNOLOGY_AND_ENGINE_OPTIONS_2026-07-25.md)
+- [Tagged skill coverage and next call](docs/research/TAGGED_SKILL_COVERAGE_MAP_2026-07-25.md)
 - [Additional ChatGPT research ingestion](docs/research/ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 - [Game reference atlas](docs/research/GAME_REFERENCE_ATLAS_2026-07-25.md)
 - [Risk and public-readiness register](docs/research/RISK_AND_PUBLIC_READINESS_REGISTER_2026-07-25.md)
@@ -87,6 +88,7 @@ reproducible primitive geometry—not a final-engine decision.
 - [ADR-0011: command, capability, affordance, and state separation](docs/decisions/ADR-0011-command-capability-affordance-state-separation.md)
 - [ADR-0012: shared rig-perception chain](docs/decisions/ADR-0012-rig-perception-chain.md)
 - [ADR-0013: Sites deployment adapter](docs/decisions/ADR-0013-sites-deployment-adapter.md)
+- [Sites update and deployment runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - [Latest motto compliance review](docs/reviews/motto_review.md)
 - [Playable foundation plan and acceptance contract](docs/plans/PLAYABLE_FOUNDATION_2026-07-25.md)
 - [Rig Lab 01 plan](docs/plans/RIG_LAB_01_2026-07-25.md)

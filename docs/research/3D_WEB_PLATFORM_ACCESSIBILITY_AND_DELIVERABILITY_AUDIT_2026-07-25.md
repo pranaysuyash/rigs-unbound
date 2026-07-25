@@ -26,6 +26,7 @@ Provide a complete, repo-local audit of web-delivery, performance profile, acces
 - Render/quality policy exists at decision level:
   - [ADR-0010](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/decisions/ADR-0010-rendering-accessibility-contract.md)
   - `docs/research/RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25.md`
+  - `docs/research/WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md`
 
 ## What is already possible (not yet complete)
 
@@ -36,17 +37,21 @@ Provide a complete, repo-local audit of web-delivery, performance profile, acces
 ## What is missing (now and in near term)
 
 1. **Delivery guardrails for first-class 3D web behavior**
-   - No explicit first-class loading state contract for 3D module bootstrap.
-   - Mobile-first fallback policy exists in matrix form but not fully enforced in gameplay code path.
+   - The loading and profile bootstrap contract now exists as a named policy surface.
+   - Mobile-first fallback policy exists in matrix form and is now tied to that bootstrap contract.
 
 2. **Visible performance degradation policy runtime binding**
    - Profile matrix exists, but startup auto-selection and profile switch behavior needs stronger binding in code.
 
 3. **Accessibility + motion safety operationalization**
-   - Reduced-motion handling and core readability checks are currently policy-level, not yet fully executable in all interactive paths.
+   - Reduced-motion handling and core readability checks are present, and the live browser pass has now confirmed the remaining keyboard gaps are closed:
+     - the enter-world focus handoff now lands on `canvas#game-canvas`,
+     - a skip link now exists into the main interactive region.
+   - See [ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md).
 
 4. **Web-model pipeline hardening**
-   - 3D model optimization and compress/integrity checks are not yet formalized as content contracts.
+   - The web asset ingest and compression contract now names source-to-runtime provenance, validation, compression, and replacement rules.
+   - Runtime loader binding and reject-path enforcement still need code-level proof.
 
 5. **Command/event/state split execution path**
    - Decision/validation/event split is modeled as architecture direction but not complete in code path yet:
@@ -64,7 +69,7 @@ Repo evidence alignment:
 
 - Purpose: gameplay-first simulation and terrain-first activity loop already support this.
 - Mobile risk: profile matrix and ADRs acknowledge low-end constraints.
-- Loading fallback: not yet fully coded as contract enforcement.
+- Loading fallback: now named as a bootstrap contract, but still needs runtime enforcement and profile binding in code.
 
 ## Concrete recommended web execution lane (non-architecture theatre)
 
@@ -73,10 +78,12 @@ Repo evidence alignment:
 - Bind profile selection to measurable startup/runtime thresholds.
 - Ensure fallback sequence does not alter gameplay semantics.
 - Verify every profile preserves core telemetry and outcome messages.
+- Use the loading/bootstrap contract as the user-facing entry point for that selection.
 
 Evidence goal:
 - Deterministic profile switch from `full -> standard -> mobile-safe` with preserved action state.
 - No action loss from profile transition.
+- Visible loading progression until the first interactive frame.
 
 ### Lane 2 — Accessibility + reduced-motion hardening
 
@@ -117,5 +124,7 @@ Only after Tier 3+ closure on each lane should we publish public-claim scope wid
 
 - [ADR-0010](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/decisions/ADR-0010-rendering-accessibility-contract.md)
 - [ADR-0011](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/decisions/ADR-0011-command-capability-affordance-state-separation.md)
+- [ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md)
+- [WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
 - [RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25.md)

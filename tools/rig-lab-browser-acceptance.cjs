@@ -7,7 +7,7 @@ const playwrightModule =
 const { chromium } = require(playwrightModule);
 
 const TARGET_URL =
-  process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4173/?acceptance=field-02";
+  process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4174/?acceptance=field-02";
 const artifactDirectory = path.resolve(__dirname, "../docs/reviews/assets");
 let browser;
 

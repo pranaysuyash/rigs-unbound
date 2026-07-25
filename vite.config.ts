@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import wasm from "vite-plugin-wasm";
 import { sites } from "./src/hosting/sites-vite-plugin";
 
 export default defineConfig(async () => {
@@ -24,6 +25,7 @@ export default defineConfig(async () => {
       sourcemap: true,
     },
     plugins: [
+      wasm(),
       sites(),
       cloudflare({
         viteEnvironment: { name: "server" },

@@ -1,0 +1,1719 @@
+{
+  "targetName": "Patchwork Tractor",
+  "targetId": "patchwork-tractor",
+  "schemaVersion": "2.1",
+  "sourceImage": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png",
+  "suitability": "conditional",
+  "terminologyProfile": {
+    "domain": "real-time procedural Three.js asset",
+    "geometryTerms": [
+      "silhouette",
+      "topology",
+      "primitive",
+      "bevel",
+      "socket",
+      "pivot"
+    ],
+    "materialTerms": [
+      "albedo",
+      "roughness",
+      "metalness",
+      "normal map",
+      "ambient occlusion",
+      "edge wear"
+    ],
+    "lightingTerms": [
+      "key light",
+      "fill light",
+      "rim light",
+      "exposure",
+      "tone mapping",
+      "contact shadow"
+    ]
+  },
+  "scores": {
+    "object_isolation": 3,
+    "silhouette_readability": 3,
+    "depth_inference": 2,
+    "primitive_decomposition": 2,
+    "material_procedurality": 2,
+    "occlusion_risk": 2,
+    "interaction_fit": 3
+  },
+  "preSpecAssessment": {
+    "objectClass": {
+      "primaryType": "mechanical vehicle",
+      "primaryDomain": "object",
+      "formLanguage": [
+        "assembled hard-surface",
+        "repaired patchwork",
+        "compact utility vehicle"
+      ],
+      "structureKind": [
+        "chassis and body shell",
+        "repeated wheel system",
+        "socketed attachments"
+      ],
+      "motionPotential": [
+        "wheel rotation",
+        "steering",
+        "tool attachment",
+        "beacon/emissive state"
+      ],
+      "materialFamilies": [
+        "painted aged metal",
+        "rubber",
+        "glass",
+        "emissive lamp",
+        "dark hardware"
+      ],
+      "notes": "Single admitted three-quarter view; hidden side and underside geometry remain inferred."
+    },
+    "complexity": {
+      "tier": "complex",
+      "scores": {
+        "silhouetteComplexity": 3,
+        "componentCount": 3,
+        "hierarchyDepth": 3,
+        "repetitionDensity": 3,
+        "materialLayerCount": 3,
+        "localDetailDensity": 3,
+        "occlusionRisk": 2,
+        "actionReadinessNeed": 3
+      },
+      "estimatedCounts": {
+        "macroComponents": 3,
+        "mesoComponents": 8,
+        "microFeatureGroups": 10,
+        "materialLayers": 3,
+        "repetitionSystems": 1
+      },
+      "reasoning": [
+        "The silhouette is dominated by a chassis, cab/body shell, four-wheel system, and front/rear attachment hardware.",
+        "Rivets, panel seams, tread, lamps, and repair wear require repeated or local material/geometry systems.",
+        "The vehicle must remain action-ready for wheels, sockets, tool modules, and future damage states."
+      ]
+    },
+    "specDepthDecision": {
+      "requiredDepth": "complex",
+      "minimumComponentLevels": [
+        "macro",
+        "meso",
+        "micro"
+      ],
+      "needsRepetitionSystems": true,
+      "needsMaterialLocalOverrides": true,
+      "needsMultipleReviewViews": true,
+      "needsActionReadyHierarchy": true,
+      "rationale": "A named hierarchy and repeated detail systems are required to keep the vehicle modular and readable in the browser."
+    },
+    "unknownsToResolveBeforeImplementation": [],
+    "detailInventory": {
+      "scanMethod": "grid-3x3",
+      "targetMinDetails": 10,
+      "details": [
+        {
+          "id": "cab-roof-bevels",
+          "kind": "bevel",
+          "description": "Thick chamfered roof plates catch the upper light.",
+          "scale": "meso",
+          "affects": "cab-shell",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "cab-shell/roof-edge-bevel"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.82
+        },
+        {
+          "id": "patchwork-panel-seams",
+          "kind": "seam",
+          "description": "Irregular cream, rust, and green replacement panels meet with dark seams.",
+          "scale": "meso",
+          "affects": "painted-metal",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-metal/panel-seam-darkening"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.9
+        },
+        {
+          "id": "panel-fastener-rows",
+          "kind": "fastener",
+          "description": "Repeated bolts track hood, cab, and fender boundaries.",
+          "scale": "micro",
+          "affects": "body-shell",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "wheel-system/fastener-instancing"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.82
+        },
+        {
+          "id": "rust-and-dirt-patina",
+          "kind": "stain",
+          "description": "Brown oxidation and grime collect in lower recesses and seams.",
+          "scale": "meso",
+          "affects": "painted-metal",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-metal/patina-cavity-mask"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.84
+        },
+        {
+          "id": "scraped-edge-wear",
+          "kind": "scratch",
+          "description": "Bright worn edges expose high-use corners and hitch hardware.",
+          "scale": "micro",
+          "affects": "painted-metal",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-metal/edge-wear-mask"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.76
+        },
+        {
+          "id": "front-grille-slats",
+          "kind": "linework",
+          "description": "Dark horizontal grille bars define the front face.",
+          "scale": "meso",
+          "affects": "hood-shell",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "hood-shell/grille-slats"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.9
+        },
+        {
+          "id": "headlight-lenses",
+          "kind": "emissive",
+          "description": "Two circular warm lamps are primary face and interaction cues.",
+          "scale": "meso",
+          "affects": "lighting-system",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "emissive-lamp/headlight-emissive"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.94
+        },
+        {
+          "id": "amber-beacon",
+          "kind": "emissive",
+          "description": "Raised amber beacon crowns the cab.",
+          "scale": "meso",
+          "affects": "lighting-system",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "emissive-lamp/beacon-emissive"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.94
+        },
+        {
+          "id": "tread-and-hub-repeat",
+          "kind": "ridge",
+          "description": "Chunky tire lugs and concentric hubs repeat around four wheels.",
+          "scale": "meso",
+          "affects": "wheel-system",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "wheel-system/tread-and-hub-instancing"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.88
+        },
+        {
+          "id": "hitch-and-socket-hardware",
+          "kind": "hole",
+          "description": "Front coupling plates and holes communicate modular tool attachment.",
+          "scale": "meso",
+          "affects": "front-hitch",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "front-hitch/tool-socket"
+          },
+          "evidenceRef": "full-object",
+          "confidence": 0.8
+        }
+      ]
+    },
+    "anatomy": {
+      "applies": false
+    }
+  },
+  "qualityContract": {
+    "qualityBar": "complex",
+    "definitionOfDone": [
+      "The blockout matches the admitted reference silhouette and names every action-critical component before code generation.",
+      "Materials use independent reference-derived channels and local overrides.",
+      "The browser comparison gate passes before later sculpt passes unlock."
+    ],
+    "minimumSpecDepth": {
+      "macroComponents": 3,
+      "mesoComponents": 8,
+      "microFeatureGroups": 5,
+      "materialLayers": 3,
+      "repetitionSystems": 1,
+      "reviewViewpoints": 4
+    },
+    "featureGroups": [
+      {
+        "id": "vehicle-silhouette",
+        "name": "Vehicle silhouette and proportions",
+        "required": true,
+        "qualityCriteria": [
+          "Chassis, cab, hood, wheels, and negative spaces are explicit."
+        ],
+        "evidenceRefs": [
+          "full-object"
+        ],
+        "failureModes": [
+          "generic box vehicle",
+          "wrong wheel/cab proportions"
+        ]
+      },
+      {
+        "id": "modular-structure",
+        "name": "Modular structure and action hierarchy",
+        "required": true,
+        "qualityCriteria": [
+          "Wheels, hitches, lights, cab, and attachment sockets have stable semantic nodes."
+        ],
+        "evidenceRefs": [
+          "full-object"
+        ],
+        "failureModes": [
+          "inert lump",
+          "floating attachments"
+        ]
+      },
+      {
+        "id": "aged-materials",
+        "name": "Aged painted-metal material response",
+        "required": true,
+        "qualityCriteria": [
+          "Albedo, roughness, normal, AO, patina, and edge wear remain independent."
+        ],
+        "evidenceRefs": [
+          "full-object"
+        ],
+        "failureModes": [
+          "flat plastic",
+          "baked-light albedo"
+        ]
+      }
+    ],
+    "visualDeltaChecks": [
+      "silhouette and negative-space delta",
+      "component hierarchy delta",
+      "repetition distribution delta",
+      "PBR response delta"
+    ],
+    "antiShallowSpecRules": [
+      "Do not generate code before strict validation.",
+      "Do not merge action-critical parts into one mesh.",
+      "Do not treat one view as proof of hidden geometry."
+    ]
+  },
+  "qualityTargets": {
+    "targetFidelity": 0.7,
+    "mustMatch": [
+      "macro silhouette and proportions",
+      "cab/hood/wheel hierarchy",
+      "patchwork material response",
+      "front light and beacon identity"
+    ],
+    "niceToHave": [
+      "micro scratches",
+      "hidden-side fidelity"
+    ],
+    "fpsTarget": 60,
+    "reviewViewpoints": [
+      "front-three-quarter",
+      "rear-three-quarter",
+      "side",
+      "elevated-front"
+    ]
+  },
+  "silhouette": {
+    "boundingShape": "compact rectangular chassis with tall cab, large rear wheels, smaller front wheels, raised exhaust, and low front coupling",
+    "aspectRatios": [
+      "length:width ≈ 2:1",
+      "height:wheel-diameter ≈ 3:1"
+    ],
+    "symmetry": "mechanically bilateral at macro scale with asymmetric repair colors and hardware",
+    "dominantCurves": [
+      "tire circles",
+      "exhaust bend",
+      "fender arcs"
+    ],
+    "negativeSpaces": [
+      "cab windows",
+      "wheel wells",
+      "front hitch gaps",
+      "under-chassis clearance"
+    ],
+    "landmarks": [
+      "amber beacon",
+      "paired headlights",
+      "front grille",
+      "large rear tires",
+      "exhaust stack"
+    ]
+  },
+  "coordinateFrame": {
+    "front": "vehicle forward toward the hood and headlights",
+    "up": "+Y",
+    "scaleReference": "meters; provisional body length 4.2 m"
+  },
+  "viewEvidence": [
+    {
+      "id": "full-object",
+      "view": "isolated-three-quarter",
+      "imageRegion": {
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
+        "units": "normalized"
+      },
+      "observations": [
+        "single complete tractor",
+        "front and right side visible",
+        "full wheel silhouette",
+        "neutral background separation"
+      ],
+      "confidence": 0.86
+    }
+  ],
+  "componentTree": [
+    {
+      "id": "root",
+      "name": "Vehicle root",
+      "level": "macro",
+      "role": "root",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Origin and bounds are inferred from the complete isolated vehicle silhouette.",
+      "parent": null,
+      "material": "painted-metal",
+      "materialLayers": [
+        "painted-metal"
+      ],
+      "dimensions": {
+        "width": 4.2,
+        "height": 2.4,
+        "depth": 2.1,
+        "units": "meters",
+        "confidence": 0.55
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(89, 63, 43, 1.0)",
+        "secondaryAlbedo": "rgba(193, 161, 127, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.86
+      },
+      "localFeatures": [
+        "root-bounds"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "chassis-system",
+      "name": "Chassis system",
+      "level": "macro",
+      "role": "body",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The visible lower frame is a rigid assembled support inferred from wheel and body alignment.",
+      "parent": "root",
+      "material": "aged-hardware",
+      "materialLayers": [
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 3.8,
+        "height": 0.7,
+        "depth": 1.7,
+        "units": "meters",
+        "confidence": 0.55
+      },
+      "transform": {
+        "position": [
+          0,
+          0.65,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(50, 36, 23, 1.0)",
+        "secondaryAlbedo": "rgba(89, 63, 43, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.78
+      },
+      "localFeatures": [
+        "chassis-frame",
+        "underbody-collider"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "body-and-attachments",
+      "name": "Body and attachments",
+      "level": "macro",
+      "role": "body",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Cab, hood, fenders, and attachment hardware form distinct rigid assemblies around the chassis.",
+      "parent": "root",
+      "material": "painted-metal",
+      "materialLayers": [
+        "painted-metal",
+        "glass",
+        "emissive-lamp"
+      ],
+      "dimensions": {
+        "width": 3.4,
+        "height": 2.2,
+        "depth": 1.8,
+        "units": "meters",
+        "confidence": 0.6
+      },
+      "transform": {
+        "position": [
+          0.15,
+          1.45,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(193, 161, 127, 1.0)",
+        "secondaryAlbedo": "rgba(137, 102, 75, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.86
+      },
+      "localFeatures": [
+        "body-panel-seams",
+        "attachment-sockets"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "hood-shell",
+      "name": "Hood and grille shell",
+      "level": "meso",
+      "role": "body",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The front hood is a hard-surface volume with a separate grille face and headlight mounts.",
+      "parent": "body-and-attachments",
+      "material": "painted-metal",
+      "materialLayers": [
+        "painted-metal"
+      ],
+      "dimensions": {
+        "width": 1.5,
+        "height": 0.8,
+        "depth": 1.4,
+        "units": "meters",
+        "confidence": 0.75
+      },
+      "transform": {
+        "position": [
+          1.0,
+          1.35,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(137, 102, 75, 1.0)",
+        "secondaryAlbedo": "rgba(193, 161, 127, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.86
+      },
+      "localFeatures": [
+        "grille-slats",
+        "hood-bevel",
+        "front-panel-fasteners"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "cab-shell",
+      "name": "Cab shell",
+      "level": "meso",
+      "role": "body",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The cab is a framed hard-surface shell with four window openings and a thick roof plate.",
+      "parent": "body-and-attachments",
+      "material": "painted-metal",
+      "materialLayers": [
+        "painted-metal",
+        "glass"
+      ],
+      "dimensions": {
+        "width": 1.7,
+        "height": 1.5,
+        "depth": 1.5,
+        "units": "meters",
+        "confidence": 0.78
+      },
+      "transform": {
+        "position": [
+          0.25,
+          2.0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(193, 161, 127, 1.0)",
+        "secondaryAlbedo": "rgba(89, 63, 43, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.86
+      },
+      "localFeatures": [
+        "roof-edge-bevel",
+        "window-openings",
+        "cab-frame-posts"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "rear-bed",
+      "name": "Rear cargo bed",
+      "level": "meso",
+      "role": "body",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "The rear platform is a separate rigid load-bearing assembly behind the cab.",
+      "parent": "body-and-attachments",
+      "material": "painted-metal",
+      "materialLayers": [
+        "painted-metal"
+      ],
+      "dimensions": {
+        "width": 1.5,
+        "height": 0.65,
+        "depth": 1.4,
+        "units": "meters",
+        "confidence": 0.65
+      },
+      "transform": {
+        "position": [
+          -1.0,
+          1.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(89, 63, 43, 1.0)",
+        "secondaryAlbedo": "rgba(137, 102, 75, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82
+      },
+      "localFeatures": [
+        "cargo-panel-seams"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "wheel-system",
+      "name": "Four-wheel system",
+      "level": "meso",
+      "role": "body",
+      "primitive": "instanced-cluster",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Four repeated wheel assemblies define mobility and require shared geometry with independent pivots.",
+      "parent": "chassis-system",
+      "material": "rubber",
+      "materialLayers": [
+        "rubber",
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 3.8,
+        "height": 1.35,
+        "depth": 1.8,
+        "units": "meters",
+        "confidence": 0.82
+      },
+      "transform": {
+        "position": [
+          0,
+          0.7,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(50, 36, 23, 1.0)",
+        "secondaryAlbedo": "rgba(19, 13, 7, 1.0)",
+        "materialClass": "rubber",
+        "materialClassConfidence": 0.86
+      },
+      "localFeatures": [
+        "tread-and-hub-instancing",
+        "fastener-instancing"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "front-hitch",
+      "name": "Front hitch and tool socket",
+      "level": "meso",
+      "role": "socket",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Front plates and coupling holes are distinct rigid hardware at the vehicle action boundary.",
+      "parent": "chassis-system",
+      "material": "aged-hardware",
+      "materialLayers": [
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 1.2,
+        "height": 0.55,
+        "depth": 0.35,
+        "units": "meters",
+        "confidence": 0.7
+      },
+      "transform": {
+        "position": [
+          1.9,
+          0.75,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(50, 36, 23, 1.0)",
+        "secondaryAlbedo": "rgba(137, 102, 75, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.78
+      },
+      "attachment": {
+        "parentId": "chassis-system",
+        "parentSocket": "front-tool-socket",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          0.2,
+          0,
+          0
+        ],
+        "contactType": "bolted-plate",
+        "embedDepth": 0.04,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "full-object"
+        ]
+      },
+      "localFeatures": [
+        "tool-socket"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "rear-hitch",
+      "name": "Rear hitch socket",
+      "level": "meso",
+      "role": "socket",
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Rear coupling hardware is a separate attachment boundary inferred from the rear chassis silhouette.",
+      "parent": "chassis-system",
+      "material": "aged-hardware",
+      "materialLayers": [
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 0.6,
+        "height": 0.4,
+        "depth": 0.3,
+        "units": "meters",
+        "confidence": 0.4
+      },
+      "transform": {
+        "position": [
+          -1.95,
+          0.75,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(50, 36, 23, 1.0)",
+        "secondaryAlbedo": "rgba(89, 63, 43, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.7
+      },
+      "attachment": {
+        "parentId": "chassis-system",
+        "parentSocket": "rear-tool-socket",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          -0.2,
+          0,
+          0
+        ],
+        "contactType": "coupling-plate",
+        "embedDepth": 0.04,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "full-object"
+        ]
+      },
+      "localFeatures": [
+        "rear-tool-socket"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "exhaust-stack",
+      "name": "Exhaust stack",
+      "level": "meso",
+      "role": "pipe",
+      "primitive": "tube",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "A raised curved pipe and muffler form a separate silhouette-breaking mechanical assembly.",
+      "parent": "body-and-attachments",
+      "material": "aged-hardware",
+      "materialLayers": [
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 0.35,
+        "height": 1.4,
+        "depth": 0.35,
+        "units": "meters",
+        "confidence": 0.84
+      },
+      "transform": {
+        "position": [
+          0.85,
+          2.25,
+          0.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(50, 36, 23, 1.0)",
+        "secondaryAlbedo": "rgba(89, 63, 43, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.9
+      },
+      "attachment": {
+        "parentId": "body-and-attachments",
+        "parentSocket": "exhaust-mount",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          0,
+          0.8,
+          0
+        ],
+        "contactType": "welded-mount",
+        "embedDepth": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "full-object"
+        ]
+      },
+      "localFeatures": [
+        "outlet-bend"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "lighting-system",
+      "name": "Lights and beacon",
+      "level": "meso",
+      "role": "body",
+      "primitive": "instanced-cluster",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Headlights, rear lamps, and the beacon are repeated/independent interaction-facing elements.",
+      "parent": "body-and-attachments",
+      "material": "emissive-lamp",
+      "materialLayers": [
+        "emissive-lamp",
+        "aged-hardware"
+      ],
+      "dimensions": {
+        "width": 1.2,
+        "height": 0.5,
+        "depth": 0.35,
+        "units": "meters",
+        "confidence": 0.9
+      },
+      "transform": {
+        "position": [
+          1.8,
+          1.55,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(255, 182, 63, 1.0)",
+        "secondaryAlbedo": "rgba(255, 239, 184, 1.0)",
+        "materialClass": "glass",
+        "materialClassConfidence": 0.72
+      },
+      "localFeatures": [
+        "headlight-emissive",
+        "beacon-emissive"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "id": "painted-metal",
+      "name": "Painted aged metal",
+      "type": "standard",
+      "baseColor": "#593F2B",
+      "albedo": {
+        "dominant": "#593F2B",
+        "secondary": [
+          "#89664B",
+          "#C1A17F",
+          "#322417"
+        ]
+      },
+      "roughness": {
+        "base": 0.717,
+        "variation": 0.143,
+        "map": {
+          "path": "pbr-base/base_roughness.png",
+          "url": "pbr-base/base_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "metalness": {
+        "base": 0.35,
+        "variation": 0.1
+      },
+      "normal": {
+        "strength": 0.238,
+        "map": {
+          "path": "pbr-base/base_normal.png",
+          "url": "pbr-base/base_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "ambientOcclusion": {
+        "map": {
+          "path": "pbr-base/base_ao.png",
+          "url": "pbr-base/base_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      },
+      "localOverrides": [
+        {
+          "id": "panel-seam-darkening",
+          "type": "seam",
+          "roughness": 0.82
+        },
+        {
+          "id": "patina-cavity-mask",
+          "type": "stain",
+          "dirtAmount": 0.35
+        },
+        {
+          "id": "edge-wear-mask",
+          "type": "scratch",
+          "roughness": 0.28
+        }
+      ],
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 2,
+          "amplitude": 0.5
+        },
+        {
+          "id": "meso",
+          "frequency": 14,
+          "amplitude": 0.35
+        },
+        {
+          "id": "micro",
+          "frequency": 72,
+          "amplitude": 0.14
+        }
+      ],
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2,
+          2
+        ]
+      },
+      "referencePbr": {
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.86,
+        "estimatedFidelity": 0.86,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "pbr-base/base_albedo.png",
+            "url": "pbr-base/base_albedo.png"
+          },
+          "roughness": {
+            "path": "pbr-base/base_roughness.png",
+            "url": "pbr-base/base_roughness.png"
+          },
+          "height": {
+            "path": "pbr-base/base_height.png",
+            "url": "pbr-base/base_height.png"
+          },
+          "normal": {
+            "path": "pbr-base/base_normal.png",
+            "url": "pbr-base/base_normal.png"
+          },
+          "ao": {
+            "path": "pbr-base/base_ao.png",
+            "url": "pbr-base/base_ao.png"
+          }
+        }
+      }
+    },
+    {
+      "id": "rubber",
+      "name": "Tire rubber",
+      "type": "standard",
+      "qualityTier": "utility",
+      "baseColor": "#130D07",
+      "roughness": {
+        "base": 0.82,
+        "variation": 0.08
+      },
+      "metalness": {
+        "base": 0,
+        "variation": 0
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 1,
+          "amplitude": 0.2
+        },
+        {
+          "id": "meso",
+          "frequency": 18,
+          "amplitude": 0.5
+        },
+        {
+          "id": "micro",
+          "frequency": 80,
+          "amplitude": 0.1
+        }
+      ],
+      "localOverrides": [
+        {
+          "id": "tire-dirt",
+          "type": "stain",
+          "dirtAmount": 0.4
+        }
+      ]
+    },
+    {
+      "id": "glass",
+      "name": "Cab glass",
+      "type": "physical",
+      "qualityTier": "utility",
+      "baseColor": "#283038",
+      "roughness": {
+        "base": 0.24,
+        "variation": 0.05
+      },
+      "metalness": {
+        "base": 0,
+        "variation": 0
+      },
+      "localOverrides": [
+        {
+          "id": "window-reflection",
+          "type": "gloss",
+          "roughness": 0.16
+        }
+      ]
+    },
+    {
+      "id": "aged-hardware",
+      "name": "Dark hardware",
+      "type": "standard",
+      "qualityTier": "utility",
+      "baseColor": "#322417",
+      "roughness": {
+        "base": 0.55,
+        "variation": 0.12
+      },
+      "metalness": {
+        "base": 0.7,
+        "variation": 0.1
+      },
+      "localOverrides": [
+        {
+          "id": "hardware-patina",
+          "type": "stain",
+          "dirtAmount": 0.25
+        }
+      ]
+    },
+    {
+      "id": "emissive-lamp",
+      "name": "Warm lamps",
+      "type": "physical",
+      "qualityTier": "utility",
+      "baseColor": "#FFEFB8",
+      "roughness": {
+        "base": 0.18,
+        "variation": 0.02
+      },
+      "metalness": {
+        "base": 0,
+        "variation": 0
+      },
+      "localOverrides": [
+        {
+          "id": "headlight-emissive",
+          "type": "emissive",
+          "emissive": "#FFD27A",
+          "emissiveIntensity": 2.2
+        },
+        {
+          "id": "beacon-emissive",
+          "type": "emissive",
+          "emissive": "#FF9D22",
+          "emissiveIntensity": 1.8
+        }
+      ]
+    }
+  ],
+  "repetitionSystems": [
+    {
+      "id": "wheel-and-fastener-instancing",
+      "kind": "instanced-geometry",
+      "componentRefs": [
+        "wheel-system",
+        "hood-shell"
+      ],
+      "count": 4,
+      "distribution": "four wheel pivots plus repeated panel fasteners",
+      "runtimeRule": "share tire/hub/fastener geometry while preserving wheel pivots and silhouette-critical spacing"
+    }
+  ],
+  "featureReviewTargets": [
+    {
+      "id": "tractor-silhouette",
+      "name": "Tractor silhouette and wheel/cab proportions",
+      "tier": "critical",
+      "passIds": [
+        "blockout"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "root",
+        "chassis-system",
+        "cab-shell",
+        "wheel-system"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "modular-front-identity",
+      "name": "Hood, grille, headlights, and front hitch identity",
+      "tier": "critical",
+      "passIds": [
+        "structural-pass",
+        "form-refinement"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "hood-shell",
+        "front-hitch",
+        "lighting-system"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    },
+    {
+      "id": "patchwork-material-response",
+      "name": "Patchwork painted-metal response",
+      "tier": "critical",
+      "passIds": [
+        "material-pass",
+        "surface-pass"
+      ],
+      "minimumScore": 0.75,
+      "mustPass": true,
+      "componentRefs": [
+        "body-and-attachments",
+        "hood-shell",
+        "cab-shell",
+        "rear-bed"
+      ],
+      "evidenceRefs": [
+        "full-object"
+      ]
+    }
+  ],
+  "buildPasses": [
+    {
+      "id": "blockout",
+      "goal": "Match macro silhouette and wheel/cab proportions.",
+      "componentRefs": [
+        "root",
+        "chassis-system",
+        "body-and-attachments",
+        "wheel-system"
+      ],
+      "acceptance": [
+        "Browser render and comparison sheet required."
+      ]
+    },
+    {
+      "id": "structural-pass",
+      "goal": "Build named chassis, body, wheel, hitch, exhaust, and lighting hierarchy.",
+      "componentRefs": [
+        "hood-shell",
+        "cab-shell",
+        "rear-bed",
+        "front-hitch",
+        "rear-hitch",
+        "exhaust-stack",
+        "lighting-system"
+      ],
+      "acceptance": [
+        "Parent/child and action boundaries are explicit."
+      ]
+    },
+    {
+      "id": "form-refinement",
+      "goal": "Add bevels, grille, windows, tires, and attachment forms.",
+      "componentRefs": [
+        "hood-shell",
+        "cab-shell",
+        "wheel-system"
+      ],
+      "acceptance": [
+        "Identity features survive a second camera angle."
+      ]
+    },
+    {
+      "id": "material-pass",
+      "goal": "Apply independent painted-metal, rubber, glass, hardware, and lamp material responses.",
+      "componentRefs": [
+        "body-and-attachments",
+        "wheel-system",
+        "lighting-system"
+      ],
+      "acceptance": [
+        "Reference-derived maps and local overrides are used."
+      ]
+    },
+    {
+      "id": "surface-pass",
+      "goal": "Add seams, patina, fasteners, tread, and edge wear.",
+      "componentRefs": [
+        "hood-shell",
+        "cab-shell",
+        "wheel-system"
+      ],
+      "acceptance": [
+        "Grazing-light review shows relief without plastic uniformity."
+      ]
+    },
+    {
+      "id": "lighting-pass",
+      "goal": "Prove neutral, grazing, and reference-matched lighting.",
+      "componentRefs": [
+        "root"
+      ],
+      "acceptance": [
+        "Key/fill/rim, exposure, tone mapping, and contact shadow are recorded."
+      ]
+    },
+    {
+      "id": "interaction-pass",
+      "goal": "Expose wheel pivots, tool sockets, beacon, and collider proxies.",
+      "componentRefs": [
+        "wheel-system",
+        "front-hitch",
+        "rear-hitch",
+        "lighting-system"
+      ],
+      "acceptance": [
+        "Action-ready named nodes exist."
+      ]
+    },
+    {
+      "id": "optimization-pass",
+      "goal": "Reduce repeated geometry and document runtime budgets.",
+      "componentRefs": [
+        "root",
+        "wheel-system"
+      ],
+      "acceptance": [
+        "Target browser budget is measured after visual approval."
+      ]
+    }
+  ],
+  "sculptPipeline": {
+    "passGateMode": "locked-sequential",
+    "passOrder": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass",
+      "optimization-pass"
+    ],
+    "currentPass": "blockout",
+    "completedPasses": [],
+    "lastCompletedPass": "",
+    "nextRequiredEvidence": [
+      "blockout browser screenshot",
+      "comparison sheet",
+      "AI vision score >= 0.7",
+      "critical feature scores",
+      "reviewHistory entry"
+    ]
+  },
+  "selfCorrectLoop": {
+    "enabled": true,
+    "reviewAfterPasses": [
+      "blockout",
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "surface-pass",
+      "lighting-pass",
+      "interaction-pass"
+    ],
+    "allowedActions": [
+      "continue",
+      "refine-spec",
+      "refine-code",
+      "request-input",
+      "stop"
+    ],
+    "specRefineTriggers": [
+      "missing component",
+      "wrong proportion",
+      "missing detail mapping"
+    ],
+    "codeRefineTriggers": [
+      "browser render mismatch",
+      "performance budget exceeded"
+    ],
+    "stopCriteria": [
+      "target fidelity reached",
+      "remaining gap requires new view"
+    ],
+    "visualAcceptance": {
+      "reviewer": "ai-vision",
+      "threshold": 0.7,
+      "comparisonArtifactRequired": true,
+      "layerScoresRequired": true,
+      "codePixelDiffIsAcceptanceAuthority": false,
+      "requiredLayerScores": [
+        "silhouetteProportion",
+        "componentStructure",
+        "formDetail",
+        "materialSurface",
+        "lightingCamera"
+      ],
+      "featureReviewPolicy": {
+        "enabled": true,
+        "reviewUnit": "semantic-subsystem",
+        "maxCriticalFeaturesPerPass": 5,
+        "maxImportantFeaturesPerPass": 3,
+        "criticalDefaultThreshold": 0.8,
+        "importantAverageThreshold": 0.65,
+        "adaptiveEscalation": true,
+        "singleImagePairOnly": true,
+        "selectionRule": "Review the most identity-defining systems from the same reference/render pair."
+      }
+    },
+    "screenshotPolicy": {
+      "requiredForPasses": [
+        "blockout",
+        "structural-pass",
+        "form-refinement",
+        "material-pass",
+        "surface-pass",
+        "lighting-pass",
+        "interaction-pass"
+      ],
+      "preferredCapture": "in-app-browser-screenshot",
+      "fallbackCapture": "user-supplied-screenshot-path",
+      "minimumEvidence": "reference, render, comparison, score, layers, and critique",
+      "reviewPairRule": "Compare matching camera views",
+      "acceptanceAuthority": "AI vision comparison review"
+    }
+  },
+  "actionReadiness": {
+    "contract": "Every action-critical component is a named pivot with sockets, collider intent, and transform metadata.",
+    "defaultRigType": "action-ready-static-rig",
+    "rootMotionNode": "root",
+    "requiredComponentFields": [
+      "id",
+      "parent",
+      "transform",
+      "actionProfile.pivot",
+      "actionProfile.collider",
+      "actionProfile.sockets"
+    ],
+    "transformChannels": [
+      "translate",
+      "rotate",
+      "scale",
+      "visibility",
+      "material-state"
+    ],
+    "authoringRules": [
+      "Keep wheels and hitches separate from the body.",
+      "Use simplified collider proxies.",
+      "Place sockets at semantic attachment points."
+    ],
+    "destructionPolicy": {
+      "defaultBreakable": false
+    }
+  },
+  "lookDevTargets": {
+    "qualityPriority": "reference-fidelity",
+    "materialPass": {
+      "minimumTextureResolution": 1024,
+      "preferredTextureResolution": 2048,
+      "independentMapChannels": [
+        "albedo",
+        "roughness",
+        "height",
+        "normal",
+        "ambient-occlusion"
+      ],
+      "referencePbrExtraction": {
+        "requiredWhenSourceImagePresent": true,
+        "targetThreshold": 0.7,
+        "stopOnLowConfidence": true
+      },
+      "requiredSurfaceFrequencyBands": [
+        "macro",
+        "meso",
+        "micro"
+      ]
+    },
+    "lightingPass": {
+      "requiredTerms": [
+        "key light",
+        "fill light",
+        "rim light",
+        "exposure",
+        "tone mapping",
+        "contact shadow"
+      ]
+    }
+  },
+  "lightingFromPhoto": [
+    {
+      "name": "key light",
+      "direction": "upper-front-left",
+      "notes": "Soft neutral studio key; preserve panel readability."
+    },
+    {
+      "name": "fill light",
+      "direction": "camera-front",
+      "notes": "Low-intensity fill prevents cab/wheel cavities from collapsing."
+    },
+    {
+      "name": "environment and contact",
+      "direction": "neutral-background",
+      "notes": "Use exposure, tone mapping, and contact shadow to separate the silhouette."
+    }
+  ],
+  "visualEvidence": [],
+  "reviewHistory": [],
+  "lodPlan": [
+    {
+      "tier": "near",
+      "distance": 0,
+      "strategy": "full named component tree and material layers"
+    },
+    {
+      "tier": "far",
+      "distance": 30,
+      "strategy": "merge static panels and reduce micro geometry"
+    }
+  ],
+  "performanceBudget": {
+    "qualityPriority": "reference-fidelity",
+    "targetTriangles": 100000,
+    "maxDrawCalls": 80,
+    "textureSize": 1024,
+    "fpsTarget": 60,
+    "optimizationPolicy": "Measure after browser blockout approval; preserve silhouette-critical geometry."
+  },
+  "proceduralStrategy": [
+    "Build macro boxes and wheel volumes first.",
+    "Use instancing for tire treads and fasteners.",
+    "Use named pivots and sockets for wheel/hitch actions.",
+    "Use independent PBR channels and local overrides for patchwork wear.",
+    "Keep single-view inferences explicitly provisional."
+  ],
+  "assumptions": [
+    "The isolated reference is a generated concept reference, not photogrammetry.",
+    "Rear and underside geometry are provisional until additional views exist."
+  ],
+  "risks": [
+    "single-view hidden geometry",
+    "generated-reference rights/terms",
+    "browser material translation",
+    "unvalidated second-angle silhouette"
+  ],
+  "animationAnchors": [
+    "wheel pivots",
+    "front-tool socket",
+    "rear-tool socket",
+    "beacon state"
+  ],
+  "destructionAnchors": [
+    "panel seam groups",
+    "hitch detach groups",
+    "glass panel group"
+  ],
+  "tier1Results": [
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.5312,
+        "aspectRatioDelta": 0.3036,
+        "scaleDelta": 0.1257,
+        "bilateralSymmetryError": 0.0585,
+        "colorDelta": {
+          "checked": 11,
+          "maxDeltaE": 55.41,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 12.09
+            },
+            {
+              "componentId": null,
+              "deltaE": 16.01
+            },
+            {
+              "componentId": null,
+              "deltaE": 10.07
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.31
+            },
+            {
+              "componentId": null,
+              "deltaE": 10.07
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.09
+            },
+            {
+              "componentId": null,
+              "deltaE": 16.01
+            },
+            {
+              "componentId": null,
+              "deltaE": 16.01
+            },
+            {
+              "componentId": null,
+              "deltaE": 16.01
+            },
+            {
+              "componentId": null,
+              "deltaE": 16.01
+            },
+            {
+              "componentId": null,
+              "deltaE": 55.41
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.531 is below threshold 0.85",
+        "aspect-ratio delta 0.304 exceeds threshold 0.05",
+        "scale delta 0.126 exceeds threshold 0.08"
+      ],
+      "renderHash": "b368d67e4037bbd3",
+      "passId": "blockout"
+    }
+  ]
+}

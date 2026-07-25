@@ -1,0 +1,85 @@
+{
+  "ok": true,
+  "verdict": "pass",
+  "confidence": 0.86,
+  "estimatedFidelity": 0.86,
+  "targetThreshold": 0.7,
+  "materialId": "base",
+  "sourceImage": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png",
+  "outDir": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base",
+  "palette": [
+    "#593F2B",
+    "#322417",
+    "#130D07",
+    "#89664B",
+    "#C1A17F"
+  ],
+  "maps": {
+    "albedo": {
+      "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_albedo.png",
+      "url": "base_albedo.png",
+      "channel": "albedo",
+      "source": "reference-pixel-extraction"
+    },
+    "roughness": {
+      "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_roughness.png",
+      "url": "base_roughness.png",
+      "channel": "roughness",
+      "source": "reference-pixel-extraction"
+    },
+    "height": {
+      "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_height.png",
+      "url": "base_height.png",
+      "channel": "height",
+      "source": "reference-pixel-extraction"
+    },
+    "normal": {
+      "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_normal.png",
+      "url": "base_normal.png",
+      "channel": "normal",
+      "source": "reference-pixel-extraction"
+    },
+    "ao": {
+      "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_ao.png",
+      "url": "base_ao.png",
+      "channel": "ao",
+      "source": "reference-pixel-extraction"
+    }
+  },
+  "diagnostics": {
+    "sourceWidth": 1747,
+    "sourceHeight": 900,
+    "mapSize": 1024,
+    "cropBBoxPixels": {
+      "x": 342,
+      "y": 32,
+      "width": 987,
+      "height": 817
+    },
+    "mask": {
+      "backgroundColor": "#E3DEDA",
+      "backgroundNoise": 1.414,
+      "transparentPixelFraction": 0.0,
+      "foregroundCoverage": 0.2924
+    },
+    "mapStats": {
+      "valueRange": 0.62,
+      "heightP90Gradient": 0.06999,
+      "roughnessBase": 0.717,
+      "roughnessVariation": 0.143,
+      "normalStrength": 0.238,
+      "blurRadius": 21
+    },
+    "palette": [
+      "#593F2B",
+      "#322417",
+      "#130D07",
+      "#89664B",
+      "#C1A17F"
+    ]
+  },
+  "warnings": [
+    "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+  ],
+  "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+}
