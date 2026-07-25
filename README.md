@@ -25,27 +25,39 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:4174/](http://127.0.0.1:4174/).
+Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/).
 
 Current controls:
 
 - `WASD` or arrow keys: drive and reverse;
 - `Space` or `E`: use the current capability—attach/release cargo, or operate the tractor plough when no cargo is in reach;
-- `R`: switch between the persistent utility tractor (**Torque**) and toy buggy (**Spark**);
+- `R`: cycle the persistent utility tractor (**Torque**), toy buggy (**Spark**),
+  and marsh skimmer (**Drift**);
 - `C`: cycle Chase, Hood, Side, Tactical, Top-down, and Survey views;
 - `View` selector: jump directly to any camera policy;
 - `N`: day/gloam/night presentation;
 - `P` or `Escape`: pause.
 
-Gamepad driving and responsive touch controls use the same named actions. Both
-rigs, cargo-relay progress, condition, terrain deformation, salvage, modules,
+Gamepad driving and responsive touch controls use the same named actions. All
+three rigs, cargo-relay progress, condition, terrain deformation, salvage, modules,
 plough marks, surveyed cells, and discoveries are stored in one validated local
 browser record. Existing Field Test 001 and Rig Lab 01 saves migrate into the
-v3 Field 02 schema.
+v4 bounded-mobility schema; v3 Field 02 records preserve Torque and Spark and
+add Drift at the Sunken Flats.
 
-`window.render_game_to_text()`, `window.advanceTime(ms)`, `window.applyRigInput(input, ms)`, `window.selectRig(id)`, `window.selectCamera(mode)`, `window.performRigAction()`, and `window.getPerformanceSnapshot()` expose the browser-test and observability contract.
+`window.render_game_to_text()`, `window.advanceTime(ms)`,
+`window.applyRigInput(input, ms)`, `window.selectRig(id)`,
+`window.selectCamera(mode)`, `window.getRigOrientationEvidence(id)`,
+`window.getRigPerceptionEvidence(id)`, `window.performRigAction()`, and
+`window.getPerformanceSnapshot()` expose the browser-test and observability
+contract.
 
-The current activity asks both rigs to tow one relay crate to the same gate. Torque is slower and stable under load; Spark accelerates and turns faster, loses more speed while towing, and can launch from the relay ramp. This is a provisional Three.js reference runtime using reproducible primitive geometry—not a final-engine decision or a claim that two ground vehicles define the universe.
+The current activity asks any tow-capable rig to move one relay crate to the
+same gate. Torque is slower and stable under load; Spark accelerates and turns
+faster and can launch from the relay ramp; Drift uses a real low-hover adapter
+to cross water without wheel state, but loses authority and gains strain on
+steep ground. This is a provisional Three.js reference runtime using
+reproducible primitive geometry—not a final-engine decision.
 
 ## Start here
 
@@ -59,6 +71,7 @@ The current activity asks both rigs to tow one relay crate to the same gate. Tor
 - [Risk and public-readiness register](docs/research/RISK_AND_PUBLIC_READINESS_REGISTER_2026-07-25.md)
 - [Asset provenance register](docs/research/ASSET_PROVENANCE_REGISTER.md)
 - [Kenney asset library audit](docs/research/KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md)
+- [Browser vehicle-physics technique catalog](docs/research/BROWSER_VEHICLE_PHYSICS_TECHNIQUE_CATALOG_2026-07-25.md)
 - [ADR-0001: architecture experiments](docs/decisions/ADR-0001-headless-gameplay-kernel-and-engine-bakeoff.md)
 - [ADR-0002: first playable hypothesis](docs/decisions/ADR-0002-first-playable-tractor-day-night-loop.md)
 - [ADR-0003: versioned gameplay-content composition](docs/decisions/ADR-0003-versioned-gameplay-content-composition.md)
@@ -67,10 +80,19 @@ The current activity asks both rigs to tow one relay crate to the same gate. Tor
 - [ADR-0006: rig profiles, capabilities, and contrasting evidence](docs/decisions/ADR-0006-rig-capability-portability.md)
 - [ADR-0007: terrain as the simulation substrate](docs/decisions/ADR-0007-terrain-as-simulation-substrate.md)
 - [ADR-0008: camera policies and direct view selection](docs/decisions/ADR-0008-camera-policies-and-direct-view-selection.md)
+- [ADR-0009: bounded mobility adapters](docs/decisions/ADR-0009-bounded-mobility-adapters.md)
+- [ADR-0010: rendering and accessibility contract](docs/decisions/ADR-0010-rendering-accessibility-contract.md)
+- [ADR-0011: command, capability, affordance, and state separation](docs/decisions/ADR-0011-command-capability-affordance-state-separation.md)
+- [ADR-0012: shared rig-perception chain](docs/decisions/ADR-0012-rig-perception-chain.md)
+- [ADR-0013: Sites deployment adapter](docs/decisions/ADR-0013-sites-deployment-adapter.md)
 - [Latest motto compliance review](docs/reviews/motto_review.md)
 - [Playable foundation plan and acceptance contract](docs/plans/PLAYABLE_FOUNDATION_2026-07-25.md)
 - [Rig Lab 01 plan](docs/plans/RIG_LAB_01_2026-07-25.md)
 - [Open-world traversal foundation](docs/plans/OPEN_WORLD_TRAVERSAL_2026-07-25.md)
+- [Marsh Skimmer 01 plan](docs/plans/MARSH_SKIMMER_01_2026-07-25.md)
+- [Rig Perception Chain 01 plan](docs/plans/RIG_PERCEPTION_CHAIN_01_2026-07-25.md)
+- [Rig Perception Chain 01 acceptance](docs/reviews/RIG_PERCEPTION_CHAIN_01_ACCEPTANCE_2026-07-25.md)
+- [Sites deployment acceptance](docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md)
 - [Rig Lab 01 acceptance review](docs/reviews/RIG_LAB_01_ACCEPTANCE_2026-07-25.md)
 - [Design direction](DESIGN.md)
 - [Worklog and evidence](docs/WORKLOG.md)
@@ -87,11 +109,14 @@ The current activity asks both rigs to tow one relay crate to the same gate. Tor
 
 ## Evidence status
 
-Current evidence includes planning and primary-source research (Tier 1), 81
-passing terrain/state/kernel tests and clean TypeScript checks (Tier 2), a
-production build plus automated terrain, camera, cargo, jump, and schema-v3 save
-interaction checks (Tier 3), and observed desktop/narrow local browser play
-(Tier 4). There is no public deployment, representative-device benchmark,
+Current evidence includes planning and primary-source research (Tier 1), 83
+passing root tests plus seven preserved kernel-probe tests and clean TypeScript
+checks (Tier 2), a production build plus automated terrain, camera, cargo, jump,
+hover, perception-chain, reduced-motion, and schema-v4 save interaction checks
+(Tier 3), and observed
+desktop/narrow local browser play (Tier 4). The public Sites version is accepted
+only when its deployment status reaches `succeeded`; a deployment does not add
+representative-device benchmark,
 external-player comprehension, multiplayer, production, or commercial-launch
 evidence yet.
 

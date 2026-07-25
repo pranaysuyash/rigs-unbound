@@ -80,7 +80,13 @@ export const SURFACES: Readonly<Record<SurfaceId, SurfaceMaterial>> = {
   tilled: {
     id: "tilled",
     displayName: "Tilled soil",
-    grip: 0.68,
+    // 0.52, not 0.68. The lug/slick crossover sits at a surface grip of about
+    // 0.55: above it the buggy's higher `tireGrip` wins, below it the tractor's
+    // `lugBonus` wins. At 0.68 the buggy had marginally *more* grip on freshly
+    // tilled soil than the tractor did, which contradicts the whole point of the
+    // field being the tractor's home ground. Verified in the browser:
+    // tractor 0.801 / buggy 0.821 before, tractor ahead after.
+    grip: 0.52,
     rollingDrag: 1.55,
     deformable: true,
     color: 0x7c6235,

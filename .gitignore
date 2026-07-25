@@ -40,6 +40,7 @@ out/
 coverage/
 .vite/
 .next/
+.wrangler/
 
 # Python tooling
 __pycache__/

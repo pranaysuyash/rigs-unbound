@@ -15,12 +15,18 @@ import type { GameState } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
-export const SAVE_KEY = "rigs-unbound.save.v3";
+export const SAVE_KEY = "rigs-unbound.save.v4";
+export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
 export const RIG_LAB_SAVE_KEY = "rigs-unbound.save.v2";
 export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 
 /** Every key this build knows how to read, newest first. */
-const READ_KEYS = [SAVE_KEY, RIG_LAB_SAVE_KEY, LEGACY_SAVE_KEY] as const;
+const READ_KEYS = [
+  SAVE_KEY,
+  FIELD_02_SAVE_KEY,
+  RIG_LAB_SAVE_KEY,
+  LEGACY_SAVE_KEY,
+] as const;
 
 interface SavePayload {
   state: GameState;
@@ -77,7 +83,7 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
 
   try {
     const parsed = JSON.parse(raw) as unknown;
-    // v3 wraps state alongside world memory; v1 and v2 stored the state directly.
+    // v3+ wrap state alongside world memory; v1 and v2 stored state directly.
     const container = parsed as Partial<SavePayload>;
     const stateCandidate =
       container && typeof container === "object" && container.state

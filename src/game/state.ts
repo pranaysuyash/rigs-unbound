@@ -20,9 +20,11 @@ import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
   effectiveProfile,
+  FIELD_02_SAVE_SCHEMA_VERSION,
   FIXED_STEP_SECONDS,
   type FurrowMark,
   type GameState,
+  type GroundMobilityState,
   IDLE_INPUT,
   type InputFrame,
   LANDMARKS,
@@ -43,8 +45,8 @@ import {
 import { SALVAGE_PICKUP_RADIUS, SURVEY_MOVE_THRESHOLD } from "./exploration";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
-import { settleRig, stepRigMotion } from "./physics";
-import { HOME_SITE, RESOLVED_ROUTES, WORLD_SITES } from "./world";
+import { rigIsStable, settleRig, stepRigMotion } from "./physics";
+import { findSite, HOME_SITE, RESOLVED_ROUTES, WORLD_SITES } from "./world";
 
 const FURROW_SPACING = 1.1;
 const CARGO_HITCH_DISTANCE = 2.8;
@@ -69,12 +71,33 @@ function cycle<T>(values: readonly T[], current: T): T {
   return values[(index + 1) % values.length] ?? values[0]!;
 }
 
-function createWheels(): RigState["wheels"] {
+function createWheels(): GroundMobilityState["wheels"] {
   return Array.from({ length: 4 }, () => ({
     compression: 0.5,
     contact: true,
     slip: 0,
   }));
+}
+
+function createMobility(id: RigId): RigState["mobility"] {
+  const profile = RIG_PROFILES[id];
+  if (profile.mobilityAdapter === "hover") {
+    return {
+      kind: "hover",
+      liftVelocity: 0,
+      clearance: profile.rideHeight,
+      cushionPressure: 1,
+      skirtContact: true,
+    };
+  }
+  return {
+    kind: "ground",
+    verticalVelocity: 0,
+    grounded: true,
+    jumpCooldownMs: 0,
+    wheelRotation: 0,
+    wheels: createWheels(),
+  };
 }
 
 function createRig(id: RigId, x: number, z: number): RigState {
@@ -88,14 +111,10 @@ function createRig(id: RigId, x: number, z: number): RigState {
     roll: 0,
     speed: 0,
     steering: 0,
-    verticalVelocity: 0,
-    grounded: true,
-    jumpCooldownMs: 0,
     distanceTravelled: 0,
-    wheelRotation: 0,
     condition: 100,
     strain: 0,
-    wheels: createWheels(),
+    mobility: createMobility(id),
     attachments:
       id === "utility-tractor"
         ? [
@@ -117,6 +136,12 @@ function createRig(id: RigId, x: number, z: number): RigState {
 }
 
 export function createInitialState(seed = "UNBOUND-260725"): GameState {
+  const marsh = findSite("sunken-flats");
+  if (!marsh) {
+    throw new Error(
+      "World contract is missing the Sunken Flats skimmer berth.",
+    );
+  }
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
     seed,
@@ -133,6 +158,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
         HOME_SITE.z - 6,
       ),
       "toy-buggy": createRig("toy-buggy", HOME_SITE.x - 5, HOME_SITE.z - 3),
+      "marsh-skimmer": createRig("marsh-skimmer", marsh.x + 8, marsh.z + 5),
     },
     cargoRelay: {
       id: "cargo-relay",
@@ -403,8 +429,9 @@ export function repairRig(state: GameState): void {
 export function selectActiveRig(state: GameState, rigId: RigId): void {
   if (state.activeRigId === rigId) return;
   const current = activeRig(state);
-  if (!current.grounded) {
-    state.lastDiagnostic = "Land the active rig before switching machines.";
+  if (!rigIsStable(current)) {
+    state.lastDiagnostic =
+      "Stabilize the active rig before switching machines.";
     return;
   }
   current.speed = 0;
@@ -572,7 +599,8 @@ export function stepGame(
     profile.capabilities.includes("plough") &&
     motion.distance > 0.001 &&
     Math.abs(rig.speed) > 1.2 &&
-    rig.grounded
+    rig.mobility.kind === "ground" &&
+    rig.mobility.grounded
   ) {
     const forwardX = Math.sin(rig.heading);
     const forwardZ = Math.cos(rig.heading);
@@ -664,6 +692,25 @@ export function advanceGame(
 export function publicState(state: GameState, world: GameWorld): object {
   const rigSummary = (rig: RigState) => {
     const profile = effectiveProfile(rig.id, rig.modules);
+    const mobility =
+      rig.mobility.kind === "ground"
+        ? {
+            kind: rig.mobility.kind,
+            grounded: rig.mobility.grounded,
+            verticalVelocity: Number(rig.mobility.verticalVelocity.toFixed(3)),
+            wheelRotation: Number(rig.mobility.wheelRotation.toFixed(4)),
+            wheels: rig.mobility.wheels.map((wheel) => ({
+              compression: Number(wheel.compression.toFixed(3)),
+              contact: wheel.contact,
+            })),
+          }
+        : {
+            kind: rig.mobility.kind,
+            liftVelocity: Number(rig.mobility.liftVelocity.toFixed(3)),
+            clearance: Number(rig.mobility.clearance.toFixed(3)),
+            cushionPressure: Number(rig.mobility.cushionPressure.toFixed(3)),
+            skirtContact: rig.mobility.skirtContact,
+          };
     return {
       id: rig.id,
       x: Number(rig.x.toFixed(3)),
@@ -673,7 +720,8 @@ export function publicState(state: GameState, world: GameWorld): object {
       pitch: Number(rig.pitch.toFixed(4)),
       roll: Number(rig.roll.toFixed(4)),
       speed: Number(rig.speed.toFixed(3)),
-      grounded: rig.grounded,
+      stable: rigIsStable(rig),
+      mobility,
       condition: Number(rig.condition.toFixed(1)),
       strain: Number(rig.strain.toFixed(3)),
       distanceTravelled: Number(rig.distanceTravelled.toFixed(2)),
@@ -689,10 +737,6 @@ export function publicState(state: GameState, world: GameWorld): object {
         waterDepth: Number(rig.telemetry.waterDepth.toFixed(2)),
         stalled: rig.telemetry.stalled,
       },
-      wheels: rig.wheels.map((wheel) => ({
-        compression: Number(wheel.compression.toFixed(3)),
-        contact: wheel.contact,
-      })),
     };
   };
 
@@ -779,10 +823,103 @@ function recoverModules(value: unknown, rigId: RigId): ModuleId[] {
  * Recover one rig from an untrusted record.
  *
  * Deliberately tolerant of *missing* fields introduced after v2 (pitch, roll,
- * strain, wheels, modules) and strict about fields that existed before: a v2
- * record must still load, and a v3 record with a corrupted position must not.
+ * strain, modules) and strict about fields that existed before: a v2 record
+ * must still load, and a newer record with a corrupted position must not.
  */
-function recoverRig(value: unknown, id: RigId): RigState | null {
+function recoverMobility(
+  candidate: Record<string, unknown>,
+  id: RigId,
+  allowLegacyGround: boolean,
+): RigState["mobility"] | null {
+  const expected = RIG_PROFILES[id].mobilityAdapter;
+  const value = candidate.mobility;
+
+  if (value && typeof value === "object") {
+    const mobility = value as Record<string, unknown>;
+    if (mobility.kind !== expected) return null;
+
+    if (expected === "ground") {
+      if (
+        !isFiniteNumber(mobility.verticalVelocity) ||
+        typeof mobility.grounded !== "boolean" ||
+        !isFiniteNumber(mobility.jumpCooldownMs) ||
+        !isFiniteNumber(mobility.wheelRotation) ||
+        !Array.isArray(mobility.wheels) ||
+        mobility.wheels.length !== 4
+      ) {
+        return null;
+      }
+      const wheels = mobility.wheels.map((value) => {
+        if (!value || typeof value !== "object") return null;
+        const wheel = value as Record<string, unknown>;
+        if (
+          !isFiniteNumber(wheel.compression) ||
+          typeof wheel.contact !== "boolean" ||
+          !isFiniteNumber(wheel.slip)
+        ) {
+          return null;
+        }
+        return {
+          compression: clamp(wheel.compression, 0, 1),
+          contact: wheel.contact,
+          slip: clamp(wheel.slip, 0, 1),
+        };
+      });
+      if (wheels.some((wheel) => wheel === null)) return null;
+      return {
+        kind: "ground",
+        verticalVelocity: clamp(mobility.verticalVelocity, -40, 40),
+        grounded: mobility.grounded,
+        jumpCooldownMs: clamp(mobility.jumpCooldownMs, 0, 10_000),
+        wheelRotation: mobility.wheelRotation,
+        wheels: wheels as GroundMobilityState["wheels"],
+      };
+    }
+
+    if (
+      !isFiniteNumber(mobility.liftVelocity) ||
+      !isFiniteNumber(mobility.clearance) ||
+      !isFiniteNumber(mobility.cushionPressure) ||
+      typeof mobility.skirtContact !== "boolean"
+    ) {
+      return null;
+    }
+    return {
+      kind: "hover",
+      liftVelocity: clamp(mobility.liftVelocity, -30, 30),
+      clearance: clamp(mobility.clearance, 0, 12),
+      cushionPressure: clamp(mobility.cushionPressure, 0, 1),
+      skirtContact: mobility.skirtContact,
+    };
+  }
+
+  if (
+    !allowLegacyGround ||
+    expected !== "ground" ||
+    !isFiniteNumber(candidate.wheelRotation)
+  ) {
+    return null;
+  }
+  return {
+    kind: "ground",
+    verticalVelocity: isFiniteNumber(candidate.verticalVelocity)
+      ? clamp(candidate.verticalVelocity, -40, 40)
+      : 0,
+    grounded:
+      typeof candidate.grounded === "boolean" ? candidate.grounded : true,
+    jumpCooldownMs: isFiniteNumber(candidate.jumpCooldownMs)
+      ? clamp(candidate.jumpCooldownMs, 0, 10_000)
+      : 0,
+    wheelRotation: candidate.wheelRotation,
+    wheels: createWheels(),
+  };
+}
+
+function recoverRig(
+  value: unknown,
+  id: RigId,
+  allowLegacyGround = false,
+): RigState | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Record<string, unknown>;
   if (
@@ -793,7 +930,6 @@ function recoverRig(value: unknown, id: RigId): RigState | null {
     !isFiniteNumber(candidate.speed) ||
     !isFiniteNumber(candidate.steering) ||
     !isFiniteNumber(candidate.distanceTravelled) ||
-    !isFiniteNumber(candidate.wheelRotation) ||
     !isFiniteNumber(candidate.condition) ||
     !Array.isArray(candidate.attachments)
   ) {
@@ -801,6 +937,8 @@ function recoverRig(value: unknown, id: RigId): RigState | null {
   }
 
   const template = createRig(id, 0, 0);
+  const mobility = recoverMobility(candidate, id, allowLegacyGround);
+  if (!mobility) return null;
   const validAttachments = new Set(template.attachments.map((item) => item.id));
   const attachments = candidate.attachments
     .filter((item) => {
@@ -841,21 +979,12 @@ function recoverRig(value: unknown, id: RigId): RigState | null {
       profile.topSpeed * 1.6,
     ),
     steering: clamp(candidate.steering, -1, 1),
-    verticalVelocity: isFiniteNumber(candidate.verticalVelocity)
-      ? clamp(candidate.verticalVelocity, -40, 40)
-      : 0,
-    grounded:
-      typeof candidate.grounded === "boolean" ? candidate.grounded : true,
-    jumpCooldownMs: isFiniteNumber(candidate.jumpCooldownMs)
-      ? clamp(candidate.jumpCooldownMs, 0, 10_000)
-      : 0,
     distanceTravelled: Math.max(0, candidate.distanceTravelled),
-    wheelRotation: candidate.wheelRotation,
     condition: clamp(candidate.condition, 0, 100),
     strain: isFiniteNumber(candidate.strain)
       ? clamp(candidate.strain, 0, 1)
       : 0,
-    wheels: createWheels(),
+    mobility,
     attachments,
     modules: recoverModules(candidate.modules, id),
     telemetry: template.telemetry,
@@ -1018,12 +1147,59 @@ function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
   const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
   const tractor = recoverRig(rigValues["utility-tractor"], "utility-tractor");
   const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy");
-  if (!tractor || !buggy) return null;
+  const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
+  if (!tractor || !buggy || !skimmer) return null;
 
   return recoverShared(candidate, {
     "utility-tractor": tractor,
     "toy-buggy": buggy,
+    "marsh-skimmer": skimmer,
   });
+}
+
+/**
+ * Migrate Field 02 (v3) into the bounded-adapter state shape.
+ *
+ * The two ground rigs keep their established identity and motion state, while
+ * Drift is introduced at its authored Sunken Flats berth. Adding the new rig
+ * here is intentional schema migration, not recovery fallback: a corrupt v3
+ * tractor or buggy still rejects the whole record.
+ */
+function migrateV3(candidate: Record<string, unknown>): GameState | null {
+  if (
+    typeof candidate.seed !== "string" ||
+    candidate.seed.length < 1 ||
+    !isFiniteNumber(candidate.elapsedMs) ||
+    !PHASE_ORDER.includes(candidate.phase as WorldPhase) ||
+    !isRigId(candidate.activeRigId) ||
+    !candidate.rigs ||
+    typeof candidate.rigs !== "object"
+  ) {
+    return null;
+  }
+
+  const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
+  const tractor = recoverRig(
+    rigValues["utility-tractor"],
+    "utility-tractor",
+    true,
+  );
+  const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy", true);
+  if (!tractor || !buggy) return null;
+
+  const marsh = findSite("sunken-flats");
+  if (!marsh) return null;
+  const skimmer = createRig("marsh-skimmer", marsh.x + 8, marsh.z + 5);
+  const recovered = recoverShared(candidate, {
+    "utility-tractor": tractor,
+    "toy-buggy": buggy,
+    "marsh-skimmer": skimmer,
+  });
+  if (recovered) {
+    recovered.lastDiagnostic =
+      "Field 02 record migrated. Drift is berthed at the Sunken Flats.";
+  }
+  return recovered;
 }
 
 /**
@@ -1073,7 +1249,8 @@ function migrateV1(candidate: Record<string, unknown>): GameState | null {
   );
   tractor.steering = clamp(vehicle.steering, -1, 1);
   tractor.distanceTravelled = Math.max(0, vehicle.distanceTravelled);
-  tractor.wheelRotation = vehicle.wheelRotation;
+  if (tractor.mobility.kind !== "ground") return null;
+  tractor.mobility.wheelRotation = vehicle.wheelRotation;
   attachment(tractor, "field-plough")!.engaged = vehicle.ploughLowered;
 
   const validLandmarkIds = new Set(LANDMARKS.map((item) => item.id));
@@ -1107,7 +1284,7 @@ function migrateV1(candidate: Record<string, unknown>): GameState | null {
  * re-settled onto terrain.
  */
 function migrateV2(candidate: Record<string, unknown>): GameState | null {
-  const recovered = recoverCurrent(candidate);
+  const recovered = migrateV3(candidate);
   if (!recovered) return null;
   recovered.lastDiagnostic =
     "Rig Lab 01 record migrated. Both rigs re-settled onto real terrain.";
@@ -1119,6 +1296,9 @@ export function recoverState(value: unknown): GameState | null {
   const candidate = value as Record<string, unknown>;
   if (candidate.schemaVersion === SAVE_SCHEMA_VERSION) {
     return recoverCurrent(candidate);
+  }
+  if (candidate.schemaVersion === FIELD_02_SAVE_SCHEMA_VERSION) {
+    return migrateV3(candidate);
   }
   if (candidate.schemaVersion === RIG_LAB_SAVE_SCHEMA_VERSION) {
     return migrateV2(candidate);

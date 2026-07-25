@@ -74,7 +74,10 @@ describe("rig gameplay kernel", () => {
       const ground = world.terrain.height(rig.x, rig.z);
       expect(rig.y).toBeGreaterThan(ground);
       expect(rig.y - ground).toBeLessThan(profile.rideHeight + 0.6);
-      expect(rig.grounded).toBe(true);
+      expect(rig.mobility.kind).toBe("ground");
+      if (rig.mobility.kind !== "ground")
+        throw new Error("expected ground rig");
+      expect(rig.mobility.grounded).toBe(true);
     }
   });
 
@@ -95,6 +98,60 @@ describe("rig gameplay kernel", () => {
     expect(publicState(buggy.state, buggy.world)).not.toHaveProperty(
       "renderer",
     );
+  });
+
+  it("crosses standing water through hover state rather than fake wheel contacts", () => {
+    const { state, world } = scenario("HOVER-WATER", "marsh-skimmer");
+    const marsh = findSite("sunken-flats")!;
+    const rig = activeRig(state);
+    rig.x = marsh.x;
+    rig.z = marsh.z + 7;
+    rig.heading = Math.PI;
+    settleWorld(state, world);
+    const condition = rig.condition;
+
+    driveFlat(state, world, 120);
+
+    expect(rig.mobility.kind).toBe("hover");
+    if (rig.mobility.kind !== "hover") throw new Error("expected hover rig");
+    expect(rig.telemetry.waterDepth).toBeGreaterThan(
+      RIG_PROFILES["utility-tractor"].fordDepth,
+    );
+    expect(rig.condition).toBe(condition);
+    expect(rig.distanceTravelled).toBeGreaterThan(5);
+    expect(rig.mobility.cushionPressure).toBeGreaterThan(0.5);
+    const exposed = publicState(state, world) as {
+      activeRig: { mobility: { kind: string; wheels?: unknown } };
+    };
+    expect(exposed.activeRig.mobility.kind).toBe("hover");
+    expect(exposed.activeRig.mobility.wheels).toBeUndefined();
+  });
+
+  it("keeps hover traversal deterministic for the same seed and input", () => {
+    const first = scenario("HOVER-DETERMINISM", "marsh-skimmer");
+    const second = scenario("HOVER-DETERMINISM", "marsh-skimmer");
+    driveFlat(first.state, first.world, 180);
+    driveFlat(second.state, second.world, 180);
+
+    expect(publicState(first.state, first.world)).toEqual(
+      publicState(second.state, second.world),
+    );
+  });
+
+  it("makes steep ground cost hover authority and mechanical strain", () => {
+    const { state, world } = scenario("HOVER-GRADE", "marsh-skimmer");
+    const ridge = findSite("launch-ridge")!;
+    const rig = activeRig(state);
+    rig.x = (HOME_SITE.x + ridge.x) * 0.42;
+    rig.z = (HOME_SITE.z + ridge.z) * 0.42;
+    rig.heading = Math.atan2(ridge.x - rig.x, ridge.z - rig.z);
+    settleWorld(state, world);
+
+    driveFlat(state, world, 180);
+
+    expect(Math.abs(rig.telemetry.grade)).toBeGreaterThan(0.05);
+    expect(rig.telemetry.grip).toBeLessThan(0.9);
+    expect(rig.strain).toBeGreaterThan(0.04);
   });
 
   it("queries capabilities from composed profiles rather than rig-name branches", () => {
@@ -161,13 +218,16 @@ describe("rig gameplay kernel", () => {
 
   it("keeps control on an airborne rig until it lands", () => {
     const { state } = scenario("AIRBORNE-SWITCH", "toy-buggy");
-    state.rigs["toy-buggy"].grounded = false;
-    state.rigs["toy-buggy"].y += 4;
+    const buggy = state.rigs["toy-buggy"];
+    if (buggy.mobility.kind !== "ground")
+      throw new Error("expected ground rig");
+    buggy.mobility.grounded = false;
+    buggy.y += 4;
 
     switchActiveRig(state);
 
     expect(state.activeRigId).toBe("toy-buggy");
-    expect(state.lastDiagnostic).toContain("Land");
+    expect(state.lastDiagnostic).toContain("Stabilize");
   });
 
   it("discovers spatial opportunities through either active rig", () => {
@@ -350,8 +410,9 @@ describe("traversal model", () => {
   it("removes steering authority while airborne", () => {
     const { state, world } = scenario("AIR-STEER", "toy-buggy");
     const rig = activeRig(state);
+    if (rig.mobility.kind !== "ground") throw new Error("expected ground rig");
     rig.speed = 12;
-    rig.grounded = false;
+    rig.mobility.grounded = false;
     rig.y += 6;
     const heading = rig.heading;
 
@@ -363,7 +424,7 @@ describe("traversal model", () => {
     );
 
     expect(rig.heading).toBe(heading);
-    expect(rig.grounded).toBe(false);
+    expect(rig.mobility.grounded).toBe(false);
   });
 
   it("bounds the rig inside the world disc", () => {
@@ -651,7 +712,9 @@ describe("exploration and progression", () => {
     winchRecover(state, world);
     expect(rig.x).not.toBe(strandedX);
     expect(world.terrain.routeWeight(rig.x, rig.z)).toBeGreaterThan(0.9);
-    expect(rig.grounded).toBe(true);
+    expect(rig.mobility.kind).toBe("ground");
+    if (rig.mobility.kind !== "ground") throw new Error("expected ground rig");
+    expect(rig.mobility.grounded).toBe(true);
   });
 });
 
@@ -761,9 +824,17 @@ describe("cargo relay", () => {
     tractor.speed = BUGGY_RAMP.minimumSpeed + 1;
     stepGame(tractorRun.state, tractorRun.world);
 
-    expect(buggy.grounded).toBe(false);
+    expect(buggy.mobility.kind).toBe("ground");
+    expect(tractor.mobility.kind).toBe("ground");
+    if (
+      buggy.mobility.kind !== "ground" ||
+      tractor.mobility.kind !== "ground"
+    ) {
+      throw new Error("expected ground rigs");
+    }
+    expect(buggy.mobility.grounded).toBe(false);
     expect(buggy.y).toBeGreaterThan(buggyRest);
-    expect(tractor.grounded).toBe(true);
+    expect(tractor.mobility.grounded).toBe(true);
   });
 });
 
@@ -803,7 +874,7 @@ describe("save recovery and migration", () => {
       lastDiagnostic: null,
     });
 
-    expect(recovered?.schemaVersion).toBe(3);
+    expect(recovered?.schemaVersion).toBe(4);
     expect(recovered?.rigs["utility-tractor"].x).toBe(12);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
       true,
@@ -811,6 +882,38 @@ describe("save recovery and migration", () => {
     expect(recovered?.rigs["toy-buggy"].id).toBe("toy-buggy");
     expect(recovered?.discoveries[0]?.id).toBe("home-silo");
     expect(recovered?.rigs["utility-tractor"].modules).toEqual([]);
+  });
+
+  it("migrates a Field 02 (v3) record without rewriting ground rigs as hover rigs", () => {
+    const source = createInitialState("FIELD-02-MIGRATION");
+    source.activeRigId = "toy-buggy";
+    source.rigs["utility-tractor"].distanceTravelled = 143;
+    const flattenGroundRig = (id: "utility-tractor" | "toy-buggy") => {
+      const rig = source.rigs[id];
+      if (rig.mobility.kind !== "ground") {
+        throw new Error("expected legacy ground rig");
+      }
+      const { mobility, ...shared } = rig;
+      return { ...shared, ...mobility };
+    };
+    const v3 = {
+      ...source,
+      schemaVersion: 3,
+      rigs: {
+        "utility-tractor": flattenGroundRig("utility-tractor"),
+        "toy-buggy": flattenGroundRig("toy-buggy"),
+      },
+    };
+
+    const recovered = recoverState(JSON.parse(JSON.stringify(v3)) as unknown);
+
+    expect(recovered?.schemaVersion).toBe(4);
+    expect(recovered?.activeRigId).toBe("toy-buggy");
+    expect(recovered?.rigs["utility-tractor"].distanceTravelled).toBe(143);
+    expect(recovered?.rigs["utility-tractor"].mobility.kind).toBe("ground");
+    expect(recovered?.rigs["toy-buggy"].mobility.kind).toBe("ground");
+    expect(recovered?.rigs["marsh-skimmer"].mobility.kind).toBe("hover");
+    expect(recovered?.lastDiagnostic).toContain("Drift");
   });
 
   it("migrates a Rig Lab 01 (v2) record and re-settles it onto terrain", () => {
@@ -881,7 +984,7 @@ describe("save recovery and migration", () => {
     };
 
     const recovered = recoverState(v2);
-    expect(recovered?.schemaVersion).toBe(3);
+    expect(recovered?.schemaVersion).toBe(4);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].condition).toBe(71);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
@@ -901,6 +1004,12 @@ describe("save recovery and migration", () => {
     expect(recoverState({ schemaVersion: 99 })).toBeNull();
 
     const state = createInitialState("RECOVER");
+    const mismatched = JSON.parse(JSON.stringify(state)) as {
+      rigs: { "marsh-skimmer": { mobility: { kind: string } } };
+    };
+    mismatched.rigs["marsh-skimmer"].mobility.kind = "ground";
+    expect(recoverState(mismatched)).toBeNull();
+
     state.rigs["toy-buggy"].x = 9999;
     state.rigs["toy-buggy"].z = 0;
     state.rigs["toy-buggy"].condition = -10;
@@ -941,5 +1050,34 @@ describe("save recovery and migration", () => {
     expect(
       recoverState(JSON.parse(JSON.stringify(state)) as unknown),
     ).toBeNull();
+  });
+});
+
+describe("surface grip identity", () => {
+  /**
+   * The central design claim of the traversal model, asserted as a table.
+   *
+   * The buggy's slicks must win on firm ground and the tractor's lugs must win on
+   * soft ground, with the crossover *above* tilled soil so the field is genuinely
+   * the tractor's home ground. Verified against the live runtime; this test is
+   * what stops a surface-table edit from silently inverting it.
+   */
+  it("gives firm ground to the buggy and soft ground to the tractor", () => {
+    const tractor = effectiveProfile("utility-tractor", []);
+    const buggy = effectiveProfile("toy-buggy", []);
+    const grip = (surface: keyof typeof SURFACES, profile: typeof tractor) =>
+      effectiveGrip(SURFACES[surface].grip, profile.tireGrip, profile.lugBonus);
+
+    for (const firm of ["track", "rock"] as const) {
+      expect(grip(firm, buggy), firm).toBeGreaterThan(grip(firm, tractor));
+    }
+    for (const soft of ["tilled", "sand", "mud", "water"] as const) {
+      expect(grip(soft, tractor), soft).toBeGreaterThan(grip(soft, buggy));
+    }
+    // The advantage has to be decisive where it matters most, not a rounding
+    // error. It widens as the surface worsens, because `lugBonus` recovers a
+    // fraction of what the surface lacks: ~1.25x in mud, ~1.9x in standing water.
+    expect(grip("mud", tractor)).toBeGreaterThan(grip("mud", buggy) * 1.2);
+    expect(grip("water", tractor)).toBeGreaterThan(grip("water", buggy) * 1.7);
   });
 });

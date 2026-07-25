@@ -26,6 +26,7 @@
  */
 
 import type { EffectiveRig, RigId, RigState, WorldPhase } from "./contracts";
+import { deriveRigFeedback } from "./feedback";
 import { clamp } from "./noise";
 import { SURFACES, type SurfaceId } from "./world";
 
@@ -73,6 +74,17 @@ const VOICES: Readonly<Record<RigId, VoiceProfile>> = {
     cutoffLoadHz: 3200,
     level: 0.2,
     shape: "square",
+  },
+  // A broad lift-fan drone: steadier than either combustion voice, with load
+  // expressed as pressure and spray rather than fake tyre contact.
+  "marsh-skimmer": {
+    idleHz: 58,
+    spanHz: 128,
+    detune: 7,
+    cutoffIdleHz: 420,
+    cutoffLoadHz: 2200,
+    level: 0.24,
+    shape: "triangle",
   },
 };
 
@@ -231,6 +243,7 @@ export class RigAudio {
     }
 
     const voice = VOICES[rig.id] ?? FALLBACK_VOICE;
+    const feedback = deriveRigFeedback(rig, profile);
     if (this.currentVoice !== rig.id) {
       this.currentVoice = rig.id;
       this.engineA.type = voice.shape;
@@ -239,19 +252,14 @@ export class RigAudio {
     }
 
     const now = context.currentTime;
-    const speedRatio = clamp(
-      Math.abs(rig.speed) / Math.max(1, profile.topSpeed),
-      0,
-      1,
-    );
     // Slip raises perceived revs without raising road speed, which is exactly what
     // wheelspin sounds like.
-    const revs = clamp(speedRatio + rig.telemetry.slip * 0.55, 0, 1.35);
-    const load = clamp(
-      rig.telemetry.engineLoad * 0.7 + rig.telemetry.slip * 0.5,
+    const revs = clamp(
+      feedback.speedRatio + feedback.tractionLoss * 0.55,
       0,
-      1,
+      1.35,
     );
+    const load = feedback.driveLoad;
 
     const frequency = voice.idleHz + voice.spanHz * revs;
     this.engineA.frequency.setTargetAtTime(frequency, now, 0.06);
@@ -272,16 +280,18 @@ export class RigAudio {
       SURFACES[rig.telemetry.surfaceId as SurfaceId] ?? SURFACES.grass;
     const tone = SURFACE_TONE[surface.id] ?? 900;
     this.tyreFilter.frequency.setTargetAtTime(tone, now, 0.12);
-    const contact = rig.wheels.filter((wheel) => wheel.contact).length / 4;
+    const contact =
+      rig.mobility.kind === "ground"
+        ? rig.mobility.wheels.filter((wheel) => wheel.contact).length / 4
+        : rig.mobility.cushionPressure;
+    const motionLayer =
+      rig.mobility.kind === "ground"
+        ? feedback.speedRatio * 0.1 + feedback.tractionLoss * 0.3
+        : feedback.speedRatio * 0.14 +
+          (1 - rig.mobility.cushionPressure) * 0.12;
     const tyreLevel = paused
       ? 0
-      : clamp(
-          (speedRatio * 0.1 + rig.telemetry.slip * 0.3) *
-            surface.spray *
-            contact,
-          0,
-          0.34,
-        );
+      : clamp(motionLayer * surface.spray * contact, 0, 0.34);
     this.tyreGain.gain.setTargetAtTime(tyreLevel, now, 0.07);
   }
 

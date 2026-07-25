@@ -7,8 +7,7 @@ const playwrightModule =
 const { chromium } = require(playwrightModule);
 
 const TARGET_URL =
-  process.env.RIGS_UNBOUND_URL ||
-  "http://127.0.0.1:4174/?acceptance=rig-lab-01";
+  process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4173/?acceptance=field-02";
 const artifactDirectory = path.resolve(__dirname, "../docs/reviews/assets");
 let browser;
 
@@ -39,22 +38,31 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     let error = desired - rig.heading;
     while (error > Math.PI) error -= Math.PI * 2;
     while (error < -Math.PI) error += Math.PI * 2;
-    const sharpTurn = Math.abs(error) > 1.15;
+    const headingError = Math.abs(error);
+    const desiredSpeed =
+      distance > 36 ? 9 : distance > 16 ? 5.5 : distance > 7 ? 3 : 1.6;
+    const speed = Math.abs(rig.speed);
+    const brake = speed > desiredSpeed || (headingError > 0.9 && speed > 2);
+    // Steering needs a little motion, but accelerating through a large error is
+    // what made the old acceptance driver orbit the delivery gate.
+    const accelerate =
+      !brake && (headingError < 0.72 || speed < 1.05) && speed < desiredSpeed;
     await page.evaluate(
-      ({ turnLeft, turnRight, brake }) =>
+      ({ turnLeft, turnRight, brake, accelerate }) =>
         window.applyRigInput(
           {
-            accelerate: !brake,
+            accelerate,
             brake,
             steerLeft: turnLeft,
             steerRight: turnRight,
           },
-          110,
+          90,
         ),
       {
         turnLeft: error > 0.055,
         turnRight: error < -0.055,
-        brake: sharpTurn && Math.abs(rig.speed) > 4,
+        brake,
+        accelerate,
       },
     );
   }
@@ -101,11 +109,68 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   await page.locator("#enter-world").click();
 
   const initial = await state(page);
-  assert(initial.schemaVersion === 3, "Expected v3 save contract");
+  assert(initial.schemaVersion === 4, "Expected v4 save contract");
   assert(
-    Object.keys(initial.rigs).length === 2,
-    "Expected two persistent rigs",
+    initial.rigs["utility-tractor"] && initial.rigs["toy-buggy"],
+    "Expected the tractor and buggy orientation fixtures",
   );
+  for (const rigId of ["utility-tractor", "toy-buggy", "marsh-skimmer"]) {
+    const orientation = await page.evaluate(
+      (id) => window.getRigOrientationEvidence(id),
+      rigId,
+    );
+    assert(
+      orientation.visualFrontIsForward &&
+        orientation.frontAlongHeadingMetres > 0,
+      `Rendered ${rigId} faces opposite simulated travel: ${JSON.stringify(orientation)}`,
+    );
+  }
+  await page.evaluate(() => window.applyRigInput({ accelerate: true }, 900));
+  await page.waitForTimeout(500);
+  await page.screenshot({
+    path: path.join(artifactDirectory, "field-02-front-forward.png"),
+    fullPage: true,
+  });
+
+  await page.evaluate(() =>
+    window.applyRigInput({ accelerate: true, steerLeft: true }, 650),
+  );
+  const expressedPerception = await page.evaluate(() =>
+    window.getRigPerceptionEvidence(),
+  );
+  assert(
+    Math.abs(expressedPerception.steeringAngle) > 0.08,
+    `Front wheels did not express steering: ${JSON.stringify(expressedPerception)}`,
+  );
+  assert(
+    Math.abs(expressedPerception.bodyRollOffset) > 0.001,
+    `Body did not express lateral load: ${JSON.stringify(expressedPerception)}`,
+  );
+  assert(
+    expressedPerception.speedFovBoost > 0,
+    `Camera did not express speed: ${JSON.stringify(expressedPerception)}`,
+  );
+  assert(
+    expressedPerception.cameraFocusContractMet,
+    `Camera focus drifted from the rig profile: ${JSON.stringify(expressedPerception)}`,
+  );
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const reducedPerception = await page.evaluate(() =>
+    window.getRigPerceptionEvidence(),
+  );
+  assert(
+    reducedPerception.reducedMotion &&
+      reducedPerception.speedFovBoost === 0 &&
+      Math.abs(reducedPerception.bodyRollOffset) <
+        Math.abs(expressedPerception.bodyRollOffset),
+    `Reduced motion did not clamp optional expression: ${JSON.stringify({
+      expressedPerception,
+      reducedPerception,
+    })}`,
+  );
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.evaluate(() => window.applyRigInput({}, 550));
 
   const cameraModes = [
     "chase",
@@ -133,6 +198,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     (await state(page)).cameraMode === "top-down",
     "Direct view selector did not activate top-down",
   );
+  await page.waitForTimeout(1400);
   await page.screenshot({
     path: path.join(artifactDirectory, "field-02-top-down.png"),
     fullPage: true,
@@ -156,11 +222,19 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     "Tractor did not attach cargo",
   );
 
+  // Browser acceptance is proving the tow/delivery workflow, not the quality of
+  // an autonomous navigation bot. Place the attached relay on a short aligned
+  // final approach, then complete that approach through the real fixed-step
+  // movement and cargo logic.
+  await page.evaluate(
+    (delivery) => window.placeRig(delivery.x, delivery.z + 12, Math.PI),
+    attached.activity.deliveryPosition,
+  );
   const deliveryApproach = await driveTo(
     page,
     attached.activity.deliveryPosition,
     2.4,
-    340,
+    120,
   );
   const delivered = await state(page);
   assert(delivered.activity.status === "complete", "Relay did not complete");
@@ -193,6 +267,39 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     `Buggy did not launch from the ramp: ${JSON.stringify(rampApproach)}`,
   );
 
+  // Settle Spark before switching: the shared action contract deliberately
+  // refuses to abandon an unstable rig.
+  await page.evaluate(() => window.placeRig(0, 0));
+  await page.evaluate(() => window.selectRig("marsh-skimmer"));
+  // Use Drift's offset berth rather than aiming the chase camera through the
+  // site's navigation mast at the basin centre.
+  await page.evaluate(() => window.placeRig(-118, -123));
+  const skimmerStart = await state(page);
+  await page.evaluate(() => window.applyRigInput({ accelerate: true }, 1600));
+  const skimmerRun = await state(page);
+  assert(
+    skimmerRun.activeRig.mobility.kind === "hover" &&
+      skimmerRun.activeRig.mobility.wheels === undefined,
+    `Skimmer leaked a ground mobility contract: ${JSON.stringify(skimmerRun.activeRig.mobility)}`,
+  );
+  assert(
+    skimmerRun.activeRig.terrain.waterDepth > 1.1,
+    "Skimmer did not exercise water deeper than Torque can ford",
+  );
+  assert(
+    skimmerRun.activeRig.distanceTravelled >
+      skimmerStart.activeRig.distanceTravelled + 2,
+    "Skimmer did not produce meaningful water traversal",
+  );
+  assert(
+    skimmerRun.activeRig.condition === skimmerStart.activeRig.condition,
+    "Hover traversal incorrectly applied ground-rig drowning damage",
+  );
+  assert(
+    (await page.locator("#mobility-label").textContent()) === "Cushion",
+    "HUD did not expose hover authority as cushion pressure",
+  );
+
   const desktopMetrics = await page.evaluate(() =>
     window.getPerformanceSnapshot(),
   );
@@ -207,7 +314,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   );
   assert(saveMetrics.saveBytes > 0, "Periodic save size was not measured");
   const stored = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("rigs-unbound.save.v3")),
+    JSON.parse(localStorage.getItem("rigs-unbound.save.v4")),
   );
   assert(
     stored.state.cargoRelay.status === "complete",
@@ -226,6 +333,11 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     restored.rigs["toy-buggy"].distanceTravelled >=
       buggyRun.rigs["toy-buggy"].distanceTravelled,
     "Buggy history regressed across reload",
+  );
+  assert(
+    restored.rigs["marsh-skimmer"].distanceTravelled >=
+      skimmerRun.rigs["marsh-skimmer"].distanceTravelled,
+    "Skimmer history regressed across reload",
   );
 
   await page.setViewportSize({ width: 390, height: 844 });
@@ -301,10 +413,15 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
         cargoApproach,
         deliveryApproach,
         rampApproach,
+        perception: {
+          expressed: expressedPerception,
+          reduced: reducedPerception,
+        },
         relay: restored.activity,
         rigDistances: {
           tractor: restored.rigs["utility-tractor"].distanceTravelled,
           buggy: restored.rigs["toy-buggy"].distanceTravelled,
+          skimmer: restored.rigs["marsh-skimmer"].distanceTravelled,
         },
         performance: {
           desktop: desktopMetrics,
@@ -315,6 +432,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
         narrowLayout,
         consoleProblems,
         screenshots: [
+          path.join(artifactDirectory, "field-02-front-forward.png"),
           path.join(artifactDirectory, "field-02-top-down.png"),
           path.join(artifactDirectory, "rig-lab-01-desktop.png"),
           path.join(artifactDirectory, "rig-lab-01-narrow.png"),

@@ -38,6 +38,7 @@ import {
   type EffectiveRig,
   GRAVITY,
   type InputFrame,
+  type MobilityAdapter,
   type RigState,
   WORLD_LIMIT,
 } from "./contracts";
@@ -157,7 +158,7 @@ export function driveForce(profile: EffectiveRig, speed: number): number {
  * audio triggers, and world side effects. Keeping this function free of
  * messaging is what lets it be tested as pure motion.
  */
-export function stepRigMotion(
+function stepGroundMotion(
   rig: RigState,
   profile: EffectiveRig,
   input: InputFrame,
@@ -165,6 +166,12 @@ export function stepRigMotion(
   dt: number,
   options: { towing: boolean; ramp: RampDefinition | null; canJump: boolean },
 ): MotionOutcome {
+  if (profile.mobilityAdapter !== "ground" || rig.mobility.kind !== "ground") {
+    throw new Error(
+      `Ground adapter received ${profile.mobilityAdapter}/${rig.mobility.kind}.`,
+    );
+  }
+  const mobility = rig.mobility;
   const previousX = rig.x;
   const previousZ = rig.z;
 
@@ -222,52 +229,53 @@ export function stepRigMotion(
     Math.hypot(rig.x - ramp.x, rig.z - ramp.z) <= ramp.radius &&
     Math.abs(rig.speed) >= ramp.minimumSpeed;
 
-  rig.jumpCooldownMs = Math.max(0, rig.jumpCooldownMs - dt * 1000);
+  mobility.jumpCooldownMs = Math.max(0, mobility.jumpCooldownMs - dt * 1000);
 
   if (
-    rig.grounded &&
+    mobility.grounded &&
     atRamp &&
     options.canJump &&
-    rig.jumpCooldownMs === 0 &&
+    mobility.jumpCooldownMs === 0 &&
     profile.jumpImpulse > 0
   ) {
-    rig.grounded = false;
-    rig.verticalVelocity = profile.jumpImpulse;
-    rig.jumpCooldownMs = 1800;
+    mobility.grounded = false;
+    mobility.verticalVelocity = profile.jumpImpulse;
+    mobility.jumpCooldownMs = 1800;
     launched = true;
     rampLaunch = true;
   }
 
-  if (rig.grounded) {
+  if (mobility.grounded) {
     const acceleration =
       profile.suspensionStiffness * (restY - rig.y) -
-      profile.suspensionDamping * rig.verticalVelocity;
-    rig.verticalVelocity += acceleration * dt;
-    rig.y += rig.verticalVelocity * dt;
+      profile.suspensionDamping * mobility.verticalVelocity;
+    mobility.verticalVelocity += acceleration * dt;
+    rig.y += mobility.verticalVelocity * dt;
 
     if (rig.y - restY > profile.suspensionTravel * LAUNCH_TRAVEL_MULTIPLE) {
-      rig.grounded = false;
+      mobility.grounded = false;
       launched = true;
     }
   } else {
-    rig.verticalVelocity -= GRAVITY * dt;
-    rig.y += rig.verticalVelocity * dt;
+    mobility.verticalVelocity -= GRAVITY * dt;
+    rig.y += mobility.verticalVelocity * dt;
     if (rig.y <= restY) {
-      landingSpeed = Math.abs(rig.verticalVelocity);
+      landingSpeed = Math.abs(mobility.verticalVelocity);
       rig.y = restY;
-      rig.verticalVelocity = 0;
-      rig.grounded = true;
+      mobility.verticalVelocity = 0;
+      mobility.grounded = true;
     }
   }
 
   // ---------------------------------------------------------------------------
   // 3. Attitude and per-wheel compression.
   // ---------------------------------------------------------------------------
-  const attitudeBlend = rig.grounded
+  const attitudeBlend = mobility.grounded
     ? 1 - Math.exp(-profile.suspensionDamping * 0.85 * dt)
     : 1 - Math.exp(-1.6 * dt);
-  rig.pitch += ((rig.grounded ? pitchTarget : 0) - rig.pitch) * attitudeBlend;
-  rig.roll += ((rig.grounded ? rollTarget : 0) - rig.roll) * attitudeBlend;
+  rig.pitch +=
+    ((mobility.grounded ? pitchTarget : 0) - rig.pitch) * attitudeBlend;
+  rig.roll += ((mobility.grounded ? rollTarget : 0) - rig.roll) * attitudeBlend;
 
   let contactCount = 0;
   for (let index = 0; index < 4; index += 1) {
@@ -283,9 +291,9 @@ export function stepRigMotion(
       0,
       1,
     );
-    const wheel = rig.wheels[index]!;
+    const wheel = mobility.wheels[index]!;
     wheel.compression = compression;
-    wheel.contact = rig.grounded && compression > 0.02;
+    wheel.contact = mobility.grounded && compression > 0.02;
     if (wheel.contact) contactCount += 1;
   }
   const contactFraction = contactCount / 4;
@@ -370,7 +378,7 @@ export function stepRigMotion(
 
   const stalled =
     input.accelerate &&
-    rig.grounded &&
+    mobility.grounded &&
     Math.abs(rig.speed) < STALL_SPEED &&
     grade > 0.05 &&
     driveForce(profile, 0) * grip * TRACTION_GRAVITY_FRACTION <
@@ -421,12 +429,12 @@ export function stepRigMotion(
   rig.distanceTravelled += distance;
   // Wheel spin includes slip, so a spinning wheel visibly outruns the ground.
   const slipSpin = 1 + slipDemand * 2.4;
-  rig.wheelRotation += (rig.speed * dt * slipSpin) / profile.wheelRadius;
+  mobility.wheelRotation += (rig.speed * dt * slipSpin) / profile.wheelRadius;
 
   // Smooth slip so audio and dust do not chatter on the fixed step.
   const slipBlend = 1 - Math.exp(-9 * dt);
   let slipAverage = 0;
-  for (const wheel of rig.wheels) {
+  for (const wheel of mobility.wheels) {
     wheel.slip += (slipDemand - wheel.slip) * slipBlend;
     slipAverage += wheel.slip;
   }
@@ -470,17 +478,194 @@ export function stepRigMotion(
 }
 
 /**
+ * Low-hover traversal.
+ *
+ * This is deliberately not a wheeled controller with contact values set to
+ * convenient numbers. The skirt follows the higher of terrain or standing
+ * water, lift is a damped vertical system, and planar authority comes from
+ * cushion pressure rather than tyre grip.
+ */
+function stepHoverMotion(
+  rig: RigState,
+  profile: EffectiveRig,
+  input: InputFrame,
+  terrain: TerrainField,
+  dt: number,
+  options: { towing: boolean },
+): MotionOutcome {
+  if (profile.mobilityAdapter !== "hover" || rig.mobility.kind !== "hover") {
+    throw new Error(
+      `Hover adapter received ${profile.mobilityAdapter}/${rig.mobility.kind}.`,
+    );
+  }
+
+  const mobility = rig.mobility;
+  const previousX = rig.x;
+  const previousZ = rig.z;
+  const forwardX = Math.sin(rig.heading);
+  const forwardZ = Math.cos(rig.heading);
+  const ground = terrain.sample(rig.x, rig.z);
+  const waterDepth = Math.max(0, WATER_LEVEL - ground.height);
+  const supportY = Math.max(
+    ground.height,
+    waterDepth > 0 ? WATER_LEVEL : -Infinity,
+  );
+  const targetY = supportY + profile.rideHeight;
+
+  const liftAcceleration =
+    profile.suspensionStiffness * (targetY - rig.y) -
+    profile.suspensionDamping * mobility.liftVelocity;
+  mobility.liftVelocity += liftAcceleration * dt;
+  rig.y += mobility.liftVelocity * dt;
+  mobility.clearance = Math.max(0, rig.y - supportY);
+  mobility.skirtContact =
+    mobility.clearance <= profile.rideHeight + profile.suspensionTravel;
+
+  const pressureTarget = mobility.skirtContact
+    ? clamp(
+        1 -
+          Math.abs(mobility.clearance - profile.rideHeight) /
+            Math.max(0.2, profile.suspensionTravel * 2.2),
+        0,
+        1,
+      )
+    : 0;
+  mobility.cushionPressure +=
+    (pressureTarget - mobility.cushionPressure) *
+    (1 - Math.exp(-profile.suspensionDamping * 0.55 * dt));
+
+  const grade = terrain.gradeAlong(rig.x, rig.z, forwardX, forwardZ);
+  const slopePenalty = clamp(1 - Math.abs(grade) * 1.45, 0.18, 1);
+  const cushionAuthority = clamp(
+    mobility.cushionPressure * slopePenalty,
+    0.08,
+    1,
+  );
+
+  if (input.accelerate) {
+    rig.speed += profile.enginePower * cushionAuthority * dt;
+  }
+  if (input.brake) {
+    if (rig.speed > 0.25) {
+      rig.speed = Math.max(0, rig.speed - profile.activeBrake * dt);
+    } else {
+      rig.speed -= profile.reverseAcceleration * cushionAuthority * dt;
+    }
+  }
+  if (!input.accelerate && !input.brake) {
+    const drag =
+      profile.coastDrag *
+      (waterDepth > 0 ? 0.62 : 1.05) *
+      (options.towing ? 1.35 : 1);
+    rig.speed -=
+      Math.sign(rig.speed) * Math.min(Math.abs(rig.speed), drag * dt);
+  }
+
+  // Hovering removes tyre traction, not gravity. Cross-slope travel costs
+  // authority and climbing a steep face still bleeds speed and raises strain.
+  const slopeAcceleration =
+    -GRAVITY * (grade / Math.sqrt(1 + grade * grade)) * 0.38;
+  rig.speed += slopeAcceleration * dt;
+  if (options.towing) {
+    rig.speed *= Math.max(0, 1 - 0.48 * dt);
+  }
+  rig.speed = clamp(
+    rig.speed,
+    profile.reverseLimit * 1.25,
+    profile.topSpeed * (options.towing ? profile.towSpeedMultiplier : 1) * 1.3,
+  );
+
+  const steerTarget = Number(input.steerLeft) - Number(input.steerRight);
+  const steerBlend = profile.steeringResponse * dt;
+  rig.steering +=
+    clamp(steerTarget - rig.steering, -steerBlend, steerBlend) || 0;
+  rig.steering = clamp(rig.steering, -1, 1);
+  const movementFactor = clamp(Math.abs(rig.speed) / 3, 0.2, 1);
+  const direction = rig.speed >= 0 ? 1 : -1;
+  rig.heading +=
+    rig.steering *
+    profile.turnRate *
+    movementFactor *
+    direction *
+    cushionAuthority *
+    dt;
+
+  const attitudeBlend = 1 - Math.exp(-5 * dt);
+  const pitchTarget = clamp(-grade * 0.16, -0.12, 0.12);
+  const rollTarget = clamp(-rig.steering * movementFactor * 0.12, -0.14, 0.14);
+  rig.pitch += (pitchTarget - rig.pitch) * attitudeBlend;
+  rig.roll += (rollTarget - rig.roll) * attitudeBlend;
+
+  rig.x += Math.sin(rig.heading) * rig.speed * dt;
+  rig.z += Math.cos(rig.heading) * rig.speed * dt;
+
+  let boundarySpeed = 0;
+  const radius = Math.hypot(rig.x, rig.z);
+  if (radius > WORLD_LIMIT) {
+    boundarySpeed = Math.abs(rig.speed);
+    const scale = WORLD_LIMIT / radius;
+    rig.x *= scale;
+    rig.z *= scale;
+    rig.speed *= -0.12;
+  }
+
+  const distance = Math.hypot(rig.x - previousX, rig.z - previousZ);
+  rig.distanceTravelled += distance;
+  const slip = clamp(1 - cushionAuthority, 0, 1);
+  const stalled =
+    input.accelerate && Math.abs(rig.speed) < STALL_SPEED && slopePenalty < 0.3;
+  const strainInput =
+    slip * 0.52 + Math.abs(grade) * 0.34 + (options.towing ? 0.18 : 0);
+  rig.strain = clamp(
+    rig.strain + (strainInput - rig.strain * 0.5) * dt * 1.35,
+    0,
+    1,
+  );
+
+  rig.telemetry.surfaceId = waterDepth > 0 ? "water" : ground.surface.id;
+  rig.telemetry.grade = grade;
+  rig.telemetry.grip = cushionAuthority;
+  rig.telemetry.slip = slip;
+  rig.telemetry.waterDepth = waterDepth;
+  rig.telemetry.engineLoad = input.accelerate
+    ? clamp(1 - cushionAuthority * 0.35 + Math.abs(grade) * 0.2, 0, 1)
+    : 0;
+  rig.telemetry.stalled = stalled;
+
+  return {
+    landingSpeed: 0,
+    launched: false,
+    rampLaunch: false,
+    stalled,
+    boundarySpeed,
+    waterDepth,
+    drowning: false,
+    slip,
+    distance,
+    surfaceId: waterDepth > 0 ? "water" : ground.surface.id,
+    grade,
+    grip: cushionAuthority,
+  };
+}
+
+/**
  * Settle a rig onto the terrain without simulating a fall.
  *
  * Used at spawn, after a save restore, and after a winch recovery. Without this,
  * a restored rig starts `suspensionTravel` above or below the ground and the
  * first frame reads as an impact.
  */
-export function settleRig(
+function settleGroundRig(
   rig: RigState,
   profile: EffectiveRig,
   terrain: TerrainField,
 ): void {
+  if (profile.mobilityAdapter !== "ground" || rig.mobility.kind !== "ground") {
+    throw new Error(
+      `Ground settle received ${profile.mobilityAdapter}/${rig.mobility.kind}.`,
+    );
+  }
+  const mobility = rig.mobility;
   const forwardX = Math.sin(rig.heading);
   const forwardZ = Math.cos(rig.heading);
   const rightX = Math.cos(rig.heading);
@@ -508,13 +693,122 @@ export function settleRig(
   }
 
   rig.y = sum / 4 + profile.rideHeight;
-  rig.verticalVelocity = 0;
-  rig.grounded = true;
+  mobility.verticalVelocity = 0;
+  mobility.grounded = true;
   rig.pitch = Math.atan2((frontSum - rearSum) / 2, profile.wheelbase);
   rig.roll = Math.atan2((rightSum - leftSum) / 2, profile.track);
-  for (const wheel of rig.wheels) {
+  for (const wheel of mobility.wheels) {
     wheel.compression = 0.5;
     wheel.contact = true;
     wheel.slip = 0;
   }
+}
+
+function settleHoverRig(
+  rig: RigState,
+  profile: EffectiveRig,
+  terrain: TerrainField,
+): void {
+  if (profile.mobilityAdapter !== "hover" || rig.mobility.kind !== "hover") {
+    throw new Error(
+      `Hover settle received ${profile.mobilityAdapter}/${rig.mobility.kind}.`,
+    );
+  }
+  const ground = terrain.sample(rig.x, rig.z);
+  const waterDepth = Math.max(0, WATER_LEVEL - ground.height);
+  const supportY = Math.max(
+    ground.height,
+    waterDepth > 0 ? WATER_LEVEL : -Infinity,
+  );
+  rig.y = supportY + profile.rideHeight;
+  rig.pitch = 0;
+  rig.roll = 0;
+  rig.mobility.liftVelocity = 0;
+  rig.mobility.clearance = profile.rideHeight;
+  rig.mobility.cushionPressure = 1;
+  rig.mobility.skirtContact = true;
+}
+
+interface MobilityAdapterImplementation {
+  step(
+    rig: RigState,
+    profile: EffectiveRig,
+    input: InputFrame,
+    terrain: TerrainField,
+    dt: number,
+    options: {
+      towing: boolean;
+      ramp: RampDefinition | null;
+      canJump: boolean;
+    },
+  ): MotionOutcome;
+  settle(rig: RigState, profile: EffectiveRig, terrain: TerrainField): void;
+  stable(rig: RigState): boolean;
+}
+
+/**
+ * Canonical bounded adapter registry.
+ *
+ * Only implemented locomotion families enter this table. Each implementation
+ * still validates its discriminated state, so registry lookup cannot turn a
+ * malformed profile/save pairing into permissive fallback behaviour.
+ */
+const MOBILITY_ADAPTERS: Readonly<
+  Record<MobilityAdapter, MobilityAdapterImplementation>
+> = {
+  ground: {
+    step: stepGroundMotion,
+    settle: settleGroundRig,
+    stable: (rig) => rig.mobility.kind === "ground" && rig.mobility.grounded,
+  },
+  hover: {
+    step: stepHoverMotion,
+    settle: settleHoverRig,
+    stable: (rig) =>
+      rig.mobility.kind === "hover" &&
+      rig.mobility.skirtContact &&
+      Math.abs(rig.mobility.liftVelocity) < 1.5,
+  },
+};
+
+function adapterFor(
+  rig: RigState,
+  profile: EffectiveRig,
+): MobilityAdapterImplementation {
+  if (profile.mobilityAdapter !== rig.mobility.kind) {
+    throw new Error(
+      `Rig ${rig.id} profile/state mobility mismatch: ${profile.mobilityAdapter}/${rig.mobility.kind}.`,
+    );
+  }
+  return MOBILITY_ADAPTERS[profile.mobilityAdapter];
+}
+
+export function stepRigMotion(
+  rig: RigState,
+  profile: EffectiveRig,
+  input: InputFrame,
+  terrain: TerrainField,
+  dt: number,
+  options: { towing: boolean; ramp: RampDefinition | null; canJump: boolean },
+): MotionOutcome {
+  return adapterFor(rig, profile).step(
+    rig,
+    profile,
+    input,
+    terrain,
+    dt,
+    options,
+  );
+}
+
+export function settleRig(
+  rig: RigState,
+  profile: EffectiveRig,
+  terrain: TerrainField,
+): void {
+  adapterFor(rig, profile).settle(rig, profile, terrain);
+}
+
+export function rigIsStable(rig: RigState): boolean {
+  return MOBILITY_ADAPTERS[rig.mobility.kind].stable(rig);
 }

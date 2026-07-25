@@ -20,14 +20,14 @@ Evidence follows the project tiers from assumption (Tier 0) to production-like/r
 
 ## North star and product identity
 
-| Area | Current hypothesis | Status | Next evidence |
-|---|---|---:|---|
-| Core fantasy | Vehicles are the playable characters; each machine is a distinct set of verbs, tradeoffs, and stories. | Proposed | Observe whether players refer to the machine as “my tractor/bike/etc.” and explain its personality. |
-| Genre continuity | The place, vehicle, upgrades, and consequences persist when mechanics or camera change. | Proposed | Tractor day/night integration prototype. |
-| Open world | A connected graph of meaningful regions and activities can feel more coherent than one literally seamless simulation. | Proposed | Travel-transition storyboard and streaming probe. |
-| Tone | Wonder, mechanical charm, repair, danger, and absurd escalation can coexist. | Researching | Art/motion/audio comparison and player language. |
-| Public promise | A link opens into an understandable, restartable experience with honest maturity and clear controls. | Proposed | Public smoke-test checklist and external playtest. |
-| Name and identity | **Rigs Unbound** is the accepted project and repository identity. | Accepted | Use consistently; complete trademark/domain clearance before commercial launch. See ADR-0005. |
+| Area              | Current hypothesis                                                                                                    |      Status | Next evidence                                                                                       |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------- | ----------: | --------------------------------------------------------------------------------------------------- |
+| Core fantasy      | Vehicles are the playable characters; each machine is a distinct set of verbs, tradeoffs, and stories.                |    Proposed | Observe whether players refer to the machine as “my tractor/bike/etc.” and explain its personality. |
+| Genre continuity  | The place, vehicle, upgrades, and consequences persist when mechanics or camera change.                               |    Proposed | Tractor day/night integration prototype.                                                            |
+| Open world        | A connected graph of meaningful regions and activities can feel more coherent than one literally seamless simulation. |    Proposed | Travel-transition storyboard and streaming probe.                                                   |
+| Tone              | Wonder, mechanical charm, repair, danger, and absurd escalation can coexist.                                          | Researching | Art/motion/audio comparison and player language.                                                    |
+| Public promise    | A link opens into an understandable, restartable experience with honest maturity and clear controls.                  |    Proposed | Public smoke-test checklist and external playtest.                                                  |
+| Name and identity | **Rigs Unbound** is the accepted project and repository identity.                                                     |    Accepted | Use consistently; complete trademark/domain clearance before commercial launch. See ADR-0005.       |
 
 ## Core loops
 
@@ -63,12 +63,12 @@ RunSpec → ephemeral RunDirector → reproducible RunRecord
 
 Definitions, owned state, compiled world output, runtime orchestration, and run evidence must remain separate. See [ADR-0003](../decisions/ADR-0003-versioned-gameplay-content-composition.md).
 
-| Question | Status | Probe |
-|---|---:|---|
-| Are activities found spatially or selected from a menu? | Proposed: spatial discovery first | Put two visible opportunities in the first region and observe choice. |
-| Does failure cost resources, time, condition, opportunity, or only restart? | Idea | Test repairable consequence without grind. |
-| Is the garage a menu, explorable place, or both? | Researching | Compare instant workshop overlay with small physical hub. |
-| How does a player always know the next interesting possibility? | Researching | Opportunity compass that reveals verbs, not quest spam. |
+| Question                                                                    |                            Status | Probe                                                                 |
+| --------------------------------------------------------------------------- | --------------------------------: | --------------------------------------------------------------------- |
+| Are activities found spatially or selected from a menu?                     | Proposed: spatial discovery first | Put two visible opportunities in the first region and observe choice. |
+| Does failure cost resources, time, condition, opportunity, or only restart? |                              Idea | Test repairable consequence without grind.                            |
+| Is the garage a menu, explorable place, or both?                            |                       Researching | Compare instant workshop overlay with small physical hub.             |
+| How does a player always know the next interesting possibility?             |                       Researching | Opportunity compass that reveals verbs, not quest spam.               |
 
 ## Vehicle system
 
@@ -85,16 +85,16 @@ Definitions, owned state, compiled world output, runtime orchestration, and run 
 
 ### Acquisition and relationship
 
-| Topic | Possibilities to explore | Status |
-|---|---|---:|
-| Unlock | discovery, rescue, restoration, reputation, blueprint, challenge, trade | Researching |
-| Ownership | collect all vs limited active garage vs relationships/loans | Idea |
-| Loaners | temporary compatible vehicle/loadout lets a player try a contract without owning its capability | Proposed |
-| Upgrade | reversible modules, tuning, repairs, cosmetic history, hybrid grafts | Proposed |
-| Mastery | player skill, vehicle familiarity, certification, relationship | Researching |
-| Damage | performance consequences, visible history, field repair, recovery | Researching |
-| Trading | NPC barter first; player trading only with server ledger/escrow | Deferred |
-| Real designs | inspiration without unauthorized brand/logo/livery replication | Proposed guardrail |
+| Topic        | Possibilities to explore                                                                        |             Status |
+| ------------ | ----------------------------------------------------------------------------------------------- | -----------------: |
+| Unlock       | discovery, rescue, restoration, reputation, blueprint, challenge, trade                         |        Researching |
+| Ownership    | collect all vs limited active garage vs relationships/loans                                     |               Idea |
+| Loaners      | temporary compatible vehicle/loadout lets a player try a contract without owning its capability |           Proposed |
+| Upgrade      | reversible modules, tuning, repairs, cosmetic history, hybrid grafts                            |           Proposed |
+| Mastery      | player skill, vehicle familiarity, certification, relationship                                  |        Researching |
+| Damage       | performance consequences, visible history, field repair, recovery                               |        Researching |
+| Trading      | NPC barter first; player trading only with server ledger/escrow                                 |           Deferred |
+| Real designs | inspiration without unauthorized brand/logo/livery replication                                  | Proposed guardrail |
 
 The proposed tractor journey is now `found → stabilized → working → specialized → hybridized → storied`. Restoration, chassis tuning, swappable physical modules, and deployed module states remain separate systems. The first playable should restore one signature plow and choose one support module; large swaps occur at the workshop by default, while field swapping is a later earned capability. See [Tractor Restoration and Modular Growth](TRACTOR_RESTORATION_AND_MODULAR_GROWTH_2026-07-25.md).
 
@@ -120,21 +120,21 @@ Questions:
 
 ## Activities and genre grammar
 
-| Activity family | Vehicle verbs | Continuity hook | Candidate presentation | Status |
-|---|---|---|---|---:|
-| Racing/time trial | line choice, drift, boost, drafting, shortcuts | route knowledge, tuning, ghosts | chase/isometric | Researching |
-| Farming/ecology | plow, seed, water, harvest, tow, restore | land state, weather, community | chase/isometric | First experiment |
-| Defense | push, block, illuminate, deploy, rescue, damage | saved structures/crops | top-down shift | First experiment |
-| Hauling/logistics | attach, balance, route, repair, deliver | economy and settlement growth | chase/map | Idea |
-| Salvage/repair | scan, cut, tow, sort, rebuild | parts and world history | close third-person | Researching |
-| Exploration | traverse, reveal, climb, fly, orbit | map knowledge and discoveries | adaptive | Proposed pillar |
-| Combat | ram, evade, mount tools, exploit environment | threat/ecology consequences | chase/top-down | Researching |
-| Tower defense | position vehicle/attachments, build lanes | structures persist in region | top-down | Idea |
-| Rescue | tow, stabilize, light, transport | relationships/reputation | adaptive | Idea |
-| Construction | grade, lift, assemble, connect | durable world changes | isometric | Idea |
-| Spaceflight | launch, navigate, dock, mine, re-enter | scale ladder and fleet | chase/cockpit/map | Deferred experiment |
-| Toy-scale worlds | use furniture/objects as terrain | scale reveals hidden world | chase/isometric | High-interest tangent |
-| Stealth/shadows | light control, noise, cover, decoys | information and nonlethal play | top-down | Researching |
+| Activity family   | Vehicle verbs                                   | Continuity hook                 | Candidate presentation |                Status |
+| ----------------- | ----------------------------------------------- | ------------------------------- | ---------------------- | --------------------: |
+| Racing/time trial | line choice, drift, boost, drafting, shortcuts  | route knowledge, tuning, ghosts | chase/isometric        |           Researching |
+| Farming/ecology   | plow, seed, water, harvest, tow, restore        | land state, weather, community  | chase/isometric        |      First experiment |
+| Defense           | push, block, illuminate, deploy, rescue, damage | saved structures/crops          | top-down shift         |      First experiment |
+| Hauling/logistics | attach, balance, route, repair, deliver         | economy and settlement growth   | chase/map              |                  Idea |
+| Salvage/repair    | scan, cut, tow, sort, rebuild                   | parts and world history         | close third-person     |           Researching |
+| Exploration       | traverse, reveal, climb, fly, orbit             | map knowledge and discoveries   | adaptive               |       Proposed pillar |
+| Combat            | ram, evade, mount tools, exploit environment    | threat/ecology consequences     | chase/top-down         |           Researching |
+| Tower defense     | position vehicle/attachments, build lanes       | structures persist in region    | top-down               |                  Idea |
+| Rescue            | tow, stabilize, light, transport                | relationships/reputation        | adaptive               |                  Idea |
+| Construction      | grade, lift, assemble, connect                  | durable world changes           | isometric              |                  Idea |
+| Spaceflight       | launch, navigate, dock, mine, re-enter          | scale ladder and fleet          | chase/cockpit/map      |   Deferred experiment |
+| Toy-scale worlds  | use furniture/objects as terrain                | scale reveals hidden world      | chase/isometric        | High-interest tangent |
+| Stealth/shadows   | light control, noise, cover, decoys             | information and nonlethal play  | top-down               |           Researching |
 
 ### Genre-transition contract
 
@@ -223,14 +223,14 @@ No premium currency is proposed.
 
 ### Economy research
 
-| Topic | Status | Closure gate |
-|---|---:|---|
-| Earning cadence | Idea | Instrumented first-playable runs |
-| Sinks/repair | Researching | Fun without punitive maintenance |
-| NPC barter | Idea | Clear value and anti-exploit rules |
-| Player trading | Deferred | Server authority + abuse/economic design review |
-| Real money | Rejected for initial product | Explicit product/legal/payment decision |
-| Seasonal/live economy | Deferred | Stable core, operations capacity, non-FOMO policy |
+| Topic                 |                       Status | Closure gate                                      |
+| --------------------- | ---------------------------: | ------------------------------------------------- |
+| Earning cadence       |                         Idea | Instrumented first-playable runs                  |
+| Sinks/repair          |                  Researching | Fun without punitive maintenance                  |
+| NPC barter            |                         Idea | Clear value and anti-exploit rules                |
+| Player trading        |                     Deferred | Server authority + abuse/economic design review   |
+| Real money            | Rejected for initial product | Explicit product/legal/payment decision           |
+| Seasonal/live economy |                     Deferred | Stable core, operations capacity, non-FOMO policy |
 
 ## State, saves, auth, and backend
 
@@ -365,6 +365,55 @@ Areas:
 - workers for validated generation and non-render critical tasks;
 - floating origin/scale partitions for planetary/orbital space;
 - asset streaming, LOD, instancing, pooling, compression, caching, and context recovery.
+
+### 3D optimization continuity checkpoint (current queue)
+
+The following table updates the same queue from the `3D_GAMES_ANALYSIS` addendum and
+the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
+
+| Topic                                      | Current status                   | Next evidence gate                                                                                                      |
+| ------------------------------------------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Frustum/distance culling                   | Proposed hardening               | Add visible-actor culling fixture and verify non-visible entities are excluded from draw path.                          |
+| Occlusion integration                      | Partial (`terrain`-only pull-in) | Move from camera-only pull-in to visibility-stage contract before draw submission.                                      |
+| LOD by distance/subsystem                  | Missing explicit tiering         | Add renderer/physics/AI update policy and threshold matrix.                                                             |
+| Portal/cluster stream visibility           | Missing                          | Add route/cluster streaming manifest and activation order.                                                              |
+| Shader contract for terrain/weather/hazard | Missing                          | Add minimal shared material constants + fallback policy behind contract.                                                |
+| Collision category/mask                    | Partial                          | Add semantic response matrix for obstacle/hazard/trigger/particle categories.                                           |
+| Replay/input log artifact                  | Partial                          | Add versioned run log + playback verifier (deterministic input stream first).                                           |
+| Chunked world scaling                      | Missing                          | Add streaming manifest + unload policy + regression tests before more activity classes.                                 |
+| ECS migration readiness                    | Missing                          | Keep profile/adapters today; add ECS only if actor count or simulation graph complexity crosses a proven threshold.     |
+| Behavior/event model                       | Missing                          | Introduce deterministic event/behavior scheduler with payload validation and deterministic update ordering.             |
+| Modding and external packs                 | Partial                          | Add schema-vetted content packs, compatibility matrix, and moderation/review gate before external extension paths open. |
+| Resource governance                        | Partial                          | Add cross-system budget envelopes (CPU/GPU/VRAM/frame) and graceful degradations per device class.                      |
+
+### Decision control for this checkpoint
+
+- Priority remains: lock renderer/perf/accessibility contract first, then add streaming/collision matrix, then replay and deterministic event-behavior migration, then authority.
+- Status for public claims: no claim of multiplayer authority or streaming support is valid until these gates are completed.
+
+### Requested "Optimization Gaps" check status (2026-07-25)
+
+- This project map now treats the follow-on audit as **gate-ready backlog**, not as immediate implementation:
+  - **Immediate gates accepted-in-principle:** renderer/simulation boundary, migration hygiene, deterministic stepping.
+  - **Current phase gates:** explicit visibility and collision-matrix hardening, content/affordance validation, and run-reproducibility.
+  - **Deferred gates:** multiplayer authority, broad ECS migration, open UGC publication.
+- Closure condition for deferred gates:
+  - deterministic command replay parity,
+  - validated contract migration for capability/activity definitions,
+  - streaming manifest activation with bounded unload behavior,
+  - documented fail-safe and operator observability for rejected/world-mutation attempts.
+- Owner note: this is a sequencing rule aligned with ADR-0011 and ADR-0010, not a denial of future platform breadth.
+
+### Machine-capability platform continuity
+
+The expanded long-term model from the continuation audit is tracked in
+[3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md](../research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md).
+The key control decision is:
+
+- keep the domain model as activity+machine capability layers on a shared snapshot kernel,
+- avoid inheritance-style mode expansion until capability contracts and manifest validation are proven stable.
+
+If an activity or machine cannot be expressed as a data-driven contract, it does not enter the core queue without a design exception.
 
 ## UI, onboarding, accessibility, and controls
 
@@ -621,3 +670,212 @@ This closes the earlier “second rig” and “measure local performance” evi
 ### Anything else?
 
 Breadth should now be measured by new assumptions exposed, not by vehicle count. A third ground mesh with another speed number is less valuable than one real locomotion adapter or one activity that composes capabilities in a new way.
+
+## Addendum — 2026-07-25 Multi-skill analysis integration (in-progress)
+
+Added a cross-skill technical audit pass (3D rendering, web-platform constraints,
+input/camera systems, accessibility, and audio) and recorded findings in:
+
+- [3d-games analysis note](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md)
+- [Multi-skill long-term possibility audit](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/MULTI_SKILL_LONG_TERM_POSSIBILITY_AUDIT_2026-07-25.md)
+- [Renderer/accessibility contract ADR](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/decisions/ADR-0010-rendering-accessibility-contract.md)
+- [Render hardening plan](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/plans/PLAN_RENDER_PERFORMANCE_ACCESSIBILITY_2026-07-25.md)
+
+Current map impact:
+
+- Formal render/performance contract is now the highest-priority next design deliverable.
+- Accessibility contracts and reduced-motion alternatives are in scope before broad public exposure.
+- WebGPU remains an enhancement path only until representative WebGL baseline data is established.
+- Next decision gate: whether to prioritize locomotion-capability expansion (new family)
+  or renderer hardening as the first gate-breaking milestone.
+
+### Anything else?
+
+Do not add a second major content family before one of:
+
+- a render/perf contract with measurable budgets, or
+- a clear second locomotion adapter that changes game outcomes, not just vehicle stats.
+
+## Addendum — 2026-07-25 Drift closes the first adapter-family proof
+
+Marsh Skimmer 01 implements the earlier “water or hover” decision unit:
+
+- universal rig state no longer contains wheels or ground contact;
+- a typed registry composes `ground` and `hover` with the same world, input,
+  camera, exploration, activity, persistence, and observability contracts;
+- Drift crosses the deep Sunken Flats while steep terrain still reduces
+  authority and raises strain;
+- schema v4 preserves valid v3 Torque/Spark state and adds Drift without
+  replacing shared world memory;
+- visible browser acceptance verifies three rigs, six cameras, hover telemetry,
+  reload, and narrow controls.
+
+This is local architecture and workflow evidence, not proof that Drift is fun or
+that a universal vehicle platform is solved.
+
+### Next questions opened
+
+1. Do players describe Drift as gliding/skimming/reading water, or merely as
+   another faster rig?
+2. Does the next family expose a new body-state boundary—balance, tracks,
+   displacement, free flight, or orbital motion—or can capability composition
+   create more value first?
+3. Can one rescue/repair activity combine tow + survey + winch across the three
+   current rigs without adding an activity controller?
+4. What canonical prop collision/occlusion representation should both physics
+   and camera consume?
+5. At what measured device/browser budget does Three.js loading, draw cost, or
+   terrain construction become the next gate?
+
+### Anything else?
+
+The next added rig should not be justified by roster size. Prefer an external
+player-language test and a capability-composition activity before another
+locomotion family unless that family exposes a clearly named architectural
+assumption the current union cannot represent.
+
+## Addendum — 2026-07-25 Optimization continuation: capability/authority runway
+
+The “more” review pass identifies the next decision spine beyond current
+feature growth.
+
+- Status: **Researching** — no runtime claims yet.
+- Scope now accepted:
+  - capability contract formalization (`definition` + `state` + compatibility)
+  - command -> validation -> kernel -> presentation boundary
+  - deterministic event bus + run record
+  - collision category/mask matrix
+  - chunk manifest and activation lifecycle
+- Scope deferred until proof gates:
+  - multiplayer authority rollout (waits for replay + validation lane)
+  - public-facing asset pack ingestion (waits for manifest + schema governance)
+
+### Required proof gates
+
+1. **Render/perf contract gate**
+   - evidence: frame/memory budgets with explicit low/medium/high profiles.
+2. **Replay + validation gate**
+   - evidence: deterministic run record and checksum verification against current fixed-step path.
+3. **Interaction gate**
+   - evidence: capability requirements drive at least one cross-mode activity without new activity-specific branching.
+4. **World scaling gate**
+   - evidence: stream manifest supports deterministic chunk IDs and bounded unload.
+
+### Next open decision
+
+Whether lane order stays render-first or shifts to interaction-first should be
+decided only after a direct evidence compare against the same narrow device
+profile set (desktop + one constrained mobile profile).
+
+## Addendum — 2026-07-25 Perception-chain and physics expansion
+
+The project owner established a stronger systems rule: physics, controls,
+animation, lighting, camera, sound, haptics, VFX, and UI are gameplay systems
+because they determine what the player can perceive and learn.
+
+The exploration map now has three equal top-level lenses:
+
+1. **Game structure** — contracts, persistence, progression, worlds, secrets,
+   consequences, recovery, and social/share surfaces.
+2. **Simulation** — mobility, collision, terrain, fluids, fields, articulation,
+   damage, AI, weather, procedural rules, and replay.
+3. **Perception and feel** — semantic controls, animation, camera, lighting,
+   materials, VFX, audio, haptics, UI, and accessibility.
+
+The runtime bridge between simulation and presentation is recorded in
+[ADR-0012](../decisions/ADR-0012-rig-perception-chain.md). The broader solver and
+technique space is catalogued in
+[Browser vehicle-physics techniques](../research/BROWSER_VEHICLE_PHYSICS_TECHNIQUE_CATALOG_2026-07-25.md).
+
+### Canonical vehicle/mechanic exploration schema
+
+Every serious rig or mechanic exploration should answer:
+
+1. player fantasy;
+2. physical archetype;
+3. base controls;
+4. unique control signature;
+5. accessible control mode;
+6. expert control mode;
+7. movement skill ceiling;
+8. surface interactions;
+9. attachment interactions;
+10. damage behavior;
+11. authored animation;
+12. procedural animation;
+13. secondary physics;
+14. camera behavior;
+15. lighting capabilities;
+16. material state changes;
+17. VFX feedback;
+18. audio feedback;
+19. UI requirements;
+20. accessibility considerations;
+21. emergent combinations;
+22. performance risks;
+23. discovery/easter-egg opportunities;
+24. shareable moments.
+
+These are evaluation prompts, not mandatory runtime fields. A vehicle earns
+complexity where it strengthens its fantasy, capability, and readable
+trade-offs.
+
+### Vehicle-systems playground lattice
+
+The long-term lab should be composed from reusable stations rather than one
+vehicle-specific level:
+
+- asphalt, gravel, mud, sand, ice, shallow/deep water, slopes, ramps, and narrow
+  routes;
+- breakable, towable, heavy, articulated, and unstable objects;
+- darkness/searchlight, weather, time, gravity, damage, repair, and replay
+  controls;
+- measurable comparisons across balance, heavy-wheel, articulation, hover/
+  buoyancy, and six-degree motion.
+
+The current connected world already covers part of this lattice. New stations
+should extend its shared substrates or exist as versioned experiments; they
+should not become a parallel “sandbox mode” architecture.
+
+### Anything else?
+
+The first Rapier probe should be an unstable trailer plus motorized excavator
+arm, not a pile of anonymous cubes. That comparison tests joint stability,
+control expression, cargo consequence, browser cost, snapshotting, and whether
+a general solver actually serves a vehicle fantasy.
+
+## Addendum — 2026-07-25 3D web delivery and accessibility runway
+
+### Current status (Web-delivery layer)
+
+- **Current evidence**: policy exists (`ADR-0010` + profile matrix), but runtime enforcement is not yet complete.
+- **Status**: **Researching** for explicit start-up/runtime binding and loading contract.
+- **Why now**: 3D claims are meaningful only when launch/runtime/degraded paths are measurable and deterministic.
+
+### What this adds
+
+- 3d-web-experience guidance confirms the existing emphasis:
+  - web-first pragmatism over shader-only spectacle,
+  - mobile-first fail-safe behavior,
+  - explicit loading + fallback strategy.
+- The current architecture now needs one durable bridge:
+  - startup/late-bind profile selection,
+  - explicit reduced-motion application,
+  - deterministic loading/error state for world/model content.
+
+### Immediate proof gate for this layer
+
+Add one full chain:
+
+1. profile selection by startup/runtime budget,
+2. non-blocking fallback to a readable baseline,
+3. reduced-motion safe camera and telemetry behavior,
+4. explicit reject path for oversized/invalid content candidates.
+
+### Why this is tied to the objective
+
+The same principle applies to the core objective review:
+
+- **what's possible now** = contract-first 3D web delivery exists in design;
+- **what's not yet true** = enforcement and runtime binding are incomplete;
+- **what's next** = enforce these as implementation gates before public surface expansion.

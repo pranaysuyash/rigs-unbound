@@ -1,6 +1,7 @@
 import { WORLD_SITES } from "./world";
 
-export const SAVE_SCHEMA_VERSION = 3 as const;
+export const SAVE_SCHEMA_VERSION = 4 as const;
+export const FIELD_02_SAVE_SCHEMA_VERSION = 3 as const;
 export const RIG_LAB_SAVE_SCHEMA_VERSION = 2 as const;
 export const LEGACY_SAVE_SCHEMA_VERSION = 1 as const;
 export const FIXED_STEP_SECONDS = 1 / 60;
@@ -29,10 +30,10 @@ export const CAMERA_LABELS: Readonly<Record<CameraMode, string>> = {
   "top-down": "Top-down",
   survey: "Survey",
 };
-export type RigId = "utility-tractor" | "toy-buggy";
-export type MobilityAdapter = "ground";
+export type RigId = "utility-tractor" | "toy-buggy" | "marsh-skimmer";
+export type MobilityAdapter = "ground" | "hover";
 export type RigCapability =
-  "plough" | "tow" | "jump" | "winch" | "survey" | "ford";
+  "plough" | "tow" | "jump" | "winch" | "survey" | "ford" | "hover";
 export type AttachmentId = "field-plough" | "tow-hook";
 export type ActivityStatus = "ready" | "active" | "complete";
 
@@ -139,6 +140,7 @@ export interface RigProfile {
 export const RIG_IDS: readonly RigId[] = [
   "utility-tractor",
   "toy-buggy",
+  "marsh-skimmer",
 ] as const;
 
 export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
@@ -214,6 +216,45 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
       chaseDistance: 8.5,
       chaseSide: 3,
       focusHeight: 1.05,
+    },
+  },
+  "marsh-skimmer": {
+    id: "marsh-skimmer",
+    displayName: "Marsh Skimmer",
+    fieldName: "Drift",
+    mobilityAdapter: "hover",
+    capabilities: ["tow", "survey", "hover"],
+    enginePower: 9.5,
+    lowSpeedTorque: 1,
+    lugSpeed: 1,
+    reverseAcceleration: 6.5,
+    topSpeed: 15,
+    reverseLimit: -5,
+    coastDrag: 1.65,
+    activeBrake: 10,
+    turnRate: 1.75,
+    steeringResponse: 5.8,
+    // These dimensional fields describe the adapter's footprint. The hover
+    // adapter does not create or simulate wheels from them.
+    wheelRadius: 0.68,
+    wheelbase: 3.2,
+    track: 3.4,
+    mass: 2.2,
+    rideHeight: 1.35,
+    suspensionStiffness: 34,
+    suspensionDamping: 8,
+    suspensionTravel: 0.55,
+    tireGrip: 0,
+    lugBonus: 0,
+    jumpImpulse: 0,
+    landingTolerance: 5.4,
+    towSpeedMultiplier: 0.68,
+    fordDepth: Number.POSITIVE_INFINITY,
+    camera: {
+      chaseHeight: 6.2,
+      chaseDistance: 10,
+      chaseSide: 3.8,
+      focusHeight: 1.3,
     },
   },
 } as const;
@@ -406,6 +447,28 @@ export interface WheelState {
   slip: number;
 }
 
+export interface GroundMobilityState {
+  kind: "ground";
+  verticalVelocity: number;
+  grounded: boolean;
+  jumpCooldownMs: number;
+  wheelRotation: number;
+  wheels: WheelState[];
+}
+
+export interface HoverMobilityState {
+  kind: "hover";
+  liftVelocity: number;
+  /** Current body clearance above terrain or standing water, in metres. */
+  clearance: number;
+  /** Smoothed lift authority, 0..1. Drives handling, sound, and presentation. */
+  cushionPressure: number;
+  /** True when the skirt is close enough to terrain/water to sustain lift. */
+  skirtContact: boolean;
+}
+
+export type RigMobilityState = GroundMobilityState | HoverMobilityState;
+
 export interface RigState {
   id: RigId;
   x: number;
@@ -419,16 +482,11 @@ export interface RigState {
   roll: number;
   speed: number;
   steering: number;
-  /** Vertical velocity of the body, in m/s. */
-  verticalVelocity: number;
-  grounded: boolean;
-  jumpCooldownMs: number;
   distanceTravelled: number;
-  wheelRotation: number;
   condition: number;
   /** Fuel-free proxy for mechanical strain; rises under load, recovers at rest. */
   strain: number;
-  wheels: WheelState[];
+  mobility: RigMobilityState;
   attachments: AttachmentState[];
   modules: ModuleId[];
   /** Cached read-only telemetry for HUD and audio; not authoritative. */

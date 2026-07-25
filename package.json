@@ -13,16 +13,19 @@
     "test:kernel-probe": "npm --prefix experiments/deterministic-kernel-probe test",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check package.json tsconfig.json vite.config.ts vitest.config.ts index.html \"src/**/*.{ts,css}\" \"tools/**/*.cjs\""
+    "format:check": "prettier --check package.json tsconfig.json vite.config.ts vitest.config.ts index.html \"src/**/*.{ts,css}\" \"worker/**/*.ts\" \"tools/**/*.cjs\""
   },
   "dependencies": {
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.47.0",
+    "@types/node": "^22.19.19",
     "@types/three": "^0.185.0",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.1.5",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "wrangler": "^4.114.0"
   }
 }

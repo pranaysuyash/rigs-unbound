@@ -1,4 +1,118 @@
+## 2026-07-25 — 3D Optimization Gaps "and more" pass
+
+### Objective
+
+- Analyze the full `chatgpt-conversation://6a64b5ee-9198-83e8-a94f-1ea55983f676` follow-on guidance against current project state and append explicit execution gates for contract correctness, scaling, and deferred claims.
+
+### What was changed
+
+- Appended the synthesis section in:
+  - [docs/research/3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md) to classify:
+    - what can be formalized immediately,
+    - what is possible now,
+    - and what is deferred until tests close.
+- Ensured map-level gate status remains aligned with the open queue in [docs/exploration/EXPLORATION_MAP.md](../../docs/exploration/EXPLORATION_MAP.md), including culling/LOD/streaming/replay/authority gates.
+
+### Evidence and status
+
+- Type of change: documentation only, architecture continuity update.
+- Evidence depth: Tier 1 with static source-to-doc trace and explicit gap ranking.
+- Runtime validation: not executed in this pass.
+- Completion level: planning and sequencing gates tightened; execution gates still pending.
+
+### Why this matters
+
+- Prevents the requested long-pass from becoming an undocumented "future list."
+- Preserves the current long-term architecture by sequencing high-risk systems behind deterministic replay/validation gates.
+- Keeps authority, ECS, and broad streaming claims deferred with explicit close conditions.
+
+### Next closure criteria
+
+- Add command fixture and one explicit reject path test.
+- Ship versioned capability and activity definitions with migration semantics.
+- Add deterministic replay artifact and playback parity assertion.
+- Add chunked world lifecycle counters tied to deterministic IDs.
+
+## 2026-07-25 — 3D web-delivery and command-capability contract continuation
+
+### Objective
+
+- Continue the architecture analysis lane by continuing one-skill-at-a-time review and documenting web-delivery + contract-first execution gates directly in repo artifacts.
+
+### What was changed
+
+- Read and applied additional skill guidance from:
+  - [3d-web-experience](/Users/pranay/Projects/skills/3d-web-experience/SKILL.md)
+- Added:
+  - [docs/research/3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md)
+- Linked this audit into exploration/decision records by appending:
+  - [docs/decisions/ADR-0011-command-capability-affordance-state-separation.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/decisions/ADR-0011-command-capability-affordance-state-separation.md) linkage in roadmap
+  - [docs/exploration/EXPLORATION_MAP.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/EXPLORATION_MAP.md) web-delivery addendum
+
+### Evidence and status
+
+- Type of change: docs/decision continuity update.
+- Evidence depth: Tier 1 static alignment plus explicit policy-to-artifact linkage checks.
+- Runtime validation: not executed in this pass.
+- Completion level: planning proof gates and decision continuity advanced; implementation gates still pending.
+
+### Why this matters
+
+- Prevents the web layer from becoming a “render only” afterthought.
+- Ensures reduced-motion/load/fallback behaviors are treated as invariants, not optional polish.
+- Keeps command/affordance architecture continuation tied directly to web performance and accessibility commitments.
+
+### Next closure criteria
+
+- Bind profile selection to measured startup/runtime thresholds.
+- Add deterministic reduced-motion camera/input fallback behavior.
+- Add content ingest reject paths with schema/payload validation before activation.
+- Implement one end-to-end command->validation->state->event->presentation interaction with event telemetry.
+
 # Worklog and Evidence Register
+
+## 2026-07-25 — Capability and governance runway addendum
+
+### Objective
+
+- Convert the second-tier conversation recommendations into a repository-documented
+  long-term architecture addendum focused on high-impact low-risk sequencing.
+
+### What was changed
+
+- Appended a new section to
+  `docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md` covering:
+  - capability as contract vs boolean
+  - command/validation/kernel/presentation ordering
+  - replay/event/restricted-authority sequencing
+  - deferred lanes with proof obligations
+- Appended a new addendum to
+  `docs/exploration/EXPLORATION_MAP.md` with scope status and lane-order decision
+  criteria.
+
+### Evidence and status
+
+- Type of change: documentation only.
+- Evidence depth: Tier 1 static source alignment; no runtime change in this pass.
+- Decision confidence: sufficient for planning, not sufficient for implementation.
+- Explicitly unchanged: renderer split, fixed-step kernel, persistence, and current
+  activity loop.
+
+### Why this matters
+
+- Keeps architecture drift in check by adding a capability-first interpretation of
+  “more” recommendations.
+- Prevents premature multiplayer or streaming claims by sequencing authority and
+  streaming after replay + validation lanes.
+- Makes the next engineering pass measurable: each lane now has a pass criterion.
+
+### Next closure criteria
+
+- Render and resource budgets are quantified and benchmarked.
+- A compact run/replay record with checksum verification lands.
+- Deterministic event bus + capability-affordance compatibility passes at least one
+  end-to-end interaction test.
+- Stream manifest and chunk lifecycle lands with deterministic activation.
 
 ## 2026-07-25 — First executable open field
 
@@ -238,6 +352,34 @@ This log distinguishes research confidence from game confidence. A well-supporte
 ### Files created
 
 - `docs/research/ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md`
+
+## 2026-07-25 — Optimization gaps audit continuation
+
+### Scope
+
+- Continued structured review of the untrusted optimization conversation `chatgpt-conversation://6a64b5ee-9198-83e8-a94f-1ea55983f676`, with explicit check against source files for rendering, kernel, and progression-scaling architecture.
+- Recorded findings in:
+  - `docs/research/3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md` (new "second-pass" addendum section),
+  - `docs/exploration/EXPLORATION_MAP.md` (new optimization continuity checkpoint table).
+
+### What changed
+
+- Confirmed deterministic kernel, migration, renderer split, and migration/recovery path are already present and should not be rewritten.
+- Marked missing/high-risk items as active queue entries (chunked streaming, collision layer matrix, replay transport, explicit chunked visibility lanes).
+- Aligned new queue items with existing render contract (`PLAN_RENDER_PERFORMANCE_ACCESSIBILITY_2026-07-25.md`) and non-functional ADR (`ADR-0010`) so decisions remain coherent.
+
+### Evidence notes
+
+- No code/runtime behavior changed in this pass.
+- No tests were run because this was a structured analysis-and-documentation update.
+- Confidence remains **Tier 2 static** for all map decisions.
+- Remaining confidence barrier: render/runtime hardening artifacts are still pending implementation and execution.
+
+### What is still required
+
+- Add deterministic culling/LOD tests tied to draw-path evidence.
+- Add collision category/mask fixtures before introducing more non-ground locomotion classes.
+- Add replay input/log + verifier before any public shared-session narrative.
 - `docs/decisions/ADR-0003-versioned-gameplay-content-composition.md`
 - `docs/decisions/ADR-0004-versioned-public-evidence-surfaces.md`
 
@@ -674,3 +816,363 @@ The local folder, GitHub slug, and machine-facing project identifier now express
 ### Anything else?
 
 The current technical contrast is real, but player-perceived contrast remains unverified. The next quality gate is whether external players independently describe Torque and Spark with different verbs and emotions rather than only noticing different speed.
+
+## 2026-07-25 — Direct camera policies and Top-down live view
+
+### Baseline and scope
+
+- Refreshed the project context pack and re-read the 3D-game and Browser Daemon guidance.
+- Rechecked the live Field 02 runtime after parallel terrain/progression work had superseded the earlier Rig Lab-only state.
+- Baseline `npm run typecheck` passed.
+- Baseline `npm test` passed with 72 root tests and seven preserved kernel-probe tests.
+- Scoped the change to the canonical camera contract, state transition, renderer policy, interface selection, save recovery, browser observability, acceptance coverage, and durable decision record.
+
+### Implementation
+
+- Replaced the private three-item camera order with typed `CAMERA_MODES` and reusable labels.
+- Added Hood, Side, and exact heading-oriented Top-down policies while preserving Chase, Tactical, and Survey.
+- Added direct `selectCamera` state control and `window.selectCamera(mode)` browser control.
+- Added an accessible View selector; `C` and the touch Cam action still cycle the same ordered policies.
+- Preserved rig-specific values only for machine scale and chase/focus offsets; no camera policy branches on a rig id.
+- Preserved current-schema camera choice through recovery.
+- Added ADR-0008 and synchronized README and design-camera language.
+
+### Pass 1 — immediate correctness and completeness
+
+- The first test run correctly exposed one outdated expectation: after Chase, the new ordered next policy is Hood rather than Tactical. Updated the assertion to match the single canonical order.
+- The browser test initially captured Top-down during its transition and produced an unrepresentative close frame. Added a bounded settling wait before evidence capture.
+- A concurrent dev-server reload destroyed one Playwright execution context on the first acceptance attempt. Re-ran from stable current files; the complete workflow passed.
+- Result: all six direct choices, selector/state agreement, cycle order, wraparound, save recovery, and live Top-down selection are exercised.
+
+### Pass 2 — architecture and long-term viability
+
+- Confirmed camera meanings live in one product-level vocabulary rather than per-rig or per-activity controllers.
+- Preserved the existing Survey policy introduced by the terrain work instead of overwriting newer workspace state.
+- Avoided number-key conflicts with workshop-module fitting.
+- Kept the known future boundary explicit: unusual machine geometry may justify a bounded camera-mount adapter, while prop-aware collision remains separate from policy selection.
+- Result: a bicycle, aircraft, or spacecraft can test the same policies without inheriting tractor or wheel assumptions.
+
+### Pass 3 — rule compliance and supervision readiness
+
+- `npm test`: 74 root tests plus seven kernel-probe tests passed.
+- `npm run build`: typecheck and production build passed; JavaScript remains above Vite's 500 kB advisory at 617.70 kB raw / 162.84 kB gzip.
+- `npm run format:check`: passed after formatting the previously unmatched `src/game/performance.ts`.
+- `npm run test:browser`: passed in visible Chrome across cargo, jump, schema-v3 save/reload, all six cameras, `390 × 844` touch layout, and zero console/page errors.
+- Browser Daemon was restarted after an IPC collision caused by parallel client commands, navigated to the live server, and left at `http://127.0.0.1:4174/?live=camera-policies` in Top-down.
+- Result: Tier 4 local browser evidence exists; representative-device performance, external player comfort, prop collision, and non-ground-rig portability remain open.
+
+### Acceptance evidence and boundaries
+
+- Created `docs/reviews/assets/field-02-top-down.png`.
+- Updated the existing desktop and narrow acceptance screenshots through the full browser run.
+- Live acceptance sample: 458.3 ms first controllable, 21.89 ms average frame, 20.7 ms p95, 68 draw calls, 100,822 triangles, and 30.6 MB reported heap. These are local development-run observations, not device or production targets.
+- No dependency, private source asset, public deployment, git staging, commit, push, branch, history, or cleanup action was performed.
+
+### Anything else?
+
+The camera vocabulary is now usable and visible, but comfort is not a one-frame property. A sustained-play review should measure motion comfort and prop obstruction in each policy before these values are treated as tuned production defaults.
+
+## Traversal substrate correctness pass — 2026-07-25
+
+This entry covers the terrain-substrate work in
+[ADR-0007](decisions/ADR-0007-terrain-as-simulation-substrate.md) and the eight
+defects it surfaced. Full record:
+[traversal substrate acceptance review](reviews/TRAVERSAL_SUBSTRATE_ACCEPTANCE_2026-07-25.md).
+
+### What changed for a player
+
+The ground became a simulated system rather than a surface. Grade opposes the
+engine with real gravity, surface material limits both drive force and steering
+authority, suspension reads four terrain contacts, ploughing cuts the height field
+itself, salvage sits off the graded tracks, and the map only shows ground the rig
+could actually see. Observed in the browser: driving from pasture into the Sunken
+Flats dropped grip 73% → 53% and speed 33 → 10 km/h.
+
+### Defects found, and what each one teaches
+
+- **Both rigs faced backwards.** Grille, hood, and headlights sat at local −Z with
+  the plough, while travel is toward +Z. Present in the _accepted_ Rig Lab 01
+  screenshot. No test asserted which way a rig faces, so nothing caught it.
+- **`low-range gearing` was a false promise.** It claimed to climb grades that
+  stall the engine and changed no climb at all, because traction bound before power
+  did. Fixed with a `lowSpeedTorque` lugging term; the tractor now pulls from rest
+  and the buggy needs a run-up.
+- **The buggy out-gripped the tractor on tilled soil**, contradicting the field
+  being the tractor's home ground.
+- **Route endpoints detached from their pads** — an 11 m cliff at the Quarry
+  corridor edge, caused by the grade limiter overwriting its own pinned endpoints.
+- **A dark wall around the horizon in daylight**, because a `scene.background`
+  colour clear skips tone mapping and the sRGB encode while fogged geometry does
+  not. The first hypothesis (mismatched fog colour) was wrong and is recorded as
+  wrong.
+- **`placeRig` reported the previous location's surface**, which briefly produced a
+  false reading inside the acceptance check itself.
+- Plus a renderer-owned world layout the kernel could not collide with, and four
+  wasted `height()` calls per terrain vertex.
+
+Two of these were false _promises_ rather than crashes. A module that does nothing
+and a vehicle that faces backwards both pass every test that only checks state
+transitions. The tests added here assert claims — this module changes this outcome,
+this surface favours this tyre — not only mechanics.
+
+### Verification
+
+- `npm run typecheck`: clean.
+- `npm test`: 75 root tests (was 14) plus 7 preserved kernel-probe tests.
+- `npm run build`: passes; 617.70 kB raw / 162.84 kB gzip, still over Vite's
+  500 kB advisory.
+- Terrain mesh build 445 ms → 174 ms; field map build removed from boot entirely
+  (419 ms → 0 ms, deferred to first open); furrow draw calls 640 → 1; first
+  controllable frame 3,946 ms → 458 ms.
+
+### Measurement honesty
+
+Frame timing inside the automation browser is unusable: a single 10,298 ms
+`requestAnimationFrame` gap was observed and it reported 12 fps for a build whose
+per-frame CPU cost measures 0.46 ms for step + render + HUD combined. The ~46 fps
+figure in the acceptance review comes from a visible Chrome window and is an M3 Max
+snapshot, not a target and not a device claim.
+
+### Still open
+
+External player comprehension (the central "do these feel different" claim),
+audio heard by a human, device and cold-cache performance, the 390 × 844 layout
+after this pass, and rollover. The world is also now large enough to be empty:
+500 m with seven sites risks the "procedural expanse without authored reasons"
+that DESIGN.md forbids, and more rigs or biomes will not fix that.
+
+### Parallel work preserved
+
+A parallel agent extended this pass mid-session with a six-mode camera vocabulary
+and a Marsh Skimmer rig. Their work was left intact; only a stale hardcoded camera
+assertion inside this pass's own test was updated to be table-driven.
+
+## 2026-07-25 — Live visual-forward verification and browser-port correction
+
+- Confirmed the reported backwards-driving defect was real in the earlier model: simulated travel used local `+Z`, while visible nose parts had been authored at `−Z`.
+- Rechecked the corrected current geometry: tractor grille/headlights/small steering wheels are at `+Z`, the plough and large drive wheels are at `−Z`; the buggy nose is at `+Z` and tow hook at `−Z`.
+- Added `GameRenderer.orientationEvidence()` using actual visible front/rear model parts. The browser acceptance now fails if either rendered nose projects opposite the rig's simulated heading.
+- Added `window.getRigOrientationEvidence(id)` so the same contract is inspectable during live debugging rather than inferred from a screenshot.
+- Found the in-app browser pointed at port `4173` while the verified server was on `4174` and `4173` had no listener. Moved the single development server to `4173`, updated the current README and acceptance defaults, and retained historical port references as historical evidence.
+- Re-ran the full camera/cargo/jump/save/mobile browser workflow on `4173` and refreshed the visual artifacts.
+- Captured `docs/reviews/assets/field-02-front-forward.png` after 900 ms of forward tractor input in Chase view.
+- Final checks passed with 78 root tests, seven preserved kernel-probe tests, clean typecheck/formatting, production build, and zero current-page console errors.
+
+### Three-pass review
+
+- Pass 1 — correctness: verified both visible noses produce positive distance along simulated heading and observed forward movement with the corrected model.
+- Pass 2 — architecture: asserted the visual/physics coordinate contract through real scene objects rather than a duplicated orientation flag.
+- Pass 3 — supervision: checked tests, typecheck, production build, formatting, live browser console, current URL, and screenshot evidence; no git or deployment operation was performed.
+
+### Anything else?
+
+A future imported GLB must nominate real nose and rear reference nodes when it enters the renderer. That keeps the acceptance contract useful after primitive geometry is replaced instead of silently returning to a hand-authored assumption.
+
+## 2026-07-25 — Marsh Skimmer 01 bounded mobility adapter
+
+### Baseline and decision
+
+- Re-entered the canonical instruction/context stack and ran `agent-start`
+  against the renamed `rigs-unbound` checkout.
+- Preserved the parallel camera, minimap, rendering/accessibility, research, and
+  screenshot changes already present in the shared tree.
+- Chose the existing Sunken Flats as the smallest honest test of a second
+  locomotion family. A third wheeled profile would add content without exposing
+  an architectural assumption.
+- Recorded the decision in
+  [ADR-0009](decisions/ADR-0009-bounded-mobility-adapters.md) and the derived
+  scope in
+  [Marsh Skimmer 01 plan](plans/MARSH_SKIMMER_01_2026-07-25.md).
+
+### Implementation
+
+- Advanced save schema v3 → v4 while preserving v1, v2, and v3 recovery.
+- Moved ground-only fields into `GroundMobilityState`; added
+  `HoverMobilityState` for lift velocity, clearance, cushion pressure, and skirt
+  contact.
+- Added a typed registry that owns stepping, settling, and stability for the
+  implemented `ground` and `hover` families.
+- Added Drift at the authored Sunken Flats berth with a deterministic
+  low-hover controller, slope/strain trade-off, and no drowning.
+- Added a wheel-free primitive renderer, lift-fan voice, water spray, Cushion
+  HUD, public hover telemetry, shared switching, and v4 persistence.
+- Extended browser acceptance through three orientation fixtures, deep-water
+  motion, no-wheel state, condition preservation, Cushion UI, save, and reload.
+
+### Visual review corrections
+
+- The first passing screenshot was unusable because the camera smoothed from a
+  distant Spark position to Drift and travelled through terrain. Added a
+  policy-level hard cut when the active rig changes or the desired camera
+  position discontinuity exceeds 70 m; ordinary driving remains smoothed.
+- The replacement shot drove directly toward the Sunken Flats mast. The
+  acceptance route now uses Drift's offset berth, and discovered site masts
+  recede so arrival composition remains readable.
+- The narrow layout assertions passed while the screenshot still cropped Drift
+  on the right. A 35% side-offset trial was insufficient; portrait chase now
+  uses 10% of the cinematic side offset with a stronger distance/height
+  pullback for the narrow horizontal field of view. Its look target is biased
+  downward so the rig composes upward into the safe space above the field kit
+  rather than behind the instruments.
+- The long autonomous towing leg flaked twice by orbiting/stalling outside the
+  gate. Browser acceptance now uses the existing test-only placement hook to
+  align the attached cargo 12 m from delivery, then drives the real final towing
+  leg. This keeps attach → tow → deliver coverage while removing navigation-bot
+  quality from the release gate.
+- The rear fans can still resemble circular wheels in one static rear view.
+  This is recorded as an authored-model/silhouette hardening item rather than
+  hidden behind the passing runtime contract.
+
+### Multi-pass result
+
+- Pass 1: existing ground behavior stayed green; new deterministic water,
+  hover-repeatability, steep-ground, mismatch-recovery, and v3 migration tests
+  passed.
+- Pass 2: replaced the initial two-way dispatcher with the registry promised by
+  ADR-0009; no speculative adapter types entered the contract.
+- Pass 3: docs, tests, runtime hooks, browser evidence, confidence boundary, and
+  remaining hardening paths are recorded in
+  [Marsh Skimmer 01 acceptance](reviews/MARSH_SKIMMER_01_ACCEPTANCE_2026-07-25.md).
+
+### Evidence and boundaries
+
+- `npm test`: 83 root tests plus seven preserved kernel-probe tests passed.
+- `npm run typecheck`: passed across the game and probe.
+- `npm run format:check`: passed.
+- `npm run build`: passed; 633.48 kB raw / 167.17 kB gzip JavaScript, with the
+  existing 500 kB Vite advisory.
+- `npm run test:browser` on port 4173: passed cargo, ramp, three rigs, six
+  cameras, steering/body/camera perception, reduced-motion clamping, hover
+  water, schema-v4 reload, `390 × 844`, and zero console/page errors.
+- No dependency, private Kenney source asset, deployment, branch, stage, commit,
+  push, history, cleanup, or deletion operation was performed.
+
+### Anything else?
+
+The architecture proof is strong local evidence; the fun claim is still open.
+The next valuable step is external player-language testing and a shared
+rescue/repair activity before another roster addition, unless a new locomotion
+family exposes a specific body-state assumption the current union cannot hold.
+
+## Optimization gaps second-pass (2026-07-25)
+
+- Completed a structured second-pass analysis of the untrusted optimization-context conversation against live files, with a skill-by-skill audit path (`3d-games`, `threejs-shaders`, `threejs-materials`) to preserve evidence-first method discipline.
+- Confirmed no code-path changes were introduced in this pass; all outputs are docs-only.
+- Added `docs/research/3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md` with:
+  - implemented-vs-missing mapping for culling/LOD/streaming/replay/authority/collision layers;
+  - explicit execution ordering aligned to render/perf/accessibility first, then collision/streaming/replay, then authority;
+  - skill-to-repo evidence linkage.
+- Remaining open gates from this pass:
+  - frustum+distance+LOD visibility policy and fixture;
+  - collision-category matrix for obstacle/hazard/trigger/projectile surfaces;
+  - replay transport and verifier;
+  - server-authority plan after replay determinism and public workflow safety contracts are in place.
+
+### 2026-07-25 — Optimization/additional systems continuation (same day)
+
+- Per the follow-on "3D Game Optimization Gaps" context, the same untrusted
+  conversation thread was re-checked for broader architecture growth systems beyond
+  the initial rendering/physics/perf list.
+- Added the systems gap matrix into
+  [3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md](research/3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md),
+  covering:
+  - ECS migration readiness
+  - streaming world manifest
+  - asset pipeline maturity
+  - simulation layers
+  - behavior/event architecture
+  - modding architecture
+  - deterministic replay artifact
+  - resource governance
+- Synced the same queue into
+  [EXPLORATION_MAP.md](../docs/exploration/EXPLORATION_MAP.md) under
+  **3D optimization continuity checkpoint** so long-term queueing remains visible.
+- Confirmed and documented that the highest-confidence claims are:
+  - fixed-step deterministic kernel and save migration are present,
+  - renderer state separation is intact,
+  - observability exists for first-pass hardening,
+  - multiplayer/streaming/replay authority claims are still non-functional.
+- No runtime code was changed for this pass; this was an analysis/curation
+  update only (evidence tier: static inspection + path-level references).
+
+## 2026-07-25 — Platform-continuation audit expansion
+
+- Per the same objective and the untrusted optimization-context conversation, I ran a second continuation synthesis pass that explicitly maps the “more” section (deterministic kernel as architecture pillar, world schema, renderer/subsystem separation, modding economics, machine-centric capabilities, authority pipeline) into a single platform backlog artifact.
+- Added [3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md] with:
+  - a matrix that crosschecks claim intent to current repo evidence,
+  - explicit status per area (`Strong`, `Partial`, `Missing`),
+  - a machine-centric platform sequence,
+  - and closed-loop evidence-gate checklist.
+- Synced the continuation registry into [EXPLORATION_MAP.md] under the
+  3D optimization continuity and machine-capability sections.
+- Used the same skill-by-skill audit order:
+  - 3d-games → 3d-web-experience → threejs-materials → threejs-shaders.
+- This pass remains docs-only; execution remains pending on the highest-priority
+  gates (render hardening, replay governance, collision matrix, chunk manifest,
+  authority lane).
+
+## 2026-07-25 — Rig Perception Chain 01
+
+- Accepted the project-owner rule that physics, controls, animation, camera,
+  lighting/VFX, audio/haptics, UI, and player perception form one gameplay
+  chain.
+- Added a derived `RigFeedbackFrame` shared by renderer and procedural audio;
+  simulation remains authoritative and save-compatible.
+- Added visible front-wheel steering, bounded propulsion/lateral chassis
+  expression, and speed/steering chase-camera anticipation.
+- Added operating-system reduced-motion handling for optional body/camera
+  expression and speed-driven field-of-view changes.
+- Changed condition feedback history from one active-rig scalar to per-rig
+  values, preventing a rig switch from looking like new damage.
+- Screenshot review caught broad-rig clipping in portrait chase. The shared
+  profile-scaled policy now uses a stronger pullback and zero cinematic side
+  offset in narrow view.
+- Recorded ADR-0012, the implementation plan, a browser-physics technique
+  catalog, exploration schema expansion, design rules, and acceptance evidence.
+- Parallel work introduced ADR-0011 while this lane was active; references were
+  rechecked and the perception ADR was preserved as ADR-0012.
+- Evidence:
+  - 83 root tests and seven kernel-probe tests passed;
+  - typecheck, formatting, and production build passed;
+  - browser acceptance passed three rigs, six cameras, cargo, ramp, hover,
+    perception evidence, reduced motion, reload, and `390 × 844`;
+  - zero console/page problems;
+  - current build: 633.47 kB raw / 167.17 kB gzip JavaScript, retaining the
+    existing 500 kB advisory.
+
+### Anything else?
+
+The new evidence proves that the perception pipeline is connected. Emotional
+feel, representative-device budgets, haptics, articulated tools, and the
+leading Rapier service hypothesis remain explicit proof gates.
+
+- 2026-07-25: Created `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md` to consolidate the latest “3D Game Optimization Gaps” recommendations with repo-grounded implementation status and a prioritized execution order. Included gap-by-gap status (kernel, migration, culling/LOD, streaming, capabilities, affordances, collisions, authority/events, observability) and concrete acceptance gates.
+
+## 2026-07-25 — OpenAI Sites deployment preparation
+
+- Re-entered the instruction stack and regenerated the canonical project context
+  after the user requested a public Sites deployment.
+- Audited the shared worktree before mutation: one `main` worktree, no stash, no
+  local-only commits, and all parallel source/docs/research/visual evidence
+  preserved.
+- Recorded [ADR-0013](decisions/ADR-0013-sites-deployment-adapter.md) and added a
+  bounded Cloudflare Worker-compatible adapter around the existing Vite game.
+  The runtime, state model, local persistence, and gameplay routes remain
+  canonical and unchanged by hosting.
+- Source-controlled only the opaque Sites project ID. No source credential,
+  environment value, token, private paid source asset, or runtime secret was
+  added.
+- Upgraded the hosting toolchain from the bundled template versions to patched
+  current releases after the first audit reported transitive advisories.
+  `npm audit --json` then reported zero vulnerabilities.
+- Verification before commit:
+  - `npm run typecheck`: passed;
+  - `npm test`: 83 root tests and seven kernel-probe tests passed;
+  - `npm run build`: passed and emitted Worker/client/hosting artifacts;
+  - production-compatible preview on `4174`: full browser acceptance passed
+    with zero console/page errors;
+  - the existing 633 kB bundle advisory remains a visible hardening item.
+- The exact acceptance boundary and three review passes are recorded in
+  [Sites deployment acceptance](reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md).
+  Production success is not claimed until the immutable commit is pushed,
+  packaged, saved, deployed, and reported `succeeded` by Sites.

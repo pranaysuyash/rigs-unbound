@@ -1,0 +1,142 @@
+# 3D Game Optimization Gaps + Long-Term Expansion Synthesis
+
+_Date:_ 2026-07-25
+_Context:_ Rigs Unbound architecture audit aligned with the ChatGPT "3D Game Optimization Gaps" thread (core + additional layers + practical sequencing).
+
+## 1) What was checked
+
+We reviewed the existing repository and applied this directly to implementation reality, not abstract recommendations:
+
+- Gameplay kernel and state orchestration
+- World schema, migrations, and save recovery
+- World/renderer boundary and presentation snapshot
+- Collision and obstacle handling
+- Capability and activity gating in current action system
+- Performance telemetry and HUD/runtime metrics
+- Existing exploration/research artifacts and execution docs already present in-repo
+- Relevant 3D-game skills (`3d-games` variants) for consistency and checklist mapping
+
+## 2) Current status by gap (implemented vs possible)
+
+### A. Core engine invariants and kernel
+
+- **Deterministic fixed-step tick loop** is implemented in `src/game/state.ts`.
+- **Kernel ordering** is explicit (`input/actions -> terrain/physics -> camera/feedback -> diagnostics`) and supports deterministic replay-friendly structure.
+- **State vs render split** is present (`snapshot`-driven render consumption), so renderer is presentation rather than simulation owner.
+- **Current value:** highest foundation is already in place for future multiplayer, replay, and tooling.
+
+### B. Storage, versioning, migration
+
+- **Save payload migration path** exists in game state (`state.ts`) with guarded migration and schema checks, including fallback handling for malformed saves.
+- **Storage snapshot shape** includes world memory separation.
+- **Current value:** this is solid for continuity and prevents early-world lock-in.
+
+### C. Culling, LOD, and scene complexity management
+
+- **Partially present:** there is world-distance pruning and some coarse draw curation in renderer paths; the current renderer can still force explicit `frustumCulled = false` on several meshes (a deliberate artifact-performance shortcut).
+- **Not yet implemented:** formal frustum pass pipeline, occlusion pass, portal culling, and structured distance LOD ladders for geometry/shaders/AI/physics tiers.
+- **Risk:** terrain-open-world scale will become the first budget breaker as content density increases.
+
+### D. Asset/scene streaming
+
+- **Not yet fully present:** no complete chunk streaming/lifecycle pipeline for terrain + assets as player moves.
+- **Current behavior:** world state can load persistently with constrained map scale.
+- **Next required:** chunk scheduler, residency policies, asset manifest prefetch, unload thresholds.
+
+### E. Capability system maturity
+
+- **Foundation exists:** capability-like checks and rig profiles are implemented and tested for action gating in gameplay state.
+- **Gap:** capabilities are not yet fully decoupled into versioned contract definitions with shared adapter semantics and rich parameterized definitions.
+- **Next step:** formal schema + adapter separation between invariant behavior and machine-specific tuning.
+
+### F. Affordance-based interaction model
+
+- **Partially present:** interaction constraints exist at action and terrain levels, but world objects do not yet expose a generalized affordance API.
+- **Gap:** activity logic still relies on specific flow checks in places; it should move to capability + affordance compatibility checks for scale.
+
+### G. Camera feel
+
+- **Foundational camera tuning exists** (lag, bob/boost feedback, HUD coupling, terrain/water cues).
+- **Gap:** missing a formal state-machine camera contract as declarative config for non-vehicle and future platforms.
+
+### H. Rendering strategy and materials
+
+- **Separation exists** between simulation and presentation, with performance metric export.
+- **Gap:** no render graph abstraction yet, and no formal material stack layering for modular modifiers (mud/snow/dust/rust/heat)
+- **Priority:** medium, but valuable once content count grows.
+
+### I. Collision layers and matrix
+
+- **Current foundation:** obstacle field model and collision handling in `src/game/collision.ts`.
+- **Gap:** full broadphase/category matrix is not yet explicit; this affects future object count scaling and editor/runtime safety.
+
+### J. Authority, commands, events, and replay
+
+- **Current:** command intent enters kernel, deterministic transitions are partially prepared by design.
+- **Gap:** explicit command/event pipeline (Intent -> Validate -> State mutation -> Domain event -> presentation) is not yet formalized across all systems; deterministic replay artifact export is still light.
+
+### K. Observability and budgets
+
+- **Strong baseline:** render and simulation telemetry are already captured into runtime snapshot (`drawCalls`, triangles, terrain build timing, fps proxy fields).
+- **Gap:** budgets are not currently enforced by an adaptive scheduler across graphics/AI/physics tiers; no automated budget-failover thresholds in-loop yet.
+
+## 3) What is possible next (low-risk, high leverage)
+
+1. **Frustum + distance cull + LOD contracts**
+   - Add visibility pruning stage before draw-call submission.
+   - Add LOD tiers for non-player vehicles/entities, particle impostors, and physics/AI tick budgets.
+
+2. **Streaming v1**
+   - Define chunk + asset manifest versioned contract.
+   - Start with terrain-ring streaming and deferred detail asset load.
+
+3. **Capability/affordance contract v1**
+   - Formalize capability definitions as validated data records.
+   - Introduce world-affordance descriptors.
+   - Resolve activity eligibility as capability × affordance compatibility.
+
+4. **Migration hardening**
+   - Expand per-contract versioning for runtime definitions (capabilities, activities, world chunk records).
+
+5. **Command/event separation lane**
+   - Introduce deterministic command bus for major intents.
+   - Emit replayable domain events for audit and diagnostics.
+
+## 4) Suggested execution order (first principles)
+
+1. **Protect architecture now**: keep the kernel and split intact; do not route state updates from UI/audio/renderer.
+2. **Introduce one next major proof**: capabililty-affordance compatibility for `tow/farm/harvest` + one new mobility adapter.
+3. **Add culling + LOD** as soon as proof 1 introduces second entity density pressure.
+4. **Introduce chunk residency + manifest** only when open-world radius exceeds current stable frame budget.
+5. **Add replay+events** once command/lane separation is stable.
+
+## 5) Acceptance gates (for this audit-to-implementation bridge)
+
+- [ ] Frustum pass implemented and visible in renderer flow.
+- [ ] Distance LOD and render tier budget enforced in at least two systems.
+- [ ] At least one chunk streaming scenario measured and stable.
+- [ ] Capability and activity schema versioned and validated on load.
+- [ ] Command -> validation -> event -> render-update lane exists in one subsystem and is documented.
+- [ ] Deterministic replay export/import path records at least input stream + world tick hash.
+- [ ] Collision matrix added for at least high-frequency obstacle categories.
+
+## 6) Evidence references already present in-repo
+
+- `docs/WORKLOG.md`
+- `docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md`
+- `docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md`
+- `docs/research/3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md`
+- `src/game/state.ts`
+- `src/game/contracts.ts`
+- `src/game/renderer.ts`
+- `src/game/storage.ts`
+- `src/game/collision.ts`
+- `src/game/performance.ts`
+- `src/game/state.test.ts`
+
+## 7) Notes from the latest “additional” recommendations integrated above
+
+- Prioritize architecture before features.
+- Abstract only after the second proven use case.
+- Keep long-lived engine invariants (tick order, mutation rules, intent->state boundary) stable.
+- Data that changes often stays in validated content; gameplay invariants remain in code/contracts.

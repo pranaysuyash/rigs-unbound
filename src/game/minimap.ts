@@ -96,11 +96,17 @@ export class FieldMap {
       for (let px = 0; px < BASE_RESOLUTION; px += 1) {
         const x = -WORLD_RADIUS + (px + 0.5) * METRES_PER_PIXEL;
         const height = this.world.terrain.height(x, z);
-        const surface = this.world.terrain.surfaceFor(x, z, height);
 
-        // Relief shading: brighter with elevation, plus a light east-west gradient
-        // so slopes are readable.
+        // Two neighbour samples serve double duty: relief shading, and the slope
+        // that `surfaceFor` would otherwise recompute with four more queries.
         const east = this.world.terrain.height(x + METRES_PER_PIXEL, z);
+        const north = this.world.terrain.height(x, z + METRES_PER_PIXEL);
+        const slope = Math.hypot(
+          (east - height) / METRES_PER_PIXEL,
+          (north - height) / METRES_PER_PIXEL,
+        );
+        const surface = this.world.terrain.surfaceFor(x, z, height, slope);
+
         const relief = Math.max(-1, Math.min(1, (height - east) * 0.32));
         const elevation = Math.max(0, Math.min(1, (height + 6) / 70));
         const shade = 0.62 + elevation * 0.5 + relief * 0.22;

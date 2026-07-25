@@ -6,10 +6,12 @@
 history, but now exercises the current Field 02 Vite build as a player-facing
 browser workflow:
 
-- starts from a clean v3 browser save;
+- starts from a clean v4 browser save;
 - drives the tractor to relay cargo through semantic input;
-- attaches and delivers the cargo;
+- attaches the cargo, aligns a short final approach through the explicit test
+  hook, then tows through the real delivery gate;
 - switches to the buggy and drives it over the ramp;
+- switches to Drift and crosses water deeper than Torque can ford;
 - checks local-save restoration after reload;
 - traverses the canonical terrain and physics substrate;
 - checks desktop and narrow layouts;

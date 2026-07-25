@@ -41,14 +41,14 @@ The current runtime uses:
 - distance-spaced furrows as the signature world-memory element;
 - harvest-gold world-state labels and cyan opportunity signals;
 - warm day, separated gloam, and cool night presentation states;
-- chase framing for machine personality and a tighter overhead frame for world information;
+- six reusable camera policies: Chase for machine personality, Hood for driving, Side for attachments and motion, Tactical for local manoeuvring, Top-down for exact spatial reading, and Survey for route planning;
 - four horizon signals—restore, tow, shrink, ascend—to keep the wider world promise visible without claiming those activities are complete.
 
 The screenshot review corrected two issues in the same pass: the first tactical camera left excessive empty space, and the initial mobile control stack overlapped the field kit. The current camera keeps the rig and its trace central; the `390 × 844` layout leaves a measured gap between instruments and touch controls.
 
 Dynamic shadow maps were replaced with a rig-attached blob shadow after Chrome reported a texture-storage warning during lifecycle testing. This is also the better first-field performance posture; richer shadows require measured visual value.
 
-Known visual gap: nearby tall scenery can still dominate tactical framing because camera collision/occlusion is not implemented. Add that system before increasing prop density or accepting the camera grammar.
+Known visual gap: terrain occlusion now pulls the camera clear, but nearby tall props can still dominate elevated framing. Add prop-aware collision before increasing scenery density or accepting the camera grammar across every world type.
 
 ## Experience promise
 
@@ -128,7 +128,7 @@ Robust means capable and structurally convincing, not clean, over-armored, or co
 
 - Chase/near-isometric for traversal and vehicle personality.
 - Top-down for dense tactical readability.
-- Side or fixed framing only for authored set pieces.
+- Side framing supports readable suspension, attachment, and towing inspection; authored set pieces may request it without owning a separate camera branch.
 - Transitions must preserve orientation and telegraph control changes.
 - Camera collision, occlusion, motion comfort, and target reacquisition are first-class gameplay systems.
 
@@ -196,3 +196,62 @@ Remaining visual gap: geometry communicates different silhouette and jump postur
 ### Anything else?
 
 The buggy should not become the new anchor. Its job is to prove contrast. Later rigs may reject wheels, ground contact, chase framing, or the current scale entirely while retaining semantic actions and persistent identity.
+
+## Marsh Skimmer 01 visual translation — 2026-07-25
+
+Drift is the first runtime rig that rejects wheels and ground contact:
+
+- a dark flexible lift skirt, sealed side pontoons, broad deck, and twin rear
+  lift fans create a low-hover silhouette rather than a wheeled reskin;
+- cyan/cream/rust materials keep it in the Patchwork Atlas family without
+  copying Torque or Spark;
+- water spray, lift-fan audio, cushion telemetry, and slight bank/pitch response
+  expose the hover model through several channels;
+- discovered site masts recede so the machine and route remain readable on
+  arrival;
+- camera policy hard-cuts across distant rig switches, then returns to smooth
+  chase motion, avoiding a cross-map transition through terrain.
+- portrait chase retains its extra distance/height but reduces the side offset,
+  keeping broad rigs in the narrow horizontal field of view; its target composes
+  the subject into the safe space above the field kit.
+
+Primitive geometry remains proof material, not final art. The current rear
+fans read clearly at gameplay scale but can resemble circular wheels in a
+single rear screenshot; the asset/model pass should strengthen duct, blade,
+skirt, and wake motion before this silhouette is treated as final.
+
+### Anything else?
+
+Object-aware camera occlusion is still unresolved. Terrain is raymarched, but a
+large prop or undiscovered site mast can still obstruct the subject. This is a
+camera/world-furniture contract to solve once prop collision volumes are
+canonical, not a reason to add vehicle-specific camera offsets.
+
+## Rig Perception Chain 01 — 2026-07-25
+
+Vehicle feel now uses one shared derived frame for speed, propulsion/strain
+load, traction loss, lateral load, steering expression, camera anticipation,
+and motion comfort.
+
+- Torque communicates slower steering, restrained chassis roll, and stable
+  camera anticipation.
+- Spark permits larger steering, pitch/roll, and speed framing.
+- Drift banks through the same lateral-load meaning without inventing wheel
+  state.
+- Front wheels visibly steer on both ground rigs.
+- Physical terrain attitude remains authoritative; presentation adds bounded
+  readable exaggeration.
+- Reduced motion keeps steering/suspension truth while clamping chassis and
+  camera exaggeration and removing speed-driven FOV expansion.
+- Portrait chase pulls back using the shared profile-scaled policy so broad rigs
+  fit the horizontal safe area without a rig-name branch.
+
+The current proof uses primitive geometry. Authored rigs need named wheel,
+steering, suspension, tool, light, and damage nodes so the same contract can
+drive final animation without mesh-specific searches.
+
+### Anything else?
+
+The next feel pass should be validated in player language: “heavy,” “nervous,”
+“skimming,” “straining,” or another fantasy-specific description. Numeric
+differences and passing presentation assertions do not prove emotional feel.

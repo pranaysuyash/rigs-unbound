@@ -220,3 +220,27 @@ Yes. The next evidence unit should test a genuinely different locomotion family
 or external player language against this terrain substrate. Adding more ground
 vehicles or scenery would not yet answer the remaining portability and feel
 questions.
+
+## Rig Perception Chain 01 — 2026-07-25
+
+- Added a tested shared simulation-to-perception frame.
+- Renderer and audio now consume the same normalized speed, traction, load, and
+  turn meanings.
+- Added visible front-wheel steering, chassis load expression, chase-camera
+  anticipation, reduced-motion clamping, and perception browser evidence.
+- Fixed false impact feedback when switching between rigs with different saved
+  condition values.
+- Corrected portrait chase after screenshot review showed Drift clipped at
+  `390 × 844`.
+- Added ADR-0012, a comprehensive browser vehicle-physics catalog, the
+  24-question exploration schema, implementation plan, and acceptance report.
+- Verified 83 root tests, seven kernel-probe tests, typecheck, format, build,
+  full browser workflow, screenshots, and zero console/page problems.
+- Live development server remains available at
+  `http://127.0.0.1:4173/?live=perception-chain-01`.
+
+## Anything else?
+
+Local evidence is Tier 4 for the implemented interaction chain. Player feel,
+mobile-device budgets, haptics, prop-aware camera occlusion, and Rapier dynamics
+remain open with named closure paths.

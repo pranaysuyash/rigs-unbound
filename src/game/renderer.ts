@@ -34,8 +34,8 @@ import {
 } from "./contracts";
 import type { Obstacle } from "./collision";
 import type { SalvageNode } from "./exploration";
+import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
-import { clamp } from "./noise";
 import { SURFACES, WATER_LEVEL, WORLD_RADIUS, WORLD_SITES } from "./world";
 
 const COLORS = {
@@ -67,11 +67,36 @@ const MAX_DUST = 260;
 
 interface RigParts {
   root: THREE.Group;
-  /** Wheel meshes in the physics order: front-left, front-right, rear-L, rear-R. */
-  wheels: THREE.Mesh[];
+  /** Wheel spin pivots in physics order: front-left, front-right, rear-L, rear-R. */
+  wheels: THREE.Group[];
+  /** Steering pivots in the same order. Hover rigs expose an empty list. */
+  steeringPivots: THREE.Group[];
   wheelRestY: number[];
   ploughPivot: THREE.Group | null;
   headlights: THREE.SpotLight;
+  /** A real visible part at the nose, used to verify the visual/physics axis. */
+  frontMarker: THREE.Object3D;
+  /** A real visible part at the rear, used to verify the visual/physics axis. */
+  rearMarker: THREE.Object3D;
+}
+
+export interface RigOrientationEvidence {
+  rigId: RigId;
+  heading: number;
+  frontAlongHeadingMetres: number;
+  visualFrontIsForward: boolean;
+}
+
+export interface RigPerceptionEvidence {
+  rigId: RigId;
+  reducedMotion: boolean;
+  steeringAngle: number;
+  bodyRollOffset: number;
+  bodyPitchOffset: number;
+  speedFovBoost: number;
+  cameraFocusOffset: number | null;
+  expectedFocusOffset: number;
+  cameraFocusContractMet: boolean;
 }
 
 function material(
@@ -134,6 +159,7 @@ export class GameRenderer {
   private salvageNodes!: THREE.InstancedMesh;
   private furrowDecals!: THREE.InstancedMesh;
   private water!: THREE.Mesh;
+  private sky!: THREE.Mesh;
 
   private dust!: THREE.Points;
   private readonly dustPositions = new Float32Array(MAX_DUST * 3);
@@ -150,6 +176,12 @@ export class GameRenderer {
   private lastFrameTime = performance.now();
   private shake = 0;
   private cameraInitialised = false;
+  private cameraRigId: RigId | null = null;
+  private readonly reducedMotionQuery = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
+  private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
+  private lastCameraFocusY: number | null = null;
 
   /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
   terrainBuildMs = 0;
@@ -175,6 +207,7 @@ export class GameRenderer {
     this.sun.position.set(-120, 190, -70);
     this.scene.add(this.sun, this.hemisphere);
 
+    this.buildSky();
     this.buildTerrain();
     this.buildWater();
     this.buildInstancedProps();
@@ -184,9 +217,11 @@ export class GameRenderer {
 
     const tractor = this.createTractor();
     const buggy = this.createBuggy();
+    const skimmer = this.createSkimmer();
     this.rigs.set("utility-tractor", tractor);
     this.rigs.set("toy-buggy", buggy);
-    this.scene.add(tractor.root, buggy.root);
+    this.rigs.set("marsh-skimmer", skimmer);
+    this.scene.add(tractor.root, buggy.root, skimmer.root);
 
     this.cargo = this.createCargo();
     this.hitchLine = new THREE.Line(
@@ -251,7 +286,18 @@ export class GameRenderer {
         positions[index * 3 + 1] = y;
         positions[index * 3 + 2] = z;
 
-        const surface = this.world.terrain.surfaceFor(x, z, y);
+        // Slope from the grid neighbours we already sampled. Calling `surfaceFor`
+        // without it makes the field fall back to `slope()`, which is four more
+        // `height()` queries per vertex — measured at ~300 ms of the terrain build
+        // on its own, for a number that is sitting in the array beside us.
+        const east = this.terrainHeights[index + (ix < cells ? 1 : -1)]!;
+        const north = this.terrainHeights[index + (iz < cells ? size : -size)]!;
+        const slope = Math.hypot(
+          (east - y) / TERRAIN_STEP,
+          (north - y) / TERRAIN_STEP,
+        );
+
+        const surface = this.world.terrain.surfaceFor(x, z, y, slope);
         colour.setHex(surface.color);
         // A stable per-vertex tint keeps large single-surface regions from reading
         // as flat paint without needing a texture.
@@ -650,6 +696,7 @@ export class GameRenderer {
       mast.position.y = 5.5;
       group.add(ring, mast);
       group.userData.ring = ring;
+      group.userData.mast = mast;
 
       if (site.id === "home-silo") {
         const barn = box(9, 5.5, 7.5, 0x7d352a);
@@ -793,6 +840,36 @@ export class GameRenderer {
     this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
   }
 
+  /**
+   * The sky, as geometry rather than a clear colour.
+   *
+   * `scene.background` as a `THREE.Color` is written by a buffer clear, which does
+   * **not** pass through tone mapping or the sRGB output encode. Fogged geometry
+   * does. The result was a hard dark band around the whole horizon in broad
+   * daylight: distant terrain resolved to a correctly-encoded light fog colour while
+   * the sky behind it stayed dark and linear.
+   *
+   * An inside-out sphere with a tone-mapped basic material travels the same path as
+   * everything else, so the horizon and the sky are guaranteed to agree by
+   * construction instead of by matching two numbers through two different pipelines.
+   * `fog: false` keeps the dome itself from being fogged toward its own colour, and
+   * `depthWrite: false` keeps it from occluding anything.
+   */
+  private buildSky(): void {
+    this.sky = new THREE.Mesh(
+      new THREE.SphereGeometry(860, 18, 12),
+      new THREE.MeshBasicMaterial({
+        color: 0xbfd5c5,
+        side: THREE.BackSide,
+        fog: false,
+        depthWrite: false,
+      }),
+    );
+    this.sky.name = "sky";
+    this.sky.frustumCulled = false;
+    this.scene.add(this.sky);
+  }
+
   private buildStars(): void {
     const positions: number[] = [];
     for (let index = 0; index < 260; index += 1) {
@@ -877,7 +954,8 @@ export class GameRenderer {
     const exhaust = cylinder(0.13, 0.17, 2.4, 8, 0x2d2d29);
     exhaust.position.set(-0.68, 2.9, 1.4);
 
-    const wheels: THREE.Mesh[] = [];
+    const wheels: THREE.Group[] = [];
+    const steeringPivots: THREE.Group[] = [];
     const wheelRestY: number[] = [];
     // Physics order: front-left, front-right, rear-left, rear-right.
     const layout: ReadonlyArray<readonly [number, number, number]> = [
@@ -887,15 +965,20 @@ export class GameRenderer {
       [1.5, -1.25, 1.05],
     ];
     for (const [x, z, radius] of layout) {
+      const steeringPivot = new THREE.Group();
+      steeringPivot.position.set(x, radius, z);
+      const spinPivot = new THREE.Group();
       const wheel = cylinder(radius, radius, 0.66, 14, COLORS.tire);
       wheel.rotation.z = Math.PI / 2;
-      wheel.position.set(x, radius, z);
       const hub = cylinder(radius * 0.44, radius * 0.44, 0.7, 10, COLORS.gold);
       hub.rotation.z = Math.PI / 2;
       wheel.add(hub);
-      wheels.push(wheel);
+      spinPivot.add(wheel);
+      steeringPivot.add(spinPivot);
+      wheels.push(spinPivot);
+      steeringPivots.push(steeringPivot);
       wheelRestY.push(radius);
-      root.add(wheel);
+      root.add(steeringPivot);
     }
 
     const ploughPivot = new THREE.Group();
@@ -941,7 +1024,16 @@ export class GameRenderer {
       ploughPivot,
       headlights,
     );
-    return { root, wheels, wheelRestY, ploughPivot, headlights };
+    return {
+      root,
+      wheels,
+      steeringPivots,
+      wheelRestY,
+      ploughPivot,
+      headlights,
+      frontMarker: grille,
+      rearMarker: blade,
+    };
   }
 
   /** The toy buggy, built front-forward: nose and lights at +Z, tow hook at −Z. */
@@ -970,7 +1062,8 @@ export class GameRenderer {
     rollBar.position.set(0, 1.5, -0.7);
     rollBar.rotation.z = Math.PI;
 
-    const wheels: THREE.Mesh[] = [];
+    const wheels: THREE.Group[] = [];
+    const steeringPivots: THREE.Group[] = [];
     const wheelRestY: number[] = [];
     for (const [x, z] of [
       [-1.45, 1.1],
@@ -978,15 +1071,20 @@ export class GameRenderer {
       [-1.45, -1.1],
       [1.45, -1.1],
     ] as const) {
+      const steeringPivot = new THREE.Group();
+      steeringPivot.position.set(x, 0.56, z);
+      const spinPivot = new THREE.Group();
       const wheel = cylinder(0.56, 0.56, 0.46, 12, COLORS.tire);
       wheel.rotation.z = Math.PI / 2;
-      wheel.position.set(x, 0.56, z);
       const hub = cylinder(0.23, 0.23, 0.5, 8, COLORS.cyan);
       hub.rotation.z = Math.PI / 2;
       wheel.add(hub);
-      wheels.push(wheel);
+      spinPivot.add(wheel);
+      steeringPivot.add(spinPivot);
+      wheels.push(spinPivot);
+      steeringPivots.push(steeringPivot);
       wheelRestY.push(0.56);
-      root.add(wheel);
+      root.add(steeringPivot);
     }
 
     const towHook = cylinder(0.12, 0.16, 0.6, 8, COLORS.gold);
@@ -1009,7 +1107,125 @@ export class GameRenderer {
     root.add(headlights.target);
 
     root.add(shadow, chassis, nose, cockpit, rollBar, towHook, headlights);
-    return { root, wheels, wheelRestY, ploughPivot: null, headlights };
+    return {
+      root,
+      wheels,
+      steeringPivots,
+      wheelRestY,
+      ploughPivot: null,
+      headlights,
+      frontMarker: nose,
+      rearMarker: towHook,
+    };
+  }
+
+  /**
+   * Drift, a compact marsh skimmer.
+   *
+   * Its silhouette exposes the mobility contract: sealed pontoons, a flexible
+   * lift skirt, and twin rear fans instead of decorative wheels. Presentation
+   * must not imply ground contacts the simulation does not own.
+   */
+  private createSkimmer(): RigParts {
+    const root = new THREE.Group();
+    root.name = "marsh-skimmer";
+    root.rotation.order = "YXZ";
+
+    const shadow = this.blobShadow(2.6, 0.22);
+    shadow.position.y = -0.72;
+    shadow.scale.set(1.2, 1.75, 1);
+
+    const skirt = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.15, 2.45, 0.62, 12),
+      material(0x242a2b, 0.95, 0),
+    );
+    skirt.scale.z = 1.45;
+    skirt.position.y = -0.22;
+
+    const deck = box(3.8, 0.42, 5.1, 0x315861);
+    deck.position.y = 0.28;
+    const prow = new THREE.Mesh(
+      new THREE.ConeGeometry(1.82, 2.1, 4),
+      material(COLORS.cyan, 0.58, 0.16),
+    );
+    prow.rotation.x = Math.PI / 2;
+    prow.rotation.z = Math.PI / 4;
+    prow.position.set(0, 0.48, 3.05);
+    const cabin = box(2.45, 1.25, 2.1, COLORS.bone);
+    cabin.position.set(0, 1.12, 0.35);
+    const windscreen = box(2.1, 0.58, 0.12, 0x234d5a);
+    windscreen.position.set(0, 1.35, 1.43);
+    const roof = box(2.8, 0.18, 2.35, COLORS.rust);
+    roof.position.set(0, 1.83, 0.28);
+
+    const pontoonMaterial = material(0x476f75, 0.66, 0.14);
+    for (const x of [-1.72, 1.72]) {
+      const pontoon = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.42, 3.7, 5, 10),
+        pontoonMaterial,
+      );
+      pontoon.rotation.x = Math.PI / 2;
+      pontoon.position.set(x, 0.15, 0.05);
+      root.add(pontoon);
+    }
+
+    const fanMaterial = material(0x26383c, 0.62, 0.25);
+    for (const x of [-0.92, 0.92]) {
+      const fan = new THREE.Group();
+      fan.position.set(x, 1.28, -2.35);
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.66, 0.1, 8, 18),
+        fanMaterial,
+      );
+      const hub = cylinder(0.15, 0.15, 0.24, 8, COLORS.gold);
+      hub.rotation.x = Math.PI / 2;
+      const bladeA = box(0.15, 1.05, 0.08, 0xc7a35b);
+      const bladeB = bladeA.clone();
+      bladeB.rotation.z = Math.PI / 2;
+      fan.add(ring, hub, bladeA, bladeB);
+      root.add(fan);
+    }
+
+    const towHook = cylinder(0.12, 0.16, 0.62, 8, COLORS.gold);
+    towHook.rotation.x = Math.PI / 2;
+    towHook.position.set(0, 0.1, -3);
+
+    const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xbdfaff });
+    for (const x of [-0.72, 0.72]) {
+      const lens = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.19, 0.19, 0.12, 10),
+        lightMaterial,
+      );
+      lens.rotation.x = Math.PI / 2;
+      lens.position.set(x, 0.68, 3.45);
+      root.add(lens);
+    }
+    const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
+    headlights.position.set(0, 0.78, 3.3);
+    headlights.target.position.set(0, -0.25, 23);
+    root.add(headlights.target);
+
+    root.add(
+      shadow,
+      skirt,
+      deck,
+      prow,
+      cabin,
+      windscreen,
+      roof,
+      towHook,
+      headlights,
+    );
+    return {
+      root,
+      wheels: [],
+      steeringPivots: [],
+      wheelRestY: [],
+      ploughPivot: null,
+      headlights,
+      frontMarker: prow,
+      rearMarker: towHook,
+    };
   }
 
   private createCargo(): THREE.Group {
@@ -1061,6 +1277,16 @@ export class GameRenderer {
   // Presentation state
   // ---------------------------------------------------------------------------
 
+  /**
+   * Apply a presentation phase.
+   *
+   * Fog colour **must** equal the background colour in every phase. The world is
+   * ringed by a 78 m impassable ridge about 200 m out (see `world.ts`), so a large
+   * band of the horizon is always distant geometry. When fog converged on a
+   * different colour than the sky, that ridge resolved as a dark grey wall around
+   * the whole horizon — in broad daylight. Matching the two makes the rim dissolve
+   * into the sky, which is what distance is supposed to look like.
+   */
   private updatePhase(phase: WorldPhase): void {
     if (phase === this.currentPhase) return;
     this.currentPhase = phase;
@@ -1069,7 +1295,8 @@ export class GameRenderer {
 
     if (phase === "day") {
       this.scene.background = new THREE.Color(0xbfd5c5);
-      this.scene.fog = new THREE.FogExp2(0x93a982, 0.0035);
+      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0xbfd5c5);
+      this.scene.fog = new THREE.FogExp2(0xbfd5c5, 0.0052);
       this.sun.color.setHex(0xffdeb0);
       this.sun.intensity = 2.5;
       this.hemisphere.intensity = 1.6;
@@ -1078,7 +1305,8 @@ export class GameRenderer {
       if (stars) stars.visible = false;
     } else if (phase === "gloam") {
       this.scene.background = new THREE.Color(0x9d6b50);
-      this.scene.fog = new THREE.FogExp2(0x7f7256, 0.0042);
+      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0x9d6b50);
+      this.scene.fog = new THREE.FogExp2(0x9d6b50, 0.0058);
       this.sun.color.setHex(0xff9d66);
       this.sun.intensity = 1.3;
       this.hemisphere.intensity = 0.9;
@@ -1087,7 +1315,8 @@ export class GameRenderer {
       if (stars) stars.visible = true;
     } else {
       this.scene.background = new THREE.Color(COLORS.night);
-      this.scene.fog = new THREE.FogExp2(0x122733, 0.0058);
+      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(COLORS.night);
+      this.scene.fog = new THREE.FogExp2(COLORS.night, 0.007);
       this.sun.color.setHex(0x86a8d6);
       this.sun.intensity = 0.35;
       this.hemisphere.intensity = 0.45;
@@ -1099,6 +1328,7 @@ export class GameRenderer {
 
   /** Register an impact so the camera can react to it. */
   addShake(amount: number): void {
+    if (this.reducedMotionQuery.matches) return;
     this.shake = Math.min(1.2, this.shake + amount);
   }
 
@@ -1137,24 +1367,35 @@ export class GameRenderer {
       const rigState = state.rigs[id];
       const parts = this.rigs.get(id);
       if (!parts) continue;
+      const rigProfile = effectiveProfile(rigState.id, rigState.modules);
+      const feedback = deriveRigFeedback(
+        rigState,
+        rigProfile,
+        this.reducedMotionQuery.matches,
+      );
+      this.feedbackFrames.set(id, feedback);
 
       parts.root.position.set(rigState.x, rigState.y, rigState.z);
       parts.root.rotation.y = rigState.heading;
       // Positive pitch is nose-up; a Y-then-X rotation drops +Z for positive X,
       // so the sign is inverted here.
-      parts.root.rotation.x = -rigState.pitch;
-      parts.root.rotation.z = rigState.roll;
+      parts.root.rotation.x = -rigState.pitch + feedback.bodyPitchOffset;
+      parts.root.rotation.z = rigState.roll + feedback.bodyRollOffset;
 
-      for (let index = 0; index < parts.wheels.length; index += 1) {
-        const wheel = parts.wheels[index]!;
-        const rest = parts.wheelRestY[index]!;
-        const wheelState = rigState.wheels[index];
-        wheel.rotation.x = rigState.wheelRotation;
-        if (wheelState) {
-          // Compression 0.5 is the resting position, so the wheel visibly rides
-          // up into the arch over a bump and drops away over a crest.
-          const travel = (wheelState.compression - 0.5) * 2 * 0.5;
-          wheel.position.y = rest + travel * 0.6;
+      if (rigState.mobility.kind === "ground") {
+        for (let index = 0; index < parts.wheels.length; index += 1) {
+          const wheel = parts.wheels[index]!;
+          const steeringPivot = parts.steeringPivots[index]!;
+          const rest = parts.wheelRestY[index]!;
+          const wheelState = rigState.mobility.wheels[index];
+          wheel.rotation.x = rigState.mobility.wheelRotation;
+          steeringPivot.rotation.y = index < 2 ? feedback.steeringAngle : 0;
+          if (wheelState) {
+            // Compression 0.5 is the resting position, so the wheel visibly
+            // rides up into the arch over a bump and drops away over a crest.
+            const travel = (wheelState.compression - 0.5) * 2 * 0.5;
+            steeringPivot.position.y = rest + travel * 0.6;
+          }
         }
       }
 
@@ -1177,18 +1418,38 @@ export class GameRenderer {
       1.2,
     );
     const spray = ground.surface.spray;
-    for (let index = 0; index < activeRigState.wheels.length; index += 1) {
-      const wheel = activeRigState.wheels[index]!;
-      if (!wheel.contact) continue;
-      const strength = wheel.slip * spray;
-      if (strength < 0.18) continue;
-      const angle = activeRigState.heading + (index < 2 ? 0.4 : Math.PI - 0.4);
-      const radius = profile.track * 0.5;
+    if (activeRigState.mobility.kind === "ground") {
+      for (
+        let index = 0;
+        index < activeRigState.mobility.wheels.length;
+        index += 1
+      ) {
+        const wheel = activeRigState.mobility.wheels[index]!;
+        if (!wheel.contact) continue;
+        const strength = wheel.slip * spray;
+        if (strength < 0.18) continue;
+        const angle =
+          activeRigState.heading + (index < 2 ? 0.4 : Math.PI - 0.4);
+        const radius = profile.track * 0.5;
+        this.emitDust(
+          activeRigState.x + Math.sin(angle) * radius,
+          ground.height + 0.3,
+          activeRigState.z + Math.cos(angle) * radius,
+          Math.min(1, strength),
+          Math.abs(activeRigState.speed),
+        );
+      }
+    } else if (
+      Math.abs(activeRigState.speed) > 1.5 &&
+      activeRigState.telemetry.waterDepth > 0.05
+    ) {
+      const rearX = activeRigState.x - Math.sin(activeRigState.heading) * 2.2;
+      const rearZ = activeRigState.z - Math.cos(activeRigState.heading) * 2.2;
       this.emitDust(
-        activeRigState.x + Math.sin(angle) * radius,
-        ground.height + 0.3,
-        activeRigState.z + Math.cos(angle) * radius,
-        Math.min(1, strength),
+        rearX,
+        WATER_LEVEL + 0.15,
+        rearZ,
+        Math.min(1, Math.abs(activeRigState.speed) / profile.topSpeed),
         Math.abs(activeRigState.speed),
       );
     }
@@ -1221,12 +1482,14 @@ export class GameRenderer {
     for (const site of WORLD_SITES) {
       const group = this.scene.getObjectByName(`site:${site.id}`);
       const ring = group?.userData.ring as THREE.Mesh | undefined;
+      const mast = group?.userData.mast as THREE.Mesh | undefined;
       if (!ring) continue;
       ring.rotation.z += delta * 0.3;
       const discovered = state.discoveries.some((item) => item.id === site.id);
       (ring.material as THREE.MeshBasicMaterial).opacity = discovered
         ? 0.18
         : 0.5;
+      if (mast) mast.visible = !discovered;
     }
 
     this.updateCamera(state, delta, profile);
@@ -1248,6 +1511,11 @@ export class GameRenderer {
     profile: ReturnType<typeof effectiveProfile>,
   ): void {
     const rig = state.rigs[state.activeRigId];
+    const feedback = deriveRigFeedback(
+      rig,
+      profile,
+      this.reducedMotionQuery.matches,
+    );
     const narrow = this.camera.aspect < 0.8;
     const forward = new THREE.Vector3(
       Math.sin(rig.heading),
@@ -1266,22 +1534,32 @@ export class GameRenderer {
           : 0.8),
       rig.z,
     );
+    this.lastCameraFocusY = focus.y;
 
     let desired: THREE.Vector3;
     let target: THREE.Vector3;
 
     if (state.cameraMode === "chase") {
-      const distance = profile.camera.chaseDistance * (narrow ? 1.3 : 1);
-      const height = profile.camera.chaseHeight * (narrow ? 1.15 : 1);
+      // Portrait has far less horizontal field of view. Pulling back 2.5× keeps
+      // broad machines (and future articulated silhouettes) inside the safe
+      // column between the field kit and touch controls. The policy remains
+      // profile-scaled rather than branching on a rig id.
+      const distance = profile.camera.chaseDistance * (narrow ? 2.5 : 1);
+      const height = profile.camera.chaseHeight * (narrow ? 1.55 : 1);
+      const side = profile.camera.chaseSide * (narrow ? 0 : 1);
       desired = new THREE.Vector3(rig.x, rig.y + height, rig.z)
         .addScaledVector(forward, -distance)
         .add(
-          new THREE.Vector3(profile.camera.chaseSide, 0, 0).applyAxisAngle(
+          new THREE.Vector3(side, 0, 0).applyAxisAngle(
             new THREE.Vector3(0, 1, 0),
             rig.heading,
           ),
         );
-      target = focus.clone().addScaledVector(forward, 4);
+      target = focus
+        .clone()
+        .addScaledVector(forward, 4 + feedback.cameraForwardLook)
+        .addScaledVector(right, feedback.cameraLateralLook);
+      if (narrow) target.y -= 2.2;
     } else if (state.cameraMode === "hood") {
       // A rig-height driving view. The profile supplies only the machine-scale
       // offset; the policy itself remains shared by every present and future rig.
@@ -1351,7 +1629,10 @@ export class GameRenderer {
       );
     }
 
-    if (!this.cameraInitialised) {
+    const cameraDiscontinuity =
+      this.cameraRigId !== rig.id ||
+      this.camera.position.distanceTo(desired) > 70;
+    if (!this.cameraInitialised || cameraDiscontinuity) {
       this.camera.position.copy(desired);
       this.cameraInitialised = true;
     } else {
@@ -1361,6 +1642,7 @@ export class GameRenderer {
           : 1 - Math.exp(-3.5 * delta);
       this.camera.position.lerp(desired, blend);
     }
+    this.cameraRigId = rig.id;
 
     if (this.shake > 0.001) {
       this.shake = Math.max(0, this.shake - delta * 2.6);
@@ -1370,17 +1652,13 @@ export class GameRenderer {
       this.camera.position.y += Math.sin(phase * 1.7) * magnitude * 0.7;
     }
 
-    // Speed opens the field of view slightly; a cheap, readable sense of pace.
-    const speedRatio = clamp(
-      Math.abs(rig.speed) / Math.max(1, profile.topSpeed),
-      0,
-      1,
-    );
+    // Speed opens the field of view slightly; reduced-motion removes the
+    // presentation-only expansion while retaining the chosen camera policy.
     const targetFov =
       state.cameraMode === "chase"
-        ? 52 + speedRatio * 8
+        ? 52 + feedback.speedFovBoost
         : state.cameraMode === "hood"
-          ? 64 + speedRatio * 5
+          ? 64 + feedback.speedFovBoost * 0.625
           : state.cameraMode === "side"
             ? 48
             : state.cameraMode === "top-down"
@@ -1398,6 +1676,7 @@ export class GameRenderer {
       this.camera.up.set(0, 1, 0);
     }
     this.camera.lookAt(target);
+    this.sky.position.copy(this.camera.position);
   }
 
   metrics(): { drawCalls: number; triangles: number; terrainBuildMs: number } {
@@ -1405,6 +1684,76 @@ export class GameRenderer {
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
+    };
+  }
+
+  /**
+   * Prove that the rendered nose is on the same side of the rig as simulated
+   * forward travel. This uses visible model parts—not duplicate authored
+   * coordinates—so browser acceptance catches a future mesh built backwards.
+   */
+  orientationEvidence(state: GameState, rigId: RigId): RigOrientationEvidence {
+    const rig = state.rigs[rigId];
+    const parts = this.rigs.get(rigId);
+    if (!parts) {
+      throw new Error(`Missing rendered rig: ${rigId}`);
+    }
+
+    parts.root.updateWorldMatrix(true, true);
+    const front = parts.frontMarker.getWorldPosition(new THREE.Vector3());
+    const rear = parts.rearMarker.getWorldPosition(new THREE.Vector3());
+    const forward = new THREE.Vector3(
+      Math.sin(rig.heading),
+      0,
+      Math.cos(rig.heading),
+    );
+    const frontAlongHeading = front.sub(rear).dot(forward);
+
+    return {
+      rigId,
+      heading: Number(rig.heading.toFixed(4)),
+      frontAlongHeadingMetres: Number(frontAlongHeading.toFixed(3)),
+      visualFrontIsForward: frontAlongHeading > 0,
+    };
+  }
+
+  /**
+   * Expose presentation evidence without making rendered transforms game truth.
+   * Browser acceptance uses this to prove that simulation telemetry reaches
+   * animation/camera and that the operating-system motion preference is honored.
+   */
+  perceptionEvidence(state: GameState, rigId: RigId): RigPerceptionEvidence {
+    const rig = state.rigs[rigId];
+    const profile = effectiveProfile(rig.id, rig.modules);
+    const feedback =
+      this.feedbackFrames.get(rigId) ??
+      deriveRigFeedback(rig, profile, this.reducedMotionQuery.matches);
+    const expectedFocusOffset =
+      state.cameraMode === "chase" ||
+      state.cameraMode === "hood" ||
+      state.cameraMode === "side"
+        ? profile.camera.focusHeight
+        : 0.8;
+    const cameraFocusOffset =
+      state.activeRigId === rigId && this.lastCameraFocusY !== null
+        ? this.lastCameraFocusY - rig.y
+        : null;
+
+    return {
+      rigId,
+      reducedMotion: this.reducedMotionQuery.matches,
+      steeringAngle: Number(feedback.steeringAngle.toFixed(4)),
+      bodyRollOffset: Number(feedback.bodyRollOffset.toFixed(4)),
+      bodyPitchOffset: Number(feedback.bodyPitchOffset.toFixed(4)),
+      speedFovBoost: Number(feedback.speedFovBoost.toFixed(3)),
+      cameraFocusOffset:
+        cameraFocusOffset === null
+          ? null
+          : Number(cameraFocusOffset.toFixed(4)),
+      expectedFocusOffset: Number(expectedFocusOffset.toFixed(4)),
+      cameraFocusContractMet:
+        cameraFocusOffset !== null &&
+        Math.abs(cameraFocusOffset - expectedFocusOffset) < 0.001,
     };
   }
 

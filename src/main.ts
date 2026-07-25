@@ -13,6 +13,7 @@ import {
   CAMERA_MODES,
   effectiveProfile,
   FIXED_STEP_SECONDS,
+  IDLE_INPUT,
   LANDMARKS,
   MODULE_IDS,
   MODULES,
@@ -34,6 +35,10 @@ import {
   type PerformanceSnapshot,
 } from "./game/performance";
 import { GameRenderer } from "./game/renderer";
+import type {
+  RigOrientationEvidence,
+  RigPerceptionEvidence,
+} from "./game/renderer";
 import {
   activeRig,
   advanceGame,
@@ -70,6 +75,8 @@ declare global {
     performRigAction: () => string;
     applyRigInput: (input: Partial<InputFrame>, milliseconds: number) => string;
     getPerformanceSnapshot: () => PerformanceSnapshot;
+    getRigOrientationEvidence: (rigId?: RigId) => RigOrientationEvidence;
+    getRigPerceptionEvidence: (rigId?: RigId) => RigPerceptionEvidence;
     installRigModule: (moduleId: ModuleId) => string;
     winchRecoverRig: () => string;
     toggleFieldMap: () => string;
@@ -80,7 +87,7 @@ declare global {
      * without this an acceptance run would spend minutes driving instead of
      * checking behaviour. Not reachable from any in-game control.
      */
-    placeRig: (x: number, z: number) => string;
+    placeRig: (x: number, z: number, heading?: number) => string;
   }
 }
 
@@ -157,6 +164,7 @@ function boot(): void {
   const conditionValue = requiredElement<HTMLElement>("#condition-value");
   const salvageValue = requiredElement<HTMLElement>("#salvage-value");
   const surveyValue = requiredElement<HTMLElement>("#survey-value");
+  const mobilityLabel = requiredElement<HTMLElement>("#mobility-label");
   const gripBar = requiredElement<HTMLElement>("#grip-bar");
   const gripText = requiredElement<HTMLElement>("#grip-text");
   const gradeBar = requiredElement<HTMLElement>("#grade-bar");
@@ -437,11 +445,15 @@ function boot(): void {
     cameraSelect.value = state.cameraMode;
 
     const gripRatio = Math.min(1, telemetry.grip / 1.2);
+    const hovering = rig.mobility.kind === "hover";
+    mobilityLabel.textContent = hovering ? "Cushion" : "Grip";
     gripBar.style.width = `${Math.round(gripRatio * 100)}%`;
     gripText.textContent = telemetry.stalled
       ? "stalled"
       : telemetry.slip > 0.3
-        ? "slipping"
+        ? hovering
+          ? "weak"
+          : "slipping"
         : `${Math.round(gripRatio * 100)}%`;
     gripBar.classList.toggle("is-poor", gripRatio < 0.45);
 
@@ -468,6 +480,9 @@ function boot(): void {
     } else if (telemetry.waterDepth > profile.fordDepth) {
       prompt.textContent =
         "Water is over the axles. Get out before it costs you.";
+    } else if (hovering && telemetry.waterDepth > 1.1) {
+      prompt.textContent =
+        "Cushion holding · skim the flooded line Torque cannot ford.";
     } else {
       const node = world.exploration.nearestNode(
         rig.x,
@@ -477,7 +492,8 @@ function boot(): void {
       );
       if (node) {
         const distance = Math.round(Math.hypot(rig.x - node.x, rig.z - node.z));
-        prompt.textContent = `${headingLabel(rig.heading)} · salvage ${distance} m · ${node.value} units`;
+        const units = node.value === 1 ? "unit" : "units";
+        prompt.textContent = `${headingLabel(rig.heading)} · salvage ${distance} m · ${node.value} ${units}`;
       } else {
         const nearest = LANDMARKS.map((landmark) => ({
           ...landmark,
@@ -591,6 +607,20 @@ function boot(): void {
     cameraSelect.value = cameraMode;
     return settleAndReport();
   };
+  window.getRigOrientationEvidence = (rigId = state.activeRigId) => {
+    if (!RIG_IDS.includes(rigId)) {
+      throw new Error(`Unknown rig id: ${String(rigId)}`);
+    }
+    renderer.render(state);
+    return renderer.orientationEvidence(state, rigId);
+  };
+  window.getRigPerceptionEvidence = (rigId = state.activeRigId) => {
+    if (!RIG_IDS.includes(rigId)) {
+      throw new Error(`Unknown rig id: ${String(rigId)}`);
+    }
+    renderer.render(state);
+    return renderer.perceptionEvidence(state, rigId);
+  };
   window.performRigAction = () => {
     performPrimaryAction(state, world);
     return settleAndReport();
@@ -630,15 +660,25 @@ function boot(): void {
     if (state.mapOpen) fieldMap.draw(state);
     return settleAndReport();
   };
-  window.placeRig = (x: number, z: number) => {
+  window.placeRig = (x: number, z: number, heading?: number) => {
     if (!Number.isFinite(x) || !Number.isFinite(z)) {
       throw new Error("placeRig needs finite coordinates.");
+    }
+    if (heading !== undefined && !Number.isFinite(heading)) {
+      throw new Error("placeRig heading must be finite when supplied.");
     }
     const rig = activeRig(state);
     rig.x = x;
     rig.z = z;
+    if (heading !== undefined) rig.heading = heading;
     rig.speed = 0;
     settleWorld(state, world);
+    // Telemetry (surface, grip, grade, water depth) is written by the traversal
+    // model, so a teleport that skips the step leaves the HUD and the reported
+    // snapshot describing the *previous* location. One idle step re-reads the
+    // ground here, which keeps `render_game_to_text` honest for the acceptance
+    // tool — this bit the first measurement of surface grip contrast.
+    stepGame(state, world, IDLE_INPUT, FIXED_STEP_SECONDS);
     renderer.invalidate(state);
     return settleAndReport();
   };
@@ -653,7 +693,9 @@ function boot(): void {
   let previousTime = performance.now();
   let saveAccumulator = 0;
   let active = true;
-  let previousCondition = activeRig(state).condition;
+  const previousCondition = Object.fromEntries(
+    RIG_IDS.map((rigId) => [rigId, state.rigs[rigId].condition]),
+  ) as Record<RigId, number>;
 
   const persist = (): void => {
     const result = saveState(window.localStorage, state, world);
@@ -679,12 +721,13 @@ function boot(): void {
     // Condition loss is the one signal that always earns a shake and a thud, so
     // damage is never silent.
     const rig = activeRig(state);
-    if (rig.condition < previousCondition - 0.4) {
-      const severity = Math.min(1, (previousCondition - rig.condition) / 10);
+    const previousRigCondition = previousCondition[rig.id];
+    if (rig.condition < previousRigCondition - 0.4) {
+      const severity = Math.min(1, (previousRigCondition - rig.condition) / 10);
       renderer.addShake(0.35 + severity * 0.7);
       audio.impact(0.35 + severity * 0.65);
     }
-    previousCondition = rig.condition;
+    previousCondition[rig.id] = rig.condition;
 
     renderer.render(state);
     audio.update(
