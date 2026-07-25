@@ -122,3 +122,27 @@ The loading contract should be evaluated with:
 
 This note answers the web-audit gap about stable loading UX and profile bootstrap.
 It gives the browser layer a durable rule: progress and fallback must be visible before the app asks the player to trust the scene.
+
+## Addendum (2026-07-25): the shell is visible, but the bootstrap policy is still mostly implicit
+
+- Re-checked the current startup path, browser surface, and live runtime state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current implementation already proves the first half of the contract:
+  - `welcome-panel` is a real startup shell in `src/main.ts` and
+    `src/styles.css`,
+  - the shell prevents the app from looking like a dead black box,
+  - `saveStatus` is populated immediately from the load result, so the browser
+    always has a live textual state during boot,
+  - entering the world dismisses the shell and focuses the canvas.
+- What is still missing is the explicit bootstrap policy surface the contract
+  asks for:
+  - no real profile-selection UI or runtime profile chooser,
+  - no visible loading progress meter or startup percentage,
+  - no separate fallback-preview state distinct from the shell and ready states,
+  - no measured profile-selection outcome visible to the user.
+- So the browser is now past the “dead black box” risk, but the bootstrap path
+  is still mostly a shell-plus-default-profile implementation rather than a
+  fully named loading/profile policy.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

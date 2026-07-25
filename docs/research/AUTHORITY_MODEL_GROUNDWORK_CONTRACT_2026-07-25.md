@@ -108,3 +108,30 @@ The smallest durable proof for this contract is:
 Local deterministic play remains the canonical current mode.
 This contract keeps the future authority boundary legible so durable world
 changes can be validated without collapsing speculative input into truth.
+
+## Addendum (2026-07-25): local-first authority is real, shared-state authority is still future-gated
+
+- Re-checked the current runtime and repo state after reviewing the authority
+  contract.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The code already proves the local-first authority posture:
+  - `src/main.ts` captures commands and checkpoints as explicit browser-side
+    events,
+  - `src/game/state.ts` runs a deterministic kernel with canonical state
+    mutation order,
+  - `src/game/storage.ts` saves and restores local state with versioned recovery
+    and clean fallback behavior,
+  - invalid or incompatible local records are replaced with a clean field rather
+    than being treated as durable truth.
+- That is enough to support local play, recovery, and deterministic validation.
+- What is still missing is the first-class authority contract the note names:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata surfaced as policy,
+  - telemetry for authoritative outcomes,
+  - a clear shared-state/server-authoritative boundary artifact.
+- So the repo should continue to treat shared-state authority as future-gated,
+  not implied by the current deterministic local simulation.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

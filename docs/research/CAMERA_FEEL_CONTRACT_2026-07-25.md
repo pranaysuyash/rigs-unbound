@@ -106,3 +106,26 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The camera is already doing important gameplay work. This contract keeps that work explicit so the system can keep its feel while becoming easier to audit, replay, and extend.
+
+## Addendum (2026-07-25): camera feel is already real, policy is still implicit
+
+- Re-checked the runtime camera path after the contract review.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current camera system already has the pieces this contract describes:
+  - named modes in `src/game/contracts.ts`,
+  - mode switching through `src/game/state.ts` and `src/main.ts`,
+  - profile-driven offsets per rig,
+  - terrain obstruction pull-in in `src/game/renderer.ts`,
+  - speed-based FOV expansion in `src/game/renderer.ts`,
+  - reduced-motion clamping in `src/game/feedback.ts`,
+  - telemetry hooks (`getRigPerceptionEvidence`) that expose camera-feel state.
+- The policy is still implicit rather than formal:
+  - no dedicated camera-policy schema,
+  - no explicit transition reason table,
+  - no operator-visible camera-policy summary field,
+  - no separate persistent camera-policy artifact beyond save-state camera mode.
+- The missing piece is therefore not “camera behavior”; it is the explicit
+  camera policy contract that names transitions, comfort, and observability.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

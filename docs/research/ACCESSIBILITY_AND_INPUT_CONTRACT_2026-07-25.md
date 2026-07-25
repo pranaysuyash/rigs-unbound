@@ -113,3 +113,27 @@ The smallest durable proof for this contract is:
 The runtime already behaves much closer to accessible than a typical canvas shell.
 This contract names the remaining gap so input parity, remaps, and comfort rules
 stay durable as more actions and more devices are added.
+
+## Addendum (2026-07-25): operable shell is real, remap/policy layer is still implicit
+
+- Re-checked the current runtime, input abstraction, and accessibility findings.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime now clearly supports the contract’s base claims:
+  - device-neutral named actions exist in `src/game/input.ts`,
+  - keyboard and gamepad both feed the same action model,
+  - touch/button controls route into the same tap/hold semantics in
+    `src/main.ts`,
+  - reduced-motion behavior is already present in the renderer and feedback
+    path,
+  - the accessibility runtime recheck shows the original skip-link/focus gap is
+    closed in the live page.
+- What is still missing is the explicit policy layer:
+  - persisted remaps,
+  - visible input/accessibility profile state,
+  - comfort policy surface for motion and contrast,
+  - a durable parity statement for intentionally unsupported differences.
+- So the repo is now past the “is the shell operable?” question and still short
+  of the fully named accessibility/input policy the contract describes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

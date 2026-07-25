@@ -110,3 +110,29 @@ The smallest durable proof for this contract is:
 The world is already stable enough to be a seed-based canonical substrate.
 This contract names the next scaling boundary so residency can stay a policy
 layer instead of turning into a silent second world model.
+
+## Addendum (2026-07-25): the repo is still single-residency
+
+- Re-checked the world substrate against the current repo state and live app
+  surface.
+- The world model is still one canonical `GameWorld` composed with one
+  `GameState`, not a streamed chunk graph:
+  - `src/game/gameworld.ts` owns a single terrain field, obstacle field, and
+    exploration field.
+  - `src/game/storage.ts` restores and saves that world as one payload alongside
+    state, rather than loading region manifests.
+  - `src/game/world.ts` still defines one authored disc world with one bounded
+    radius and one authored site set.
+- The live browser surface still behaves like a single playable residency, not a
+  chunk/region residency manager.
+- Missing layers remain exactly the ones this contract names:
+  - `WorldChunkManifest` or equivalent region manifest,
+  - residency states and lifecycle,
+  - activation validation,
+  - active-chunk budget accounting,
+  - unload/rollback policy,
+  - residency churn observability.
+- That means the right status for streaming remains: future boundary, not hidden
+  second world model.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

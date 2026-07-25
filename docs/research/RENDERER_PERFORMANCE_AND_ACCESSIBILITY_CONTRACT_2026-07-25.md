@@ -103,3 +103,31 @@ This contract sits between policy and implementation.
 - The spike-test note defines the repeatable scene set that makes the gate measurable.
 
 Together they define the public-smoke-test contract without widening the product scope.
+
+## Addendum (2026-07-25): the smoke-test gate is already observable, but still not fully policy-bundled
+
+- Re-checked the live browser surface and runtime wiring after reviewing the
+  smoke-test gate.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already exposes the core evidence this gate requires:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - an accessible DOM shell with the playable canvas as the focus target after
+    the intro is dismissed
+- The current implementation already satisfies the “minimum contract” shape in
+  practice:
+  - standard and mobile-safe camera/readability behavior are present,
+  - reduced-motion clamping is present,
+  - HUD text and semantic fallbacks are present,
+  - measurable runtime values are available through the performance snapshot.
+- What is still missing is the fully bundled smoke-test policy artifact:
+  - explicit public-gate capture bundle,
+  - named pass/fail summary for fallback events,
+  - a single rendered comparison artifact that binds the profile matrix,
+    checklist, and KPI evidence together.
+- So the repo is past the “can we observe it?” question, but still short of the
+  fully packaged gate that the contract describes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

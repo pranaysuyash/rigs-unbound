@@ -1919,3 +1919,279 @@ audio, and human-fun evidence remain open.
   but not a formal stability-state policy with explicit fallback semantics.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## 2026-07-25 — world and architecture scalability boundary check
+
+- Re-read the world and architecture scalability contract and sampled the live
+  browser profile again.
+- Confirmed the current runtime is still intentionally compact:
+  - 3 rigs
+  - 7 authored sites
+  - 1 discovery
+  - 0 furrows in the sampled state
+- Confirmed the code still uses a bounded world disc and bounded runtime memory
+  rather than a streaming region/chunk system:
+  - `WORLD_RADIUS = 250`
+  - `WORLD_LIMIT = 246`
+  - `MAX_FELLED = 1500`
+  - `MAX_COLLECTED_NODES = 2500`
+- The missing layer remains policy, not proof:
+  - chunk/region lifecycle,
+  - load/unload rules,
+  - growth-pressure observability,
+  - pack activation rollback,
+  - future shared-state readiness.
+- This keeps the scalability lane honest: local growth is real, but broader
+  scale is still a future-gated boundary rather than a live implementation.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — streaming residency boundary check
+
+- Re-read the streaming world manifest/residency contract against the current
+  repo state.
+- Confirmed the repo is still built around one canonical world object and one
+  save payload:
+  - one `GameWorld` with terrain, obstacles, and exploration memory
+  - one `GameState` saved/restored together with world memory
+  - one authored disc world and one authored site set
+- Confirmed the live browser surface still behaves like a single residency, not
+  a region-manifest manager.
+- The missing layer remains the same policy family named by the contract:
+  - chunk/region manifest,
+  - residency states,
+  - validation before activation,
+  - active-budget counters,
+  - unload/rollback rules,
+  - churn observability.
+- This preserves the intended progression: scale the current world cleanly
+  before adding a second truth source.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — simulation layers and resource governance check
+
+- Re-read the simulation layers and resource governance contract and sampled
+  the live browser surface again.
+- Confirmed the current browser status is still healthy:
+  - `Rigs Unbound — Field 02`
+  - zero console logs in the status snapshot
+- Confirmed the runtime already behaves like a layered sim:
+  - deterministic kernel
+  - terrain / physics / collision separation
+  - bounded world memory
+  - performance metrics
+  - renderer feedback separated from state ownership
+- The missing layer is still the explicit governance contract:
+  - domain-order table,
+  - budget ledger,
+  - fallback priority,
+  - downgrade reason reporting.
+- This keeps the meaning honest: the architecture is layered today, but the
+  governance rules are still implicit and should stay named until they are
+  formalized.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — resource budget and fallback envelope check
+
+- Re-read the resource budget and fallback envelope contract and the runtime
+  performance wiring.
+- Confirmed the live app is still exposing measurable pressure fields:
+  - frame timing
+  - draw calls
+  - triangle count
+  - heap use
+  - load duration
+  - first-controllable time
+  - save size
+- Confirmed the browser surface is healthy and still named `Rigs Unbound —
+  Field 02` in the current daemon snapshot.
+- The missing layer is still the policy envelope:
+  - cross-system budget ledger,
+  - explicit fallback profile,
+  - pre-overload fallback test,
+  - operator-visible oversubscription summary,
+  - subsystem attribution for the fallback.
+- This keeps the contract honest: the game can measure cost today, but the
+  fallback behavior is not yet a first-class policy.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — camera feel contract check
+
+- Re-read the camera feel contract and traced the current camera runtime path.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime camera system already includes the contract’s key
+  ingredients:
+  - named modes and switching,
+  - profile-driven offsets,
+  - terrain obstruction pull-in,
+  - speed-based FOV expansion,
+  - reduced-motion clamping,
+  - telemetry hooks for camera-feel evidence.
+- The missing layer is still the explicit policy artifact:
+  - transition reason table,
+  - operator-visible policy summary,
+  - separate formal camera-policy schema.
+- This keeps the distinction honest: camera feel is implemented, but the policy
+  contract is still implicit and should stay named until formalized.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — visibility stage and LOD contract check
+
+- Re-read the visibility stage and LOD contract and the renderer code that
+  implements the current visibility budget.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the renderer already behaves like a first-pass visibility budget:
+  - single terrain mesh
+  - instanced props and furrows
+  - local prop rebuilds around the rig
+  - `frustumCulled = false` on presentation pieces that currently need it
+  - performance metrics for draw calls and triangles
+- The missing layer is still the formal policy surface:
+  - explicit visibility tiers,
+  - missed-cull / residency churn counters,
+  - downgrade/readability regression test for non-geometry LOD.
+- This keeps the distinction honest: visibility behavior is real, but the
+  policy contract is still implicit and should stay named until formalized.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — renderer performance and accessibility smoke-test check
+
+- Re-read the public smoke-test renderer/performance/accessibility contract and
+  the runtime wiring that supports it.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already exposes the key evidence surfaces the contract
+  expects:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - an accessible DOM shell with the playable canvas as the focus target after
+    the intro is dismissed
+- The missing layer is still the fully bundled public-gate artifact:
+  - one capture bundle,
+  - one named fallback summary,
+  - one rendered comparison artifact binding matrix/checklist/KPI evidence.
+- This keeps the smoke-test gate honest: observable today, but still not yet
+  packaged as the final public acceptance bundle.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — replay artifact and ghost contract check
+
+- Re-read the replay artifact and ghost contract and traced the bounded run
+  record path.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the code already proves the bounded record is real:
+  - versioned seed-backed record creation,
+  - command/input/checkpoint/save entry capture,
+  - schema and seed verification,
+  - exposed browser hooks for record and verification.
+- The missing layer is still the first-class playback artifact:
+  - no exposed playback path,
+  - no ghost share/compatibility envelope,
+  - no replay divergence report,
+  - no trust-classification split between diagnostics-only and replay-safe data.
+- This keeps the contract honest: audit logging exists, but replay/ghost product
+  behavior is still future work.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — authority model groundwork check
+
+- Re-read the authority model groundwork contract and the local-first runtime
+  state/persistence path.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the code already proves the local-first authority posture:
+  - explicit command capture in `src/main.ts`
+  - deterministic kernel mutation in `src/game/state.ts`
+  - versioned local save/recovery in `src/game/storage.ts`
+  - clean fallback when a local record is incompatible
+- The missing layer is still the first-class authority contract:
+  - authenticated request/response shapes,
+  - reject-path state separation,
+  - durable-value recovery metadata,
+  - authoritative outcome telemetry,
+  - shared-state/server-authoritative boundary artifact.
+- This keeps the boundary honest: local authority is real today, while shared
+  authority remains future-gated instead of assumed.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — accessibility and input contract check
+
+- Re-read the accessibility and input contract alongside the runtime input and
+  accessibility evidence.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime now supports the contract’s base claims:
+  - device-neutral named actions in `src/game/input.ts`
+  - keyboard and gamepad feeding the same action model
+  - touch/button controls routing into the same tap/hold semantics
+  - reduced-motion behavior present in renderer/feedback paths
+  - skip-link/focus gap closed in the live accessibility recheck
+- The missing layer is still the policy surface:
+  - persisted remaps,
+  - visible input/accessibility profile state,
+  - comfort policy for motion and contrast,
+  - parity statement for intentionally unsupported differences.
+- This keeps the distinction honest: the shell is operable today, but the
+  explicit accessibility/input policy is still not fully formalized.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — web loading and profile bootstrap check
+
+- Re-read the web loading and profile bootstrap contract and the browser
+  startup wiring.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current implementation already avoids the dead-black-box risk:
+  - `welcome-panel` is a real startup shell
+  - `saveStatus` is populated immediately from the load result
+  - entering the world dismisses the shell and focuses the canvas
+- The missing layer is still the explicit bootstrap policy:
+  - no real profile-selection UI,
+  - no visible loading progress meter,
+  - no distinct fallback-preview state,
+  - no measured profile-selection outcome visible to the user.
+- This keeps the boundary honest: loading is visible today, but the bootstrap
+  policy remains mostly implicit rather than fully packaged.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — runtime instrumentation KPI check
+
+- Re-read the runtime instrumentation KPI note and the performance snapshot
+  implementation.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already exposes the KPI vocabulary the note names:
+  - `PerformanceMonitor.snapshot()`
+  - `window.getPerformanceSnapshot()`
+  - HUD-visible fps/draw-call/heap/save-status values
+- The missing layer is still the operational bundle:
+  - repeatable profile comparison artifact,
+  - readable operator summary per profile/fixture pair,
+  - fallback/degrade summary tied to the fixture,
+  - screenshot or frame capture bound to the metrics.
+- This keeps the KPI note honest: the numbers are visible today, but the
+  packaged comparison evidence is still implicit rather than finished.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

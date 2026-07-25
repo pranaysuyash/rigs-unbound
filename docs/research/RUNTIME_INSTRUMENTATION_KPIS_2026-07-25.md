@@ -143,3 +143,31 @@ This note is narrow and intentionally operational.
 
 It does not define the render policy itself.
 It exists to make the render policy measurable under realistic profile conditions.
+
+## Addendum (2026-07-25): the KPI vocabulary is real, the comparison bundle is still implicit
+
+- Re-checked the KPI note against the current runtime and browser surface.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already exposes the KPI vocabulary this note names:
+  - `PerformanceMonitor.snapshot()` returns frame timing, FPS, draw calls,
+    triangles, heap use, load duration, first-controllable time, first-input
+    ready time, save size, and terrain build time.
+  - `window.getPerformanceSnapshot()` exposes that snapshot to browser tooling.
+  - `window.render_game_to_text()` and the HUD surfaces preserve operator
+    visibility while the scene is running.
+- The current UI also already surfaces a subset of the metrics directly:
+  - FPS
+  - draw-call count
+  - heap usage
+  - save status
+- What is still missing is the operational bundle the note asks for:
+  - one repeatable profile comparison artifact,
+  - one readable operator summary per profile/fixture pair,
+  - one named fallback/degrade summary tied to the fixture,
+  - one explicit comparison capture that binds metrics to a screenshot or frame
+    capture.
+- So the KPI layer is measurable today, but still not fully packaged as the
+  production-like comparison evidence the contract describes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

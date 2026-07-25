@@ -104,3 +104,30 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The engine can already tell us when it is getting expensive. This contract makes the next step explicit: define the fallback before the budget is exceeded, not after the player notices.
+
+## Addendum (2026-07-25): budgets are measured, fallback policy is still implicit
+
+- Re-checked the current runtime and browser surface after the contract review.
+- The live app is still `Rigs Unbound — Field 02`, and the browser daemon is
+  healthy with zero console logs in the current status snapshot.
+- The runtime already exposes the relevant measurement fields through
+  `PerformanceMonitor.snapshot()` and `window.getPerformanceSnapshot()`:
+  - frame timing
+  - draw calls
+  - triangle count
+  - heap use
+  - load duration
+  - first-controllable time
+  - save size
+- `src/main.ts` wires those metrics into the browser surface, so resource
+  pressure is visible today.
+- What is still missing is the actual envelope policy:
+  - one cross-system budget ledger,
+  - one explicit low-budget fallback profile,
+  - one test proving fallback happens before overload,
+  - one operator-visible summary naming the oversubscribed resource,
+  - one summary field naming the subsystem that triggered fallback.
+- In other words: the project can already observe expense, but it still cannot
+  officially choose a fallback path from a budget contract.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

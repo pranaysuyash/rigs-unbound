@@ -102,3 +102,25 @@ The smallest durable proof for this contract is:
 
 This contract is not a promise of online play.
 It is a boundary note that keeps local growth measurable until the product genuinely needs broader scale.
+
+## Addendum (2026-07-25): live world scale remains intentionally compact
+
+- Re-checked the current runtime and repository state after the scalability lane review.
+- The live browser surface is still `Field 02`, and the current snapshot remains small and explicit rather than streamed:
+  - 3 rigs
+  - 7 authored sites
+  - 1 discovery
+  - 0 furrows in the sampled state
+- The code still encodes a bounded world disc and bounded runtime memory, not a streaming region system:
+  - `WORLD_RADIUS = 250`
+  - `WORLD_LIMIT = 246`
+  - `MAX_FELLED = 1500`
+  - `MAX_COLLECTED_NODES = 2500`
+- That means the contract is still correctly acting as a future scalability boundary, not a live chunk/region policy layer.
+- Missing layers remain the same:
+  - chunk or region lifecycle policy,
+  - load/unload rules,
+  - growth-pressure observability,
+  - pack activation rollback,
+  - future shared-state readiness.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code inspection.

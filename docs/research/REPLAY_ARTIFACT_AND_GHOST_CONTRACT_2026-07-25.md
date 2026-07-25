@@ -114,6 +114,29 @@ The smallest durable proof for this contract is:
 
 The bounded recorder is already real. This contract makes it explicit what still needs to exist before replay becomes a shareable, trustable artifact instead of a useful internal log.
 
+## Addendum (2026-07-25): bounded replay record is real, playback is still not a first-class artifact
+
+- Re-checked the replay lane against the current runtime and browser surface.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current code path already proves the bounded record is real:
+  - `createRunRecord()` captures a versioned seed-backed record,
+  - `appendRunRecordEntry()` captures commands, inputs, checkpoints, and saves,
+  - `verifyRunRecord()` checks schema version, seed, timestamps, monotonic
+    elapsed time, and checkpoint tick hashes,
+  - `src/main.ts` exposes `getRunRecord()` and `getRunRecordVerification()`.
+- That is enough to support debug and validation as an internal audit log.
+- What is still missing is the first-class replay artifact surface:
+  - no exposed playback path in the browser,
+  - no ghost share/compatibility envelope,
+  - no divergence report generated from replay execution,
+  - no visible trust-classification split between diagnostics-only and replay-safe
+    data.
+- So the contract remains correctly staged: record and verify first, playback and
+  ghost compatibility later.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
 ## Addendum (2026-07-25) - Bounded record is real, playback is still absent
 
 - Live browser evidence confirms:

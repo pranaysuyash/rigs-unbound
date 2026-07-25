@@ -102,3 +102,27 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The renderer already behaves like a deliberate first-pass visibility budget. This contract makes that budget legible so future scale decisions can be measured instead of guessed.
+
+## Addendum (2026-07-25): visibility budget is real, policy is still implicit
+
+- Re-checked the current renderer path and live browser surface after the
+  contract review.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The renderer already implements the visibility behavior this contract names:
+  - a single terrain mesh derived from the height field,
+  - repeated props and furrows as instanced draws,
+  - local prop rebuilds around the rig within `PROP_RADIUS = 168`,
+  - rebuilds gated by `PROP_REBUILD_DISTANCE = 34`,
+  - explicit `frustumCulled = false` on presentation pieces that currently need
+    stable always-present rendering,
+  - performance metrics exposing draw calls and triangle count.
+- That means the first-pass visibility budget is a live reality, not a theory.
+- What is still missing is the policy surface:
+  - explicit visible vs local-radius vs distant-sim tier naming,
+  - counters for missed-cull pressure or residency churn,
+  - a formal downgrade/readability regression test for non-geometry LOD.
+- So the contract remains useful as a boundary note, but the repo should still
+  treat it as an implicit renderer policy until those named counters/tests exist.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

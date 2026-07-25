@@ -118,3 +118,26 @@ The simulation kernel is already strong enough to support multiple domains.
 This contract names the order and the ownership rules so future weather,
 economy, traffic, or mission layers stay measurable instead of becoming
 implicit behavior glued onto the main loop.
+
+## Addendum (2026-07-25): layered runtime exists, governance ledger does not yet
+
+- Re-checked the current browser surface and repo state after the simulation
+  layer review.
+- The live app is still `Rigs Unbound — Field 02`, and the browser daemon
+  remains healthy with zero console logs in the current status snapshot.
+- The runtime already has layered simulation ingredients:
+  - one deterministic gameplay kernel in `src/game/state.ts`,
+  - terrain/physics/collision separation,
+  - bounded world memory in `src/game/gameworld.ts`,
+  - explicit runtime performance sampling in `src/game/performance.ts`,
+  - renderer feedback separate from state ownership.
+- What is still missing is the named governance layer this contract asks for:
+  - an owned domain-order table for non-render layers,
+  - a budget ledger that explicitly spans CPU, GPU, active actors, residency,
+    and save/migration cost,
+  - a fallback-policy table that says which layer downgrades first,
+  - a recorded downgrade reason that can be surfaced back to the operator.
+- In other words: the repo already behaves like a layered sim, but the budgets
+  and downgrade policy are still implicit rather than contract-bound.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
