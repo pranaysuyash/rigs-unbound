@@ -89,6 +89,38 @@
 - Evidence depth: Tier 4 runtime/manual observation on
   `http://127.0.0.1:4173/?p0-repro=welcome`.
 
+## 2026-07-25 — accessibility auditor live recheck
+
+- Re-read the `Accessibility Auditor` skill and rechecked the live Field 02
+  runtime using the browser daemon.
+- Confirmed the page now has a usable accessibility shell:
+  - named landmarks (`main`, `header`, `aside`, `section`, `role="status"`,
+    `role="alert"`)
+  - meaningful headings
+  - a visible skip link
+  - a keyboard-focusable `#game-canvas`
+  - focus landing on `canvas#game-canvas` after entry
+- The current open question is no longer the core keyboard route; it is whether
+  the loading/fallback chrome should be made more explicit for slower public
+  entry or kept intentionally minimal.
+- Evidence depth: Tier 4 runtime/manual observation on
+  `http://127.0.0.1:4173/?p0-repro=welcome`.
+
+## 2026-07-25 — 3d-asset-production source-and-runtime split
+
+- Used the `3d-asset-production` skill to distinguish concept/reference assets
+  from runtime assets in the current app.
+- Confirmed the live Field 02 runtime is still intentionally asset-light:
+  - terrain readability is carried by vertex colours and procedural geometry,
+  - `src/game/renderer.ts` explicitly documents zero texture assets for the
+    terrain pass,
+  - there is no imported runtime GLB/FBX/texture manifest yet.
+- The repo’s current asset work therefore sits in the right order:
+  reference art and source-library audits already exist, and the next durable
+  step is a versioned runtime asset manifest once imported art enters the
+  playable path.
+- Evidence depth: Tier 1 static inspection plus live runtime context.
+
 ## 2026-07-25 — Capability and governance runway addendum
 
 ### Objective
@@ -1731,3 +1763,159 @@ core loop.
 Remaining before release: final diff/link/security checks, full motto
 attestation, guarded commit/push, exact-source Sites deployment, and production
 smoke. RU-0110 (B5–B12) is the next gameplay work package.
+
+## 2026-07-25 — behavior planner and event graph boundary check
+
+- Re-read the behavior/planner and event-graph contracts, then verified the
+  live run record through `window.getRunRecordVerification()`.
+- Confirmed the app already captures command/checkpoint/input/save history with
+  a clean run-record verification result.
+- Confirmed the missing layer is still the planner/event envelope itself:
+  - no first-class candidate generator,
+  - no deterministic branch-selection telemetry,
+  - no explicit origin-domain event envelope.
+- This keeps the architecture honest: observability exists, but behavior
+  planning and event ownership remain explicit next contracts rather than
+  accidental hidden behavior.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — capability and affordance admission check
+
+- Re-read the capability and affordance contracts, then exercised a live denied
+  action in the browser runtime.
+- Verified the runtime already has a real boolean capability gate via
+  `hasCapability(...)` and capability-bearing rig profiles.
+- Verified a denied capability path produces a deterministic prose diagnostic
+  rather than a structured reason envelope:
+  - selecting `toy-buggy`
+  - invoking blade logic
+  - diagnostic: `Spark carries no blade. Torque does.`
+- This keeps the current boundary honest: capability resolution is real, but
+  the reusable admission envelope and shared resolver still need to be named
+  before future planners can depend on them.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — save and migration observability check
+
+- Re-read the save/migration contract and verified the live browser persistence
+  surface.
+- Confirmed the runtime is using a single versioned save key in localStorage:
+  - `rigs-unbound.save.v5`
+- Confirmed the HUD exposes a current save status line, but it is still a
+  combined health/readout surface rather than a structured persistence reason
+  envelope:
+  - `Local field record · 50 fps · 78 calls · 15.6 MB`
+- Confirmed the run record verification remains clean (`ok: true`), and save
+  events are already present in the durable history.
+- The missing layer is the explicit load/save/migration reason metadata the
+  contract calls for.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-26 — Sites version 6 release
+
+- Pushed guarded commit
+  `f5a007d1e9866fea510fcef1cfba102a7ee85e13` to GitHub `main` and the existing
+  Sites source branch.
+- Packaged from an isolated copy of that exact commit, saved Sites version 6,
+  and polled deployment `appgdep_6a652cbbcf108191a07becdbe1beaaf7` to terminal
+  `succeeded`.
+- Public checks: Field 02 returned HTTP 200; the historical lab `.html` URLs
+  redirected to canonical routes; both canonical lab routes returned HTTP 200.
+- Fresh public-browser evidence: welcome gating kept elapsed time at zero,
+  entry exposed schema v5 and `first-recovery-cache`, input readiness was
+  measured, and the captured console had zero entries.
+- Preserved concurrent accessibility, asset-provenance, behavior/event, and
+  capability/affordance documentation for the follow-up docs commit.
+
+### Anything else?
+
+Yes. Version 6 is the current public first-rung baseline, not completion of the
+game. RU-0110 is next; representative-device, cold-cache, WebGL recovery,
+audio, and human-fun evidence remain open.
+
+## 2026-07-25 — replay artifact and ghost boundary check
+
+- Re-read the replay contract and verified the live run-record surface.
+- Confirmed the browser exposes `getRunRecord()` and
+  `getRunRecordVerification()`, and the current verification result is clean.
+- Confirmed the bounded record already captures commands, inputs, checkpoints,
+  and saves.
+- Confirmed the missing layer is still the playback artifact itself:
+  - no exposed replay path in the current browser surface,
+  - no ghost/share compatibility envelope,
+  - no playback divergence report yet.
+- This keeps the boundary honest: the recorder is real, but replay remains the
+  next contract rather than a shipped product surface.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — verification harness and confidence gates check
+
+- Re-read the verification harness contract and checked the live browser proof
+  surface it is meant to organize.
+- Confirmed the runtime already exposes the needed evidence hooks:
+  - `window.getPerformanceSnapshot()`
+  - `window.getRunRecordVerification()`
+- Confirmed the current runtime metrics are already being surfaced in the live
+  browser state, alongside a clean run-record verification result.
+- The missing layer is still the canonical capture bundle and tiered evidence
+  summary the contract names.
+- This keeps the harness in the right role: it organizes real evidence, but it
+  is not yet the finished cross-contract capture package.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — ECS threshold and composition readiness check
+
+- Re-read the ECS threshold contract and checked the current runtime scale.
+- Live browser evidence shows a small explicit composition surface:
+  - 3 rigs
+  - 7 authored sites
+  - 1 discovery
+  - 0 furrows in the current snapshot
+- The implementation matches that scale with explicit profiles, sites, and
+  bounded world-memory sets rather than a broad entity zoo.
+- ECS therefore remains a future threshold decision, not a current
+  architecture requirement.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — culling and LOD spike-test boundary check
+
+- Re-read the culling/LOD spike-test contract and checked the current renderer
+  posture against live metrics.
+- Confirmed the renderer is intentionally using a first-pass visibility budget:
+  - repeated props are instanced,
+  - prop rebuilds stay inside a fixed local radius,
+  - some meshes explicitly disable automatic frustum culling for stable
+    presentation.
+- Confirmed the live browser profile remains compact:
+  - about 78 draw calls,
+  - about 105k triangles,
+  - first-controllable and first-input-ready metrics are still tracked.
+- The missing layer is still the formal spike-test harness that would prove
+  culling and distance-LOD behavior against deterministic fixture scenes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — physics quality envelope check
+
+- Re-read the physics quality contract, then checked the live physics posture
+  and HUD readouts.
+- Confirmed the current runtime is still compact and measurable:
+  - about 78 draw calls,
+  - about 105k triangles,
+  - first-controllable and first-input-ready metrics are tracked separately.
+- Confirmed the HUD already surfaces the player's physics state directly:
+  - `Grip`
+  - `82%`
+  - `100%`
+  - a prompt summarizing the current action context
+- Confirmed the code path already exposes the core physics factors
+  (`grounded`, `hover`, `slip`, `waterDepth`, `stalled`, condition, strain),
+  but not a formal stability-state policy with explicit fallback semantics.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

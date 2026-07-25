@@ -297,6 +297,7 @@ rows.
 | 2026-07-25 |             3 | `e886540a31a20075714482e2365f6f0767bd1720` | Public | Full production browser acceptance passed; zero Worker errors | Current verified baseline    |
 | 2026-07-25 |             4 | `aa82cee4f986f106b121b42348748bf5c9c64c27` | Public | Sites source provenance inspected; public URL active          | Physics-foundation baseline  |
 | 2026-07-26 |             5 | `1e7992125824a850eb27a9f9d2bbdbc95b229e2b` | Public | Terminal success; three public routes returned HTTP 200       | Current verified baseline    |
+| 2026-07-26 |             6 | `f5a007d1e9866fea510fcef1cfba102a7ee85e13` | Public | Terminal success; fresh-profile browser contract and three routes passed | First-rung P0 baseline |
 
 Every handoff should include:
 

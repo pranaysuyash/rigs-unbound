@@ -110,3 +110,17 @@ The smallest durable proof for this contract is:
 The repo already knows asset provenance matters. This contract makes the delivery
 path explicit so runtime can consume validated manifests instead of raw source
 art, and so replacement never becomes ambiguous.
+
+## Addendum (2026-07-25) - Current runtime asset posture
+
+- The live Field 02 renderer is still deliberately asset-light:
+  - terrain readability comes from vertex colours and procedural geometry,
+  - `src/game/renderer.ts` explicitly notes zero texture assets and zero asset
+    provenance obligations for the current terrain pass,
+  - no imported runtime GLB/FBX/texture manifest is part of the active browser
+    path yet.
+- That makes the current asset-production pressure point clearer:
+  - the repo already has concept/reference art and source-library audits,
+  - the next durable step is a versioned runtime asset manifest once imported
+    art actually enters the playable path.
+- Evidence tier: Tier 1 static code/doc inspection plus live runtime context.

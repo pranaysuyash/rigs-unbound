@@ -123,3 +123,15 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 ## Anything else?
 
 A concept image can influence architecture and expectations even when it never ships. Recording it now preserves that influence and prevents “temporary” art from silently becoming production truth.
+
+## Addendum (2026-07-25) - Runtime asset-light posture
+
+- The live Field 02 runtime still does not consume imported runtime 3D assets.
+- The current browser surface is built from authored/procedural geometry and
+  vertex-colour readability, which keeps the runtime readable without texture
+  assets or a browser asset manifest yet.
+- That makes the concept/reference registrations above even more important:
+  they remain reference-only until an imported asset pipeline is actually in
+  the playable path.
+- The next provenance obligation becomes a versioned runtime asset manifest
+  once imported art enters the browser runtime.

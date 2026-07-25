@@ -107,3 +107,19 @@ The smallest durable proof for this contract is:
 The repo already has command capture and a deterministic kernel. This contract
 names the missing decision layer so future AI, NPC, and activity planners can
 grow as readers of the world rather than silent co-authors of state.
+
+## Addendum (2026-07-25) - Live command capture is present, planner layer is not
+
+- Live browser evidence from `window.getRunRecordVerification()` returns
+  `ok: true` with no issues.
+- The current run record includes concrete `command`, `checkpoint`, `input`,
+  and `save` entries, so the app already has durable observability for intent
+  and outcome slices.
+- The trace is still descriptive rather than predictive:
+  - it records what happened,
+  - it does not expose a first-class planner that enumerates candidates,
+  - it does not yet emit deterministic branch-selection or branch-rejection
+    telemetry as a separate behavior layer.
+- That keeps this contract correctly placed: the next step is to add a
+  versioned planner interface on top of the existing run record, not to replace
+  the current command/state boundary.

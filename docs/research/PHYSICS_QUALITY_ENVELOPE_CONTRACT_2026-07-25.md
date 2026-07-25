@@ -105,3 +105,23 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The physics layer is already stable enough to be a first-playable foundation. This contract makes the envelope explicit so the next locomotion or hazard step can extend the system without silently changing the game’s feel.
+
+## Addendum (2026-07-25) - Live physics posture is stable and visible, but still not policyized
+
+- Live browser evidence shows the current physics posture is compact and
+  measurable:
+  - about 78 draw calls,
+  - about 105k triangles,
+  - first-controllable and first-input-ready timing tracked separately,
+  - a stable, grounded active rig with visible grip and condition readouts.
+- The HUD already exposes the player-facing physics state:
+  - `Grip`
+  - `82%`
+  - `100%`
+  - `Home Silo workshop · fit modules, 0 salvage in the bin`
+- The code path already surfaces the physics factors the contract cares about
+  (`grounded`, `hover`, `slip`, `waterDepth`, `stalled`, condition, strain),
+  but there is still no formal stability-state policy or fallback envelope.
+- That means the physics layer is still best treated as an intentional
+  first-playable foundation, not yet a named quality envelope with explicit
+  fallback semantics.

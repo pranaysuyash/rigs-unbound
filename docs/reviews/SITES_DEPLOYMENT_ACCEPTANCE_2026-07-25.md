@@ -134,3 +134,26 @@ or commercial-launch readiness.
 - Remaining boundary: an HTTP/content smoke check is not a fresh full
   production browser interaction run. Real-device, cold-cache, WebGL recovery,
   audio, and human-fun evidence remain open.
+
+## Addendum (2026-07-26) — First-rung P0 release
+
+- Guarded source commit:
+  `f5a007d1e9866fea510fcef1cfba102a7ee85e13`.
+- Local `main`, GitHub `origin/main`, and the Sites source branch used the same
+  commit before version saving.
+- The Sites packager validated an archive isolated from that exact pushed
+  source; Sites version 6 retained the same commit provenance.
+- Deployment `appgdep_6a652cbbcf108191a07becdbe1beaaf7` reached terminal
+  `succeeded`.
+- The public Field 02 route returned HTTP 200. The historical `.html` lab URLs
+  redirected to their canonical routes, and `/physics-lab` plus `/box3d-lab`
+  returned HTTP 200.
+- A fresh public-browser profile verified: elapsed time remained `0` while the
+  welcome plate was open; entry closed it; schema v5 loaded; the authored
+  `first-recovery-cache` was exposed; `firstInputReadyMs` was recorded; and the
+  captured console contained zero entries.
+- Pre-release gates: 108 root tests, seven deterministic-kernel tests, five
+  asset tests, TypeScript, formatting, production build, and Field 02
+  production-preview browser acceptance passed.
+- Remaining boundary: representative-device performance, cold-cache loading,
+  WebGL recovery, audio listening, and human taste/fun evidence remain open.

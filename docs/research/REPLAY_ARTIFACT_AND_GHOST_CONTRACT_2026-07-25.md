@@ -113,3 +113,21 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The bounded recorder is already real. This contract makes it explicit what still needs to exist before replay becomes a shareable, trustable artifact instead of a useful internal log.
+
+## Addendum (2026-07-25) - Bounded record is real, playback is still absent
+
+- Live browser evidence confirms:
+  - `getRunRecord()` exists
+  - `getRunRecordVerification()` exists
+  - verification returns `ok: true` with no issues
+- The live record carries the expected bounded history:
+  - commands
+  - inputs
+  - checkpoints
+  - saves
+- That is enough to prove the recorder is real.
+- It is not enough to prove playback exists as a first-class artifact:
+  - there is no exposed replay path in the current browser surface,
+  - the record is still an audit log rather than a ghost/replay product.
+- The contract therefore remains correctly staged: bounded record first,
+  replay artifact and ghost compatibility later.

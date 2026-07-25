@@ -57,7 +57,7 @@ canonical scope and acceptance contracts.
 - [x] Record ADR/worklog/exploration/playtest closure and reconcile schema-v6
   planning.
 - [x] Re-run the full gate after documentation settles.
-- [-] Guarded `git add -A`, full motto hook attestation, commit, push, exact-source
+- [x] Guarded `git add -A`, full motto hook attestation, commit, push, exact-source
   Sites version, production deployment, and smoke checks.
 
 ## 0. Repository, release, and continuity
@@ -90,10 +90,10 @@ canonical scope and acceptance contracts.
   - Closure: `git add -A`; full v4 hook attestation; guarded commit; push to
     `origin/main`; Sites version saved and production deployment succeeded from
     that exact pushed commit; live smoke check recorded.
-- [x] **RU-0005 — Keep deployment provenance current for version 5.**
+- [x] **RU-0005 — Keep deployment provenance current for version 6.**
   - Evidence: `progress.md`, the Sites runbook deployment ledger, the
-    deployment acceptance addendum, and this tracker name version 5 and source
-    commit `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`.
+    deployment acceptance addendum, and this tracker name version 6 and source
+    commit `f5a007d1e9866fea510fcef1cfba102a7ee85e13`.
   - Closure: after every deployed commit, update `progress.md` and this tracker
     with the deployed source SHA and evidence tier. Reopen this recurring gate
     when a newer production release is created.

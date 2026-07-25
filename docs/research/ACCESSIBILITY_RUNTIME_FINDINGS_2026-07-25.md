@@ -97,3 +97,29 @@ The live browser recheck after the fix now shows:
 ## Anything else?
 
 The runtime is already much closer to accessible than a typical canvas game shell. The remaining work is now specific and fixable: make the first focus landing point real, and give keyboard users a skip path into the field.
+
+## Addendum (2026-07-25) - Live recheck on Field 02
+
+The current `http://127.0.0.1:4173/?p0-repro=welcome` runtime now shows the
+accessibility shell behaving as intended:
+
+- landmarks are present and named:
+  - `main`
+  - `header`
+  - `aside`
+  - `section`
+  - `role="status"`
+  - `role="alert"`
+- headings are present and meaningful:
+  - `Home Silo workshop · fit modules, 0 salvage in the bin`
+  - `The ground decides.`
+  - `The field could not open.`
+- the skip link is present and visible in the focusable set
+- `#game-canvas` is keyboard focusable and currently receives focus after entry
+- `window.render_game_to_text()` and `window.getPerformanceSnapshot()` keep
+  operator visibility intact
+
+This means the original keyboard/skip-link accessibility gap is closed in the
+live runtime. The next accessibility-adjacent question is not basic shell
+accessibility anymore; it is whether the remaining loading/fallback chrome is
+explicit enough for slower public entry paths.

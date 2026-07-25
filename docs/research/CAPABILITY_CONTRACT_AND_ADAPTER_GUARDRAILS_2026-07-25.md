@@ -120,3 +120,15 @@ The capability layer is already strong enough to support the next expansion step
 This contract makes the boundary explicit so future rigs, modules, and interaction
 systems can grow without silently turning capability checks into brittle
 branching logic.
+
+## Addendum (2026-07-25) - Live admission is boolean plus prose, not a structured envelope
+
+- Live browser evidence on the active runtime shows `hasCapability(...)` is a
+  real boolean gate, and the `window` hooks still expose the capability-bearing
+  rigs.
+- A denied action currently yields a prose diagnostic such as
+  `Spark carries no blade. Torque does.` rather than a structured admission
+  payload with versioned reason codes.
+- That means the capability contract is correctly identified as a next-step
+  contract: the runtime already knows how to reject, but it does not yet
+  standardize the rejection envelope for downstream planners or telemetry.

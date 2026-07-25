@@ -1,7 +1,7 @@
 # Motto v4 Review — Commit Attestation
 
 **Risk class:** standard
-**Review started:** 2026-07-25T21:28:51+00:00
+**Review started:** 2026-07-25T21:46:40+00:00
 **Sections reviewed:** 51 / 51
 
 ---
@@ -9,356 +9,356 @@
 ## §0.0.1 Whole-Answer Mandate (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:48+00:00
+**Reviewed at:** 2026-07-25T21:47:27+00:00
 
-src/game/state.ts, src/main.ts, tests, ADR-0019, tracker, and browser harness land the full entry-reward-recovery-clock answer.
+Reviewed the whole user request: detailed tracker continuity plus release documentation closure, with no gameplay implementation added in this docs-only commit.
 
 ## §0 Boldness and Long-Term Build Mandate
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:48+00:00
+**Reviewed at:** 2026-07-25T21:48:28+00:00
 
-ADR-0019 and src/game/contracts.ts replace mixed clocks with the durable absolute world-time contract instead of a display patch.
+docs/plans/MASTER_EXECUTION_TRACKER.md keeps RU-0110 as the coherent next gameplay package after the version-6 release instead of adding unrelated patchwork.
 
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:34:12+00:00
+**Reviewed at:** 2026-07-25T21:50:18+00:00
 
-Final integrated review of the exact staged release: 108 root tests, seven kernel tests, five asset tests, typecheck, format, build, links, and rebuilt 4174 browser acceptance passed; the HUD refresh race was fixed in tools/rig-lab-browser-acceptance.cjs and rerun green with firstInputReadyMs before firstControllableMs. ADR-0019, WORKLOG, exploration, tracker, playtest closure, timing notes, publicState hardening, and visual-QA PNGs are synchronized. One v1-v5 save/action path remains; no AI attribution or secret is staged. RU-0110, representative devices, human fun, chunk size, and public deployment remain explicit until the following release steps finish.
+Integrated audit of the final 18-file staged diff: docs/plans/MASTER_EXECUTION_TRACKER.md and progress.md reconcile Sites version-6 provenance and keep RU-0110 next; docs/research addenda distinguish Tier-1 inspection, Tier-4 browser evidence, and missing planner, event, capability, replay, persistence, verification, physics, LOD, and ECS contracts; docs/WORKLOG.md preserves parallel findings; 136 Markdown links and diff integrity pass; only low-risk documentation is staged; no instruction, runtime, data, model, secret, cleanup, branch, or co-author change exists.
 
 ## §0.1.1 'Anything Else?' Standing Review Prompt (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:48+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-docs/decisions/ADR-0019-monotonic-world-clock-and-exceptional-recovery.md includes the required Anything else review and human-playtest gap.
+docs/WORKLOG.md explicitly preserves representative-device, cold-cache, WebGL recovery, audio, human-fun, and future-contract gaps under Anything else.
 
 ## §0.16 Instruction Surface Freshness Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:49+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-N/A: no AGENTS.md, agent-start, context generator, or motto_v4.md instruction surface is changed by the staged diff.
+N/A: none of the 15 staged Markdown files changes AGENTS.md, CLAUDE.md, motto_v4.md, agent-start, or any generated instruction surface.
 
 ## §0.17 One Canonical Motto Rule (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:28+00:00
+**Reviewed at:** 2026-07-25T21:47:27+00:00
 
-Verified /Users/pranay/Projects/Game_dev/rigs-unbound/motto_v4.md is sole authority; no retired motto file appears in staged names.
+Verified motto_v4.md remains the single canonical project motto and no staged file creates a competing doctrine source.
 
 ## §0.1 Missed-Anything Sweep
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:49+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-Searched staged src/ and docs for TODOs, schema drift, duplicate paths, missing tests, and remaining RU-0110 gaps; tracker records open items.
+docs/plans/MASTER_EXECUTION_TRACKER.md and progress.md were swept for TODOs, stale provenance, broken links, non-doc scope, and unclosed release gaps.
 
 ## §0.2.1 Agent Time-Frame Honesty (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:49+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md uses dependency order, gates, and commit units rather than human-week or sprint estimates.
+docs/WORKLOG.md dates observed July-25 research separately from the actual July-26 Sites release and makes no unsupported future timing promise.
 
 ## §0.2 Confidence Honesty Standard
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:49+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-README.md and progress.md distinguish the locally validated schema-v5 candidate from the still-older public Sites release.
+docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md separates verified version-6 browser evidence from remaining representative-device gaps.
 
 ## §0.3 Documentation Continuity
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:50+00:00
+**Reviewed at:** 2026-07-25T21:48:29+00:00
 
-docs/WORKLOG.md, EXPLORATION_MAP.md, PLAYTEST synthesis, progress.md, and the master tracker record behavior and evidence.
+docs/WORKLOG.md, progress.md, the master tracker, research contracts, deployment runbook, and acceptance review form the staged documentation continuity set.
 
 ## §0.4.1 Completion Confidence Gate
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:50+00:00
+**Reviewed at:** 2026-07-25T21:47:28+00:00
 
-src/game tests and two-port browser evidence close RU-0106-RU-0109; RU-0110 and release/deploy remain explicitly active.
+This docs-only closure has static diff and link validation; the larger game remains open and is not being mislabeled complete.
 
 ## §0.4.2 Multi-Pass Review
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:50+00:00
+**Reviewed at:** 2026-07-25T21:48:30+00:00
 
-docs/WORKLOG.md records immediate correctness, architecture, and supervision-readiness passes for this combined staged diff.
+docs/plans/MASTER_EXECUTION_TRACKER.md passed factual release review, architecture-boundary review, and final rules/link/handoff review.
 
 ## §0.4 Acceptance Contract Before Done
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:50+00:00
+**Reviewed at:** 2026-07-25T21:48:30+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md names user behavior, closure gates, evidence, open release work, and next decisions.
+docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md records source SHA, deployment ID, routes, browser proof, checks, and remaining gaps.
 
 ## §0.5 Evidence Tiers
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:50+00:00
+**Reviewed at:** 2026-07-25T21:48:30+00:00
 
-Tier 2 unit/type/build and Tier 3/4 browser evidence are separated in README.md, ADR-0019, worklog, and playtest closure.
+docs/research/ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md and related addenda label Tier 1 inspection and Tier 4 browser evidence honestly.
 
 ## §0.6 Risk-Based Verification
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:51+00:00
+**Reviewed at:** 2026-07-25T21:47:29+00:00
 
-src/game/storage.test.ts covers migration/recovery, state.test.ts covers repeat protection, and browser acceptance covers real input paths.
+Classified this as low-risk docs-only work; no runtime, auth, payment, deletion, model-routing, or production configuration changed.
 
 ## §0.7 AI Output Boundary Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:51+00:00
+**Reviewed at:** 2026-07-25T21:48:30+00:00
 
-Parallel-agent src/game/state.ts and performance.ts proposals were inspected, tested, documented, and supplemented with missing regressions.
+docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md was checked against src/game/storage.ts and current window hooks before acceptance.
 
 ## §0.8 Data Layer and Configuration Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:51+00:00
+**Reviewed at:** 2026-07-25T21:48:31+00:00
 
-src/game/contracts.ts owns versioned clock boundaries and save schema; storage.ts readers and migration tests cover the config blast radius.
+N/A: the staged diff changes only Markdown; progress.md documents schema v5 but no save data, schema, mapping, manifest, or runtime configuration changes.
 
 ## §0.9 Prompt, Model, and Routing Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:51+00:00
+**Reviewed at:** 2026-07-25T21:48:31+00:00
 
-N/A: staged diff adds no model, prompt, decoding, provider, routing, retry, or AI-backed runtime path.
+N/A: none of the staged Markdown files changes prompts, model providers, decoding, routing, retries, validation, cost, latency, or fallbacks.
 
 ## §0.10 Observability Is Delivery
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:51+00:00
+**Reviewed at:** 2026-07-25T21:48:31+00:00
 
-src/game/performance.ts and publicState expose separate readiness markers, world time, nearest salvage, and persisted recovery audit state.
+docs/research/VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md records real performance/run-record hooks and missing canonical bundles.
 
 ## §10 Pattern & Related-Issue Search
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:48+00:00
+**Reviewed at:** 2026-07-25T21:48:31+00:00
 
-Searched changed src/game/state.ts, storage.ts, main.ts, tests, and timing docs for sibling schema, action, observer, and migration drift.
+docs/research additions cover the related planner, event, capability, affordance, replay, persistence, verification, asset, and accessibility contract families.
 
 ## §0.11.1 Launch-Claim Registry (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:52+00:00
+**Reviewed at:** 2026-07-25T21:48:31+00:00
 
-README.md explicitly says schema-v5 is local and not yet the public Sites release; no unsupported production claim is introduced.
+progress.md limits launch claims to Sites version 6, exact f5a007d provenance, route checks, fresh-browser contract, and zero console entries.
 
 ## §0.11 Customer-Facing Claims Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:52+00:00
+**Reviewed at:** 2026-07-25T21:48:32+00:00
 
-N/A: staged UI contains gameplay recovery guidance only; no money, insurance, legal, payout, refund, or eligibility claim.
+N/A: none of the staged Markdown files adds legal, financial, insurance, refund, eligibility, payout, or regulated customer-facing claims.
 
 ## §11 Engineering Standards
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:52+00:00
+**Reviewed at:** 2026-07-25T21:48:32+00:00
 
-src/game/state.ts keeps one canonical step/migration/action path, and main.ts routes mouse, keyboard, and touch to tap recover.
+docs/research/CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md reinforces deterministic capability boundaries without claiming a nonexistent envelope.
 
 ## §0.12.1 Decision Records Are Appends, Not Edits (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:29+00:00
+**Reviewed at:** 2026-07-25T21:48:32+00:00
 
-Verified docs/decisions/ADR-0018-journey-mastery-insight-progression-spine.md and ADR-0019 carry dated append-only update logs.
+docs/research and docs/reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md receive dated append-only addenda; historical text remains preserved.
 
 ## §0.12.2 ADR-First Process (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:53+00:00
+**Reviewed at:** 2026-07-25T21:48:32+00:00
 
-docs/decisions/ADR-0019 records the load-bearing clock/recovery contract, options, migration, validation, and revisit triggers.
+N/A: the staged diff reports current evidence in docs/research addenda and makes no new material architecture decision requiring a new ADR.
 
 ## §0.12.3 Pattern Families (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:53+00:00
+**Reviewed at:** 2026-07-25T21:48:32+00:00
 
-src/game/storage.ts extends the established versioned-save family; input parity reuses the semantic tap action rather than new branches.
+docs/research addenda consistently name the missing structured-envelope pattern across planner, event, capability, replay, save, and verification surfaces.
 
 ## §0.12.4 Cut/Keep/Finish Anchored to Product Shape (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:53+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-MASTER_EXECUTION_TRACKER.md keeps the multi-rig open-world shape while finishing the first coherent reward/recovery/time rung.
+docs/plans/MASTER_EXECUTION_TRACKER.md keeps capability-driven Rig progression and puts RU-0110 field coherence ahead of feature expansion.
 
 ## §0.12 Decision Record Requirement
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:29+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-Verified docs/decisions/ADR-0019-monotonic-world-clock-and-exceptional-recovery.md covers options, tradeoffs, rollback, risks, and review.
+docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md and the acceptance addendum durably record version-6 deployment provenance and outcome.
 
 ## §12 Product & Domain Alignment
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:29+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md keeps the multi-rig product identity and finishes the first reward/recovery/time rung.
+docs/plans/MASTER_EXECUTION_TRACKER.md preserves Rigs Unbound as a capability-driven multi-rig world rather than a tractor-only product.
 
 ## §13 Analysis Expectations
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:29+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-docs/reviews/PLAYTEST_SIM_SYNTHESIS_2026-07-25.md maps B1-B4 root patterns and keeps B5-B12 classified for RU-0110.
+docs/research addenda distinguish observable hooks, missing structured contracts, runtime asset posture, accessibility state, and provenance boundaries.
 
 ## §0.13 Scope Expansion Control
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:29+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md scopes this unit to RU-0106-RU-0109 plus coupled timing safety and defers Farmfall behind named gates.
+docs/plans/MASTER_EXECUTION_TRACKER.md leaves RU-0110 implementation as the next package; this staged change is limited to docs reconciliation.
 
 ## §0.14 Product Reality and Operator Workflow
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:54+00:00
+**Reviewed at:** 2026-07-25T21:48:33+00:00
 
-main.ts exposes entry, salvage instructions, condition-zero prompt, and contextual mouse recovery; state persists operator audit fields.
+docs/WORKLOG.md distinguishes player behavior, operator diagnostics, persisted record state, denial messaging, and future recovery evidence.
 
 ## §14 Validation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:30+00:00
+**Reviewed at:** 2026-07-25T21:47:33+00:00
 
-Verified src/game tests, storage migration, performance markers, npm build/typecheck/format/assets, links, and tools/rig-lab-browser-acceptance.cjs.
+Ran diff integrity, docs-only scope classification, source-symbol cross-checks, and 136-file local Markdown link validation.
 
 ## §15 Documentation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:54+00:00
+**Reviewed at:** 2026-07-25T21:48:34+00:00
 
-docs/README.md and docs/research/README.md route durable notes; WORKLOG, tracker, ADR, exploration, and review stay synchronized.
+The staged set updates docs/WORKLOG.md, progress.md, the master tracker, deployment runbook, acceptance review, and ten research contracts.
 
 ## §0.15 Third-Layer Rule: Models, Pipeline, Data
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:55+00:00
+**Reviewed at:** 2026-07-25T21:48:34+00:00
 
-N/A: no AI model/pipeline/data feature is added; the staged state schema is reviewed under data/config section instead.
+N/A: no model-backed behavior changes; docs/research addenda merely separate current runtime hooks from future pipeline and data contracts.
 
 ## §16 Branch / Review Branch Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:49+00:00
+**Reviewed at:** 2026-07-25T21:48:34+00:00
 
-N/A: no branch or review-branch file is in this diff; all changed src/game/state.ts and docs artifacts remain on authorized main.
+N/A: git status confirms the staged Markdown set is on main; no branch, merge, rebase, cherry-pick, or review-branch change exists in this diff.
 
 ## §17 Cleanup Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:55+00:00
+**Reviewed at:** 2026-07-25T21:48:34+00:00
 
-N/A: no cleanup, deletion, reset, stash drop, branch removal, or artifact purge is performed in the staged diff.
+N/A: this staged diff deletes no file or historical content; docs/WORKLOG.md and all parallel research additions are preserved additively.
 
 ## §18 Communication Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:30+00:00
+**Reviewed at:** 2026-07-25T21:48:34+00:00
 
-docs/WORKLOG.md and docs/plans/MASTER_EXECUTION_TRACKER.md state touched behavior, evidence, residual risks, release work, and next package.
+docs/plans/MASTER_EXECUTION_TRACKER.md supplies the detailed trackable work sequence the user requested, with RU-0110 explicitly next.
 
 ## §19 Primary Goal
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:30+00:00
+**Reviewed at:** 2026-07-25T21:48:35+00:00
 
-src/game/state.ts and main.ts improve player recovery/comprehension while docs preserve canonical state, parallel work, and long-term direction.
+progress.md and docs/plans/MASTER_EXECUTION_TRACKER.md improve source-of-truth clarity and continuity without losing parallel work or overstating readiness.
 
 ## §1 Core Context Requirements
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:30+00:00
+**Reviewed at:** 2026-07-25T21:48:35+00:00
 
-Reviewed /Users/pranay/AGENTS.md stack via generated context, repo code/runtime, hooks, skills, tracker, ADRs, two ports, and parallel changes.
+progress.md, the master tracker, source symbols, live deployment provenance, current git status, and project instruction stack were rechecked.
 
 ## §20 Commit Attribution Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:56+00:00
+**Reviewed at:** 2026-07-25T21:48:35+00:00
 
-Inspected .git/hooks, git config, package scripts, and staged content; managed pre-commit and commit-msg guards reject AI coauthors.
+N/A to staged Markdown content: .git/hooks/pre-commit and commit-msg were inspected and already block AI co-author trailers for this commit.
 
 ## §21 Code Is Evidence, Not a Boundary
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:56+00:00
+**Reviewed at:** 2026-07-25T21:47:35+00:00
 
-ADR-0019 decision is implemented across contracts.ts, state.ts, storage.ts, main.ts, tests, docs, and browser acceptance.
+Current code was used to verify documentation claims; no decision-driven code refactor is implied or deferred by this docs-only patch.
 
 ## §22 Automated Checks Are Advisory, Not Authority
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:31+00:00
+**Reviewed at:** 2026-07-25T21:48:48+00:00
 
-Verified src/game and tools checks pass without ignore/noqa/eslint suppression; the Vite Three.js chunk advisory remains tracked in the tracker.
+docs/WORKLOG.md and the other staged Markdown files pass git diff --check and a 136-file local-link scan; no suppression or design downgrade was added.
 
 ## §2 Global Working Style: Parallel Agents, Main First
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:31+00:00
+**Reviewed at:** 2026-07-25T21:49:06+00:00
 
-Preserved concurrent docs/research, src/game/performance.ts, publicState hardening, screenshots, and navigation docs in the staged main diff.
+docs/WORKLOG.md and the staged docs/research addenda preserve concurrent agent findings rather than discarding or relabeling them as unrelated work.
 
 ## §3 Git Safety Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:31+00:00
+**Reviewed at:** 2026-07-25T21:49:47+00:00
 
-User authorized add/commit/push/Sites; verified .git/hooks and used no reset, checkout, rebase, force push, branch, or history rewrite.
+docs/WORKLOG.md and the other 17 staged Markdown files are included under the user-authorized add-A, full-hook, commit, and push instruction; no history rewrite is involved.
 
 ## §4 Local Work Preservation Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:49+00:00
+**Reviewed at:** 2026-07-25T21:50:04+00:00
 
-Classified every changed source/doc plus docs/reviews/assets PNG visual evidence; src/game/performance.ts parallel work is preserved in stage.
+docs/WORKLOG.md and the 17 other staged paths were classified as source-worthy Markdown; git status shows no binary, cache, secret, untracked, or non-doc artifact.
 
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:49+00:00
+**Reviewed at:** 2026-07-25T21:50:04+00:00
 
-Rechecked status as src/game/performance.ts and timing docs arrived; integrated them, added performance.test.ts, retested, then staged.
+progress.md and deployment docs were checked against f5a007d local/origin alignment and Sites version-6 evidence immediately before the final add-A staging pass.
 
 ## §6 'Pre-existing' Is Not an Excuse
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:57+00:00
+**Reviewed at:** 2026-07-25T21:50:05+00:00
 
-The coupled publicState missing-number crash was not dismissed; state.test.ts now locks its tolerant checkpoint behavior.
+docs/plans/MASTER_EXECUTION_TRACKER.md gives closure paths for open gaps; no failing diff or Markdown-link check is dismissed as pre-existing.
 
 ## §7 Supersession / Canonical Replacement Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:30:32+00:00
+**Reviewed at:** 2026-07-25T21:50:05+00:00
 
-src/game/storage.ts extends the canonical v1-v5 chain and docs/plans/FARMFALL_SLICE_01_2026-07-25.md moves the next payload to v6.
+progress.md replaces stale version-5 current-state wording with version 6 while docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md preserves version-5 history.
 
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:58+00:00
+**Reviewed at:** 2026-07-25T21:50:05+00:00
 
-This commit is one coupled first-rung release unit: state/schema/input/UI/tests/evidence plus concurrently required runtime-safety documentation.
+The staged docs/ group is cohesive: deployment provenance, worklog, tracker state, progress snapshot, and linked contract evidence including physics, LOD, and ECS.
 
 ## §9 Artifact Handling
 
 **Status:** PASS
-**Reviewed at:** 2026-07-25T21:29:58+00:00
+**Reviewed at:** 2026-07-25T21:50:18+00:00
 
-Four docs/reviews/assets PNGs were visually inspected as intentional browser QA evidence; new Markdown and tests are source-worthy; no caches or secrets staged.
+docs/WORKLOG.md and the other 17 cached paths are intentional Markdown sources; git diff --cached contains no screenshot, binary, cache, package, secret, or unknown artifact.

@@ -104,3 +104,15 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 The game already has meaningful outcomes and records. This contract makes those outcomes portable between simulation, presentation, and debugging without turning the current record flow into a hidden second world model.
+
+## Addendum (2026-07-25) - Existing record flow is observable, not yet canonical
+
+- The live run record verifies cleanly (`ok: true`) and already contains the
+  current command/checkpoint/input/save history.
+- That is enough to prove the current app is observable.
+- It is not yet enough to prove there is a first-class event envelope with
+  explicit origin-domain ownership and replayable vs diagnostics-only
+  semantics.
+- The current command/checkpoint/save flow should therefore be treated as the
+  staging surface for a future event graph, not as proof that the event graph
+  contract already exists.

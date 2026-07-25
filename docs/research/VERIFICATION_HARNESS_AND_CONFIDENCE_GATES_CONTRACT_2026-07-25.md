@@ -115,3 +115,25 @@ The lab acceptance review now provides one browser-visible fixture candidate tha
 
 This harness is the evidence layer above the specialized contracts.
 It keeps future confidence changes reproducible and easy to audit.
+
+## Addendum (2026-07-25) - Live evidence is present, but the bundle is not canonical yet
+
+- Live browser evidence currently exposes the proof surface the harness needs:
+  - `window.getPerformanceSnapshot()`
+  - `window.getRunRecordVerification()`
+  - current runtime metrics and a clean run-record verifier result
+- The active runtime values are still healthy enough to summarize directly:
+  - `firstControllableMs`
+  - `firstInputReadyMs`
+  - `framesPerSecond`
+  - `drawCalls`
+  - `triangles`
+  - `saveBytes`
+- That confirms the harness is grounded in real metrics, not just policy text.
+- What is still missing is the canonical capture bundle and tiered summary
+  format the contract calls for:
+  - no fixed fixture bundle is yet named as the single evidence package,
+  - no shared tiered evidence summary is yet emitted from the runtime surface,
+  - no explicit confidence transition rule is yet attached to a capture bundle.
+- So this contract is correctly staged as the evidence layer above the
+  specialized contracts, not as a finished harness product.

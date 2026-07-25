@@ -105,3 +105,20 @@ The smallest durable proof for this contract is:
 Persistence is already good enough to survive bad payloads. This contract makes
 the load/save/migration story explicit so debugging and future recovery remain
 auditable.
+
+## Addendum (2026-07-25) - Live persistence state is visible, but not yet reason-coded
+
+- The live browser session reports a versioned save key only:
+  - `rigs-unbound.save.v5`
+- The HUD exposes an operator-facing save status line that currently reads like
+  a combined health/readout surface:
+  - `Local field record · 50 fps · 78 calls · 15.6 MB`
+- `window.getRunRecordVerification()` remains clean (`ok: true`), and the run
+  record already captures save events.
+- What is still missing is the structured explanation layer the contract names:
+  - no explicit reason-code field on save/load/migration paths,
+  - no first-class visibility into fresh/restored/migrated/recovered beyond the
+    user-facing message string,
+  - no replay-safe persistence event envelope yet.
+- That keeps the save path in the correct category: durable and observable, but
+  still a next contract rather than a completed architecture layer.

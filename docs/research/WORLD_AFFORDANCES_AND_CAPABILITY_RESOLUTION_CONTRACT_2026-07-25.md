@@ -111,3 +111,14 @@ The smallest durable proof for this contract is:
 The repo already uses the world as a set of readable offers.
 This contract names the resolution step so behavior, activities, and future
 machines can ask the same question and get the same answer.
+
+## Addendum (2026-07-25) - Live resolution exists, but only as a diagnostic string
+
+- The active runtime can already answer world-capability mismatches with a
+  deterministic user-facing diagnostic.
+- Example live denial after selecting the `toy-buggy` and invoking blade logic:
+  `Spark carries no blade. Torque does.`
+- That is enough to prove the world/capability surface is not hypothetical.
+- It is not yet enough to prove a shared affordance resolver exists, because the
+  outcome is still encoded as prose on the current action path rather than a
+  reusable resolution record with legal / deferred / impossible outcome codes.

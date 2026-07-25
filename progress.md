@@ -17,16 +17,18 @@ Original prompt: Explore and document a public browser-based open-world game in 
   Sites adapter (ADR-0013)
 - Project name: **Rigs Unbound**
 - GitHub repository: `pranaysuyash/rigs-unbound`
-- Public deployment: **live**, Sites version 5 sourced from commit
-  `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`. Field 02, the Rapier Physics Lab,
-  and the Box3D Probe each returned HTTP 200 after deployment. The live build
-  trails `main` whenever a newer commit has not been released; see the
+- Public deployment: **live**, Sites version 6 sourced from commit
+  `f5a007d1e9866fea510fcef1cfba102a7ee85e13`. Field 02 and the canonical Rapier
+  Physics Lab and Box3D Probe routes each returned HTTP 200 after deployment;
+  a fresh public browser passed the welcome/schema/first-cache/readiness
+  contract with zero console entries. The live build trails `main` whenever a
+  newer commit has not been released; see the
   [deploy runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - Canonical task list:
   [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
-- Local release candidate: schema v5 first-rung repair is validated on `4173`
-  and rebuilt production preview `4174`; RU-0106 through RU-0109 are closed in
-  the tracker. It is not yet committed, pushed, or deployed to Sites.
+- Released candidate: schema v5 first-rung repair is validated on `4173`,
+  rebuilt production preview `4174`, and the public Sites URL; RU-0106 through
+  RU-0109 are closed in the tracker.
 
 ## Playable foundation — 2026-07-25
 

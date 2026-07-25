@@ -102,3 +102,21 @@ The smallest durable proof for this contract is:
 
 ECS is a future option, not a current requirement.
 The right long-term goal is to keep the machine-centric composition model explicit until real scale pressure proves a stronger structural need.
+
+## Addendum (2026-07-25) - Live scale does not yet justify ECS
+
+- Live browser evidence shows the current playable surface is still compact:
+  - 3 rigs
+  - 7 authored sites
+  - 1 discovery
+  - 0 furrows on the current snapshot
+- The code structure matches that live scale:
+  - explicit rig profiles,
+  - explicit world-site records,
+  - bounded world-memory sets,
+  - no broad entity zoo that would force ECS to reduce coupling pressure.
+- That means ECS remains correctly classified as a future migration threshold,
+  not an immediate architecture requirement.
+- The current useful standard is still machine-centric composition with explicit
+  adapters and versioned persistence, revisited only when measured pressure
+  proves the threshold has been crossed.

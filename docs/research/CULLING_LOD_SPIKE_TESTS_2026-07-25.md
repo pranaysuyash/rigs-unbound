@@ -105,3 +105,20 @@ This note sits between:
 - the render budget and visual-language companion note.
 
 It is intentionally narrow: it exists so the culling/LOD proof can be added without inventing a second test philosophy.
+
+## Addendum (2026-07-25) - Live visibility budget is intentional, not yet formalized
+
+- The live renderer still behaves like a deliberate first-pass visibility budget:
+  - repeated props are instanced,
+  - prop rebuilds happen inside a fixed local radius,
+  - some meshes explicitly disable automatic frustum culling because the current
+    scene is prioritizing stable presentation over a formal visibility graph.
+- Live browser metrics remain compact enough to support the current posture:
+  - roughly 78 draw calls,
+  - roughly 105k triangles,
+  - first-controllable and first-input-ready times are already tracked.
+- That means the app has a real visibility budget, but not yet a formal culling
+  or distance-LOD spike harness.
+- The spike-test contract remains the right next layer: it should prove when
+  non-visible content stays out of the path, not just rely on the current
+  renderer posture.
