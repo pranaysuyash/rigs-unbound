@@ -129,7 +129,8 @@ This is the spine for replay, anti-cheat, deterministic testing, and future auth
 A minimal bounded recorder hook now exists in `src/main.ts` and
 `src/game/run-record.ts`. It captures commands, input transitions, checkpoints,
 and saves while exposing truncation, and checkpoint entries now carry a stable
-tick hash. It still does not provide durable playback verification.
+tick hash. The browser surface now also exposes the structural verifier, but it
+still does not provide durable playback verification.
 
 ### 3.9 Generated content is untrusted input
 

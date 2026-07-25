@@ -413,8 +413,9 @@ The immediate consequence is that the project should harden visibility, collisio
 - The run-reproducibility lane now has a live bounded recorder hook in
   `src/main.ts` and `src/game/run-record.ts`. It records input transitions
   instead of every fixed step, reports dropped entries when its in-memory
-  window trims, and adds stable tick hashes to checkpoints, but it still needs
-  durable playback verification before it graduates from partial to accepted.
+  window trims, and adds stable tick hashes to checkpoints. The browser surface
+  now also exposes structural verification, but it still needs durable playback
+  verification before it graduates from partial to accepted.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,

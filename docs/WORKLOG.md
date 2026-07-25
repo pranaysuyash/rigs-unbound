@@ -1153,7 +1153,7 @@ leading Rapier service hypothesis remain explicit proof gates.
 - 2026-07-25: Cross-linked the execution roadmap to the new synthesis artifact so the implementation runway and the evidence/provenance layer now point at one another instead of drifting apart.
 - 2026-07-25: Cleaned two wording slips in the new synthesis/roadmap docs (`capabililty` -> `capability`, duplicate `boundary boundaries`) so the long-term notes remain readable and search-friendly.
 - 2026-07-25: Added [ADR-0014](decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md) to make the capability/streaming/replay/authority/ECS rollout order explicit, then linked it back into the canonical exploration map and roadmap.
-- 2026-07-25: Implemented a lightweight bounded run-record lane in `src/main.ts` and `src/game/run-record.ts`, capturing commands, input transitions, checkpoints, and saves so the replay gate has a concrete starting point without unbounded tab-lifetime growth.
+- 2026-07-25: Implemented a lightweight bounded run-record lane in `src/main.ts` and `src/game/run-record.ts`, capturing commands, input transitions, checkpoints, and saves so the replay gate has a concrete starting point without unbounded tab-lifetime growth. The browser surface now also exposes the structural verifier alongside the record snapshot.
 
 ## 2026-07-25 — OpenAI Sites deployment preparation
 
@@ -1212,8 +1212,10 @@ leading Rapier service hypothesis remain explicit proof gates.
 - Added deterministic tests for schema serialization, elapsed-time
   normalization, bounded retention, and truncation visibility.
 - Re-ran the full port-4174 browser acceptance and a focused keyboard-driven
-  recorder probe; command, checkpoint, and input entries were visible with zero
-  console/page errors.
+  recorder probe; command, checkpoint, and input entries were visible, the
+  structural verifier returned `ok: true` with no issues, and the browser
+  reported zero console/page errors.
 - This remains a diagnostics/reproducibility foundation, not a deterministic
-  replay claim: durable storage, playback parity, and a world-tick checksum are
-  still required.
+  replay claim: durable storage and playback parity are still required, even
+  though checkpoint hashes, a structural verifier, and a browser-visible
+  verification hook are now in place.

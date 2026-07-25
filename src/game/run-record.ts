@@ -16,6 +16,11 @@ export interface RunRecord {
   entries: RunRecordEntry[];
 }
 
+export interface RunRecordVerification {
+  ok: boolean;
+  issues: string[];
+}
+
 export const MAX_RUN_RECORD_ENTRIES = 4096;
 const RUN_RECORD_TRIM_BATCH = 512;
 
@@ -69,4 +74,50 @@ export function appendRunRecordEntry(
 
 export function snapshotRunRecord(record: RunRecord): string {
   return JSON.stringify(record, null, 2);
+}
+
+export function verifyRunRecord(record: RunRecord): RunRecordVerification {
+  const issues: string[] = [];
+
+  if (record.schemaVersion !== 1) {
+    issues.push(
+      `Unexpected run record schema version: ${record.schemaVersion}`,
+    );
+  }
+  if (typeof record.seed !== "string" || record.seed.length === 0) {
+    issues.push("Run record seed is missing.");
+  }
+  if (!Number.isFinite(record.startedAtMs)) {
+    issues.push("Run record start time is not finite.");
+  }
+  if (!Number.isInteger(record.droppedEntries) || record.droppedEntries < 0) {
+    issues.push("Run record dropped entry count is invalid.");
+  }
+
+  let previousElapsed = -1;
+  for (const [index, entry] of record.entries.entries()) {
+    if (typeof entry.name !== "string" || entry.name.length === 0) {
+      issues.push(`Entry ${index} has no name.`);
+    }
+    if (!Number.isFinite(entry.elapsedMs) || entry.elapsedMs < 0) {
+      issues.push(`Entry ${index} has invalid elapsed time.`);
+    }
+    if (!Number.isFinite(entry.atMs) || entry.atMs < 0) {
+      issues.push(`Entry ${index} has invalid timestamp.`);
+    }
+    if (entry.elapsedMs < previousElapsed) {
+      issues.push(`Entry ${index} elapsed time moved backwards.`);
+    }
+    previousElapsed = entry.elapsedMs;
+    if (entry.kind === "checkpoint") {
+      if (typeof entry.payload.tickHash !== "string") {
+        issues.push(`Checkpoint entry ${index} is missing a tick hash.`);
+      }
+    }
+  }
+
+  return {
+    ok: issues.length === 0,
+    issues,
+  };
 }

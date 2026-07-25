@@ -4,6 +4,7 @@ import {
   createRunRecord,
   MAX_RUN_RECORD_ENTRIES,
   stableHashText,
+  verifyRunRecord,
   snapshotRunRecord,
 } from "./run-record";
 
@@ -20,6 +21,10 @@ describe("run record", () => {
       name: "enterWorld",
       elapsedMs: 0,
       payload: { source: "test" },
+    });
+    expect(verifyRunRecord(record)).toMatchObject({
+      ok: true,
+      issues: [],
     });
     expect(JSON.parse(snapshotRunRecord(record))).toMatchObject({
       schemaVersion: 1,
@@ -38,7 +43,7 @@ describe("run record", () => {
 
     expect(record.entries.length).toBeLessThanOrEqual(MAX_RUN_RECORD_ENTRIES);
     expect(record.droppedEntries).toBeGreaterThan(0);
-    expect(record.entries.at(-1)?.name).toBe(
+    expect(record.entries[record.entries.length - 1]?.name).toBe(
       `sample-${MAX_RUN_RECORD_ENTRIES + 9}`,
     );
   });
@@ -49,6 +54,21 @@ describe("run record", () => {
     );
     expect(stableHashText("field-02:boot")).not.toBe(
       stableHashText("field-02:step"),
+    );
+  });
+
+  it("rejects checkpoints without hashes", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(record, "checkpoint", "boot", 0, {
+      state: {},
+    });
+
+    expect(verifyRunRecord(record)).toMatchObject({
+      ok: false,
+    });
+    expect(verifyRunRecord(record).issues).toContain(
+      "Checkpoint entry 0 is missing a tick hash.",
     );
   });
 });

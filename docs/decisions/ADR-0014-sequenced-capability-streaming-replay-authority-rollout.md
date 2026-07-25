@@ -138,5 +138,6 @@ This ADR should be treated as accepted when the repo can point to:
 - 2026-07-25: proposed to make the capability/streaming/replay/authority sequencing explicit in a durable ADR after the optimization-gap synthesis and roadmap pass.
 - 2026-07-25: the runtime now has a lightweight bounded recorder hook in
   `src/main.ts` and `src/game/run-record.ts`; it captures input transitions,
-  checkpoint hashes, and exposes truncation, while durable playback verification
+  checkpoint hashes, structural verification, and exposes truncation plus a
+  browser-visible verification hook, while durable playback verification
   remains intentionally deferred until the next proof slice.

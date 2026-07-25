@@ -82,7 +82,7 @@ We reviewed the existing repository and applied this directly to implementation 
 ### J. Authority, commands, events, and replay
 
 - **Current:** command intent enters kernel, deterministic transitions are partially prepared by design.
-- **Gap:** explicit command/event pipeline (Intent -> Validate -> State mutation -> Domain event -> presentation) is not yet formalized across all systems; deterministic replay artifact export is still light even though a bounded run-record lane now exists in `src/main.ts`.
+- **Gap:** explicit command/event pipeline (Intent -> Validate -> State mutation -> Domain event -> presentation) is not yet formalized across all systems; deterministic replay artifact export is still light even though a bounded run-record lane and browser-visible verification hook now exist in `src/main.ts`.
 
 ### K. Observability and budgets
 
@@ -99,7 +99,7 @@ We reviewed the existing repository and applied this directly to implementation 
 | Culling/LOD | `src/game/renderer.ts`, `docs/exploration/EXPLORATION_MAP.md` | Partial | Renderer-side instancing exists, but explicit visibility tiers and subsystem LOD contracts do not. |
 | Collision matrix | `src/game/collision.ts`, `src/game/physics.ts` | Partial | Obstacle resolution is centralized, but category/mask semantics are not yet explicit. |
 | Capability model | `src/game/contracts.ts`, `src/game/state.ts` | Partial | Rig profiles and action gating exist, but capabilities are not yet fully versioned contracts. |
-| Replay/event lane | `src/main.ts`, `src/game/run-record.ts`, `src/game/state.ts` | Partial | There is now a bounded in-memory run-record lane with input-transition capture, checkpoint hashes, and explicit truncation, but no durable playback verifier yet. |
+| Replay/event lane | `src/main.ts`, `src/game/run-record.ts`, `src/game/state.ts` | Partial | There is now a bounded in-memory run-record lane with input-transition capture, checkpoint hashes, a structural verifier, a browser-visible verification hook, and explicit truncation, but no durable playback verifier yet. |
 | Chunk/world streaming | `src/game/gameworld.ts`, `docs/exploration/EXPLORATION_MAP.md` | Missing | The world is bounded and persistent, but not yet residency-streamed. |
 | Observability | `src/game/performance.ts`, `src/main.ts` | Partial | Runtime metrics and user-visible telemetry exist, but budget enforcement is still manual. |
 

@@ -38,6 +38,7 @@ import {
   appendRunRecordEntry,
   createRunRecord,
   snapshotRunRecord,
+  verifyRunRecord,
   stableHashText,
 } from "./game/run-record";
 import { GameRenderer } from "./game/renderer";
@@ -76,6 +77,7 @@ declare global {
   interface Window {
     render_game_to_text: () => string;
     getRunRecord: () => string;
+    getRunRecordVerification: () => ReturnType<typeof verifyRunRecord>;
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
@@ -652,6 +654,7 @@ function boot(): void {
 
   window.render_game_to_text = snapshot;
   window.getRunRecord = () => snapshotRunRecord(runRecord);
+  window.getRunRecordVerification = () => verifyRunRecord(runRecord);
   window.advanceTime = (milliseconds: number) => {
     recordCommand("advanceTime", { milliseconds });
     advanceGame(state, world, milliseconds);
