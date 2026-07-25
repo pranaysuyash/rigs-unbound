@@ -122,3 +122,24 @@ It is intentionally narrow: it exists so the culling/LOD proof can be added with
 - The spike-test contract remains the right next layer: it should prove when
   non-visible content stays out of the path, not just rely on the current
   renderer posture.
+
+## Addendum (2026-07-25) - fresh runtime recheck, same formalization gap
+
+- Re-checked the spike-test contract against the current browser daemon
+  snapshot.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still behaves like a bounded visibility-budget scene:
+  - instanced repeated props,
+  - radius-bounded prop rebuilds,
+  - terrain and active play space remain the main visible workload.
+- That keeps the current renderer posture credible, but it is still not the same
+  as a formal culling/LOD spike harness.
+- The missing layer is still the reusable proof set:
+  - one deterministic near-field scene,
+  - one occluded/hidden scene,
+  - one distance-gradient scene,
+  - one pressure scene,
+  - one repeatable metrics/capture bundle tied to those scenes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

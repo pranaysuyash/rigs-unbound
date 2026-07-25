@@ -185,3 +185,29 @@ Confidence is high in the cited browser/security/platform constraints, medium-hi
 ## Anything else?
 
 The safe creative move is not to make the game timid. It is to keep imaginative content cheap and reversible while making identity, money, authority, and public interaction deliberate and auditable.
+
+## Addendum (2026-07-25) - current runtime still fits the solo-lab gate, not the public-social gate
+
+- Re-checked the readiness register against the current browser daemon snapshot
+  and the live repo contracts.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime still sits comfortably inside the conservative stage-A
+  posture described by the register:
+  - one bounded playable loop,
+  - deterministic local simulation,
+  - readable HUD/state surfaces,
+  - no evidence of public chat, trade, UGC, or cash-linked systems in the live
+    path.
+- The register’s higher-risk branches remain future-gated rather than active:
+  - multiplayer authority,
+  - economy/trading,
+  - public UGC and moderation,
+  - social identity and child-safety obligations,
+  - account recovery and public operator support surfaces.
+- That means the register is still doing its job as a launch boundary:
+  - it names the risks that would need explicit follow-up before public-social
+    expansion,
+  - and the current runtime does not yet cross those gates.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

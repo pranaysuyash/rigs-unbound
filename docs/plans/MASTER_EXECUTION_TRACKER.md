@@ -45,6 +45,131 @@ canonical scope and acceptance contracts.
 
 ### Active work package checklist
 
+#### RU-0110 live task list — remaining P1/P2 playtest defects
+
+This is the active, ordered checklist. A defect is not closed by a code change
+alone: its reproduction, contract, automated checks, browser evidence, and
+documentation must all agree.
+
+- [x] **RU-0110.0 — Preserve the incoming research batch before implementation.**
+  - Evidence: guarded commit `3763a82da03282e11c98a69f2ef1da1b52f6e436`;
+    local `main` and `origin/main` aligned after push; typecheck, 108 root
+    tests, seven deterministic-kernel tests, Markdown links, and diff checks
+    passed.
+- [x] **RU-0110.1 — Refresh the live baseline and preserve parallel work.**
+  - Evidence: both development ports returned HTTP 200; seven parallel
+    research/worklog files and four review captures were classified as
+    uncommitted project work and left untouched.
+- [-] **RU-0110.2 — Reproduce and disposition B5–B12 with trustworthy
+  evidence.**
+  - B5 and B9 are reproduced: the hood pose intersects Torque geometry and the
+    fresh chase boom crosses the Home Silo gantry.
+  - B6 is reproduced as two gaps: first-session Drift acquisition is hidden
+    logistics, while extreme terrain-face penetration affects all mobility
+    adapters.
+  - B7's prior stuck-lab symptom is not currently reproduced; direct lab boot
+    works. The player/developer navigation defect remains.
+  - B8, B11, and B12 are reproduced from the public HUD.
+  - Evidence correction: the current Toy Buggy and Marsh Skimmer hood captures
+    do not show their named active rigs. Supersede them only after asserting the
+    switch result; retain the contradicted captures as flagged audit evidence
+    until their artifact disposition is approved.
+  - Closure: one baseline matrix records reproduced, not-reproduced, or
+    superseded status for every B5–B12 item, with valid captures where a visual
+    claim matters.
+- [ ] **RU-0110.3 — Introduce one canonical scene/camera obstruction query.**
+  - Add a solver-independent swept camera query with typed nearest-hit evidence
+    (`terrain`, procedural obstacle, or authored structure plus object ID and
+    hit fraction).
+  - Move Home Silo structural bounds to canonical world data consumed by both
+    rendering and the query; do not create a renderer-only proxy truth.
+  - Include visual obstacle bounds, standing/felled semantics, tangent
+    clearance, finite/zero-length handling, and a bounded hot path.
+  - Closure: focused tests cover clear segments, terrain, tree crowns, felled
+    trees, authored gantry, tangent clearance, nearest-hit selection, and
+    deterministic output.
+- [ ] **RU-0110.4 — Replace B5's hardcoded hood pose with rig-owned camera
+  sockets.**
+  - Author a named hood/cockpit socket for Torque, Spark, and Drift on each
+    rendered rig; keep the contract compatible with later GLB node mounts.
+  - Prevent camera-mode interpolation through rig geometry and expose
+    operator-only evidence for the resolved pose.
+  - Closure: all three sockets resolve outside their visual envelopes;
+    per-rig browser checks report no self-intersection on desktop and narrow
+    viewports.
+- [ ] **RU-0110.5 — Resolve B9/B10 chase-camera obstruction without spawn
+  hacks.**
+  - Use the canonical query for immediate inward avoidance, slower outward
+    recovery, a near-plane-safe margin, and post-smoothing revalidation.
+  - Keep top-down/tactical cost bounded where full prop queries add no value.
+  - Closure: fresh spawn clears the Home Silo gantry; a deterministic standing
+    tree shortens the boom; felling/clearing it restores the boom without
+    oscillation or console errors.
+- [ ] **RU-0110.6 — Create canonical, non-overlapping starting-rig berths.**
+  - Keep spatial switching. Until an explicit claim/unlock mission exists,
+    place every advertised starting rig at distinct Home Silo service berths
+    that form a real proximity chain.
+  - Reuse the same typed berth data for initial state, legacy recovery, and
+    emergency recovery; no duplicated spawn coordinates.
+  - Add a versioned migration that relocates only pristine legacy Drift state
+    and preserves rigs the player already moved, used, or attached.
+  - Closure: a fresh player acquires Torque→Spark→Drift without test
+    teleportation; berths are dry, stable, non-overlapping, and recovery-safe;
+    migration and round-trip tests pass.
+- [ ] **RU-0110.7 — Add one shared swept terrain traversability boundary.**
+  - Treat the observed cliff penetration as a shared substrate defect, not a
+    Drift speed tweak. Add deterministic support-rise/face checks with
+    adapter-owned wheel-contact and hover-skirt envelopes.
+  - Allow blocked hover authority to reach zero, preserve downhill/reverse
+    escape, and return a semantic block reason for player feedback.
+  - Closure: Torque, Spark, and Drift cannot penetrate or launch up the seeded
+    extreme face at rest or run-up speed; normal grades, water traversal,
+    towing, deformation, and deterministic replay remain valid.
+- [ ] **RU-0110.8 — Establish an explicit player/developer surface boundary.**
+  - Default player mode hides Physics Lab navigation and runtime
+    fps/draw-call/heap diagnostics while keeping direct lab routes available.
+  - One explicit developer/evidence surface reveals diagnostics and lab
+    navigation for agents and operators.
+  - Closure: query/mode behavior is tested; player and developer screenshots
+    agree with the contract; direct lab routes still boot with zero errors.
+- [ ] **RU-0110.9 — Make actions and persistence language contextual.**
+  - Introduce one pure primary-action resolver used by both mutation and UI so
+    desktop, touch, prompts, and automation cannot drift.
+  - Label the current rig's action, blade availability, recovery, and world
+    verbs accessibly on desktop and narrow viewports.
+  - Separate persistence status, runtime diagnostics, and the existing genuine
+    cargo-relay personal best. Replace the misleading `Local field record` text
+    with literal saved/restored/local-state language; do not invent another
+    best-time system.
+  - Closure: keyboard, pointer, real-touch, aria-label, narrow-layout, and save
+    messaging tests pass.
+- [ ] **RU-0110.10 — Run the complete risk-matched acceptance matrix.**
+  - Unit: scene query, camera mounts, terrain traversal, action resolver, save
+    migration, and recovery.
+  - Integration: typecheck, complete root suite, deterministic kernel suite,
+    format, build, local-link check, and diff check.
+  - Browser: ports 4173 and rebuilt 4174; desktop and 390×844; fresh profile,
+    real proximity acquisition, every hood camera, spawn/prop obstruction,
+    developer boundary, persistence, and zero console/page errors.
+  - Harness lifecycle: a completed acceptance report must close its browser and
+    terminate with exit code 0 inside a bounded deadline. The 2026-07-26
+    pre-commit recheck produced complete reports but left three Node harness
+    processes running; fix and regression-test that shutdown path before this
+    gate closes.
+  - Closure: exact commands and outcomes are recorded with evidence tiers; no
+    failing touched-area check is described as green.
+- [ ] **RU-0110.11 — Close documentation, review, git, and release gates.**
+  - Update the relevant ADRs, camera/physics/UI contracts, playtest
+    disposition, exploration map, worklog, evidence index, and this tracker.
+  - Run the three explicit motto-v4 review passes and the missed-anything
+    sweep; record user, team, and operational value plus remaining risks.
+  - Re-audit all parallel work, run the full managed hook, `git add -A`,
+    guarded commit without agent co-author trailers, push, publish the exact
+    pushed source through Sites, verify terminal deployment and live routes,
+    then update deployment provenance for the next agents.
+
+#### Closed predecessor checklist — RU-0106 through RU-0109
+
 - [x] Write failing contracts for RU-0106–RU-0109.
 - [x] Gate background simulation and input behind explicit world entry.
 - [x] Add one authored, reachable first salvage cache and canonical collection.

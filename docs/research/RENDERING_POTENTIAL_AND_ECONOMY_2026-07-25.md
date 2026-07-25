@@ -160,3 +160,32 @@ It sits alongside:
 - the resource budget contract.
 
 Those contracts tell us how the world should behave. This note tells us how to spend the frame budget in a way that preserves that behavior.
+
+## Addendum (2026-07-25): the budget economy is already visible, but the comparison bundle is still implicit
+
+- Re-checked the rendering-economy note against the current renderer and
+  performance surfaces.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already exposes the budget economy the note describes:
+  - the renderer canonical path is Three.js,
+  - repeated world items are instanced,
+  - prop drawing is radius-bounded around the rig,
+  - `PerformanceMonitor` and `window.getPerformanceSnapshot()` expose draw-call
+    pressure, triangle pressure, frame timing, memory use, and terrain build
+    time,
+  - the HUD also surfaces frame-level health through save status and fps.
+- The renderer already follows the spend order the note recommends:
+  - camera response and nearby readability are protected first,
+  - terrain/obstacle fidelity is maintained around the active rig,
+  - distant props and decorative density are bounded by the current renderer
+    policy.
+- What is still missing is the packaged comparison artifact:
+  - one repeatable capture bundle,
+  - one operator note for what changed under pressure,
+  - one screenshot/frame capture tied to the metrics,
+  - one baseline promotion path for explanatory rather than pretty captures.
+- So the note remains a useful frame-budget companion, but the repo still needs
+  the reusable comparison set that turns those ideas into reviewable evidence.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

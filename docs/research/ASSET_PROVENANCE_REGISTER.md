@@ -124,6 +124,27 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 
 A concept image can influence architecture and expectations even when it never ships. Recording it now preserves that influence and prevents “temporary” art from silently becoming production truth.
 
+## Addendum (2026-07-25) - provenance is still reference-first, not runtime-imported
+
+- Re-checked the provenance register against the current browser daemon
+  snapshot and repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The project still has the right provenance posture for the current runtime:
+  - concept/reference images are registered with hashes and intended-use notes,
+  - the private Kenney library is inspected and documented as a source library,
+  - runtime remains asset-light and procedurally authored.
+- What is still missing is the runtime bridge:
+  - no imported runtime asset has become the durable truth source yet,
+  - no approved runtime manifest has replaced the reference-only status,
+  - no public reuse decision has been elevated from the provenance notes into a
+    shipped asset path.
+- So the register is correctly preventing “temporary” references from becoming
+  production truth, but the next obligation remains a formal runtime import
+  manifest once assets cross into the playable path.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  provenance, and doc inspection.
+
 ## Addendum (2026-07-25) - Runtime asset-light posture
 
 - The live Field 02 runtime still does not consume imported runtime 3D assets.

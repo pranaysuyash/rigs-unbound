@@ -123,3 +123,27 @@ This ADR reaches accepted implementation state when all are true:
 ## Anything else?
 
 This does not preclude later ECS or broader authority layers; it defines the contract surface required before those expansions are safe.
+
+## Addendum (2026-07-25) - live runtime still uses the right local spine, but the envelope is not yet structured
+
+- Re-checked the decision against the current browser daemon snapshot and the
+  live repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current implementation still matches the decision’s intended ordering:
+  - commands are captured explicitly,
+  - the deterministic kernel owns canonical state mutation,
+  - presentation reacts from snapshot/render state rather than mutating the
+    world directly,
+  - capability admission is real, and affordance mismatch still rejects rather
+    than silently mutating state.
+- What is still missing is the explicit reusable envelope the ADR calls for:
+  - structured request/response objects for mutation,
+  - versioned admission reason codes,
+  - a distinct telemetry event for accept/reject/defer,
+  - a clean speculative-state vs durable-state boundary artifact.
+- So the repo is aligned on the direction, but the command/state contract is
+  still mostly embodied in code paths and prose, not yet in a named runtime
+  envelope that planners or future authority layers can consume directly.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

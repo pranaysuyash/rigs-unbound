@@ -143,3 +143,23 @@ The smallest durable proof for this contract is:
 ## Anything else?
 
 This contract keeps browser delivery honest: if an asset cannot be named, hashed, validated, compressed, and replaced cleanly, it is not ready to be part of the runtime.
+
+## Addendum (2026-07-25) - Current runtime ingest posture
+
+- The live browser surface is still `Rigs Unbound — Physics Lab 01`, with
+  zero console logs in the current daemon snapshot.
+- The current runtime remains asset-light and procedurally authored:
+  - terrain readability is still coming from authored geometry and vertex
+    colours in `src/game/renderer.ts`,
+  - no imported runtime GLB/FBX/texture manifest is active in the playable
+    path yet,
+  - the asset-provenance work is still anchored in concept/reference and source
+    library notes rather than a runtime import pipeline.
+- That means the ingest/compression contract is still future-facing rather than
+  a live browser gate:
+  - the repo knows the right validation shape,
+  - but the browser has not yet crossed into imported-asset activation,
+  - so the next durable milestone is a versioned manifest that the runtime
+    actually consumes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

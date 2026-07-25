@@ -124,3 +124,24 @@ art, and so replacement never becomes ambiguous.
   - the next durable step is a versioned runtime asset manifest once imported
     art actually enters the playable path.
 - Evidence tier: Tier 1 static code/doc inspection plus live runtime context.
+
+## Addendum (2026-07-25) - provenance remains reference-first, not runtime-activated
+
+- Re-checked the pipeline contract against the current browser daemon snapshot
+  and repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The pipeline still has the right separation:
+  - provenance is tracked in the register,
+  - source-library inspection is recorded,
+  - runtime remains procedural and asset-light.
+- The missing layer is still the activation bridge:
+  - no runtime asset manifest has been promoted into the playable path,
+  - no imported asset has crossed from reference-only into runtime truth,
+  - no replacement/deprecation cycle has yet been exercised against a live
+    imported asset entry.
+- That means the pipeline is correctly preventing provenance drift today, but it
+  still needs the first runtime manifest adoption before the contract becomes a
+  live asset gate rather than a documented boundary.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  provenance, and doc inspection.

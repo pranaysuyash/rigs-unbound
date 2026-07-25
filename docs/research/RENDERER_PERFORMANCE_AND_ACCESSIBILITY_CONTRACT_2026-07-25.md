@@ -131,3 +131,27 @@ Together they define the public-smoke-test contract without widening the product
   fully packaged gate that the contract describes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - fresh runtime recheck, same bundled-gate gap
+
+- Re-checked the smoke-test gate against the current browser daemon snapshot.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime still exposes the evidence surface the gate depends on:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - an accessible DOM shell with the playable canvas as the focus target after
+    intro dismissal
+- The practical contract is still holding:
+  - standard and mobile-safe readability behavior are present,
+  - reduced-motion clamping is present,
+  - HUD text and semantic fallback paths are present,
+  - runtime metrics remain observable.
+- The gap is still the same one:
+  - no packaged smoke-test capture bundle,
+  - no single public-gate artifact binding profile matrix, checklist, and KPI
+    evidence,
+  - no reusable pass/fail summary artifact for fallback events.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

@@ -112,6 +112,26 @@ The repo already uses the world as a set of readable offers.
 This contract names the resolution step so behavior, activities, and future
 machines can ask the same question and get the same answer.
 
+## Addendum (2026-07-25) - live resolution is real, but still phrased as action prose
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already proves that world/capability mismatches are real:
+  - a selection of `toy-buggy` followed by blade logic can still produce the
+    deterministic denial `Spark carries no blade. Torque does.`
+- That is enough to show the world surface is not hypothetical.
+- What is still missing is the reusable resolver envelope the contract asks for:
+  - explicit legal / deferred / impossible outcome codes,
+  - a structured rejection record naming which side caused the mismatch,
+  - a shared resolver entry point that behavior and activities can both call.
+- So the repo has a real affordance language today, but it still encodes the
+  resolution result in action prose rather than a first-class compatibility
+  record.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
 ## Addendum (2026-07-25) - Live resolution exists, but only as a diagnostic string
 
 - The active runtime can already answer world-capability mismatches with a

@@ -108,6 +108,32 @@ The repo already has command capture and a deterministic kernel. This contract
 names the missing decision layer so future AI, NPC, and activity planners can
 grow as readers of the world rather than silent co-authors of state.
 
+## Addendum (2026-07-25) - live runtime still records intent, planner layer still absent
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime still supports the local command/state spine the contract
+  expects:
+  - explicit command capture,
+  - deterministic kernel stepping,
+  - snapshot-driven presentation,
+  - bounded run-record history with command/checkpoint/input/save entries.
+- That means the repo can already explain what happened, but it still cannot
+  yet explain how a planner chose among candidates as a first-class decision
+  layer.
+- The missing layer is still the named planner envelope:
+  - versioned behavior schema,
+  - deterministic candidate ordering,
+  - explicit branch-selection and branch-rejection telemetry,
+  - a fixed thinking budget for a behavior step,
+  - a read-only contract that prevents direct state mutation.
+- So the planner work remains future-facing, not implied by the current run
+  record.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
 ## Addendum (2026-07-25) - Live command capture is present, planner layer is not
 
 - Live browser evidence from `window.getRunRecordVerification()` returns

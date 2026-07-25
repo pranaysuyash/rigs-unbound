@@ -75,3 +75,41 @@ Promote a capture to the long-term comparison set when it is the clearest explan
 
 This protocol answers the remaining capture-selection questions in the KPI and render-budget notes.
 It turns the canonical fixture baseline into subsystem-specific comparison guidance so threshold tuning can stay stable over time.
+
+## Addendum (2026-07-25): the selection protocol still matches the current runtime, but the capture bundle is not yet present
+
+- Re-checked the capture-selection protocol against the current runtime and
+  browser surface.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current app still maps cleanly onto the existing selection table:
+  - near-field dense scene for renderer readability,
+  - occluded / hidden scene for culling correctness,
+  - distance-gradient scene for LOD transitions,
+  - pressure scene for fallback order and stress,
+  - reduced-motion comparison scene for accessibility and motion safety.
+- No new canonical capture category is required yet.
+- What is still missing is the actual comparison bundle artifact that pairs the
+  correct fixture, metrics capture, screenshot/frame capture, operator note, and
+  threshold state into one reusable review package.
+- So the protocol remains a useful selection rule, but the repo still lacks the
+  long-term capture set it is meant to select from.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## Addendum (2026-07-25) - fresh recheck, same missing bundle
+
+- Re-checked the selection protocol against the current browser daemon snapshot.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime still maps cleanly onto the selection table, so the
+  protocol does not need a new canonical capture category yet.
+- What still does need to exist is the reusable comparison bundle:
+  - fixture id,
+  - metrics capture,
+  - screenshot or frame capture,
+  - operator note,
+  - threshold state.
+- The protocol is therefore still a selection rule, not the artifact itself.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

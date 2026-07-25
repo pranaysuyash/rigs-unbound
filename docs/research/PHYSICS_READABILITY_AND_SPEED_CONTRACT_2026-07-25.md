@@ -117,3 +117,38 @@ The contract should be considered satisfied when a representative loop shows:
 This note answers the open question in the 3D analysis about whether simplified physics remains readable and fun at higher speed.
 
 It does so by making readability a contract of perception, not a promise of physics fidelity.
+
+## Addendum (2026-07-25): the perception frame is already real, the contract layer is still implicit
+
+- Re-checked the physics readability contract against the current physics and
+  presentation code paths.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already implements the shared perception frame the contract
+  describes:
+  - `src/game/physics.ts` owns authoritative motion, grip, slip, grade, and
+    speed behavior,
+  - `src/game/feedback.ts` converts that authoritative motion into a shared
+    presentation frame,
+  - `src/game/renderer.ts` consumes the frame for camera anticipation, body
+    offsets, and reduced-motion clamping,
+  - `src/main.ts` exposes readable HUD values for grip, grade, speed, condition,
+    and action context.
+- The runtime also already exposes the exact kind of readable signals the note
+  asks for:
+  - grip / slip / stall semantics,
+  - body roll and pitch offsets,
+  - camera anticipation,
+  - speed-driven FOV expansion,
+  - reduced-motion suppression of presentation exaggeration.
+- What is still missing is the explicit policy surface:
+  - a named capture or telemetry bundle for readable-speed regression review,
+  - a visible summary of when perception changes are due to speed versus terrain
+    versus traction,
+  - a contract artifact that says which cues are the canonical proof for a
+    higher-speed readable state.
+- So the physics is already readable in the live runtime; the remaining work is
+  mostly to keep that readability legible as policy and evidence, not to invent
+  more physics complexity.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

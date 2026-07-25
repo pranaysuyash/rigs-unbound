@@ -111,3 +111,27 @@ The smallest durable proof for this contract is:
 The repo already knows content should be data-driven.
 This contract makes the authoring path reproducible so the runtime can trust
 validated content without guessing where it came from.
+
+## Addendum (2026-07-25) - live content is already validated, but the manifest envelope is still implicit
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime already proves that content is validated before
+  acceptance:
+  - state/load paths reject bad or incompatible records,
+  - the content model remains data-driven rather than hardcoded,
+  - module and world definitions already have explicit identities.
+- That means the repo is not trusting arbitrary content blindly.
+- What is still missing is the reproducible authoring envelope the contract
+  names:
+  - versioned content-manifest schemas,
+  - validator-first rejection tests,
+  - reproducible validation result artifacts,
+  - runtime-ready versus validation-only status,
+  - provenance/source metadata that survives the authoring path.
+- So the runtime already enforces the spirit of the contract, but the named
+  content-manifest layer is still future-facing rather than first-class.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

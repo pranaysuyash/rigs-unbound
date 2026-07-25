@@ -2195,3 +2195,382 @@ audio, and human-fun evidence remain open.
   packaged comparison evidence is still implicit rather than finished.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## 2026-07-25 — threshold fixture baseline and capture-selection check
+
+- Re-read the threshold fixture baseline and capture-selection protocol.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current runtime still fits the canonical comparison shape:
+  - one compact world,
+  - one active loop,
+  - visible renderer metrics,
+  - reduced-motion / mobile-safe behavior already present.
+- Confirmed the baseline fixture categories remain the right explanatory set:
+  - near-field dense scene,
+  - occluded / hidden scene,
+  - distance-gradient scene,
+  - pressure scene,
+  - reduced-motion comparison scene.
+- The missing layer is still the packaged capture bundle:
+  - fixture,
+  - metrics capture,
+  - screenshot/frame capture,
+  - operator note,
+  - threshold state.
+- This keeps the comparison scaffolding honest: the selection rules are real,
+  but the long-term capture set they point to is still not finished.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — physics readability and speed contract check
+
+- Re-read the physics readability and speed contract and the shared perception
+  frame implementation.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already implements the contract’s core behavior:
+  - authoritative motion in `src/game/physics.ts`
+  - shared perception frame in `src/game/feedback.ts`
+  - camera/body/speed presentation in `src/game/renderer.ts`
+  - readable HUD values in `src/main.ts`
+- Confirmed the runtime already exposes the intended readable signals:
+  - grip/slip/stall semantics
+  - body roll and pitch offsets
+  - camera anticipation
+  - speed-driven FOV expansion
+  - reduced-motion suppression of presentation exaggeration
+- The missing layer is still the policy/evidence bundle:
+  - named readable-speed regression capture,
+  - summary of whether the change comes from speed, terrain, or traction,
+  - canonical proof cues for higher-speed readability.
+- This keeps the contract honest: the game is already readable at speed, but
+  the explicit policy/evidence layer remains implicit rather than fully named.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — rendering potential and economy check
+
+- Re-read the rendering potential and economy note and the renderer/performance
+  surfaces.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already exposes the budget economy the note describes:
+  - Three.js canonical rendering path
+  - instanced repeated world items
+  - radius-bounded prop drawing
+  - `PerformanceMonitor` and `window.getPerformanceSnapshot()`
+  - HUD-level frame health through save status and fps
+- Confirmed the renderer already follows the recommended spend order:
+  - protect camera response and nearby readability first
+  - maintain terrain/obstacle fidelity around the active rig
+  - bound distant props and decorative density
+- The missing layer is still the packaged comparison artifact:
+  - repeatable capture bundle,
+  - operator note for what changed under pressure,
+  - screenshot/frame capture tied to metrics,
+  - baseline promotion path for explanatory captures.
+- This keeps the frame-budget companion honest: the spending model is visible
+  today, but the reusable comparison set is still not finished.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — asset authority and shipped mesh contract check
+
+- Re-read the asset authority and mesh contract and the provenance/runtime
+  evidence it depends on.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current runtime is still asset-light and procedural:
+  - zero texture assets and zero asset provenance obligations for the current
+    terrain pass in `src/game/renderer.ts`
+  - authored/procedural terrain and instanced props in the live field
+  - provenance register still classifies the tractor references as concept/
+    reference only, not approved shipped runtime assets
+  - runtime asset manifest remains the next durable step once imported art enters
+    the playable path
+- The missing layer is still the promotion bridge:
+  - no approved runtime GLB for the tractor/rig path,
+  - no manifest entry proving a shipped mesh profile,
+  - no browser-loaded imported mesh that has passed the promotion contract.
+- This keeps the authority boundary honest: the repo has concepts, provenance,
+  and procedural runtime geometry, but not yet a shipped-mesh authority layer.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  doc, and provenance inspection.
+
+## 2026-07-25 — web asset ingest and compression contract check
+
+- Re-read the web asset ingest and compression contract alongside the asset
+  pipeline and provenance contract.
+- Confirmed the live browser surface is still `Rigs Unbound — Physics Lab 01`,
+  with zero console logs in the current daemon snapshot.
+- Confirmed the runtime is still asset-light and procedural:
+  - terrain readability comes from authored geometry and vertex colours in
+    `src/game/renderer.ts`
+  - no imported runtime GLB/FBX/texture manifest is active in the playable path
+    yet
+  - provenance work remains in concept/reference and source-library notes
+- The missing layer is still the manifest bridge:
+  - no versioned runtime asset manifest is being consumed by the browser yet
+  - no imported asset has crossed the activation gate in the playable path
+  - compression remains a future runtime concern, not a live browser policy
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — loading and profile bootstrap contract recheck
+
+- Re-read the loading/bootstrap contract and the profile matrix after the fresh
+  browser snapshot.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Physics Lab 01`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the bootstrap shell is doing the right basic job:
+  - the app is not a dead black box,
+  - the shell stays visible until entry,
+  - the canvas becomes the interactive landing point after activation.
+- The remaining gap is still policy-level rather than survival-level:
+  - no explicit loading progress meter,
+  - no separate fallback-preview state,
+  - no runtime-visible profile chooser or measured profile-selection outcome.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — threshold fixture and capture-selection recheck
+
+- Re-read the threshold fixture baseline and capture-selection protocol after
+  the fresh browser snapshot.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still fits the existing canonical comparison shape:
+  - bounded world,
+  - active simulation loop,
+  - visibility and accessibility hooks,
+  - reduced-motion behavior already present.
+- The missing layer is still the packaged comparison bundle:
+  - one representative capture per fixture,
+  - metrics capture bound to the frame,
+  - operator note and threshold state in one reusable artifact.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — smoke-test gate recheck
+
+- Re-read the renderer/performance/accessibility smoke-test contract against
+  the current browser daemon snapshot.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still exposes the gate’s required evidence surface:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - accessible canvas landing after intro dismissal
+- The missing layer is still the bundled public-gate artifact:
+  - no packaged capture bundle,
+  - no single artifact binding checklist, profile matrix, and KPI evidence,
+  - no reusable pass/fail summary for fallback events.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — culling and LOD spike-test recheck
+
+- Re-read the culling and LOD spike-test contract against the current browser
+  daemon snapshot.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still behaves like a deliberate visibility-budget scene:
+  - instanced repeated props,
+  - radius-bounded prop rebuilds,
+  - terrain and the active play space remain the main visible workload.
+- The missing layer is still the formal spike harness:
+  - one deterministic fixture bundle,
+  - one occluded/hidden scene,
+  - one distance-gradient scene,
+  - one pressure scene,
+  - repeatable capture + metrics artifact for comparison over time.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — risk and public-readiness register recheck
+
+- Re-read the risk and public-readiness register against the current browser
+  daemon snapshot and live repo contracts.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current runtime still fits the conservative solo-lab posture:
+  - bounded playable loop,
+  - deterministic local simulation,
+  - readable HUD/state surfaces,
+  - no evidence of public chat, trade, UGC, or cash-linked systems in the live
+    path.
+- The higher-risk public branches remain future-gated:
+  - multiplayer authority,
+  - economy/trading,
+  - public UGC and moderation,
+  - social identity and child-safety obligations,
+  - account recovery and public operator support surfaces.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — authority-groundwork contract recheck
+
+- Re-read the authority-groundwork contract against the current browser daemon
+  snapshot.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still supports the local-first authority posture:
+  - explicit command capture,
+  - deterministic canonical state mutation,
+  - local save/restore with recovery metadata,
+  - clean failure for invalid local records.
+- The missing layer is still the shared-state authority contract:
+  - authenticated request/response shapes,
+  - explicit reject-path separation,
+  - durable-value recovery metadata as policy,
+  - authoritative outcome telemetry,
+  - visible shared-state/server-authoritative boundary.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — command/state separation decision recheck
+
+- Re-read ADR-0011 against the current browser daemon snapshot and live repo
+  state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current implementation still follows the intended local spine:
+  - command capture is explicit,
+  - deterministic kernel mutation owns durable state,
+  - presentation reacts from snapshot/render state,
+  - capability admission and affordance rejection are real.
+- The missing layer is still the structured contract envelope:
+  - request/response objects,
+  - versioned reason codes,
+  - distinct telemetry for accept/reject/defer,
+  - explicit speculative-vs-durable state boundary.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — behavior/planner contract recheck
+
+- Re-read the behavior/planner contract against the current browser daemon
+  snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the current runtime still supports the local command/state spine:
+  - explicit command capture,
+  - deterministic kernel stepping,
+  - snapshot-driven presentation,
+  - bounded run-record history with command/checkpoint/input/save entries.
+- The missing layer is still the named planner envelope:
+  - versioned behavior schema,
+  - deterministic candidate ordering,
+  - branch-selection / branch-rejection telemetry,
+  - fixed thinking budget,
+  - read-only contract that prevents direct state mutation.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — world-affordance resolution contract recheck
+
+- Re-read the world-affordance resolution contract against the current browser
+  daemon snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already proves world/capability mismatches are real:
+  - selecting `toy-buggy` and invoking blade logic still yields the deterministic
+    denial `Spark carries no blade. Torque does.`
+- The missing layer is still the reusable resolver envelope:
+  - explicit legal / deferred / impossible outcome codes,
+  - structured rejection record naming the mismatch side,
+  - shared resolver entry point for behavior and activities.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — authoring and reproducible content validation recheck
+
+- Re-read the authoring and reproducible content validation contract against the
+  current browser daemon snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already validates content before acceptance:
+  - state/load paths reject bad or incompatible records,
+  - the content model remains data-driven,
+  - modules/world definitions already have explicit identities.
+- The missing layer is still the reproducible authoring envelope:
+  - versioned content-manifest schemas,
+  - validator-first rejection tests,
+  - reproducible validation result artifacts,
+  - runtime-ready vs validation-only status,
+  - provenance/source metadata that survives authoring.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — asset provenance and pipeline recheck
+
+- Re-read the asset provenance register and asset pipeline contract against the
+  current browser daemon snapshot and repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the project still has the right provenance posture:
+  - concept/reference images are registered with hashes and intended-use notes,
+  - the private Kenney library is documented as a source library,
+  - runtime remains asset-light and procedurally authored.
+- The missing layer is still the runtime bridge:
+  - no imported runtime asset has become the durable truth source yet,
+  - no approved runtime manifest has replaced reference-only status,
+  - no public reuse decision has been elevated into a shipped asset path.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  provenance, and doc inspection.
+
+## 2026-07-25 — modding and creator-pack validation recheck
+
+- Re-read the modding and creator-pack validation contract against the current
+  browser daemon snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still supports the right underlying posture for packs:
+  - data-driven world and rig content,
+  - load-time validation and migration,
+  - provenance and asset validation contracts already named elsewhere.
+- The missing layer is still the pack lifecycle:
+  - versioned pack manifest,
+  - explicit dependencies,
+  - safe disable/rollback behavior,
+  - staged publication/moderation flow,
+  - a hard boundary keeping packs out of runtime authority.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — creator-pack publication boundary recheck
+
+- Re-read the modding contract and the public evidence surfaces ADR against the
+  current browser daemon snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still supports local validated content growth:
+  - creator packs remain data-first,
+  - load-time validation and migration are still the boundary,
+  - safe disable / rollback remains the future behavior.
+- The missing layer is still the public publication side:
+  - no published pack route,
+  - no moderated public pack workflow,
+  - no public creator-discovery surface,
+  - no pack lifecycle that would treat packs as shared public evidence.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

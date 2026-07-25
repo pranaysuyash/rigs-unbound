@@ -125,3 +125,48 @@ The baseline should not be the prettiest frame. It should be the most explanator
 
 This fixture baseline turns the threshold policy into something that can be compared across time.
 It answers the open comparison questions in the KPI and rendering-economy notes by naming the scenes that should be reused when judging regressions.
+
+## Addendum (2026-07-25): the canonical fixture set is still the right shape for the current runtime
+
+- Re-checked the fixture baseline against the current runtime and browser
+  surface.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still fits the baseline’s intended comparison shape:
+  - one compact canonical world,
+  - one active playable loop,
+  - visible renderer metrics and accessibility hooks,
+  - reduced-motion / mobile-safe behavior already present in the runtime path.
+- The baseline fixture categories remain the right explanatory set for the
+  current app state:
+  - near-field dense scene for normal readable play,
+  - occluded / hidden scene for culling checks,
+  - distance-gradient scene for LOD checks,
+  - pressure scene for fallback and degradation order,
+  - reduced-motion comparison scene for accessibility parity.
+- What is still missing is not the fixture logic itself, but the actual packaged
+  capture bundle that promotes one representative capture per fixture into a
+  long-term comparison set.
+- So the baseline is still correctly named as a durable comparison scaffold
+  rather than a finished capture library.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## Addendum (2026-07-25) - fresh browser recheck, same comparison gap
+
+- Re-checked the baseline against the current browser daemon snapshot.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The fixture set still matches the runtime’s current shape:
+  - one bounded playable world,
+  - one active simulation loop,
+  - explicit accessibility and visibility hooks,
+  - reduced-motion behavior already present.
+- That means the baseline remains the right comparison scaffold, but not yet the
+  long-term artifact itself.
+- The remaining gap is unchanged:
+  - no packaged capture bundle,
+  - no promoted representative frame per fixture,
+  - no reusable operator note set tied to the threshold states.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

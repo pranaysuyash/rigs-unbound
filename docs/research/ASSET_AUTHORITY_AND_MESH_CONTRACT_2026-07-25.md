@@ -69,6 +69,37 @@ admitted reference evidence, and its generated factory is an intake artifact;
 the blockout visual gate remains failed. This is a quality gate, not a rejection
 of the mesh approach.
 
+## Addendum (2026-07-25): the repo is still reference-first, not shipped-mesh-first
+
+- Re-checked the asset-authority contract against the current runtime and
+  provenance records.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The current runtime is still asset-light and procedural rather than imported-
+  mesh-driven:
+  - `src/game/renderer.ts` explicitly documents zero texture assets and zero
+    asset provenance obligations for the current terrain pass,
+  - the runtime still uses authored/procedural terrain, instanced props, and
+    runtime-built Three.js geometry,
+  - the provenance register still classifies the tractor references as
+    concept/reference only, not approved shipped runtime assets,
+  - the asset-pipeline contract still treats a versioned runtime asset manifest
+    as the next durable step once imported art actually enters the playable
+    path.
+- That means the authority boundary in practice is still:
+  - reference image for intent,
+  - blueprint/spec for behavior and compatibility,
+  - runtime procedural/Three.js geometry for the live field,
+  - no imported shipped mesh authority yet for the browser runtime.
+- The missing layer is still the promotion bridge:
+  - no approved runtime GLB for the tractor/rig path,
+  - no manifest entry proving a shipped mesh profile,
+  - no browser-loaded imported mesh that has passed the promotion contract.
+- So the contract is correctly staged: concept and provenance exist, but the
+  shipped-mesh authority layer is still future work.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  doc, and provenance inspection.
+
 ## Current implementation mapping
 
 - `assets/asset-manifest.json` remains the identity/provenance registry.

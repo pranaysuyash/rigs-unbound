@@ -109,3 +109,47 @@ The smallest durable proof for this contract is:
 The repo is already headed toward a data-first content model. This contract makes
 creator growth explicit and safe so new packs expand the game without becoming a
 shadow runtime.
+
+## Addendum (2026-07-25) - creator packs are still future-facing, not a live runtime authority
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still supports the correct underlying posture for packs:
+  - data-driven world and rig content,
+  - load-time validation and migration,
+  - provenance and asset validation contracts already named elsewhere in the
+    repo.
+- That means creator packs can still be added without rewriting the runtime.
+- What is still missing is the first-class pack lifecycle the contract names:
+  - versioned pack manifest,
+  - explicit dependencies,
+  - safe disable/rollback behavior,
+  - staged publication/moderation flow,
+  - a hard boundary keeping packs out of runtime authority.
+- So the modding lane is still a future expansion surface, not an active
+  second truth source in the playable path.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-25) - pack publication stays gated by the public evidence surface
+
+- Re-checked the modding contract against the current browser daemon snapshot
+  and live repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still supports local, validated content growth:
+  - creator packs remain data-first,
+  - load-time validation and migration are still the accepted boundary,
+  - safe disable / rollback remains the correct future behavior.
+- What is still missing is the public publication layer:
+  - no published pack route,
+  - no moderated public pack workflow,
+  - no public creator-discovery surface in the live runtime,
+  - no pack lifecycle that would let a user treat a pack as shared public
+    evidence rather than local validated content.
+- So the contract is correctly keeping publication behind the public evidence
+  surface instead of collapsing local creator growth into a live public channel.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

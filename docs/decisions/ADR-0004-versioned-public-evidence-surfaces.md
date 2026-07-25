@@ -191,3 +191,23 @@ Before public persistence or payment:
 ## Anything else?
 
 “Build in public” should produce better decisions, not surveillance or content pressure. A public surface exists only when it helps a player play, share, understand, or report something concrete.
+
+## Addendum (2026-07-25) - public evidence surfaces remain proposed, not yet a live publication layer
+
+- Re-checked the decision against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still fits the solo-lab posture described by the risk register,
+  not a public discovery/trading/UGC surface.
+- That means the proposed public object types are still just that:
+  - vehicle blueprint/version,
+  - world recipe/version/seed,
+  - challenge/version,
+  - replay/run record.
+- The current runtime does not yet expose a publication workflow, moderation
+  queue, or shareable public object route family for packs or creator content.
+- So this ADR remains correctly positioned as the future public-evidence
+  boundary, not a live pack-publication service.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

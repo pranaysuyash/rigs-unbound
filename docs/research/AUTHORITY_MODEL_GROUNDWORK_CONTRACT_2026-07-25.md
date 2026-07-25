@@ -135,3 +135,25 @@ changes can be validated without collapsing speculative input into truth.
   not implied by the current deterministic local simulation.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - fresh runtime recheck, same future-gated boundary
+
+- Re-checked the authority contract against the current browser daemon
+  snapshot.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still supports the local-first authority posture:
+  - command capture is explicit,
+  - the deterministic kernel owns canonical state mutation,
+  - local save/restore keeps recovery metadata intact,
+  - invalid local records still fail cleanly instead of masquerading as truth.
+- That means the repo still has a strong local authority model, but not a
+  first-class shared-state one.
+- The missing layer is unchanged:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata as policy,
+  - telemetry for authoritative outcomes,
+  - a visible shared-state/server-authoritative boundary artifact.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
