@@ -55,8 +55,8 @@ the Vite game runtime.
   attestation.
 - The production version must reference the exact pushed commit and the archive
   must be packaged from that source state.
-- Production success remains unclaimed until Sites reports terminal
-  `succeeded` status and the resulting URL loads.
+- Sites reported terminal `succeeded` status for the public deployment and the
+  resulting URL passed a live browser contract check.
 
 ## Verification record
 
@@ -68,9 +68,21 @@ the Vite game runtime.
 | `npm audit --json` | Zero vulnerabilities after patched hosting upgrades | Tier 2 |
 | `npm run build` | Passed; Worker and client artifacts emitted | Tier 3 |
 | `npm run test:browser` on `4174` | Passed full flow, narrow layout, reload, reduced motion; zero console/page errors | Tier 4 local |
-| Sites package validator | Required after the exact commit is created | Pending |
-| Sites production status | Must reach `succeeded` | Pending |
-| Production URL load | Required after deployment | Pending |
+| Sites package validator | Passed for the clean committed source | Tier 3 |
+| Sites production status | `succeeded` | Tier 4 |
+| Production URL load | HTTP 200; title, welcome flow, schema v4, three rigs, zero browser errors | Tier 4 |
+
+## Production closure
+
+- Public URL:
+  [https://rigs-unbound.suyashpranay.chatgpt.site](https://rigs-unbound.suyashpranay.chatgpt.site)
+- The immutable source commit was pushed to GitHub and the Sites source
+  repository before version saving.
+- The public access policy was applied before deployment.
+- A first browser probe using `networkidle` timed out because perpetual game
+  activity is not a valid idle contract. The corrected probe used
+  `domcontentloaded` plus product assertions and passed.
+- Recent production Worker error logs were empty after the live requests.
 
 ## User, team, and operational value
 

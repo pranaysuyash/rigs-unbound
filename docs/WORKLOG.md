@@ -109,7 +109,7 @@
 ### Next closure criteria
 
 - Render and resource budgets are quantified and benchmarked.
-- A compact run/replay record with checksum verification lands.
+- A compact run/replay record with bounded input capture and checkpoint hashes lands.
 - Deterministic event bus + capability-affordance compatibility passes at least one
   end-to-end interaction test.
 - Stream manifest and chunk lifecycle lands with deterministic activation.
@@ -1147,6 +1147,13 @@ feel, representative-device budgets, haptics, articulated tools, and the
 leading Rapier service hypothesis remain explicit proof gates.
 
 - 2026-07-25: Created `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md` to consolidate the latest “3D Game Optimization Gaps” recommendations with repo-grounded implementation status and a prioritized execution order. Included gap-by-gap status (kernel, migration, culling/LOD, streaming, capabilities, affordances, collisions, authority/events, observability) and concrete acceptance gates.
+- 2026-07-25: Added a `3d-games` skill synthesis checkpoint to `docs/exploration/EXPLORATION_MAP.md` so the per-skill guidance now lands in the canonical exploration map rather than only in research notes. The checkpoint now explicitly ties frustum culling, LOD, layer-based collisions, camera policy, and shadow strategy back to the live implementation and the remaining proof gates.
+- 2026-07-25: Added skill provenance to `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md` so the audit records which `3d-games` skill files were used and what layers of guidance were applied versus project-specific interpretation.
+- 2026-07-25: Added an evidence matrix to the same synthesis doc so the audit now names the strongest repository proof for each major gap area (kernel, save/versioning, renderer boundary, culling/LOD, collision matrix, capability model, replay/event lane, chunk streaming, observability).
+- 2026-07-25: Cross-linked the execution roadmap to the new synthesis artifact so the implementation runway and the evidence/provenance layer now point at one another instead of drifting apart.
+- 2026-07-25: Cleaned two wording slips in the new synthesis/roadmap docs (`capabililty` -> `capability`, duplicate `boundary boundaries`) so the long-term notes remain readable and search-friendly.
+- 2026-07-25: Added [ADR-0014](decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md) to make the capability/streaming/replay/authority/ECS rollout order explicit, then linked it back into the canonical exploration map and roadmap.
+- 2026-07-25: Implemented a lightweight bounded run-record lane in `src/main.ts` and `src/game/run-record.ts`, capturing commands, input transitions, checkpoints, and saves so the replay gate has a concrete starting point without unbounded tab-lifetime growth.
 
 ## 2026-07-25 — OpenAI Sites deployment preparation
 
@@ -1176,3 +1183,37 @@ leading Rapier service hypothesis remain explicit proof gates.
   [Sites deployment acceptance](reviews/SITES_DEPLOYMENT_ACCEPTANCE_2026-07-25.md).
   Production success is not claimed until the immutable commit is pushed,
   packaged, saved, deployed, and reported `succeeded` by Sites.
+
+### Production closure
+
+- The exact source commit passed the managed hook, was pushed to GitHub and the
+  Sites source repository, rebuilt cleanly, and passed the Sites packaging
+  validator.
+- Public access was enabled and Sites reported terminal `succeeded` status.
+- Live URL:
+  [https://rigs-unbound.suyashpranay.chatgpt.site](https://rigs-unbound.suyashpranay.chatgpt.site)
+- Live verification returned HTTP 200 and passed the product contract: correct
+  title, visible welcome surface, schema-v4 state export, Torque/Spark/Drift
+  roster, and zero console/page errors.
+- The first `networkidle` browser condition timed out; this was not treated as a
+  product failure because an always-running game is not expected to become
+  network-idle. The corrected readiness contract used DOM content plus explicit
+  game assertions and passed.
+- Sites Worker error logs contained no recent errors after the live probes.
+
+## 2026-07-25 — Bounded run-record foundation preserved from parallel work
+
+- Preserved the parallel run-record integration that arrived during deployment
+  closure and treated it as runtime code, not a docs-only artifact.
+- Rejected an unbounded fixed-step input log because a held control would append
+  roughly 60 entries per second for the lifetime of the tab.
+- Changed the recorder to capture input transitions, retain a bounded recent
+  window, and report dropped-entry count explicitly.
+- Added deterministic tests for schema serialization, elapsed-time
+  normalization, bounded retention, and truncation visibility.
+- Re-ran the full port-4174 browser acceptance and a focused keyboard-driven
+  recorder probe; command, checkpoint, and input entries were visible with zero
+  console/page errors.
+- This remains a diagnostics/reproducibility foundation, not a deterministic
+  replay claim: durable storage, playback parity, and a world-tick checksum are
+  still required.

@@ -379,16 +379,29 @@ the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
 | Portal/cluster stream visibility           | Missing                          | Add route/cluster streaming manifest and activation order.                                                              |
 | Shader contract for terrain/weather/hazard | Missing                          | Add minimal shared material constants + fallback policy behind contract.                                                |
 | Collision category/mask                    | Partial                          | Add semantic response matrix for obstacle/hazard/trigger/particle categories.                                           |
-| Replay/input log artifact                  | Partial                          | Add versioned run log + playback verifier (deterministic input stream first).                                           |
+| Replay/input log artifact                  | Partial (bounded run-record window) | Add durable versioned replay storage + playback verifier (deterministic input stream first).                            |
 | Chunked world scaling                      | Missing                          | Add streaming manifest + unload policy + regression tests before more activity classes.                                 |
 | ECS migration readiness                    | Missing                          | Keep profile/adapters today; add ECS only if actor count or simulation graph complexity crosses a proven threshold.     |
 | Behavior/event model                       | Missing                          | Introduce deterministic event/behavior scheduler with payload validation and deterministic update ordering.             |
 | Modding and external packs                 | Partial                          | Add schema-vetted content packs, compatibility matrix, and moderation/review gate before external extension paths open. |
 | Resource governance                        | Partial                          | Add cross-system budget envelopes (CPU/GPU/VRAM/frame) and graceful degradations per device class.                      |
 
+### 3d-games skill synthesis checkpoint
+
+Applied the `3d-games` skill guidance one layer at a time and mapped it to the live repo:
+
+- Rendering: the renderer already batches/instances many world objects, but explicit frustum and distance culling rules are still not fully enforced in the draw path.
+- LOD: the skill's distance-based LOD advice remains a missing contract; the current repo has telemetry and presentation separation, not a formal subsystem tier matrix.
+- Physics: the skill's layer-based filtering guidance aligns with the current obstacle field, but the category/mask matrix is still only partial.
+- Cameras: the skill's smooth follow, collision avoidance, and FOV advice matches the existing camera work, but the camera policy is still profile-driven rather than a fully declarative state contract.
+- Lighting/shadows: the skill suggests bake-or-simplify where possible; the repo currently uses a blob-shadow strategy and explicitly disables shadow maps.
+
+The immediate consequence is that the project should harden visibility, collision, and replay contracts before it attempts broader scale changes such as ECS migration or world streaming. Those broader systems stay valid long-term, but they are downstream of the current proof gates.
+
 ### Decision control for this checkpoint
 
 - Priority remains: lock renderer/perf/accessibility contract first, then add streaming/collision matrix, then replay and deterministic event-behavior migration, then authority.
+- The rollout order is now formalized in [ADR-0014](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md), which keeps capability, replay, streaming, authority, and ECS sequencing explicit instead of implicit.
 - Status for public claims: no claim of multiplayer authority or streaming support is valid until these gates are completed.
 
 ### Requested "Optimization Gaps" check status (2026-07-25)
@@ -397,6 +410,11 @@ the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
   - **Immediate gates accepted-in-principle:** renderer/simulation boundary, migration hygiene, deterministic stepping.
   - **Current phase gates:** explicit visibility and collision-matrix hardening, content/affordance validation, and run-reproducibility.
   - **Deferred gates:** multiplayer authority, broad ECS migration, open UGC publication.
+- The run-reproducibility lane now has a live bounded recorder hook in
+  `src/main.ts` and `src/game/run-record.ts`. It records input transitions
+  instead of every fixed step, reports dropped entries when its in-memory
+  window trims, and adds stable tick hashes to checkpoints, but it still needs
+  durable playback verification before it graduates from partial to accepted.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,
@@ -412,6 +430,7 @@ The key control decision is:
 
 - keep the domain model as activity+machine capability layers on a shared snapshot kernel,
 - avoid inheritance-style mode expansion until capability contracts and manifest validation are proven stable.
+- use [ADR-0014](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md) as the explicit rollout-order anchor for visibility, capability contracts, replay, streaming, authority, and ECS.
 
 If an activity or machine cannot be expressed as a data-driven contract, it does not enter the core queue without a design exception.
 

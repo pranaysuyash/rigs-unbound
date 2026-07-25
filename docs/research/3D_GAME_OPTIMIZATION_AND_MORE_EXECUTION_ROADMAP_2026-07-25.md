@@ -13,6 +13,12 @@ This document captures the extra guidance from the “Optimization Gaps” conve
 - capability/affordance driven gameplay
 - long-term maintainability over short-term patching
 
+The companion evidence-and-provenance artifact for this roadmap is
+[3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md).
+It records the `3d-games` skill provenance, a gap-by-gap evidence matrix, and the current acceptance gates.
+
+The rollout-order ADR is [ADR-0014](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md).
+
 ## 2) Current implementation signal
 
 Based on local code review, the repo already has these strong foundations:
@@ -32,7 +38,7 @@ These foundations support moving from “engine optimization list” to “platf
 
 ### 3.1 Separate four kinds of change
 
-Use these contract layers at architecture boundary boundaries:
+Use these contract layers at architecture boundaries:
 
 1. **Invariants** (rarely changed)
    - tick order
@@ -119,6 +125,11 @@ Keep these distinct:
 - renderer/UI/audio react from events/snapshots
 
 This is the spine for replay, anti-cheat, deterministic testing, and future authority layer.
+
+A minimal bounded recorder hook now exists in `src/main.ts` and
+`src/game/run-record.ts`. It captures commands, input transitions, checkpoints,
+and saves while exposing truncation, and checkpoint entries now carry a stable
+tick hash. It still does not provide durable playback verification.
 
 ### 3.9 Generated content is untrusted input
 

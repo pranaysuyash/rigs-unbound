@@ -3,6 +3,15 @@
 _Date:_ 2026-07-25
 _Context:_ Rigs Unbound architecture audit aligned with the ChatGPT "3D Game Optimization Gaps" thread (core + additional layers + practical sequencing).
 
+## Skill provenance
+
+The audit was run with the `3d-games` skill family one file at a time:
+
+- `/Users/pranay/Projects/external-skills/davila7__claude-code-templates/cli-tool/components/skills/creative-design/game-development/3d-games/SKILL.md`
+- `/Users/pranay/Projects/skills/game-development/3d-games/SKILL.md`
+
+The skill guidance used here was limited to the rendering, shader, physics, camera, lighting, and LOD principles. The repo interpretation below is the project-specific layer: it maps those generic principles onto the current kernel, renderer, collision field, telemetry, and save model.
+
 ## 1) What was checked
 
 We reviewed the existing repository and applied this directly to implementation reality, not abstract recommendations:
@@ -73,12 +82,26 @@ We reviewed the existing repository and applied this directly to implementation 
 ### J. Authority, commands, events, and replay
 
 - **Current:** command intent enters kernel, deterministic transitions are partially prepared by design.
-- **Gap:** explicit command/event pipeline (Intent -> Validate -> State mutation -> Domain event -> presentation) is not yet formalized across all systems; deterministic replay artifact export is still light.
+- **Gap:** explicit command/event pipeline (Intent -> Validate -> State mutation -> Domain event -> presentation) is not yet formalized across all systems; deterministic replay artifact export is still light even though a bounded run-record lane now exists in `src/main.ts`.
 
 ### K. Observability and budgets
 
 - **Strong baseline:** render and simulation telemetry are already captured into runtime snapshot (`drawCalls`, triangles, terrain build timing, fps proxy fields).
 - **Gap:** budgets are not currently enforced by an adaptive scheduler across graphics/AI/physics tiers; no automated budget-failover thresholds in-loop yet.
+
+## 2.1) Evidence matrix
+
+| Area | Strongest current evidence | Status | What this proves |
+| --- | --- | --- | --- |
+| Deterministic kernel | `src/game/state.ts`, `src/game/state.test.ts` | Implemented | Fixed-step game orchestration and test-backed action ordering already exist. |
+| Save/versioning | `src/game/state.ts`, `src/game/storage.ts` | Implemented | Multi-version recovery and state/world snapshot persistence are canonical. |
+| Renderer boundary | `src/game/renderer.ts`, `src/main.ts` | Implemented | Presentation is snapshot-driven; the UI does not own simulation truth. |
+| Culling/LOD | `src/game/renderer.ts`, `docs/exploration/EXPLORATION_MAP.md` | Partial | Renderer-side instancing exists, but explicit visibility tiers and subsystem LOD contracts do not. |
+| Collision matrix | `src/game/collision.ts`, `src/game/physics.ts` | Partial | Obstacle resolution is centralized, but category/mask semantics are not yet explicit. |
+| Capability model | `src/game/contracts.ts`, `src/game/state.ts` | Partial | Rig profiles and action gating exist, but capabilities are not yet fully versioned contracts. |
+| Replay/event lane | `src/main.ts`, `src/game/run-record.ts`, `src/game/state.ts` | Partial | There is now a bounded in-memory run-record lane with input-transition capture, checkpoint hashes, and explicit truncation, but no durable playback verifier yet. |
+| Chunk/world streaming | `src/game/gameworld.ts`, `docs/exploration/EXPLORATION_MAP.md` | Missing | The world is bounded and persistent, but not yet residency-streamed. |
+| Observability | `src/game/performance.ts`, `src/main.ts` | Partial | Runtime metrics and user-visible telemetry exist, but budget enforcement is still manual. |
 
 ## 3) What is possible next (low-risk, high leverage)
 
@@ -99,13 +122,13 @@ We reviewed the existing repository and applied this directly to implementation 
    - Expand per-contract versioning for runtime definitions (capabilities, activities, world chunk records).
 
 5. **Command/event separation lane**
-   - Introduce deterministic command bus for major intents.
+   - Extend the bounded run record into durable deterministic command/event replay.
    - Emit replayable domain events for audit and diagnostics.
 
 ## 4) Suggested execution order (first principles)
 
 1. **Protect architecture now**: keep the kernel and split intact; do not route state updates from UI/audio/renderer.
-2. **Introduce one next major proof**: capabililty-affordance compatibility for `tow/farm/harvest` + one new mobility adapter.
+2. **Introduce one next major proof**: capability-affordance compatibility for `tow/farm/harvest` + one new mobility adapter.
 3. **Add culling + LOD** as soon as proof 1 introduces second entity density pressure.
 4. **Introduce chunk residency + manifest** only when open-world radius exceeds current stable frame budget.
 5. **Add replay+events** once command/lane separation is stable.

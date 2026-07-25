@@ -34,6 +34,12 @@ import {
   PerformanceMonitor,
   type PerformanceSnapshot,
 } from "./game/performance";
+import {
+  appendRunRecordEntry,
+  createRunRecord,
+  snapshotRunRecord,
+  stableHashText,
+} from "./game/run-record";
 import { GameRenderer } from "./game/renderer";
 import type {
   RigOrientationEvidence,
@@ -69,6 +75,7 @@ const BOOT_STARTED_AT = navigationEntry?.startTime ?? 0;
 declare global {
   interface Window {
     render_game_to_text: () => string;
+    getRunRecord: () => string;
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
@@ -153,6 +160,35 @@ function boot(): void {
     BOOT_STARTED_AT,
     loadResult.loadDurationMs,
   );
+  const runRecord = createRunRecord(state.seed, BOOT_STARTED_AT);
+
+  const recordCommand = (
+    name: string,
+    payload: Record<string, unknown> = {},
+  ): void => {
+    appendRunRecordEntry(runRecord, "command", name, state.elapsedMs, {
+      activeRigId: state.activeRigId,
+      cameraMode: state.cameraMode,
+      paused: state.paused,
+      ...payload,
+    });
+  };
+
+  const recordCheckpoint = (
+    name: string,
+    payload: Record<string, unknown> = {},
+  ): void => {
+    const stateSnapshot = publicState(state, world);
+    appendRunRecordEntry(runRecord, "checkpoint", name, state.elapsedMs, {
+      activeRigId: state.activeRigId,
+      cameraMode: state.cameraMode,
+      paused: state.paused,
+      tickHash: stableHashText(JSON.stringify(stateSnapshot)),
+      performance: performanceMonitor.snapshot(renderer.metrics()),
+      state: stateSnapshot,
+      ...payload,
+    });
+  };
 
   const phaseLabel = requiredElement<HTMLElement>("#phase-label");
   const timeLabel = requiredElement<HTMLElement>("#time-label");
@@ -237,6 +273,7 @@ function boot(): void {
 
   const tap = (action: TapAction): void => {
     void audio.unlock();
+    recordCommand("tap", { action });
     if (action === "primary") {
       const before = state.salvage;
       performPrimaryAction(state, world);
@@ -265,6 +302,7 @@ function boot(): void {
       togglePause(state);
       pauseOverlay.hidden = !state.paused;
     }
+    recordCheckpoint("tap", { action });
   };
 
   window.addEventListener("keydown", (event) => {
@@ -276,9 +314,17 @@ function boot(): void {
       moduleIndex <= MODULE_IDS.length
     ) {
       void audio.unlock();
+      recordCommand("installModule", {
+        moduleId: MODULE_IDS[moduleIndex - 1],
+        source: "keyboard",
+      });
       installModule(state, world, MODULE_IDS[moduleIndex - 1]!);
       if (state.lastDiagnostic?.includes("fitted")) audio.chirp(880);
       announce();
+      recordCheckpoint("installModule", {
+        moduleId: MODULE_IDS[moduleIndex - 1],
+        source: "keyboard",
+      });
       return;
     }
 
@@ -297,8 +343,10 @@ function boot(): void {
       tap("recover");
     } else if (event.code === "KeyT") {
       void audio.unlock();
+      recordCommand("repairRig", { source: "keyboard" });
       repairRig(state);
       announce();
+      recordCheckpoint("repairRig", { source: "keyboard" });
     } else if (event.code === "KeyU") {
       muteButton.click();
     } else if (event.code === "KeyF") {
@@ -345,16 +393,26 @@ function boot(): void {
     );
     if (!item) return;
     void audio.unlock();
+    recordCommand("installModule", {
+      moduleId: item.dataset.moduleId,
+      source: "workshop-panel",
+    });
     installModule(state, world, item.dataset.moduleId as ModuleId);
     announce();
+    recordCheckpoint("installModule", {
+      moduleId: item.dataset.moduleId,
+      source: "workshop-panel",
+    });
   });
 
   enterWorldButton.addEventListener("click", () => {
+    recordCommand("enterWorld", { source: "welcome-panel" });
     welcomePanel.classList.add("welcome-panel--dismissed");
     window.sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
     canvas.focus();
     void audio.unlock();
     showToast("Salvage sits off the graded tracks. Press M for the field map.");
+    recordCheckpoint("enterWorld", { source: "welcome-panel" });
   });
 
   if (window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true") {
@@ -386,9 +444,11 @@ function boot(): void {
   cameraSelect.addEventListener("change", () => {
     const cameraMode = cameraSelect.value as CameraMode;
     if (!CAMERA_MODES.includes(cameraMode)) return;
+    recordCommand("selectCamera", { cameraMode, source: "ui" });
     selectCamera(state, cameraMode);
     showToast(`${CAMERA_LABELS[cameraMode]} view.`);
     canvas.focus();
+    recordCheckpoint("selectCamera", { cameraMode, source: "ui" });
   });
 
   resetButton.addEventListener("click", () => {
@@ -396,6 +456,7 @@ function boot(): void {
       "Reset both rigs, the relay, and everything the world remembers?",
     );
     if (!confirmed) return;
+    recordCommand("reset", {});
     clearState(window.localStorage);
     world.reset();
     state = createInitialState(state.seed);
@@ -405,6 +466,7 @@ function boot(): void {
     statusMessage = "Local field reset.";
     saveStatus.textContent = statusMessage;
     showToast("Field restored to its starting state.");
+    recordCheckpoint("reset", {});
   });
 
   let lastDiagnostic: string | null = state.lastDiagnostic;
@@ -584,11 +646,14 @@ function boot(): void {
   const settleAndReport = (): string => {
     updateInterface(performance.now() + 1000);
     renderer.render(state);
+    recordCheckpoint("settle");
     return snapshot();
   };
 
   window.render_game_to_text = snapshot;
+  window.getRunRecord = () => snapshotRunRecord(runRecord);
   window.advanceTime = (milliseconds: number) => {
+    recordCommand("advanceTime", { milliseconds });
     advanceGame(state, world, milliseconds);
     return settleAndReport();
   };
@@ -596,6 +661,7 @@ function boot(): void {
     if (!RIG_IDS.includes(rigId)) {
       throw new Error(`Unknown rig id: ${String(rigId)}`);
     }
+    recordCommand("selectRig", { rigId });
     selectActiveRig(state, rigId);
     return settleAndReport();
   };
@@ -603,6 +669,7 @@ function boot(): void {
     if (!CAMERA_MODES.includes(cameraMode)) {
       throw new Error(`Unknown camera mode: ${String(cameraMode)}`);
     }
+    recordCommand("selectCamera", { cameraMode, source: "window" });
     selectCamera(state, cameraMode);
     cameraSelect.value = cameraMode;
     return settleAndReport();
@@ -622,6 +689,7 @@ function boot(): void {
     return renderer.perceptionEvidence(state, rigId);
   };
   window.performRigAction = () => {
+    recordCommand("performRigAction", {});
     performPrimaryAction(state, world);
     return settleAndReport();
   };
@@ -629,6 +697,15 @@ function boot(): void {
     requestedInput: Partial<InputFrame>,
     milliseconds: number,
   ) => {
+    recordCommand("applyRigInput", {
+      input: {
+        accelerate: requestedInput.accelerate === true,
+        brake: requestedInput.brake === true,
+        steerLeft: requestedInput.steerLeft === true,
+        steerRight: requestedInput.steerRight === true,
+      },
+      milliseconds,
+    });
     const inputFrame: InputFrame = {
       accelerate: requestedInput.accelerate === true,
       brake: requestedInput.brake === true,
@@ -647,14 +724,17 @@ function boot(): void {
     return settleAndReport();
   };
   window.installRigModule = (moduleId: ModuleId) => {
+    recordCommand("installRigModule", { moduleId });
     installModule(state, world, moduleId);
     return settleAndReport();
   };
   window.winchRecoverRig = () => {
+    recordCommand("winchRecoverRig", {});
     winchRecover(state, world);
     return settleAndReport();
   };
   window.toggleFieldMap = () => {
+    recordCommand("toggleFieldMap", {});
     toggleMap(state);
     mapOverlay.hidden = !state.mapOpen;
     if (state.mapOpen) fieldMap.draw(state);
@@ -667,6 +747,7 @@ function boot(): void {
     if (heading !== undefined && !Number.isFinite(heading)) {
       throw new Error("placeRig heading must be finite when supplied.");
     }
+    recordCommand("placeRig", { x, z, heading });
     const rig = activeRig(state);
     rig.x = x;
     rig.z = z;
@@ -684,6 +765,7 @@ function boot(): void {
   };
   window.getPerformanceSnapshot = () =>
     performanceMonitor.snapshot(renderer.metrics());
+  recordCheckpoint("boot");
 
   // ---------------------------------------------------------------------------
   // Loop
@@ -693,6 +775,7 @@ function boot(): void {
   let previousTime = performance.now();
   let saveAccumulator = 0;
   let active = true;
+  let lastRecordedInput: InputFrame = { ...IDLE_INPUT };
   const previousCondition = Object.fromEntries(
     RIG_IDS.map((rigId) => [rigId, state.rigs[rigId].condition]),
   ) as Record<RigId, number>;
@@ -701,6 +784,11 @@ function boot(): void {
     const result = saveState(window.localStorage, state, world);
     performanceMonitor.recordSave(result.durationMs, result.bytes);
     statusMessage = "Local field record";
+    appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {
+      bytes: result.bytes,
+      durationMs: result.durationMs,
+      statusMessage,
+    });
   };
 
   const frame = (now: number): void => {
@@ -714,7 +802,19 @@ function boot(): void {
     performanceMonitor.recordFrame(frameDurationMs);
 
     while (accumulator >= FIXED_STEP_SECONDS) {
-      stepGame(state, world, input.sample(), FIXED_STEP_SECONDS);
+      const sampledInput = input.sample();
+      if (
+        sampledInput.accelerate !== lastRecordedInput.accelerate ||
+        sampledInput.brake !== lastRecordedInput.brake ||
+        sampledInput.steerLeft !== lastRecordedInput.steerLeft ||
+        sampledInput.steerRight !== lastRecordedInput.steerRight
+      ) {
+        appendRunRecordEntry(runRecord, "input", "sample", state.elapsedMs, {
+          input: sampledInput,
+        });
+        lastRecordedInput = { ...sampledInput };
+      }
+      stepGame(state, world, sampledInput, FIXED_STEP_SECONDS);
       accumulator -= FIXED_STEP_SECONDS;
     }
 

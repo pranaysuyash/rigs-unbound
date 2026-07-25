@@ -10,6 +10,8 @@ Repository: [github.com/pranaysuyash/rigs-unbound](https://github.com/pranaysuya
 
 > Build a playful world where every vehicle is a different verb, and where changing place, scale, time, or danger can transform the genre without erasing the player's machine, progress, or consequences.
 
+**Public playable:** [Rigs Unbound on OpenAI Sites](https://rigs-unbound.suyashpranay.chatgpt.site)
+
 The recurring loop under investigation is:
 
 1. choose or continue caring for a vehicle;
@@ -115,8 +117,9 @@ checks (Tier 2), a production build plus automated terrain, camera, cargo, jump,
 hover, perception-chain, reduced-motion, and schema-v4 save interaction checks
 (Tier 3), and observed
 desktop/narrow local browser play (Tier 4). The public Sites version is accepted
-only when its deployment status reaches `succeeded`; a deployment does not add
-representative-device benchmark,
+with a terminal `succeeded` status, an HTTP 200 response, and a live headless
+browser check of the welcome flow, schema-v4 state, three-rig roster, and console
+health (Tier 4). This does not add representative-device benchmark,
 external-player comprehension, multiplayer, production, or commercial-launch
 evidence yet.
 
