@@ -114,3 +114,23 @@ This acceptance record proves the initial public hosting path. It does not
 replace the ongoing runbook, and it does not upgrade device-local persistence
 or public-playable evidence into account, multiplayer, representative-device,
 or commercial-launch readiness.
+
+## Addendum (2026-07-26) — Integration batch release
+
+- Guarded source commit:
+  `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`.
+- GitHub `main`, local `main`, and the Sites source branch were verified at the
+  same commit before version saving.
+- The Sites-provided packager produced the deployable archive from that exact
+  clean source state.
+- Sites version 5 retained the exact commit provenance and deployment
+  `appgdep_6a651eeb031081919103b85b9e4eba0c` reached terminal `succeeded`.
+- The public Field 02 route, `/physics-lab.html`, and `/box3d-lab.html` each
+  returned HTTP 200 with expected page content.
+- Local pre-release evidence: TypeScript passed; 102 root tests, seven
+  deterministic-kernel tests, and five asset-security tests passed; formatting
+  and production build passed; Field 02 passed browser acceptance on 4173 and
+  4174; both dynamics labs passed browser acceptance.
+- Remaining boundary: an HTTP/content smoke check is not a fresh full
+  production browser interaction run. Real-device, cold-cache, WebGL recovery,
+  audio, and human-fun evidence remain open.

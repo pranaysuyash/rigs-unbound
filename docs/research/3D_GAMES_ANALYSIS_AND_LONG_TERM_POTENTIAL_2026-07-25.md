@@ -407,6 +407,7 @@ so the machine-centric growth lane now points at named boundaries instead of
 staying only in the synthesis prose.
 
 For the fuller lane map, keep using `docs/research/3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md`, `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md`, and `docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md` as the detail chain.
+For the quick lane index, use [3D Game Contract Index](./3D_GAME_CONTRACT_INDEX_2026-07-25.md).
 
 ## Addendum (2026-07-25): Data, asset, and ingestion contracts
 
@@ -1886,6 +1887,11 @@ The smallest durable proof for this addendum is:
 3. one high-speed cornering or slope-handling test,
 4. one fallback rule for water or fluid-adjacent behavior,
 5. one telemetry or debug field for physics stability state.
+
+The dedicated contract note now lives at
+[Physics Quality Envelope Contract](./PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md),
+so the motion-stability lane now points at a named boundary instead of
+remaining only in the envelope prose.
 
 The current physics quality envelope evidence and proof slice now live in
 [PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md).

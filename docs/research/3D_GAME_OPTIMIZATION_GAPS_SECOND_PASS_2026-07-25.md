@@ -68,6 +68,17 @@ the repo now has named contract notes that own the main follow-on lanes:
 - Resource governance: [Resource Budget and Fallback Envelope](./RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md)
 - ECS thresholding: [ECS Threshold and Composition Readiness Contract](./ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md)
 - Authority grounding: [Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md)
+- Camera feel: [Camera Feel Contract](./CAMERA_FEEL_CONTRACT_2026-07-25.md)
+- Lighting/readability: [Lighting and Atmosphere Strategy Contract](./LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md)
+- Accessibility/input: [Accessibility and Input Contract](./ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md)
+- Physics quality: [Physics Quality Envelope Contract](./PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md)
+- Performance/readability baseline: [Performance and Readability Baseline Contract](./PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md)
+- World affordances: [World Affordances and Capability Resolution Contract](./WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md)
+- Save/migration observability: [Save and Migration Observability Contract](./SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md)
+- Content validation: [Authoring and Reproducible Content Validation Contract](./AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md)
+- Second locomotion family: [Second Locomotion Family and Cross-Mode Continuity Contract](./SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md)
+- Engine branch gating: [Engine Branch Evaluation and Alternate Backend Gating Contract](./ENGINE_BRANCH_EVALUATION_AND_ALTERNATE_BACKEND_GATING_CONTRACT_2026-07-25.md)
+- Verification harness: [Verification Harness and Confidence Gates Contract](./VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md)
 
 That means the follow-on recommendations are now owned by durable notes
 instead of only existing as a sequence of audit bullets.

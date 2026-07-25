@@ -18,6 +18,7 @@ The companion evidence-and-provenance artifact for this roadmap is
 It records the `3d-games` skill provenance, a gap-by-gap evidence matrix, and the current acceptance gates.
 The canonical analysis addendum now also covers the change-plane model plus
 data/asset ingestion and resource governance contracts.
+For quick lane navigation, use [3D Game Contract Index](./3D_GAME_CONTRACT_INDEX_2026-07-25.md).
 
 The rollout-order ADR is [ADR-0014](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md).
 

@@ -396,6 +396,7 @@ These rows remain backlog items, but they are no longer unnamed gaps.
 
 The remaining queue items now map to named contract notes as well:
 
+- quick navigation: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - chunked world scaling → [STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md](../research/STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)
 - ECS migration readiness → [ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md)
 - LOD by distance/subsystem → [VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md](../research/VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)

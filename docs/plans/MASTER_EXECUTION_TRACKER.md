@@ -40,19 +40,25 @@ agent leaves the task. “Done” is never inferred from code existing.
   - Evidence: Sites version 4 source provenance and the live
     <https://rigs-unbound.suyashpranay.chatgpt.site> URL.
   - Closure: production deployment succeeds and the URL responds.
-- [-] **RU-0004 — Preserve and publish the 2026-07-26 integration batch.**
+- [x] **RU-0004 — Preserve and publish the 2026-07-26 integration batch.**
   - Scope: gameplay repairs/additions, obstacle hot-path memoization, Rapier
     lab continuation, Box3D physical-wheel probe, playtest evidence,
     progression decision, trailer tooling/assets, research, and task tracking.
-  - Current evidence: typecheck, 102 root tests, seven kernel tests, five asset
-    tests, formatting, production build, Field 02 browser acceptance on both
-    4173 and 4174, Rapier lab acceptance, and Box3D lab acceptance are green.
+  - Evidence: guarded commit
+    `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`; local and `origin/main`
+    alignment; Sites version 5 sourced from that exact commit; terminal
+    production deployment `succeeded`; live HTTP 200 responses for Field 02,
+    the Rapier Physics Lab, and the Box3D Probe.
   - Closure: `git add -A`; full v4 hook attestation; guarded commit; push to
     `origin/main`; Sites version saved and production deployment succeeded from
     that exact pushed commit; live smoke check recorded.
-- [ ] **RU-0005 — Keep deployment provenance current.**
+- [x] **RU-0005 — Keep deployment provenance current for version 5.**
+  - Evidence: `progress.md`, the Sites runbook deployment ledger, the
+    deployment acceptance addendum, and this tracker name version 5 and source
+    commit `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`.
   - Closure: after every deployed commit, update `progress.md` and this tracker
-    with the deployed source SHA and evidence tier.
+    with the deployed source SHA and evidence tier. Reopen this recurring gate
+    when a newer production release is created.
 - [ ] **RU-0006 — Bound repository evidence growth.**
   - Context: the current raw playtest corpus is about 84 MB and contains useful
     discovery history as well as failed exploratory runs; curated review and

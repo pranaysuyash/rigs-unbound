@@ -106,7 +106,9 @@ We reviewed the existing repository and applied this directly to implementation 
 ### 2.2) Contract-note reconciliation
 
 The current implementation status above remains the source of truth, but the
-repo now also has named contract notes for the main follow-on lanes:
+repo now also has named contract notes for the main follow-on lanes.
+
+For a compact lane directory, use [3D Game Contract Index](./3D_GAME_CONTRACT_INDEX_2026-07-25.md).
 
 - Culling/LOD: [Visibility Stage and LOD Contract](./VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
 - Collision matrix: [Collision Category and Mask Contract](./COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)

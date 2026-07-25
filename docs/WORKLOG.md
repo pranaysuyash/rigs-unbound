@@ -1494,6 +1494,22 @@ explicit controller or constraint question.
 - Also bridged the earlier data/asset ingestion lane, machine-centric growth
   synthesis, and shader/material strategy to their named contract notes so the
   full analysis trail is now contract-backed instead of partially descriptive.
+- Normalized the remaining physics-quality envelope section so it now uses the
+  same explicit contract-bridge language as the rest of the canonical analysis
+  doc.
+- Extended the second-pass synthesis contract bridge so the lower-lane notes
+  (camera, lighting, accessibility, physics quality, performance baseline,
+  world affordances, save/migration, content validation, second locomotion,
+  engine-branch gating, and verification harness) are now named explicitly.
+- Added a dedicated 3D-game contract index so the expanding lane map has one
+  durable navigation entry point alongside the research, audit, and roadmap
+  docs.
+- Exposed the new contract index from the exploration map so the backlog view
+  and the contract lattice are now linked from the same navigation surface.
+- Wired the contract index into the roadmap and synthesis docs so the wider
+  3D-game research stack now has a single compact navigation entry point.
+- Normalized the synthesis doc pointer to the contract index into a clean
+  standalone paragraph for easier scanning.
 
 ### Three-pass review
 
@@ -1527,3 +1543,59 @@ Yes. The current systems playground is stronger than its first-session game
 loop. The dependency order is now explicit: publish this evidence, repair the
 first rung, complete Farmfall, repeat external playtests, then let those results
 choose the next physics, world, social, or asset expansion.
+
+## 2026-07-26 — Integration batch commit, push, and Sites version 5
+
+### Exact release chain
+
+- Staged the complete 414-file preservation batch after classifying source,
+  package/config, curated media, review screenshots, reusable tools, raw
+  simulated-playtest evidence, and concurrent documentation.
+- Completed the coverage-complete motto-v4 commit review: all 51 sections
+  passed with diff-aware evidence; the normal managed hooks ran without
+  bypass; no AI co-author trailer was added.
+- Created guarded commit
+  `1e7992125824a850eb27a9f9d2bbdbc95b229e2b` and pushed `main` to GitHub.
+  Local `main` and `origin/main` were then verified at the same SHA with a
+  clean worktree.
+- Pushed that exact source state to the existing Sites source repository
+  without printing or persisting the short-lived credential.
+- Packaged the clean commit with the Sites-provided packager, saved Sites
+  version 5, deployed the saved version, and polled deployment
+  `appgdep_6a651eeb031081919103b85b9e4eba0c` to terminal `succeeded`.
+- Node-based production smoke checks returned HTTP 200 with expected content
+  for `/`, `/physics-lab.html`, and `/box3d-lab.html`.
+
+### Acceptance and evidence
+
+- Tier 2: typecheck, 102 root tests, seven kernel tests, five asset-security
+  tests, formatting, local Markdown links, and staged-diff integrity passed.
+- Tier 3: the production Worker/client build, exact-source push, Sites
+  packaging, and saved-version provenance passed.
+- Tier 4: Field 02 browser acceptance passed on 4173 and 4174; the Rapier and
+  Box3D labs passed local browser acceptance; Sites reported a successful
+  public production deployment and all three public routes returned HTTP 200.
+- Not claimed: a fresh full production-browser interaction pass, real-device
+  performance, cold-cache first frame, WebGL recovery, audio listening, or
+  human taste/fun evidence.
+
+### Three-pass closure
+
+1. **Immediate correctness:** rechecked current git state after parallel
+   changes, repaired three whitespace defects and three broken local links, and
+   reran the full staged validation set.
+2. **Architecture and long-term viability:** kept Field 02 as the canonical
+   player surface, Rapier and Box3D as replaceable capability laboratories, one
+   Sites project, one source branch, and one repeatable deployment runbook.
+3. **Rule compliance and supervision readiness:** preserved every parallel
+   artifact requested by `git add -A`, recorded exact source/deployment
+   provenance, updated the canonical task ledger, and retained explicit P0,
+   evidence-growth, performance, device, and human-playtest gaps.
+
+### Anything else?
+
+Yes. Publishing closes RU-0004; it does not make the systems playground a
+complete game. The next implementation gate is RU-0106 through RU-0110, with
+the first priority being the title-card re-entry and zero-condition recovery
+soft-lock because they can prevent a player from reaching or recovering the
+core loop.

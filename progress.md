@@ -17,9 +17,10 @@ Original prompt: Explore and document a public browser-based open-world game in 
   Sites adapter (ADR-0013)
 - Project name: **Rigs Unbound**
 - GitHub repository: `pranaysuyash/rigs-unbound`
-- Public deployment: **live**, Sites version 4 sourced from commit `aa82cee`.
-  Note the live build trails `main` whenever a newer commit has not been
-  released; see the
+- Public deployment: **live**, Sites version 5 sourced from commit
+  `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`. Field 02, the Rapier Physics Lab,
+  and the Box3D Probe each returned HTTP 200 after deployment. The live build
+  trails `main` whenever a newer commit has not been released; see the
   [deploy runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - Canonical task list:
   [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)

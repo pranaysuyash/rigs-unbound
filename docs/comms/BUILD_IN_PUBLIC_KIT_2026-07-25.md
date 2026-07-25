@@ -303,9 +303,9 @@ Open the live URL, press **Enter the field**, then:
 
 ## Pre-flight checklist — do this before posting
 
-- [ ] **Deploy current `main`.** Sites version 4 is sourced from `aa82cee`; the
-      2026-07-26 integration batch must be committed, pushed, and deployed from
-      the exact new source before public traffic is invited.
+- [x] **Deploy current `main`.** Sites version 5 is sourced from
+      `1e7992125824a850eb27a9f9d2bbdbc95b229e2b`; Field 02, the Rapier lab, and
+      the Box3D probe returned HTTP 200 after the terminal-success deployment.
 - [x] **Fix the stale deployment claim in `progress.md`.** It now records the
       live URL, Sites version, source commit, and the rule that live can trail
       local `main`.

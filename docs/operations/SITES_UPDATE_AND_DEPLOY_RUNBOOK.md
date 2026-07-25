@@ -295,6 +295,8 @@ rows.
 | 2026-07-25 |             1 | `5fa6805f1a259a7cb5a9ea20de4bbd8518d8815d` | Public | Sites version saved                                           | Initial hosting foundation   |
 | 2026-07-25 |             2 | `9d308dae2ee8e43673566fb2e50312d2a31a644e` | Public | HTTP 200, live contract, zero Worker errors                   | Run-record verifier included |
 | 2026-07-25 |             3 | `e886540a31a20075714482e2365f6f0767bd1720` | Public | Full production browser acceptance passed; zero Worker errors | Current verified baseline    |
+| 2026-07-25 |             4 | `aa82cee4f986f106b121b42348748bf5c9c64c27` | Public | Sites source provenance inspected; public URL active          | Physics-foundation baseline  |
+| 2026-07-26 |             5 | `1e7992125824a850eb27a9f9d2bbdbc95b229e2b` | Public | Terminal success; three public routes returned HTTP 200       | Current verified baseline    |
 
 Every handoff should include:
 
@@ -325,9 +327,9 @@ If production is broken:
 Do not force-push or rewrite Git history as a rollback mechanism. Do not delete
 the failed saved version; it is useful operational evidence.
 
-The current rollback candidates are version 2
-(`9d308dae2ee8e43673566fb2e50312d2a31a644e`) and version 1
-(`5fa6805f1a259a7cb5a9ea20de4bbd8518d8815d`). Resolve their opaque version IDs
+The current rollback candidates are version 4
+(`aa82cee4f986f106b121b42348748bf5c9c64c27`) and version 3
+(`e886540a31a20075714482e2365f6f0767bd1720`). Resolve their opaque version IDs
 through Sites at rollback time rather than copying or guessing IDs.
 
 ## Known failure modes
