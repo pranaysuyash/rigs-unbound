@@ -127,17 +127,17 @@ describe("first progression rung", () => {
     expect(result.ariaLabel).toContain("so you can switch rigs");
   });
 
-  it("collapses to free exploration when any rig has a fitted part", () => {
+  it("enters first-cut terrain guidance when any rig has a fitted part", () => {
     const state = createInitialState();
     state.rigs["toy-buggy"].modules.push("skid-plate");
 
     const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
 
     expect(result).toMatchObject({
-      stage: "free-explore",
+      stage: "first-cut",
       recommendedModuleId: null,
       recommendedRigId: null,
-      complete: true,
+      complete: false,
     });
   });
 
@@ -152,8 +152,8 @@ describe("first progression rung", () => {
     expect(after.tireGrip).toBeGreaterThan(before.tireGrip);
     const resolution = resolveFirstRung(state, new Set());
     expect(resolution).toMatchObject({
-      stage: "free-explore",
-      complete: true,
+      stage: "first-cut",
+      complete: false,
     });
     expect(MODULES[FIRST_RUNG_RECOMMENDED_MODULE].promise).toContain(
       "Bites into mud",

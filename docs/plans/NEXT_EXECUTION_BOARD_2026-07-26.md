@@ -178,16 +178,16 @@ Done only when its stated closure evidence exists.
   - Gate: no failing or Tier 1-only gameplay claim is called complete.
   - Evidence:
     [Integrated admission matrix](../reviews/INTEGRATED_ADMISSION_MATRIX_2026-07-26.md).
-    The frozen production build passed 267 root tests, seven kernel tests,
+    The frozen production build passed 275 root tests, seven kernel tests,
     typecheck, build, nine asset tests, asset preflight, formatting, whitespace,
     and the full keyboard/touch browser harness with zero captured console/page
     problems.
-  - Environment note: a frozen static server on `4191` replaced the normal
+  - Environment note: a frozen static server on `4193` replaced the normal
     mutable preview port for this pass because concurrent Vite rebuilds were
     invalidating shared `dist` asset hashes. Public deployment and external
     comprehension remain separate gates.
 
-- [x] **B8 — Commit, push, and deploy admitted groups.**
+- [-] **B8 — Commit, push, and deploy admitted groups.**
   - Re-run preservation audit before each mutation.
   - Commit by coherent concern only after its gates pass.
   - Run the complete managed hook.
@@ -200,6 +200,12 @@ Done only when its stated closure evidence exists.
     full public production browser harness with zero captured console problems.
     See
     [Sites Version 10 Release](../reviews/SITES_VERSION_10_RELEASE_2026-07-26.md).
+  - Reopened for the post-version-10 tranche: another active process committed
+    and pushed through `a092e89` during this task, while the public deployment
+    still points to older source `6b4536f`. This agent issued none of those git
+    or deployment mutations. Current replay/first-rung corrections and
+    concurrent renderer/performance work need a fresh grouped audit,
+    exact-source deployment, and public rerun before B8 can close again.
 
 ## Phase C — Next playable vertical
 

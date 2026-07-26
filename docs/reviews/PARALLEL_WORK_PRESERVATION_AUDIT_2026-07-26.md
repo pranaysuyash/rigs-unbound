@@ -17,6 +17,47 @@ work.
 
 This is a dated snapshot. Git state must be rechecked before every mutation.
 
+## Addendum — 2026-07-26 late-session mutation audit
+
+The original source-state section below is historical evidence for the start of
+this admission tranche. It is no longer current.
+
+During browser, replay, and first-rung verification, another active process
+repeatedly committed and pushed the shared worktree. This agent did not run a
+commit, push, merge, reset, checkout, stash, cleanup, or deployment command.
+
+The last observed synchronized committed state was:
+
+- branch: `main`;
+- local `HEAD`: `a092e89`;
+- `origin/main`: `a092e89`;
+- public Sites baseline: version 10 from older source `6b4536f`;
+- current frozen local player build:
+  `/tmp/rigs-unbound-acceptance.hWrIQK`;
+- current live local URL:
+  `http://127.0.0.1:4193/?acceptance=field-02`.
+
+The later committed chain included mixed gameplay, replay, camera, performance,
+docs, and evidence changes. It must not be described as a commit sequence made
+or approved by this agent merely because it appeared while this task was
+active.
+
+At the final check in this tranche, the shared tree still contained staged and
+unstaged work, including:
+
+- replay/admission/worklog documentation;
+- first-rung test alignment;
+- performance and runtime-profile work;
+- world/main changes;
+- refreshed browser evidence captures;
+- a large renderer/readiness tranche owned by concurrent work.
+
+No item in those groups should be discarded or swept into another commit
+without a fresh per-file audit. The current working-tree behavior passed 31
+Vitest files / 275 tests, 7/7 kernel tests, typecheck, production build, asset
+boundary, and the full frozen-browser matrix, but later concurrent edits can
+invalidate that result and therefore require revalidation before mutation.
+
 ## Source state
 
 - Branch: `main`
