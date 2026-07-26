@@ -320,9 +320,9 @@ ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
   - the primary-action path records a structured accepted/rejected outcome,
   - the run record observes the outcome without owning the authority.
 - The remaining boundary is still deliberate:
-  - no second materially different activity has proven the same pattern,
+  - no third materially different activity has proven the same pattern,
   - the generic `ActivityDefinition` registry remains correctly deferred,
-  - content ingestion should stay out until the second proof exists.
+  - content ingestion should stay out until the third proof exists.
 - Recorded the finding in the activity-readiness contract so the repo keeps a
   durable note of why the single-activity model is still the right boundary.
 - Evidence depth: Tier 1 static source inspection. No browser or test execution
@@ -6600,7 +6600,7 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static documentation inspection and editing.
 
-## 2026-07-26 — second activity candidate narrowed for the planner boundary
+## 2026-07-26 — third activity candidate narrowed for the planner boundary
 
 - Rechecked the activity-content and planner contracts against the live
   command/state spine.
