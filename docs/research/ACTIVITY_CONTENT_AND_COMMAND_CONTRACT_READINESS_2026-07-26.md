@@ -252,7 +252,7 @@ and authored landmarks deliberately specific.
   - no content-ingestion path should be generalized yet.
 - So the repo now has a real command-outcome seam, but the long-term refactor
   should still wait until a third activity proves the same pattern instead of
-  forcing the current three-activity seam to pretend it is already a platform.
+  forcing the current two-activity seam to pretend it is already a platform.
 - Evidence depth: Tier 1 static source inspection. No browser or test execution
   was run in this update.
 

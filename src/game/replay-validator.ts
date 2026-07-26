@@ -54,6 +54,7 @@ export interface ReplayValidationIssue {
   sequence: number | null;
   code: ReplayValidationStatus;
   message: string;
+  details?: Record<string, unknown>;
 }
 
 export interface ReplayValidationResult {
@@ -95,8 +96,83 @@ function issue(
   sequence: number | null,
   code: ReplayValidationStatus,
   message: string,
+  details?: Record<string, unknown>,
 ): ReplayValidationIssue {
-  return { sequence, code, message };
+  return details === undefined
+    ? { sequence, code, message }
+    : { sequence, code, message, details };
+}
+
+function compactValue(value: unknown): string {
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) return String(value);
+  return serialized.length > 120
+    ? `${serialized.slice(0, 117)}...`
+    : serialized;
+}
+
+function checkpointDifferencePaths(
+  expected: unknown,
+  actual: unknown,
+  path = "$",
+  differences: string[] = [],
+): string[] {
+  if (differences.length >= 16 || Object.is(expected, actual)) {
+    return differences;
+  }
+  if (
+    expected === null ||
+    actual === null ||
+    typeof expected !== "object" ||
+    typeof actual !== "object" ||
+    Array.isArray(expected) !== Array.isArray(actual)
+  ) {
+    differences.push(
+      `${path}: expected ${compactValue(expected)}, received ${compactValue(actual)}`,
+    );
+    return differences;
+  }
+
+  if (Array.isArray(expected) && Array.isArray(actual)) {
+    if (expected.length !== actual.length) {
+      differences.push(
+        `${path}.length: expected ${expected.length}, received ${actual.length}`,
+      );
+    }
+    const length = Math.min(expected.length, actual.length);
+    for (let index = 0; index < length; index += 1) {
+      checkpointDifferencePaths(
+        expected[index],
+        actual[index],
+        `${path}[${index}]`,
+        differences,
+      );
+      if (differences.length >= 16) break;
+    }
+    return differences;
+  }
+
+  const expectedRecord = expected as Record<string, unknown>;
+  const actualRecord = actual as Record<string, unknown>;
+  const keys = Array.from(
+    new Set([...Object.keys(expectedRecord), ...Object.keys(actualRecord)]),
+  ).sort();
+  for (const key of keys) {
+    if (!(key in expectedRecord) || !(key in actualRecord)) {
+      differences.push(
+        `${path}.${key}: expected ${compactValue(expectedRecord[key])}, received ${compactValue(actualRecord[key])}`,
+      );
+    } else {
+      checkpointDifferencePaths(
+        expectedRecord[key],
+        actualRecord[key],
+        `${path}.${key}`,
+        differences,
+      );
+    }
+    if (differences.length >= 16) break;
+  }
+  return differences;
 }
 
 function isInputFrame(value: unknown): value is InputFrame {
@@ -410,8 +486,14 @@ export function validateDeterministicReplay(
 
     if (entry.kind === "checkpoint") {
       const expectedHash = entry.payload.tickHash;
-      const actualHash = replayCheckpointHash(session);
+      const actualState = publicState(session.state, session.world);
+      const actualHash = stableHashText(JSON.stringify(actualState));
       if (expectedHash !== actualHash) {
+        const expectedState = entry.payload.state;
+        const differences =
+          expectedState && typeof expectedState === "object"
+            ? checkpointDifferencePaths(expectedState, actualState)
+            : [];
         return result(
           "diverged",
           [
@@ -419,6 +501,7 @@ export function validateDeterministicReplay(
               entry.sequence,
               "diverged",
               `Checkpoint '${entry.name}' diverged: expected ${String(expectedHash)}, received ${actualHash}.`,
+              differences.length > 0 ? { differences } : undefined,
             ),
           ],
           commandsApplied,
