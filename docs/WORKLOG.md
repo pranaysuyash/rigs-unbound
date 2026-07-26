@@ -3629,3 +3629,304 @@ audio, and human-fun evidence remain open.
     pathing.
 - The next exploration question is how to make that map contract survive
   rebasing and richer topologies without losing coordinate identity.
+
+## 2026-07-26 — streaming-world residency recheck
+
+- Re-checked the live streaming-world lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The world substrate is still one canonical residency:
+  - one `GameWorld`,
+  - one `TerrainField`,
+  - one obstacle field,
+  - one exploration field,
+  - one composed save payload in `src/game/storage.ts`.
+- The remaining gap is still the streaming contract boundary:
+  - no chunk manifest,
+  - no residency states,
+  - no activate/unload/rollback lifecycle,
+  - no active-chunk budget counters,
+  - no unload/rollback observability.
+- The next exploration question is whether the first streaming proof should be
+  authored from world data, region cells, or a hybrid manifest.
+
+## 2026-07-26 — replay artifact and ghost continuity recheck
+
+- Re-checked the live replay lane with the `3d-games` skill and the current
+  browser daemon status plus a run-record verification probe.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live browser surface still exposes:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+- The current verification result remains `ok: true` with no issues.
+- The run-record spine is still bounded and versioned:
+  - schema version,
+  - seed,
+  - ordered entries,
+  - checkpoint tick hashes,
+  - cap-and-trim behavior.
+- The remaining gap is still the first-class replay/ghost artifact surface:
+  - no exposed playback path,
+  - no compatibility envelope,
+  - no replay divergence report,
+  - no trust split between diagnostics-only and replay-safe output.
+- The next exploration question is whether replay should land first as a debug
+  validator, a shareable ghost, or a dual-purpose artifact with explicit
+  compatibility rules.
+
+## 2026-07-26 — authority model groundwork recheck
+
+- Re-checked the live authority lane with the `3d-games` skill and the current
+  browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live mode remains local-first:
+  - `src/main.ts` captures commands as explicit browser-side events,
+  - `src/game/state.ts` owns deterministic canonical mutation order,
+  - `src/game/storage.ts` saves and restores local state with versioned
+    recovery and clean fallback behavior.
+- The remaining gap is still the shared-state envelope:
+  - no authenticated mutation request/response shape,
+  - no explicit reject-path state separation,
+  - no durable-value recovery metadata surfaced as policy,
+  - no telemetry for authoritative outcomes,
+  - no visible shared-state/server-authoritative boundary artifact.
+- The next exploration question is which authority-shaped proof should come
+  first once a shared-state feature is actually needed: save, repair, or module
+  install.
+
+## 2026-07-26 — simulation layers and resource governance recheck
+
+- Re-checked the live simulation-layer lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The runtime already behaves like a layered simulation:
+  - `src/game/state.ts` carries world time, phase, progression, activity, and
+    snapshot validation,
+  - `src/game/gameworld.ts` keeps world memory bounded,
+  - `src/game/performance.ts` and `src/main.ts` expose runtime pressure,
+  - `src/game/contracts.ts` still keeps spendable resource singular by design.
+- The remaining gap is still the governance envelope:
+  - no owned domain-order table,
+  - no CPU/GPU/actor/residency/save budget ledger,
+  - no fallback-policy table,
+  - no recorded downgrade reason surfaced as policy.
+- The next exploration question is which layer should be the canonical first
+  downgrade point once the budget ledger becomes first-class.
+
+## 2026-07-26 — resource budget and fallback envelope recheck
+
+- Re-checked the live resource-budget lane with the `3d-games` skill and the
+  current browser daemon status plus a live performance snapshot.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current performance snapshot still shows a measurable pressure picture:
+  - `averageFrameMs` is `20.01`,
+  - `p95FrameMs` is `21.7`,
+  - `framesPerSecond` is `50`,
+  - `drawCalls` is `72`,
+  - `triangles` is `104694`,
+  - `terrainBuildMs` is `92.7`,
+  - `heapUsedMb` is `12.7`,
+  - `loadDurationMs` is `2.7`,
+  - `firstControllableMs` is `469.2`,
+  - `saveBytes` is `2971`.
+- The runtime already measures cost and exposes it through browser hooks.
+- The remaining gap is still the envelope:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no test proving fallback activates before overload,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that caused fallback.
+- The next exploration question is whether the first trigger should be frame
+  time, heap, or draw-call pressure.
+
+## 2026-07-26 — ECS threshold and composition readiness recheck
+
+- Re-checked the live ECS lane with the `3d-games` skill and the current browser
+  daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current architecture remains composition-first:
+  - `src/game/contracts.ts` composes modules onto immutable rig blueprints,
+  - `src/game/state.ts` keeps rigs, modules, and world state explicit,
+  - `src/game/gameworld.ts` keeps world memory as bounded sets and snapshots.
+- The live scale still does not justify ECS:
+  - only three rigs are active,
+  - authored sites remain a small fixed set,
+  - world memory is bounded and replayable,
+  - no broad entity zoo or coupling pressure is visible yet.
+- The remaining gap is still the migration threshold:
+  - no measured actor-count or coupling trigger,
+  - no canonical multi-capability composition schema beyond the current rig
+    model,
+  - no migration proof that preserves identity through a component-model
+    change,
+  - no explicit statement that ECS should serve the machine-centric model
+    rather than replace it.
+- The next exploration question is what measured pressure would actually justify
+  an ECS migration in this project.
+
+## 2026-07-26 — behavior/planner boundary recheck
+
+- Re-checked the live behavior/planner lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current runtime already has decision-shaped logic:
+  - `resolvePrimaryAction()` resolves a semantic action before mutation,
+  - `performPrimaryAction()` applies the chosen effect and records the
+    consequence,
+  - `selectActiveRig()`, `installModule()`, `repairRig()`, and `winchRecover()`
+    validate and explain state transitions explicitly.
+- The remaining gap is the planner envelope:
+  - no versioned behavior schema,
+  - no candidate-enumeration interface,
+  - no deterministic tie-break surface for equal-score candidates,
+  - no separate branch-trace stream naming why one branch lost.
+- The next exploration question is when the project will actually need to rank
+  multiple candidate actions rather than resolve one contextual action at a
+  time.
+
+## 2026-07-26 — capability/adaptor guardrails recheck
+
+- Re-checked the live capability lane with the `3d-games` skill and the current
+  browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current code remains composition-first:
+  - `RIG_PROFILES` carries explicit capability arrays,
+  - `effectiveProfile()` composes fitted modules onto an immutable rig profile,
+  - `MODULES` can grant extra capabilities without replacing the base rig.
+- The live admission path is still lightweight and prose-driven:
+  - capability checks are boolean,
+  - denied actions surface human-readable diagnostics,
+  - there is no versioned capability-definition registry,
+  - there is no structured denial envelope with reason codes,
+  - adapter governance is still implicit rather than registry-driven.
+- The next exploration question is which capability should be the first
+  formally versioned envelope: tow, plough, survey, or hover.
+
+## 2026-07-26 — world affordances and capability resolution recheck
+
+- Re-checked the live world-affordance lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The world remains affordance-shaped in code:
+  - authored sites carry a `verb`,
+  - workshop/service areas expose place-based interaction pressure,
+  - `src/game/state.ts` decides whether the active rig can satisfy the offer
+    through capability checks.
+- The remaining gap is still the resolver envelope:
+  - no legal / deferred / impossible outcome code,
+  - no reusable resolver record shared by behavior and activities,
+  - no structured rejection payload naming which side caused the mismatch,
+  - no affordance versioning or validation path.
+- The next exploration question is which world offer should become the first
+  fully structured resolver example: workshop, tow, survey, or plough.
+
+## 2026-07-26 — asset pipeline and provenance recheck
+
+- Re-checked the live asset-pipeline lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `assets/asset-manifest.json` is a real registry, but still pre-runtime:
+  - `schemaVersion` is `1`,
+  - `assetRoot` is `assets/runtime`,
+  - `runtimeFormat` is `glb`,
+  - all three entries still have `runtimePath: null`.
+- The registry already tracks the important provenance shape:
+  - source/reference paths,
+  - rights status,
+  - intended use,
+  - a hash on the admitted reconstruction reference.
+- The remaining gap is still activation:
+  - no imported runtime asset is active in the playable path,
+  - no manifest entry has crossed into runtime truth,
+  - no replacement/deprecation cycle has been exercised on a live imported
+    asset,
+  - no runtime validator is consuming the registry yet.
+- The next exploration question is which asset class should become the first
+  runtime-activated proof: static prop, terrain variant, or vehicle-related art.
+
+## 2026-07-26 — authoring validation and reproducible content recheck
+
+- Re-checked the live authoring-validation lane with the `3d-asset-production`
+  skill and the current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The repo already validates content in the slices that matter today:
+  - state/load paths reject bad or incompatible records,
+  - module and world definitions remain data-driven,
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, safe paths, and
+    missing dependencies.
+- The remaining gap is the general content envelope:
+  - no versioned content-manifest schema for activities or world modules,
+  - no reproducible validation-result artifact for the general content path,
+  - no status signal that cleanly separates validation-only, runtime-ready,
+    and deprecated across the broader authored content surface,
+  - no reusable authoring envelope that applies the same contracts to
+    imported, edited, or generated content beyond the asset slice.
+- The next exploration question is whether the first general manifest should
+  cover activities, world modules, or both.
+
+## 2026-07-26 — lighting and atmosphere recheck
+
+- Re-checked the live lighting lane with the `3d-games` skill and the current
+  browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The renderer already has a real lighting posture:
+  - a directional sun and hemisphere light provide the base model,
+  - lighting responds to world phase with fog/sky/headlight shifts,
+  - blob shadows remain the low-cost fallback posture.
+- `src/main.ts` still surfaces world phase in the HUD, so the player can see
+  the active lighting context.
+- The remaining gap is the policy envelope:
+  - no tier matrix in contract data,
+  - no operator/debug field naming the active lighting strategy,
+  - no formal fallback rule stating exactly when atmosphere should simplify
+    before clarity is endangered.
+- The next exploration question is which atmosphere cue should become the first
+  named policy item: dawn/dusk, fog, or storm conditions.
+
+## 2026-07-26 — RU-0110 public release and handoff
+
+- Pushed guarded gameplay commit `9c10d2b` and late-research preservation commit
+  `a8869ad`; local `HEAD`, GitHub `origin/main`, and the Sites source branch
+  were aligned at `a8869ad` before version saving.
+- Packaged the already-green production build with the installed Sites
+  packager. Sites saved version 7 with the exact pushed commit provenance and
+  deployment `appgdep_6a6564e8f510819186b047775995d015` reached terminal
+  `succeeded`.
+- Public route evidence:
+  - Field 02 returned HTTP 200;
+  - `/physics-lab.html` redirected to `/physics-lab`, which returned HTTP 200;
+  - `/box3d-lab.html` redirected to `/box3d-lab`, which returned HTTP 200.
+- The first production acceptance invocation used the bare URL from the
+  runbook and failed its developer-surface precondition because acceptance-only
+  fixtures are correctly query-gated. The runbook command now includes
+  `?acceptance=field-02`.
+- The corrected full production acceptance passed with zero captured
+  console/page errors. It covered fresh three-rig acquisition, Home/tree/hood
+  cameras, all-rig terrain-face refusal and downhill escape, relay/ramp/deep
+  water activities, persistence, keyboard/mouse/touch recovery, reduced motion,
+  six views, and `390×844` layout.
+- Sites returned no recent production Worker error events.
+- Production automation timings remain non-representative because browser/GPU
+  workloads were concurrent. A clean device matrix and external-player session
+  remain open; the functional release evidence is still valid.
+- **User value:** the public build now contains the readable cameras, reachable
+  rigs, honest controls, and traversal boundaries proven by RU-0110.
+- **Team value:** future agents have an exact version-to-commit ledger,
+  corrected production command, rollback candidates, and deployment handoff.
+- **Operational value:** source provenance, package validation, terminal
+  deployment state, live-route behavior, browser errors, and Worker errors are
+  all recorded rather than inferred.

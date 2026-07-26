@@ -31,7 +31,7 @@ canonical scope and acceptance contracts.
 | Order | Status | Work package | Why now | Exit before advancing |
 |---:|:---:|---|---|---|
 | 1 | `[x]` | RU-0106–RU-0109: first-session P0 repair | These defects blocked entry, reward, recovery, or coherent time | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
-| 2 | `[-]` | RU-0110: remaining P1/P2 playtest defects | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, and browser-reviewed |
+| 2 | `[x]` | RU-0110: remaining P1/P2 playtest defects | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed |
 | 3 | `[ ]` | RU-0601 + RU-0406: guidance and first meaningful spend | A reachable reward is not yet a complete first rung | Fresh profile reaches, understands, earns, and spends without project knowledge |
 | 4 | `[ ]` | RU-0202 + RU-0203: signatures and crops | Establish the deterministic day-side ecology before threats depend on it | Bounded serializable kernel state, failure recovery, telemetry, and tests |
 | 5 | `[ ]` | RU-0204 + RU-0205: night threats and dawn consequence | Complete the first consequence-bearing day→night→dawn loop | Threat failure/retry paths, persisted dawn record, player/operator explanation |
@@ -204,7 +204,7 @@ documentation must all agree.
     >500 kB Three.js advisory remains.
   - Closure: exact commands and outcomes are recorded with evidence tiers; no
     failing touched-area check is described as green.
-- [ ] **RU-0110.11 — Close documentation, review, git, and release gates.**
+- [x] **RU-0110.11 — Close documentation, review, git, and release gates.**
   - Update the relevant ADRs, camera/physics/UI contracts, playtest
     disposition, exploration map, worklog, evidence index, and this tracker.
   - Run the three explicit motto-v4 review passes and the missed-anything
@@ -213,6 +213,10 @@ documentation must all agree.
     guarded commit without agent co-author trailers, push, publish the exact
     pushed source through Sites, verify terminal deployment and live routes,
     then update deployment provenance for the next agents.
+  - Evidence: guarded gameplay commit `9c10d2b`, preserved research head
+    `a8869ad`, Sites version 7 terminal success, HTTP 200 for Field 02 and both
+    canonical lab routes, full public production acceptance, zero captured
+    console/page errors, and zero recent Worker error events.
 
 #### Closed predecessor checklist — RU-0106 through RU-0109
 
@@ -326,7 +330,7 @@ documentation must all agree.
     v4→v5 migration, round-trip tests, and browser day→gloam→night→dawn cycle.
   - Closure: activity time and world time are separate; visible time is
     monotonic and survives reload.
-- [-] **RU-0110 — Close cheap P1/P2 playtest defects.**
+- [x] **RU-0110 — Close cheap P1/P2 playtest defects.**
   - Scope: hood clipping, Drift spawn/recovery and extreme-grade behavior,
     player-vs-lab navigation, default debug telemetry, spawn occlusion,
     prop-aware camera obstruction, action labels, and record naming.
@@ -335,7 +339,7 @@ documentation must all agree.
 
 ## 2. First complete game loop — Farmfall Slice 01
 
-- [-] **RU-0201 — Execute Phase 0 playability repair.**
+- [x] **RU-0201 — Execute Phase 0 playability repair.**
   - Depends on: RU-0106 through RU-0110.
   - Source: [Farmfall plan](FARMFALL_SLICE_01_2026-07-25.md).
   - Closure: all Phase 0 gates green before new ecology state lands.

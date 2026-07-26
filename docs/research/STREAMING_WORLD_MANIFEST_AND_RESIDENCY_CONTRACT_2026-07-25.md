@@ -162,3 +162,26 @@ layer instead of turning into a silent second world model.
   chunked residency layer the contract names.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - live field still proves the single-residency boundary
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/gameworld.ts` still owns one canonical `GameWorld` with:
+  - one terrain field,
+  - one obstacle field,
+  - one exploration field,
+  - bounded spatial sets for felling, collection, and survey history.
+- `src/game/storage.ts` still writes and restores that world as one composed
+  save payload alongside state, with versioned keys rather than streamed region
+  manifests.
+- That means the runtime remains intentionally single-residency:
+  - no chunk manifest,
+  - no pending/active/evicted/rollback residency states,
+  - no activation validation lifecycle,
+  - no active-chunk budget counters,
+  - no unload/rollback observability.
+- The useful conclusion is unchanged but now freshly confirmed: streaming is a
+  real next boundary, not a hidden implementation already waiting underneath the
+  current field.

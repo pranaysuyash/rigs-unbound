@@ -157,3 +157,28 @@ budgets still preserve clarity, mood, and terrain legibility.
     before clarity is endangered.
 - So lighting is still a real and readable system, but it is not yet a
   first-class policy envelope that operators can query by name.
+
+## Addendum (2026-07-26) - the lighting posture is live and readable, but still not a first-class envelope
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/renderer.ts` still proves the lighting stance is real:
+  - a directional sun and hemisphere light provide the base model,
+  - lighting responds to world phase with fog/sky/headlight shifts,
+  - blob shadows remain the low-cost fallback posture.
+- `src/main.ts` still surfaces world phase in the HUD, so lighting context is
+  visible to the player rather than hidden in renderer internals.
+- The runtime therefore already has the right ingredients for lighting
+  readability:
+  - phase-specific mood,
+  - low-cost fallback shadows,
+  - explicit phase visibility.
+- What is still missing is the named envelope:
+  - no tier matrix in contract data,
+  - no operator/debug field naming the active lighting strategy,
+  - no formal fallback rule stating exactly when atmosphere should simplify
+    before clarity is endangered.
+- So lighting remains an intentional and readable system, but it still needs a
+  first-class policy surface before the fallback story can be queried or
+  governed as data.

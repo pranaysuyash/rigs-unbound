@@ -145,3 +145,30 @@ art, and so replacement never becomes ambiguous.
   live asset gate rather than a documented boundary.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
   provenance, and doc inspection.
+
+## Addendum (2026-07-26) - the asset registry is real, but still not runtime-activated
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `assets/asset-manifest.json` is now a real registry, but it is still entirely
+  pre-runtime:
+  - `schemaVersion: 1`,
+  - `assetRoot: "assets/runtime"`,
+  - `runtimeFormat: "glb"`,
+  - three entries, all still reference/proposed and all with `runtimePath:
+    null`.
+- The registry already does the important provenance work:
+  - source/reference paths are named,
+  - rights status is recorded,
+  - intended use is documented,
+  - a hash exists for the admitted reconstruction reference.
+- The missing layer is still the activation bridge:
+  - no imported runtime asset is active in the playable path,
+  - no manifest entry has crossed into runtime truth,
+  - no replacement/deprecation cycle has been exercised on a live imported
+    asset,
+  - no runtime validator is consuming this registry yet.
+- The useful conclusion is that the repo has a credible asset-governance spine,
+  but it remains a source/provenance registry until a real runtime asset is
+  admitted and validated through the playable path.

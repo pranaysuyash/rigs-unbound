@@ -146,3 +146,27 @@ The right long-term goal is to keep the machine-centric composition model explic
     rather than replace it.
 - So ECS is still correctly treated as a future migration threshold, not a
   current architecture requirement.
+
+## Addendum (2026-07-26) - current composition remains explicit, with no measured ECS trigger
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The code still expresses composition directly:
+  - `src/game/contracts.ts` composes installed modules onto immutable rig
+    blueprints,
+  - `src/game/state.ts` keeps rigs, modules, and world state explicit,
+  - `src/game/gameworld.ts` keeps world memory as bounded sets and snapshots.
+- The current live scale still looks far below an ECS migration threshold:
+  - only three rigs are active,
+  - authored sites remain a small fixed set,
+  - world memory is bounded and replayable,
+  - there is no broad entity zoo or cross-system coupling pressure that would
+    make ECS the clear next step.
+- That means the contract remains correctly staged:
+  - composition is the current architecture,
+  - ECS stays a future proof-based migration decision,
+  - any future ECS layer must serve the machine-centric model rather than
+    replace it.
+- The missing part is still the measured trigger and migration proof, not the
+  composition model itself.

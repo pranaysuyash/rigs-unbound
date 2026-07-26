@@ -226,3 +226,29 @@ The bounded recorder is already real. This contract makes it explicit what still
   - no diagnostics-vs-replay-safe trust split.
 - So the lane remains correctly staged: record and verify are real; playback
   and ghost compatibility are still future-gated.
+
+## Addendum (2026-07-26) - fresh browser confirmation, still record-only
+
+- Re-checked the live browser daemon again before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live browser surface still exposes the run-record hooks:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+- Current verification result remains `ok: true` with `issues: []`.
+- `src/game/run-record.ts` still shows the right bounded-record spine:
+  - versioned schema,
+  - seed,
+  - ordered entries,
+  - cap-and-trim behavior,
+  - checkpoint tick-hash validation.
+- That confirms the recorder is still useful as an internal audit log and
+  validation source.
+- What is still missing is the product surface that would make it a replay or
+  ghost artifact:
+  - no exposed playback path,
+  - no compatibility envelope for shared ghosts,
+  - no replay divergence report,
+  - no trust split between diagnostics-only and replay-safe output.
+- So replay remains a real next layer, but not yet a first-class browser
+  artifact.

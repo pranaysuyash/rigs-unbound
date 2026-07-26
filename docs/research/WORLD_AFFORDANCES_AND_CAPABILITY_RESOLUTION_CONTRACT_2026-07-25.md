@@ -161,3 +161,26 @@ machines can ask the same question and get the same answer.
     way.
 - So the world is already asking meaningful questions, but the answer is still
   emitted as action prose instead of a reusable affordance-resolution envelope.
+
+## Addendum (2026-07-26) - the world is affordance-shaped, but the resolver is still prose-driven
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current source still makes the world legible as offers:
+  - authored sites carry a `verb`,
+  - workshop/service areas expose place-based interaction pressure,
+  - `src/game/state.ts` still decides whether the active rig can satisfy the
+    offer through capability checks.
+- The runtime therefore already has a real affordance language:
+  - the world says what it offers,
+  - the rig says what it can do,
+  - the state layer decides the result.
+- What is still missing is the contract envelope around that decision:
+  - no structured legal / deferred / impossible outcome code,
+  - no reusable resolver record shared by behavior and activities,
+  - no structured rejection payload naming which side caused the mismatch,
+  - no affordance versioning or validation path.
+- The useful boundary is still the same: the app already has a meaningful world
+  vocabulary, but it is not yet a first-class affordance resolver that future
+  planners can query as data.

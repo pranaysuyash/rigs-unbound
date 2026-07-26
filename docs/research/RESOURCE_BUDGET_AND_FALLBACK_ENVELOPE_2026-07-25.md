@@ -186,3 +186,35 @@ The engine can already tell us when it is getting expensive. This contract makes
   - no summary field naming the subsystem that caused the fallback.
 - So the runtime can already tell us when it is getting expensive, but it still
   cannot name the fallback path as a first-class policy envelope.
+
+## Addendum (2026-07-26) - current snapshot confirms the metrics are live, but the envelope is still missing
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current performance snapshot still exposes a real pressure picture:
+  - `averageFrameMs`: `20.01`
+  - `p95FrameMs`: `21.7`
+  - `framesPerSecond`: `50`
+  - `drawCalls`: `72`
+  - `triangles`: `104694`
+  - `terrainBuildMs`: `92.7`
+  - `heapUsedMb`: `12.7`
+  - `loadDurationMs`: `2.7`
+  - `firstControllableMs`: `469.2`
+  - `saveBytes`: `2971`
+- `src/game/performance.ts` still exposes the same measurement spine, and
+  `src/main.ts` still surfaces it through the browser hooks and developer
+  readouts.
+- That means the runtime is doing the important first half already:
+  - measuring cost,
+  - exposing pressure,
+  - keeping the app readable while budgets stay bounded.
+- What is still missing is the named envelope:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no test proving fallback activates before overload,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that caused fallback.
+- The next durable step is still to name the fallback before the budget is
+  exceeded, not after the player can feel the overload.

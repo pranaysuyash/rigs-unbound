@@ -149,3 +149,26 @@ grow as readers of the world rather than silent co-authors of state.
 - That keeps this contract correctly placed: the next step is to add a
   versioned planner interface on top of the existing run record, not to replace
   the current command/state boundary.
+
+## Addendum (2026-07-26) - the runtime already has decision-shaped logic, but not a separate planner layer
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The source still shows a deterministic command/state decision spine:
+  - `resolvePrimaryAction()` resolves a semantic action kind before mutation,
+  - `performPrimaryAction()` applies the chosen effect and records the
+    consequence,
+  - `selectActiveRig()`, `installModule()`, `repairRig()`, and `winchRecover()`
+    all validate, reject, and explain state transitions explicitly.
+- That is behavior-shaped logic, but it is still not a first-class planner:
+  - choices are embedded in command handlers,
+  - there is no versioned behavior schema,
+  - there is no candidate-enumeration interface,
+  - there is no deterministic tie-break surface for equal-score candidates,
+  - there is no separate branch-trace stream naming why one branch lost.
+- The useful boundary is therefore unchanged:
+  - current command/state logic is enough for play and deterministic replay,
+  - a distinct planner should only appear when the project needs to rank
+    multiple candidate actions rather than resolve one contextual action at a
+    time.

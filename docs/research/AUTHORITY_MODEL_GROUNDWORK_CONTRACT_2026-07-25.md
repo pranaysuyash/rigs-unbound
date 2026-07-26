@@ -205,3 +205,30 @@ changes can be validated without collapsing speculative input into truth.
   current deterministic simulation.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - local-first authority is still the live mode
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/main.ts` still captures commands as explicit browser-side events.
+- `src/game/state.ts` still owns the deterministic kernel and canonical state
+  mutation order, which keeps local simulation authoritative for the current
+  single-player mode.
+- `src/game/storage.ts` still persists and restores local state with versioned
+  recovery and clean fallback behavior, so bad or incompatible records do not
+  become durable truth.
+- That means the live authority model is exactly what the contract says it
+  should be today:
+  - local input is authoritative for the single-player session,
+  - recovery is deterministic,
+  - no remote authority is required for the current slice.
+- What is still missing is the future-shared-state envelope:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata as policy,
+  - telemetry for authoritative outcomes,
+  - a visible shared-state/server-authoritative boundary artifact.
+- The useful conclusion is unchanged but now freshly anchored: local-first
+  authority is the product reality, and shared-state authority remains a named
+  future boundary rather than an implied capability.

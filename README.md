@@ -148,14 +148,13 @@ physical wheel joints, same-runtime repeatability, full-assembly recovery,
 semantic forward/steering input, all six views, desktop/narrow evidence, and a
 production-route load check (Tier 3/4); collision semantics, minimap integration,
 native recording bindings, and like-for-like Jolt comparison remain open. The
-public Sites version is accepted
-with a terminal `succeeded` status, an HTTP 200 response, and a live headless
-browser check of the welcome flow, schema-v4 state, three-rig roster, and console
-health (Tier 4). The newer schema-v5 candidate has passed the same Field 02
-acceptance on local development and rebuilt production-preview surfaces but is
-not yet the public Sites release. This does not add representative-device benchmark,
-external-player comprehension, multiplayer, production, or commercial-launch
-evidence yet.
+public Sites version 7 is accepted with a terminal `succeeded` status, HTTP 200
+responses for Field 02 and both canonical lab routes, and full production
+browser acceptance of schema-v6 state, three-rig acquisition, camera and terrain
+boundaries, persistence, input parity, and narrow layout with zero captured
+console/page or recent Worker errors (Tier 4). This does not add a
+representative-device benchmark, external-player comprehension, multiplayer,
+production-service, or commercial-launch claim.
 
 ## Anything else?
 

@@ -159,3 +159,27 @@ validated content without guessing where it came from.
 - So the current state is strong on asset admission, but the contract still
   needs the general authoring envelope to make the whole content lifecycle
   reproducible.
+
+## Addendum (2026-07-26) - the authoring path is validated in slices, but the general manifest envelope is still missing
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The repo already validates content in the slice that matters today:
+  - state/load paths reject bad or incompatible records,
+  - module and world definitions remain data-driven,
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, safe paths, and
+    missing dependencies.
+- That means the runtime is not blindly trusting authored or imported content.
+- The missing layer is still broader than the current slice:
+  - no versioned content-manifest schema for activities or world modules,
+  - no reproducible validation-result artifact for the general content path,
+  - no status signal that cleanly separates validation-only, runtime-ready, and
+    deprecated across the broader authored content surface,
+  - no reusable authoring envelope that applies the same contracts to
+    imported, edited, or generated content beyond the asset slice.
+- The useful boundary is therefore unchanged: the repo already validates the
+  content it knows about, but it still needs a general reproducible authoring
+  manifest before the whole content lifecycle becomes first-class.

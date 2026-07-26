@@ -165,3 +165,32 @@ implicit behavior glued onto the main loop.
   implicit rather than a first-class contract.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - the layered sim is live, but the governance ledger is still implicit
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/state.ts` still exposes the layered shape in the runtime:
+  - world time and phase,
+  - progression,
+  - activity,
+  - state snapshots and validation on load.
+- `src/game/contracts.ts` still treats spendable resource as singular by design,
+  which keeps the current resource economy simple and explicit rather than
+  broad and inferred.
+- `src/game/gameworld.ts` and `src/game/performance.ts` still provide the other
+  halves of the layered sim:
+  - bounded world memory,
+  - observable runtime pressure,
+  - separate persistence versus presentation ownership.
+- That means the app already behaves like a layered simulation, but the named
+  governance layer is still missing:
+  - no owned domain-order table for non-render layers,
+  - no CPU/GPU/actor/residency/save budget ledger,
+  - no fallback-policy table naming which layer downgrades first,
+  - no downgrade reason surfaced as policy.
+- The useful conclusion is the same but now current: the engine already has
+  layered simulation behavior, and the next durable step is to name the
+  governance and downgrade policy so the budget story is reviewable instead of
+  implicit.

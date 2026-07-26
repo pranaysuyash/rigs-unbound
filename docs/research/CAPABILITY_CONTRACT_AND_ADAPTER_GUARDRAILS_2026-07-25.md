@@ -170,3 +170,32 @@ branching logic.
 - So the contract is still pointing at the right next step:
   formalize capability definitions, adapter registration, and denial reason
   codes without throwing away the already-working composition model.
+
+## Addendum (2026-07-26) - current capability flow is still composition-first and prose-denied
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/contracts.ts` still shows a real composition model:
+  - `RIG_PROFILES` carries explicit capability arrays,
+  - `effectiveProfile()` composes fitted modules onto an immutable rig profile,
+  - `MODULES` can grant extra capabilities without replacing the base rig.
+- `src/game/state.ts` still consumes that composed profile through runtime
+  admission checks:
+  - `hasCapability(...)`,
+  - `resolvePrimaryAction(...)`,
+  - `performPrimaryAction(...)`,
+  - `installModule(...)`,
+  - `repairRig(...)`,
+  - `winchRecover(...)`.
+- The live admission shape is still intentionally lightweight:
+  - a capability is either present or absent,
+  - failures surface as prose diagnostics,
+  - there is no versioned capability-definition registry,
+  - there is no structured denial envelope with reason codes,
+  - adapter governance is still implicit rather than registry-driven.
+- That means the contract boundary is still correct:
+  - composition is real and working,
+  - governance structure is still a named gap,
+  - future planners should consume these admissions, not replace the current
+    composition model with a brittle hierarchy.

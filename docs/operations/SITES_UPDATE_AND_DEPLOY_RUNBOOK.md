@@ -261,7 +261,7 @@ curl -sS -o /dev/null \
 For runtime releases, run the full acceptance flow against production:
 
 ```bash
-RIGS_UNBOUND_URL=https://rigs-unbound.suyashpranay.chatgpt.site \
+RIGS_UNBOUND_URL='https://rigs-unbound.suyashpranay.chatgpt.site/?acceptance=field-02' \
   npm run test:browser
 ```
 
@@ -298,6 +298,7 @@ rows.
 | 2026-07-25 |             4 | `aa82cee4f986f106b121b42348748bf5c9c64c27` | Public | Sites source provenance inspected; public URL active          | Physics-foundation baseline  |
 | 2026-07-26 |             5 | `1e7992125824a850eb27a9f9d2bbdbc95b229e2b` | Public | Terminal success; three public routes returned HTTP 200       | Current verified baseline    |
 | 2026-07-26 |             6 | `f5a007d1e9866fea510fcef1cfba102a7ee85e13` | Public | Terminal success; fresh-profile browser contract and three routes passed | First-rung P0 baseline |
+| 2026-07-26 |             7 | `a8869ad25f72929b62b6722cb262c91b2b6c7999` | Public | Terminal success; full production acceptance passed; zero console, page, or Worker errors | RU-0110 verified baseline |
 
 Every handoff should include:
 
@@ -328,9 +329,9 @@ If production is broken:
 Do not force-push or rewrite Git history as a rollback mechanism. Do not delete
 the failed saved version; it is useful operational evidence.
 
-The current rollback candidates are version 4
-(`aa82cee4f986f106b121b42348748bf5c9c64c27`) and version 3
-(`e886540a31a20075714482e2365f6f0767bd1720`). Resolve their opaque version IDs
+The current rollback candidates are version 6
+(`f5a007d1e9866fea510fcef1cfba102a7ee85e13`) and version 5
+(`1e7992125824a850eb27a9f9d2bbdbc95b229e2b`). Resolve their opaque version IDs
 through Sites at rollback time rather than copying or guessing IDs.
 
 ## Known failure modes

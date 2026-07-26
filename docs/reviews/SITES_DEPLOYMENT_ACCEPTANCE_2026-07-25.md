@@ -157,3 +157,27 @@ or commercial-launch readiness.
   production-preview browser acceptance passed.
 - Remaining boundary: representative-device performance, cold-cache loading,
   WebGL recovery, audio listening, and human taste/fun evidence remain open.
+
+## Addendum (2026-07-26) — RU-0110 release
+
+- Guarded gameplay commit:
+  `9c10d2b109da12ce816ad3ec6235a31a4d0d6f4e`; preserved late-research head:
+  `a8869ad25f72929b62b6722cb262c91b2b6c7999`.
+- GitHub `origin/main` and the Sites source branch were both verified at
+  `a8869ad25f72929b62b6722cb262c91b2b6c7999` before Sites saved version 7.
+- Deployment `appgdep_6a6564e8f510819186b047775995d015` reached terminal
+  `succeeded` at the existing public URL.
+- The Field 02 route returned HTTP 200. Historical `.html` lab URLs redirected
+  to `/physics-lab` and `/box3d-lab`; both canonical routes returned HTTP 200.
+- The first production browser command exposed a runbook mismatch: the bare
+  URL does not enable acceptance-only fixtures. The corrected command includes
+  `?acceptance=field-02`; the runbook now records that contract.
+- Full production acceptance then passed: three-rig fresh acquisition,
+  structure/tree/hood camera checks, all-rig terrain-face refusal and escape,
+  cargo relay, ramp, deep water, persistence, keyboard/mouse/touch recovery,
+  reduced motion, six views, and `390×844` layout. Captured console/page errors
+  were empty.
+- Recent production Worker error logs were empty.
+- Remaining boundary: the measured production run occurred under automation
+  and concurrent browser workloads. It is functional Tier 4 evidence, not a
+  representative-device performance or human-fun claim.
