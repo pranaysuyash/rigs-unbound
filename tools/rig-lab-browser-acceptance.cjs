@@ -1209,7 +1209,7 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
   await switchToRig(page, "utility-tractor");
   await page.evaluate(() => window.placeRig(4, 6, Math.PI));
 
-  assert(initial.schemaVersion === 6, "Expected v6 save contract");
+  assert(initial.schemaVersion === 7, "Expected v7 save contract");
   assert(
     initial.progression.nearestSalvage?.id === "first-recovery-cache" &&
       initial.progression.nearestSalvage.distance < 30,
