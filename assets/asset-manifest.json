@@ -11,6 +11,7 @@
       "sourceType": "generated-image",
       "sourcePath": "docs/exploration/assets/design_explorations/tractor_character_model_sheet_2026-07-25.png",
       "runtimePath": null,
+      "publicRuntimeApproved": false,
       "rightsStatus": "review-required-before-distribution",
       "intendedUse": "Persistent tractor identity and model-sheet reference; not a runtime mesh.",
       "notes": "Orthographic turnaround and production mesh are still required."
@@ -22,21 +23,41 @@
       "sourceType": "generated-image",
       "sourcePath": "docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png",
       "runtimePath": null,
+      "publicRuntimeApproved": false,
       "rightsStatus": "review-required-before-distribution",
       "intendedUse": "Admitted single-view reference for future procedural reconstruction analysis; not a runtime mesh.",
       "sha256": "eb42e00ef63038773db5c45e4d496e3a75a4ac634e0a03980cfe4cfc8b228900",
       "notes": "img2threejs technical probe and reference admission passed; multi-angle evidence and human review remain required."
     },
     {
-      "id": "kenney-car-kit-tractor-fixture",
+      "id": "kenney-car-kit-breakable-crate-fixture",
       "kind": "static-prop",
-      "status": "proposed",
+      "status": "runtime-tested",
       "sourceType": "open-asset",
-      "sourceRef": "Private Kenney Game Assets All-in-1 3.4.0 library; exact pack selection pending.",
-      "runtimePath": null,
-      "rightsStatus": "pack-level-review-required",
-      "intendedUse": "Candidate browser fixture for the first source-to-GLB-to-runtime proof.",
-      "notes": "No asset has been copied into the repository; see the Kenney asset audit."
+      "sourceRef": "Kenney Game Assets All-in-1 3.4.0 / 3D assets/Car Kit/Models/GLB format/box.glb",
+      "runtimePath": "assets/runtime/kenney-car-kit-breakable-crate-fixture.glb",
+      "licensePath": "assets/licenses/kenney-car-kit-3.0-cc0.txt",
+      "licenseSha256": "1bf122c29b0a31c34a570544a0142aa7b2522d2dfb30f32e04adc480dee00ef2",
+      "publicRuntimeApproved": false,
+      "sha256": "38b74901586f61fb9d4bb54c55bcdafeb498ddda547063503c60d3e8d357dc87",
+      "rightsStatus": "cc0-verified-car-kit-3.0",
+      "intendedUse": "First runtime bridge candidate: a small static prop that can prove manifest admission, import, and browser visibility without overlapping tractor gameplay semantics.",
+      "notes": "Chosen from the Car Kit breakable prop fixture in the Kenney audit; copied into the repo-owned runtime directory for the first bridge proof."
+    },
+    {
+      "id": "kenney-car-kit-tractor-preview",
+      "kind": "static-prop",
+      "status": "runtime-tested",
+      "sourceType": "open-asset",
+      "sourceRef": "Kenney Game Assets All-in-1 3.4.0 / 3D assets/Car Kit/Models/GLB format/tractor.glb",
+      "runtimePath": "assets/runtime/kenney-car-kit-tractor-preview.glb",
+      "licensePath": "assets/licenses/kenney-car-kit-3.0-cc0.txt",
+      "licenseSha256": "1bf122c29b0a31c34a570544a0142aa7b2522d2dfb30f32e04adc480dee00ef2",
+      "publicRuntimeApproved": false,
+      "sha256": "08cbe533f5cb2171d6e7e0ae99ae32b65f10fed144ab102950079507f4a66a16",
+      "rightsStatus": "cc0-verified-car-kit-3.0",
+      "intendedUse": "Second runtime bridge candidate: vehicle-shaped preview for proving the bridge scales beyond a crate into a larger GLB with named wheel/body nodes.",
+      "notes": "Added after the crate bridge proved live; reuses the same runtime texture dependency."
     }
   ]
 }

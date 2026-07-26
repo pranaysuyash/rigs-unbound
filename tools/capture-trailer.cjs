@@ -160,7 +160,12 @@ function storyboard(ground) {
       ms: 2600,
       input: GO,
       before: async (page) => {
-        await page.click("#enter-world");
+        // Dispatch directly rather than hit-testing: an overlay above the welcome
+        // plate makes Playwright's actionability check spin until timeout, and the
+        // trailer only needs the panel dismissed, not a real pointer path.
+        await page.evaluate(() => {
+          document.getElementById("enter-world")?.click();
+        });
         await page.evaluate(() => window.selectCamera("chase"));
       },
     },
@@ -379,7 +384,30 @@ async function resolveGround(page) {
   return { field, marsh, steep };
 }
 
+/**
+ * Hard ceiling on a capture run.
+ *
+ * Belt and braces alongside the cleanup block: if anything still manages to keep
+ * the event loop alive — a browser handle that will not close, a hung CDP call —
+ * this fires and takes the process down rather than leaving it resident. `unref`
+ * keeps the timer itself from extending the run.
+ */
+function armWatchdog(minutes = 20) {
+  const timer = setTimeout(
+    () => {
+      process.stderr.write(
+        `\nwatchdog: capture exceeded ${minutes} min, forcing exit\n`,
+      );
+      process.exit(1);
+    },
+    minutes * 60 * 1000,
+  );
+  timer.unref();
+  return timer;
+}
+
 async function main() {
+  const watchdog = armWatchdog();
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   const headless = process.env.RIGS_TRAILER_HEADLESS === "1";
 
@@ -487,8 +515,22 @@ async function main() {
       process.stdout.write("Console: clean\n");
     }
   } finally {
-    await context.close();
-    await browser.close();
+    // Close each resource independently and never let one failure strand the
+    // browser. A leaked Playwright browser keeps node alive forever: an earlier
+    // run failed during setup, skipped `browser.close()`, and sat for 14 h 41 m
+    // holding an invisible Chrome while the harness reported it as exited.
+    for (const [label, close] of [
+      ["context", () => context.close()],
+      ["browser", () => browser.close()],
+    ]) {
+      try {
+        await close();
+      } catch (closeError) {
+        process.stdout.write(
+          `warn: ${label} close failed: ${String(closeError).slice(0, 120)}\n`,
+        );
+      }
+    }
 
     if (capturedFrames > 0) {
       process.stdout.write(
@@ -500,6 +542,7 @@ async function main() {
     }
   }
 
+  clearTimeout(watchdog);
   process.stdout.write(`\nBeats recorded: ${beats.length}\n`);
 }
 

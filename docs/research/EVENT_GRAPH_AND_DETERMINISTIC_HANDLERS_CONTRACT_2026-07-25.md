@@ -177,3 +177,25 @@ The game already has meaningful outcomes and records. This contract makes those 
 - So the correct reading remains: the app already has meaningful outcomes and
   records, but the event graph is still implicit in local command flow rather
   than formalized as a reusable handler boundary.
+
+## Addendum (2026-07-26) - run-record evidence is the staging surface, not the envelope
+
+- Re-checked the current run-record shape against the live repo state.
+- `src/game/run-record.ts` still defines a bounded local history with four
+  kinds only:
+  - `command`
+  - `checkpoint`
+  - `input`
+  - `save`
+- That is useful because it proves the app can already capture meaningful
+  history, but it also shows the current limit very clearly:
+  - there is still no shared event envelope,
+  - no origin-domain field,
+  - no replayable/diagnostics-only classification,
+  - no explicit deduplication or ordering policy in the reusable contract.
+- The next proof slice should therefore be one versioned event envelope that is
+  emitted from the command path and can be consumed by simulation, UI, replay,
+  and diagnostics without becoming four separate local truth sources.
+- Evidence depth: Tier 1 static inspection of the contract and run-record
+  source, with the existing Tier 4 runtime observations remaining the staging
+  proof base.

@@ -45,29 +45,29 @@ traction-limited at a standstill and raising engine power did nothing.
 - `npm test`: **75 root tests** (was 14) plus 7 preserved kernel-probe tests.
 - `npm run build`: passes at 617.70 kB raw / 162.84 kB gzip.
 
-Invariants that are now *asserted* rather than trusted:
+Invariants that are now _asserted_ rather than trusted:
 
-| Invariant | Why it needs a test |
-|---|---|
-| Every site holds its anchor within 1.2 m | Noise leaking into a pad buries a landmark |
-| Every route grade-limited below 0.17 | This is the reachability guarantee for the weakest rig |
-| Launch Ridge is the *only* unrouted site | Catches an accidentally unreachable landmark |
-| Terrain is continuous under step refinement | Catches a jump discontinuity while allowing real cliffs |
-| Spawn is flat and dry | The player must not begin in a cliff or a lake |
-| Firm ground favours slicks, soft ground favours lugs | This *is* the rig identity claim |
-| Determinism under an identical input sequence | `applyRigInput` and the test suite both depend on it |
-| Malformed spatial memory drops per entry | One bad number must not cost a session's ploughing |
+| Invariant                                            | Why it needs a test                                     |
+| ---------------------------------------------------- | ------------------------------------------------------- |
+| Every site holds its anchor within 1.2 m             | Noise leaking into a pad buries a landmark              |
+| Every route grade-limited below 0.17                 | This is the reachability guarantee for the weakest rig  |
+| Launch Ridge is the _only_ unrouted site             | Catches an accidentally unreachable landmark            |
+| Terrain is continuous under step refinement          | Catches a jump discontinuity while allowing real cliffs |
+| Spawn is flat and dry                                | The player must not begin in a cliff or a lake          |
+| Firm ground favours slicks, soft ground favours lugs | This _is_ the rig identity claim                        |
+| Determinism under an identical input sequence        | `applyRigInput` and the test suite both depend on it    |
+| Malformed spatial memory drops per entry             | One bad number must not cost a session's ploughing      |
 
 ### Tier 4 — observed in a browser
 
 Runtime grip, read through `render_game_to_text` after the `placeRig` telemetry
 fix below:
 
-| Surface | Torque (lugs) | Spark (slicks) |
-|---|---|---|
-| hardpan track | 0.98 | **1.16** |
-| bare rock | 0.958 | **1.118** |
-| marsh / standing water | **0.51** | 0.27 |
+| Surface                | Torque (lugs) | Spark (slicks) |
+| ---------------------- | ------------- | -------------- |
+| hardpan track          | 0.98          | **1.16**       |
+| bare rock              | 0.958         | **1.118**      |
+| marsh / standing water | **0.51**      | 0.27           |
 
 Driving from pasture into the Sunken Flats dropped grip **73% → 53%** and speed
 **33 → 10 km/h** on screen. The limit the player meets is the ground, not a number.
@@ -79,18 +79,18 @@ missing part); the field map reveals only surveyed ground and reported 20%.
 
 ### Performance
 
-| Measurement | Before | After |
-|---|---|---|
-| Terrain mesh build | 445 ms | **174 ms** |
-| Field map build during boot | 419 ms | **0 ms** (deferred to first open) |
-| Furrow draw calls | up to 640 | **1** (instanced) |
-| First controllable frame | 3,946 ms | **458 ms** |
+| Measurement                 | Before    | After                             |
+| --------------------------- | --------- | --------------------------------- |
+| Terrain mesh build          | 445 ms    | **174 ms**                        |
+| Field map build during boot | 419 ms    | **0 ms** (deferred to first open) |
+| Furrow draw calls           | up to 640 | **1** (instanced)                 |
+| First controllable frame    | 3,946 ms  | **458 ms**                        |
 
 From the parallel agent's visible-Chrome run on the same build: 21.89 ms average
 frame, 20.7 ms p95, 68 draw calls, 100,822 triangles, 30.6 MB heap — roughly
 46 fps in a development build.
 
-**Honest caveat on frame rate.** Frame timing measured inside the *automation*
+**Honest caveat on frame rate.** Frame timing measured inside the _automation_
 browser is worthless: a single `requestAnimationFrame` gap of 10,298 ms was
 observed, i.e. hard background throttling, and it reported 12 fps for a build
 whose per-frame CPU cost measured **0.46 ms** for step + render + HUD combined.
@@ -104,7 +104,7 @@ Ordered by how badly each would have misled a player or a reviewer.
 1. **Both rigs were modelled backwards.** The tractor's grille, hood, and
    headlights sat at local −Z — the same end as the plough — while travel is toward
    +Z. It drove cab-first with its lights pointing behind it. Present in the
-   *accepted* Rig Lab 01 evidence and not caught by any test, because no test
+   _accepted_ Rig Lab 01 evidence and not caught by any test, because no test
    asserted anything about which way a rig faces.
 2. **A module's advertised promise was false.** `low-range gearing` claimed to
    climb grades that stall the engine and did nothing, because traction bound
@@ -118,13 +118,13 @@ Ordered by how badly each would have misled a player or a reviewer.
    is written by a buffer clear and skips tone mapping and the sRGB encode; fogged
    geometry does not. Two pipelines, two answers, one visible band. The sky is now
    tone-mapped geometry, so the horizon and the sky agree by construction.
-   *(First hypothesis — mismatched fog colour — was wrong and is recorded as wrong.)*
+   _(First hypothesis — mismatched fog colour — was wrong and is recorded as wrong.)_
 5. **The buggy out-gripped the tractor on tilled soil**, contradicting the field
    being the tractor's home ground. The lug/slick crossover sits near surface grip
    0.55; tilled was authored at 0.68. Now 0.52, and the whole table is locked by a
    test so this cannot silently invert again.
 6. **`placeRig` reported the wrong location.** The test hook teleported without
-   stepping, so telemetry still described the *previous* ground — which produced a
+   stepping, so telemetry still described the _previous_ ground — which produced a
    false "both surfaces are mud" reading and nearly became a wrong conclusion in
    this very review. It now runs one idle step.
 7. **Four wasted `height()` calls per terrain vertex.** `surfaceFor` without a
@@ -136,19 +136,19 @@ Ordered by how badly each would have misled a player or a reviewer.
 
 ## Not verified — do not claim these
 
-- **That the rigs *feel* different to anyone but us.** This is the project's
+- **That the rigs _feel_ different to anyone but us.** This is the project's
   central claim and it remains Tier 4 at best. The external-player language gate
   from the Rig Lab 01 review stays open, and terrain does not close it — it only
   makes the question worth asking. The honest new question is whether players
-  describe *ground* (mud, grade, run-ups) rather than stats.
+  describe _ground_ (mud, grade, run-ups) rather than stats.
 - **Audio.** The synth is wired, running, and driven by real slip/load signals.
   Nobody has listened to it in this session. Unheard audio is not shipped audio.
 - **Any device or production performance.** No cold-cache, low-power, mobile, or
   deployed measurement exists.
 - **Mobile layout — RESOLVED 2026-07-25, after this review was first written.**
   The earlier reading (`#touch-controls` bottom 899.4 against an `innerHeight` of
-  844, i.e. ~55 px of action row off-screen) came from the local tree *while the
-  stylesheet was being edited concurrently*, and was never a property of a built
+  844, i.e. ~55 px of action row off-screen) came from the local tree _while the
+  stylesheet was being edited concurrently_, and was never a property of a built
   artifact. Re-measured on the deployed site at 390 x 844: touch controls sit
   10.4 px **inside** the viewport, there is a 54 px gap above the field kit, and
   horizontal overflow is 0. All five touch actions are on-screen and reachable.
@@ -163,11 +163,11 @@ Ordered by how badly each would have misled a player or a reviewer.
 1. **The world is now large enough to be empty.** 500 m across with 7 sites risks
    precisely the "procedural expanse without authored reasons to move through it"
    that `DESIGN.md`'s anti-slop list forbids. Salvage and sightlines are a first
-   answer, not a sufficient one. The next content question is density of *reasons*,
+   answer, not a sufficient one. The next content question is density of _reasons_,
    not more square metres — and adding rigs or biomes will not fix it.
 2. **Two of the eight defects above were false promises, not crashes.** A module
    that does nothing and a vehicle that faces backwards both pass every test that
-   only checks state transitions. The tests added in this pass assert *claims*
+   only checks state transitions. The tests added in this pass assert _claims_
    (this module changes this outcome; this surface favours this tyre) rather than
    only mechanics, which is the pattern worth keeping.
 3. **The bundle is still over the advisory** at 617 kB raw. It is almost entirely

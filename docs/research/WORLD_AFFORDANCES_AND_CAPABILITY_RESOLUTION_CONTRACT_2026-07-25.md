@@ -184,3 +184,28 @@ machines can ask the same question and get the same answer.
 - The useful boundary is still the same: the app already has a meaningful world
   vocabulary, but it is not yet a first-class affordance resolver that future
   planners can query as data.
+
+## Addendum (2026-07-26) - first reusable resolution proof: relay cargo and tow
+
+- `src/game/affordances.ts` now provides the first versioned affordance contract
+  (`AFFORDANCE_CONTRACT_VERSION = 1`) and deterministic resolver.
+- The real relay-cargo offer declares `tow` as its required capability. The
+  active rig supplies its capability claim from its already-composed effective
+  profile; no rig-name branches or new inheritance hierarchy were added.
+- The resolver returns one structured record with:
+  - `legal`, `deferred`, or `impossible` outcome,
+  - stable reason codes (`ready`, `out-of-range`, `missing-capability`,
+    `offer-unavailable`),
+  - a mismatch source of `world`, `capability`, or `null`, and
+  - affordance and contract-version identifiers.
+- `resolvePrimaryAction(...)` now consumes that record for the existing relay
+  attachment path. A nearby rig without `tow` receives the stable `Tow required`
+  contextual result and the existing action path translates the structured
+  denial into a player-facing diagnostic.
+- `src/game/affordances.test.ts` records the legal, incompatible, and deferred
+  pure-resolution cases. It was added as acceptance coverage but was not run in
+  this pass.
+- Evidence level for this addendum is Tier 1 static source inspection. This is
+  deliberately not a claim of generic activity schemas, content ingestion,
+  planner integration, or runtime/browser verification. Workshop, plough,
+  survey, and future site verbs remain candidates for a second real use case.

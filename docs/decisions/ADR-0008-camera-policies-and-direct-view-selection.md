@@ -117,3 +117,35 @@ standing procedural tree pulls the boom inward, felling the same tree restores
 it, and all three hood sockets report clear non-intersecting poses. The
 acceptance mutation hooks are guarded by
 `?acceptance=field-02`; they are not exposed through player controls.
+
+## Addendum (2026-07-26): signed rear-side and rig-clearance invariants
+
+### Decision
+
+Chase-camera correctness now includes a signed spatial invariant. The renderer
+reports the camera displacement projected onto the active rig's forward vector
+as `forwardOffset`; a chase camera is on the rear side only when that value is
+negative. Distance from the focus point is no longer accepted as proof of
+correct side.
+
+After endpoint obstruction resolution and smoothing, the final camera pose must
+also remain outside a profile-scaled clearance envelope around the active rig.
+If an obstruction leaves less room than that envelope, the shared camera policy
+tries clear elevated rear-shoulder candidates before rendering. This is a
+policy-level rule shared by rigs, not a tractor or Launch Ridge exception.
+
+Hood view remains intentionally forward-facing and may report a positive
+`forwardOffset`; the rear-side invariant applies to chase acceptance.
+
+### Evidence and revisit trigger
+
+Browser acceptance now proves rear-side, path-clear, and non-intersecting chase
+poses at the obstructed Home berth and after a Launch Ridge rocket overlap. It
+also proves visual front markers remain forward for Torque, Spark, and Drift.
+Revisit the clearance representation when a real articulated or unusually long
+rig demonstrates that the current profile-scaled envelope is insufficient.
+
+### Update log
+
+- 2026-07-26: Added signed camera-side observability, rear-side browser
+  assertions, and final rig-clearance fallback.

@@ -474,36 +474,109 @@ The key control decision is:
 
 If an activity or machine cannot be expressed as a data-driven contract, it does not enter the core queue without a design exception.
 
+### Addendum — 2026-07-26 skill-to-repository execution ledger
+
+The current 3D contract set now has a source-linked navigation and proof-order layer in
+[3D Game Skill-to-Repository Execution Ledger](../research/3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md).
+
+It applies the `3d-games` and `3d-web-experience` skills to the live architecture without
+introducing a competing engine plan. Its controlling conclusions are:
+
+- renderer instancing and telemetry are foundations; explicit visibility/LOD policy, device
+  quality selection, and recoverable browser fallback remain implementation gates;
+- fixed-step simulation, rig profiles, locomotion adapters, seeded world behavior, and save
+  migration are the assets to preserve while command/event and collision-category contracts mature;
+- each platform abstraction must first pass a vertical proof: tractor plus trailer, a genuinely
+  distinct locomotion adapter, a stationary machine, a drone, or a capability-gated activity;
+- streaming, ECS, replay, and authority remain trigger-based tracks requiring measured pressure
+  or a real product need, not claims implied by design documents.
+
+The ledger is a dated execution aid. Existing ADRs and named contract notes remain the canonical
+decision and implementation surfaces.
+
 ## UI, onboarding, accessibility, and controls
 
-Surfaces to explore:
+### Research base — 2026-07-26
+
+A deep parallel research sprint (5 agents, ~87KB, 959 lines) explored game UI paradigms, novel controls, adaptive/generative systems, micro-interactions/juice, and reference game teardowns. Master synthesis and individual research documents:
+
+- **[Master Synthesis](../research/GAME_UI_MASTER_SYNTHESIS_2026-07-26.md)** — cross-references all streams, proposes the 5-layer information architecture, and identifies the 8 highest-signal novel ideas for Rigs Unbound.
+- [Diegetic, Spatial, Meta, and Non-HUD UI Paradigms](../research/GAME_UI_PARADIGMS_DIEGETIC_SPATIAL_META_2026-07-26.md)
+- [Novel, Experimental, and Niche Control Schemes](../research/GAME_CONTROLS_NOVEL_INPUT_METHODS_2026-07-26.md)
+- [Adaptive, Generative, and State-Driven UI Systems](../research/GAME_UI_ADAPTIVE_GENERATIVE_SYSTEMS_2026-07-26.md)
+- [Micro-Interactions, Game Feel, Juice, and Kinesthetic UI](../research/GAME_UI_MICROINTERACTIONS_JUICE_FEEL_2026-07-26.md)
+- [Reference Game UI/UX Analysis](../research/GAME_UI_REFERENCE_ANALYSIS_2026-07-26.md)
+- [State Shell, Hit Feedback VFX, and Visual Quality Architecture](../research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md)
+
+### Core insight: the rig IS the interface
+
+The vehicle's physical state, sounds, animations, and body language should be the primary information channel. The DOM HUD is a secondary, supplementary layer — a field kit, not a dashboard replacement. This is the strongest first-principles fit for a game where vehicles are playable characters.
+
+### Proposed five-layer information architecture (Researching)
+
+| Layer | Name            | Channel                  | Examples                                                                                                           |
+| ----- | --------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| 0     | World           | Environment              | Terrain color = traversability; lighting = time + danger; tracks/furrows = player history                          |
+| 1     | Vehicle Body    | Diegetic                 | Visible damage/rust/smoke = condition; attachment silhouette = capabilities; engine pitch = speed/strain           |
+| 2     | Spatial Markers | Semi-diegetic            | Proximity glow on interactables; terrain-attached opportunity markers; directional audio; State Shell glow/ripples |
+| 3     | Field Kit HUD   | Non-diegetic, themed     | Condition diagnostic; capability label; compass strip; camera mode; action prompt                                  |
+| 4     | System Overlays | Non-diegetic, functional | Pause, settings, workshop, save indicator, error surface                                                           |
+
+### Highest-signal novel ideas (Researching)
+
+1. **State Shell & Hit VFX** — semi-transparent surrounding aura/envelope that ripples at impact points, shifts color with health/strain, and communicates vehicle integrity without HUD clutter.
+2. **Patchwork Dashboard** — diegetic hood-cam instruments that degrade/upgrade with vehicle condition (Metro 2033, Pacific Drive).
+3. **Rumor Map** — node-based discovery/progress system replacing quest logs and achievement percentages (Outer Wilds).
+4. **Multi-modal speed feedback** — engine pitch + camera FOV + particle density replaces numerical speedometer.
+5. **Gyroscope steering** — DeviceOrientationEvent API for mobile tilt-to-steer.
+6. **Context-sensitive action** — one button that does the right thing based on proximity and capability (already partially implemented).
+7. **Progressive HUD unlock** — UI elements are progression rewards, not defaults. Start minimal; earn instruments.
+8. **Visual haptics** — camera shake, FOV pulse, hitstop, and vignette effects as browser-native "force feedback."
+9. **Asymmetric co-op** — phone-as-navigator via WebSocket for multi-device multiplayer.
+
+### Surfaces to explore
 
 - instant play/guest entry;
 - garage and vehicle story;
 - workshop/module comparison;
-- world opportunity map;
+- world opportunity map (rumor map candidate);
 - activity transition;
-- active HUD;
-- damage/recovery;
+- active HUD (field-kit layer 3);
+- damage/recovery (vehicle-body layer 1);
 - inventory and provenance;
-- discoveries/codex;
-- co-op/lobby/presence;
+- discoveries/codex (rumor map candidate);
+- co-op/lobby/presence (asymmetric candidate);
 - creator tools;
 - settings/accessibility;
 - connection/save conflict/operator-readable errors.
 
-Requirements:
+### Requirements
 
 - remappable named actions;
 - keyboard, gamepad, pointer, and touch;
+- gyroscope/accelerometer steering (opt-in, mobile);
 - scalable DOM text and semantic controls;
 - reduced motion and camera-shake controls;
 - hold/toggle alternatives;
 - contrast/color-independent cues;
 - subtitles/captions and independent volume categories;
-- difficulty/assist options that do not shame the player;
+- difficulty/assist options that do not shame the player (steering assist, brake assist, auto-aim);
+- switch access and one-handed control schemes;
 - safe area, resize, orientation, and narrow-screen behavior;
-- onboarding through consequences and experimentation rather than modal walls.
+- onboarding through consequences and experimentation rather than modal walls;
+- progressive HUD unlock as onboarding mechanism;
+- audio as UI: engine sound, spatial threat cues, satisfying tool feedback;
+- gamepad rumble via vibrationActuator API (progressive enhancement);
+- mobile haptic patterns via Vibration API.
+
+### Anti-patterns to guard against
+
+- icon/marker spam (Ubisoft open-world);
+- information overload in early play;
+- UI that fights the Patchwork Atlas tone;
+- minimap dependency (prefer compass strip + directional audio);
+- forced mode switching (prefer context-sensitive action);
+- dark patterns (never).
 
 ## Art, animation, audio, and asset pipeline
 
@@ -1123,3 +1196,80 @@ New exploration questions opened by this package:
   tools in production?
 - When activity context recommends a camera or action, how is the suggestion
   made explainable, overridable, and replay-safe?
+
+## Addendum — 2026-07-26 browser-delivery contract continuation
+
+- The `3d-web-experience` pass confirms the current runtime is still a working
+  browser 3D surface, but the next durable gate is explicit delivery policy:
+  truthful loading state, recoverable fallback, and low/balanced/high profile
+  selection tied to measured budgets.
+- This belongs in the `public promise` / browser-delivery lane rather than as
+  a renderer-only concern.
+- The next evidence should be a visible loading/fallback state on an
+  intentionally constrained or delayed load path, plus a profile-selection
+  capture that can be compared across device classes.
+
+## Addendum — 2026-07-26 accessibility profile visibility
+
+- The Accessibility Auditor pass reinforces that the remaining shell gap is
+  not keyboard entry anymore; it is whether the user can see the current
+  comfort/accessibility profile and understand loading state honestly.
+- This makes the `accessibility/input` contract the policy owner for:
+  remaps, reduced motion, visible profile state, and readable fallback, while
+  the browser-delivery lane owns how those policies are surfaced to the player.
+- Next proof should be a visible profile indicator plus one truthful loading
+  or fallback state that survives the live Field 02 browser surface.
+
+## Addendum — 2026-07-26 asset-production bridge versus approval
+
+- The `3d-asset-production` pass confirms the repo now has runtime-tested
+  bridge assets, but `runtime-tested` still is not the same as
+  `publicRuntimeApproved`.
+- That means the asset lane still needs a production profile contract:
+  target consumer, budget, material/LOD intent, and a separate public-approval
+  decision before a bridge asset is treated as shippable truth.
+- The bridge is therefore a proof of browser ingestion and visibility, not a
+  waiver for rights review or production grading.
+
+## Addendum — 2026-07-26 command/event envelope still missing
+
+- The command and event contract lane confirms the app already has a useful
+  local history, but the reusable shared envelope is still not explicit.
+- `run-record.ts` currently captures command/checkpoint/input/save entries, so
+  the staging surface is real; the missing boundary is the versioned event
+  envelope with origin-domain ownership and replayable/diagnostics-only
+  classification.
+- The next evidence should be a single command path that emits a reusable event
+  envelope and proves the same history can feed simulation, UI, replay, and
+  diagnostics without parallel local truth sources.
+
+## Addendum — 2026-07-26 state-shell visual language still needs one browser-proof profile
+
+- The quality ladder and visibility counters are now measurable, but the
+  vehicle-state shell itself is still not runtime-owned as a canonical visual
+  language.
+- The remaining gap is not more profile names; it is one browser-proved shell
+  profile that ties the state shell to the selected quality mode and a public
+  approval boundary for that presentation layer.
+- Until then, the shell work remains a contract lane rather than a shipped
+  visual system.
+
+## Addendum — 2026-07-26 resource budget is measurable, but fallback ownership is still implicit
+
+- The budget/fallback lane now has measurable inputs from performance, visibility,
+  and profile-tier contracts, but it still lacks a named subsystem owner for
+  fallback selection.
+- The next proof should be a cross-system budget ledger and a visible fallback
+  summary that names both the oversubscribed resource and the subsystem that
+  triggered the downgrade.
+- Until then, performance data remains observability, not policy.
+
+## Addendum — 2026-07-26 planner work should wait for multi-candidate choice
+
+- The behavior/planner lane confirms the runtime already makes real decisions,
+  but those decisions are still single-verb resolutions in command handlers.
+- The next proof should be a machine/task selector or activity scorer that has
+  at least two valid candidates, deterministic ordering, and explicit loser
+  reasons.
+- A broad planner framework is premature until the app actually needs to rank
+  competing valid actions rather than resolve one contextual action at a time.

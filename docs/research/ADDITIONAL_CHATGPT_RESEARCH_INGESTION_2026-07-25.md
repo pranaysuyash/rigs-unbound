@@ -35,20 +35,20 @@ The workbook opened successfully with the bundled Python/openpyxl runtime. It co
 
 The game-specific table counts match the narrative claims:
 
-| Sheet/domain | Verified structured rows |
-|---|---:|
-| Gameplay modes | 45 |
-| Vehicle records | 43: 27 archetypes, 11 component classes, 5 canonical systems |
-| Engine/framework candidates | 14 |
-| Architecture | 22 layers, 20 canonical models, 15 rules |
-| Tooling catalog | 96 |
-| Editors and UGC surfaces | 29 |
-| Progression/economy systems | 35 |
-| Procedural generation | 32 stages and 10 recipes |
-| Evidence experiments | 22 |
-| Decision entries | 28 |
-| Browser budgets/policies | 28 |
-| Public surfaces/events | 15 surfaces and 11 events |
+| Sheet/domain                |                                     Verified structured rows |
+| --------------------------- | -----------------------------------------------------------: |
+| Gameplay modes              |                                                           45 |
+| Vehicle records             | 43: 27 archetypes, 11 component classes, 5 canonical systems |
+| Engine/framework candidates |                                                           14 |
+| Architecture                |                     22 layers, 20 canonical models, 15 rules |
+| Tooling catalog             |                                                           96 |
+| Editors and UGC surfaces    |                                                           29 |
+| Progression/economy systems |                                                           35 |
+| Procedural generation       |                                     32 stages and 10 recipes |
+| Evidence experiments        |                                                           22 |
+| Decision entries            |                                                           28 |
+| Browser budgets/policies    |                                                           28 |
+| Public surfaces/events      |                                    15 surfaces and 11 events |
 
 Openpyxl emitted warnings about unsupported conditional-formatting extensions while reading. Because the workbook was not saved, those extensions were not removed from the source. Any future programmatic workbook edit must use a preservation-aware workflow and visually compare the result.
 
@@ -71,7 +71,7 @@ The incoming research independently converges on:
 - no gacha, loot boxes, paid power, or early player market;
 - engine choice through the same playable evidence in multiple candidates.
 
-This raises confidence in the *questions and boundaries*, not in any runtime implementation.
+This raises confidence in the _questions and boundaries_, not in any runtime implementation.
 
 ## New high-value concepts adopted as proposals
 
@@ -134,21 +134,21 @@ This is appended to [ADR-0002](../decisions/ADR-0002-first-playable-tractor-day-
 The workbook uses eight 1–5 criteria with weights totaling exactly 1.0. Its cached weighted values match manual recalculation:
 
 | Workbook weighting | Score |
-|---|---:|
-| Babylon.js | 9.3 |
-| PlayCanvas | 9.2 |
-| Godot | 8.5 |
-| React Three Fiber | 8.4 |
-| Three.js | 8.0 |
+| ------------------ | ----: |
+| Babylon.js         |   9.3 |
+| PlayCanvas         |   9.2 |
+| Godot              |   8.5 |
+| React Three Fiber  |   8.4 |
+| Three.js           |   8.0 |
 
 The ranking is sensitive to priorities:
 
-| Weight profile | Leading candidates |
-|---|---|
-| Workbook baseline | Babylon.js 9.3, PlayCanvas 9.2 |
-| Authoring-heavy | PlayCanvas 9.3, Babylon.js 9.1 |
+| Weight profile            | Leading candidates                           |
+| ------------------------- | -------------------------------------------- |
+| Workbook baseline         | Babylon.js 9.3, PlayCanvas 9.2               |
+| Authoring-heavy           | PlayCanvas 9.3, Babylon.js 9.1               |
 | Control/performance-heavy | Babylon.js 9.5, PlayCanvas 9.4, Three.js 9.1 |
-| Physics/mode-heavy | Babylon.js 9.5, PlayCanvas 9.0, Godot 8.9 |
+| Physics/mode-heavy        | Babylon.js 9.5, PlayCanvas 9.0, Godot 8.9    |
 
 Therefore:
 

@@ -13,18 +13,18 @@ The open world is better treated as a quilt than a soup. Distinct regions can us
 
 ## Vehicle construction, personality, and damage
 
-| Reference | What to study | What not to inherit |
-|---|---|---|
-| [Crossout](https://crossout.net/en/about) | Functional modular construction, locational damage, salvage, blueprints, faction-as-playstyle | Market/grind pressure and power escalation |
-| [Trailmakers](https://www.playtrailmakers.com/?p=4127) | One construction language spanning land, sea, air, space, expeditions, and shared creations | Unbounded construction complexity at onboarding |
-| [TerraTech](https://www.terratechgame.com/) | Salvage defeated machines, assemble land/air forms, procedural exploration | Interchangeable procedural terrain without memorable purpose |
-| [LEGO 2K Drive](https://lego.2k.com/en-GB/drive/features/) | Guided garage, categorized pieces, constraints, visible stats, test before equip, terrain forms | Automatic transformation that erases consequence |
-| [Scrap Mechanic](https://scrapmechanic.com/) | Collaborative mechanical parts and moving contraptions | Letting complex physics creations dictate the whole network/browser budget |
-| [Besiege](https://www.besiegethegame.com/) | Short readable goals, many machine solutions, entertaining destruction/failure | Disposable experiments with no persistent machine attachment |
-| [From the Depths](https://fromthedepthsgame.com/) | Deep component systems, AI configuration, land/sea/air construction | Its complexity is a ceiling, not an onboarding model |
-| [Mad Max](https://avalanchestudios.com/stories/watch-the-magnum-opus-come-to-life) | The vehicle as a long-term companion and narrative project | A purely combat-centered vehicle identity |
-| [Pacific Drive](https://www.pacificdrivegame.com/) | Garage → prepare → hostile expedition → salvage/damage → extract → repair/upgrade | Maintenance that becomes chore instead of story/decision |
-| [The Long Drive](https://store.steampowered.com/app/1017180/The_Long_Drive/) / [Jalopy](https://store.steampowered.com/app/446020/Jalopy__The_Road_Trip_Driving_Indie_Car_Game/) | Affection for a flawed machine, physical supplies, sparse road stories | Realism friction with no meaningful choice |
+| Reference                                                                                                                                                                        | What to study                                                                                   | What not to inherit                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [Crossout](https://crossout.net/en/about)                                                                                                                                        | Functional modular construction, locational damage, salvage, blueprints, faction-as-playstyle   | Market/grind pressure and power escalation                                 |
+| [Trailmakers](https://www.playtrailmakers.com/?p=4127)                                                                                                                           | One construction language spanning land, sea, air, space, expeditions, and shared creations     | Unbounded construction complexity at onboarding                            |
+| [TerraTech](https://www.terratechgame.com/)                                                                                                                                      | Salvage defeated machines, assemble land/air forms, procedural exploration                      | Interchangeable procedural terrain without memorable purpose               |
+| [LEGO 2K Drive](https://lego.2k.com/en-GB/drive/features/)                                                                                                                       | Guided garage, categorized pieces, constraints, visible stats, test before equip, terrain forms | Automatic transformation that erases consequence                           |
+| [Scrap Mechanic](https://scrapmechanic.com/)                                                                                                                                     | Collaborative mechanical parts and moving contraptions                                          | Letting complex physics creations dictate the whole network/browser budget |
+| [Besiege](https://www.besiegethegame.com/)                                                                                                                                       | Short readable goals, many machine solutions, entertaining destruction/failure                  | Disposable experiments with no persistent machine attachment               |
+| [From the Depths](https://fromthedepthsgame.com/)                                                                                                                                | Deep component systems, AI configuration, land/sea/air construction                             | Its complexity is a ceiling, not an onboarding model                       |
+| [Mad Max](https://avalanchestudios.com/stories/watch-the-magnum-opus-come-to-life)                                                                                               | The vehicle as a long-term companion and narrative project                                      | A purely combat-centered vehicle identity                                  |
+| [Pacific Drive](https://www.pacificdrivegame.com/)                                                                                                                               | Garage → prepare → hostile expedition → salvage/damage → extract → repair/upgrade               | Maintenance that becomes chore instead of story/decision                   |
+| [The Long Drive](https://store.steampowered.com/app/1017180/The_Long_Drive/) / [Jalopy](https://store.steampowered.com/app/446020/Jalopy__The_Road_Trip_Driving_Indie_Car_Game/) | Affection for a flawed machine, physical supplies, sparse road stories                          | Realism friction with no meaningful choice                                 |
 
 ### Transferable principle
 
@@ -32,12 +32,12 @@ The vehicle is body, backpack, house, and résumé. Its gameplay collision/handl
 
 ## Movement mastery and browser immediacy
 
-| Reference | What to study | Warning |
-|---|---|---|
-| [Rocket League](https://www.rocketleague.com/) | A small legible action set supporting deep mastery; reset/training tools; cosmetic identity separated from standardized hitboxes | Broad modes cannot rescue weak driving feel |
-| [Slow Roads](https://slowroads.io/) and [web.dev case study](https://web.dev/case-studies/slow-roads) | Instant browser entry, procedural driving, disciplined illusion, object reuse/pooling | Endless roads still need reasons to care |
-| [PolyTrack](https://www.kodub.com/apps/polytrack) | Rapid restarts, track editor, shareability, low-friction web racing | Runtime/mobile/persistence behavior remains to be directly tested |
-| [Narrow.One](https://narrow.one/) | Fast browser entry into legible real-time 3D multiplayer | Do not assume its constraints match an open-world vehicle simulation |
+| Reference                                                                                             | What to study                                                                                                                    | Warning                                                              |
+| ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [Rocket League](https://www.rocketleague.com/)                                                        | A small legible action set supporting deep mastery; reset/training tools; cosmetic identity separated from standardized hitboxes | Broad modes cannot rescue weak driving feel                          |
+| [Slow Roads](https://slowroads.io/) and [web.dev case study](https://web.dev/case-studies/slow-roads) | Instant browser entry, procedural driving, disciplined illusion, object reuse/pooling                                            | Endless roads still need reasons to care                             |
+| [PolyTrack](https://www.kodub.com/apps/polytrack)                                                     | Rapid restarts, track editor, shareability, low-friction web racing                                                              | Runtime/mobile/persistence behavior remains to be directly tested    |
+| [Narrow.One](https://narrow.one/)                                                                     | Fast browser entry into legible real-time 3D multiplayer                                                                         | Do not assume its constraints match an open-world vehicle simulation |
 
 ### Transferable principle
 
@@ -45,13 +45,13 @@ The first public link should reach a controllable vehicle before asking for an a
 
 ## Farming, systems, day/night, and shared progression
 
-| Reference | What to study | Warning |
-|---|---|---|
-| [Stardew Valley](https://www.stardewvalley.net/about/) | Several activities feed shared place, recipes, professions, and discovery | Multiple skills can become checklist labor |
-| [Farm Together 2](https://www.milkstonestudios.com/2024/02/farm-together-2-early-access-faq/) | Cozy shared work, customization, town growth | Avoid waiting timers and social obligation |
-| [FarmTown](https://farmtown.online/) | Browser-native shared locations, jobs, collectibles, guild ambition | Direct runtime and economy evaluation still needed |
-| [Vampire Survivors](https://poncle.games/vs-online-faq) | Horde readability, build choices, unlocks, independent multiplayer movement | Enemy count can overwhelm CPU/network/readability |
-| [Dwarf Fortress](https://bay12games.com/dwarves/dev.html) | Generated history and interacting systems producing stories | Opaque complexity without causal logs and layered explanations |
+| Reference                                                                                     | What to study                                                               | Warning                                                        |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [Stardew Valley](https://www.stardewvalley.net/about/)                                        | Several activities feed shared place, recipes, professions, and discovery   | Multiple skills can become checklist labor                     |
+| [Farm Together 2](https://www.milkstonestudios.com/2024/02/farm-together-2-early-access-faq/) | Cozy shared work, customization, town growth                                | Avoid waiting timers and social obligation                     |
+| [FarmTown](https://farmtown.online/)                                                          | Browser-native shared locations, jobs, collectibles, guild ambition         | Direct runtime and economy evaluation still needed             |
+| [Vampire Survivors](https://poncle.games/vs-online-faq)                                       | Horde readability, build choices, unlocks, independent multiplayer movement | Enemy count can overwhelm CPU/network/readability              |
+| [Dwarf Fortress](https://bay12games.com/dwarves/dev.html)                                     | Generated history and interacting systems producing stories                 | Opaque complexity without causal logs and layered explanations |
 
 ### Transferable principle
 
@@ -59,11 +59,11 @@ Night should change grammar, not only gamma. The first tractor slice changes ava
 
 ## Exploration, scale, and living worlds
 
-| Reference | What to study | Warning |
-|---|---|---|
-| [Starlink: Battle for Atlas](https://www.ubisoft.com/en-us/company/about-us/our-brands/starlink-battle-for-atlas) | On-the-fly loadouts, specialist outposts, surface/atmosphere/space continuity | Every travel scale needs purpose; seamlessness alone is not play |
-| [No Man’s Sky](https://www.nomanssky.com/) | Exploration, trade, farming, bases, freighters, expeditions, tagged short goals | Infinite terrain still needs authored reasons to care |
-| [Astroneer](https://astroneer.space/) | Terrain deformation, vehicles, bases, discovery, manufacturing, wonder | Its [early multiplayer discussion](https://blog.astroneer.space/p/day-1-multiplayer-and-beyond/) shows how terrain and dynamic-object scope make networking hard |
+| Reference                                                                                                         | What to study                                                                   | Warning                                                                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Starlink: Battle for Atlas](https://www.ubisoft.com/en-us/company/about-us/our-brands/starlink-battle-for-atlas) | On-the-fly loadouts, specialist outposts, surface/atmosphere/space continuity   | Every travel scale needs purpose; seamlessness alone is not play                                                                                                 |
+| [No Man’s Sky](https://www.nomanssky.com/)                                                                        | Exploration, trade, farming, bases, freighters, expeditions, tagged short goals | Infinite terrain still needs authored reasons to care                                                                                                            |
+| [Astroneer](https://astroneer.space/)                                                                             | Terrain deformation, vehicles, bases, discovery, manufacturing, wonder          | Its [early multiplayer discussion](https://blog.astroneer.space/p/day-1-multiplayer-and-beyond/) shows how terrain and dynamic-object scope make networking hard |
 
 ### Transferable principle
 
@@ -71,13 +71,13 @@ Use separate scale/origin regimes connected by travel and durable consequences. 
 
 ## Editors, creation ecosystems, and public operations
 
-| Reference | What to study | Warning |
-|---|---|---|
-| [Roblox](https://create.roblox.com/docs/platform) | Creation, collaboration, publishing, hosting, analytics, storage, localization, discovery, monetization as one ecosystem | Retention and monetization surfaces can replace the game’s purpose; moderation is foundational |
-| [UEFN](https://dev.epicgames.com/documentation/en-us/fortnite/publishing-projects-in-unreal-editor-for-fortnite) | Play sessions, memory budgets, private versions, attribution, ratings, moderation, team workflows | A creator tool is an operating platform, not only a canvas |
-| [Core](https://www.coregames.com/create) | Templates, multi-client preview, publishing, persisted values, explicit goal/end/restart checklist | Templates can produce clones without a distinctive grammar |
-| [Dreams](https://www.playstation.com/en-fi/games/dreams/) | Play/Create/Share, tutorials, remix ancestry, showcase campaign | Creation needs attribution and provenance |
-| [Garry’s Mod Sandbox](https://wiki.facepunch.com/gmod/gamemodes/Sandbox) | Maps/modes/tools/vehicles/saves/addons as separable surfaces; enable/disable/recovery | Dependency graphs need version and compatibility management |
+| Reference                                                                                                        | What to study                                                                                                            | Warning                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [Roblox](https://create.roblox.com/docs/platform)                                                                | Creation, collaboration, publishing, hosting, analytics, storage, localization, discovery, monetization as one ecosystem | Retention and monetization surfaces can replace the game’s purpose; moderation is foundational |
+| [UEFN](https://dev.epicgames.com/documentation/en-us/fortnite/publishing-projects-in-unreal-editor-for-fortnite) | Play sessions, memory budgets, private versions, attribution, ratings, moderation, team workflows                        | A creator tool is an operating platform, not only a canvas                                     |
+| [Core](https://www.coregames.com/create)                                                                         | Templates, multi-client preview, publishing, persisted values, explicit goal/end/restart checklist                       | Templates can produce clones without a distinctive grammar                                     |
+| [Dreams](https://www.playstation.com/en-fi/games/dreams/)                                                        | Play/Create/Share, tutorials, remix ancestry, showcase campaign                                                          | Creation needs attribution and provenance                                                      |
+| [Garry’s Mod Sandbox](https://wiki.facepunch.com/gmod/gamemodes/Sandbox)                                         | Maps/modes/tools/vehicles/saves/addons as separable surfaces; enable/disable/recovery                                    | Dependency graphs need version and compatibility management                                    |
 
 ### Transferable principle
 
@@ -100,18 +100,18 @@ Design implications:
 
 ## Mechanics matrix for this project
 
-| System | Transferable design | First-playable interpretation |
-|---|---|---|
-| Vehicle construction | Socketed parts with visible costs in mass, energy, heat, traction, size, or control | One tractor and three modules |
-| Functional damage | Damage changes behavior and appearance | Wheels, core, tool, cargo/light |
-| Vehicle as home | Repairs, souvenirs, scars, and run history stay with it | Workshop state and morning result |
-| Expedition loop | Prepare → venture → improvise → survive/extract → repair | Day setup → night pressure → dawn recovery |
-| Camera as verb lens | Perspective follows decision density | Chase/isometric → readable tactical top-down |
-| Shared progression | One activity’s reward opens a verb elsewhere | Day tool has night use and tradeoff |
-| Salvage economy | Imperfect runs still feed experimentation | Partial scrap/knowledge, not punitive zeroing |
-| Procedural remix | Authored chunks/rules around recognizable landmarks | Fixed barn/workshop, seeded plots/lanes/weather |
-| Social sharing | Seed, ghost, build card, screenshot, challenge URL | Share card before open UGC |
-| World simulation | Track only relations that create visible consequences | Crops, light/noise, route obstruction, weather/traction |
+| System               | Transferable design                                                                 | First-playable interpretation                           |
+| -------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Vehicle construction | Socketed parts with visible costs in mass, energy, heat, traction, size, or control | One tractor and three modules                           |
+| Functional damage    | Damage changes behavior and appearance                                              | Wheels, core, tool, cargo/light                         |
+| Vehicle as home      | Repairs, souvenirs, scars, and run history stay with it                             | Workshop state and morning result                       |
+| Expedition loop      | Prepare → venture → improvise → survive/extract → repair                            | Day setup → night pressure → dawn recovery              |
+| Camera as verb lens  | Perspective follows decision density                                                | Chase/isometric → readable tactical top-down            |
+| Shared progression   | One activity’s reward opens a verb elsewhere                                        | Day tool has night use and tradeoff                     |
+| Salvage economy      | Imperfect runs still feed experimentation                                           | Partial scrap/knowledge, not punitive zeroing           |
+| Procedural remix     | Authored chunks/rules around recognizable landmarks                                 | Fixed barn/workshop, seeded plots/lanes/weather         |
+| Social sharing       | Seed, ghost, build card, screenshot, challenge URL                                  | Share card before open UGC                              |
+| World simulation     | Track only relations that create visible consequences                               | Crops, light/noise, route obstruction, weather/traction |
 
 ## Proposed `VehiclePassport`
 

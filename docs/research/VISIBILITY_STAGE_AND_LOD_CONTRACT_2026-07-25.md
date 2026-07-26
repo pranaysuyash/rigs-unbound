@@ -148,3 +148,42 @@ The renderer already behaves like a deliberate first-pass visibility budget. Thi
     disappearing into undefined behavior.
 - So the renderer remains intentionally compact and legible, but visibility/LOD
   is still an implicit policy rather than a first-class contract artifact.
+
+## Addendum (2026-07-26) - Phase 0 visibility policy is now implemented at Tier 1
+
+`src/game/visibility.ts` now centralizes `full`, `standard`, and
+`mobile-safe` distance bands. The active renderer keeps the existing
+`standard` far distance of 168 m, so this first proof preserves current visual
+range while making each obstacle and salvage candidate classify as `near`,
+`mid`, `far`, or `culled` during the existing prop rebuild.
+
+`GameRenderer.metrics()` and `PerformanceMonitor.snapshot()` now expose:
+
+- active profile identifier;
+- logical candidate and submitted counts;
+- near/mid/far/culled counts;
+- capacity-limited count.
+
+This is deliberately not a claim that dynamic profile selection, per-instance
+frustum culling, representation-specific LOD, or subsystem-frequency LOD is
+complete. It creates the deterministic threshold and telemetry seam those
+later changes require.
+
+Evidence tier: Tier 1 implementation inspection. No fresh test, browser
+benchmark, or representative-device run is claimed in this addendum.
+
+## Addendum (2026-07-26) - developer-facing visibility observability
+
+- The existing developer diagnostics now display the current renderer visibility
+  snapshot beside FPS, draw calls, heap use, and runtime asset-bridge status.
+- The compact `props:` segment reports submitted/candidate props, near/mid/far
+  tier counts, culled candidates, and instance-capacity pressure. The same
+  snapshot remains available to run records and `window.getPerformanceSnapshot`.
+- This adds an operator-facing measurement path for the Tier 1 visibility policy
+  without introducing a second debug UI or exposing tuning controls on the
+  player-facing surface.
+- This is not proof of dynamic profile selection, per-instance frustum culling,
+  occlusion culling, geometric LOD, or mobile-runtime acceptance. Those remain
+  separate future claims requiring their own measurements.
+- Evidence level: Tier 1 static source inspection; no browser or benchmark run
+  was performed in this pass.

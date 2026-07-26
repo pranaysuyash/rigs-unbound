@@ -46,7 +46,7 @@ test("the checked-in manifest has no preflight findings", async () => {
     path.join(projectRoot, "assets/asset-manifest.json"),
   );
   assert.deepEqual(report.findings, []);
-  assert.equal(report.entries, 3);
+  assert.equal(report.entries, 4);
 });
 
 test("a minimal GLB v2 is structurally accepted", () => {
@@ -95,6 +95,7 @@ test("truncated and unsafe GLB dependencies are rejected", async () => {
             status: "runtime-tested",
             sourceType: "test",
             runtimePath: "assets/runtime/asset.glb",
+            publicRuntimeApproved: false,
             rightsStatus: "test",
             intendedUse: "test",
           },
@@ -130,6 +131,7 @@ test("manifest path traversal is rejected", async () => {
             sourceType: "test",
             sourcePath: "../../outside.txt",
             runtimePath: null,
+            publicRuntimeApproved: false,
             rightsStatus: "review",
             intendedUse: "test",
           },
@@ -165,6 +167,7 @@ test("runtime files cannot escape the declared asset root", async () => {
             status: "proposed",
             sourceType: "test",
             runtimePath: "assets/not-runtime/asset.glb",
+            publicRuntimeApproved: false,
             rightsStatus: "test",
             intendedUse: "test",
           },
@@ -176,6 +179,90 @@ test("runtime files cannot escape the declared asset root", async () => {
       report.findings.some(
         (item) => item.code === "runtime-path-outside-asset-root",
       ),
+    );
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("public runtime approval requires tested, hashed, licensed evidence", async () => {
+  const tempRoot = await mkdtemp(
+    path.join(os.tmpdir(), "rigs-unbound-public-asset-"),
+  );
+  try {
+    const manifestPath = path.join(tempRoot, "assets/asset-manifest.json");
+    await mkdir(path.dirname(manifestPath), { recursive: true });
+    await writeFile(
+      manifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        assetRoot: "assets/runtime",
+        runtimeFormat: "glb",
+        entries: [
+          {
+            id: "unverified-public",
+            kind: "static-prop",
+            status: "proposed",
+            sourceType: "test",
+            runtimePath: null,
+            publicRuntimeApproved: true,
+            rightsStatus: "review",
+            intendedUse: "test",
+          },
+        ],
+      }),
+    );
+
+    const report = await preflightManifestFile(manifestPath);
+
+    assert.ok(
+      report.findings.some(
+        (item) => item.code === "public-runtime-approval-unverified",
+      ),
+    );
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("runtime bytes must match the manifest digest", async () => {
+  const tempRoot = await mkdtemp(
+    path.join(os.tmpdir(), "rigs-unbound-runtime-digest-"),
+  );
+  try {
+    const runtimePath = path.join(tempRoot, "assets/runtime/asset.glb");
+    const manifestPath = path.join(tempRoot, "assets/asset-manifest.json");
+    await mkdir(path.dirname(runtimePath), { recursive: true });
+    await writeFile(
+      runtimePath,
+      createGlb({ asset: { version: "2.0" }, scenes: [], nodes: [] }),
+    );
+    await writeFile(
+      manifestPath,
+      JSON.stringify({
+        schemaVersion: 1,
+        assetRoot: "assets/runtime",
+        runtimeFormat: "glb",
+        entries: [
+          {
+            id: "digest-mismatch",
+            kind: "static-prop",
+            status: "runtime-tested",
+            sourceType: "test",
+            runtimePath: "assets/runtime/asset.glb",
+            publicRuntimeApproved: false,
+            sha256: "0".repeat(64),
+            rightsStatus: "test",
+            intendedUse: "test",
+          },
+        ],
+      }),
+    );
+
+    const report = await preflightManifestFile(manifestPath);
+
+    assert.ok(
+      report.findings.some((item) => item.code === "runtime-sha256-mismatch"),
     );
   } finally {
     await rm(tempRoot, { recursive: true, force: true });

@@ -47,9 +47,14 @@ async function state(page) {
 async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   let minimumDistance = Infinity;
   let maximumY = 0;
+  let finalRig = null;
+  let finalHeadingError = null;
+  let finalDiagnostic = null;
   for (let step = 0; step < maxSteps; step += 1) {
     const current = await state(page);
     const rig = current.activeRig;
+    finalRig = rig;
+    finalDiagnostic = current.lastDiagnostic;
     const dx = target.x - rig.x;
     const dz = target.z - rig.z;
     const distance = Math.hypot(dx, dz);
@@ -63,6 +68,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     let error = desired - rig.heading;
     while (error > Math.PI) error -= Math.PI * 2;
     while (error < -Math.PI) error += Math.PI * 2;
+    finalHeadingError = error;
     const headingError = Math.abs(error);
     const desiredSpeed =
       distance > 36 ? 9 : distance > 16 ? 5.5 : distance > 7 ? 3 : 1.6;
@@ -84,15 +90,15 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
           90,
         ),
       {
-        turnLeft: error > 0.055,
-        turnRight: error < -0.055,
+        turnLeft: error < -0.055,
+        turnRight: error > 0.055,
         brake,
         accelerate,
       },
     );
   }
   throw new Error(
-    `Rig did not reach target ${JSON.stringify(target)}; nearest ${minimumDistance.toFixed(2)} m`,
+    `Rig did not reach target ${JSON.stringify(target)}; nearest ${minimumDistance.toFixed(2)} m; final ${JSON.stringify({ rig: finalRig, headingError: finalHeadingError, diagnostic: finalDiagnostic })}`,
   );
 }
 
@@ -196,6 +202,35 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     (await page.evaluate(() => document.activeElement?.id)) === "game-canvas",
     "Welcome entry did not transfer focus to the game canvas",
   );
+  const firstControlLesson = page.locator("#control-lesson");
+  await firstControlLesson.waitFor({ state: "visible" });
+  assert(
+    (await firstControlLesson.getAttribute("data-lesson-id")) === "drive" &&
+      /W A S D|arrow keys/i.test(
+        (await firstControlLesson.textContent()) ?? "",
+      ) &&
+      /touch|direction arrows/i.test(
+        (await firstControlLesson.textContent()) ?? "",
+      ),
+    `Fresh field did not explain its first driving control: ${JSON.stringify({
+      lessonId: await firstControlLesson.getAttribute("data-lesson-id"),
+      text: await firstControlLesson.textContent(),
+    })}`,
+  );
+  await page.keyboard.down("KeyW");
+  await page.waitForFunction(() => {
+    const learned = JSON.parse(
+      localStorage.getItem("rigs-unbound.control-lessons.v1") ?? "[]",
+    );
+    return Array.isArray(learned) && learned.includes("drive");
+  });
+  await page.keyboard.up("KeyW");
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector("#control-lesson")
+        ?.getAttribute("data-lesson-id") !== "drive",
+  );
   await page.keyboard.press("Space");
   assert(
     !(await page.locator("#welcome-panel").isVisible()),
@@ -238,9 +273,39 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
       spawnCamera.obstructionSource === "structure" &&
       spawnCamera.obstructionId?.startsWith("home-") &&
       spawnCamera.resolvedDistance >= 2.8 &&
+      spawnCamera.behindRig === true &&
+      spawnCamera.forwardOffset < 0 &&
       spawnCamera.pathClear === true &&
       spawnCamera.selfIntersecting === false,
     `Fresh chase camera did not resolve the Home Silo obstruction: ${JSON.stringify(spawnCamera)}`,
+  );
+
+  const launchStructure = await page.evaluate(() => {
+    const launch = JSON.parse(window.render_game_to_text()).sites.find(
+      (site) => site.id === "launch-ridge",
+    );
+    if (!launch) throw new Error("Missing Launch Ridge browser fixture.");
+    window.placeTerrainRigForAcceptance(launch.x, launch.z + 0.2, 0, 4);
+    window.applyRigInput({}, 1000 / 60);
+    const rig = JSON.parse(window.render_game_to_text()).activeRig;
+    window.selectCamera("chase");
+    return {
+      launch,
+      rig,
+      distance: Math.hypot(rig.x - launch.x, rig.z - launch.z),
+      camera: window.getCameraResolutionEvidence(),
+    };
+  });
+  assert(
+    launchStructure.distance >= 3.04 &&
+      launchStructure.camera.behindRig === true &&
+      launchStructure.camera.forwardOffset < 0 &&
+      launchStructure.camera.pathClear === true &&
+      launchStructure.camera.selfIntersecting === false,
+    `Launch Ridge structure/camera contract failed: ${JSON.stringify(launchStructure)}`,
+  );
+  await page.evaluate(() =>
+    window.placeTerrainRigForAcceptance(0, 3, Math.PI, 0),
   );
 
   // Prove the procedural obstacle query against a real standing tree, then
@@ -474,6 +539,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     "marsh-skimmer": "b5-marsh-skimmer-hood-after.png",
   };
 
+  const steeringStart = await state(page);
   await page.evaluate(() => window.applyRigInput({ accelerate: true }, 900));
   await page.waitForTimeout(500);
   await page.screenshot({
@@ -483,6 +549,25 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
 
   await page.evaluate(() =>
     window.applyRigInput({ accelerate: true, steerLeft: true }, 650),
+  );
+  const steeringEnd = await state(page);
+  let leftHeadingDelta =
+    steeringEnd.activeRig.heading - steeringStart.activeRig.heading;
+  while (leftHeadingDelta > Math.PI) leftHeadingDelta -= Math.PI * 2;
+  while (leftHeadingDelta < -Math.PI) leftHeadingDelta += Math.PI * 2;
+  const displacementX = steeringEnd.activeRig.x - steeringStart.activeRig.x;
+  const displacementZ = steeringEnd.activeRig.z - steeringStart.activeRig.z;
+  const leftwardDisplacement =
+    displacementX * -Math.cos(steeringStart.activeRig.heading) +
+    displacementZ * Math.sin(steeringStart.activeRig.heading);
+  assert(
+    leftHeadingDelta < -0.01 && leftwardDisplacement > 0.05,
+    `Left input did not turn and move to the rig's left: ${JSON.stringify({
+      start: steeringStart.activeRig,
+      end: steeringEnd.activeRig,
+      leftHeadingDelta,
+      leftwardDisplacement,
+    })}`,
   );
   const expressedPerception = await page.evaluate(() =>
     window.getRigPerceptionEvidence(),
@@ -554,6 +639,12 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   });
   await page.locator("#camera-select").selectOption("chase");
 
+  // Approach the relay on a short, aligned path. This proves the real movement
+  // and interaction contract without making acceptance depend on an obstacle-
+  // avoidance bot that the product does not claim to provide.
+  await page.evaluate((cargo) => {
+    window.placeRig(cargo.x, cargo.z + 12, Math.PI);
+  }, initial.activity.cargoPosition);
   const cargoApproach = await driveTo(
     page,
     initial.activity.cargoPosition,
@@ -899,6 +990,7 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
         },
         camera: {
           spawn: spawnCamera,
+          launchStructure,
           standingToFelledTree: cameraTreeFixture,
           hoods: hoodEvidence,
         },

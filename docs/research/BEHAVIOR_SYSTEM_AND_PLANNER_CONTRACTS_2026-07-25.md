@@ -172,3 +172,26 @@ grow as readers of the world rather than silent co-authors of state.
   - a distinct planner should only appear when the project needs to rank
     multiple candidate actions rather than resolve one contextual action at a
     time.
+
+## Addendum (2026-07-26) - single-verb resolution is enough today; planner proof should wait for multi-candidate choice
+
+- Re-checked the current command/state spine and the capability/affordance
+  contracts.
+- The runtime is already making meaningful decisions in command handlers, but
+  those decisions are still single-verb resolutions:
+  - a contextual action is identified,
+  - capability and affordance gates are checked,
+  - the kernel executes one chosen effect.
+- That means the repo does **not** yet need a broad planner framework to be
+  honest about its current behavior. A planner becomes a real requirement only
+  when one decision point must choose among multiple valid candidates.
+- The next proof slice should therefore be narrower and more concrete:
+  - one machine/task selector or activity scorer that considers at least two
+    valid candidates,
+  - deterministic ordering for equal-score branches,
+  - one structured rejection reason for the losing candidate,
+  - one telemetry line naming why the branch lost.
+- That keeps the behavior lane aligned with the current architecture instead of
+  promoting a planner abstraction before the product needs one.
+- Evidence depth: Tier 1 static inspection of the current command/spine and
+  capability contracts, with the existing Tier 4 runtime anchor unchanged.

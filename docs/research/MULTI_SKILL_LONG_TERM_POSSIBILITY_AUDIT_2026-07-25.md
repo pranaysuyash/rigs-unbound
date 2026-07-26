@@ -125,10 +125,12 @@ These names are proposed; create only after you confirm doc priority.
 ## 6) Anything else?
 
 Yes. The core technical stack is coherent, but the highest unclosed gap is not another engine or shader addition — it is **evidence discipline on the visible contract**:
+
 - we have many experiments,
 - we have implementation,
 - we still need contract-level quality gates so every future feature is accepted against existing architecture rather than a separate style or stack.
 
 Next decision required from you:
+
 1. the renderer/performance/accessibility contract bundle is now documented as the immediate documentation-and-validation track,
 2. the next branch point remains whether to prioritize a second locomotion family or a renderer hardening lane first.

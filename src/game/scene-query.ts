@@ -61,6 +61,26 @@ interface Bounds {
   maxZ: number;
 }
 
+interface StructureWorldCentre {
+  x: number;
+  y: number;
+  z: number;
+}
+
+function structureWorldCentre(
+  part: WorldStructurePart,
+  terrain: TerrainField,
+): StructureWorldCentre | null {
+  const site = findSite(part.siteId);
+  if (!site) return null;
+  const baseY = terrain.height(site.x, site.z);
+  return {
+    x: site.x + part.localX,
+    y: baseY + part.localY,
+    z: site.z + part.localZ,
+  };
+}
+
 function finitePoint(point: ScenePoint): boolean {
   return (
     Number.isFinite(point.x) &&
@@ -137,12 +157,8 @@ function structureBounds(
   part: WorldStructurePart,
   terrain: TerrainField,
 ): Bounds | null {
-  const site = findSite(part.siteId);
-  if (!site) return null;
-  const baseY = terrain.height(site.x, site.z);
-  const centreX = site.x + part.localX;
-  const centreY = baseY + part.localY;
-  const centreZ = site.z + part.localZ;
+  const centre = structureWorldCentre(part, terrain);
+  if (!centre) return null;
 
   let halfX: number;
   let halfY: number;
@@ -166,12 +182,12 @@ function structureBounds(
   }
 
   return {
-    minX: centreX - halfX,
-    minY: centreY - halfY,
-    minZ: centreZ - halfZ,
-    maxX: centreX + halfX,
-    maxY: centreY + halfY,
-    maxZ: centreZ + halfZ,
+    minX: centre.x - halfX,
+    minY: centre.y - halfY,
+    minZ: centre.z - halfZ,
+    maxX: centre.x + halfX,
+    maxY: centre.y + halfY,
+    maxZ: centre.z + halfZ,
   };
 }
 
@@ -310,4 +326,123 @@ export function queryCameraObstruction(
   }
 
   return nearest;
+}
+
+export interface StructureCollisionBody {
+  x: number;
+  z: number;
+  speed: number;
+  heading: number;
+}
+
+export interface StructureCollisionOutcome {
+  hit: boolean;
+  impactSpeed: number;
+  blockedBy: WorldStructurePart | null;
+}
+
+const NO_STRUCTURE_COLLISION: StructureCollisionOutcome = {
+  hit: false,
+  impactSpeed: 0,
+  blockedBy: null,
+};
+
+/**
+ * Resolve a circular rig footprint against canonical authored structures.
+ *
+ * The same records drive rendering and camera queries, so a visible landmark
+ * cannot become renderer-only scenery that rigs pass through. Mutating the body
+ * here mirrors procedural-obstacle resolution while keeping solver choice out
+ * of authored-world truth.
+ */
+export function resolveRigStructureCollision(
+  source: Pick<SceneQuerySource, "terrain">,
+  rig: StructureCollisionBody,
+  rigRadius: number,
+): StructureCollisionOutcome {
+  const radius = Math.max(0, Number.isFinite(rigRadius) ? rigRadius : 0);
+  let outcome: StructureCollisionOutcome = NO_STRUCTURE_COLLISION;
+
+  const registerHit = (
+    part: WorldStructurePart,
+    normalX: number,
+    normalZ: number,
+  ): void => {
+    const forwardX = Math.sin(rig.heading);
+    const forwardZ = Math.cos(rig.heading);
+    const closing = Math.max(
+      0,
+      -(forwardX * normalX + forwardZ * normalZ) * rig.speed,
+    );
+    if (closing > 0) {
+      const retained = Math.min(
+        0.75,
+        Math.max(-0.15, 1 - closing / Math.max(1, Math.abs(rig.speed))),
+      );
+      rig.speed *= retained;
+    }
+    if (!outcome.hit || closing >= outcome.impactSpeed) {
+      outcome = {
+        hit: true,
+        impactSpeed: Math.max(outcome.impactSpeed, closing),
+        blockedBy: part,
+      };
+    }
+  };
+
+  for (const part of WORLD_STRUCTURE_PARTS) {
+    if (!part.rigCollider) continue;
+    const centre = structureWorldCentre(part, source.terrain);
+    if (!centre) continue;
+
+    if (part.shape.kind === "box") {
+      const rotation = part.rotationY ?? 0;
+      const cosine = Math.cos(rotation);
+      const sine = Math.sin(rotation);
+      const deltaX = rig.x - centre.x;
+      const deltaZ = rig.z - centre.z;
+      const localX = cosine * deltaX - sine * deltaZ;
+      const localZ = sine * deltaX + cosine * deltaZ;
+      const extentX = part.shape.width * 0.5 + radius;
+      const extentZ = part.shape.depth * 0.5 + radius;
+      if (Math.abs(localX) >= extentX || Math.abs(localZ) >= extentZ) {
+        continue;
+      }
+
+      const penetrationX = extentX - Math.abs(localX);
+      const penetrationZ = extentZ - Math.abs(localZ);
+      let localNormalX = 0;
+      let localNormalZ = 0;
+      let overlap: number;
+      if (penetrationX < penetrationZ) {
+        localNormalX = localX < 0 ? -1 : 1;
+        overlap = penetrationX;
+      } else {
+        localNormalZ = localZ < 0 ? -1 : 1;
+        overlap = penetrationZ;
+      }
+      const normalX = cosine * localNormalX + sine * localNormalZ;
+      const normalZ = -sine * localNormalX + cosine * localNormalZ;
+      rig.x += normalX * (overlap + 0.001);
+      rig.z += normalZ * (overlap + 0.001);
+      registerHit(part, normalX, normalZ);
+      continue;
+    }
+
+    const minimum = part.shape.radius + radius;
+    const deltaX = rig.x - centre.x;
+    const deltaZ = rig.z - centre.z;
+    const distance = Math.hypot(deltaX, deltaZ);
+    if (distance >= minimum) continue;
+    const normalX =
+      distance > EPSILON ? deltaX / distance : -Math.sin(rig.heading);
+    const normalZ =
+      distance > EPSILON ? deltaZ / distance : -Math.cos(rig.heading);
+    const overlap = minimum - distance;
+    rig.x += normalX * (overlap + 0.001);
+    rig.z += normalZ * (overlap + 0.001);
+    registerHit(part, normalX, normalZ);
+  }
+
+  return outcome;
 }

@@ -30,6 +30,7 @@ now **Phase 0 — playability repair**, landing before Phase A:
 Phase order is now: **0 → A → B**, each with its own green gates.
 
 ---
+
 Decisions: ADR-0002 (slice direction), ADR-0018 (progression spine, Accepted),
 ADR-0006/0011 (capability-first, no rig-name branches), ADR-0007 (terrain substrate),
 ADR-0012 (perception chain), motto_v4 (acceptance contract, evidence tiers).
@@ -141,7 +142,7 @@ assumptions.
 
 ## Anything else?
 
-Yes. Two standing cautions: (1) threats must stay *ecological* — readable
+Yes. Two standing cautions: (1) threats must stay _ecological_ — readable
 hunters of noise/light — or we recreate the "generic spider drone" problem
 this slice exists to kill; (2) the night must be **worth** entering: mature
 crops harvested at night should carry a bonus or exclusivity, otherwise the

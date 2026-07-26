@@ -148,6 +148,15 @@ describe("rig gameplay kernel", () => {
     const tractor = scenario("MOVE", "utility-tractor");
     const buggy = scenario("MOVE", "toy-buggy");
 
+    for (const runner of [tractor, buggy]) {
+      const rig = activeRig(runner.state);
+      // Compare the controllers on the same open southbound route instead of
+      // accidentally benchmarking different berth geometry.
+      rig.x = 0;
+      rig.z = -12;
+      rig.heading = Math.PI;
+      settleWorld(runner.state, runner.world);
+    }
     driveFlat(tractor.state, tractor.world, 180);
     driveFlat(buggy.state, buggy.world, 180);
 
@@ -510,6 +519,32 @@ describe("traversal model", () => {
     expect(rig.heading).toBe(heading);
     expect(rig.mobility.grounded).toBe(false);
   });
+
+  it.each(["utility-tractor", "toy-buggy", "marsh-skimmer"] as const)(
+    "turns %s toward world-left when the player holds left",
+    (rigId) => {
+      const { state, world } = scenario(`LEFT-STEER-${rigId}`, rigId);
+      const rig = activeRig(state);
+      rig.speed = 6;
+      const heading = rig.heading;
+
+      stepGame(
+        state,
+        world,
+        {
+          accelerate: true,
+          brake: false,
+          steerLeft: true,
+          steerRight: false,
+        },
+        FIXED_STEP_SECONDS,
+      );
+
+      // In the canonical +Z-forward coordinate system, negative yaw turns
+      // forward toward world −X: the player's left.
+      expect(rig.heading).toBeLessThan(heading);
+    },
+  );
 
   it("bounds the rig inside the world disc", () => {
     const { state, world } = scenario("BOUNDARY");
@@ -912,6 +947,30 @@ describe("collision", () => {
       expect(world.obstacles).toBeDefined();
       expect(obstacle.groundY).toBeGreaterThan(0);
     }
+  });
+
+  it("pushes a rig out of the authored Launch Ridge rocket", () => {
+    const { state, world } = scenario("LAUNCH-STRUCTURE-COLLISION");
+    const rig = activeRig(state);
+    const launch = findSite("launch-ridge");
+    if (!launch) throw new Error("missing Launch Ridge fixture");
+    const profile = effectiveProfile(rig.id, rig.modules);
+    const rigRadius = profile.track * 0.5 + 0.25;
+    const rocketRadius = 1.5;
+
+    // Simulate an old save or earlier collision-less build that left the rig
+    // inside the visible landmark.
+    rig.x = launch.x;
+    rig.z = launch.z + 0.2;
+    rig.heading = 0;
+    rig.speed = 4;
+    settleWorld(state, world);
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    expect(
+      Math.hypot(rig.x - launch.x, rig.z - launch.z),
+    ).toBeGreaterThanOrEqual(rigRadius + rocketRadius - 0.001);
   });
 
   it("lets a heavy rig fell a tree that stops a light one", () => {

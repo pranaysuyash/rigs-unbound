@@ -137,8 +137,10 @@ class RapierRaycastVehicle implements DynamicsVehicle {
       0.32,
       1 - Math.min(1, Math.abs(speed) / 24) * 0.64,
     );
+    // Project semantic steering is positive-left. Rapier's positive +Y wheel
+    // angle turns a +Z-forward wheel toward +X (right).
     const steering =
-      intent.steering * this.config.maximumSteeringAngle * speedSteeringScale;
+      -intent.steering * this.config.maximumSteeringAngle * speedSteeringScale;
     this.lastSteering = steering;
 
     const engine =

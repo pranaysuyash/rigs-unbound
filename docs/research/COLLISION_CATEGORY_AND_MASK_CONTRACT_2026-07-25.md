@@ -188,3 +188,72 @@ general collision-semantic proof.
 - The useful conclusion is unchanged: the current collision model is stable and
   readable, and the next extension should add a policy matrix before any new
   contact classes are introduced.
+
+## Addendum (2026-07-26) - authored structures join canonical collision truth
+
+The Launch Ridge review exposed a different collision class from the procedural
+tree/rock field: visible authored landmark geometry could exist only in the
+renderer. The rocket therefore looked solid while gameplay and camera queries
+could not reason about its footprint.
+
+The first durable authored-structure slice now uses
+`WORLD_STRUCTURE_PARTS` as the shared record for:
+
+- renderer geometry;
+- camera obstruction;
+- solver-independent circular-rig push-out.
+
+Each part declares `cameraOccluder` and `rigCollider` separately. This prevents
+decorative roofs, pads, and other visible pieces from silently becoming motion
+blockers while still eliminating renderer-only solid landmarks. Rapier and
+Box3D remain implementation adapters rather than authored-world truth.
+
+Acceptance places the tractor inside the Launch Ridge rocket, advances the real
+kernel, and proves both:
+
+- the rig is pushed beyond the combined structure/rig footprint;
+- the chase camera remains rear-side, path-clear, and outside the rig.
+
+This is not yet the broader category/mask matrix named by this contract.
+Triggers, sensors, hazards, projectiles, and CCD still need the planned policy
+layer. The next structure-collision extension should preserve the same semantic
+flags and add compound rig footprints only when a real articulated or long-rig
+case requires them.
+
+## Anything else? (authored structures)
+
+Yes. An imported GLB is presentation data, not automatic collision authority.
+Future landmark assets should map named nodes to existing authored structure
+records, or update those records deliberately with tests. They should not
+derive gameplay collision opportunistically from whatever mesh happens to
+load.
+
+## Addendum (2026-07-26) - two collision consumers are real; a third is the matrix trigger
+
+- The `3d-games` review re-checked the live architecture rather than assuming
+  that every collision concern should enter one generic bitmask today.
+- The code has two distinct, project-owned collision consumers:
+  - rig traversal uses deterministic circular contacts against procedural
+    obstacles and authored `rigCollider` structure parts;
+  - camera resolution uses typed segment queries against terrain, obstacles,
+    and independently flagged `cameraOccluder` structure parts.
+- Both consumers already share deterministic obstacle truth and authored
+  structure records, but they intentionally need different shapes and outcomes.
+  A tree crown can block a camera without becoming a rig contact shape; a pad
+  can remain visible without becoming a traversal blocker.
+- Decision: do not retrofit a category/mask registry into these two existing
+  consumers. That would only wrap established semantic flags in a second source
+  of truth. Introduce the matrix with the first third consumer that needs
+  pairwise admission: projectile, sensor, pickup/trigger, hazard, or AI line of
+  sight. At that point, migrate the existing flags into category definitions,
+  define an unknown-role rejection outcome, and add telemetry for rejected
+  category pairs.
+- Evidence depth: Tier 1 static review of `src/game/collision.ts`,
+  `src/game/scene-query.ts`, their tests, and the current authored-structure
+  contract. No new runtime claim is made.
+
+## Anything else? (matrix trigger)
+
+The collision policy must remain simulation-owned. Render meshes and imported
+assets can supply geometry only through an authored mapping; they cannot create
+new physical roles by loading successfully.

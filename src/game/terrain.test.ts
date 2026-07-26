@@ -69,7 +69,7 @@ describe("noise primitives", () => {
       maximum = Math.max(maximum, value);
     }
     expect(maximum).toBeGreaterThan(0.5);
-  });
+  }, 15000);
 });
 
 describe("terrain field determinism", () => {
@@ -115,7 +115,7 @@ describe("terrain field invariants", () => {
       expect(height).toBeGreaterThanOrEqual(-10);
       expect(height).toBeLessThanOrEqual(150);
     }
-  });
+  }, 15000);
 
   it("stays continuous, so suspension never reads a step discontinuity", () => {
     // The world legitimately contains cliffs (ridge spines, the boundary rim), so

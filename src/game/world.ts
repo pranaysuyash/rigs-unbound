@@ -350,6 +350,8 @@ export type WorldStructureShape =
   | {
       kind: "cylinder";
       radius: number;
+      radiusTop?: number;
+      radiusBottom?: number;
       height: number;
       radialSegments: number;
     }
@@ -373,6 +375,8 @@ export interface WorldStructurePart {
   rotationY?: number;
   /** Low pads do not need to shorten a camera boom. */
   cameraOccluder: boolean;
+  /** True when a moving rig must remain outside this ground-level part. */
+  rigCollider: boolean;
 }
 
 export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
@@ -385,6 +389,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "box", width: 9, height: 5.5, depth: 7.5 },
     color: 0x7d352a,
     cameraOccluder: true,
+    rigCollider: true,
   },
   {
     id: "home-barn-roof",
@@ -403,6 +408,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     roughness: 0.95,
     rotationY: Math.PI / 4,
     cameraOccluder: true,
+    rigCollider: false,
   },
   {
     id: "home-silo-body",
@@ -413,6 +419,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "cylinder", radius: 2.6, height: 11, radialSegments: 12 },
     color: 0xb6a88e,
     cameraOccluder: true,
+    rigCollider: true,
   },
   {
     id: "home-silo-roof",
@@ -423,6 +430,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "cone", radius: 2.9, height: 2.4, radialSegments: 12 },
     color: 0x6c5d4c,
     cameraOccluder: true,
+    rigCollider: false,
   },
   {
     id: "home-workshop-pad",
@@ -434,6 +442,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     color: 0x53504a,
     roughness: 0.9,
     cameraOccluder: false,
+    rigCollider: false,
   },
   {
     id: "home-gantry-left",
@@ -444,6 +453,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "box", width: 0.5, height: 5.5, depth: 0.5 },
     color: 0x8a8378,
     cameraOccluder: true,
+    rigCollider: true,
   },
   {
     id: "home-gantry-right",
@@ -454,6 +464,7 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "box", width: 0.5, height: 5.5, depth: 0.5 },
     color: 0x8a8378,
     cameraOccluder: true,
+    rigCollider: true,
   },
   {
     id: "home-gantry-top",
@@ -464,6 +475,58 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     shape: { kind: "box", width: 9.5, height: 0.5, depth: 0.6 },
     color: 0x8a8378,
     cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "launch-rocket-body",
+    siteId: "launch-ridge",
+    localX: 0,
+    localY: 7,
+    localZ: 0,
+    shape: {
+      kind: "cylinder",
+      radius: 1.5,
+      radiusTop: 1.3,
+      radiusBottom: 1.5,
+      height: 11,
+      radialSegments: 12,
+    },
+    color: 0xead8b8,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "launch-rocket-nose",
+    siteId: "launch-ridge",
+    localX: 0,
+    localY: 14.3,
+    localZ: 0,
+    shape: { kind: "cone", radius: 1.3, height: 3.6, radialSegments: 12 },
+    color: 0xb94f32,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "launch-rocket-fin-left",
+    siteId: "launch-ridge",
+    localX: 1.5,
+    localY: 2.6,
+    localZ: 0,
+    shape: { kind: "box", width: 0.3, height: 3, depth: 3 },
+    color: 0xb94f32,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "launch-rocket-fin-right",
+    siteId: "launch-ridge",
+    localX: -1.5,
+    localY: 2.6,
+    localZ: 0,
+    shape: { kind: "box", width: 0.3, height: 3, depth: 3 },
+    color: 0xb94f32,
+    cameraOccluder: true,
+    rigCollider: true,
   },
 ] as const;
 
@@ -497,14 +560,14 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
     rigId: "toy-buggy",
     x: HOME_SITE.x - 7,
     z: HOME_SITE.z - 8,
-    heading: 0,
+    heading: Math.PI,
     label: "Spark service berth",
   },
   "marsh-skimmer": {
     rigId: "marsh-skimmer",
     x: HOME_SITE.x - 13,
     z: HOME_SITE.z - 7,
-    heading: 0,
+    heading: Math.PI,
     label: "Drift service berth",
   },
 } as const;

@@ -33,7 +33,7 @@ hybridized → storied`) is formalized as each rig's journey phase.
   demonstrated use (a signature job completed with that rig).
 - The phase is visible on the machine's body (repair seams, patches,
   silhouette) and in the field kit. The rig's body is its level badge.
-- Journey is per-rig instance state: it is *this* machine's history. A second
+- Journey is per-rig instance state: it is _this_ machine's history. A second
   instance of the same blueprint starts at `found`.
 
 ### 2. Verb Mastery — the skill level (instance state, per capability)
@@ -49,7 +49,7 @@ verbs) carries a per-rig mastery track with named ranks
   the game does.
 - **Rewards are both options and power (operator amendment).** Each rank
   grants (a) new optionality — coupling types, tuning depth, contract access —
-  and (b) measurable strength *inside that verb's domain*: a master of tow
+  and (b) measurable strength _inside that verb's domain_: a master of tow
   hauls heavier loads faster with a more stable hitch; a master of plough
   cuts deeper furrows at less strain. Power never generalizes across verbs
   and never aggregates into a universal score. A rig becomes visibly stronger

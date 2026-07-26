@@ -25,7 +25,11 @@
     "aspectRatioDelta": 0.7506,
     "scaleDelta": 0.1431,
     "bilateralSymmetryError": 0.1172,
-    "required": { "silhouetteIoU": 0.85, "aspectRatioDeltaMax": 0.05, "scaleDeltaMax": 0.08 }
+    "required": {
+      "silhouetteIoU": 0.85,
+      "aspectRatioDeltaMax": 0.05,
+      "scaleDeltaMax": 0.08
+    }
   },
   "decision": "stop-and-refine",
   "notes": [

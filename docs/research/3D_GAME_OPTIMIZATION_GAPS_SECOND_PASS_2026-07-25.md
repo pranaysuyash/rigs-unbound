@@ -24,31 +24,31 @@ This pass checks the untrusted conversation `chatgpt-conversation://6a64b5ee-919
 
 ## What remains intentionally delayed or missing
 
-| Topic | Current status | Why this matters | Suggested gate |
-|---|---|---|---|
-| Frustum distance/pixel visibility pipeline | Partial/blocked | Main path avoids some overdraw with mesh batching but sets `frustumCulled = false` on many heavy instanced groups. | Renderer hardening sprint |
-| Distance/LOD policy | Missing explicit tiers (geometry/material/AI/physics) | Scale-up will become cost-nonlinear as more rig classes, hazards, and content types are added. | Add policy and fixture-based proof |
-| Occlusion as renderer pass | Partial | Camera pull-in avoids geometry clipping, but no object-level occlusion submit filter. | Add occlusion stage or explicit non-occluder budget |
-| Chunked stream lifecycle | Missing | Terrain is built locally, not chunk-loaded/unloaded by demand. | Add request/activate/rollback/unload lifecycle |
-| Collision category matrix | Partial | Current obstacle contact path is uniform and correct for current scale, but not semantically separated by type intent. | Add `CollisionCategory` + `CollisionMask` and tests |
-| Dedicated replay artifact | Partial | Determinism is strong, but public/shared playback record format is not yet first-class. | Add versioned input log + checksum + verifier |
-| Multiplayer authority | Missing | Simulation is local/replayable, but no server-authoritative mutation pipeline yet. | Add authority lane only after deterministic replay and replay validation |
+| Topic                                      | Current status                                        | Why this matters                                                                                                       | Suggested gate                                                           |
+| ------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Frustum distance/pixel visibility pipeline | Partial/blocked                                       | Main path avoids some overdraw with mesh batching but sets `frustumCulled = false` on many heavy instanced groups.     | Renderer hardening sprint                                                |
+| Distance/LOD policy                        | Missing explicit tiers (geometry/material/AI/physics) | Scale-up will become cost-nonlinear as more rig classes, hazards, and content types are added.                         | Add policy and fixture-based proof                                       |
+| Occlusion as renderer pass                 | Partial                                               | Camera pull-in avoids geometry clipping, but no object-level occlusion submit filter.                                  | Add occlusion stage or explicit non-occluder budget                      |
+| Chunked stream lifecycle                   | Missing                                               | Terrain is built locally, not chunk-loaded/unloaded by demand.                                                         | Add request/activate/rollback/unload lifecycle                           |
+| Collision category matrix                  | Partial                                               | Current obstacle contact path is uniform and correct for current scale, but not semantically separated by type intent. | Add `CollisionCategory` + `CollisionMask` and tests                      |
+| Dedicated replay artifact                  | Partial                                               | Determinism is strong, but public/shared playback record format is not yet first-class.                                | Add versioned input log + checksum + verifier                            |
+| Multiplayer authority                      | Missing                                               | Simulation is local/replayable, but no server-authoritative mutation pipeline yet.                                     | Add authority lane only after deterministic replay and replay validation |
 
 ### Additional systems from extended audit conversation
 
 The follow-on context adds architecture-facing growth risks not limited to rendering. Their current status and gates are:
 
-| Topic | Current status | Why this matters | Suggested gate |
-|---|---|---|---|
-| ECS (Entity Component System) | Missing | Works today because object count is bounded; ECS reduces churn only when composition and actor count become high-volume. | Continue with adapter-first module composition until actor count or systemic feature breadth makes ECS the clear better trade-off. |
-| Streaming world manifest | Missing | Without manifest+stream lifecycle, adding distant biomes/activities risks linear memory growth and long loads. | Add chunk manifest + streaming activation + unload + recovery path with deterministic IDs |
-| Asset pipeline maturity | Partial | Current art path is usable but lacks a canonical material/mesh/audio validation and compression pipeline. | Define manifest schema + importer validation + provenance checks + compression profile + license gate |
-| Simulation layers | Partial | Physics/collision/rendering are separated; broader systems like weather/economy/traffic still sit inside shared ad-hoc flows. | Introduce domain modules with explicit sequencing and owned state boundaries |
-| Behaviour architecture | Missing | Current behavior is rule/path based in state flow; hard scaling to emergent AI/mission NPCs needs explicit planners. | Add one behavior abstraction (BT/GOAP/utility) and migrate target behaviors only where complexity is growing. |
-| Event system | Missing | No general world event bus; one-off scripted events will become coupled and difficult to test. | Add deterministic event graph contracts + payload schema + replay compatibility |
-| Modding architecture | Partial | Data-driven content exists, but creator/pack extension and compatibility validation are not yet first-class. | Add versioned data-pack manifest + pack validation + moderation/review workflow before external authoring. |
-| Deterministic replay artifact | Partial | Input replay is not first-class yet, limiting QA, ghost, and social replay modes. | Finalize serialized run record, playback verifier, and signed checksum in save/repro bundle |
-| Resource budgets | Partial | There are runtime counters, but no cross-system budget governor (CPU/GPU/VRAM/battery). | Define budget ledger + feature gate by budget band (low/medium/high), fail-soft fallback policies |
+| Topic                         | Current status | Why this matters                                                                                                              | Suggested gate                                                                                                                     |
+| ----------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| ECS (Entity Component System) | Missing        | Works today because object count is bounded; ECS reduces churn only when composition and actor count become high-volume.      | Continue with adapter-first module composition until actor count or systemic feature breadth makes ECS the clear better trade-off. |
+| Streaming world manifest      | Missing        | Without manifest+stream lifecycle, adding distant biomes/activities risks linear memory growth and long loads.                | Add chunk manifest + streaming activation + unload + recovery path with deterministic IDs                                          |
+| Asset pipeline maturity       | Partial        | Current art path is usable but lacks a canonical material/mesh/audio validation and compression pipeline.                     | Define manifest schema + importer validation + provenance checks + compression profile + license gate                              |
+| Simulation layers             | Partial        | Physics/collision/rendering are separated; broader systems like weather/economy/traffic still sit inside shared ad-hoc flows. | Introduce domain modules with explicit sequencing and owned state boundaries                                                       |
+| Behaviour architecture        | Missing        | Current behavior is rule/path based in state flow; hard scaling to emergent AI/mission NPCs needs explicit planners.          | Add one behavior abstraction (BT/GOAP/utility) and migrate target behaviors only where complexity is growing.                      |
+| Event system                  | Missing        | No general world event bus; one-off scripted events will become coupled and difficult to test.                                | Add deterministic event graph contracts + payload schema + replay compatibility                                                    |
+| Modding architecture          | Partial        | Data-driven content exists, but creator/pack extension and compatibility validation are not yet first-class.                  | Add versioned data-pack manifest + pack validation + moderation/review workflow before external authoring.                         |
+| Deterministic replay artifact | Partial        | Input replay is not first-class yet, limiting QA, ghost, and social replay modes.                                             | Finalize serialized run record, playback verifier, and signed checksum in save/repro bundle                                        |
+| Resource budgets              | Partial        | There are runtime counters, but no cross-system budget governor (CPU/GPU/VRAM/battery).                                       | Define budget ledger + feature gate by budget band (low/medium/high), fail-soft fallback policies                                  |
 
 ### Contract-note bridge
 

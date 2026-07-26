@@ -9,22 +9,22 @@ Reports: `PLAYTEST_SIM_CASUAL_2026-07-25.md`, `..._ACHIEVER_...`,
 `..._EXPLORER_...` (same directory). ~180 screenshots under
 `artifacts/playtest-*`.
 Caveat (confidence honesty): these are AI-simulated players, not humans. Their
-*language* evidence is strong (uncontaminated, screenshot-grounded); their
-*taste* calibration is not human. A real external session remains open.
+_language_ evidence is strong (uncontaminated, screenshot-grounded); their
+_taste_ calibration is not human. A real external session remains open.
 
 ## 1. The recorded gate: PASSED
 
 The standing question — "do players describe rigs as different fantasies or
 just different speeds?" — is answered in the affirmative by all three:
 
-| Rig | Casual | Achiever | Explorer |
-|---|---|---|---|
+| Rig    | Casual                     | Achiever                              | Explorer                                |
+| ------ | -------------------------- | ------------------------------------- | --------------------------------------- |
 | Torque | planted, lumbering, sturdy | planted, deliberate, stubborn, honest | earnest, stubborn, agricultural, honest |
-| Spark | twitchy, eager, fragile | skittish, eager, reckless, brittle | eager, skittish, slippery |
-| Drift | floaty, slidy, ghostly | (not reached) | (not reached — parked across water) |
+| Spark  | twitchy, eager, fragile    | skittish, eager, reckless, brittle    | eager, skittish, slippery               |
+| Drift  | floaty, slidy, ghostly     | (not reached)                         | (not reached — parked across water)     |
 
 Independent personas converged on near-identical fantasy words, and all three
-spontaneously described *job-based rig choice* ("would pick different rigs per
+spontaneously described _job-based rig choice_ ("would pick different rigs per
 job", "leaving the graded track is a decision", "weight, hills, water,
 fragility all read within seconds"). Terrain genuinely differentiates rigs.
 **This is the product's core bet, and it held.** Drift's reachability,
@@ -36,7 +36,7 @@ All three personas failed the same way: **zero salvage banked** in 10–15+
 minutes. Causes compound:
 
 - The nearest salvage to spawn is across deep water the starting tractor
-  cannot cross (casual, explorer — the explorer's Torque *drowned trying*).
+  cannot cross (casual, explorer — the explorer's Torque _drowned trying_).
 - The pickup mechanic is never taught (achiever).
 - Collection itself appears broken: the explorer drove to "1 m" and through
   crates with salvage staying 0 (B2 below — may be the whole story).
@@ -60,20 +60,20 @@ personas. That is an unusually cheap improvement curve.
 
 ## 4. Consolidated bug list (severity-ranked)
 
-| # | Bug | Evidence | Sev |
-|---|---|---|---|
-| B1 | **Title card re-opens over live gameplay** (Space — the primary action — re-summons it; sim keeps running, players drove to 33 km/h with it open) | all three personas | **P0** |
-| B2 | **Salvage crates uncollectable** (proximity 1 m + drive-through, count stays 0, compass re-targets) | explorer; consistent with all three banking 0 | **P0** |
-| B3 | **Soft-lock**: drowned rig at 0% condition + 0 salvage = no escape; "Reset field" inert via clicks; only a fresh profile recovers | explorer; casual hit drowning too | **P0** |
-| B4 | **Day/night derails**: clock jumped backward 22:27→11:51, then stuck at GLOAM; night never ended even at 06:15 | explorer | **P0** |
-| B5 | **Hood camera broken/clips** inside rig geometry (black plane fills screen) | casual (3 screenshots), explorer | **P1** |
-| B6 | Drift unreachable at spawn (parked across water Torque can't ford); also climbs 320% grades — reads as a bug, not a feature | explorer, casual | P1 |
-| B7 | Physics Lab dev fixture exposed in player UI; button leads to stuck "RAPIER LOADING" black viewport | achiever, casual | P1 |
-| B8 | fps/draw-call debug line visible in player HUD | casual | P2 |
-| B9 | Spawn camera blocked by silo wall on every reset | achiever | P2 |
-| B10 | Chase camera: no tree occlusion handling | casual | P2 (known: prop-aware occlusion is a recorded gap) |
-| B11 | "B blade" (grading blade) appeared unannounced; signal verbs (TILL/HAUL/TOW/WADE/ASCEND/SHRINK) unexplained; Space's per-rig meaning unlabeled | casual, explorer | P2 — onboarding/legibility |
-| B12 | No records/best-times; "Local field record" HUD line looks like stats but is renderer telemetry | achiever | P2 |
+| #   | Bug                                                                                                                                               | Evidence                                      | Sev                                                |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------- |
+| B1  | **Title card re-opens over live gameplay** (Space — the primary action — re-summons it; sim keeps running, players drove to 33 km/h with it open) | all three personas                            | **P0**                                             |
+| B2  | **Salvage crates uncollectable** (proximity 1 m + drive-through, count stays 0, compass re-targets)                                               | explorer; consistent with all three banking 0 | **P0**                                             |
+| B3  | **Soft-lock**: drowned rig at 0% condition + 0 salvage = no escape; "Reset field" inert via clicks; only a fresh profile recovers                 | explorer; casual hit drowning too             | **P0**                                             |
+| B4  | **Day/night derails**: clock jumped backward 22:27→11:51, then stuck at GLOAM; night never ended even at 06:15                                    | explorer                                      | **P0**                                             |
+| B5  | **Hood camera broken/clips** inside rig geometry (black plane fills screen)                                                                       | casual (3 screenshots), explorer              | **P1**                                             |
+| B6  | Drift unreachable at spawn (parked across water Torque can't ford); also climbs 320% grades — reads as a bug, not a feature                       | explorer, casual                              | P1                                                 |
+| B7  | Physics Lab dev fixture exposed in player UI; button leads to stuck "RAPIER LOADING" black viewport                                               | achiever, casual                              | P1                                                 |
+| B8  | fps/draw-call debug line visible in player HUD                                                                                                    | casual                                        | P2                                                 |
+| B9  | Spawn camera blocked by silo wall on every reset                                                                                                  | achiever                                      | P2                                                 |
+| B10 | Chase camera: no tree occlusion handling                                                                                                          | casual                                        | P2 (known: prop-aware occlusion is a recorded gap) |
+| B11 | "B blade" (grading blade) appeared unannounced; signal verbs (TILL/HAUL/TOW/WADE/ASCEND/SHRINK) unexplained; Space's per-rig meaning unlabeled    | casual, explorer                              | P2 — onboarding/legibility                         |
+| B12 | No records/best-times; "Local field record" HUD line looks like stats but is renderer telemetry                                                   | achiever                                      | P2                                                 |
 
 Note: B2 and B12 partially explain the achiever's "no persistence" claim —
 the explorer confirmed persistence **works** (world restored even a drowned
@@ -104,15 +104,15 @@ Appended to `docs/plans/FARMFALL_SLICE_01_2026-07-25.md` as a scope revision:
    spawn, pickup confirmation feedback, per-rig action labeling, signal-verb
    explanations — the "guided first job" is satisfied by the day→night loop
    itself plus an opportunity hint.
-3. The ecology/crops/mastery scope is unchanged — the playtests *validate*
+3. The ecology/crops/mastery scope is unchanged — the playtests _validate_
    it: emptiness (explorer), missing stakes (casual), missing records
    (achiever) are exactly what threats/dawn/mastery address.
 
 ## Anything else?
 
-Yes. Two meta-findings about the *testing* itself: (1) all three agents
+Yes. Two meta-findings about the _testing_ itself: (1) all three agents
 played for ~2 hours without wanting to stop, yet scored the game 4–7 — long
-sessions were driven by *searching for the game* inside the toy, not by the
+sessions were driven by _searching for the game_ inside the toy, not by the
 game's loop; session length was a confusion metric here, not an engagement
 metric. (2) The simulated-player method worked better than expected as a
 bug-net — B1–B4 are real, reproducible-class defects that unit tests and the

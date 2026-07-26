@@ -28,20 +28,20 @@ agent leaves the task. “Done” is never inferred from code existing.
 This is the operational order. The detailed numbered items below remain the
 canonical scope and acceptance contracts.
 
-| Order | Status | Work package | Why now | Exit before advancing |
-|---:|:---:|---|---|---|
-| 1 | `[x]` | RU-0106–RU-0109: first-session P0 repair | These defects blocked entry, reward, recovery, or coherent time | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
-| 2 | `[x]` | RU-0110: remaining P1/P2 playtest defects | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed |
-| 3 | `[-]` | RU-0601 + RU-0406: guidance and first meaningful spend | A reachable reward is not yet a complete first rung | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge |
-| 4 | `[ ]` | RU-0202 + RU-0203: signatures and crops | Establish the deterministic day-side ecology before threats depend on it | Bounded serializable kernel state, failure recovery, telemetry, and tests |
-| 5 | `[ ]` | RU-0204 + RU-0205: night threats and dawn consequence | Complete the first consequence-bearing day→night→dawn loop | Threat failure/retry paths, persisted dawn record, player/operator explanation |
-| 6 | `[ ]` | RU-0206 + RU-0405: mastery and schema v7 | Progression must reward varied rig verbs without grind or save drift | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary |
-| 7 | `[ ]` | RU-0207 + RU-0208: presentation and fresh-eyes validation | Kernel completion is not player comprehension or fun evidence | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human |
-| 8 | `[ ]` | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility |
-| 9 | `[ ]` | RU-0304–RU-0307: deeper capability/physics proofs | Let real activities pose the next controller and collision questions | Shared roles, rescue activity, obstruction query, then one genuinely different motion family |
-| 10 | `[ ]` | RU-0701–RU-0703: replay, guest identity, optional account link | Sharing starts with inspectable local artifacts, not real-time authority | Ghost artifact, export/import, then accepted auth/conflict ADR |
-| 11 | `[>]` | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder | High-leverage but depends on stable state, authority, moderation, and recovery | Named dependencies and operational safety gates close first |
-| 12 | `[~]` | RU-0801–RU-0808: continuous research/skill coverage | Research continues in parallel but must produce decisions or probes | Each recommendation is accepted, rejected, deferred, or linked to measured evidence |
+| Order | Status | Work package                                                      | Why now                                                                                       | Exit before advancing                                                                                                         |
+| ----: | :----: | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+|     1 | `[x]`  | RU-0106–RU-0109: first-session P0 repair                          | These defects blocked entry, reward, recovery, or coherent time                               | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
+|     2 | `[x]`  | RU-0110: remaining P1/P2 playtest defects                         | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed                        |
+|     3 | `[-]`  | RU-0601 + RU-0406: guidance and first meaningful spend            | A reachable reward is not yet a complete first rung                                           | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge                    |
+|     4 | `[ ]`  | RU-0202 + RU-0203: signatures and crops                           | Establish the deterministic day-side ecology before threats depend on it                      | Bounded serializable kernel state, failure recovery, telemetry, and tests                                                     |
+|     5 | `[ ]`  | RU-0204 + RU-0205: night threats and dawn consequence             | Complete the first consequence-bearing day→night→dawn loop                                    | Threat failure/retry paths, persisted dawn record, player/operator explanation                                                |
+|     6 | `[ ]`  | RU-0206 + RU-0405: mastery and schema v7                          | Progression must reward varied rig verbs without grind or save drift                          | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary                                         |
+|     7 | `[ ]`  | RU-0207 + RU-0208: presentation and fresh-eyes validation         | Kernel completion is not player comprehension or fun evidence                                 | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human                                          |
+|     8 | `[ ]`  | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter          | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility                            |
+|     9 | `[ ]`  | RU-0304–RU-0307: deeper capability/physics proofs                 | Let real activities pose the next controller and collision questions                          | Shared roles, rescue activity, obstruction query, then one genuinely different motion family                                  |
+|    10 | `[ ]`  | RU-0701–RU-0703: replay, guest identity, optional account link    | Sharing starts with inspectable local artifacts, not real-time authority                      | Ghost artifact, export/import, then accepted auth/conflict ADR                                                                |
+|    11 | `[>]`  | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder      | High-leverage but depends on stable state, authority, moderation, and recovery                | Named dependencies and operational safety gates close first                                                                   |
+|    12 | `[~]`  | RU-0801–RU-0808: continuous research/skill coverage               | Research continues in parallel but must produce decisions or probes                           | Each recommendation is accepted, rejected, deferred, or linked to measured evidence                                           |
 
 ### Active work package checklist
 
@@ -61,7 +61,7 @@ documentation must all agree.
     research/worklog files and four review captures were classified as
     uncommitted project work and left untouched.
 - [x] **RU-0110.2 — Reproduce and disposition B5–B12 with trustworthy
-  evidence.**
+      evidence.**
   - B5 and B9 were reproduced: the old hood pose intersected Torque geometry
     and the fresh chase boom crossed the Home Silo structure. The old spawn's
     exact nearest hit was `home-silo-body`, correcting the earlier gantry-only
@@ -95,7 +95,7 @@ documentation must all agree.
     world memory, and typed authored structures without importing Three.js;
     seven focused tests plus the full 116-test root suite pass.
 - [x] **RU-0110.4 — Replace B5's hardcoded hood pose with rig-owned camera
-  sockets.**
+      sockets.**
   - Author a named hood/cockpit socket for Torque, Spark, and Drift on each
     rendered rig; keep the contract compatible with later GLB node mounts.
   - Prevent camera-mode interpolation through rig geometry and expose
@@ -107,7 +107,7 @@ documentation must all agree.
     browser evidence reports clear paths and no self-intersection for all three
     rigs, with validated replacement captures under `docs/reviews/assets/ru-0110/`.
 - [x] **RU-0110.5 — Resolve B9/B10 chase-camera obstruction without spawn
-  hacks.**
+      hacks.**
   - Use the canonical query for immediate inward avoidance, slower outward
     recovery, a near-plane-safe margin, and post-smoothing revalidation.
   - Keep top-down/tactical cost bounded where full prop queries add no value.
@@ -201,7 +201,7 @@ documentation must all agree.
     exited code 0 on 4173 and rebuilt 4174 with zero console/page errors.
     `format:check`, 125 root tests, seven kernel tests, typecheck, and production
     build then passed from the formatted source; only the documented Vite
-    >500 kB Three.js advisory remains.
+    > 500 kB Three.js advisory remains.
   - Closure: exact commands and outcomes are recorded with evidence tiers; no
     failing touched-area check is described as green.
 - [x] **RU-0110.11 — Close documentation, review, git, and release gates.**
@@ -322,28 +322,28 @@ with permanent instructions.
 - [x] Add keyboard, visible mouse, and touch recovery parity.
 - [x] Pass typecheck, 108 root tests, seven kernel-probe tests, format, and build.
 - [x] Pass Field 02 browser acceptance on ports 4173 and 4174 with zero captured
-  console/page errors.
+      console/page errors.
 - [x] Record ADR/worklog/exploration/playtest closure and reconcile schema-v6
-  planning.
+      planning.
 - [x] Re-run the full gate after documentation settles.
 - [x] Guarded `git add -A`, full motto hook attestation, commit, push, exact-source
-  Sites version, production deployment, and smoke checks.
+      Sites version, production deployment, and smoke checks.
 
 ## 0. Repository, release, and continuity
 
 - [x] **RU-0001 — Canonical project identity.** Rename the checkout, package,
-  GitHub repository, and public title to **Rigs Unbound**.
+      GitHub repository, and public title to **Rigs Unbound**.
   - Evidence: ADR-0005, `package.json`, Git remote
     `pranaysuyash/rigs-unbound`.
   - Closure: one local checkout on `main`; repository and product naming agree.
 - [x] **RU-0002 — Guarded git workflow.** Install the managed v4
-  `prepare-commit-msg`, `pre-commit`, and `commit-msg` gates, including the
-  AI-co-author rejection.
+      `prepare-commit-msg`, `pre-commit`, and `commit-msg` gates, including the
+      AI-co-author rejection.
   - Evidence: active files under `.git/hooks/`; prior guarded commits on `main`.
   - Closure: a normal commit passes only with fresh full-motto evidence and the
     required trailers.
 - [x] **RU-0003 — Public Sites foundation.** Reuse the existing Sites project
-  and publish version 4 from commit `aa82cee`.
+      and publish version 4 from commit `aa82cee`.
   - Evidence: Sites version 4 source provenance and the live
     <https://rigs-unbound.suyashpranay.chatgpt.site> URL.
   - Closure: production deployment succeeds and the URL responds.
@@ -663,17 +663,17 @@ code and linked to accepted, rejected, deferred, or implemented outcomes.
 ## 9. Recurring acceptance gates
 
 - [ ] **Before each commit:** re-read current status; classify every local
-  item; inspect hooks and attribution; run targeted tests, typecheck, build,
-  formatting, diff check, and the risk-appropriate browser path.
+      item; inspect hooks and attribution; run targeted tests, typecheck, build,
+      formatting, diff check, and the risk-appropriate browser path.
 - [ ] **Before each deployment:** push the exact validated commit; package that
-  exact source; save one Sites version; deploy only that version; poll to a
-  terminal state; smoke the production URL.
+      exact source; save one Sites version; deploy only that version; poll to a
+      terminal state; smoke the production URL.
 - [ ] **Before each “done” claim:** three review passes; user/business/internal
-  value; exact files/commands/outcomes; verified vs inferred; remaining gaps
-  and hardening paths; uncommitted-state check; “Anything else?” answer.
+      value; exact files/commands/outcomes; verified vs inferred; remaining gaps
+      and hardening paths; uncommitted-state check; “Anything else?” answer.
 - [ ] **After every fresh playtest or research pass:** add new findings here,
-  update the exploration map, and route decisions to an append-only ADR before
-  implementation.
+      update the exploration map, and route decisions to an append-only ADR before
+      implementation.
 
 ## Anything else?
 

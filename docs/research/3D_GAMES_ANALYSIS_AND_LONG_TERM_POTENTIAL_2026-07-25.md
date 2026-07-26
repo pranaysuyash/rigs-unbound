@@ -9,6 +9,7 @@ Owner: Pranay
 Scope: Full in-repo technical+product analysis of current Rigs Unbound state for a 3D-first, long-term architecture, using the 3D game development skill principles.
 
 Primary analysis lens:
+
 - 3D games rendering/physics/camera principles
 - Existing architecture in this repository
 - Long-term, versioned and principle-aligned decisions (`motto_v4` direction)
@@ -168,6 +169,7 @@ Preserve and deepen current architecture instead of replacing it.
 ### Recommendation R2
 
 Create a single “performance and readability baseline ADR” to bind:
+
 - culling thresholds,
 - LOD tiers,
 - camera mode matrix,
@@ -199,6 +201,7 @@ The major open risk list from the initial audit is now converted into named cont
 No architecture rewrite is proposed in this pass.
 
 The codebase currently shows a strong base for this direction, and the highest-leverage path is:
+
 - lock contracts early,
 - tighten rendering/physics invariants,
 - then expand gameplay breadth through capability-backed modular growth.
@@ -240,32 +243,32 @@ Required policy: evidence-first; treat all external optimization claims as hypot
 
 ### 1) Core 3D optimization checklist
 
-| Checkpoint | Current implementation | Evidence in repo | Status |
-|---|---|---|---|
-| Frustum culling | Per-object frustum cull is not enforced; many heavy batches are explicitly marked `frustumCulled = false`. | `src/game/renderer.ts:433`, `src/game/renderer.ts:591`, `src/game/renderer.ts:848` | Partial/blocked |
-| Distance culling | No global distance culling stage exists. Visibility is mostly bounded by local prop rebuild radius and terrain region updates. | `src/game/renderer.ts:56-57`, `src/game/renderer.ts:441-447`, `src/game/renderer.ts:1302-1328` | Missing |
-| Occlusion culling | Terrain occlusion helper is used only for camera pull-in, not as render-object occlusion pipeline. | `src/game/terrain.ts:736-765`, `src/game/renderer.ts:1542-1562` | Partial/blocked |
-| Portal culling | No portal/bounded room graph. | `src/game/world.ts` has authored sites but no room/portal graph | Missing |
-| Sector/chunk culling (render streaming) | Terrain is built in a full local mesh radius; no chunk streaming lifecycle. | `src/game/renderer.ts:242-318`, `src/game/terrain.ts:26-46` | Missing |
-| LOD hierarchy | No explicit geometry/material/animation/AI/physics LOD tiers in render or update path. | `src/game/renderer.ts:390-434` (instanced props), `src/game/physics.ts` (single motion model), `src/game/collision.ts` (uniform obstacle treatment) | Missing |
-| Shader strategy | Mostly `MeshStandardMaterial` plus vertex-color terrain; no custom shader modules in shipped code. | `src/game/renderer.ts:307-314`, `src/game/terrain.ts:2-8`, `src/game/world.ts:34-53` | Missing |
-| Camera feel contracts | Camera has stateful modes with interpolation and terrain-aware pull-in; no formal transition/state machine contract or explicit accessibility policy in code path. | `src/game/renderer.ts:1461-1617`, `src/game/renderer.ts:1600-1607`, `docs/decisions/ADR-0008-camera-policies-and-direct-view-selection.md` | Partial |
-| Collision layers / matrix | Spatial query is nearby-cell obstacle query; no multi-layer matrix for hazard/trigger/projectile separation. | `src/game/collision.ts:159-180`, `src/game/collision.ts:182-256` | Partial |
-| Authority scaling | Deterministic local simulation only; no server-authoritative handoff or replay transport. | `src/game/state.ts:4-13`, `src/game/state.ts:194-203`, `src/game/contracts.ts` | Missing for scaling |
+| Checkpoint                              | Current implementation                                                                                                                                             | Evidence in repo                                                                                                                                    | Status              |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Frustum culling                         | Per-object frustum cull is not enforced; many heavy batches are explicitly marked `frustumCulled = false`.                                                         | `src/game/renderer.ts:433`, `src/game/renderer.ts:591`, `src/game/renderer.ts:848`                                                                  | Partial/blocked     |
+| Distance culling                        | No global distance culling stage exists. Visibility is mostly bounded by local prop rebuild radius and terrain region updates.                                     | `src/game/renderer.ts:56-57`, `src/game/renderer.ts:441-447`, `src/game/renderer.ts:1302-1328`                                                      | Missing             |
+| Occlusion culling                       | Terrain occlusion helper is used only for camera pull-in, not as render-object occlusion pipeline.                                                                 | `src/game/terrain.ts:736-765`, `src/game/renderer.ts:1542-1562`                                                                                     | Partial/blocked     |
+| Portal culling                          | No portal/bounded room graph.                                                                                                                                      | `src/game/world.ts` has authored sites but no room/portal graph                                                                                     | Missing             |
+| Sector/chunk culling (render streaming) | Terrain is built in a full local mesh radius; no chunk streaming lifecycle.                                                                                        | `src/game/renderer.ts:242-318`, `src/game/terrain.ts:26-46`                                                                                         | Missing             |
+| LOD hierarchy                           | No explicit geometry/material/animation/AI/physics LOD tiers in render or update path.                                                                             | `src/game/renderer.ts:390-434` (instanced props), `src/game/physics.ts` (single motion model), `src/game/collision.ts` (uniform obstacle treatment) | Missing             |
+| Shader strategy                         | Mostly `MeshStandardMaterial` plus vertex-color terrain; no custom shader modules in shipped code.                                                                 | `src/game/renderer.ts:307-314`, `src/game/terrain.ts:2-8`, `src/game/world.ts:34-53`                                                                | Missing             |
+| Camera feel contracts                   | Camera has stateful modes with interpolation and terrain-aware pull-in; no formal transition/state machine contract or explicit accessibility policy in code path. | `src/game/renderer.ts:1461-1617`, `src/game/renderer.ts:1600-1607`, `docs/decisions/ADR-0008-camera-policies-and-direct-view-selection.md`          | Partial             |
+| Collision layers / matrix               | Spatial query is nearby-cell obstacle query; no multi-layer matrix for hazard/trigger/projectile separation.                                                       | `src/game/collision.ts:159-180`, `src/game/collision.ts:182-256`                                                                                    | Partial             |
+| Authority scaling                       | Deterministic local simulation only; no server-authoritative handoff or replay transport.                                                                          | `src/game/state.ts:4-13`, `src/game/state.ts:194-203`, `src/game/contracts.ts`                                                                      | Missing for scaling |
 
 ### 2) Additional systems from the same context
 
-| Topic | Current implementation | Status |
-|---|---|---|
-| ECS | Game core is data-driven and module-organized but not ECS-based. | Missing |
-| Streaming world | No tile/chunk streaming and reactivity cycle. | Missing |
-| Asset pipeline | No formal texture/material/deformation-of-assets pipeline; procedural primitives and vertex-color terrain are baseline path. | Partial |
-| Simulation layers | Physics, collision, and terrain are separated and deterministic, but no full multi-domain simulation graph (weather/economy/traffic/etc). | Partial |
-| Behaviour system | No AI behavior tree/utility/planner system in play loop. | Missing |
-| Event system | No general world-event scheduler/handler graph. | Missing |
-| Modding architecture | Content is data-driven by profiles and world descriptors, but not user extension/mod surface yet. | Partial |
+| Topic                | Current implementation                                                                                                                                                     | Status  |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| ECS                  | Game core is data-driven and module-organized but not ECS-based.                                                                                                           | Missing |
+| Streaming world      | No tile/chunk streaming and reactivity cycle.                                                                                                                              | Missing |
+| Asset pipeline       | No formal texture/material/deformation-of-assets pipeline; procedural primitives and vertex-color terrain are baseline path.                                               | Partial |
+| Simulation layers    | Physics, collision, and terrain are separated and deterministic, but no full multi-domain simulation graph (weather/economy/traffic/etc).                                  | Partial |
+| Behaviour system     | No AI behavior tree/utility/planner system in play loop.                                                                                                                   | Missing |
+| Event system         | No general world-event scheduler/handler graph.                                                                                                                            | Missing |
+| Modding architecture | Content is data-driven by profiles and world descriptors, but not user extension/mod surface yet.                                                                          | Partial |
 | Deterministic replay | Deterministic kernel and public snapshot exist; a bounded input-recording lane plus browser-visible verification hook now exist, but durable playback API remains missing. | Partial |
-| Resource budgets | Runtime exposes draw calls/frame timing, but no explicit cross-system CPU/GPU/battery budget scheduler. | Partial |
+| Resource budgets     | Runtime exposes draw calls/frame timing, but no explicit cross-system CPU/GPU/battery budget scheduler.                                                                    | Partial |
 
 ### 3) What is actually strong already
 
@@ -300,18 +303,18 @@ Scope added: gameplay architecture invariants behind the earlier rendering/perf 
 
 ### A) Additional systems checkpoint — status vs implementation
 
-| Checkpoint | Current implementation in repo | Evidence | Status |
-|---|---|---|---|
-| Deterministic gameplay kernel | Kernel updates are fixed-step and ordered through `stepGame`, then surfaced through deterministic public state + browser stepping. | `src/game/state.ts:516-575`, `src/main.ts:666-701`, `src/main.ts:632`, `src/game/state.ts:692` | Strong (in place) |
-| World schema + world truth | Terrain/route/site content is authored as data and sampled/compiled by core substrate rather than spread across renderer behavior. | `src/game/world.ts`, `src/game/terrain.ts`, `src/game/contracts.ts`, `src/game/state.ts:692` | Strong (in place) |
-| Renderer/subsystem separation | Render uses `GameWorld` snapshots for display only; simulation writes state/mutations. | `src/game/state.ts`, `src/game/renderer.ts`, `src/game/gameworld.ts` | Strong (in place) |
-| Physics/locomotion separation | Motion model (`physics.ts`) is separate from state policy (`state.ts`) and terrain/collision contracts. | `src/game/physics.ts`, `src/game/state.ts`, `src/game/collision.ts`, `src/game/terrain.ts` | Strong/partial |
-| Storage + migration discipline | Multi-version schema path with explicit v1/v2/v3 migration and recovery notes exists. | `src/game/state.ts:823-1360`, `src/game/storage.ts`, `src/game/contracts.ts` | Strong (in place) |
-| Observability | Renderer metrics, save/perf snapshots, deterministic public debug surfaces, and browser acceptance hooks are present. | `src/game/performance.ts`, `src/game/state.ts:692`, `src/main.ts:587`, `src/main.ts:699` | Strong and expanding |
-| ECS migration readiness | Not adopted; data is still module-structured with fixed adapters and deterministic interfaces. | `src/game/contracts.ts`, `src/game/state.ts`, `src/game/physics.ts` | Missing by design (planned) |
-| Streaming world | No chunk lifecycle, no streaming manifest activation, no unload policy yet. | `src/game/terrain.ts`, `src/game/renderer.ts` | Missing |
-| Behavior/event schedulers | No global BT/GOAP/event graph yet; behavior is event-driven in state/contract surface only. | `src/game/state.ts` | Missing |
-| Replay transport | Replay is logically possible from deterministic kernel, and the browser now exposes a bounded run record plus structural verification hook. Durable input-log playback mode is still not a first-class API. | `src/game/state.ts`, `src/main.ts`, `src/game/run-record.ts` | Partial |
+| Checkpoint                     | Current implementation in repo                                                                                                                                                                              | Evidence                                                                                       | Status                      |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------- |
+| Deterministic gameplay kernel  | Kernel updates are fixed-step and ordered through `stepGame`, then surfaced through deterministic public state + browser stepping.                                                                          | `src/game/state.ts:516-575`, `src/main.ts:666-701`, `src/main.ts:632`, `src/game/state.ts:692` | Strong (in place)           |
+| World schema + world truth     | Terrain/route/site content is authored as data and sampled/compiled by core substrate rather than spread across renderer behavior.                                                                          | `src/game/world.ts`, `src/game/terrain.ts`, `src/game/contracts.ts`, `src/game/state.ts:692`   | Strong (in place)           |
+| Renderer/subsystem separation  | Render uses `GameWorld` snapshots for display only; simulation writes state/mutations.                                                                                                                      | `src/game/state.ts`, `src/game/renderer.ts`, `src/game/gameworld.ts`                           | Strong (in place)           |
+| Physics/locomotion separation  | Motion model (`physics.ts`) is separate from state policy (`state.ts`) and terrain/collision contracts.                                                                                                     | `src/game/physics.ts`, `src/game/state.ts`, `src/game/collision.ts`, `src/game/terrain.ts`     | Strong/partial              |
+| Storage + migration discipline | Multi-version schema path with explicit v1/v2/v3 migration and recovery notes exists.                                                                                                                       | `src/game/state.ts:823-1360`, `src/game/storage.ts`, `src/game/contracts.ts`                   | Strong (in place)           |
+| Observability                  | Renderer metrics, save/perf snapshots, deterministic public debug surfaces, and browser acceptance hooks are present.                                                                                       | `src/game/performance.ts`, `src/game/state.ts:692`, `src/main.ts:587`, `src/main.ts:699`       | Strong and expanding        |
+| ECS migration readiness        | Not adopted; data is still module-structured with fixed adapters and deterministic interfaces.                                                                                                              | `src/game/contracts.ts`, `src/game/state.ts`, `src/game/physics.ts`                            | Missing by design (planned) |
+| Streaming world                | No chunk lifecycle, no streaming manifest activation, no unload policy yet.                                                                                                                                 | `src/game/terrain.ts`, `src/game/renderer.ts`                                                  | Missing                     |
+| Behavior/event schedulers      | No global BT/GOAP/event graph yet; behavior is event-driven in state/contract surface only.                                                                                                                 | `src/game/state.ts`                                                                            | Missing                     |
+| Replay transport               | Replay is logically possible from deterministic kernel, and the browser now exposes a bounded run record plus structural verification hook. Durable input-log playback mode is still not a first-class API. | `src/game/state.ts`, `src/main.ts`, `src/game/run-record.ts`                                   | Partial                     |
 
 ### B) High-signal follow-up ordering (from added content)
 
@@ -330,12 +333,12 @@ Scope added: gameplay architecture invariants behind the earlier rendering/perf 
 
 ### D) New residual risks from the added pass
 
-| Risk | Why now | Immediate evidence gap |
-|---|---|---|
-| Chunk boundaries are inferred only by local prop radius | No real world-streaming/active-chunk policy yet, so scale-up cost is nonlinear. | Add chunk lifecycle test fixtures and load/unload counters. |
-| No semantic collision categories yet | Obstacle behavior is currently functionally correct for small world, but non-obvious interactions will become coupled when projectiles/projectiles/AI expand. | Add matrix-based response tests and category-driven fixtures. |
-| Replay surface absent as product artifact | Determinism helps debugging, but no portable run artifact exists for social/QA yet. | Record/replay API + checksum replay verification in `state.ts`/`main.ts` hooks. |
-| Authority claims are still speculative | Durable mutations are local-only and safe; multiplayer claims must remain future-only. | Keep authority notes in `EXPLORATION_MAP` and avoid publishing shared-room behavior. |
+| Risk                                                    | Why now                                                                                                                                                       | Immediate evidence gap                                                               |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Chunk boundaries are inferred only by local prop radius | No real world-streaming/active-chunk policy yet, so scale-up cost is nonlinear.                                                                               | Add chunk lifecycle test fixtures and load/unload counters.                          |
+| No semantic collision categories yet                    | Obstacle behavior is currently functionally correct for small world, but non-obvious interactions will become coupled when projectiles/projectiles/AI expand. | Add matrix-based response tests and category-driven fixtures.                        |
+| Replay surface absent as product artifact               | Determinism helps debugging, but no portable run artifact exists for social/QA yet.                                                                           | Record/replay API + checksum replay verification in `state.ts`/`main.ts` hooks.      |
+| Authority claims are still speculative                  | Durable mutations are local-only and safe; multiplayer claims must remain future-only.                                                                        | Keep authority notes in `EXPLORATION_MAP` and avoid publishing shared-room behavior. |
 
 ### E) "Additional" closeout
 
@@ -2270,4 +2273,5 @@ The dedicated contract note now lives at
 [Verification Harness and Confidence Gates Contract](./VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md),
 so the proof harness lane now points at a named boundary instead of only a
 general evidence discussion.
+
 - Addendum (2026-07-25): the Physics Lab browser-experience gap now has a dedicated contract note, so the separate lab route and acceptance runner are tracked as an evidence fixture instead of an implicit side page.

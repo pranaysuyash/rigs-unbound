@@ -9,7 +9,9 @@ export default defineConfig({
     // file at once. File-serial execution preserves the five-second per-test
     // signal instead of masking host contention with larger timeouts.
     fileParallelism: false,
+    environment: "happy-dom",
     include: ["src/**/*.test.ts"],
+
     server: {
       deps: {
         inline: ["@dimforge/rapier3d"],

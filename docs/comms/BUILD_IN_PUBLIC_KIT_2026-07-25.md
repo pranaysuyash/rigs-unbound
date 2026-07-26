@@ -46,8 +46,8 @@ which way is forward."
 > **3/**
 > Lie #2 was worse, because it was a promise to the player.
 >
-> An upgrade called "low-range gearing" said: *climbs grades that used to stall
-> the engine.*
+> An upgrade called "low-range gearing" said: _climbs grades that used to stall
+> the engine._
 >
 > It did nothing. Zero. Not "a small effect" — literally no change to any climb.
 
@@ -60,7 +60,7 @@ which way is forward."
 
 > **5/**
 > The fix was the missing physics: a tractor makes full pulling force from a dead
-> stop. A buggy geared for 75 km/h *bogs* off the line and needs a run-up.
+> stop. A buggy geared for 75 km/h _bogs_ off the line and needs a run-up.
 >
 > Now gearing does what it says. And "take a run at that hill" is a real thing you
 > learn, not a tooltip.
@@ -81,7 +81,7 @@ which way is forward."
 
 > **8/**
 > Nobody scripted that. It falls out of one line: lugged tyres recover a fraction
-> of what the surface *lacks*, so lugs matter most exactly where grip is worst.
+> of what the surface _lacks_, so lugs matter most exactly where grip is worst.
 >
 > Two vehicles that used to differ only on a spreadsheet now differ in the mud.
 
@@ -121,7 +121,7 @@ would climb grades that stalled the engine. It changed nothing at all. The reaso
 was subtle: both vehicles were already limited by tyre grip, not engine power, so
 more power had nothing to bite on. Every test I had passed, because they all
 checked mechanics — is the button clickable, does the state transition — rather
-than checking the *claim*.
+than checking the _claim_.
 
 That reframed how I test. Now the suite asserts promises: this part changes this
 outcome; this surface favours this tyre. Two of my worst bugs were false promises,
@@ -170,7 +170,7 @@ different acceleration, top speed, mass, steering. And they felt identical.
 The reason is embarrassing in hindsight. The world was a flat plane. On flat
 ground, throttle has no opponent, so the only input that matters is steering. All
 those carefully tuned numbers had nothing to push against. Players would only ever
-be able to *read* the difference off the HUD.
+be able to _read_ the difference off the HUD.
 
 The instinct at that point is to add content: more vehicles, more places, more
 activities. That instinct is wrong. It multiplies content on top of the one
@@ -178,8 +178,8 @@ mechanic that has no depth. A bigger flat plane is not a bigger game.
 
 ### 3. Making the ground fight back
 
-Terrain became the substrate everything else reads. One function answers *how high
-is the ground here and what is it made of*, and physics, collision, the camera, the
+Terrain became the substrate everything else reads. One function answers _how high
+is the ground here and what is it made of_, and physics, collision, the camera, the
 map and the renderer all ask it.
 
 Three couplings do the work, and none of them is a stat:
@@ -189,12 +189,12 @@ your direction of travel. A hill you can't climb is therefore a physical fact
 rather than a locked door. I get progression gating for free, with no key-and-door
 content: "I can't climb that yet" is legible without a single tooltip.
 
-**Gearing is emergent.** Drive force falls off toward top speed *and* falls off
+**Gearing is emergent.** Drive force falls off toward top speed _and_ falls off
 below a lugging threshold. A tractor makes full force from rest. A buggy geared for
 75 km/h bogs off the line. Neither has a "hill climbing" stat.
 
-**Grip gates everything.** Surface grip limits drive force *and* steering
-authority. Lugged tyres recover a fraction of what the surface *lacks* — so lugs
+**Grip gates everything.** Surface grip limits drive force _and_ steering
+authority. Lugged tyres recover a fraction of what the surface _lacks_ — so lugs
 are worth most exactly where grip is worst. That single line produces the whole
 identity split: the buggy wins on hardpan, the tractor has 1.9× its grip in the
 marsh. I didn't script either outcome.
@@ -211,7 +211,7 @@ landmark.
 
 **The tractor drove backwards.** Grille, hood and headlights were at local −Z —
 the same end as the plough — while travel is toward +Z. It had been reversing
-everywhere with its lights pointing behind it. It was present in *accepted* review
+everywhere with its lights pointing behind it. It was present in _accepted_ review
 screenshots. Nothing caught it because no test asserted which way a vehicle faces.
 
 **An upgrade did nothing while promising something.** "Low-range gearing: climbs
@@ -222,7 +222,7 @@ the UI for as long as it existed.
 
 Both of these pass every test that checks mechanics. Button clickable: yes. State
 transitions: correct. Save round-trips: fine. The tests I added afterwards assert
-*claims* instead — this module changes this outcome, this surface favours this
+_claims_ instead — this module changes this outcome, this surface favours this
 tyre, this route is climbable by the weakest rig. Two of my worst bugs were false
 promises, not crashes.
 
@@ -269,7 +269,7 @@ the time of this note. The options considered then were:
    as-is for the post. The desktop one is the strongest single image the project
    has: rolling terrain, the machine, and its cut trail in one frame.
 2. **An automation GIF** is technically possible via the Chrome extension, but it
-   captures one frame per scripted action, not continuous video. For a *driving*
+   captures one frame per scripted action, not continuous video. For a _driving_
    game that reads as a stuttery slideshow. I'd recommend against it.
 3. **You record 60 seconds yourself.** QuickTime (`Cmd-Shift-5`) or OBS. With the
    shot list below this is a ten-minute job and will look dramatically better than
@@ -279,16 +279,16 @@ the time of this note. The options considered then were:
 
 Open the live URL, press **Enter the field**, then:
 
-| # | Time | Action | What it shows |
-|---|------|--------|---------------|
-| 1 | 0–6 s | Drive forward on the home pad, then off it onto grass | The world exists; scale reads |
-| 2 | 6–14 s | Press **Space** (plough down), drive a long slow curve | The trail cuts into the ground and stays |
-| 3 | 14–20 s | **C** to Top-down, look at the furrows you just cut | World memory, unmistakably |
-| 4 | 20–28 s | **C** back to Chase, drive at a steep hillside and stall | Grade as a real wall; watch the grade bar go red |
-| 5 | 28–36 s | Turn, take a run-up, climb a gentler line | The skill: reading terrain |
-| 6 | 36–44 s | Drive into the Sunken Flats (marsh) | Grip drops 73% → 53%, speed 33 → 10 km/h on the HUD |
-| 7 | 44–50 s | **R** to switch to Spark, same marsh | Visibly worse. Same ground, different machine |
-| 8 | 50–55 s | **M** for the field map | Fog-of-war: only what you surveyed |
+| #   | Time    | Action                                                   | What it shows                                       |
+| --- | ------- | -------------------------------------------------------- | --------------------------------------------------- |
+| 1   | 0–6 s   | Drive forward on the home pad, then off it onto grass    | The world exists; scale reads                       |
+| 2   | 6–14 s  | Press **Space** (plough down), drive a long slow curve   | The trail cuts into the ground and stays            |
+| 3   | 14–20 s | **C** to Top-down, look at the furrows you just cut      | World memory, unmistakably                          |
+| 4   | 20–28 s | **C** back to Chase, drive at a steep hillside and stall | Grade as a real wall; watch the grade bar go red    |
+| 5   | 28–36 s | Turn, take a run-up, climb a gentler line                | The skill: reading terrain                          |
+| 6   | 36–44 s | Drive into the Sunken Flats (marsh)                      | Grip drops 73% → 53%, speed 33 → 10 km/h on the HUD |
+| 7   | 44–50 s | **R** to switch to Spark, same marsh                     | Visibly worse. Same ground, different machine       |
+| 8   | 50–55 s | **M** for the field map                                  | Fog-of-war: only what you surveyed                  |
 
 **Capture notes**
 

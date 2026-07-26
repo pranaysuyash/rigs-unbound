@@ -150,14 +150,14 @@ An installed module may change silhouette. It must not randomly change the chass
 
 ### Camera hypotheses to test
 
-| State | Proposed view | Information priority | Failure signal |
-|---|---|---|---|
-| Traversal | close three-quarter chase/near-isometric | machine feel, route, next affordance | tractor blocks route or camera motion causes discomfort |
-| Farming/work | medium near-isometric | rows, tool footprint, nearby objects | tractor loses character presence or plot targeting is ambiguous |
-| Defense | higher tactical top-down | threats, crop lanes, structures, light coverage | heading/control transition is disorienting or threat silhouettes merge |
-| Workshop | close orbit/inspection | repair history, sockets, comparison | parts become cosmetic menu cards detached from the machine |
-| Vista | temporary wide overlook | world connection and aspiration | control continues while the tractor becomes unreadably small |
-| Authored set piece | constrained side/fixed framing | route timing and spectacle | control grammar changes without warning |
+| State              | Proposed view                            | Information priority                            | Failure signal                                                         |
+| ------------------ | ---------------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------- |
+| Traversal          | close three-quarter chase/near-isometric | machine feel, route, next affordance            | tractor blocks route or camera motion causes discomfort                |
+| Farming/work       | medium near-isometric                    | rows, tool footprint, nearby objects            | tractor loses character presence or plot targeting is ambiguous        |
+| Defense            | higher tactical top-down                 | threats, crop lanes, structures, light coverage | heading/control transition is disorienting or threat silhouettes merge |
+| Workshop           | close orbit/inspection                   | repair history, sockets, comparison             | parts become cosmetic menu cards detached from the machine             |
+| Vista              | temporary wide overlook                  | world connection and aspiration                 | control continues while the tractor becomes unreadably small           |
+| Authored set piece | constrained side/fixed framing           | route timing and spectacle                      | control grammar changes without warning                                |
 
 No exact camera angle, distance, field of view, smoothing, or vehicle screen percentage is accepted from concept art alone. Those values require runtime comparison on desktop and narrow/mobile screens.
 

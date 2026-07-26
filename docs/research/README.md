@@ -13,6 +13,7 @@ evidence registers that keep the analysis grounded.
 - [3D Game Optimization Gaps and More - Long-Term Synthesis](3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
 - [3D Game Optimization Gaps - Second Pass](3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D Game Optimization and More - Execution Roadmap](3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+- [3D Game Skill-to-Repository Execution Ledger](3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md)
 
 ## Living evidence and continuity
 
@@ -72,6 +73,15 @@ evidence registers that keep the analysis grounded.
 - [Game Reference Atlas](GAME_REFERENCE_ATLAS_2026-07-25.md)
 - [Multi-Skill Long-Term Possibility Audit](MULTI_SKILL_LONG_TERM_POSSIBILITY_AUDIT_2026-07-25.md)
 - [Tagged Skill Coverage Map](TAGGED_SKILL_COVERAGE_MAP_2026-07-25.md)
+
+## Game UI, controls, and feel synthesis
+
+- [Game UI/UX Master Synthesis](GAME_UI_MASTER_SYNTHESIS_2026-07-26.md)
+- [Game UI/UX Reference Analysis](GAME_UI_REFERENCE_ANALYSIS_2026-07-26.md)
+- [Game UI Micro-Interactions, Juice, and Feel](GAME_UI_MICROINTERACTIONS_JUICE_FEEL_2026-07-26.md)
+- [Game UI Adaptive Generative Systems](GAME_UI_ADAPTIVE_GENERATIVE_SYSTEMS_2026-07-26.md)
+- [Game UI Paradigms: Diegetic, Spatial, and Meta](GAME_UI_PARADIGMS_DIEGETIC_SPATIAL_META_2026-07-26.md)
+- [Game Controls: Novel Input Methods](GAME_CONTROLS_NOVEL_INPUT_METHODS_2026-07-26.md)
 
 ## Asset intake and fixture evidence
 

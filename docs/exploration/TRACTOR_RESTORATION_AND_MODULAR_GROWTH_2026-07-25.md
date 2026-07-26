@@ -22,24 +22,24 @@ The robust tractor in the preferred visual direction should be an earned future 
 
 Restoration, specialization, and switching should remain distinct.
 
-| Axis | Player question | What changes | Guardrail |
-|---|---|---|---|
-| Restoration | “Can I bring this machine back?” | reliability, missing systems, structural condition, damaged mounts, visible repairs | avoid making the opening frustrating or using durability as busywork |
-| Specialization | “What kind of tractor am I building?” | engine tuning, traction, armor, power, cargo, sensors, module capacity and tradeoffs | no universal best build or one-way gear-score ladder |
-| Switchable modules | “What verbs do I bring today?” | front/rear/roof/cargo tools and their deployed states | modules remain physical, compatible, limited, and explainable |
+| Axis               | Player question                       | What changes                                                                         | Guardrail                                                            |
+| ------------------ | ------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| Restoration        | “Can I bring this machine back?”      | reliability, missing systems, structural condition, damaged mounts, visible repairs  | avoid making the opening frustrating or using durability as busywork |
+| Specialization     | “What kind of tractor am I building?” | engine tuning, traction, armor, power, cargo, sensors, module capacity and tradeoffs | no universal best build or one-way gear-score ladder                 |
+| Switchable modules | “What verbs do I bring today?”        | front/rear/roof/cargo tools and their deployed states                                | modules remain physical, compatible, limited, and explainable        |
 
 This separation prevents “repair the brakes” and “install an alien field generator” from becoming the same abstract upgrade button.
 
 ## Machine journey
 
-| Phase | Visual state | Mechanical state | Emotional purpose |
-|---|---|---|---|
-| 0. Found | flat tire or mismatched wheel, broken lamp, bent mount, exposed panel, smoke/sputter | drivable, but one or two verbs unavailable | curiosity and responsibility |
-| 1. Stabilized | safe wheel, repaired steering/brakes, one working light, rough field repairs | predictable handling and dependable restart | trust |
-| 2. Working | restored front mount, first tool, storage, clearer mechanical rhythm | complete farming/traversal loop | competence |
-| 3. Specialized | chosen tires, suspension, power system, armor/cargo/sensor emphasis | meaningful build strengths and costs | ownership |
-| 4. Hybridized | improbable but legible grafts using known hardpoints | cross-mode or cross-environment capabilities | invention |
-| 5. Storied | repairs, trophies, stains, replacement panels and sound carry session history | mastery rather than raw stat dominance | attachment and identity |
+| Phase          | Visual state                                                                         | Mechanical state                             | Emotional purpose            |
+| -------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- | ---------------------------- |
+| 0. Found       | flat tire or mismatched wheel, broken lamp, bent mount, exposed panel, smoke/sputter | drivable, but one or two verbs unavailable   | curiosity and responsibility |
+| 1. Stabilized  | safe wheel, repaired steering/brakes, one working light, rough field repairs         | predictable handling and dependable restart  | trust                        |
+| 2. Working     | restored front mount, first tool, storage, clearer mechanical rhythm                 | complete farming/traversal loop              | competence                   |
+| 3. Specialized | chosen tires, suspension, power system, armor/cargo/sensor emphasis                  | meaningful build strengths and costs         | ownership                    |
+| 4. Hybridized  | improbable but legible grafts using known hardpoints                                 | cross-mode or cross-environment capabilities | invention                    |
+| 5. Storied     | repairs, trophies, stains, replacement panels and sound carry session history        | mastery rather than raw stat dominance       | attachment and identity      |
 
 “Robust” means structurally convincing, capable, and visibly maintained. It does not have to mean clean, oversized, armored, or covered in every unlocked part.
 
@@ -132,17 +132,17 @@ This makes convenience part of progression without allowing magical hot-swapping
 
 ## Modules should create multiple verbs and real costs
 
-| Module | Day/work value | Night/crisis value | Cost or limitation |
-|---|---|---|---|
-| Wide plow | open soil, clear debris, shape routes | push threats, expose burrows, reinforce lanes | mass, turning radius, front clearance |
-| Seeder/spreader | sow crops or treatments | lay slowing/repellent zones | consumes cargo, rear hardpoint occupied |
-| Work-light rig | extend work time, inspect machinery | reveal or repel light-sensitive threats | power draw, visibility to some enemies |
-| Trailer | haul crops, salvage or tools | detach as barrier, rescue cargo/NPCs | acceleration, reversing difficulty, route width |
-| Winch | tow machines, logs and wrecks | rescue, pull barricades or dislodge threats | rear mount, setup time, anchor requirement |
-| Water/sprayer tank | water crops, wash/prepare surfaces | cool systems, extinguish fire, disperse hazards | changing mass, refill dependency |
-| Armor cage | protect cab and modules | survive direct pressure | heat, mass, poorer visibility/agility |
-| Boost unit | climb, cross gaps, time trial | escape or emergency reposition | fuel/heat, fragility, reduced cargo/power |
-| Sensor mast | find salvage, soil and buried signal | reveal lanes, weak points or incoming waves | vulnerable, power draw, high profile |
+| Module             | Day/work value                        | Night/crisis value                              | Cost or limitation                              |
+| ------------------ | ------------------------------------- | ----------------------------------------------- | ----------------------------------------------- |
+| Wide plow          | open soil, clear debris, shape routes | push threats, expose burrows, reinforce lanes   | mass, turning radius, front clearance           |
+| Seeder/spreader    | sow crops or treatments               | lay slowing/repellent zones                     | consumes cargo, rear hardpoint occupied         |
+| Work-light rig     | extend work time, inspect machinery   | reveal or repel light-sensitive threats         | power draw, visibility to some enemies          |
+| Trailer            | haul crops, salvage or tools          | detach as barrier, rescue cargo/NPCs            | acceleration, reversing difficulty, route width |
+| Winch              | tow machines, logs and wrecks         | rescue, pull barricades or dislodge threats     | rear mount, setup time, anchor requirement      |
+| Water/sprayer tank | water crops, wash/prepare surfaces    | cool systems, extinguish fire, disperse hazards | changing mass, refill dependency                |
+| Armor cage         | protect cab and modules               | survive direct pressure                         | heat, mass, poorer visibility/agility           |
+| Boost unit         | climb, cross gaps, time trial         | escape or emergency reposition                  | fuel/heat, fragility, reduced cargo/power       |
+| Sensor mast        | find salvage, soil and buried signal  | reveal lanes, weak points or incoming waves     | vulnerable, power draw, high profile            |
 
 An upgrade is interesting when it creates a new approach and a new problem.
 

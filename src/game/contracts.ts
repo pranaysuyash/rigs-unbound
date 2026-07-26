@@ -79,7 +79,9 @@ export type TapAction =
 export interface InputFrame {
   accelerate: boolean;
   brake: boolean;
+  /** Player-relative left turn request. */
   steerLeft: boolean;
+  /** Player-relative right turn request. */
   steerRight: boolean;
 }
 

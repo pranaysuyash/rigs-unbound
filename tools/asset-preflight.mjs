@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,6 +47,10 @@ function safeRelativePath(value) {
 
 function readUInt32(buffer, offset) {
   return buffer.readUInt32LE(offset);
+}
+
+function sha256(buffer) {
+  return createHash("sha256").update(buffer).digest("hex");
 }
 
 function parseJsonChunk(buffer, filePath) {
@@ -271,6 +276,15 @@ function validateEntry(entry, index, repoRoot, assetRoot) {
       );
     }
   }
+  if (typeof entry.publicRuntimeApproved !== "boolean") {
+    findings.push(
+      finding(
+        "public-runtime-approval-missing",
+        `${prefix}.publicRuntimeApproved must be an explicit boolean.`,
+        entry.id ?? null,
+      ),
+    );
+  }
   if (entry.sourcePath !== undefined) {
     if (!safeRelativePath(entry.sourcePath)) {
       findings.push(
@@ -333,6 +347,35 @@ function validateEntry(entry, index, repoRoot, assetRoot) {
       finding(
         "sha256-invalid",
         `${prefix}.sha256 must be a lowercase SHA-256 digest.`,
+        entry.id ?? null,
+      ),
+    );
+  }
+  if (
+    entry.licenseSha256 !== undefined &&
+    !/^[a-f0-9]{64}$/.test(entry.licenseSha256)
+  ) {
+    findings.push(
+      finding(
+        "license-sha256-invalid",
+        `${prefix}.licenseSha256 must be a lowercase SHA-256 digest.`,
+        entry.id ?? null,
+      ),
+    );
+  }
+  if (
+    entry.publicRuntimeApproved === true &&
+    (!["approved", "runtime-tested"].includes(entry.status) ||
+      !entry.runtimePath ||
+      !entry.sha256 ||
+      !entry.licensePath ||
+      !entry.licenseSha256 ||
+      !entry.rightsStatus.startsWith("cc0-verified"))
+  ) {
+    findings.push(
+      finding(
+        "public-runtime-approval-unverified",
+        `${prefix} cannot be public without a tested lifecycle, runtime digest, and verified license evidence.`,
         entry.id ?? null,
       ),
     );
@@ -431,7 +474,16 @@ export async function preflightManifestFile(manifestPath) {
       const runtimePath = path.resolve(repoRoot, entry.runtimePath);
       if (!isPathInside(assetRoot, runtimePath)) continue;
       try {
-        await readFile(runtimePath);
+        const runtimeBuffer = await readFile(runtimePath);
+        if (entry.sha256 && sha256(runtimeBuffer) !== entry.sha256) {
+          findings.push(
+            finding(
+              "runtime-sha256-mismatch",
+              `Runtime file digest does not match the manifest: ${entry.runtimePath}.`,
+              entry.id ?? null,
+            ),
+          );
+        }
         const result = await preflightGlbFile(runtimePath, repoRoot);
         findings.push(
           ...result.findings.map((item) => ({
@@ -444,6 +496,33 @@ export async function preflightManifestFile(manifestPath) {
           finding(
             "runtime-file-missing",
             `Runtime file is missing: ${entry.runtimePath}.`,
+            entry.id ?? null,
+          ),
+        );
+      }
+    }
+    if (entry?.licensePath && safeRelativePath(entry.licensePath)) {
+      const licensePath = path.resolve(repoRoot, entry.licensePath);
+      if (!isPathInside(repoRoot, licensePath)) continue;
+      try {
+        const licenseBuffer = await readFile(licensePath);
+        if (
+          entry.licenseSha256 &&
+          sha256(licenseBuffer) !== entry.licenseSha256
+        ) {
+          findings.push(
+            finding(
+              "license-sha256-mismatch",
+              `License file digest does not match the manifest: ${entry.licensePath}.`,
+              entry.id ?? null,
+            ),
+          );
+        }
+      } catch {
+        findings.push(
+          finding(
+            "license-file-missing",
+            `License file is missing: ${entry.licensePath}.`,
             entry.id ?? null,
           ),
         );

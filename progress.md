@@ -30,6 +30,26 @@ Original prompt: Explore and document a public browser-based open-world game in 
   rebuilt production preview `4174`, and the public Sites URL; RU-0106 through
   RU-0109 are closed in the tracker.
 
+## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
+
+- Plough blade now cuts **or** fills (`B`); filling wet ground far enough converts
+  mud back to pasture, because `surfaceFor` derives material from height.
+  `DEFORM_MAX = +0.3` had been reachable since the first commit with no caller.
+- Rig switching refuses beyond 34 m and names the distance and site, so parking is
+  a decision and fetching a stranded machine is an errand.
+- `publicState` exposes the authored `sites` table for external tooling.
+- **Kernel step time 18.06 ms → 0.286 ms (63x).** `ObstacleField.resolve` re-derived
+  every nearby obstacle every step (~250 terrain queries/step) for a field that is a
+  pure function of the seed; the pure lookup is now memoised. The simulation had been
+  consuming 108% of a 16.7 ms frame budget on its own.
+- Simulated-playtest citations resolved: all four `PLAYTEST_SIM_*` reports now exist
+  and state plainly that they are AI players, not humans.
+- **Known live-site gap:** the deployed build steers backwards (holding left turns
+  clockwise). `main` is correct. The link should not be shared until it is redeployed.
+
+Verification: typecheck clean; 141 root tests + 7 kernel-probe tests; build passes;
+format check passes; blade, proximity refusal, and `sites` confirmed in a browser.
+
 ## Playable foundation — 2026-07-25
 
 - Added a strict TypeScript fixed-step state kernel under `src/game/`.

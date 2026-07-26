@@ -142,3 +142,18 @@ What the live surface still does **not** expose is a separate startup progress a
 So the remaining issue is no longer basic accessibility entry. It is whether the loader is explicit enough for slower or public-facing entry paths to understand that the experience is still starting versus stalled.
 
 Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - profile visibility is the next accessibility proof, not a control rewrite
+
+- Re-checked the current browser daemon and the repo’s accessibility/input
+  contract.
+- The live runtime is still operable, and the existing accessibility gap has
+  narrowed from “can keyboard users enter the field?” to “can a user tell what
+  quality/accessibility profile they are currently in?”
+- The next proof should therefore be:
+  - visible loading progression or truthful indeterminate loading state,
+  - explicit reduced-motion / comfort state,
+  - explicit quality-profile state for constrained devices,
+  - a readable fallback when the 3D surface is delayed or unavailable.
+- This should be documented as a policy contract before any UI redesign so the
+  browser surface remains honest about what it is doing.

@@ -1,32 +1,49 @@
 // Hunter v3: switch to the buggy (R), chase the salvage guidance, collect,
 // then observe what the HUD says about getting home / banking.
-const { chromium } = require('/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright');
+const {
+  chromium,
+} = require("/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright");
 
 (async () => {
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  page.on('pageerror', (e) => console.log('[pageerror]', e.message));
-  await page.goto('http://127.0.0.1:4174/', { waitUntil: 'networkidle' });
+  const browser = await chromium.launch({ headless: true, channel: "chrome" });
+  const page = await browser.newPage({
+    viewport: { width: 1280, height: 800 },
+  });
+  page.on("pageerror", (e) => console.log("[pageerror]", e.message));
+  await page.goto("http://127.0.0.1:4174/", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
 
-  const readHud = async () => page.evaluate(() => {
-    const t = document.body.innerText;
-    const g = t.match(/([NSEW]{1,2})\s*·\s*salvage\s*([\d.]+)\s*m\s*·\s*(\d+)\s*unit/i);
-    const block = t.match(/CONDITION\s*\n\s*(\d+)%\s*\n\s*SALVAGE\s*\n\s*(\d+)\s*\n\s*SURVEYED\s*\n\s*(\d+)%/i);
-    const spd = t.match(/SPEED\s*\n\s*([\d.]+)\s*km\/h/i);
-    const headline = t.match(/\n([^\n]{10,90})\n\s*GRIP/i);
-    return {
-      dist: g ? parseFloat(g[2]) : null, bearing: g?.[1], units: g ? parseInt(g[3]) : null,
-      salvage: block ? parseInt(block[2]) : null, condition: block ? parseInt(block[1]) : null,
-      surveyed: block ? parseInt(block[3]) : null, speed: spd ? parseFloat(spd[1]) : null,
-      headline: headline?.[1] || null,
-    };
-  });
+  const readHud = async () =>
+    page.evaluate(() => {
+      const t = document.body.innerText;
+      const g = t.match(
+        /([NSEW]{1,2})\s*·\s*salvage\s*([\d.]+)\s*m\s*·\s*(\d+)\s*unit/i,
+      );
+      const block = t.match(
+        /CONDITION\s*\n\s*(\d+)%\s*\n\s*SALVAGE\s*\n\s*(\d+)\s*\n\s*SURVEYED\s*\n\s*(\d+)%/i,
+      );
+      const spd = t.match(/SPEED\s*\n\s*([\d.]+)\s*km\/h/i);
+      const headline = t.match(/\n([^\n]{10,90})\n\s*GRIP/i);
+      return {
+        dist: g ? parseFloat(g[2]) : null,
+        bearing: g?.[1],
+        units: g ? parseInt(g[3]) : null,
+        salvage: block ? parseInt(block[2]) : null,
+        condition: block ? parseInt(block[1]) : null,
+        surveyed: block ? parseInt(block[3]) : null,
+        speed: spd ? parseFloat(spd[1]) : null,
+        headline: headline?.[1] || null,
+      };
+    });
   const dismissModal = async () => {
-    const m = await page.getByText('ENTER THE FIELD', { exact: false }).first();
-    if (await m.isVisible().catch(() => false)) { await m.click(); await page.waitForTimeout(250); }
+    const m = await page.getByText("ENTER THE FIELD", { exact: false }).first();
+    if (await m.isVisible().catch(() => false)) {
+      await m.click();
+      await page.waitForTimeout(250);
+    }
   };
-  const shot = (n) => page.screenshot({ path: `artifacts/playtest-achiever/${n}.png` });
+  const shot = (n) =>
+    page.screenshot({ path: `artifacts/playtest-achiever/${n}.png` });
   const drive = async (keys, ms) => {
     for (const k of keys) await page.keyboard.down(k);
     await page.waitForTimeout(ms);
@@ -34,43 +51,49 @@ const { chromium } = require('/Users/pranay/Projects/Game_dev/rigs-unbound/exper
   };
 
   await dismissModal();
-  await page.keyboard.press('r'); // switch to buggy
+  await page.keyboard.press("r"); // switch to buggy
   await page.waitForTimeout(500);
-  await shot('70-buggy-start');
+  await shot("70-buggy-start");
 
-  let lastSalvage = 0, stuckTicks = 0;
+  let lastSalvage = 0,
+    stuckTicks = 0;
   const t0 = Date.now();
   while (Date.now() - t0 < 150000) {
     await dismissModal();
     const h0 = await readHud();
     if (h0.salvage !== null && h0.salvage > lastSalvage) {
       lastSalvage = h0.salvage;
-      console.log(`*** SALVAGE = ${lastSalvage} at t=${((Date.now() - t0) / 1000).toFixed(0)}s headline="${h0.headline}"`);
+      console.log(
+        `*** SALVAGE = ${lastSalvage} at t=${((Date.now() - t0) / 1000).toFixed(0)}s headline="${h0.headline}"`,
+      );
       await shot(`71-salvage-${lastSalvage}`);
       if (lastSalvage >= 1) break;
     }
-    if (h0.dist === null) { await drive(['w'], 700); continue; }
+    if (h0.dist === null) {
+      await drive(["w"], 700);
+      continue;
+    }
     if (h0.speed !== null && h0.speed < 2.5) {
       stuckTicks++;
       if (stuckTicks >= 4) {
-        console.log('stuck; reverse+turn');
-        await drive(['s'], 1800);
-        await drive(['s', 'a'], 1000);
+        console.log("stuck; reverse+turn");
+        await drive(["s"], 1800);
+        await drive(["s", "a"], 1000);
         stuckTicks = 0;
         continue;
       }
     } else stuckTicks = 0;
-    await drive(['w'], 800);
+    await drive(["w"], 800);
     const h1 = await readHud();
     if (h1.dist === null) continue;
     if (h1.dist < h0.dist - 0.1) continue;
-    await drive(['w', 'd'], 450);
+    await drive(["w", "d"], 450);
     const h2 = await readHud();
     if (h2.dist !== null && h2.dist < h1.dist - 0.1) continue;
-    await drive(['w', 'a'], 800);
+    await drive(["w", "a"], 800);
   }
   const fin = await readHud();
-  console.log('FINAL', JSON.stringify(fin));
-  await shot('72-end');
+  console.log("FINAL", JSON.stringify(fin));
+  await shot("72-end");
   await browser.close();
 })();

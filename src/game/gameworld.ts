@@ -24,9 +24,12 @@ import { ExplorationField } from "./exploration";
 import { MAX_SURVEYED_CELLS } from "./exploration";
 import {
   queryCameraObstruction,
+  resolveRigStructureCollision,
   type CameraObstructionHit,
   type CameraObstructionOptions,
   type ScenePoint,
+  type StructureCollisionBody,
+  type StructureCollisionOutcome,
 } from "./scene-query";
 import { TerrainField, type DeformationEntry } from "./terrain";
 
@@ -90,6 +93,13 @@ export class GameWorld {
     options?: CameraObstructionOptions,
   ): CameraObstructionHit | null {
     return queryCameraObstruction(this, from, to, cameraRadius, options);
+  }
+
+  structureCollision(
+    rig: StructureCollisionBody,
+    rigRadius: number,
+  ): StructureCollisionOutcome {
+    return resolveRigStructureCollision(this, rig, rigRadius);
   }
 
   reset(): void {

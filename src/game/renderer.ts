@@ -21,6 +21,7 @@
  */
 
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
@@ -29,6 +30,7 @@ import {
   effectiveProfile,
   type GameState,
   MAX_FURROWS,
+  type ModuleId,
   RIG_IDS,
   type RigId,
   type WorldPhase,
@@ -45,7 +47,16 @@ import { RIG_HOOD_CAMERA_MOUNTS } from "./camera";
 import type { SalvageNode } from "./exploration";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
+import type { RuntimeBridgeSpec } from "./runtime-assets";
 import type { CameraObstructionHit } from "./scene-query";
+import {
+  classifyVisibility,
+  createPropVisibilityMetrics,
+  DEFAULT_VISIBILITY_PROFILE,
+  recordVisibilityCandidate,
+  type PropVisibilityMetrics,
+  visibilityProfile,
+} from "./visibility";
 import {
   SURFACES,
   WATER_LEVEL,
@@ -71,7 +82,7 @@ const TERRAIN_STEP = 2.6;
 const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
 
 /** Radius within which obstacles and salvage are instanced for drawing. */
-const PROP_RADIUS = 168;
+const PROP_RADIUS = visibilityProfile(DEFAULT_VISIBILITY_PROFILE).farMeters;
 
 /** Rig travel that triggers an obstacle/salvage instance rebuild, in metres. */
 const PROP_REBUILD_DISTANCE = 34;
@@ -91,12 +102,17 @@ interface RigParts {
   /** Steering pivots in the same order. Hover rigs expose an empty list. */
   steeringPivots: THREE.Group[];
   wheelRestY: number[];
+  /** Module-owned meshes, toggled from canonical fitted module ids each frame. */
+  moduleVisuals: Partial<Record<ModuleId, THREE.Object3D[]>>;
   ploughPivot: THREE.Group | null;
   headlights: THREE.SpotLight;
   /** A real visible part at the nose, used to verify the visual/physics axis. */
   frontMarker: THREE.Object3D;
   /** A real visible part at the rear, used to verify the visual/physics axis. */
   rearMarker: THREE.Object3D;
+  /** State Shell mesh representing surrounding integrity, aura, and hit ripples. */
+  stateShell?: THREE.Mesh;
+  stateShellMaterial?: THREE.ShaderMaterial;
 }
 
 export interface RigOrientationEvidence {
@@ -116,6 +132,7 @@ export interface RigPerceptionEvidence {
   cameraFocusOffset: number | null;
   expectedFocusOffset: number;
   cameraFocusContractMet: boolean;
+  visibleModules: ModuleId[];
 }
 
 export interface CameraResolutionEvidence {
@@ -125,17 +142,36 @@ export interface CameraResolutionEvidence {
   obstructionId: string | null;
   idealDistance: number;
   resolvedDistance: number;
+  /** Signed camera displacement along rig-forward; negative means behind. */
+  forwardOffset: number;
+  /** True when the resolved camera remains on the rear side of the rig. */
+  behindRig: boolean;
   pathClear: boolean;
   selfIntersecting: boolean;
   selfIntersectionPart: string | null;
 }
 
+export interface RuntimeAssetBridgeEvidence {
+  assetId: string;
+  runtimePath: string;
+  status: "loading" | "loaded" | "fallback" | "error";
+  fallbackActive: boolean;
+  loadedNodeCount: number;
+  errorMessage: string | null;
+}
+
 function material(
   color: number,
-  roughness = 0.82,
-  metalness = 0.04,
-): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({ color, roughness, metalness });
+  roughness = 0.76,
+  metalness = 0.08,
+): THREE.MeshPhysicalMaterial {
+  return new THREE.MeshPhysicalMaterial({
+    color,
+    roughness,
+    metalness,
+    clearcoat: 0.3,
+    clearcoatRoughness: 0.4,
+  });
 }
 
 function box(
@@ -175,6 +211,7 @@ export class GameRenderer {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
   private readonly camera = new THREE.PerspectiveCamera(52, 1, 0.25, 900);
+  private readonly gltfLoader = new GLTFLoader();
   private readonly sun = new THREE.DirectionalLight(0xffdeb0, 2.4);
   private readonly hemisphere = new THREE.HemisphereLight(
     0xb8ddff,
@@ -219,6 +256,11 @@ export class GameRenderer {
   private lastCameraMode: CameraMode | null = null;
   private lastCameraFocus: THREE.Vector3 | null = null;
   private cameraResolution: CameraResolutionEvidence | null = null;
+  private readonly runtimeBridgeEvidence = new Map<
+    string,
+    RuntimeAssetBridgeEvidence
+  >();
+  private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
   private readonly reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   );
@@ -231,6 +273,7 @@ export class GameRenderer {
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly world: GameWorld,
+    private readonly runtimeBridgeSpecs: readonly RuntimeBridgeSpec[] = [],
   ) {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -255,6 +298,7 @@ export class GameRenderer {
     this.buildInstancedProps();
     this.buildDust();
     this.buildSites();
+    this.buildRuntimeBridgeAssets();
     this.buildStars();
 
     const tractor = this.createTractor();
@@ -513,33 +557,59 @@ export class GameRenderer {
       PROP_RADIUS,
       this.world.collectedNodes,
     );
+    const profile = visibilityProfile(DEFAULT_VISIBILITY_PROFILE);
+    const visibility = createPropVisibilityMetrics(profile);
+    const tierFor = (x: number, z: number) => {
+      const tier = classifyVisibility(
+        Math.hypot(x - rig.x, z - rig.z),
+        profile,
+      );
+      recordVisibilityCandidate(visibility, tier);
+      return tier;
+    };
 
     let trees = 0;
     let rocks = 0;
     let felled = 0;
 
     for (const obstacle of obstacles) {
+      if (tierFor(obstacle.x, obstacle.z) === "culled") continue;
       const down = this.world.felledObstacles.has(obstacle.id);
       if (obstacle.kind === "tree" && !down) {
-        if (trees >= MAX_TREE_INSTANCES) continue;
+        if (trees >= MAX_TREE_INSTANCES) {
+          visibility.capacityLimited += 1;
+          continue;
+        }
         this.placeTree(obstacle, trees);
         trees += 1;
       } else if (obstacle.kind === "tree") {
-        if (felled >= MAX_FELLED_INSTANCES) continue;
+        if (felled >= MAX_FELLED_INSTANCES) {
+          visibility.capacityLimited += 1;
+          continue;
+        }
         this.placeFelled(obstacle, felled);
         felled += 1;
       } else {
-        if (rocks >= MAX_ROCK_INSTANCES) continue;
+        if (rocks >= MAX_ROCK_INSTANCES) {
+          visibility.capacityLimited += 1;
+          continue;
+        }
         this.placeRock(obstacle, rocks);
         rocks += 1;
       }
+      visibility.submitted += 1;
     }
 
     let nodeCount = 0;
     for (const node of nodes) {
-      if (nodeCount >= MAX_NODE_INSTANCES) break;
+      if (tierFor(node.x, node.z) === "culled") continue;
+      if (nodeCount >= MAX_NODE_INSTANCES) {
+        visibility.capacityLimited += 1;
+        continue;
+      }
       this.placeNode(node, nodeCount);
       nodeCount += 1;
+      visibility.submitted += 1;
     }
 
     this.treeTrunks.count = trees;
@@ -556,6 +626,7 @@ export class GameRenderer {
 
     this.propAnchorX = rig.x;
     this.propAnchorZ = rig.z;
+    this.propVisibility = visibility;
   }
 
   private placeTree(obstacle: Obstacle, index: number): void {
@@ -725,8 +796,8 @@ export class GameRenderer {
       );
     } else if (part.shape.kind === "cylinder") {
       object = cylinder(
-        part.shape.radius,
-        part.shape.radius,
+        part.shape.radiusTop ?? part.shape.radius,
+        part.shape.radiusBottom ?? part.shape.radius,
         part.shape.height,
         part.shape.radialSegments,
         part.color,
@@ -774,27 +845,10 @@ export class GameRenderer {
       group.userData.ring = ring;
       group.userData.mast = mast;
 
-      if (site.id === "home-silo") {
-        for (const part of WORLD_STRUCTURE_PARTS) {
-          if (part.siteId === site.id) {
-            group.add(this.createStructurePart(part));
-          }
+      for (const part of WORLD_STRUCTURE_PARTS) {
+        if (part.siteId === site.id) {
+          group.add(this.createStructurePart(part));
         }
-      }
-
-      if (site.id === "launch-ridge") {
-        const rocketBody = cylinder(1.3, 1.5, 11, 12, COLORS.bone);
-        rocketBody.position.y = 7;
-        const nose = new THREE.Mesh(
-          new THREE.ConeGeometry(1.3, 3.6, 12),
-          material(COLORS.rust),
-        );
-        nose.position.y = 14.3;
-        const finA = box(0.3, 3, 3, COLORS.rust);
-        const finB = finA.clone();
-        finA.position.set(1.5, 2.6, 0);
-        finB.position.set(-1.5, 2.6, 0);
-        group.add(rocketBody, nose, finA, finB);
       }
 
       if (site.id === "salvage-yard") {
@@ -889,6 +943,87 @@ export class GameRenderer {
     this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
   }
 
+  private buildRuntimeBridgeAssets(): void {
+    this.runtimeBridgeSpecs.forEach((spec) => {
+      const bridge = new THREE.Group();
+      bridge.name = `bridge:${spec.assetId}`;
+      bridge.rotation.y = spec.yaw;
+      this.groundAt(bridge, spec.x, spec.z);
+
+      const fallback = box(
+        spec.fallbackWidth,
+        spec.fallbackHeight,
+        spec.fallbackDepth,
+        spec.fallbackColor,
+      );
+      fallback.position.y = spec.fallbackHeight / 2;
+      bridge.add(fallback);
+      this.scene.add(bridge);
+      this.runtimeBridgeEvidence.set(spec.assetId, {
+        assetId: spec.assetId,
+        runtimePath: spec.runtimeUrl,
+        status: "loading",
+        fallbackActive: true,
+        loadedNodeCount: 0,
+        errorMessage: null,
+      });
+
+      void this.gltfLoader
+        .loadAsync(spec.runtimeUrl)
+        .then((gltf) => {
+          const root = gltf.scene ?? gltf.scenes[0];
+          if (!root) return;
+
+          root.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = false;
+              child.receiveShadow = false;
+            }
+          });
+
+          const bounds = new THREE.Box3().setFromObject(root);
+          const size = bounds.getSize(new THREE.Vector3());
+          const center = bounds.getCenter(new THREE.Vector3());
+          const maxDimension = Math.max(size.x, size.y, size.z, 0.0001);
+          const scale = spec.targetMaxDimension / maxDimension;
+          root.scale.setScalar(scale);
+          root.position.set(
+            -center.x * scale,
+            -bounds.min.y * scale,
+            -center.z * scale,
+          );
+
+          bridge.clear();
+          bridge.add(root);
+          this.runtimeBridgeEvidence.set(spec.assetId, {
+            assetId: spec.assetId,
+            runtimePath: spec.runtimeUrl,
+            status: "loaded",
+            fallbackActive: false,
+            loadedNodeCount: root.children.length,
+            errorMessage: null,
+          });
+        })
+        .catch((error: unknown) => {
+          this.runtimeBridgeEvidence.set(spec.assetId, {
+            assetId: spec.assetId,
+            runtimePath: spec.runtimeUrl,
+            status: "error",
+            fallbackActive: true,
+            loadedNodeCount: 0,
+            errorMessage:
+              error instanceof Error
+                ? error.message
+                : String(error ?? "unknown"),
+          });
+          console.warn(
+            `Runtime bridge asset could not load (${spec.assetId}); keeping fallback geometry.`,
+            error,
+          );
+        });
+    });
+  }
+
   /**
    * The sky, as geometry rather than a clear colour.
    *
@@ -967,7 +1102,121 @@ export class GameRenderer {
   }
 
   /**
+   * Add a visible, module-owned tread band to a wheel spin pivot.
+   *
+   * The stock tyre stays authoritative for wheel size and contact. These outer
+   * bands only expose the fitted lug-tyre state through silhouette and material,
+   * so presentation never invents a second handling model.
+   */
+  private addLugTireVisual(
+    spinPivot: THREE.Group,
+    radius: number,
+    width: number,
+  ): THREE.Group {
+    const tread = new THREE.Group();
+    tread.name = "module:lug-tires";
+    const treadMaterial = material(0x4f5147, 0.96, 0.02);
+    for (const side of [-1, 1] as const) {
+      const band = new THREE.Mesh(
+        new THREE.TorusGeometry(radius * 0.92, radius * 0.105, 5, 14),
+        treadMaterial,
+      );
+      band.rotation.y = Math.PI / 2;
+      band.position.x = side * (width * 0.5 + 0.035);
+      tread.add(band);
+    }
+    tread.visible = false;
+    spinPivot.add(tread);
+    return tread;
+  }
+
+  private buildStateShell(
+    boundsX: number,
+    boundsY: number,
+    boundsZ: number,
+    baseColorHex: number,
+  ): { mesh: THREE.Mesh; material: THREE.ShaderMaterial } {
+    const geometry = new THREE.BoxGeometry(
+      boundsX * 1.08,
+      boundsY * 1.08,
+      boundsZ * 1.08,
+      10,
+      10,
+      10,
+    );
+    const stateShellMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uIntegrity: { value: 1.0 },
+        uHitPoint: { value: new THREE.Vector3() },
+        uHitTime: { value: -99.0 },
+        uBaseColor: { value: new THREE.Color(baseColorHex) },
+        uDamageColor: { value: new THREE.Color(0xd94e34) },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+        void main() {
+          vNormal = normal;
+          vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+          vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uIntegrity;
+        uniform vec3 uHitPoint;
+        uniform float uHitTime;
+        uniform vec3 uBaseColor;
+        uniform vec3 uDamageColor;
+
+        varying vec3 vNormal;
+        varying vec3 vWorldNormal;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          float fresnel = pow(1.0 - max(0.0, dot(viewDir, vWorldNormal)), 2.6);
+          
+          float distToHit = length(vWorldPosition - uHitPoint);
+          float timeSinceHit = uTime - uHitTime;
+          float ripple = 0.0;
+          if (timeSinceHit >= 0.0 && timeSinceHit < 0.65) {
+            float waveRadius = timeSinceHit * 14.0;
+            float waveWidth = 0.9;
+            float distDelta = abs(distToHit - waveRadius);
+            if (distDelta < waveWidth) {
+              ripple = sin((1.0 - distDelta / waveWidth) * 3.14159) * (1.0 - timeSinceHit / 0.65);
+            }
+          }
+
+          vec3 stateColor = mix(uDamageColor, uBaseColor, uIntegrity);
+          float pulse = (1.0 - uIntegrity) * 0.22 * sin(uTime * 8.0);
+          float alpha = clamp(fresnel * mix(0.65, 0.12, uIntegrity) + ripple * 0.75 + pulse, 0.0, 0.85);
+          
+          gl_FragColor = vec4(stateColor + vec3(ripple * 0.5), alpha);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+    });
+
+    const mesh = new THREE.Mesh(geometry, stateShellMaterial);
+    mesh.name = "vfx:state-shell";
+    // The shell is a transparent VFX envelope, not solid rig geometry. Hood
+    // cameras legitimately sit inside it, so it must not trip the near-plane
+    // self-intersection contract used for opaque vehicle parts.
+    mesh.userData.cameraSolid = false;
+    return { mesh, material: stateShellMaterial };
+  }
+
+  /**
    * The utility tractor, built front-forward.
+
    *
    * Layout along local Z, front (+) to rear (−): grille and headlights at +2.6,
    * hood at +1.2, small steering wheels at +1.65, cab at −1.05, large drive wheels
@@ -1007,6 +1256,7 @@ export class GameRenderer {
     const wheels: THREE.Group[] = [];
     const steeringPivots: THREE.Group[] = [];
     const wheelRestY: number[] = [];
+    const lugTireVisuals: THREE.Object3D[] = [];
     // Physics order: front-left, front-right, rear-left, rear-right.
     const layout: ReadonlyArray<readonly [number, number, number]> = [
       [-1.36, 1.65, 0.62],
@@ -1024,6 +1274,7 @@ export class GameRenderer {
       hub.rotation.z = Math.PI / 2;
       wheel.add(hub);
       spinPivot.add(wheel);
+      lugTireVisuals.push(this.addLugTireVisual(spinPivot, radius, 0.66));
       steeringPivot.add(spinPivot);
       wheels.push(spinPivot);
       steeringPivots.push(steeringPivot);
@@ -1061,6 +1312,10 @@ export class GameRenderer {
     headlights.target.position.set(0, 0, 22);
     root.add(headlights.target);
 
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(3.2, 2.8, 5.2, 0xe89d43);
+    stateShell.position.set(0, 1.8, -0.2);
+
     root.add(
       shadow,
       chassis,
@@ -1074,6 +1329,7 @@ export class GameRenderer {
       ploughPivot,
       headlights,
       cameraSocket,
+      stateShell,
     );
     return {
       root,
@@ -1081,10 +1337,13 @@ export class GameRenderer {
       wheels,
       steeringPivots,
       wheelRestY,
+      moduleVisuals: { "lug-tires": lugTireVisuals },
       ploughPivot,
       headlights,
       frontMarker: grille,
       rearMarker: blade,
+      stateShell,
+      stateShellMaterial,
     };
   }
 
@@ -1118,6 +1377,7 @@ export class GameRenderer {
     const wheels: THREE.Group[] = [];
     const steeringPivots: THREE.Group[] = [];
     const wheelRestY: number[] = [];
+    const lugTireVisuals: THREE.Object3D[] = [];
     for (const [x, z] of [
       [-1.45, 1.1],
       [1.45, 1.1],
@@ -1133,6 +1393,7 @@ export class GameRenderer {
       hub.rotation.z = Math.PI / 2;
       wheel.add(hub);
       spinPivot.add(wheel);
+      lugTireVisuals.push(this.addLugTireVisual(spinPivot, 0.56, 0.46));
       steeringPivot.add(spinPivot);
       wheels.push(spinPivot);
       steeringPivots.push(steeringPivot);
@@ -1159,6 +1420,10 @@ export class GameRenderer {
     headlights.target.position.set(0, 0, 20);
     root.add(headlights.target);
 
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(2.4, 1.8, 4.2, 0xd9aa52);
+    stateShell.position.set(0, 1.0, 0);
+
     root.add(
       shadow,
       chassis,
@@ -1168,6 +1433,7 @@ export class GameRenderer {
       towHook,
       headlights,
       cameraSocket,
+      stateShell,
     );
     return {
       root,
@@ -1175,10 +1441,13 @@ export class GameRenderer {
       wheels,
       steeringPivots,
       wheelRestY,
+      moduleVisuals: { "lug-tires": lugTireVisuals },
       ploughPivot: null,
       headlights,
       frontMarker: nose,
       rearMarker: towHook,
+      stateShell,
+      stateShellMaterial,
     };
   }
 
@@ -1269,6 +1538,10 @@ export class GameRenderer {
     headlights.target.position.set(0, -0.25, 23);
     root.add(headlights.target);
 
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(4.2, 2.2, 6.2, 0x6bc9c4);
+    stateShell.position.set(0, 0.8, 0.2);
+
     root.add(
       shadow,
       skirt,
@@ -1280,6 +1553,7 @@ export class GameRenderer {
       towHook,
       headlights,
       cameraSocket,
+      stateShell,
     );
     return {
       root,
@@ -1287,10 +1561,13 @@ export class GameRenderer {
       wheels: [],
       steeringPivots: [],
       wheelRestY: [],
+      moduleVisuals: {},
       ploughPivot: null,
       headlights,
       frontMarker: prow,
       rearMarker: towHook,
+      stateShell,
+      stateShellMaterial,
     };
   }
 
@@ -1447,6 +1724,30 @@ export class GameRenderer {
       // so the sign is inverted here.
       parts.root.rotation.x = -rigState.pitch + feedback.bodyPitchOffset;
       parts.root.rotation.z = rigState.roll + feedback.bodyRollOffset;
+
+      for (const [moduleId, visuals] of Object.entries(parts.moduleVisuals)) {
+        const visible = rigState.modules.includes(moduleId as ModuleId);
+        for (const visual of visuals) visual.visible = visible;
+      }
+
+      if (parts.stateShellMaterial) {
+        const uniforms = parts.stateShellMaterial.uniforms;
+        if (uniforms["uTime"]) uniforms["uTime"].value = now / 1000;
+        if (uniforms["uIntegrity"])
+          uniforms["uIntegrity"].value = feedback.integrityRatio;
+        if (
+          feedback.lastImpact &&
+          uniforms["uHitPoint"] &&
+          uniforms["uHitTime"]
+        ) {
+          (uniforms["uHitPoint"].value as THREE.Vector3).set(
+            feedback.lastImpact.x,
+            feedback.lastImpact.y,
+            feedback.lastImpact.z,
+          );
+          uniforms["uHitTime"].value = now / 1000;
+        }
+      }
 
       if (rigState.mobility.kind === "ground") {
         for (let index = 0; index < parts.wheels.length; index += 1) {
@@ -1703,16 +2004,27 @@ export class GameRenderer {
           // between focus and obstruction. Choose a deterministic shoulder/high
           // fallback rather than placing the near plane inside the rig.
           const sideDistance = Math.max(5, profile.track * 2);
+          const wideSideDistance = Math.max(9, profile.track * 3.4);
           const fallbackCandidates = [
             focus
               .clone()
+              .addScaledVector(right, wideSideDistance)
+              .addScaledVector(forward, -1.5)
+              .add(new THREE.Vector3(0, 5.2, 0)),
+            focus
+              .clone()
+              .addScaledVector(right, -wideSideDistance)
+              .addScaledVector(forward, -1.5)
+              .add(new THREE.Vector3(0, 5.2, 0)),
+            focus
+              .clone()
               .addScaledVector(right, sideDistance)
-              .addScaledVector(forward, 0.8)
+              .addScaledVector(forward, -1.5)
               .add(new THREE.Vector3(0, 3.2, 0)),
             focus
               .clone()
               .addScaledVector(right, -sideDistance)
-              .addScaledVector(forward, 0.8)
+              .addScaledVector(forward, -1.5)
               .add(new THREE.Vector3(0, 3.2, 0)),
             focus
               .clone()
@@ -1793,6 +2105,51 @@ export class GameRenderer {
         );
         obstruction = obstruction ?? smoothedHit;
       }
+
+      // Endpoint and boom checks can both be valid while an obstruction leaves
+      // too little room for the rig itself. Enforce the final composition
+      // invariant at the boundary that actually renders: select a clear,
+      // elevated rear shoulder rather than accepting a camera inside the cab.
+      const minimumRigClearance = Math.max(3.2, profile.track * 1.35);
+      if (focus.distanceTo(this.camera.position) < minimumRigClearance) {
+        const emergencySide = Math.max(6, profile.track * 2.5);
+        const emergencyCandidates = [
+          focus
+            .clone()
+            .addScaledVector(right, emergencySide)
+            .addScaledVector(forward, -0.5)
+            .add(new THREE.Vector3(0, 12, 0)),
+          focus
+            .clone()
+            .addScaledVector(right, -emergencySide)
+            .addScaledVector(forward, -0.5)
+            .add(new THREE.Vector3(0, 12, 0)),
+          focus
+            .clone()
+            .addScaledVector(forward, -4)
+            .add(new THREE.Vector3(0, 14, 0)),
+        ];
+        for (const candidate of emergencyCandidates) {
+          candidate.y = Math.max(
+            candidate.y,
+            this.world.terrain.height(candidate.x, candidate.z) + 3,
+          );
+          const candidateHit = this.world.cameraObstruction(
+            focus,
+            candidate,
+            0.45,
+            {
+              includeObstacles: fullSceneQuery,
+              includeStructures: fullSceneQuery,
+            },
+          );
+          if (!candidateHit) {
+            this.camera.position.copy(candidate);
+            break;
+          }
+        }
+      }
+
       finalPathHit = this.world.cameraObstruction(
         focus,
         this.camera.position,
@@ -1845,6 +2202,10 @@ export class GameRenderer {
       parts,
       this.camera.position,
     );
+    const cameraForwardOffset = this.camera.position
+      .clone()
+      .sub(focus)
+      .dot(forward);
     this.cameraResolution = {
       rigId: rig.id,
       mode: state.cameraMode,
@@ -1854,6 +2215,8 @@ export class GameRenderer {
       resolvedDistance: Number(
         focus.distanceTo(this.camera.position).toFixed(3),
       ),
+      forwardOffset: Number(cameraForwardOffset.toFixed(3)),
+      behindRig: cameraForwardOffset < -0.05,
       pathClear: finalPathHit === null,
       selfIntersecting: selfIntersectionPart !== null,
       selfIntersectionPart,
@@ -1869,7 +2232,8 @@ export class GameRenderer {
       if (
         intersectionPart ||
         !(object instanceof THREE.Mesh) ||
-        !object.visible
+        !object.visible ||
+        object.userData.cameraSolid === false
       ) {
         return;
       }
@@ -1903,11 +2267,31 @@ export class GameRenderer {
     return { ...this.cameraResolution };
   }
 
-  metrics(): { drawCalls: number; triangles: number; terrainBuildMs: number } {
+  runtimeBridgeEvidenceFor(assetId: string): RuntimeAssetBridgeEvidence {
+    const evidence = this.runtimeBridgeEvidence.get(assetId);
+    if (!evidence) {
+      throw new Error(`Missing runtime bridge evidence: ${assetId}`);
+    }
+    return { ...evidence };
+  }
+
+  runtimeBridgeEvidenceList(): RuntimeAssetBridgeEvidence[] {
+    return this.runtimeBridgeSpecs.map((spec) =>
+      this.runtimeBridgeEvidenceFor(spec.assetId),
+    );
+  }
+
+  metrics(): {
+    drawCalls: number;
+    triangles: number;
+    terrainBuildMs: number;
+    visibility: PropVisibilityMetrics;
+  } {
     return {
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
+      visibility: { ...this.propVisibility },
     };
   }
 
@@ -1948,6 +2332,8 @@ export class GameRenderer {
    */
   perceptionEvidence(state: GameState, rigId: RigId): RigPerceptionEvidence {
     const rig = state.rigs[rigId];
+    const parts = this.rigs.get(rigId);
+    if (!parts) throw new Error(`Missing rendered rig parts: ${rigId}`);
     const profile = effectiveProfile(rig.id, rig.modules);
     const feedback =
       this.feedbackFrames.get(rigId) ??
@@ -1978,6 +2364,9 @@ export class GameRenderer {
       cameraFocusContractMet:
         cameraFocusOffset !== null &&
         Math.abs(cameraFocusOffset - expectedFocusOffset) < 0.001,
+      visibleModules: Object.entries(parts.moduleVisuals)
+        .filter(([, visuals]) => visuals.some((visual) => visual.visible))
+        .map(([moduleId]) => moduleId as ModuleId),
     };
   }
 

@@ -28,6 +28,13 @@ import {
   worldMinuteOfDay,
 } from "./game/contracts";
 import { RigAudio } from "./game/audio";
+import {
+  decodeLearnedControlLessons,
+  encodeLearnedControlLessons,
+  resolveControlLesson,
+  type ControlLessonId,
+} from "./game/control-guidance";
+import { resolveFirstRung } from "./game/first-rung";
 import { GameWorld } from "./game/gameworld";
 import { InputController } from "./game/input";
 import { FieldMap } from "./game/minimap";
@@ -47,7 +54,9 @@ import type {
   CameraResolutionEvidence,
   RigOrientationEvidence,
   RigPerceptionEvidence,
+  RuntimeAssetBridgeEvidence,
 } from "./game/renderer";
+import { runtimeBridgeSpecs } from "./game/runtime-assets";
 import {
   activeRig,
   advanceGame,
@@ -59,6 +68,7 @@ import {
   publicState,
   repairRig,
   resolvePrimaryAction,
+  RIG_SWITCH_RANGE,
   selectCamera,
   selectActiveRig,
   settleWorld,
@@ -74,10 +84,15 @@ import { clearState, loadState, saveState } from "./game/storage";
 import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
+import { createRumorMapUI } from "./game/rumor-map-ui";
+import { createHoodDashboardUI } from "./game/hood-dashboard-ui";
+import { createNavigatorUI } from "./game/navigator-ui";
+
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
 const BOOT_STARTED_AT = navigationEntry?.startTime ?? 0;
+const CONTROL_LESSON_STORAGE_KEY = "rigs-unbound.control-lessons.v1";
 
 declare global {
   interface Window {
@@ -93,6 +108,8 @@ declare global {
     getRigOrientationEvidence: (rigId?: RigId) => RigOrientationEvidence;
     getRigPerceptionEvidence: (rigId?: RigId) => RigPerceptionEvidence;
     getCameraResolutionEvidence: () => CameraResolutionEvidence;
+    getRuntimeBridgeEvidenceList: () => RuntimeAssetBridgeEvidence[];
+    getRuntimeBridgeEvidence: (assetId: string) => RuntimeAssetBridgeEvidence;
     /**
      * Acceptance-only fixture inventory. The query parameter guard keeps world
      * mutation and procedural internals out of the public player surface.
@@ -165,6 +182,7 @@ function gradeLabel(grade: number): string {
 }
 
 function boot(): void {
+  const gameShell = requiredElement<HTMLElement>("#game-shell");
   const canvas = requiredElement<HTMLCanvasElement>("#game-canvas");
   const mapCanvas = requiredElement<HTMLCanvasElement>("#map-canvas");
 
@@ -181,7 +199,15 @@ function boot(): void {
     settleWorld(state, world);
   }
 
-  const renderer = new GameRenderer(canvas, world);
+  const surfaceParameters = new URLSearchParams(window.location.search);
+  const acceptanceSurface = surfaceParameters.get("acceptance") === "field-02";
+  const developerSurface =
+    acceptanceSurface || surfaceParameters.get("surface") === "developer";
+  const renderer = new GameRenderer(
+    canvas,
+    world,
+    runtimeBridgeSpecs(developerSurface ? "developer" : "player"),
+  );
   const fieldMap = new FieldMap(mapCanvas, world);
   const input = new InputController();
   const audio = new RigAudio();
@@ -190,10 +216,6 @@ function boot(): void {
     loadResult.loadDurationMs,
   );
   const runRecord = createRunRecord(state.seed, BOOT_STARTED_AT);
-  const surfaceParameters = new URLSearchParams(window.location.search);
-  const acceptanceSurface = surfaceParameters.get("acceptance") === "field-02";
-  const developerSurface =
-    acceptanceSurface || surfaceParameters.get("surface") === "developer";
   let acceptanceManualStepping = false;
   document.body.dataset.surface = developerSurface ? "developer" : "player";
   const markInputReady = (): void => performanceMonitor.markInputReady();
@@ -242,6 +264,12 @@ function boot(): void {
   const gradeBar = requiredElement<HTMLElement>("#grade-bar");
   const gradeText = requiredElement<HTMLElement>("#grade-text");
   const prompt = requiredElement<HTMLElement>("#current-prompt");
+  const firstRungObjective = requiredElement<HTMLElement>(
+    "#first-rung-objective",
+  );
+  const firstRungObjectiveText = requiredElement<HTMLElement>(
+    "#first-rung-objective-text",
+  );
   const emergencyRecover =
     requiredElement<HTMLButtonElement>("#emergency-recover");
   const saveStatus = requiredElement<HTMLElement>("#save-status");
@@ -270,6 +298,23 @@ function boot(): void {
   const toast = requiredElement<HTMLElement>("#toast");
   const pauseOverlay = requiredElement<HTMLElement>("#pause-overlay");
   const welcomePanel = requiredElement<HTMLElement>("#welcome-panel");
+  const bootstrapStatus = requiredElement<HTMLElement>("#bootstrap-status");
+  const controlLesson = requiredElement<HTMLElement>("#control-lesson");
+  const controlLessonTitle = requiredElement<HTMLElement>(
+    "#control-lesson-title",
+  );
+  const controlLessonDescription = requiredElement<HTMLElement>(
+    "#control-lesson-description",
+  );
+  const controlLessonKeyboard = requiredElement<HTMLElement>(
+    "#control-lesson-keyboard",
+  );
+  const controlLessonTouch = requiredElement<HTMLElement>(
+    "#control-lesson-touch",
+  );
+  const controlLessonDismiss = requiredElement<HTMLButtonElement>(
+    "#control-lesson-dismiss",
+  );
   const enterWorldButton = requiredElement<HTMLButtonElement>("#enter-world");
   const resetButton = requiredElement<HTMLButtonElement>("#reset-button");
   const muteButton = requiredElement<HTMLButtonElement>("#mute-button");
@@ -282,17 +327,53 @@ function boot(): void {
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
+  const rumorMap = createRumorMapUI(document.body, () => {
+    if (state.mapOpen) toggleMap(state);
+  });
+  const hoodDashboard = createHoodDashboardUI(document.body);
+  const navigatorUI = createNavigatorUI(document.body);
+
   let worldEntered =
     window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true";
+
   input.setEnabled(worldEntered);
   welcomePanel.hidden = worldEntered;
   welcomePanel.setAttribute("aria-hidden", String(worldEntered));
   enterWorldButton.disabled = worldEntered;
+  gameShell.setAttribute("aria-busy", "false");
+  bootstrapStatus.dataset.state = "ready";
+  bootstrapStatus.textContent = worldEntered
+    ? "Field systems ready. Restored session controls are active."
+    : "Field systems ready. Choose Enter the field to begin.";
+  if (!worldEntered) {
+    requestAnimationFrame(() => enterWorldButton.focus());
+  }
 
   let statusMessage = loadResult.message;
   saveStatus.textContent = statusMessage;
   runtimeDiagnostics.hidden = !developerSurface;
   physicsLabLink.hidden = !developerSurface;
+  const learnedControlLessons = decodeLearnedControlLessons(
+    window.localStorage.getItem(CONTROL_LESSON_STORAGE_KEY),
+  );
+  let visibleControlLessonId: ControlLessonId | null = null;
+  const markControlLessonLearned = (
+    lessonId: ControlLessonId,
+    source: "performed" | "dismissed",
+  ): void => {
+    if (learnedControlLessons.has(lessonId)) return;
+    learnedControlLessons.add(lessonId);
+    window.localStorage.setItem(
+      CONTROL_LESSON_STORAGE_KEY,
+      encodeLearnedControlLessons(learnedControlLessons),
+    );
+    if (visibleControlLessonId === lessonId) {
+      controlLesson.hidden = true;
+      controlLesson.removeAttribute("data-lesson-id");
+      visibleControlLessonId = null;
+    }
+    recordCheckpoint("controlLessonLearned", { lessonId, source });
+  };
 
   for (const landmark of LANDMARKS) {
     const item = document.createElement("li");
@@ -311,19 +392,22 @@ function boot(): void {
   for (const moduleId of MODULE_IDS) {
     const definition = MODULES[moduleId];
     const item = document.createElement("li");
-    item.dataset.moduleId = moduleId;
     item.innerHTML = `
-      <kbd>${MODULE_IDS.indexOf(moduleId) + 1}</kbd>
-      <span>
+      <button type="button" data-module-id="${moduleId}">
+        <kbd aria-hidden="true">${MODULE_IDS.indexOf(moduleId) + 1}</kbd>
+        <span class="module-copy">
         <strong>${definition.name}</strong>
         <small>${definition.promise}</small>
-      </span>
-      <em>${definition.cost}</em>
+        </span>
+        <span class="module-state">${definition.cost} salvage</span>
+      </button>
     `;
     moduleList.append(item);
   }
 
   let toastTimer = 0;
+  let firstRungCompletionUntil = 0;
+  let firstRungCompletionMessage = "";
   const showToast = (message: string): void => {
     toast.textContent = message;
     toast.classList.add("toast--visible");
@@ -336,6 +420,36 @@ function boot(): void {
 
   const announce = (): void => {
     if (state.lastDiagnostic) showToast(state.lastDiagnostic);
+  };
+
+  const fitModule = (
+    moduleId: ModuleId,
+    source: "keyboard" | "workshop-panel" | "acceptance",
+  ): void => {
+    const before = resolveFirstRung(state, world.collectedNodes);
+    recordCommand("installModule", { moduleId, source });
+    installModule(state, world, moduleId);
+    markControlLessonLearned("workshop", "performed");
+    const after = resolveFirstRung(state, world.collectedNodes);
+    const fittedNow = !before.complete && after.complete;
+    if (state.lastDiagnostic?.includes("fitted")) audio.chirp(880);
+    announce();
+    if (fittedNow) {
+      const definition = MODULES[moduleId];
+      firstRungCompletionMessage =
+        moduleId === "lug-tires"
+          ? `${definition.name} fitted · test the new grip in the mud toward Long Furrow`
+          : `${definition.name} fitted · ${definition.promise}`;
+      firstRungCompletionUntil = performance.now() + 4200;
+      showToast(firstRungCompletionMessage);
+    }
+    recordCheckpoint("installModule", {
+      moduleId,
+      source,
+      firstRungBefore: before.stage,
+      firstRungAfter: after.stage,
+      firstRungCompleted: fittedNow,
+    });
   };
 
   const enterWorld = (source: "welcome-panel" | "keyboard"): void => {
@@ -363,6 +477,18 @@ function boot(): void {
     markInputReady();
     void audio.unlock();
     recordCommand("tap", { action });
+    const lessonIdByAction: Partial<Record<TapAction, ControlLessonId>> = {
+      primary: "act",
+      switchRig: "switch-rig",
+      camera: "camera",
+      map: "map",
+      blade: "blade",
+      recover: "recovery",
+    };
+    const learnedLessonId = lessonIdByAction[action];
+    if (learnedLessonId) {
+      markControlLessonLearned(learnedLessonId, "performed");
+    }
     if (action === "primary") {
       const before = state.salvage;
       performPrimaryAction(state, world);
@@ -383,7 +509,12 @@ function boot(): void {
     } else if (action === "map") {
       toggleMap(state);
       mapOverlay.hidden = !state.mapOpen;
-      if (state.mapOpen) fieldMap.draw(state);
+      if (state.mapOpen) {
+        fieldMap.draw(state);
+        rumorMap.open(state);
+      } else {
+        rumorMap.close();
+      }
     } else if (action === "blade") {
       toggleBladeMode(state);
       announce();
@@ -419,17 +550,7 @@ function boot(): void {
       moduleIndex <= MODULE_IDS.length
     ) {
       void audio.unlock();
-      recordCommand("installModule", {
-        moduleId: MODULE_IDS[moduleIndex - 1],
-        source: "keyboard",
-      });
-      installModule(state, world, MODULE_IDS[moduleIndex - 1]!);
-      if (state.lastDiagnostic?.includes("fitted")) audio.chirp(880);
-      announce();
-      recordCheckpoint("installModule", {
-        moduleId: MODULE_IDS[moduleIndex - 1],
-        source: "keyboard",
-      });
+      fitModule(MODULE_IDS[moduleIndex - 1]!, "keyboard");
       return;
     }
 
@@ -495,27 +616,24 @@ function boot(): void {
   }
 
   moduleList.addEventListener("click", (event) => {
-    const item = (event.target as HTMLElement).closest<HTMLElement>(
-      "[data-module-id]",
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "button[data-module-id]",
     );
-    if (!item) return;
+    if (!button || button.disabled) return;
     markInputReady();
     void audio.unlock();
-    recordCommand("installModule", {
-      moduleId: item.dataset.moduleId,
-      source: "workshop-panel",
-    });
-    installModule(state, world, item.dataset.moduleId as ModuleId);
-    announce();
-    recordCheckpoint("installModule", {
-      moduleId: item.dataset.moduleId,
-      source: "workshop-panel",
-    });
+    fitModule(button.dataset.moduleId as ModuleId, "workshop-panel");
   });
 
   enterWorldButton.addEventListener("click", () => {
     markInputReady();
     enterWorld("welcome-panel");
+  });
+  controlLessonDismiss.addEventListener("click", () => {
+    if (visibleControlLessonId) {
+      markControlLessonLearned(visibleControlLessonId, "dismissed");
+    }
+    canvas.focus();
   });
   emergencyRecover.addEventListener("click", () => {
     markInputReady();
@@ -555,6 +673,7 @@ function boot(): void {
     if (!CAMERA_MODES.includes(cameraMode)) return;
     recordCommand("selectCamera", { cameraMode, source: "ui" });
     selectCamera(state, cameraMode);
+    markControlLessonLearned("camera", "performed");
     showToast(`${CAMERA_LABELS[cameraMode]} view.`);
     canvas.focus();
     recordCheckpoint("selectCamera", { cameraMode, source: "ui" });
@@ -684,13 +803,85 @@ function boot(): void {
     // Prompt: the nearest thing worth doing, phrased as a verb and a consequence.
     const workshop = workshopInReach(state);
     const relay = state.cargoRelay;
+    const firstRung = resolveFirstRung(state, world.collectedNodes);
+    const anotherRigInRange = RIG_IDS.some((rigId) => {
+      if (rigId === rig.id) return false;
+      const parked = state.rigs[rigId];
+      return Math.hypot(parked.x - rig.x, parked.z - rig.z) <= RIG_SWITCH_RANGE;
+    });
+    const nextControlLesson = resolveControlLesson(
+      {
+        hasDriven:
+          rig.distanceTravelled > 1 ||
+          RIG_IDS.some((rigId) => state.rigs[rigId].distanceTravelled > 1),
+        primaryActionKind: primaryAction.kind,
+        workshopRelevant:
+          workshop !== undefined && firstRung.stage === "choose-part",
+        bladeRelevant:
+          (primaryAction.kind === "lower-plough" ||
+            primaryAction.kind === "raise-plough") &&
+          ["tilled", "mud", "sand"].includes(telemetry.surfaceId),
+        cameraRelevant: rig.distanceTravelled > 12,
+        mapRelevant: state.discoveries.some(
+          (discovery) => discovery.id !== "home-silo",
+        ),
+        switchRigRelevant: firstRung.complete && anotherRigInRange,
+        recoveryRelevant: rig.condition <= 0,
+      },
+      learnedControlLessons,
+    );
+    const controlLessonSuppressed =
+      !worldEntered || state.paused || state.mapOpen;
+    if (!nextControlLesson || controlLessonSuppressed) {
+      controlLesson.hidden = true;
+      controlLesson.removeAttribute("data-lesson-id");
+      visibleControlLessonId = null;
+    } else {
+      const changed = visibleControlLessonId !== nextControlLesson.id;
+      visibleControlLessonId = nextControlLesson.id;
+      controlLesson.dataset.lessonId = nextControlLesson.id;
+      controlLessonTitle.textContent = nextControlLesson.title;
+      controlLessonDescription.textContent = nextControlLesson.description;
+      controlLessonKeyboard.textContent = nextControlLesson.keyboard;
+      controlLessonTouch.textContent = nextControlLesson.touch;
+      controlLesson.hidden = false;
+      if (changed) {
+        recordCheckpoint("controlLessonIntroduced", {
+          lessonId: nextControlLesson.id,
+          primaryActionKind: primaryAction.kind,
+        });
+      }
+    }
+    const showingFirstRungCompletion =
+      firstRung.complete && now < firstRungCompletionUntil;
+    firstRungObjective.hidden =
+      state.mapOpen || (firstRung.complete && !showingFirstRungCompletion);
+    firstRungObjective.classList.toggle(
+      "is-complete",
+      showingFirstRungCompletion,
+    );
+    firstRungObjective.dataset.stage = showingFirstRungCompletion
+      ? "part-fitted"
+      : firstRung.stage;
+    firstRungObjectiveText.textContent = showingFirstRungCompletion
+      ? firstRungCompletionMessage
+      : firstRung.objective;
+    firstRungObjective.setAttribute(
+      "aria-label",
+      showingFirstRungCompletion
+        ? firstRungCompletionMessage
+        : firstRung.ariaLabel,
+    );
     if (state.paused) {
       prompt.textContent = "Paused.";
     } else if (rig.condition <= 0) {
       prompt.textContent =
         "Rig disabled · press X or Winch for emergency field recovery";
     } else if (workshop) {
-      prompt.textContent = `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
+      prompt.textContent =
+        firstRung.stage === "choose-part"
+          ? `${firstRung.objective} · ${state.salvage} salvage ready`
+          : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
     } else if (relay.cargo.attachedRigId === rig.id) {
       const distance = Math.round(
         Math.hypot(rig.x - LANDMARKS[1]!.x, rig.z - LANDMARKS[1]!.z),
@@ -732,7 +923,11 @@ function boot(): void {
       }
     }
 
+    hoodDashboard.update(state);
+    navigatorUI.update(state);
+
     for (const landmark of LANDMARKS) {
+
       const item = landmarkList.querySelector<HTMLElement>(
         `[data-landmark-id="${landmark.id}"]`,
       );
@@ -755,18 +950,42 @@ function boot(): void {
     if (workshop) {
       workshopSalvage.textContent = `${state.salvage} salvage`;
       for (const moduleId of MODULE_IDS) {
-        const item = moduleList.querySelector<HTMLElement>(
-          `[data-module-id="${moduleId}"]`,
+        const button = moduleList.querySelector<HTMLButtonElement>(
+          `button[data-module-id="${moduleId}"]`,
         );
-        if (!item) continue;
+        if (!button) continue;
         const definition = MODULES[moduleId];
         const fitted = rig.modules.includes(moduleId);
         const affordable = state.salvage >= definition.cost;
-        item.classList.toggle("is-fitted", fitted);
-        item.classList.toggle("is-locked", !fitted && !affordable);
-        const cost = item.querySelector<HTMLElement>("em");
-        if (cost)
-          cost.textContent = fitted ? "fitted" : String(definition.cost);
+        const compatible = definition.fits.includes(rig.id);
+        const recommended =
+          !firstRung.complete &&
+          firstRung.recommendedModuleId === moduleId &&
+          firstRung.recommendedRigId === rig.id;
+        button.disabled = fitted || !affordable || !compatible;
+        button.classList.toggle("is-fitted", fitted);
+        button.classList.toggle("is-locked", !fitted && !affordable);
+        button.classList.toggle("is-unavailable", !compatible);
+        button.classList.toggle("is-recommended", recommended);
+        const stateLabel = button.querySelector<HTMLElement>(".module-state");
+        const visibleState = fitted
+          ? "Fitted"
+          : !compatible
+            ? "Unavailable"
+            : recommended
+              ? `Recommended · ${definition.cost} salvage`
+              : affordable
+                ? `Fit · ${definition.cost} salvage`
+                : `Need ${definition.cost - state.salvage} more`;
+        if (stateLabel) stateLabel.textContent = visibleState;
+        button.setAttribute(
+          "aria-label",
+          fitted
+            ? `${definition.name} is already fitted. ${definition.promise}`
+            : !compatible
+              ? `${definition.name} is unavailable for ${profile.fieldName}.`
+              : `${recommended ? "Recommended. " : ""}Fit ${definition.name} for ${definition.cost} salvage. ${definition.promise}${affordable ? "" : ` Need ${definition.cost - state.salvage} more salvage.`}`,
+        );
       }
     }
 
@@ -780,7 +999,16 @@ function boot(): void {
     if (developerSurface) {
       const heap =
         metrics.heapUsedMb === null ? "heap n/a" : `${metrics.heapUsedMb} MB`;
-      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${heap}`;
+      const bridgeStates = renderer.runtimeBridgeEvidenceList();
+      const loadedBridges = bridgeStates.filter(
+        (bridge) => bridge.status === "loaded",
+      ).length;
+      const bridgeSummary = `bridges:${loadedBridges}/${bridgeStates.length}`;
+      const visibility = metrics.visibility;
+      const visibilitySummary = visibility
+        ? `props:${visibility.submitted}/${visibility.candidates} n${visibility.near}/m${visibility.mid}/f${visibility.far} c${visibility.culled} cap${visibility.capacityLimited}`
+        : "props:n/a";
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${heap} · ${bridgeSummary} · ${visibilitySummary}`;
     }
 
     if (state.mapOpen && now - lastMapUpdate > 260) {
@@ -799,6 +1027,7 @@ function boot(): void {
       {
         ...publicState(state, world),
         welcomeOpen: !worldEntered,
+        runtimeAssetBridges: renderer.runtimeBridgeEvidenceList(),
         performance: performanceMonitor.snapshot(renderer.metrics()),
         fieldMapBuildMs: Number.isFinite(fieldMap.buildMs)
           ? Number(fieldMap.buildMs.toFixed(1))
@@ -857,6 +1086,10 @@ function boot(): void {
     return renderer.perceptionEvidence(state, rigId);
   };
   window.getCameraResolutionEvidence = () => renderer.cameraEvidence();
+  window.getRuntimeBridgeEvidenceList = () =>
+    renderer.runtimeBridgeEvidenceList();
+  window.getRuntimeBridgeEvidence = (assetId: string) =>
+    renderer.runtimeBridgeEvidenceFor(assetId);
   window.getCameraTreeFixtures = () => {
     if (!acceptanceSurface) {
       throw new Error(
@@ -1049,8 +1282,7 @@ function boot(): void {
     return settleAndReport();
   };
   window.installRigModule = (moduleId: ModuleId) => {
-    recordCommand("installRigModule", { moduleId });
-    installModule(state, world, moduleId);
+    fitModule(moduleId, "acceptance");
     return settleAndReport();
   };
   window.toggleBlade = () => {
@@ -1082,6 +1314,7 @@ function boot(): void {
     rig.z = z;
     if (heading !== undefined) rig.heading = heading;
     rig.speed = 0;
+    rig.steering = 0;
     settleWorld(state, world);
     // Telemetry (surface, grip, grade, water depth) is written by the traversal
     // model, so a teleport that skips the step leaves the HUD and the reported
@@ -1140,6 +1373,14 @@ function boot(): void {
       accumulator >= FIXED_STEP_SECONDS
     ) {
       const sampledInput = input.sample();
+      if (
+        sampledInput.accelerate ||
+        sampledInput.brake ||
+        sampledInput.steerLeft ||
+        sampledInput.steerRight
+      ) {
+        markControlLessonLearned("drive", "performed");
+      }
       if (
         sampledInput.accelerate !== lastRecordedInput.accelerate ||
         sampledInput.brake !== lastRecordedInput.brake ||

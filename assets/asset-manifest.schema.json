@@ -22,7 +22,8 @@
         "status",
         "sourceType",
         "rightsStatus",
-        "intendedUse"
+        "intendedUse",
+        "publicRuntimeApproved"
       ],
       "properties": {
         "id": {
@@ -43,6 +44,12 @@
         "sourcePath": { "type": "string", "minLength": 1 },
         "sourceRef": { "type": "string", "minLength": 1 },
         "runtimePath": { "type": ["string", "null"] },
+        "licensePath": { "type": "string", "minLength": 1 },
+        "licenseSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "publicRuntimeApproved": { "type": "boolean" },
         "rightsStatus": { "type": "string", "minLength": 1 },
         "intendedUse": { "type": "string", "minLength": 1 },
         "sha256": {

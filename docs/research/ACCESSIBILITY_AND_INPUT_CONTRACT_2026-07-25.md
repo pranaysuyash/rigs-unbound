@@ -137,3 +137,45 @@ stay durable as more actions and more devices are added.
   of the fully named accessibility/input policy the contract describes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26): loading explicitness and profile visibility are the next accessibility gate
+
+- Re-checked the live browser daemon while following the 3d-web-experience and
+  Accessibility Auditor lanes.
+- The runtime remains operable, but the first public-entry experience still
+  needs a clearer accessibility contract for:
+  - truthful loading state,
+  - recoverable fallback behavior,
+  - explicit low/balanced/high quality-profile selection,
+  - visible input/accessibility profile state for the active session.
+- This is not a request to change the current control model. The current
+  keyboard, gamepad, touch, and reduced-motion paths are already good enough
+  to keep; the missing piece is a named policy surface for entry and comfort.
+- Evidence depth: Tier 4 runtime/status observation plus Tier 1 doc and skill
+  inspection.
+
+## Addendum (2026-07-26): explicit bootstrap status is now part of the accessible shell
+
+- The existing `#welcome-panel` is now the one canonical entry surface for both
+  visual and assistive-technology startup feedback. It is a labeled dialog with
+  an explicit description and a polite, atomic `#bootstrap-status` live region.
+- The initial HTML truth is `aria-busy="true"` with `Preparing field systems.`;
+  once the synchronous world and storage bootstrap has completed, `src/main.ts`
+  changes the shell to `aria-busy="false"` and marks that same status as ready.
+  The text distinguishes a restored session from a new entry without claiming a
+  percentage or asset-loading state that the runtime does not measure.
+- Keyboard focus starts on `Enter the field` while the dialog is open and moves
+  to the playable canvas only after that action. This preserves the existing
+  semantic control boundary: the welcome dialog owns entry, while the canvas
+  owns play.
+- This is intentionally not a quality-profile selector or a recoverable
+  bootstrap-error experience. Those need a measured profile policy and an
+  explicit renderer/bootstrap failure boundary before they can be truthful.
+- Evidence depth: Tier 1 static implementation review. The remaining proof is
+  a browser/VoiceOver walkthrough that confirms announcement timing, focus
+  order, and error behavior under a deliberately failed bootstrap.
+
+## Anything else?
+
+No additional accessibility ownership moved into the renderer: DOM remains the
+source of truth for entry state and the canvas remains the focused play surface.

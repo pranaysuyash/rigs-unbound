@@ -87,6 +87,36 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 - Import gate: record exact pack/version, included license, source and derived hashes, modifications, intended use, reviewer, browser validation, and replacement path
 - Full inventory and first candidate manifest: [Kenney asset library audit](KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md)
 
+## `kenney-car-kit-breakable-crate-fixture.glb`
+
+- Project path: `assets/runtime/kenney-car-kit-breakable-crate-fixture.glb`
+- Source path: `/Users/pranay/Projects/adhoc_resources/game_assets/Kenney Game Assets All-in-1 3.4.0/3D assets/Car Kit/Models/GLB format/box.glb`
+- SHA-256: `38b74901586f61fb9d4bb54c55bcdafeb498ddda547063503c60d3e8d357dc87`
+- Source type: copied open-asset runtime derivative from the inspected Kenney bundle
+- Source owner: private external asset library outside the repository (`Kenney Game Assets All-in-1 3.4.0`)
+- Intended use: first runtime bridge prop, manifest admission proof, and browser visibility check
+- Production status: copied into repo-owned runtime directory; browser/runtime verification still pending
+- Rights/terms status: use remains governed by the inspected bundle and pack-level CC0 evidence already recorded above
+- Replacement path: replace with a project-authored prop or a more identity-bearing variant only after the bridge proof is observed live
+- Linked manifest entry: [`assets/asset-manifest.json`](/Users/pranay/Projects/Game_dev/rigs-unbound/assets/asset-manifest.json)
+- Live browser proof: the bridge is currently loading cleanly in the acceptance
+  surface with zero console logs after the texture dependency was copied into
+  `assets/runtime/Textures/colormap.png`.
+
+## `kenney-car-kit-tractor-preview.glb`
+
+- Project path: `assets/runtime/kenney-car-kit-tractor-preview.glb`
+- Source path: `/Users/pranay/Projects/adhoc_resources/game_assets/Kenney Game Assets All-in-1 3.4.0/3D assets/Car Kit/Models/GLB format/tractor.glb`
+- SHA-256: `08cbe533f5cb2171d6e7e0ae99ae32b65f10fed144ab102950079507f4a66a16`
+- Source type: copied open-asset runtime derivative from the inspected Kenney bundle
+- Source owner: private external asset library outside the repository (`Kenney Game Assets All-in-1 3.4.0`)
+- Intended use: second runtime bridge asset, vehicle-shaped preview, and proof that the bridge handles a larger multi-node GLB
+- Production status: copied into repo-owned runtime directory; browser/runtime verification complete
+- Rights/terms status: use remains governed by the inspected bundle and pack-level CC0 evidence already recorded above
+- Replacement path: replace with a project-authored tractor preview or production vehicle mesh after the bridge proof is no longer needed
+- Linked manifest entry: [`assets/asset-manifest.json`](/Users/pranay/Projects/Game_dev/rigs-unbound/assets/asset-manifest.json)
+- Live browser proof: the bridge currently loads cleanly in the acceptance surface with `loadedNodeCount: 5` and zero bridge errors
+
 ## `patchwork_atlas_triptych_2026-07-25.png`
 
 - Project path: `docs/exploration/assets/patchwork_atlas_triptych_2026-07-25.png`

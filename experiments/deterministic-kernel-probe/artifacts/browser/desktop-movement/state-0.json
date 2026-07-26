@@ -1,1 +1,41 @@
-{"schema":"rigs-unbound.kernel-probe-state.v1","coordinates":"world origin is top-left; +x points right; +y points down; heading is radians clockwise from +x","seed":1380534099,"tick":85,"timeMs":1700,"mode":"farm","camera":"chase","objective":"Harvest 3 more signal crop(s).","vehicle":{"id":"vehicle.tractor.patch-01","x":25.167,"y":42.341,"heading":4.975,"speed":0,"condition":0.55,"scrap":0,"harvested":0},"crops":[{"id":"crop.signal-1","x":25,"y":18},{"id":"crop.signal-2","x":39,"y":18},{"id":"crop.signal-3","x":53,"y":18},{"id":"crop.signal-4","x":32,"y":32},{"id":"crop.signal-5","x":47,"y":32}],"enemies":[],"defense":{"remainingMs":8000,"defeated":0},"trial":{"nextCheckpoint":{"id":"checkpoint-1","x":72,"y":15},"completed":0,"total":4},"recentEvents":[{"tick":0,"type":"run.started","message":"The old tractor turns over at dawn."}]}
+{
+  "schema": "rigs-unbound.kernel-probe-state.v1",
+  "coordinates": "world origin is top-left; +x points right; +y points down; heading is radians clockwise from +x",
+  "seed": 1380534099,
+  "tick": 85,
+  "timeMs": 1700,
+  "mode": "farm",
+  "camera": "chase",
+  "objective": "Harvest 3 more signal crop(s).",
+  "vehicle": {
+    "id": "vehicle.tractor.patch-01",
+    "x": 25.167,
+    "y": 42.341,
+    "heading": 4.975,
+    "speed": 0,
+    "condition": 0.55,
+    "scrap": 0,
+    "harvested": 0
+  },
+  "crops": [
+    { "id": "crop.signal-1", "x": 25, "y": 18 },
+    { "id": "crop.signal-2", "x": 39, "y": 18 },
+    { "id": "crop.signal-3", "x": 53, "y": 18 },
+    { "id": "crop.signal-4", "x": 32, "y": 32 },
+    { "id": "crop.signal-5", "x": 47, "y": 32 }
+  ],
+  "enemies": [],
+  "defense": { "remainingMs": 8000, "defeated": 0 },
+  "trial": {
+    "nextCheckpoint": { "id": "checkpoint-1", "x": 72, "y": 15 },
+    "completed": 0,
+    "total": 4
+  },
+  "recentEvents": [
+    {
+      "tick": 0,
+      "type": "run.started",
+      "message": "The old tractor turns over at dawn."
+    }
+  ]
+}

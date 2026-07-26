@@ -37,18 +37,18 @@ This plan converts the admitted isolated reference into an implementation-ready 
 
 Each detail must map to a real `component.localFeatures` or `material.localOverrides` field in the eventual spec:
 
-| ID | Kind | Observed feature | Proposed mapping |
-| --- | --- | --- | --- |
-| `cab-roof-bevels` | bevel | Thick chamfered roof plates catch the upper key light | `cab-shell/roof-edge-bevel` |
-| `patchwork-panel-seams` | seam | Irregular cream, rust, and green replacement panels meet with dark seams | `painted-metal/panel-seam-darkening` |
-| `panel-fastener-rows` | fastener | Repeated rivets/bolts track hood, cab, and fender boundaries | `wheel-system/fastener-instancing` |
-| `rust-and-dirt-patina` | stain | Brown oxidation and grime collect in panel recesses and lower chassis | `painted-metal/patina-cavity-mask` |
-| `scraped-edge-wear` | scratch | Bright worn edges expose high-use corners and attachment hardware | `painted-metal/edge-wear-mask` |
-| `front-grille-slats` | linework | Dark horizontal grille bars define the front face | `hood-shell/grille-slats` |
-| `headlight-lenses` | emissive | Two circular warm lamps read as primary face/interaction cues | `lighting-system/headlight-emissive` |
-| `amber-beacon` | emissive | Raised amber beacon crowns the cab and signals vehicle identity | `lighting-system/beacon-emissive` |
-| `tread-and-hub-repeat` | ridge | Chunky tire lugs and concentric hubs repeat around four wheels | `wheel-system/tread-and-hub-instancing` |
-| `hitch-and-socket-hardware` | hole | Front coupling holes and plates communicate modular tool attachment | `front-hitch/tool-socket` |
+| ID                          | Kind     | Observed feature                                                         | Proposed mapping                        |
+| --------------------------- | -------- | ------------------------------------------------------------------------ | --------------------------------------- |
+| `cab-roof-bevels`           | bevel    | Thick chamfered roof plates catch the upper key light                    | `cab-shell/roof-edge-bevel`             |
+| `patchwork-panel-seams`     | seam     | Irregular cream, rust, and green replacement panels meet with dark seams | `painted-metal/panel-seam-darkening`    |
+| `panel-fastener-rows`       | fastener | Repeated rivets/bolts track hood, cab, and fender boundaries             | `wheel-system/fastener-instancing`      |
+| `rust-and-dirt-patina`      | stain    | Brown oxidation and grime collect in panel recesses and lower chassis    | `painted-metal/patina-cavity-mask`      |
+| `scraped-edge-wear`         | scratch  | Bright worn edges expose high-use corners and attachment hardware        | `painted-metal/edge-wear-mask`          |
+| `front-grille-slats`        | linework | Dark horizontal grille bars define the front face                        | `hood-shell/grille-slats`               |
+| `headlight-lenses`          | emissive | Two circular warm lamps read as primary face/interaction cues            | `lighting-system/headlight-emissive`    |
+| `amber-beacon`              | emissive | Raised amber beacon crowns the cab and signals vehicle identity          | `lighting-system/beacon-emissive`       |
+| `tread-and-hub-repeat`      | ridge    | Chunky tire lugs and concentric hubs repeat around four wheels           | `wheel-system/tread-and-hub-instancing` |
+| `hitch-and-socket-hardware` | hole     | Front coupling holes and plates communicate modular tool attachment      | `front-hitch/tool-socket`               |
 
 The image contains enough evidence for these ten mappings, but not enough to infer hidden-side geometry, exact dimensions, or mechanically correct attachment internals.
 

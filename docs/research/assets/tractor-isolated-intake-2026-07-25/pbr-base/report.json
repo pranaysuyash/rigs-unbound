@@ -7,13 +7,7 @@
   "materialId": "base",
   "sourceImage": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/assets/references/tractor_isolated_reconstruction_reference_2026-07-25.png",
   "outDir": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base",
-  "palette": [
-    "#593F2B",
-    "#322417",
-    "#130D07",
-    "#89664B",
-    "#C1A17F"
-  ],
+  "palette": ["#593F2B", "#322417", "#130D07", "#89664B", "#C1A17F"],
   "maps": {
     "albedo": {
       "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_albedo.png",
@@ -70,13 +64,7 @@
       "normalStrength": 0.238,
       "blurRadius": 21
     },
-    "palette": [
-      "#593F2B",
-      "#322417",
-      "#130D07",
-      "#89664B",
-      "#C1A17F"
-    ]
+    "palette": ["#593F2B", "#322417", "#130D07", "#89664B", "#C1A17F"]
   },
   "warnings": [
     "single-image inverse rendering cannot prove true physical PBR; confidence is capped"

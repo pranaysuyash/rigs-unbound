@@ -34,7 +34,7 @@ progression" than a race or a mission game.
    grip/grade bars, speed, condition, salvage count, surveyed %, and a
    "signals on the horizon" list with distances (20-really-dismissed.png).
 4. **Drove Torque around.** Reached ~33 km/h in 3 s, ~45 km/h on the hardpan
-   track. Ran into a tree and *pushed it over* — toast: "Torque pushed a tree
+   track. Ran into a tree and _pushed it over_ — toast: "Torque pushed a tree
    over. The clearing stays open." (22-tq-6s.png). Genuinely made me grin.
 5. **Pressed every key in the bottom bar.** M opened a fog-of-war field map
    (11% surveyed, "The map only shows ground your rig could see", 24-map-clean.png).
@@ -48,7 +48,7 @@ progression" than a race or a mission game.
 6. **Ploughed a muddy slope.** Speed dropped to 6 km/h uphill in churned mud,
    grip "slipping" (25-tq-ploughing.png). The plough visibly cuts the ground.
 7. **Pressed R and discovered rig-switching.** R cycles Torque → Spark → Drift,
-   and each rig is a *separate parked vehicle somewhere in the world* — switching
+   and each rig is a _separate parked vehicle somewhere in the world_ — switching
    teleports you to it. Spark was at the farm; Drift was floating out in the
    Sunken Flats wetlands (22-pressed-r-2.png). R while moving is refused:
    "Stabilize the active rig before switching machines." (25-back-to-torque.png)
@@ -71,7 +71,7 @@ progression" than a race or a mission game.
     23-creep-2.png) or sliding into the pond. Best I got was ~24 m away before
     wedging into a tree. Space near nothing said "Nothing in reach. Salvage
     sits off the graded tracks — leave the road." **I never collected a single
-    unit.** The nearest salvage to spawn sits *across deep water* from the
+    unit.** The nearest salvage to spawn sits _across deep water_ from the
     tractor — brutal for a first-time player (26-topdown-s-5.png).
 12. **Hunted the tow/cargo job.** The signals list says "Rustline Salvage · TOW"
     but nothing marks what to tow or where. I spotted an orange crate across
@@ -85,9 +85,9 @@ progression" than a race or a mission game.
     condition 100%, discoveries gone (21-reload-in-game.png). Same world layout,
     zero saved progress.
 15. **Clicked Physics Lab.** A separate page, "Physics Lab 01 — DYNAMIC CHASSIS
-    + RAYCAST WHEELS", labeled "EVIDENCE FIXTURE" — clearly a developer tool
-    (26-physics-lab.png). It sat on "RAPIER LOADING" with a black viewport and
-    zeroed stats.
+    - RAYCAST WHEELS", labeled "EVIDENCE FIXTURE" — clearly a developer tool
+      (26-physics-lab.png). It sat on "RAPIER LOADING" with a black viewport and
+      zeroed stats.
 16. **Clicked Reset field.** No intro card, survey % kept (18%) — it's an
     in-place field reset, not a game reset (22-after-reset.png).
 
@@ -96,7 +96,7 @@ progression" than a race or a mission game.
 - **Torque (tractor): "planted", "lumbering", "sturdy".** Slow to build speed
   but unstoppable-feeling — it shoves trees over, which is immensely satisfying.
   In mud it turns "slug-like" (20 km/h, 6 km/h ploughing uphill) — but in a way
-  that reads as *work*, not as broken. Feels like it has genuine weight.
+  that reads as _work_, not as broken. Feels like it has genuine weight.
 - **Spark (buggy): "twitchy", "eager", "fragile".** Launches off the line
   (48 km/h in ~1 s vs Torque's ~10), skittish on grass, stalls dead on modest
   hills, and every tree costs it condition. Quickest to get you in trouble.
@@ -112,7 +112,8 @@ of the design lands.
 ## 4. Confused / delighted / bored / couldn't figure out
 
 **Delighted:**
-- Pushing a tree over with the tractor, and the game *remembering* the clearing.
+
+- Pushing a tree over with the tractor, and the game _remembering_ the clearing.
 - The plough actually cutting the ground and slowing me down.
 - The writing in the toasts ("skim the flooded line Torque cannot ford",
   "Spark carries no blade. Torque does.") — playful and informative.
@@ -122,6 +123,7 @@ of the design lands.
   nice surprise.
 
 **Confused:**
+
 - What am I actually supposed to DO first? The intro mentions salvage and
   modules, but the only guidance is "salvage sits off the graded tracks" — and
   the nearest salvage to spawn is across water the starting tractor can't
@@ -138,6 +140,7 @@ of the design lands.
   clicking this lands in a broken-looking engineering page.
 
 **Bored:**
+
 - Long empty drives between anything interactive. Once the tree-push novelty
   wore off (~5 min), there was nothing pulling me forward — no visible goal
   marker, no first job, no quick win.
@@ -145,6 +148,7 @@ of the design lands.
   (winch costs salvage I don't have), so the only move is reload or rig-switch.
 
 **Wanted to do but couldn't figure out:**
+
 - Collect even one unit of salvage (therefore: buy even one module, repair
   anything, see any progression at all).
 - Attach a tow / do the cargo job.
@@ -152,7 +156,7 @@ of the design lands.
 
 ## 5. Was there a goal? When would I have closed the tab?
 
-There's clearly *meant* to be a loop (salvage → modules → new terrain → the
+There's clearly _meant_ to be a loop (salvage → modules → new terrain → the
 landmark jobs), and the HUD/map imply longer arcs ("surveyed %", best times
 maybe). But in a first session none of it is reachable: I found no tutorialized
 first task, no first salvage placed where the starting rig can actually reach
@@ -195,7 +199,7 @@ keeps survey % but its exact effect is unclear from the player's side.)
 There's a lovely toy here — the weight of the tractor, the tree-felling, the
 plough, the hovercraft skimming water, and writing with real personality. The
 three rigs genuinely feel different within seconds. But as a first-time casual
-player I spent 15 minutes failing to do the *one* thing the game asked of me
+player I spent 15 minutes failing to do the _one_ thing the game asked of me
 (collect salvage), because the nearest unit is across water my starting vehicle
 can't cross, the camera fights me near trees, and no first job ever presents
 itself. I'd give it another shot if someone told me "here's what you do first" —

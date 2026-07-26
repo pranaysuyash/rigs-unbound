@@ -79,7 +79,7 @@ opposition, no scarcity, and no reason to repeat.
 ## 3. Leveling: reconciling the operator's ask with the design grammar
 
 The operator wants leveling. The existing contract says "not a universal XP
-ladder." These are compatible — the rejection was of *generic* XP (a number
+ladder." These are compatible — the rejection was of _generic_ XP (a number
 that goes up and makes everything uniformly stronger), not of progression
 depth. The design grammar already contains the spine; it needs to be made
 legible, named, and leveled.
@@ -88,11 +88,11 @@ Proposal — **three interlocking ladders, zero universal XP**:
 
 ### 3.1 Rig Journey (the character level)
 
-The restoration arc already in the docs — *found → stabilized → working →
-specialized → hybridized → storied* — **is** the rig's level. Make it explicit:
+The restoration arc already in the docs — _found → stabilized → working →
+specialized → hybridized → storied_ — **is** the rig's level. Make it explicit:
 
 - Each phase is a level with a name, a silhouette change, and an unlock.
-- Advancement is gated by *deeds + investment*, not points: e.g. "working"
+- Advancement is gated by _deeds + investment_, not points: e.g. "working"
   requires core systems repaired (scrap cost) **and** one signature job
   completed (plough a first field / deliver a first relay).
 - The phase is visible on the machine (DESIGN.md's repair seams, patches,
@@ -106,11 +106,11 @@ Mastery-through-use, already sketched in the tractor doc, formalized:
 
 - Every capability (`plough`, `tow`, `jump`, `survey`, `winch`, future `haul`,
   `defend`, `build`, `fly`…) carries a per-rig mastery track with a small
-  number of named ranks (e.g. *Novice → Practiced → Seasoned → Master*).
+  number of named ranks (e.g. _Novice → Practiced → Seasoned → Master_).
 - Mastery accrues only from **demonstrated, varied, successful use** — towing
   the same crate in a circle accrues nothing after the first repetitions;
   towing uphill at night in rain accrues more. This is the anti-grind rule:
-  the system rewards *situations*, not repetitions. (Implementation sketch:
+  the system rewards _situations_, not repetitions. (Implementation sketch:
   mastery events keyed by situation-hash; diminishing returns per hash —
   cheap, deterministic, testable in the kernel.)
 - Rank rewards are **depth, not raw power**: a Master of tow gets hitch
@@ -121,7 +121,7 @@ Mastery-through-use, already sketched in the tractor doc, formalized:
 ### 3.3 Insight (the knowledge level)
 
 Already designed as the non-spendable discovery currency. Keep it, and give it
-one more job: Insight thresholds *reveal* module categories, site lore, and
+one more job: Insight thresholds _reveal_ module categories, site lore, and
 opportunity-compass range. It is the explorer's ladder and the pacing valve
 for content unlocks.
 
@@ -133,13 +133,13 @@ the motivation table in the design skill without importing MMO grind grammar.
 
 **[DECISION]** Adopt Journey/Mastery/Insight as the progression spine
 (candidate ADR-0018). Depends on ADR-0003's blueprint/instance model for where
-mastery lives (proposal: mastery is instance state — it is *this* machine's
+mastery lives (proposal: mastery is instance state — it is _this_ machine's
 history; a fresh identical blueprint starts unranked).
 
 ## 4. New mechanics — first-principles candidates
 
 Filter used: a mechanic earns its place only if it (a) makes a vehicle's
-*shape/verbs* matter, (b) writes to world memory, or (c) transforms genre
+_shape/verbs_ matter, (b) writes to world memory, or (c) transforms genre
 through place/time/scale. Ranked by evidence-per-commit:
 
 ### 4.1 Noise and light signature (the ecology substrate) — highest value
@@ -152,13 +152,13 @@ how much noise and light it emits. Everything alive reacts to signatures:
   risk-reward core of ADR-0002's defense loop, for free.
 - Skittish salvage creatures flee signatures → stealth approaches (low gear,
   lights off, coasting) become a real verb.
-- A quiet electric/hover rig vs a loud diesel tractor is a *mechanical*
+- A quiet electric/hover rig vs a loud diesel tractor is a _mechanical_
   difference players can feel, not a stat sheet.
 
 This is one kernel system that seeds farming risk, stealth, hunting, and
 defense — and it makes audio (already procedural per rig) gameplay-relevant.
 It also answers the DESIGN.md gap that night enemies "read as generic spider
-drones": threats designed around *what they hunt* (noise) have ecology, not
+drones": threats designed around _what they hunt_ (noise) have ecology, not
 just silhouettes.
 
 ### 4.2 Terrain memory as gameplay
@@ -182,16 +182,16 @@ becoming content.
 ### 4.4 Opportunity compass (the guidance hypothesis, made concrete)
 
 The map's "opportunity compass revealing verbs, not quest spam": a field-kit
-element that points at *verbs in reach* ("soft ground NE — ploughable",
+element that points at _verbs in reach_ ("soft ground NE — ploughable",
 "distress ping — winch range") rather than objectives. It doubles as the
 onboarding teacher and the Insight payoff (insight extends its range/resolution).
 
 ### 4.5 Fleet-as-towers (defense mode, when defense lands)
 
 Parked rigs are not inert: a rig with a module becomes a turret, a wall, a
-light source, a decoy signature. Defense is fleet *placement*, which only this
+light source, a decoy signature. Defense is fleet _placement_, which only this
 game can offer — the genre transformation (farm → tower defense) happens by
-*where you leave your machines*, diegetically.
+_where you leave your machines_, diegetically.
 
 Deliberately **not** proposed now: crafting trees, hunger/upkeep chores
 (Pacific Drive's failure mode, per the reference atlas), PvP anything, pets,
@@ -200,20 +200,20 @@ building placement grids (conflicts with terrain-memory freeform).
 ## 5. Game modes on the current kernel
 
 The north star is one world whose place/time/scale transforms genre — so
-"modes" are *states and sites*, not menu entries. What each needs beyond
+"modes" are _states and sites_, not menu entries. What each needs beyond
 today's kernel:
 
-| Mode | Genre state | Missing systems | Kernel risk |
-|---|---|---|---|
-| Farm day / defend night (ADR-0002 slice) | Time-state transformation | Crops/growth, signature ecology (4.1), night threats, dawn consequences | Medium — first living actors |
-| Time trial / circuit | Same world, route rules | Checkpoint/gate system, ghost replay (run-record exists — replay is the ADR-0014 step-4 gate) | Low — mostly contract work |
-| Rescue/salvage ops | Site-based | Capability-composition contracts (4.3), stuck-rig/cargo entities | Low-medium |
-| Convoy/escort | Route-based | One NPC mover + threat reactions | Medium |
-| Fleet defense (tower) | Site + night state | 4.1 + 4.5 + wave director | Medium-high |
-| Toy-scale interior / space / launch | Scale regime change | Separate origin/scale regime — **deferred by design**, keep deferred | High — do not pull forward |
+| Mode                                     | Genre state               | Missing systems                                                                               | Kernel risk                  |
+| ---------------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------- |
+| Farm day / defend night (ADR-0002 slice) | Time-state transformation | Crops/growth, signature ecology (4.1), night threats, dawn consequences                       | Medium — first living actors |
+| Time trial / circuit                     | Same world, route rules   | Checkpoint/gate system, ghost replay (run-record exists — replay is the ADR-0014 step-4 gate) | Low — mostly contract work   |
+| Rescue/salvage ops                       | Site-based                | Capability-composition contracts (4.3), stuck-rig/cargo entities                              | Low-medium                   |
+| Convoy/escort                            | Route-based               | One NPC mover + threat reactions                                                              | Medium                       |
+| Fleet defense (tower)                    | Site + night state        | 4.1 + 4.5 + wave director                                                                     | Medium-high                  |
+| Toy-scale interior / space / launch      | Scale regime change       | Separate origin/scale regime — **deferred by design**, keep deferred                          | High — do not pull forward   |
 
 Recommended sequencing in commit-units (dependency order, not priority order):
-crops+signature ecology → night threats + dawn consequences (this *is* the
+crops+signature ecology → night threats + dawn consequences (this _is_ the
 0002 slice) → mastery/journey spine wired to the slice's deeds → time trial
 with ghost (forces the replay lane honestly) → composition contracts → convoy.
 
@@ -226,7 +226,7 @@ with ghost (forces the replay lane honestly) → composition contracts → convo
   day/night, owned/contested variants (DESIGN.md already demands two states
   per location). Seven sites × two+ states ≈ fifteen scenes without new terrain.
 - Signal Noir (night/danger) and Salvage Opera (rare crescendo) are already
-  positioned as *state layers over the same world* — implement the first as
+  positioned as _state layers over the same world_ — implement the first as
   the night-defense presentation pass, not a new scene.
 - Region graph / second biome family stays gated behind the recorded gate
   (render/perf contract OR a locomotion family that changes outcomes).
@@ -237,14 +237,14 @@ with ghost (forces the replay lane honestly) → composition contracts → convo
   hold at three. The recorded gate is external player language — do players
   say "heavy," "nervous," "skimming"? Until that gate passes, a fourth rig
   adds cost, not evidence.
-- **NPCs**: favor-givers (workshop, blueprints, loaners) as *places with
-  presence* first (a lit workshop, a radio voice, a mailbox) — no walking
+- **NPCs**: favor-givers (workshop, blueprints, loaners) as _places with
+  presence_ first (a lit workshop, a radio voice, a mailbox) — no walking
   humans needed for a long time; "no humans" is already the art direction.
 - **Enemies**: the ecology board is a recorded open design gap. Proposal: the
   first enemy family is signature-hunters (4.1) — things that hear engines and
   see lights. That constraint generates silhouettes (listeners, moths,
-  burrowers) instead of generic drones, and keeps combat about *the machine's
-  tradeoffs* (power vs quiet) rather than guns on a tractor.
+  burrowers) instead of generic drones, and keeps combat about _the machine's
+  tradeoffs_ (power vs quiet) rather than guns on a tractor.
 
 ## 8. Documentation hygiene findings (this pass)
 

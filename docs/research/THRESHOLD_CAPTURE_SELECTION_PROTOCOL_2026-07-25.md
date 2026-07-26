@@ -24,15 +24,15 @@ That keeps each threshold question anchored to the scene that best exposes the r
 
 ## Canonical capture mapping
 
-| Subsystem or question | Primary reference capture | Why this capture is canonical |
-|---|---|---|
-| Renderer readability under normal play | Near-field dense scene | Shows the common within-budget path with active terrain, one rig, and nearby props |
-| Culling correctness | Occluded / hidden scene | Best exposes whether non-visible content is leaking into the render path |
-| LOD policy | Distance-gradient scene | Best exposes near/mid/far tier transitions and readable degradation |
-| Budget fallback order | Pressure scene | Best exposes the order in which systems shed work under pressure |
-| Accessibility / reduced-motion readability | Reduced-motion comparison scene | Best exposes whether semantics survive motion clamping and low-budget fallback |
-| Camera legibility under stress | Pressure scene | Best exposes whether camera help remains intelligible when the system is simplified |
-| Physics readability at higher speed | Pressure scene | Best exposes whether the shared perception frame still reads grip, load, and recovery |
+| Subsystem or question                      | Primary reference capture       | Why this capture is canonical                                                         |
+| ------------------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------- |
+| Renderer readability under normal play     | Near-field dense scene          | Shows the common within-budget path with active terrain, one rig, and nearby props    |
+| Culling correctness                        | Occluded / hidden scene         | Best exposes whether non-visible content is leaking into the render path              |
+| LOD policy                                 | Distance-gradient scene         | Best exposes near/mid/far tier transitions and readable degradation                   |
+| Budget fallback order                      | Pressure scene                  | Best exposes the order in which systems shed work under pressure                      |
+| Accessibility / reduced-motion readability | Reduced-motion comparison scene | Best exposes whether semantics survive motion clamping and low-budget fallback        |
+| Camera legibility under stress             | Pressure scene                  | Best exposes whether camera help remains intelligible when the system is simplified   |
+| Physics readability at higher speed        | Pressure scene                  | Best exposes whether the shared perception frame still reads grip, load, and recovery |
 
 ## Selection rule
 

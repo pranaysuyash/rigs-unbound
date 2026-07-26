@@ -1,1 +1,53 @@
-{"schema":"rigs-unbound.kernel-probe-state.v1","coordinates":"world origin is top-left; +x points right; +y points down; heading is radians clockwise from +x","seed":1380534099,"tick":706,"timeMs":14120,"mode":"time-trial","camera":"route","objective":"Reach checkpoint 1 of 4.","vehicle":{"id":"vehicle.tractor.patch-01","x":47.285,"y":24.057,"heading":4.042,"speed":11,"condition":0.55,"scrap":3,"harvested":3},"crops":[{"id":"crop.signal-1","x":25,"y":18},{"id":"crop.signal-5","x":47,"y":32}],"enemies":[],"defense":{"remainingMs":0,"defeated":0},"trial":{"nextCheckpoint":{"id":"checkpoint-1","x":72,"y":15},"completed":0,"total":4},"recentEvents":[{"tick":207,"type":"crop.harvested","message":"crop.signal-2 yielded a usable repair plate."},{"tick":270,"type":"crop.harvested","message":"crop.signal-3 yielded a usable repair plate."},{"tick":270,"type":"mode.changed","message":"The signal wakes the dark; the field becomes a defense yard."},{"tick":670,"type":"mode.changed","message":"Dawn opens the ridge route; the tractor enters a time trial."}]}
+{
+  "schema": "rigs-unbound.kernel-probe-state.v1",
+  "coordinates": "world origin is top-left; +x points right; +y points down; heading is radians clockwise from +x",
+  "seed": 1380534099,
+  "tick": 706,
+  "timeMs": 14120,
+  "mode": "time-trial",
+  "camera": "route",
+  "objective": "Reach checkpoint 1 of 4.",
+  "vehicle": {
+    "id": "vehicle.tractor.patch-01",
+    "x": 47.285,
+    "y": 24.057,
+    "heading": 4.042,
+    "speed": 11,
+    "condition": 0.55,
+    "scrap": 3,
+    "harvested": 3
+  },
+  "crops": [
+    { "id": "crop.signal-1", "x": 25, "y": 18 },
+    { "id": "crop.signal-5", "x": 47, "y": 32 }
+  ],
+  "enemies": [],
+  "defense": { "remainingMs": 0, "defeated": 0 },
+  "trial": {
+    "nextCheckpoint": { "id": "checkpoint-1", "x": 72, "y": 15 },
+    "completed": 0,
+    "total": 4
+  },
+  "recentEvents": [
+    {
+      "tick": 207,
+      "type": "crop.harvested",
+      "message": "crop.signal-2 yielded a usable repair plate."
+    },
+    {
+      "tick": 270,
+      "type": "crop.harvested",
+      "message": "crop.signal-3 yielded a usable repair plate."
+    },
+    {
+      "tick": 270,
+      "type": "mode.changed",
+      "message": "The signal wakes the dark; the field becomes a defense yard."
+    },
+    {
+      "tick": 670,
+      "type": "mode.changed",
+      "message": "Dawn opens the ridge route; the tractor enters a time trial."
+    }
+  ]
+}

@@ -43,9 +43,11 @@ npm run test:browser
 
 `assets/asset-manifest.json` is the canonical registry for reviewed source and
 runtime asset candidates. It keeps semantic IDs, approval state, rights status,
-source/reference paths, and future `.glb` runtime paths separate from renderer
-code. The registry currently contains concept/proposed records only; no runtime
-asset has been imported.
+source/reference paths, and `.glb` runtime paths separate from renderer code.
+The registry currently contains concept/proposed records, including two
+manifest-owned runtime bridge candidates. Their renderer load/fallback path is
+implemented, but neither candidate is `approved` or `runtime-tested` until its
+browser evidence and rights review are recorded.
 
 Run the bounded structural preflight with:
 

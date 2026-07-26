@@ -91,17 +91,17 @@ We reviewed the existing repository and applied this directly to implementation 
 
 ## 2.1) Evidence matrix
 
-| Area | Strongest current evidence | Status | What this proves |
-| --- | --- | --- | --- |
-| Deterministic kernel | `src/game/state.ts`, `src/game/state.test.ts` | Implemented | Fixed-step game orchestration and test-backed action ordering already exist. |
-| Save/versioning | `src/game/state.ts`, `src/game/storage.ts` | Implemented | Multi-version recovery and state/world snapshot persistence are canonical. |
-| Renderer boundary | `src/game/renderer.ts`, `src/main.ts` | Implemented | Presentation is snapshot-driven; the UI does not own simulation truth. |
-| Culling/LOD | `src/game/renderer.ts`, `docs/exploration/EXPLORATION_MAP.md` | Partial | Renderer-side instancing exists, but explicit visibility tiers and subsystem LOD contracts do not. |
-| Collision matrix | `src/game/collision.ts`, `src/game/physics.ts` | Partial | Obstacle resolution is centralized, but category/mask semantics are not yet explicit. |
-| Capability model | `src/game/contracts.ts`, `src/game/state.ts` | Partial | Rig profiles and action gating exist, but capabilities are not yet fully versioned contracts. |
-| Replay/event lane | `src/main.ts`, `src/game/run-record.ts`, `src/game/state.ts` | Partial | There is now a bounded in-memory run-record lane with input-transition capture, checkpoint hashes, a structural verifier, a browser-visible verification hook, and explicit truncation, but no durable playback verifier yet. |
-| Chunk/world streaming | `src/game/gameworld.ts`, `docs/exploration/EXPLORATION_MAP.md` | Missing | The world is bounded and persistent, but not yet residency-streamed. |
-| Observability | `src/game/performance.ts`, `src/main.ts` | Partial | Runtime metrics and user-visible telemetry exist, but budget enforcement is still manual. |
+| Area                  | Strongest current evidence                                     | Status      | What this proves                                                                                                                                                                                                              |
+| --------------------- | -------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deterministic kernel  | `src/game/state.ts`, `src/game/state.test.ts`                  | Implemented | Fixed-step game orchestration and test-backed action ordering already exist.                                                                                                                                                  |
+| Save/versioning       | `src/game/state.ts`, `src/game/storage.ts`                     | Implemented | Multi-version recovery and state/world snapshot persistence are canonical.                                                                                                                                                    |
+| Renderer boundary     | `src/game/renderer.ts`, `src/main.ts`                          | Implemented | Presentation is snapshot-driven; the UI does not own simulation truth.                                                                                                                                                        |
+| Culling/LOD           | `src/game/renderer.ts`, `docs/exploration/EXPLORATION_MAP.md`  | Partial     | Renderer-side instancing exists, but explicit visibility tiers and subsystem LOD contracts do not.                                                                                                                            |
+| Collision matrix      | `src/game/collision.ts`, `src/game/physics.ts`                 | Partial     | Obstacle resolution is centralized, but category/mask semantics are not yet explicit.                                                                                                                                         |
+| Capability model      | `src/game/contracts.ts`, `src/game/state.ts`                   | Partial     | Rig profiles and action gating exist, but capabilities are not yet fully versioned contracts.                                                                                                                                 |
+| Replay/event lane     | `src/main.ts`, `src/game/run-record.ts`, `src/game/state.ts`   | Partial     | There is now a bounded in-memory run-record lane with input-transition capture, checkpoint hashes, a structural verifier, a browser-visible verification hook, and explicit truncation, but no durable playback verifier yet. |
+| Chunk/world streaming | `src/game/gameworld.ts`, `docs/exploration/EXPLORATION_MAP.md` | Missing     | The world is bounded and persistent, but not yet residency-streamed.                                                                                                                                                          |
+| Observability         | `src/game/performance.ts`, `src/main.ts`                       | Partial     | Runtime metrics and user-visible telemetry exist, but budget enforcement is still manual.                                                                                                                                     |
 
 ### 2.2) Contract-note reconciliation
 

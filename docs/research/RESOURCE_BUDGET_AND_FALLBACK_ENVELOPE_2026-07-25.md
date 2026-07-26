@@ -218,3 +218,24 @@ The engine can already tell us when it is getting expensive. This contract makes
   - no summary field naming the subsystem that caused fallback.
 - The next durable step is still to name the fallback before the budget is
   exceeded, not after the player can feel the overload.
+
+## Addendum (2026-07-26) - measurable budgets now outpace policy ownership
+
+- Re-checked the envelope against the current visibility and profile ladder.
+- The runtime now exposes enough measurement surface to support policy:
+  - frame timing,
+  - draw calls,
+  - triangles,
+  - heap,
+  - load and first-controllable timing,
+  - visibility counters,
+  - profile tiers (`full`, `standard`, `mobile-safe`).
+- What is still missing is the policy edge that turns measurement into a named
+  fallback:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that triggered fallback,
+  - no proof that fallback activates before overload becomes user-visible.
+- That means the budget story is measurable today, but still not owned as a
+  first-class fallback contract.

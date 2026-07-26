@@ -9,29 +9,37 @@
 //  {tap:"m"}                           -> quick press
 //  {text:"window.render_game_to_text()"} -> evaluate and print (counted separately)
 //  {eval:"..."}                        -> arbitrary evaluate, print result
-const { chromium } = require('/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright');
-const fs = require('fs');
+const {
+  chromium,
+} = require("/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright");
+const fs = require("fs");
 
 (async () => {
   const stepsFile = process.argv[2];
-  const steps = JSON.parse(fs.readFileSync(stepsFile, 'utf8'));
-  const browser = await chromium.launch({ headless: true, channel: 'chrome' });
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-  page.on('pageerror', (e) => console.log('[pageerror]', e.message));
-  await page.goto('http://127.0.0.1:4174/', { waitUntil: 'networkidle' });
+  const steps = JSON.parse(fs.readFileSync(stepsFile, "utf8"));
+  const browser = await chromium.launch({ headless: true, channel: "chrome" });
+  const page = await browser.newPage({
+    viewport: { width: 1280, height: 800 },
+  });
+  page.on("pageerror", (e) => console.log("[pageerror]", e.message));
+  await page.goto("http://127.0.0.1:4174/", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
 
   for (const s of steps) {
     try {
       // auto-dismiss the intro/briefing modal if it has (re)appeared
-      const modal = await page.getByText('ENTER THE FIELD', { exact: false }).first();
+      const modal = await page
+        .getByText("ENTER THE FIELD", { exact: false })
+        .first();
       if (await modal.isVisible().catch(() => false)) {
         await modal.click();
         await page.waitForTimeout(250);
       }
       if (s.shot) {
-        await page.screenshot({ path: `artifacts/playtest-achiever/${s.shot}.png` });
-        console.log('shot:', s.shot);
+        await page.screenshot({
+          path: `artifacts/playtest-achiever/${s.shot}.png`,
+        });
+        console.log("shot:", s.shot);
       } else if (s.wait) {
         await page.waitForTimeout(s.wait);
       } else if (s.click) {
@@ -53,13 +61,18 @@ const fs = require('fs');
         await page.waitForTimeout(200);
       } else if (s.text) {
         const r = await page.evaluate(() => window.render_game_to_text());
-        console.log('[text]', typeof r === 'string' ? r.slice(0, 3000) : JSON.stringify(r).slice(0, 3000));
+        console.log(
+          "[text]",
+          typeof r === "string"
+            ? r.slice(0, 3000)
+            : JSON.stringify(r).slice(0, 3000),
+        );
       } else if (s.eval) {
         const r = await page.evaluate(s.eval);
-        console.log('[eval]', JSON.stringify(r).slice(0, 2000));
+        console.log("[eval]", JSON.stringify(r).slice(0, 2000));
       }
     } catch (e) {
-      console.log('[step-error]', JSON.stringify(s), e.message);
+      console.log("[step-error]", JSON.stringify(s), e.message);
     }
   }
   await browser.close();

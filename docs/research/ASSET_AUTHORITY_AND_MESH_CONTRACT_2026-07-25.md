@@ -41,14 +41,14 @@ visual geometry of a named profile.
 
 ## Authority by artifact
 
-| Artifact | Authority | Not authoritative for |
-| --- | --- | --- |
-| Concept/model-sheet image | identity, style, repair language, visual intent | topology, scale, collision, animation, runtime budgets |
-| Isolated reconstruction reference | admitted single-view reconstruction evidence | hidden surfaces, exact dimensions, multi-angle consistency |
-| Vehicle blueprint/spec | dimensions, capabilities, sockets, pivots, collision/LOD intent, compatibility | final surface topology and baked visual appearance |
-| Approved source mesh/DCC | editable visual source for a specific asset profile | game behavior unless linked to the blueprint |
-| Validated GLB/runtime mesh | shipped visual geometry/material/hierarchy for a profile | future regeneration intent or unmodeled gameplay semantics |
-| Manifest entry | identity, provenance, status, hashes, replacement path, source/runtime linkage | artistic judgment by itself |
+| Artifact                          | Authority                                                                      | Not authoritative for                                      |
+| --------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| Concept/model-sheet image         | identity, style, repair language, visual intent                                | topology, scale, collision, animation, runtime budgets     |
+| Isolated reconstruction reference | admitted single-view reconstruction evidence                                   | hidden surfaces, exact dimensions, multi-angle consistency |
+| Vehicle blueprint/spec            | dimensions, capabilities, sockets, pivots, collision/LOD intent, compatibility | final surface topology and baked visual appearance         |
+| Approved source mesh/DCC          | editable visual source for a specific asset profile                            | game behavior unless linked to the blueprint               |
+| Validated GLB/runtime mesh        | shipped visual geometry/material/hierarchy for a profile                       | future regeneration intent or unmodeled gameplay semantics |
+| Manifest entry                    | identity, provenance, status, hashes, replacement path, source/runtime linkage | artistic judgment by itself                                |
 
 ## Promotion contract for a mesh
 
@@ -99,6 +99,82 @@ of the mesh approach.
   shipped-mesh authority layer is still future work.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
   doc, and provenance inspection.
+
+## Addendum (2026-07-26) - promotion rules exist, but no mesh has crossed them yet
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The shipped-mesh boundary is now explicit in the repo's asset spine:
+  - `assets/asset-manifest.json` names the registry entries and keeps them
+    reference/proposed with `runtimePath: null`,
+  - `tools/asset-preflight.mjs` refuses to treat promoted assets as valid
+    unless they are safe repository-relative `.glb` runtime paths inside
+    `assets/runtime`,
+  - the manifest already records source and rights notes where they exist.
+- That means the promotion contract is real, but not yet exercised:
+  - no approved runtime GLB exists for the tractor or rig path,
+  - no shipped mesh profile is active in browser play,
+  - no replacement/deprecation cycle has been tested against a live imported
+    asset,
+  - the live field is still rendered from procedural/runtime-built geometry.
+- The useful conclusion is that the repo now has the authority ladder for
+  assets, but the actual mesh promotion is still future work.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-26) - bridge asset copied into repo runtime, browser proof still pending
+
+- The authority ladder now has a concrete first runtime candidate in the repo:
+  - `kenney-car-kit-breakable-crate-fixture`,
+  - `assets/runtime/kenney-car-kit-breakable-crate-fixture.glb`,
+  - source hash `38b74901586f61fb9d4bb54c55bcdafeb498ddda547063503c60d3e8d357dc87`.
+- The renderer now contains a bridge fixture hook for that imported prop, so
+  the repo has moved beyond naming-only authority into actual runtime wiring.
+- I have **not** observed the live browser with this new bridge yet, so the
+  authoritative claim is still limited to static code and repo state:
+  - the asset has been copied into the repo-owned runtime directory,
+  - the manifest points at it,
+  - the renderer can attempt to load it with a fallback.
+- The remaining proof obligation is browser-visible runtime confirmation.
+- Evidence depth: Tier 1 static code/doc inspection, with the live browser
+  confirmation still outstanding.
+
+## Addendum (2026-07-26) - browser proof is complete for the first bridge asset
+
+- Re-checked the live browser after the runtime texture dependency was copied.
+- The bridge evidence hook now reports the crate as actually loaded rather than
+  sitting on fallback:
+  - `assetId`: `kenney-car-kit-breakable-crate-fixture`,
+  - `status`: `loaded`,
+  - `fallbackActive`: `false`,
+  - `loadedNodeCount`: `1`,
+  - `errorMessage`: `null`.
+- The browser console returned to zero logs after the texture dependency was
+  mirrored into `assets/runtime/Textures/colormap.png`.
+- This satisfies the first shipped-mesh-style promotion proof for a small
+  static prop:
+  - manifest entry exists,
+  - runtime copy exists,
+  - renderer consumes it,
+  - browser sees it cleanly.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - tractor preview proves the bridge scales
+
+- Re-checked the live browser after promoting the tractor preview into the same
+  bridge path.
+- The runtime now has two concrete asset bridges proving the authority ladder:
+  - crate bridge: `kenney-car-kit-breakable-crate-fixture`, loaded, one node,
+    no fallback,
+  - tractor preview: `kenney-car-kit-tractor-preview`, loaded, five nodes, no
+    fallback.
+- That matters because it shows the manifest/authority contract is not limited
+  to tiny props; it can carry a larger vehicle-shaped asset through the same
+  promotion path without collapsing back to procedural-only truth.
+- The live browser surface remains clean aside from the expected Vite connect
+  logs.
+- Evidence depth: Tier 4 runtime/manual observation.
 
 ## Current implementation mapping
 

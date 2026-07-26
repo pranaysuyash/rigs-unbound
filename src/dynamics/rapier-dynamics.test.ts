@@ -66,6 +66,7 @@ describe("RapierDynamicsService", () => {
     const telemetry = vehicle.telemetry();
 
     expect(Math.abs(telemetry.forwardSpeed)).toBeGreaterThan(0.2);
+    expect(telemetry.body.position.x).toBeLessThan(-0.1);
     expect(telemetry.wheels).toHaveLength(4);
     expect(telemetry.wheels.some((wheel) => wheel.inContact)).toBe(true);
     expect(service.metrics()).toMatchObject({

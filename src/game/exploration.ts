@@ -54,7 +54,7 @@ export const FIRST_SALVAGE_NODE = {
   id: "first-recovery-cache",
   x: -18,
   z: 5,
-  value: 3,
+  value: 5,
 } as const;
 
 export function surveyKey(cellX: number, cellZ: number): number {

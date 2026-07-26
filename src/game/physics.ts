@@ -406,7 +406,9 @@ function stepGroundMotion(
     ? clamp(profile.mass / (profile.mass + 1.4), 0.45, 0.9)
     : 1;
   const steerAuthority = clamp(grip * contactFraction, 0, 1.1);
-  rig.heading +=
+  // Positive steering is the player's left. In the +Z-forward Three.js
+  // coordinate contract, left is negative yaw (toward world −X).
+  rig.heading -=
     rig.steering *
     profile.turnRate *
     movementFactor *
@@ -596,7 +598,8 @@ function stepHoverMotion(
   rig.steering = clamp(rig.steering, -1, 1);
   const movementFactor = clamp(Math.abs(rig.speed) / 3, 0.2, 1);
   const direction = rig.speed >= 0 ? 1 : -1;
-  rig.heading +=
+  // Hover and ground adapters share the same player-relative steering sign.
+  rig.heading -=
     rig.steering *
     profile.turnRate *
     movementFactor *

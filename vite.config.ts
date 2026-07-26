@@ -1,6 +1,21 @@
+import { cpSync, mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import wasm from "vite-plugin-wasm";
 import { sites } from "./src/hosting/sites-vite-plugin";
+
+function runtimeAssetsPlugin() {
+  return {
+    name: "rigs-unbound-runtime-assets",
+    apply: "build" as const,
+    closeBundle() {
+      const source = resolve("assets/runtime");
+      const destination = resolve("dist/client/assets/runtime");
+      mkdirSync(destination, { recursive: true });
+      cpSync(source, destination, { recursive: true, force: true });
+    },
+  };
+}
 
 export default defineConfig(async () => {
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -40,6 +55,7 @@ export default defineConfig(async () => {
     plugins: [
       wasm(),
       sites(),
+      runtimeAssetsPlugin(),
       cloudflare({
         viteEnvironment: { name: "server" },
         config: {

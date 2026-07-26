@@ -40,6 +40,19 @@ html {
 
 button {
   color: inherit;
+  transition:
+    transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    box-shadow 0.18s ease-out,
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+button:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+button:active {
+  transform: translateY(1px) scale(0.97);
 }
 
 button:focus-visible,
@@ -175,6 +188,59 @@ select:focus-visible,
   font-size: clamp(1.1rem, 2.2vw, 1.55rem);
   line-height: 1.04;
   letter-spacing: -0.015em;
+}
+
+.first-rung-objective {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+  margin: 0.5rem 0 0;
+  padding-left: 0.55rem;
+  border-left: 2px solid var(--harvest-gold);
+}
+
+.first-rung-objective[hidden] {
+  display: none;
+}
+
+.first-rung-objective > span {
+  flex: none;
+  color: var(--harvest-gold);
+  font:
+    800 0.56rem/1.2 "SFMono-Regular",
+    Consolas,
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.first-rung-objective > strong {
+  overflow: hidden;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.first-rung-objective.is-complete {
+  border-left-color: var(--signal-cyan);
+  animation: first-fit-confirm 420ms ease-out;
+}
+
+.first-rung-objective.is-complete > span {
+  color: var(--signal-cyan);
+}
+
+@keyframes first-fit-confirm {
+  from {
+    transform: translateX(-0.5rem);
+    opacity: 0.4;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .emergency-recover {
@@ -469,6 +535,22 @@ kbd {
   line-height: 1.5;
 }
 
+.welcome-panel__status {
+  margin: -0.55rem 0 1.5rem;
+  color: #1b3127;
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.welcome-panel__status[data-state="loading"]::before {
+  content: "Loading: ";
+}
+
+.welcome-panel__status[data-state="ready"]::before {
+  content: "Ready: ";
+}
+
 .welcome-panel button,
 .error-panel button {
   padding: 0.82rem 1.1rem;
@@ -478,6 +560,85 @@ kbd {
   cursor: pointer;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.control-lesson {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  bottom: 5rem;
+  width: min(31rem, calc(100% - 2rem));
+  padding: 0.9rem 1rem;
+  color: var(--workshop-bone);
+  background: rgba(23, 32, 28, 0.94);
+  border-top: 2px solid var(--signal-cyan);
+  box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
+}
+
+.control-lesson[hidden] {
+  display: none;
+}
+
+.control-lesson header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.control-lesson header span,
+.control-lesson dt {
+  color: var(--signal-cyan);
+  font:
+    800 0.58rem/1 "SFMono-Regular",
+    Consolas,
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.control-lesson header button {
+  padding: 0.3rem 0.5rem;
+  color: var(--workshop-bone);
+  background: transparent;
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  font-size: 0.62rem;
+}
+
+.control-lesson > strong {
+  display: block;
+  font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.control-lesson > p {
+  margin: 0.35rem 0 0.75rem;
+  color: rgba(234, 216, 184, 0.72);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.control-lesson dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.control-lesson dl div {
+  min-width: 0;
+}
+
+.control-lesson dd {
+  margin: 0.25rem 0 0;
+  font:
+    700 0.68rem/1.25 "SFMono-Regular",
+    Consolas,
+    monospace;
 }
 
 .toast {
@@ -682,19 +843,27 @@ kbd {
   list-style: none;
 }
 
-#module-list li {
+#module-list button {
+  width: 100%;
+  min-height: 2.75rem;
   display: grid;
-  grid-template-columns: 1.4rem 1fr 3rem;
+  grid-template-columns: 1.4rem minmax(0, 1fr) minmax(5.5rem, auto);
   gap: 0.5rem;
   align-items: center;
   padding: 0.35rem 0.4rem;
+  color: inherit;
+  text-align: left;
   background: rgba(234, 216, 184, 0.05);
   border: 1px solid transparent;
   cursor: pointer;
 }
 
-#module-list li:hover {
+#module-list button:hover:not(:disabled) {
   border-color: var(--hairline);
+}
+
+#module-list button:disabled {
+  cursor: not-allowed;
 }
 
 #module-list kbd {
@@ -716,26 +885,35 @@ kbd {
   color: rgba(234, 216, 184, 0.58);
 }
 
-#module-list em {
+.module-state {
   font-size: 0.62rem;
-  font-style: normal;
   text-align: right;
   color: var(--harvest-gold);
   font-variant-numeric: tabular-nums;
 }
 
-#module-list li.is-fitted {
+#module-list button.is-fitted {
   border-color: var(--signal-cyan);
 }
 
-#module-list li.is-fitted em {
+#module-list button.is-fitted .module-state {
   color: var(--signal-cyan);
 }
 
 /* Unaffordable, not unavailable: the promise stays readable so the player knows
    what they are saving toward. */
-#module-list li.is-locked {
+#module-list button.is-locked,
+#module-list button.is-unavailable {
   opacity: 0.5;
+}
+
+#module-list button.is-recommended {
+  border-color: var(--harvest-gold);
+  background: rgba(217, 170, 82, 0.12);
+}
+
+#module-list button.is-unavailable .module-state {
+  color: rgba(234, 216, 184, 0.72);
 }
 
 /* --------------------------------------------------------------------------
@@ -936,6 +1114,21 @@ kbd {
     display: none;
   }
 
+  .control-lesson {
+    bottom: 8.5rem;
+    width: min(24rem, calc(100% - 1.3rem));
+    padding: 0.72rem 0.8rem;
+  }
+
+  .control-lesson > p {
+    margin-bottom: 0.55rem;
+    font-size: 0.66rem;
+  }
+
+  .control-lesson dd {
+    font-size: 0.62rem;
+  }
+
   .touch-controls {
     position: absolute;
     z-index: 5;
@@ -1016,4 +1209,399 @@ kbd {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+
+  .first-rung-objective.is-complete {
+    animation: none;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * Rumor Map (Field Kit Atlas Overlay)
+ * -------------------------------------------------------------------------- */
+
+.rumor-map-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(10, 15, 20, 0.92);
+  backdrop-filter: blur(12px);
+  color: var(--chalk);
+  font-family: var(--font-mono, monospace);
+  transition: opacity 0.25s ease;
+}
+
+.rumor-map-overlay.hidden {
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rumor-map-frame {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 960px;
+  height: 90vh;
+  max-height: 720px;
+  background: #111922;
+  border: 1px solid rgba(232, 157, 67, 0.4);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rumor-map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: #17222e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rumor-map-badge {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  background: var(--harvest-gold, #e89d43);
+  color: #111;
+  font-size: 0.55rem;
+  font-weight: 800;
+  border-radius: 2px;
+  margin-bottom: 0.2rem;
+}
+
+.rumor-map-title-block h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.rumor-map-stats {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--cyan, #6bc9c4);
+}
+
+.rumor-map-close-btn {
+  padding: 0.4rem 0.8rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rumor-map-close-btn:hover {
+  background: var(--harvest-gold, #e89d43);
+  color: #111;
+  border-color: var(--harvest-gold, #e89d43);
+}
+
+.rumor-map-viewport {
+  position: relative;
+  flex: 1;
+  background: #0d131a;
+  overflow: hidden;
+}
+
+.rumor-map-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rumor-inspector {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 260px;
+  padding: 1rem;
+  background: rgba(23, 34, 46, 0.92);
+  border: 1px solid rgba(107, 201, 196, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.rumor-inspector.hidden {
+  display: none;
+}
+
+.inspector-badge {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--cyan, #6bc9c4);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.3rem;
+}
+
+.rumor-inspector h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.rumor-inspector p {
+  margin: 0 0 1rem 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.inspector-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.meta-row span {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.meta-row strong {
+  color: var(--harvest-gold, #e89d43);
+}
+
+.rumor-map-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 1.25rem;
+  background: #17222e;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* -----------------------------------------------------------------------------
+ * Area 2: Hood Dashboard Diegetic Instrument Panel
+ * -------------------------------------------------------------------------- */
+
+.hood-dashboard-panel {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.hood-dashboard-panel.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.hood-dash-frame {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.8rem 1.5rem;
+  background: rgba(17, 25, 34, 0.92);
+  border: 1px solid rgba(232, 157, 67, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.dash-dial {
+  position: relative;
+  width: 90px;
+  height: 90px;
+}
+
+.dial-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dial-bg {
+  fill: #0d131a;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2;
+}
+
+.dial-arc {
+  fill: none;
+  stroke: var(--harvest-gold, #e89d43);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.redline-arc {
+  stroke: var(--cyan, #6bc9c4);
+}
+
+.dial-needle {
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.dial-cap {
+  fill: var(--harvest-gold, #e89d43);
+}
+
+.dial-readout {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: monospace;
+}
+
+.dial-readout span {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.dial-readout label {
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dash-center-cluster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 130px;
+}
+
+.cluster-gauge label {
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.bar-track {
+  width: 100%;
+  height: 8px;
+  background: #0d131a;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.strain-fill {
+  background: linear-gradient(90deg, var(--harvest-gold, #e89d43), #e74c3c);
+}
+
+.grip-fill {
+  background: var(--cyan, #6bc9c4);
+}
+
+.surface-badge {
+  text-align: center;
+  padding: 0.15rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  font-size: 0.55rem;
+  font-family: monospace;
+  color: var(--harvest-gold, #e89d43);
+}
+
+/* -----------------------------------------------------------------------------
+ * Area 3: Navigator Radar & Waypoint System
+ * -------------------------------------------------------------------------- */
+
+.navigator-panel {
+  position: fixed;
+  top: 4.5rem;
+  right: 1rem;
+  z-index: 500;
+  width: 180px;
+  background: rgba(17, 25, 34, 0.88);
+  border: 1px solid rgba(107, 201, 196, 0.4);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  padding: 0.6rem;
+  font-family: monospace;
+}
+
+.nav-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.4rem;
+}
+
+.nav-title {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--cyan, #6bc9c4);
+  letter-spacing: 0.05em;
+}
+
+.nav-coords {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.nav-radar-viewport {
+  width: 100%;
+  height: 140px;
+  background: #0d131a;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.nav-radar-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.nav-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-btn {
+  padding: 0.25rem;
+  background: rgba(232, 157, 67, 0.2);
+  border: 1px solid var(--harvest-gold, #e89d43);
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 3px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  background: var(--harvest-gold, #e89d43);
+  color: #111;
 }

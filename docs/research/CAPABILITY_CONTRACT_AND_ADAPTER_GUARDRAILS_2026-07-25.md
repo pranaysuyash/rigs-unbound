@@ -141,7 +141,7 @@ branching logic.
 - `src/game/state.ts` already consumes that composed profile through
   `hasCapability(...)`, `effectiveProfile(...)`, and the action gates that check
   `plough`, `tow`, `jump`, and `winch` availability.
-- The live runtime therefore proves the *composition* half of the contract, but
+- The live runtime therefore proves the _composition_ half of the contract, but
   the adapter-governance half is still implicit:
   - there is no versioned capability-definition registry,
   - there is no structured adapter registration envelope,
@@ -199,3 +199,21 @@ branching logic.
   - governance structure is still a named gap,
   - future planners should consume these admissions, not replace the current
     composition model with a brittle hierarchy.
+
+## Addendum (2026-07-26) - first structured admission is capability-composition backed
+
+- The relay-cargo interaction now consumes a `CapabilityClaim` from
+  `effectiveProfile(...).capabilities`, preserving the existing base-rig plus
+  module composition path as the only capability truth source.
+- `src/game/affordances.ts` adds the first versioned admission envelope rather
+  than a capability registry: it identifies the required capability, outcome,
+  reason code, mismatch owner, and contract version.
+- The first explicit denial is `missing-capability` for a nearby rig attempting
+  the relay cargo without `tow`. This replaces a generic contextual no-op with
+  structured evidence while retaining the human-readable diagnostic.
+- Adapter governance, mutable capability-state schemas, per-capability
+  migrations, and a definition registry remain intentionally unimplemented.
+  They need a second materially different capability/adapter use case before
+  becoming a framework.
+- Evidence level: Tier 1 static source inspection. The focused resolver tests
+  were authored but not executed in this pass.

@@ -37,15 +37,15 @@ Important decision effect:
 
 ## Engine and renderer shortlist
 
-| Candidate | Strongest reason to test | Important boundary | Current role |
-|---|---|---|---|
-| Vanilla Three.js | Direct control, broad ecosystem, portable web integration, WebGPU renderer with WebGL 2 backend | It is a renderer/toolkit, not a full game architecture; WebGPURenderer remains experimental and changes shader/post stack | Leading control probe |
-| React Three Fiber | React composition and DOM/product UI integration over Three.js | React cannot own high-frequency authoritative simulation; version pairing and render-loop ownership matter | Integration-style subprobe |
-| Babylon.js | Integrated engine, WebGL/WebGPU paths, materials/tooling, headless `NullEngine` | More engine coupling/opinion; payload and content workflow need measurement | Leading integrated probe |
-| PlayCanvas | MIT engine plus strong browser editor and instant iteration | Hosted editor/product terms differ from engine license; free public-project visibility and source-control workflow need review | Leading authoring probe |
-| Godot 4 web export | Mature desktop editor and scene workflow with browser export | Compatibility renderer/WebGL2 on web, no C# web export, cross-origin/thread and web networking constraints | Wildcard authoring/export probe |
-| Phaser | Complete browser-first 2D framework | It is explicitly a 2D framework, not the main 3D world | Intentional 2D activity probe |
-| PixiJS | High-performance 2D rendering with WebGL/WebGPU options | Renderer, not full game framework; WebGPU path still needs production scrutiny | 2D renderer comparison |
+| Candidate          | Strongest reason to test                                                                        | Important boundary                                                                                                             | Current role                    |
+| ------------------ | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| Vanilla Three.js   | Direct control, broad ecosystem, portable web integration, WebGPU renderer with WebGL 2 backend | It is a renderer/toolkit, not a full game architecture; WebGPURenderer remains experimental and changes shader/post stack      | Leading control probe           |
+| React Three Fiber  | React composition and DOM/product UI integration over Three.js                                  | React cannot own high-frequency authoritative simulation; version pairing and render-loop ownership matter                     | Integration-style subprobe      |
+| Babylon.js         | Integrated engine, WebGL/WebGPU paths, materials/tooling, headless `NullEngine`                 | More engine coupling/opinion; payload and content workflow need measurement                                                    | Leading integrated probe        |
+| PlayCanvas         | MIT engine plus strong browser editor and instant iteration                                     | Hosted editor/product terms differ from engine license; free public-project visibility and source-control workflow need review | Leading authoring probe         |
+| Godot 4 web export | Mature desktop editor and scene workflow with browser export                                    | Compatibility renderer/WebGL2 on web, no C# web export, cross-origin/thread and web networking constraints                     | Wildcard authoring/export probe |
+| Phaser             | Complete browser-first 2D framework                                                             | It is explicitly a 2D framework, not the main 3D world                                                                         | Intentional 2D activity probe   |
+| PixiJS             | High-performance 2D rendering with WebGL/WebGPU options                                         | Renderer, not full game framework; WebGPU path still needs production scrutiny                                                 | 2D renderer comparison          |
 
 ### Three.js WebGPU boundary
 
@@ -123,12 +123,12 @@ Generated output needs an authored fallback. A seed without generator/content ve
 
 ## Backend and multiplayer
 
-| Candidate | Best fit | Boundary |
-|---|---|---|
-| Colyseus | Focused Node/TypeScript authoritative rooms, matchmaking, schema-based property patches | Pair with auth/database/economy services; not a complete product backend |
-| Nakama | Integrated auth, storage, social, leaderboards, currencies, matchmaking, relayed/authoritative play | Larger operational and conceptual surface |
-| Supabase/Postgres | Accounts, profiles, saves, content catalog, row-level policies, async/social data | Realtime presence/data is not assumed to replace a high-frequency authoritative simulation |
-| PocketBase | Local/self-contained experiments | Official pre-1.0/backward-compatibility caution makes it unsuitable as an unexamined production-critical foundation |
+| Candidate         | Best fit                                                                                            | Boundary                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Colyseus          | Focused Node/TypeScript authoritative rooms, matchmaking, schema-based property patches             | Pair with auth/database/economy services; not a complete product backend                                            |
+| Nakama            | Integrated auth, storage, social, leaderboards, currencies, matchmaking, relayed/authoritative play | Larger operational and conceptual surface                                                                           |
+| Supabase/Postgres | Accounts, profiles, saves, content catalog, row-level policies, async/social data                   | Realtime presence/data is not assumed to replace a high-frequency authoritative simulation                          |
+| PocketBase        | Local/self-contained experiments                                                                    | Official pre-1.0/backward-compatibility caution makes it unsuitable as an unexamined production-critical foundation |
 
 First online experiment:
 
@@ -236,15 +236,15 @@ Create an asset registry and `THIRD_PARTY_NOTICES` before importing nontrivial a
 
 ### Proposed gates, not current promises
 
-| Area | Initial experiment target |
-|---|---|
-| Desktop | 1080p p95 frame time at or below 16.7 ms in the defined probe |
-| Mobile | 720p-equivalent controlled-DPR p95 at or below 33.3 ms |
+| Area          | Initial experiment target                                                    |
+| ------------- | ---------------------------------------------------------------------------- |
+| Desktop       | 1080p p95 frame time at or below 16.7 ms in the defined probe                |
+| Mobile        | 720p-equivalent controlled-DPR p95 at or below 33.3 ms                       |
 | Initial slice | ≤8 MB compressed and input-ready ≤5 s on a defined throttled fast-4G profile |
-| Network | 2 clients + 8 bots, 150 ms RTT, 2% loss, no durable-state divergence |
-| Reconnect | restore within 10 s without duplicated rewards |
-| Authoring | new legal vehicle variant and encounter without runtime-code edits |
-| Portability | same GLB/content manifest in at least two tracks |
+| Network       | 2 clients + 8 bots, 150 ms RTT, 2% loss, no durable-state divergence         |
+| Reconnect     | restore within 10 s without duplicated rewards                               |
+| Authoring     | new legal vehicle variant and encounter without runtime-code edits           |
+| Portability   | same GLB/content manifest in at least two tracks                             |
 
 These targets must be revised from measured device data. They are experiment gates, not a launch SLA.
 

@@ -77,6 +77,32 @@ export interface RigFeedbackFrame {
   speedFovBoost: number;
   /** Scale applied to non-essential motion expression. */
   motionScale: number;
+  /** Normalized rig condition / health factor (0.0 = damaged, 1.0 = pristine). */
+  integrityRatio: number;
+  /** Active impact impulse vector for hit VFX, if a collision occurred. */
+  lastImpact?: {
+    x: number;
+    y: number;
+    z: number;
+    intensity: number;
+  };
+}
+
+export class SpringDamper {
+  value = 0;
+  velocity = 0;
+  constructor(
+    public stiffness = 120,
+    public damping = 12,
+  ) {}
+
+  update(target: number, dt: number): number {
+    const force = (target - this.value) * this.stiffness;
+    const dampForce = -this.velocity * this.damping;
+    this.velocity += (force + dampForce) * dt;
+    this.value += this.velocity * dt;
+    return this.value;
+  }
 }
 
 /**
@@ -109,6 +135,8 @@ export function deriveRigFeedback(
     clamp(rig.telemetry.grip, 0.25, 1.1);
   const motionScale = reducedMotion ? 0.32 : 1;
 
+  const integrityRatio = clamp(1 - rig.strain, 0, 1);
+
   return {
     speedRatio,
     tractionLoss,
@@ -116,13 +144,15 @@ export function deriveRigFeedback(
     lateralLoad,
     steeringAngle:
       rig.mobility.kind === "ground"
-        ? rig.steering * expression.maximumSteeringAngle
+        ? -rig.steering * expression.maximumSteeringAngle
         : 0,
     bodyRollOffset: -lateralLoad * expression.bodyRollRadians * motionScale,
     bodyPitchOffset: -driveLoad * expression.drivePitchRadians * motionScale,
     cameraForwardLook: speedRatio * expression.cameraForwardLook * motionScale,
-    cameraLateralLook: lateralLoad * expression.cameraLateralLook * motionScale,
+    cameraLateralLook:
+      -lateralLoad * expression.cameraLateralLook * motionScale,
     speedFovBoost: reducedMotion ? 0 : speedRatio * expression.maximumFovBoost,
     motionScale,
+    integrityRatio,
   };
 }

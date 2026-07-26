@@ -1,13 +1,17 @@
+import type { PropVisibilityMetrics } from "./visibility";
+
 export interface RendererMetrics {
   drawCalls: number;
   triangles: number;
   /** One-time cost of building the terrain mesh, in ms. */
   terrainBuildMs?: number;
+  /** Logical prop visibility selected during the latest renderer rebuild. */
+  visibility?: PropVisibilityMetrics;
 }
 
 export interface PerformanceSnapshot extends Omit<
   RendererMetrics,
-  "terrainBuildMs"
+  "terrainBuildMs" | "visibility"
 > {
   sampledAt: number;
   firstControllableMs: number | null;
@@ -20,6 +24,7 @@ export interface PerformanceSnapshot extends Omit<
   lastSaveDurationMs: number;
   saveBytes: number;
   terrainBuildMs: number | null;
+  visibility: PropVisibilityMetrics | null;
 }
 
 interface ChromePerformanceMemory {
@@ -94,6 +99,7 @@ export class PerformanceMonitor {
       drawCalls: renderer.drawCalls,
       triangles: renderer.triangles,
       terrainBuildMs: renderer.terrainBuildMs ?? null,
+      visibility: renderer.visibility ? { ...renderer.visibility } : null,
       heapUsedMb: memory.memory
         ? Number((memory.memory.usedJSHeapSize / 1_048_576).toFixed(1))
         : null,

@@ -201,13 +201,13 @@ Every consequential module should answer:
 
 Example tractor modules:
 
-| Module | Day value | Night value | Cost |
-|---|---|---|---|
-| Wide plow | clears more soil | pushes wider enemy groups | slow turns, more energy |
-| UV work lights | reveals crop disease | reveals/repels shadow creatures | attracts other threats, heat |
-| Heavy trailer | hauls produce | mobile barricade/rescue shelter | long braking and poor escape |
-| Seed cannon | precise rapid planting | lays lure/slow zones | consumes valuable seed |
-| Soft-soil tires | protects fields | quiet movement | poor road speed and armor |
+| Module          | Day value              | Night value                     | Cost                         |
+| --------------- | ---------------------- | ------------------------------- | ---------------------------- |
+| Wide plow       | clears more soil       | pushes wider enemy groups       | slow turns, more energy      |
+| UV work lights  | reveals crop disease   | reveals/repels shadow creatures | attracts other threats, heat |
+| Heavy trailer   | hauls produce          | mobile barricade/rescue shelter | long braking and poor escape |
+| Seed cannon     | precise rapid planting | lays lure/slow zones            | consumes valuable seed       |
+| Soft-soil tires | protects fields        | quiet movement                  | poor road speed and armor    |
 
 ## World topology options
 

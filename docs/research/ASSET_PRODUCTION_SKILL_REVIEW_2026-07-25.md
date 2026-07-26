@@ -163,6 +163,64 @@ remains the behavioral source of truth.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
   manifest, and doc inspection.
 
+## Addendum (2026-07-26) - first bridge candidate matches the skill’s lowest-risk path
+
+- Re-checked the skill guidance against the current asset audit and manifest.
+- The selected first bridge candidate is the Car Kit breakable crate:
+  - `3D assets/Car Kit/Models/GLB format/box.glb`
+  - semantic key: `kenney-car-kit-breakable-crate-fixture`
+- This fits the skill’s lowest-risk production path better than the tractor:
+  - it is a static prop, so it avoids mixing import proof with vehicle behavior,
+  - it is small enough to expose the manifest/rights/import path cleanly,
+  - it can still exercise validation, texture/material handling, and browser
+    visibility.
+- The skill’s delivery contract still applies:
+  - preserve source provenance,
+  - keep the runtime derivative separate,
+  - validate in the target consumer,
+  - record rights and replacement path.
+- The next actionable milestone is a real imported prop that passes the manifest
+  gate and renders in-browser, not another candidate selection pass.
+- Since then, the chosen GLB has been copied into the repo-owned runtime area
+  and the renderer now has a bridge fixture hook for it, but live browser
+  confirmation is still outstanding.
+- Evidence depth: Tier 1 static code, manifest, and doc inspection for the new
+  bridge state; Tier 4 runtime/manual observation only for the pre-change
+  browser surface.
+
+## Addendum (2026-07-26) - first bridge proof now lands cleanly in browser
+
+- The bridge proof is now live:
+  - the runtime copy is loaded,
+  - the bridge evidence hook reports `status: loaded`,
+  - fallback is off,
+  - the browser console is back to zero logs.
+- The missing texture dependency was copied into
+  `assets/runtime/Textures/colormap.png`, which cleared the only console error
+  the crate was producing.
+- This is the right kind of first asset proof for the skill:
+  - static prop,
+  - manifest-driven,
+  - source/provenance preserved,
+  - browser-visible,
+  - no tractor gameplay semantics mixed in.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - second bridge proof confirms the pattern scales
+
+- Re-checked the live browser after adding the tractor preview bridge.
+- The tractor preview is now loaded too:
+  - `assetId`: `kenney-car-kit-tractor-preview`,
+  - `status`: `loaded`,
+  - `fallbackActive`: `false`,
+  - `loadedNodeCount`: `5`,
+  - `errorMessage`: `null`.
+- This is the important long-term signal for the skill:
+  - the bridge is no longer a one-off special case,
+  - a vehicle-shaped GLB can cross the same manifest/runtime/browser path,
+  - the pattern can support both static props and larger multi-node assets.
+- Evidence depth: Tier 4 runtime/manual observation.
+
 ## Addendum (2026-07-25) - fresh Field 02 recheck, asset-import proof still pending
 
 - Re-checked the live browser daemon while continuing the asset-production

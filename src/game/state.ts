@@ -51,7 +51,13 @@ import {
   WORLD_MINUTES_PER_REAL_SECOND,
   worldMinuteOfDay,
 } from "./contracts";
+import {
+  RELAY_CARGO_TOW_AFFORDANCE,
+  resolveAffordance,
+  type AffordanceResolution,
+} from "./affordances";
 import { SALVAGE_PICKUP_RADIUS, SURVEY_MOVE_THRESHOLD } from "./exploration";
+import { resolveFirstRung } from "./first-rung";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
 import { rigIsStable, settleRig, stepRigMotion } from "./physics";
@@ -308,6 +314,8 @@ export interface PrimaryActionResolution {
   kind: PrimaryActionKind;
   label: string;
   ariaLabel: string;
+  /** Structured compatibility evidence when a contextual offer is denied. */
+  affordance?: AffordanceResolution;
 }
 
 /**
@@ -333,16 +341,36 @@ export function resolvePrimaryAction(
     };
   }
 
-  if (
-    !cargo.delivered &&
-    cargo.attachedRigId === null &&
-    Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius &&
-    profile.capabilities.includes("tow")
-  ) {
+  const cargoAffordance = resolveAffordance(
+    RELAY_CARGO_TOW_AFFORDANCE,
+    { capabilities: profile.capabilities },
+    {
+      available: !cargo.delivered && cargo.attachedRigId === null,
+      inRange:
+        Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius,
+    },
+  );
+
+  if (cargoAffordance.outcome === "legal") {
     return {
       kind: "attach-cargo",
       label: "Attach",
       ariaLabel: "Attach relay cargo",
+    };
+  }
+
+  if (
+    cargoAffordance.reasonCode === "missing-capability" &&
+    cargoAffordance.outcome === "impossible" &&
+    !cargo.delivered &&
+    cargo.attachedRigId === null &&
+    Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius
+  ) {
+    return {
+      kind: "none",
+      label: "Tow required",
+      ariaLabel: "Relay cargo requires a tow capability",
+      affordance: cargoAffordance,
     };
   }
 
@@ -456,7 +484,9 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
   }
 
   state.lastDiagnostic =
-    "Nothing in reach. Salvage sits off the graded tracks — leave the road.";
+    resolution.affordance?.reasonCode === "missing-capability"
+      ? `${profile.fieldName} cannot attach this relay cargo: tow capability required.`
+      : "Nothing in reach. Salvage sits off the graded tracks — leave the road.";
 }
 
 /**
@@ -788,6 +818,7 @@ export function stepGame(
     profile.mass,
     world.felledObstacles,
   );
+  const structureCollision = world.structureCollision(rig, rigRadius);
   if (collision.felled) {
     world.fell(collision.felled.id);
     state.lastDiagnostic = `${profile.fieldName} pushed a tree over. The clearing stays open.`;
@@ -801,6 +832,18 @@ export function stepGame(
     rig.condition = clamp(rig.condition - damage, 0, 100);
     if (damage > 1.5) {
       state.lastDiagnostic = `${profile.fieldName} struck ${collision.blockedBy?.kind ?? "an obstacle"} · condition ${Math.round(rig.condition)}%.`;
+    }
+  }
+  if (structureCollision.hit && structureCollision.impactSpeed > 3.2) {
+    const damage = Math.min(
+      12,
+      (structureCollision.impactSpeed - 3.2) *
+        1.6 *
+        (profile.landingTolerance > 8 ? 0.55 : 1),
+    );
+    rig.condition = clamp(rig.condition - damage, 0, 100);
+    if (damage > 1.5) {
+      state.lastDiagnostic = `${profile.fieldName} struck ${structureCollision.blockedBy?.id ?? "an authored structure"} · condition ${Math.round(rig.condition)}%.`;
     }
   }
 
@@ -1009,6 +1052,7 @@ export function publicState(state: GameState, world: GameWorld): object {
     70,
     world.collectedNodes,
   );
+  const firstRung = resolveFirstRung(state, world.collectedNodes);
 
   return {
     schemaVersion: state.schemaVersion,
@@ -1028,6 +1072,7 @@ export function publicState(state: GameState, world: GameWorld): object {
     progression: {
       salvage: state.salvage,
       salvageCollected: state.salvageCollected,
+      firstRung,
       workshopInReach: workshopInReach(state)?.id ?? null,
       nearestSalvage:
         nearestSalvage === null

@@ -13,13 +13,13 @@ baseline), engine-branch gating contract (docs/research/ENGINE_BRANCH_…).
 
 Game boot payload (what `index.html` actually loads):
 
-| Asset | Raw | Gzip |
-|---|---|---|
-| `three.module-*.js` (shared chunk) | 548.69 kB | 138.99 kB |
-| `field-*.js` (game code) | 91.13 kB | 30.84 kB |
-| CSS (field + main) | 18.13 kB | 5.27 kB |
-| `index.html` | 9.15 kB | 2.62 kB |
-| **Total boot** | **~667 kB** | **~178 kB** |
+| Asset                              | Raw         | Gzip        |
+| ---------------------------------- | ----------- | ----------- |
+| `three.module-*.js` (shared chunk) | 548.69 kB   | 138.99 kB   |
+| `field-*.js` (game code)           | 91.13 kB    | 30.84 kB    |
+| CSS (field + main)                 | 18.13 kB    | 5.27 kB     |
+| `index.html`                       | 9.15 kB     | 2.62 kB     |
+| **Total boot**                     | **~667 kB** | **~178 kB** |
 
 - Rapier (1.57 MB WASM) and Box3D (521 kB WASM) payloads are **fully
   isolated** from the game entry via separate HTML entries + runtime dynamic
@@ -44,6 +44,7 @@ materials, so a `WebGPURenderer` swap is an initialization change, not a
 rewrite. This directly de-risks the ADR-0010 "enhancement-only" path.
 
 **R2 — The swap's real costs are three specific contracts, not the renderer.**
+
 1. The fog/sky-dome color contract (`renderer.ts:1283-1294`, `847-855`) is
    hand-calibrated so the dome survives ACES tone-mapping + sRGB encoding
    identically to fogged geometry. WebGPU's output/tone-mapping node pipeline
@@ -97,7 +98,7 @@ a measured, legible load.
 **P-B — `firstControllableMs` doesn't measure controllability.**
 It fires after the first rendered frame (`main.ts:858`) — before the player
 has pressed "Enter the field" and driven. The metric we cite (175 ms) is
-"first rendered frame from navigation", which is fine, but it is *named* like
+"first rendered frame from navigation", which is fine, but it is _named_ like
 the CWV-style input-readiness metric it isn't. **[WORK ITEM P2]** — add a
 true input-ready mark (first input action processed) alongside, rename
 honestly, and add `PerformanceObserver` capture for LCP, INP (event-timing),
@@ -107,7 +108,7 @@ CLS, and longtasks — all free in Chromium, zero dependencies.
 `worker/index.ts` is a pure passthrough; Cloudflare static-assets defaults
 give content-hashed `/assets/*` long-lived immutable caching + Brotli, and
 HTML short-cache semantics. This is the right behavior — but it is
-*incidental*, not decided. **[WORK ITEM P3]** — one paragraph in the deploy
+_incidental_, not decided. **[WORK ITEM P3]** — one paragraph in the deploy
 runbook naming the caching contract so future header changes are deliberate.
 
 **P-D — Runtime hot-path allocations are small, real, and cheap to fix.**
@@ -127,16 +128,16 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 
 ## 3. Consolidated work-item list (dependency order, commit-units)
 
-| # | Item | Class | Gate/dependency |
-|---|---|---|---|
-| P1-a | WebGL context-loss handling + restore/error path | resilience | none — independent, small |
-| P1-b | Chunked/async terrain build + boot progress state | perceived load | none — independent |
-| P2-a | Honest input-ready metric + LCP/INP/CLS/longtask observers in `performance.ts` | measurement | none; do before P2-b so fixes are measurable |
-| P2-b | Hot-path allocation fixes (camera vectors, name scans, HUD sort) | runtime perf | after P2-a (before/after evidence) |
-| P3-a | Sourcemap policy decision (keep vs `hidden`) | policy | trivial, needs operator nod |
-| P3-b | Caching contract paragraph in deploy runbook | docs | trivial |
-| P3-c | PWA/offline | product | deferred with ADR-0013 revisit |
-| W1 | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
+| #    | Item                                                                                       | Class          | Gate/dependency                                                              |
+| ---- | ------------------------------------------------------------------------------------------ | -------------- | ---------------------------------------------------------------------------- |
+| P1-a | WebGL context-loss handling + restore/error path                                           | resilience     | none — independent, small                                                    |
+| P1-b | Chunked/async terrain build + boot progress state                                          | perceived load | none — independent                                                           |
+| P2-a | Honest input-ready metric + LCP/INP/CLS/longtask observers in `performance.ts`             | measurement    | none; do before P2-b so fixes are measurable                                 |
+| P2-b | Hot-path allocation fixes (camera vectors, name scans, HUD sort)                           | runtime perf   | after P2-a (before/after evidence)                                           |
+| P3-a | Sourcemap policy decision (keep vs `hidden`)                                               | policy         | trivial, needs operator nod                                                  |
+| P3-b | Caching contract paragraph in deploy runbook                                               | docs           | trivial                                                                      |
+| P3-c | PWA/offline                                                                                | product        | deferred with ADR-0013 revisit                                               |
+| W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane  | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
 
 **What this analysis deliberately does NOT recommend now:** a WebGPU swap,
 GPU compute for terrain/dust, bundle-splitting of the three.module chunk
@@ -162,7 +163,7 @@ buys architecture evidence, not player value.
 Yes. The pleasant surprise in this audit is how much of the perf story is
 already right: WASM isolation, instancing, pixel-ratio caps, gated prop
 rebuilds, throttled HUD, bounded buffers — the project earned these. The
-findings that remain are mostly *honesty* findings (a misnamed metric, an
+findings that remain are mostly _honesty_ findings (a misnamed metric, an
 unrecorded caching posture, an unmeasured boot stall) rather than engineering
 debt. That is the cheap kind of problem: a few commit-units of measurement
 and naming, and the perf lane stops being anecdote.

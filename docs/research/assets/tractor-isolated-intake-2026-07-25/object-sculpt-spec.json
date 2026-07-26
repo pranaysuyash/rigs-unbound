@@ -48,11 +48,7 @@
       "pitch": 0.0,
       "roll": 0.0
     },
-    "positionHint": [
-      0.0,
-      0.0,
-      3.0
-    ],
+    "positionHint": [0.0, 0.0, 3.0],
     "note": "For likeness work, solve the reference camera (forge/stage1_intake/solve_camera_pose.py) so the review render aligns with the photo and the reference can be projected. Confirm by overlay review."
   },
   "suitability": "conditional",
@@ -100,11 +96,7 @@
     },
     "specDepthDecision": {
       "requiredDepth": "complex",
-      "minimumComponentLevels": [
-        "macro",
-        "meso",
-        "micro"
-      ],
+      "minimumComponentLevels": ["macro", "meso", "micro"],
       "needsRepetitionSystems": true,
       "needsMaterialLocalOverrides": true,
       "needsMultipleReviewViews": true,
@@ -166,9 +158,7 @@
         "qualityCriteria": [
           "Bounding shape, dominant curves, negative spaces, and scale relationships are explicitly described."
         ],
-        "evidenceRefs": [
-          "full-object"
-        ],
+        "evidenceRefs": ["full-object"],
         "failureModes": [
           "model reads as a generic placeholder instead of the reference object",
           "major proportions are guessed without evidence"
@@ -181,9 +171,7 @@
         "qualityCriteria": [
           "Major parts, joints, seams, contact points, and parent-child relationships are named before code generation."
         ],
-        "evidenceRefs": [
-          "full-object"
-        ],
+        "evidenceRefs": ["full-object"],
         "failureModes": [
           "large visible parts are merged into one mesh",
           "component hierarchy is too shallow for the observed complexity"
@@ -196,9 +184,7 @@
         "qualityCriteria": [
           "Every visible child appendage, branch, limb, handle, connector, tube, cable, horn, wing, leg, or hinged part has an attachment contract with parent socket, localStart/localEnd, contact type, embed/overlap, and gap tolerance."
         ],
-        "evidenceRefs": [
-          "full-object"
-        ],
+        "evidenceRefs": ["full-object"],
         "failureModes": [
           "child part root floats away from the parent",
           "branch/limb/tube is centered in space instead of pivoting from its root",
@@ -214,9 +200,7 @@
           "Important materials define independent albedo, roughness, height/normal, and AO responses instead of reusing one texture for unrelated PBR channels.",
           "Surface response is decomposed into macro, meso, and micro frequency bands with scale and amplitude tied to object scale."
         ],
-        "evidenceRefs": [
-          "full-object"
-        ],
+        "evidenceRefs": ["full-object"],
         "failureModes": [
           "surface looks like flat plastic",
           "local material variation is missing or not tied to image evidence"
@@ -232,9 +216,7 @@
           "Lighting-pass names key/fill/rim or environment light, exposure, tone mapping, background, and contact shadow behavior.",
           "Neutral, grazing-angle, and reference-matched renders prove that surface relief survives relighting and is not painted into albedo."
         ],
-        "evidenceRefs": [
-          "full-object"
-        ],
+        "evidenceRefs": ["full-object"],
         "failureModes": [
           "model has acceptable shape but reads as flat shaded or plastic",
           "colors are a generic average instead of reference-observed local color zones",
@@ -274,11 +256,7 @@
       "secondary lighting match"
     ],
     "fpsTarget": 60,
-    "reviewViewpoints": [
-      "front",
-      "three-quarter",
-      "side"
-    ]
+    "reviewViewpoints": ["front", "three-quarter", "side"]
   },
   "selfCorrectLoop": {
     "enabled": true,
@@ -365,51 +343,31 @@
       "id": "overall-silhouette",
       "name": "Overall silhouette and proportion system",
       "tier": "critical",
-      "passIds": [
-        "blockout"
-      ],
+      "passIds": ["blockout"],
       "minimumScore": 0.8,
       "mustPass": true,
-      "componentRefs": [
-        "root"
-      ],
-      "evidenceRefs": [
-        "full-object"
-      ]
+      "componentRefs": ["root"],
+      "evidenceRefs": ["full-object"]
     },
     {
       "id": "primary-structure",
       "name": "Primary identity-defining structure",
       "tier": "critical",
-      "passIds": [
-        "structural-pass",
-        "form-refinement"
-      ],
+      "passIds": ["structural-pass", "form-refinement"],
       "minimumScore": 0.8,
       "mustPass": true,
-      "componentRefs": [
-        "root"
-      ],
-      "evidenceRefs": [
-        "full-object"
-      ]
+      "componentRefs": ["root"],
+      "evidenceRefs": ["full-object"]
     },
     {
       "id": "reference-material-system",
       "name": "Primary reference material and surface response",
       "tier": "critical",
-      "passIds": [
-        "material-pass",
-        "surface-pass"
-      ],
+      "passIds": ["material-pass", "surface-pass"],
       "minimumScore": 0.75,
       "mustPass": true,
-      "componentRefs": [
-        "root"
-      ],
-      "evidenceRefs": [
-        "full-object"
-      ]
+      "componentRefs": ["root"],
+      "evidenceRefs": ["full-object"]
     }
   ],
   "sculptPipeline": {
@@ -452,11 +410,7 @@
         "normal",
         "ambient-occlusion"
       ],
-      "requiredSurfaceFrequencyBands": [
-        "macro",
-        "meso",
-        "micro"
-      ],
+      "requiredSurfaceFrequencyBands": ["macro", "meso", "micro"],
       "geometryReliefRequiredWhenSilhouetteAffected": true,
       "referencePbrExtraction": {
         "requiredWhenSourceImagePresent": true,
@@ -600,36 +554,16 @@
         "confidence": 0.5
       },
       "transform": {
-        "position": [
-          0,
-          0,
-          0
-        ],
-        "rotation": [
-          0,
-          0,
-          0
-        ],
-        "scale": [
-          1,
-          1,
-          1
-        ]
+        "position": [0, 0, 0],
+        "rotation": [0, 0, 0],
+        "scale": [1, 1, 1]
       },
       "actionProfile": {
         "animationRole": "root",
         "pivot": {
           "mode": "center",
-          "localPosition": [
-            0,
-            0,
-            0
-          ],
-          "axis": [
-            0,
-            1,
-            0
-          ],
+          "localPosition": [0, 0, 0],
+          "axis": [0, 1, 0],
           "confidence": 0.5
         },
         "transformChannels": {
@@ -645,16 +579,8 @@
         "sockets": [],
         "collider": {
           "type": "box",
-          "offset": [
-            0,
-            0,
-            0
-          ],
-          "scale": [
-            1,
-            1,
-            1
-          ],
+          "offset": [0, 0, 0],
+          "scale": [1, 1, 1],
           "isTrigger": false,
           "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
         },
@@ -669,9 +595,7 @@
         }
       },
       "material": "base",
-      "materialLayers": [
-        "base"
-      ],
+      "materialLayers": ["base"],
       "deformations": [],
       "joints": [],
       "seams": [],
@@ -686,9 +610,7 @@
         "edgeWearPattern": "",
         "notes": ""
       },
-      "evidenceRefs": [
-        "full-object"
-      ],
+      "evidenceRefs": ["full-object"],
       "details": [],
       "fidelityTier": "blockout"
     }
@@ -703,11 +625,7 @@
       "color": "#8A7A5F",
       "albedo": {
         "dominant": "#593F2B",
-        "secondary": [
-          "#322417",
-          "#130D07",
-          "#89664B"
-        ],
+        "secondary": ["#322417", "#130D07", "#89664B"],
         "samplingNotes": "Reference-derived from foreground pixels; de-lit to reduce baked shadows/highlights.",
         "map": {
           "path": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/research/assets/tractor-isolated-intake-2026-07-25/pbr-base/base_albedo.png",
@@ -717,13 +635,7 @@
         }
       },
       "colorVariation": {
-        "palette": [
-          "#593F2B",
-          "#322417",
-          "#130D07",
-          "#89664B",
-          "#C1A17F"
-        ],
+        "palette": ["#593F2B", "#322417", "#130D07", "#89664B", "#C1A17F"],
         "pattern": "reference-derived pixel palette",
         "amplitude": 0.26,
         "heightCorrelation": 0.42
@@ -731,10 +643,7 @@
       "textureResolution": 1024,
       "textureProjection": {
         "mode": "uv",
-        "repeat": [
-          2.0,
-          2.0
-        ],
+        "repeat": [2.0, 2.0],
         "anisotropy": 8,
         "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
       },
@@ -831,9 +740,7 @@
         {
           "id": "reference-pbr-pixel-evidence",
           "type": "material-map-evidence",
-          "evidenceRefs": [
-            "full-object"
-          ],
+          "evidenceRefs": ["full-object"],
           "channels": [
             "albedo",
             "roughness",
@@ -920,26 +827,14 @@
             "normalStrength": 0.238,
             "blurRadius": 21
           },
-          "palette": [
-            "#593F2B",
-            "#322417",
-            "#130D07",
-            "#89664B",
-            "#C1A17F"
-          ]
+          "palette": ["#593F2B", "#322417", "#130D07", "#89664B", "#C1A17F"]
         },
         "warnings": [
           "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
         ]
       },
       "finishClass": "candy-coat",
-      "texturePalette": [
-        "#E3DEDA",
-        "#9C938B",
-        "#6F5746",
-        "#3F3125",
-        "#D3CDC8"
-      ],
+      "texturePalette": ["#E3DEDA", "#9C938B", "#6F5746", "#3F3125", "#D3CDC8"],
       "proceduralTexture": "gradient-smoke",
       "clearcoat": {
         "base": 0.6,
@@ -965,9 +860,7 @@
     {
       "id": "blockout",
       "goal": "Match macro silhouette and proportions.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Silhouette reads correctly without materials.",
         "Quality contract has named all required macro feature groups before code generation.",
@@ -977,9 +870,7 @@
     {
       "id": "structural-pass",
       "goal": "Build the component hierarchy implied by the pre-spec complexity assessment.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Macro, meso, and repeated structures meet qualityContract.minimumSpecDepth.",
         "Parent-child relations, joints, seams, sockets, and contact points are explicit.",
@@ -990,9 +881,7 @@
     {
       "id": "form-refinement",
       "goal": "Refine shape, deformation, bevels, tapers, curves, asymmetry, and visible local geometry.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Important visible forms are represented in component geometryDescriptor, deformations, localFeatures, or repetitionSystems.",
         "Endpoint-based child parts are rooted at their attachment sockets and do not visibly float away from parents.",
@@ -1002,9 +891,7 @@
     {
       "id": "material-pass",
       "goal": "Match material color, roughness, bump, and local variation.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Reference-derived albedo palette records dominant, secondary, and accent colors per visible material.",
         "Each important material defines roughness variation and at least one normal/bump/displacement response.",
@@ -1020,9 +907,7 @@
     {
       "id": "surface-pass",
       "goal": "Add procedural surface locality such as normal/bump/displacement, AO, dirt, stains, chips, grain, moss, scratches, and wear.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Every required material feature group has local overrides or surfaceDetail tied to evidenceRefs.",
         "A grazing-angle close-up proves that normal/height detail breaks highlights naturally and does not read as smooth plastic.",
@@ -1032,9 +917,7 @@
     {
       "id": "lighting-pass",
       "goal": "Make material and form readable under neutral turntable lighting plus optional reference lighting.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "lightingFromPhoto identifies key light direction/color/intensity, fill light, rim or environment light, and ambient color.",
         "Exposure, tone mapping, background color/gradient, shadow softness, and contact shadow behavior are specified.",
@@ -1046,9 +929,7 @@
     {
       "id": "interaction-pass",
       "goal": "Make the model ready for future animation, transformation, physics, or destruction.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Macro and movable meso components have stable pivot nodes.",
         "Sockets, collider proxies, and destruction metadata are present for future runtime actions.",
@@ -1058,9 +939,7 @@
     {
       "id": "optimization-pass",
       "goal": "Protect runtime performance after visual fidelity is accepted.",
-      "componentRefs": [
-        "root"
-      ],
+      "componentRefs": ["root"],
       "acceptance": [
         "Triangle count, draw calls, instancing, LOD strategy, and FPS target are documented or verified.",
         "Repeated detail is instanced or simplified where possible without breaking silhouette/material believability."

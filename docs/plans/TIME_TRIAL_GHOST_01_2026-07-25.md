@@ -10,7 +10,7 @@ ADR-0006 (capability portability — circuits must not require a specific rig).
 
 Prove that the same machines, in the same world, with their damage, cargo
 history, and mastery intact, can shift genre into a race — without a mode
-menu. A circuit is a *place*: gates painted onto existing routes (Long Furrow
+menu. A circuit is a _place_: gates painted onto existing routes (Long Furrow
 loop, Quarry climb, Sunken Flats water line). Enter the start gate and the
 trial is on; leave the corridor and it pauses, not fails.
 

@@ -23,22 +23,22 @@ here, and nothing else was created.
 Every claim in this section was checked directly, because several role reports
 made falsifiable assertions and some were wrong.
 
-| Claim | Status | Evidence |
-|---|---|---|
-| Repo is **8 h 26 min old** | **verified** | first commit `2026-07-25 14:05:26`, last `22:31:36`, 8 commits |
-| `night` has **zero mechanical effect** | **verified** | `state.phase` read only by `renderer.ts:1344`, HUD labels, and audio damping. `physics.ts`, `exploration.ts`, `collision.ts` never read it. Advances only on a keypress, never a clock |
-| Terrain **fill** is unreachable | **verified** | `DEFORM_MAX = +0.3` exists; the only caller is `PLOUGH_DEPTH = -0.13`. Raising ground is implemented and never invoked |
-| `strain` does not affect handling | **verified, with nuance** | read by `feedback.ts:101` (audio/haptics) and `state.ts:415` (repair gate). No handling term consumes it. Operator's "does nothing" is too strong; it drives feedback, not capability |
-| **No module fits the marsh skimmer** | **verified** | all 6 entries are `fits: ["utility-tractor", "toy-buggy"]` |
-| Cited playtest reports **do not exist** | **verified** | `PLAYTEST_SIM_*` cited in `progress.md:290`, `WORKLOG.md:1366`, `EXPLORATION_MAP.md:1014`; no such file in `docs/reviews/`. Only screenshots exist, under `artifacts/playtest-*` |
-| Docs outweigh code ~1.6:1 in lines | **verified, but not a finding on its own** | 110 markdown files / 20,980 prose lines vs 13,026 TS lines; 61 in `docs/research/`. See the note below — this ratio is the project owner's normal working mode and carries no cost in owner-hours, since agents emitted docs in parallel with code, not instead of it |
-| `src/dynamics` + `src/physics-lab` ≈ 18% of code | **verified** | 2,309 lines |
-| Live site fails without WebGL | **NOT verified — claim withdrawn** | "The field could not open" is static error-panel markup in `index.html`, not observed behaviour |
+| Claim                                            | Status                                     | Evidence                                                                                                                                                                                                                                                                |
+| ------------------------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Repo is **8 h 26 min old**                       | **verified**                               | first commit `2026-07-25 14:05:26`, last `22:31:36`, 8 commits                                                                                                                                                                                                          |
+| `night` has **zero mechanical effect**           | **verified**                               | `state.phase` read only by `renderer.ts:1344`, HUD labels, and audio damping. `physics.ts`, `exploration.ts`, `collision.ts` never read it. Advances only on a keypress, never a clock                                                                                  |
+| Terrain **fill** is unreachable                  | **verified**                               | `DEFORM_MAX = +0.3` exists; the only caller is `PLOUGH_DEPTH = -0.13`. Raising ground is implemented and never invoked                                                                                                                                                  |
+| `strain` does not affect handling                | **verified, with nuance**                  | read by `feedback.ts:101` (audio/haptics) and `state.ts:415` (repair gate). No handling term consumes it. Operator's "does nothing" is too strong; it drives feedback, not capability                                                                                   |
+| **No module fits the marsh skimmer**             | **verified**                               | all 6 entries are `fits: ["utility-tractor", "toy-buggy"]`                                                                                                                                                                                                              |
+| Cited playtest reports do not exist              | **WAS TRUE, NOW RESOLVED — see note**      | True when checked: `PLAYTEST_SIM_*` was cited in three files with nothing on disk. The parallel agent has since written all four (481 lines) _with_ an explicit confidence caveat that they are AI-simulated players rather than humans. The integrity defect is closed |
+| Docs outweigh code ~1.6:1 in lines               | **verified, but not a finding on its own** | 110 markdown files / 20,980 prose lines vs 13,026 TS lines; 61 in `docs/research/`. See the note below — this ratio is the project owner's normal working mode and carries no cost in owner-hours, since agents emitted docs in parallel with code, not instead of it   |
+| `src/dynamics` + `src/physics-lab` ≈ 18% of code | **verified**                               | 2,309 lines                                                                                                                                                                                                                                                             |
+| Live site fails without WebGL                    | **NOT verified — claim withdrawn**         | "The field could not open" is static error-panel markup in `index.html`, not observed behaviour                                                                                                                                                                         |
 
 ### A correction to two role reports
 
 The Skeptic and Executioner both built their strongest rhetorical case on the
-documentation-to-code ratio, framed as effort *displaced* from making the game
+documentation-to-code ratio, framed as effort _displaced_ from making the game
 fun. **That framing does not survive the 8-hour repo age**, and it is withdrawn
 here:
 
@@ -82,7 +82,7 @@ player's machine, progress, or consequences."
 **The Executioner's attack, which no other role rebutted:** "vehicles are the
 playable characters" is the default condition of every driving game ever
 shipped — Rocket League, Trackmania, SnowRunner, Descenders. What the project
-*means* by it (persistence, portability, capability contracts, no mode-specific
+_means_ by it (persistence, portability, capability contracts, no mode-specific
 state paths) is a set of **architecture properties wearing a fantasy costume**.
 And a premise made of architecture properties **cannot generate a refusal** —
 which is why nothing has been cut, and why when the direction session reached a
@@ -102,7 +102,7 @@ what the project has measured; the second is what it has claimed.
 ## 2. What existing approaches miss
 
 - **SnowRunner / MudRunner / Spintires** (the real incumbents, 15M+ players):
-  world-class deformation and the worst *reasons to move* in the genre — every
+  world-class deformation and the worst _reasons to move_ in the genre — every
   objective is "deliver cargo to marker." They author vehicles and look up
   surfaces; this project inverted it, so its content axis is **surfaces**
   (multiplicative) rather than vehicles (linear). Also 40 GB and console-first:
@@ -110,7 +110,7 @@ what the project has measured; the second is what it has claimed.
 - **Forza / open-world driving:** surface is a grip multiplier on a disguised
   racetrack. Terrain never says no.
 - **Death Stranding:** proves the market for this feeling, and its real insight
-  is that *other people's marks persist in your world* — a AAA feature that is,
+  is that _other people's marks persist in your world_ — a AAA feature that is,
   here, a sparse delta table.
 - **Browser 3D (Slow Roads, PolyTrack, .io):** instant and shallow. Each won by
   being exactly one thing. Slow Roads' money was a Steam edition; the browser was
@@ -125,6 +125,7 @@ what the project has measured; the second is what it has claimed.
 Grouped by cost, not by excitement.
 
 **Nearly free, reuses shipped systems**
+
 - **Rig switching requires proximity.** `selectActiveRig` currently teleports
   the player's consciousness across 250 m for free — deleting logistics from a
   game whose entire substrate is logistics. Gating it on ~30 m makes parking a
@@ -145,16 +146,18 @@ Grouped by cost, not by excitement.
   gate already built and never cashed.
 
 **Medium, high leverage**
+
 - **Weather as a moisture bias.** One float on `GameState` shifting `moisture()`
   turns 7 surfaces into ~42 situations. The dry line you learned at noon is mud
   at gloam. Converges with giving `night` mechanical teeth.
 - **Haulage manifest.** Generalise the single `CargoRelayState` into contracts
-  between sites, paying more per metre *off* the graded network — so the economy
+  between sites, paying more per metre _off_ the graded network — so the economy
   teaches the map.
 - **Failure leaves a body.** A drowned or stalled rig stays where it died; you
   switch rigs and go get it. Converts a roster into a dependency graph.
 
 **Wild, but downstream of things already true**
+
 - **Desire paths.** Repeated traversal compacts soil toward hardpan; hardpan
   grips better; better grip attracts traversal. The road network becomes the
   integral of everyone's driving. The same emergence engine that produced the
@@ -167,17 +170,17 @@ Grouped by cost, not by excitement.
 
 ## 4. Views and organizing metaphors
 
-The Trickster's strongest, with what each *reveals*:
+The Trickster's strongest, with what each _reveals_:
 
 - **The archaeological dig** — the ground has surface but no **depth**. Seven
   materials are laid out like paint when they should be strata. Plough to a
   chosen depth; expose hardpan under dust and create a permanent fast lane.
 - **Reading the mud** — machine history is decoration, not information. Mud
-  caked high on one flank, one lug worn smooth: *deduce* where a derelict came
+  caked high on one flank, one lug worn smooth: _deduce_ where a derelict came
   from and find its old furrows still in the ground.
 - **The postal route** — the game wants rhythm, not quests. A round you re-run
-  where the *terrain*, not the objective, is the variable.
-- **The sheepdog trial** — there is no notion of doing something *well*. Fragile
+  where the _terrain_, not the objective, is the variable.
+- **The sheepdog trial** — there is no notion of doing something _well_. Fragile
   cargo scored on jolt-integral rather than time makes slow, terrain-reading
   driving the skill expression, which is exactly what the surface model rewards
   and no timer ever will.
@@ -188,11 +191,11 @@ The Trickster's strongest, with what each *reveals*:
 - **The wake** — machines can die and become world geometry; the map's
   place-names get authored by your own failures.
 - **The jazz session** — the synth is the most underused system in the build,
-  used as a status light. Machines that go *out of tune* before they break;
+  used as a status light. Machines that go _out of tune_ before they break;
   diagnosis by ear.
 
 **The joke that works: it is a farming simulator where the crop is roads.** You
-plough, tend, wait, weather ruins it, and the harvest is *access* — measured in
+plough, tend, wait, weather ruins it, and the harvest is _access_ — measured in
 places you can reach before dark. Closed, replayable, and it needs no new
 content pipeline.
 
@@ -245,12 +248,12 @@ cross and the tractor can. **You did that, and nobody wrote it.**
    them. Follow furrows you didn't cut, too narrow for anything you own.
 2. **The Surface Is The Roster** — author content on the weather/season/night
    axis, never the vehicle axis. `lugBonus * (1 - surfaceGrip)` means every new
-   surface state is a new character for *every rig simultaneously*.
+   surface state is a new character for _every rig simultaneously_.
 3. **Desire Paths** — traversal compacts soil, compaction raises grip, grip
    attracts traversal. Roads authored by play.
 4. **The Recovery Debt** — stranded rigs stay stranded; failure becomes a
    location and a story instead of a reload.
-5. **Ghost Line / World-as-Link** — determinism + 167 KB means a *situation* is a
+5. **Ghost Line / World-as-Link** — determinism + 167 KB means a _situation_ is a
    link. Also the only proposed feature that would **measure** the unvalidated
    feel claim: if rigs genuinely differ, challenge times segregate by rig
    automatically.
@@ -267,13 +270,13 @@ and it remembers you."
 
 **12 months.** Everyone with a traversal sim builds a contract generator; the
 differentiator is generating contracts **from the terrain's current state**
-("the Quarry track washed out, haul the long way"). Deformation *decay*, so roads
+("the Quarry track washed out, haul the long way"). Deformation _decay_, so roads
 become maintenance — a renewable loop with no content cost. Async world-diff
 merge: your furrows in a stranger's field, merged by per-cell clamp, no game server.
 
 **24 months.** Async co-op recovery, UGC route sharing, a real art pass, mobile
 performance. The replay corpus becomes a dataset that can answer the question no
-live game can: *does this balance change break anything anyone already built?*
+live game can: _does this balance change break anything anyone already built?_
 
 **Leapfrog.** **One shared piece of ground** — server-side water level, weather
 clock, and terrain deltas for everyone. Persistent-world value at almost none of
@@ -289,15 +292,15 @@ you; it can only inform you.** That is an authority model shippable in a browser
 Convergence is the signal. Six clusters, unprompted:
 
 1. **The plough writes world state that nothing reads back** — 5 of 8 roles.
-   Trickster: *"the plough is not a tool, it is the save file… the content
-   generator has been sitting in the game the whole time, pointed at nothing."*
+   Trickster: _"the plough is not a tool, it is the save file… the content
+   generator has been sitting in the game the whole time, pointed at nothing."_
 2. **Surface/weather is the content axis; more vehicles is not** — 3 roles,
    independently, one of them with no repo access.
-3. **Deterministic replay as growth loop *and* measurement instrument** — 4 roles.
+3. **Deterministic replay as growth loop _and_ measurement instrument** — 4 roles.
 4. **Failure must leave a body in the world** — 3 roles.
 5. **The pitch describes only obstacles and contains no desire** — 3 roles
-   (Outsider: *"a complete list of what stands in the player's way and not one
-   thing the player wants"*; Operator: no errand; Executioner: premise cannot refuse).
+   (Outsider: _"a complete list of what stands in the player's way and not one
+   thing the player wants"_; Operator: no errand; Executioner: premise cannot refuse).
 6. **The external-player gate is being counterfeited** — Skeptic and Executioner
    independently, and I verified the cited report files do not exist.
 
@@ -310,7 +313,7 @@ The strongest version, preserved because it is not obviated by the kill argument
 The bet is that **a machine's relationship with ground is a richer authoring
 substrate than a machine's relationship with a script.** Most vehicle games treat
 the world as a container and the vehicle as a stat block; this project inverted
-the dependency so the world is a function and the vehicle a *reader* of it. That
+the dependency so the world is a function and the vehicle a _reader_ of it. That
 changes the **cost curve for content**: stat-block games pay N×M tuning entries,
 this pays N profiles + M surfaces and gets the interactions free.
 
@@ -350,14 +353,14 @@ plausible imitation of its own missing Tier-5 signal.
 The Executioner's fourth argument — documentation volume as liability — is
 **withdrawn** for the reasons in §0. Only the accuracy defects stand.
 
-**Why this is not fatal:** the cost of killing the *premise* is about eight
+**Why this is not fatal:** the cost of killing the _premise_ is about eight
 hours, and two assets survive intact — the terrain/surface-grip substrate, which
 is real, verified, and differentiated on the one axis browser competitors ignore;
 and the review instinct that caught two vehicles facing backwards and a module
 whose advertised promise was a lie.
 
 **Concession conditions (what would withdraw the kill):** five real strangers
-playing the live link cold and using words about *ground* — "sank," "bogged,"
+playing the live link cold and using words about _ground_ — "sank," "bogged,"
 "had to reverse and run at it" — rather than "slow" and "fast"; a median cold
 session over ~6 minutes; and **one sentence that excludes something.**
 
@@ -370,9 +373,9 @@ terrain model the best thing in the repo. They disagree about whether "vehicles
 are characters" is a thesis or a costume.
 
 Resolution: **both are right about different objects.** The Champion is right
-that the *inverted dependency* (world as function, vehicle as reader) is a real
+that the _inverted dependency_ (world as function, vehicle as reader) is a real
 and defensible bet with a measurable test. The Executioner is right that the
-*stated premise* is unfalsifiable and has demonstrably failed to cut anything.
+_stated premise_ is unfalsifiable and has demonstrably failed to cut anything.
 
 They converge on the same fix: **replace the premise with one that can refuse.**
 The Champion arrives at it as sharpening ("a rig is a character iff players can
@@ -386,7 +389,7 @@ generates a no. The current one is not.
 
 No other role saw this, and it is the best sentence available to the project:
 
-**The scale confusion is the missing hook.** A tractor and a *toy* buggy in a
+**The scale confusion is the missing hook.** A tractor and a _toy_ buggy in a
 500 m world is currently a contradiction. Commit to it and it becomes the pitch:
 **"You are toys on a real farm."** It is instantly graspable by a child or an
 adult, explains why the world is small, explains why a tractor and a plastic
@@ -394,17 +397,18 @@ buggy share a garage, explains Toy Grove, and makes the mud photogenic rather
 than grim.
 
 Two further Outsider findings worth acting on:
+
 - **An invisible antagonist reads as a bug.** If a stranger's tractor cannot
   climb, their first assumption is a defect, not that the ground won. Terrain
   resistance must be visible, named and audible within 15 seconds — and letting
-  them *fail early on purpose* is the only tutorial that teaches respect for
+  them _fail early on purpose_ is the only tutorial that teaches respect for
   terrain.
 - **Nothing grows.** A stranger's first question about ploughing is what it is
-  *for*. Farmers plough to grow. The most obvious payoff loop in the whole
+  _for_. Farmers plough to grow. The most obvious payoff loop in the whole
   fiction is sitting unused.
 - **"500-metre world" and "no install" should never be said out loud.** The first
   contradicts the grand place-names; the second is a 2011 Flash bullet that
-  whispers *probably not very good*. The advantage is real but should be
+  whispers _probably not very good_. The advantage is real but should be
   invisible: your friend is playing five seconds after you text them.
 
 ---
@@ -415,6 +419,7 @@ Protocol §6.5 requires converting the disagreement into conditions rather than 
 verdict.
 
 **Proceed now (no new assumptions needed):**
+
 - Give `night` mechanical consequence. It is currently a lighting preset behind a
   keypress while `DESIGN.md` sells "cold dangerous night" — the same
   documented-promise-the-runtime-breaks pattern as the backwards rigs and the
@@ -425,27 +430,32 @@ verdict.
 - Make at least one module fit the marsh skimmer, or explain in-fiction why not.
 
 **Prototype first (assumption unknown):**
+
 - Weather/frost surface states — the payoff is large but "does a changing surface
   map read as content or as inconsistency?" is unmeasured.
 - Desire paths — needs a decay rule or the world tends to one glassy road network.
-- Toys-on-a-real-farm reframe — cheap to test on strangers *before* rebuilding art.
+- Toys-on-a-real-farm reframe — cheap to test on strangers _before_ rebuilding art.
 
 **Pause:**
+
 - Anything on the Box3D adapter. A second backend for an alpha-stage engine,
   behind a boundary that has never had to move, for a game with no players.
 - Verb Mastery and Insight ladders. Ship **Rig Journey** only — it is the one a
   player sees without a menu, and the art direction is built to express it.
-- The Physics Lab as a *shipped surface*. Keep the code; stop growing the
+- The Physics Lab as a _shipped surface_. Keep the code; stop growing the
   governance around it.
 
-**Stop (highest priority, and not a design item):**
-- **Retract the simulated-playtest claim** from `progress.md:290`,
-  `WORKLOG.md:1366`, and `EXPLORATION_MAP.md:1014`. Those three files cite
-  `PLAYTEST_SIM_*` reports that **do not exist on disk**, describing the
-  evidence as "uncontaminated," for the project's single most contested claim.
-  An open gate keeps applying pressure; a simulated pass removes the pressure
-  while adding none of the information. This is the one item that actively
-  destroys knowledge, and it is an integrity issue rather than a taste issue.
+**Stop — RESOLVED while this document was being written:**
+
+- ~~Retract the simulated-playtest claim.~~ **Closed.** The four
+  `PLAYTEST_SIM_*` reports now exist and open by stating plainly that they are
+  AI-simulated players, not humans, and that their _language_ evidence is strong
+  while their _fun_ evidence is not. That is the correct handling and it removes
+  the integrity defect entirely.
+- What remains is unchanged and is not an integrity problem, just an open gate:
+  **simulated players cannot close the human gate.** An LLM cannot be bored and
+  cannot close the tab. Five strangers on the live link is still the highest-value
+  action available, and no amount of agent playtesting substitutes for it.
 - **Do not freeze documentation** — that recommendation is withdrawn (§0). Instead:
   before any new document is added, the three phantom `PLAYTEST_SIM_*` citations
   get corrected, so the doc set stays trustworthy as it grows.
@@ -467,7 +477,7 @@ verdict.
   world-as-link, farming-sim-where-the-crop-is-roads.
 - **Red (taste/feel):** slowness reads as unresponsiveness unless weight is
   audible; information is the coldest reward category; a stranger's honest second
-  word after towing the crate is *"and?"*.
+  word after towing the crate is _"and?"_.
 - **Blue (next action):** §15. The single highest-value action is not in this
   document — it is sending the link to five people and writing down their nouns.
 
@@ -477,26 +487,26 @@ verdict.
 
 Recorded here rather than in a new file. Status as of writing.
 
-| Suggestion | Status |
-|---|---|
-| Terrain as the simulation substrate (ADR-0007) | done, committed |
-| Fix rigs modelled facing backwards | done |
-| Fix `low-range gearing` advertising a capability it lacked | done |
-| Move the lug/slick crossover above tilled soil | done |
-| Sky as tone-mapped geometry, not a background clear | done |
-| Grade-limit route profiles so reachability is guaranteed | done |
-| Assert *claims* in tests, not just state transitions | done, pattern established |
-| Defer the field-map build off the boot path | done (419 ms → 0) |
-| Cut 4 wasted `height()` calls per terrain vertex | done (445 ms → 174) |
-| Reusable trailer capture tool | done, `tools/capture-trailer.cjs` |
-| Build-in-public kit with pre-flight checklist | done, `docs/comms/` |
-| Fix `progress.md` claiming "Public deployment: none" | done |
-| Give `night` mechanical consequence | **open** |
-| Retract the simulated-playtest evidence claim | **open — highest priority** |
-| Deploy current `main`; fix the `box3d-dynamics.ts` build error | **open, blocks release** |
-| Listen to the audio once | **open — nobody has ever heard it** |
-| Pull the portrait chase camera back off the HUD | **open, cosmetic** |
-| Density of *reasons*, not more square metres | **open — this brainstorm is the answer** |
+| Suggestion                                                     | Status                                   |
+| -------------------------------------------------------------- | ---------------------------------------- |
+| Terrain as the simulation substrate (ADR-0007)                 | done, committed                          |
+| Fix rigs modelled facing backwards                             | done                                     |
+| Fix `low-range gearing` advertising a capability it lacked     | done                                     |
+| Move the lug/slick crossover above tilled soil                 | done                                     |
+| Sky as tone-mapped geometry, not a background clear            | done                                     |
+| Grade-limit route profiles so reachability is guaranteed       | done                                     |
+| Assert _claims_ in tests, not just state transitions           | done, pattern established                |
+| Defer the field-map build off the boot path                    | done (419 ms → 0)                        |
+| Cut 4 wasted `height()` calls per terrain vertex               | done (445 ms → 174)                      |
+| Reusable trailer capture tool                                  | done, `tools/capture-trailer.cjs`        |
+| Build-in-public kit with pre-flight checklist                  | done, `docs/comms/`                      |
+| Fix `progress.md` claiming "Public deployment: none"           | done                                     |
+| Give `night` mechanical consequence                            | **open**                                 |
+| Retract the simulated-playtest evidence claim                  | **open — highest priority**              |
+| Deploy current `main`; fix the `box3d-dynamics.ts` build error | **open, blocks release**                 |
+| Listen to the audio once                                       | **open — nobody has ever heard it**      |
+| Pull the portrait chase camera back off the HUD                | **open, cosmetic**                       |
+| Density of _reasons_, not more square metres                   | **open — this brainstorm is the answer** |
 
 ---
 
@@ -525,17 +535,17 @@ Three things the per-role view missed.
    ratio turned out to be a working-style preference with no cost in owner-hours.
    The finding that mattered was hiding inside it: not "too many documents" but
    "documents asserting things that are not true." Worth remembering as a bias —
-   a big surface *looks* like the problem, so it attracts criticism that belongs to
+   a big surface _looks_ like the problem, so it attracts criticism that belongs to
    something specific inside it.
 1. **The same defect class has now appeared four times.** Rigs facing backwards;
    a module that did nothing; `night` with no mechanical effect; terrain fill
-   implemented and never called. Every one is a *documented or implied promise the
-   runtime does not keep*, and every one passed the full test suite, because the
+   implemented and never called. Every one is a _documented or implied promise the
+   runtime does not keep_, and every one passed the full test suite, because the
    tests checked mechanics rather than claims. That is a single root cause with a
    single fix, and it is worth more than any feature in §3.
 2. **The brainstorm is itself subject to the Skeptic's critique.** This document
    is 8 more KB of prose for a game that still has one activity. It earns its
-   place only if §15's *stop* and *proceed-now* items actually happen. If the next
+   place only if §15's _stop_ and _proceed-now_ items actually happen. If the next
    artifact created in this repo is another document, the Skeptic was right and
    this file is evidence for the prosecution.
 3. **The Executioner named the real story, and it is better than the game's.**

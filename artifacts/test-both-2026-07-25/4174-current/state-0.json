@@ -26,10 +26,7 @@
         "engaged": false
       }
     ],
-    "capabilities": [
-      "plough",
-      "tow"
-    ]
+    "capabilities": ["plough", "tow"]
   },
   "rigs": {
     "utility-tractor": {
@@ -52,10 +49,7 @@
           "engaged": false
         }
       ],
-      "capabilities": [
-        "plough",
-        "tow"
-      ]
+      "capabilities": ["plough", "tow"]
     },
     "toy-buggy": {
       "id": "toy-buggy",
@@ -73,10 +67,7 @@
           "engaged": false
         }
       ],
-      "capabilities": [
-        "tow",
-        "jump"
-      ]
+      "capabilities": ["tow", "jump"]
     }
   },
   "activity": {

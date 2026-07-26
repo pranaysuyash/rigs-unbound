@@ -43,13 +43,13 @@ The bundle-level `Readme.html` states that all content in the package is CC0, ma
 
 Evidence inspected:
 
-| Evidence file | SHA-256 | Observation |
-|---|---|---|
-| `Readme.html` | `210f4071609323c89ee3759bf946c0e117badd5a66a45c82b8241b3ad4f5fb41` | Bundle-level CC0 statement plus no-direct-bundle-redistribution request |
-| `3D assets/Car Kit/License.txt` | `abbfe5e59c835e2e7578994f019dca5f1b2bb9aa3aa50e7efd42717535356bee` | CC0; commercial use and modification allowed; attribution optional |
-| `3D assets/Nature Kit/License.txt` | `cb96b75e3560ac78d7a53ce6f083f4cdb5c53faea6141b62d63458dcfe1e4b9d` | CC0 |
-| `3D assets/Racing Kit/License.txt` | `905627df4313a9eb7fa9337129e572979ef51cc3857c8d2942e57ae84736096c` | CC0 |
-| `3D assets/Graveyard Kit/License.txt` | `a48e274258386c6bcb5302f17eaab40304cd805cc68be2754e2452179418c70e` | CC0 |
+| Evidence file                         | SHA-256                                                            | Observation                                                             |
+| ------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| `Readme.html`                         | `210f4071609323c89ee3759bf946c0e117badd5a66a45c82b8241b3ad4f5fb41` | Bundle-level CC0 statement plus no-direct-bundle-redistribution request |
+| `3D assets/Car Kit/License.txt`       | `abbfe5e59c835e2e7578994f019dca5f1b2bb9aa3aa50e7efd42717535356bee` | CC0; commercial use and modification allowed; attribution optional      |
+| `3D assets/Nature Kit/License.txt`    | `cb96b75e3560ac78d7a53ce6f083f4cdb5c53faea6141b62d63458dcfe1e4b9d` | CC0                                                                     |
+| `3D assets/Racing Kit/License.txt`    | `905627df4313a9eb7fa9337129e572979ef51cc3857c8d2942e57ae84736096c` | CC0                                                                     |
+| `3D assets/Graveyard Kit/License.txt` | `a48e274258386c6bcb5302f17eaab40304cd805cc68be2754e2452179418c70e` | CC0                                                                     |
 
 Additional samples inspected from Toy Car, Space, Impact Sounds, Input Prompts, and New Platformer also state CC0. Nevertheless, every pack actually imported must carry its own inspected license evidence in the provenance register. The bundle-level statement is strong source evidence, but it is not permission to skip per-import traceability.
 
@@ -89,14 +89,14 @@ The art test is therefore not “does Kenney look good?” It is “can selected
 
 ### Tier A — immediate engine and first-slice fixtures
 
-| Pack | What it supplies | Why now |
-|---|---|---|
-| Car Kit 3.0 | tractor, shovel tractor, named wheels/body, box, cone, debris | One shared vehicle binary, wheel-node import test, breakable prop, damage/salvage vocabulary |
-| Racing Kit | compact ramp and route props | Collision, suspension, jump, and later time-trial probe |
-| Nature Kit | ground/path tiles, trees, rocks, grass, fences | Small authored farm boundary and occlusion/readability test |
-| Graveyard Kit | animated zombie plus walls, graves, crops/hay, damaged props | Chasing-enemy animation and night-state visual test |
-| Input Prompts / Mobile Controls | keyboard, gamepad, and touch prompt families | Input-device UI probe; select only required variants |
-| Impact / Foley / Interface Sounds | collision, interaction, and UI source material | Early feel without pretending final vehicle audio exists |
+| Pack                              | What it supplies                                              | Why now                                                                                      |
+| --------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Car Kit 3.0                       | tractor, shovel tractor, named wheels/body, box, cone, debris | One shared vehicle binary, wheel-node import test, breakable prop, damage/salvage vocabulary |
+| Racing Kit                        | compact ramp and route props                                  | Collision, suspension, jump, and later time-trial probe                                      |
+| Nature Kit                        | ground/path tiles, trees, rocks, grass, fences                | Small authored farm boundary and occlusion/readability test                                  |
+| Graveyard Kit                     | animated zombie plus walls, graves, crops/hay, damaged props  | Chasing-enemy animation and night-state visual test                                          |
+| Input Prompts / Mobile Controls   | keyboard, gamepad, and touch prompt families                  | Input-device UI probe; select only required variants                                         |
+| Impact / Foley / Interface Sounds | collision, interaction, and UI source material                | Early feel without pretending final vehicle audio exists                                     |
 
 ### Tier B — first-playable support after the core probe works
 
@@ -123,19 +123,19 @@ The archived Mini Car Kit also contains tractor assets, including `carTractor.gl
 
 These are source candidates, not project imports. All paths are relative to the bundle root.
 
-| Stable proposed key | Source file | Bytes | SHA-256 | Probe role |
-|---|---|---:|---|---|
-| `vehicle.tractor.base` | `3D assets/Car Kit/Models/GLB format/tractor.glb` | 175,960 | `08cbe533f5cb2171d6e7e0ae99ae32b65f10fed144ab102950079507f4a66a16` | Identical controllable vehicle across engines |
-| `vehicle.tractor.shovel` | `3D assets/Car Kit/Models/GLB format/tractor-shovel.glb` | 222,584 | `ea456992271d9cc3002289e04788be4a306b94c0f9d1fc337b93b3e96fdaf71c` | Attachment/tool and node-hierarchy comparison |
-| `vehicle.tractor.wheel.front` | `3D assets/Car Kit/Models/GLB format/wheel-tractor-front.glb` | 29,140 | `e6487de0cd5b880565ef9b4eea25bf8f202589f94f86e8eb11e0d33fe51bfe96` | Wheel/pivot/collider fixture |
-| `vehicle.tractor.wheel.rear` | `3D assets/Car Kit/Models/GLB format/wheel-tractor-back.glb` | 36,628 | `05e57e871f353ef4deea3aa56c26ef3a4d58217f8d61ea0895e23797724ae5bf` | Wheel/pivot/collider fixture |
-| `prop.crate.breakable` | `3D assets/Car Kit/Models/GLB format/box.glb` | 14,108 | `38b74901586f61fb9d4bb54c55bcdafeb498ddda547063503c60d3e8d357dc87` | Breakable obstacle placeholder |
-| `course.ramp.basic` | `3D assets/Racing Kit/Models/GLTF format/ramp.glb` | 6,996 | `a6f2c0e4f01fded7f9020cba4a0eb304d3724a9086071b52d5ae7e2b63d47253` | Suspension/collision/jump test |
-| `world.field.tile` | `3D assets/Nature Kit/Models/GLTF format/ground_pathTile.glb` | 6,624 | `b169d96d4143d8dd00ef074b8beb5395d8743b73bbafb88506512c1270075b42` | Ground-scale and repeated-tile fixture |
-| `world.field.tree` | `3D assets/Nature Kit/Models/GLTF format/tree_default.glb` | 9,428 | `562d29638c902de3c7bee465d3a53bb77117efbc392ae04ed894faf6b5dc691d` | Occlusion, shadow, and instancing fixture |
-| `world.field.rock` | `3D assets/Nature Kit/Models/GLTF format/rock_smallF.glb` | 5,700 | `51099549e8dd6a68db2afe2e5c514a8601ee59e11766d5975c540314f9b7deb8` | Static collider fixture |
-| `world.field.fence` | `3D assets/Nature Kit/Models/GLTF format/fence_simple.glb` | 5,712 | `ecaf6c29532aa9fd305a8ef71df769d60748bd797f2eb1c63bdefc4edb8062a7` | Boundary/collision/readability fixture |
-| `enemy.night.zombie` | `3D assets/Graveyard Kit/Models/GLB format/character-zombie.glb` | 245,500 | `1a49bedce8647de542bfaaa796a3b533ab2a0d2567122bd08b16b2741fa62693` | Chase, animation, threat silhouette, and top-down readability |
+| Stable proposed key           | Source file                                                      |   Bytes | SHA-256                                                            | Probe role                                                    |
+| ----------------------------- | ---------------------------------------------------------------- | ------: | ------------------------------------------------------------------ | ------------------------------------------------------------- |
+| `vehicle.tractor.base`        | `3D assets/Car Kit/Models/GLB format/tractor.glb`                | 175,960 | `08cbe533f5cb2171d6e7e0ae99ae32b65f10fed144ab102950079507f4a66a16` | Identical controllable vehicle across engines                 |
+| `vehicle.tractor.shovel`      | `3D assets/Car Kit/Models/GLB format/tractor-shovel.glb`         | 222,584 | `ea456992271d9cc3002289e04788be4a306b94c0f9d1fc337b93b3e96fdaf71c` | Attachment/tool and node-hierarchy comparison                 |
+| `vehicle.tractor.wheel.front` | `3D assets/Car Kit/Models/GLB format/wheel-tractor-front.glb`    |  29,140 | `e6487de0cd5b880565ef9b4eea25bf8f202589f94f86e8eb11e0d33fe51bfe96` | Wheel/pivot/collider fixture                                  |
+| `vehicle.tractor.wheel.rear`  | `3D assets/Car Kit/Models/GLB format/wheel-tractor-back.glb`     |  36,628 | `05e57e871f353ef4deea3aa56c26ef3a4d58217f8d61ea0895e23797724ae5bf` | Wheel/pivot/collider fixture                                  |
+| `prop.crate.breakable`        | `3D assets/Car Kit/Models/GLB format/box.glb`                    |  14,108 | `38b74901586f61fb9d4bb54c55bcdafeb498ddda547063503c60d3e8d357dc87` | Breakable obstacle placeholder                                |
+| `course.ramp.basic`           | `3D assets/Racing Kit/Models/GLTF format/ramp.glb`               |   6,996 | `a6f2c0e4f01fded7f9020cba4a0eb304d3724a9086071b52d5ae7e2b63d47253` | Suspension/collision/jump test                                |
+| `world.field.tile`            | `3D assets/Nature Kit/Models/GLTF format/ground_pathTile.glb`    |   6,624 | `b169d96d4143d8dd00ef074b8beb5395d8743b73bbafb88506512c1270075b42` | Ground-scale and repeated-tile fixture                        |
+| `world.field.tree`            | `3D assets/Nature Kit/Models/GLTF format/tree_default.glb`       |   9,428 | `562d29638c902de3c7bee465d3a53bb77117efbc392ae04ed894faf6b5dc691d` | Occlusion, shadow, and instancing fixture                     |
+| `world.field.rock`            | `3D assets/Nature Kit/Models/GLTF format/rock_smallF.glb`        |   5,700 | `51099549e8dd6a68db2afe2e5c514a8601ee59e11766d5975c540314f9b7deb8` | Static collider fixture                                       |
+| `world.field.fence`           | `3D assets/Nature Kit/Models/GLTF format/fence_simple.glb`       |   5,712 | `ecaf6c29532aa9fd305a8ef71df769d60748bd797f2eb1c63bdefc4edb8062a7` | Boundary/collision/readability fixture                        |
+| `enemy.night.zombie`          | `3D assets/Graveyard Kit/Models/GLB format/character-zombie.glb` | 245,500 | `1a49bedce8647de542bfaaa796a3b533ab2a0d2567122bd08b16b2741fa62693` | Chase, animation, threat silhouette, and top-down readability |
 
 Structural inspection found:
 
@@ -179,3 +179,39 @@ When implementation starts:
 ## Anything else?
 
 The library changes the economics of exploration: a new vehicle or biome can now be tested before bespoke art exists. It must not change the product test. A Kenney pack is evidence that a visual fixture exists, not evidence that a mechanic is fun, an art direction is owned, or a browser budget is met.
+
+## Addendum (2026-07-26) - first bridge candidate chosen and copied into repo runtime
+
+- Re-checked the candidate set against the current repo state and live
+  browser posture.
+- The first bridge proof is now narrowed to the Car Kit breakable crate:
+  - source file: `3D assets/Car Kit/Models/GLB format/box.glb`,
+  - semantic key: `kenney-car-kit-breakable-crate-fixture`,
+  - runtime copy: `assets/runtime/kenney-car-kit-breakable-crate-fixture.glb`.
+- Why this won:
+  - it is a static prop, so it isolates the import bridge from vehicle
+    semantics,
+  - it is still representative enough to exercise the manifest/provenance and
+    browser-visibility path,
+  - it gives a clean baseline before the tractor mesh is attempted.
+- The source copy has been imported into the repo-owned runtime area and is now
+  the first bridge asset candidate in the manifest.
+- Browser visibility for that new bridge is still pending live observation.
+- Evidence depth: Tier 1 static code/doc inspection for the new runtime copy;
+  Tier 4 runtime/manual observation for the pre-change browser surface.
+
+## Addendum (2026-07-26) - tractor preview added after the crate bridge proved live
+
+- Re-checked the candidate set after the crate bridge and live browser proof.
+- The second runtime bridge candidate is now explicit too:
+  - source file: `3D assets/Car Kit/Models/GLB format/tractor.glb`,
+  - semantic key: `kenney-car-kit-tractor-preview`,
+  - runtime copy: `assets/runtime/kenney-car-kit-tractor-preview.glb`.
+- Why it was the right second step:
+  - it exercises a larger, multi-node vehicle-shaped GLB,
+  - it proves the manifest/runtime/browser bridge scales beyond a small prop,
+  - it still stays inside the same audited Car Kit source library and texture
+    dependency family.
+- The live browser confirms this preview loaded cleanly with five nodes and no
+  bridge errors.
+- Evidence depth: Tier 4 runtime/manual observation.

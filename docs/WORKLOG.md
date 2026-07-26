@@ -1,3 +1,30 @@
+## 2026-07-26 — collision-policy continuation
+
+- Applied the named `3d-games` skill to the real collision and scene-query
+  ownership boundaries.
+- Confirmed two intentional consumers already share world truth: deterministic
+  rig contact and camera obstruction. Existing `rigCollider` and
+  `cameraOccluder` roles remain the canonical narrow policy.
+- Recorded the durable matrix trigger: add a category/mask registry only with
+  the first third pairwise consumer such as a projectile, sensor, pickup,
+  hazard, or AI line-of-sight system.
+- Evidence depth: Tier 1 static source/test/contract review. No checks were run
+  during this documentation pass.
+
+## 2026-07-26 — behavior/planner lane continuation
+
+- Read the behavior-system and planner contracts against the current command/state spine.
+- Confirmed the runtime already performs single-verb decision resolution, but not a separate multi-candidate planner.
+- Appended the next proof slice to the behavior contract and the canonical exploration map, narrowing the next step to a machine/task selector or activity scorer with deterministic tie-breaks.
+- Evidence depth: Tier 1 static inspection with existing Tier 4 runtime anchor.
+
+## 2026-07-26 — resource-budget lane continuation
+
+- Read the resource budget and renderer/profile contracts against the current performance hooks.
+- Confirmed that the runtime now measures enough signals for a policy envelope, but the fallback ownership is still implicit.
+- Appended the budget/fallback gap to the resource envelope contract and the canonical exploration map.
+- Evidence depth: Tier 1 static inspection with prior Tier 4 runtime anchor.
+
 ## 2026-07-25 — 3D Optimization Gaps "and more" pass
 
 ### Objective
@@ -70,6 +97,58 @@
 - Implement one end-to-end command->validation->state->event->presentation interaction with event telemetry.
 
 # Worklog and Evidence Register
+
+## 2026-07-26 — accessible bootstrap-state implementation
+
+- Used the Accessibility Auditor guidance to convert the existing welcome shell
+  into the canonical accessible entry contract rather than creating a second
+  loading overlay.
+- `index.html` now starts `#game-shell` busy and provides a labeled modal entry
+  dialog with an atomic polite live status. `src/main.ts` changes the status to
+  ready once world/storage initialization finishes and places focus on the entry
+  control; the existing entry action still transfers focus to `#game-canvas`.
+- `src/styles.css` provides explicit loading/ready text prefixes without relying
+  on color or animation to communicate state.
+- Evidence depth: Tier 1 static implementation. No automated test, browser
+  walkthrough, or screen-reader run was executed in this pass.
+- Open closure: add a measured quality-profile policy and exercise a deliberate
+  bootstrap failure so fallback/retry semantics are truthful before any public
+  readiness claim.
+
+## 2026-07-26 — visibility and state-shell lane continuation
+
+- Read the visibility/profile contracts and the state-shell visual-quality research.
+- Reconfirmed that the repo now measures renderer visibility and profile tiers, but the actual vehicle-state shell is still an architectural lane rather than a browser-proved canonical profile.
+- Appended the remaining shell-language gap to the VFX contract and the canonical exploration map.
+- Evidence depth: Tier 1 static inspection with prior Tier 4 browser anchoring for the runtime surface.
+
+## 2026-07-26 — command/event lane continuation
+
+- Read the current command/event contract and run-record shape against the live repo state.
+- Confirmed that the app still has local history capture, but no reusable shared event envelope yet.
+- Appended the event-graph gap to the contract and the canonical exploration map so the next proof slice stays focused on a versioned envelope rather than another local record path.
+- Evidence depth: Tier 1 static inspection plus existing Tier 4 runtime staging proof.
+
+## 2026-07-26 — 3d-asset-production continuation
+
+- Read the `3d-asset-production` skill and applied it to the current manifest-driven asset bridge.
+- Rechecked the live browser daemon and the asset manifest: two imported GLB bridge assets are runtime-tested, but both remain `publicRuntimeApproved: false`.
+- Appended the asset-production gap to the asset pipeline contract so runtime loading stays distinct from public approval.
+- Evidence depth: Tier 4 runtime/status observation plus Tier 1 skill, manifest, and doc inspection.
+
+## 2026-07-26 — accessibility lane continuation
+
+- Read the `Accessibility Auditor` skill and applied it to the current browser-delivery gap.
+- Rechecked the live browser daemon for the Field 02 surface; it remains live and operable.
+- Appended explicit accessibility policy notes for truthful loading, fallback, and visible quality/profile state to the accessibility contract and runtime findings.
+- Evidence depth: Tier 4 runtime/status observation plus Tier 1 skill and doc inspection.
+
+## 2026-07-26 — 3d-web-experience continuation
+
+- Read the `3d-web-experience` skill and used it to frame the next analysis lane after the 3D engine and asset-provenance passes.
+- Rechecked the live browser daemon: it is still running on `http://127.0.0.1:4173/?acceptance=field-02` with title `Rigs Unbound — Field 02`.
+- The next documented gap is the browser-delivery contract: truthful loading state, recoverable fallback behavior, and explicit quality-profile selection for constrained devices.
+- Evidence depth: Tier 4 runtime/status observation plus Tier 1 skill and doc inspection.
 
 ## 2026-07-25 — 3d-web-experience runtime check
 
@@ -1625,6 +1704,7 @@ The next physics evidence should compose unstable towing and motorized lifting
 into one rescue, construction, or recovery activity. More isolated chassis
 tuning would now provide less information than testing articulation, load, and
 capability ownership together.
+
 - 2026-07-25: Added a Physics Lab browser-experience addendum and roadmap lane so the standalone lab stays a browser evidence fixture with explicit boot, accessibility, fallback, and acceptance boundaries.
 - 2026-07-25: Linked the replay and ghost roadmap lane back to the existing replay contract so the shareable-artifact boundary is no longer an orphaned bullet list.
 - 2026-07-25: Linked the authority roadmap lane back to the existing authority contract so future shared-state behavior remains explicitly future-gated.
@@ -1728,7 +1808,7 @@ explicit controller or constraint question.
 - Confirmed the ambient `openworld_1` path is stale and the authoritative
   checkout is `/Users/pranay/Projects/Game_dev/rigs-unbound`.
 - Confirmed one `main` worktree, no stash, and `HEAD == origin/main ==
-  aa82cee` before the integration commit.
+aa82cee` before the integration commit.
 - Classified the local set as source changes, research/decision continuity,
   curated visual/video evidence, reusable browser tools, and raw simulated
   playtest evidence. No files exceeded GitHub's single-file limit and the
@@ -1744,7 +1824,7 @@ explicit controller or constraint question.
   entries built separately. Vite retained the advisory for the 548.69 kB
   Three.js chunk.
 - `RIGS_UNBOUND_URL=http://127.0.0.1:4173/?acceptance=field-02 npm run
-  test:browser` — passed with zero console/page problems.
+test:browser` — passed with zero console/page problems.
 - The same Field 02 acceptance on port `4174` — passed with zero console/page
   problems.
 - Rapier Physics Lab browser acceptance on `4173` — passed across movement,
@@ -2233,7 +2313,7 @@ audio, and human-fun evidence remain open.
   - first-controllable time
   - save size
 - Confirmed the browser surface is healthy and still named `Rigs Unbound —
-  Field 02` in the current daemon snapshot.
+Field 02` in the current daemon snapshot.
 - The missing layer is still the policy envelope:
   - cross-system budget ledger,
   - explicit fallback profile,
@@ -2966,7 +3046,7 @@ audio, and human-fun evidence remain open.
 - Continued the same analysis run into the second-locomotion-family contract.
 - Confirmed the runtime already has a real hover family:
   - `src/game/contracts.ts` defines `marsh-skimmer` with `mobilityAdapter:
-    "hover"`.
+"hover"`.
   - `src/game/state.ts` and `src/main.ts` route that family through the same
     world, camera, save, and recovery spine.
 - Appended a new addendum to
@@ -3193,6 +3273,7 @@ audio, and human-fun evidence remain open.
   `Rigs Unbound — Field 02`, console logs `0`.
 
 ---WORKLOG APPEND---
+
 ## 2026-07-25 — accessibility loading explicitness recheck
 
 - Re-checked the live Field 02 runtime with the accessibility-auditor lane.
@@ -4060,3 +4141,289 @@ audio, and human-fun evidence remain open.
 - **Operational value:** source provenance, package validation, terminal
   deployment state, live-route behavior, browser errors, and Worker errors are
   all recorded rather than inferred.
+
+## 2026-07-26 — asset activation bridge recheck
+
+- Re-checked the live browser daemon before documenting the asset bridge.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The asset spine is now explicit but still pre-runtime:
+  - `assets/asset-manifest.json` is the registry,
+  - `tools/asset-preflight.mjs` is the promotion gate,
+  - current entries stay at concept/proposed/reference with `runtimePath:
+null`.
+- The bridge condition is now clearer than before:
+  - promoted assets must land as safe repository-relative `.glb` paths inside
+    `assets/runtime`,
+  - `approved` and `runtime-tested` entries require a runtime path,
+  - no imported GLB is active in the playable browser path yet.
+- The next question is whether the first bridge proof should be a static prop,
+  a tractor rig mesh, or a smaller fixture that exercises the same promotion
+  path without adding gameplay risk.
+
+## 2026-07-26 — first runtime asset should be a small static prop
+
+- Re-checked the live runtime before choosing the first imported-asset proof.
+- The current surface already exercises the core gameplay contract:
+  - active rig `utility-tractor`,
+  - companion rigs `toy-buggy` and `marsh-skimmer`,
+  - live activity `cargo-relay`,
+  - observable world memory and performance telemetry.
+- Because the runtime already carries multiple locomotion and capability paths,
+  the first runtime asset should prove the import/manifest bridge without
+  introducing new gameplay semantics at the same time.
+- The better first bridge proof is a small static prop or fixture in
+  `assets/runtime`, promoted through the manifest and visible in browser play.
+- The tractor mesh remains the eventual flagship candidate, but it is not the
+  cleanest first proof because it overlaps with the existing rig semantics.
+
+## 2026-07-26 — chosen bridge candidate is the Car Kit breakable crate
+
+- Re-checked the Kenney audit and the current manifest before freezing the
+  first runtime asset candidate.
+- The chosen first bridge candidate is now explicit:
+  - `3D assets/Car Kit/Models/GLB format/box.glb`,
+  - stable semantic key `kenney-car-kit-breakable-crate-fixture`.
+- Why this is the best first proof:
+  - it is a small static prop, so it isolates the import bridge from tractor
+    gameplay semantics,
+  - it is still representative enough to validate manifest admission,
+    provenance, browser visibility, and replacement behavior,
+  - it sets a clean baseline for the later flagship vehicle asset.
+- The manifest was tightened to this exact candidate, but it is still not
+  runtime-activated:
+  - `runtimePath` now points at a repo-owned runtime copy,
+  - the renderer has a bridge fixture hook for the imported GLB,
+  - live browser confirmation is still pending.
+
+## 2026-07-26 — bridge evidence API became generic and manifest-driven
+
+- Added the manifest-backed bridge evidence API:
+  - `window.getRuntimeBridgeEvidenceList()`
+  - `window.getRuntimeBridgeEvidence(assetId)`
+- The bridge now reports `loading`, `loaded`, `fallback`, or `error` state in
+  code, plus the runtime path and fallback status.
+- The browser briefly needed a reload while the API changed, but the live page
+  now reports the manifest-driven bridge list cleanly.
+
+## 2026-07-26 — first runtime bridge is live and clean
+
+- Re-checked the live acceptance surface after mirroring the crate texture
+  dependency into `assets/runtime/Textures/colormap.png`.
+- The bridge evidence hook now reports:
+  - `assetId`: `kenney-car-kit-breakable-crate-fixture`,
+  - `runtimePath`: `http://127.0.0.1:4173/assets/runtime/kenney-car-kit-breakable-crate-fixture.glb`,
+  - `status`: `loaded`,
+  - `fallbackActive`: `false`,
+  - `loadedNodeCount`: `1`,
+  - `errorMessage`: `null`.
+- The browser console returned to zero logs after the texture copy.
+- This is the first live runtime asset bridge in the repo: manifest, runtime
+  copy, renderer hook, texture dependency, and browser evidence all line up.
+
+## 2026-07-26 — tractor preview bridge confirms the pattern scales
+
+- Added `kenney-car-kit-tractor-preview` as a second runtime asset bridge.
+- The tractor preview loads cleanly in the live browser with:
+  - `status: loaded`,
+  - `fallbackActive: false`,
+  - `loadedNodeCount: 5`,
+  - `errorMessage: null`.
+- This shows the bridge pattern is not just for a tiny prop:
+  - it can carry a multi-node vehicle-shaped GLB through the same manifest and
+    runtime path,
+  - the same texture dependency family works,
+  - the browser remains clean after load.
+
+## 2026-07-26 — runtime snapshot now includes bridge evidence
+
+- Updated `render_game_to_text()` so the canonical runtime snapshot includes
+  `runtimeAssetBridges`.
+- The main JSON payload now carries both bridge states directly:
+  - crate bridge,
+  - tractor preview bridge.
+- This is the useful observability gain from the bridge lane:
+  asset loading is no longer only visible through helper hooks; it is part of
+  the app’s canonical runtime snapshot.
+
+## 2026-07-26 — developer HUD now shows bridge health directly
+
+- Updated the developer diagnostics line to surface bridge status inline.
+- The live HUD now reads:
+  - `crate:loaded`
+  - `tractor:loaded`
+- That keeps the asset bridge visible to operators without opening the
+  canonical JSON snapshot or helper hooks.
+
+## 2026-07-26 — bridge health remains runtime-only, not save data
+
+- Re-checked the storage contract after the HUD/snapshot changes.
+- Save payloads still contain only:
+  - `state`
+  - `worldMemory`
+- Bridge health is intentionally not serialized:
+  - the asset files already rehydrate it on reload,
+  - persisting it would create a second truth source,
+  - runtime reload should stay the source of truth for bridge health.
+
+## 2026-07-26 — bridge selection is now derived from the manifest
+
+- Added `src/game/runtime-assets.ts` as the manifest-derived source of runtime
+  bridge specs.
+- The renderer now consumes the manifest-backed bridge list instead of owning
+  hardcoded bridge URLs.
+- The browser snapshot includes `runtimeAssetBridges` as a list, and the HUD
+  summarizes bridge health as `bridges:2/2`.
+- Live proof after the refactor:
+  - crate bridge loaded,
+  - tractor preview bridge loaded,
+  - console clean aside from Vite connect logs.
+- The bridge API is now generic as well:
+  - `window.getRuntimeBridgeEvidenceList()`
+  - `window.getRuntimeBridgeEvidence(assetId)`
+
+## 2026-07-26 — rig-left steering, rear-side camera, and Launch Ridge collision
+
+- Traced the browser report that Torque appeared to face the player while
+  moving through the canonical simulation, renderer, camera, Rapier, and Box3D
+  paths.
+- Fixed the shared direction contract:
+  - local `+Z` remains rig forward,
+  - positive semantic steering means the player's left,
+  - simulation and physics adapters translate that value to negative yaw,
+  - wheel and camera presentation consume the same semantic sign.
+- Added signed chase-camera evidence (`forwardOffset`, `behindRig`) and a final
+  profile-scaled rig-clearance fallback.
+- Promoted the Launch Ridge rocket from renderer-only geometry to canonical
+  authored structure data used by rendering, camera queries, and rig collision.
+- Strengthened browser acceptance with a real signed left-turn movement check
+  and a Launch Ridge overlap/camera fixture.
+- Kept the real collision response intact when the acceptance driver's
+  obstacle-free assumption failed; the cargo proof now uses a short aligned
+  approach rather than pretending the test driver is an avoidance system.
+- Verification:
+  - focused gameplay/dynamics set: 83/83 passed,
+  - full Vitest: 13 files and 138 tests passed,
+  - deterministic kernel probe: 7/7 passed,
+  - Field 02 browser acceptance: passed, six cameras, clean console,
+  - Physics Lab browser acceptance: passed, six cameras, clean console,
+  - Box3D Lab browser acceptance: passed, negative steered heading, clean
+    console,
+  - TypeScript and production build: passed,
+  - asset tests: 5/5 passed,
+  - asset preflight: four entries, zero findings,
+  - repository format and `git diff --check`: passed.
+- Three-pass result:
+  1. correctness — signed input, heading, displacement, visual front, camera
+     side, and structure push-out agree;
+  2. architecture — one semantic direction contract and one authored structure
+     source serve contrasting rigs and adapters without vehicle-name branches;
+  3. supervision — runtime, tests, docs, console, artifacts, and parallel-work
+     preservation were rechecked.
+- Full evidence and acceptance contract:
+  `docs/reviews/RIG_DIRECTION_AND_LANDMARK_COLLISION_ACCEPTANCE_2026-07-26.md`.
+- No commit, push, branch mutation, cleanup, or deletion was performed.
+
+### Anything else?
+
+Direction conventions must be explicit at every future mobility and imported
+asset boundary. A visually clear camera can still be on the wrong side, so
+signed side evidence should remain part of camera regression acceptance.
+
+## 2026-07-26 - 3D skill-to-repository execution ledger and visibility policy
+
+- Applied the `3d-games`, `3d-web-experience`, `3d-asset-production`, and `Accessibility Auditor` skills one at a time to compare the long-term 3D platform direction against the live Rigs Unbound source and existing research contracts.
+- Created `docs/research/3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md` as the canonical current-state, ownership, maturity, risk, and implementation-sequencing ledger. Linked it from the research index and exploration map rather than duplicating the existing contract set.
+- Reconciled stale asset-bridge claims across the manifest preflight test, tool README, and provenance contract: four manifest entries exist; two proposed GLB assets are runtime candidates; runtime observation and rights review remain required before calling either asset runtime-tested or approved.
+- Added the first bounded visibility-policy seam in `src/game/visibility.ts`, wired its deterministic distance classification and counters into `src/game/renderer.ts`, and exposed the resulting snapshot through `src/game/performance.ts`. This deliberately preserves the current standard 168m prop radius and does not claim per-instance frustum culling, dynamic profile selection, or geometric LOD.
+- Updated the visibility and rendering contracts to distinguish the Tier 1 source-level policy seam from future browser/runtime evidence. No tests, typecheck, browser run, benchmark, or git operation was performed in this pass; existing parallel-work evidence remains separate and was preserved untouched.
+
+## 2026-07-26 - capability-affordance resolution proof
+
+- Added a narrowly scoped, versioned capability-affordance resolver in `src/game/affordances.ts` and applied it to the real relay-cargo/tow interaction in `src/game/state.ts`.
+- The resolver emits deterministic legal, deferred, or impossible outcomes with stable reason codes and mismatch ownership; it draws the capability claim from the canonical composed rig profile instead of rig identity.
+- Added focused pure resolver coverage in `src/game/affordances.test.ts` and updated the affordance/capability contracts with the exact boundary: one real proof exists, while generic activity schemas, content ingestion, adapter registries, planner integration, and authority work remain deliberately deferred pending a second use case.
+- No tests, typecheck, browser run, benchmark, or git operation was performed in this pass. Existing parallel-work evidence remains separate and preserved.
+
+## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
+
+### What changed for a player
+
+- **The blade fills as well as cuts** (`B`). `DEFORM_MAX = +0.3` had existed in the
+  terrain field since the first commit with no caller; only the `-0.13` plough cut
+  was ever used. Because `surfaceFor` derives material from height, filling wet
+  ground far enough turns mud back into pasture — soil the player moves now changes
+  what the ground _is_. HUD reads "Filling" vs "Ploughing"; the mode persists in the
+  save and older records default to `cut`.
+- **Rig switching is a place, not a menu.** `selectActiveRig` refused nothing before,
+  so swapping rigs teleported the player's attention across the whole world for free
+  — which deleted logistics from a game whose entire substrate is logistics. It now
+  refuses beyond 34 m and names the distance and the site: _"Drift is 178 m away at
+  the Sunken Flats. Drive to it."_
+- `publicState` now exposes the authored `sites` table so external tools target a
+  named place instead of hardcoding coordinates that drift when `WORLD_SITES` is
+  retuned.
+
+### The performance defect this uncovered
+
+Benchmarking the step path while testing the above found the kernel running at
+**18.06 ms per fixed step against a 16.7 ms frame budget** — the simulation alone
+exceeded the entire frame. Cause: `ObstacleField.resolve` re-derived every candidate
+obstacle from scratch on every step, and each derivation costs a `terrain.sample`
+(five `height()` queries) plus a biome scan and a route projection. That is roughly
+250 terrain queries per step for a field that is a pure function of the seed.
+
+Memoising the already-pure `obstacleAt` took it to **0.286 ms/step, a 63x
+improvement** (108% of frame budget to 1.7%). The renderer's prop rebuild, which
+examines ~1,400 candidates, benefits by the same mechanism.
+
+Absolute timings were taken under a machine load average of 294 (concurrent browser
+suites from parallel work) and should be treated as relative, not as device numbers.
+
+### Two corrections to earlier findings in this repo
+
+- **The phantom playtest citations are resolved.** `PLAYTEST_SIM_*` was cited in
+  three files with nothing on disk when checked; all four reports (481 lines) now
+  exist and open by stating plainly that these are AI-simulated players rather than
+  humans. That is the correct handling and closes the integrity defect. The
+  remaining gate is unchanged and is not an integrity problem: simulated players
+  cannot close a human gate, because an LLM cannot be bored and cannot close the tab.
+- **A steering inversion was investigated and not confirmed in `main`.** The public
+  build does steer backwards (holding left yields +1.33 rad, a clockwise turn), but
+  `main` is already correct — the heading integration is `rig.heading -=`, so the
+  `left - right` steer target turns left as labelled. Verified on a clean build:
+  left gives N→W, right gives N→E, symmetric. An intermediate edit of mine briefly
+  double-negated it; that edit was reverted. **The live site therefore trails a fix
+  that already exists, and should be redeployed before the link is shared.**
+
+### Verification
+
+- `npm run typecheck`: clean.
+- `npm test`: 141 root tests plus 7 kernel-probe tests passed.
+- `npm run build`: passed.
+- `npm run format:check`: passed.
+- Browser: blade cut produced 21 furrows / 54 deformed cells and fill raised the same
+  ground; the proximity refusal was observed with its distance message; `sites` is
+  present in the text contract.
+
+### Anything else?
+
+The blade and the switch gate are both cases of the same thing: a capability that
+already existed in the substrate and had no caller. `DEFORM_MAX` was reachable from
+day one, and `selectActiveRig` always knew where the other rigs were. Before adding
+a system, it is worth asking which existing one is already implemented and simply
+never invoked — that search has now paid out twice in one pass.
+
+## 2026-07-26 - renderer visibility observability
+
+- Applied the `3d-web-experience` skill to the current Three.js delivery path and
+  routed the canonical `PerformanceSnapshot.visibility` counters into the
+  existing developer diagnostics instead of adding a parallel debug interface.
+- The diagnostics now show submitted/candidate props, near/mid/far classifications,
+  culled count, and instance-capacity pressure next to FPS, draw calls, heap, and
+  runtime asset-bridge state.
+- Updated the visibility and render-profile contracts with the explicit boundary:
+  this is an operator-facing Tier 1 measurement seam, not dynamic profile
+  selection, LOD, occlusion culling, or mobile acceptance evidence.
+- No tests, typecheck, browser run, benchmark, or git operation was performed in
+  this pass. Existing parallel-work evidence remains separate and preserved.

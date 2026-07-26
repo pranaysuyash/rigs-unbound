@@ -6,6 +6,7 @@
  */
 export interface VehicleIntent {
   throttle: number;
+  /** Signed player intent: positive is left, negative is right. */
   steering: number;
   brake: number;
   handbrake: number;

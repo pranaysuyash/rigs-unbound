@@ -17,16 +17,16 @@ Three consequences follow from that single fact, and all three are already
 recorded as open gaps elsewhere in the project docs:
 
 1. **Steering is the only meaningful input.** Throttle has no opponent, so the
-   contrasting rig profiles in ADR-0006 can only be *read* off the HUD, never
-   *felt*. `docs/reviews/RIG_LAB_01_ACCEPTANCE_2026-07-25.md` records exactly
+   contrasting rig profiles in ADR-0006 can only be _read_ off the HUD, never
+   _felt_. `docs/reviews/RIG_LAB_01_ACCEPTANCE_2026-07-25.md` records exactly
    this: external players may describe "only different speeds."
 2. **Exploration cannot exist.** There is no reason to prefer one route over
    another, no reason to climb anything, and no information to gain by moving.
    "Open world" currently means "large empty rectangle."
 3. **Nothing else can be built.** Camera occlusion (flagged in `DESIGN.md`),
    collision, dust, suspension, traction, terrain-gated progression, and a map
-   all need to ask the same question — *how high is the ground here, and what is
-   it made of?* — and there is nobody to ask.
+   all need to ask the same question — _how high is the ground here, and what is
+   it made of?_ — and there is nobody to ask.
 
 The renderer also currently **owns** world layout (props, roads, field strips
 are constructed in `renderer.ts` from its own `seededRandom(seed)`). That is a
@@ -108,7 +108,7 @@ the key yet," with no locked door art required.
 
 Ploughing writes bounded height deltas into a sparse deformation map that
 `height()` composes on top of the base field. The world does not merely draw a
-memory of the player; the ground *is* different afterwards, and the physics
+memory of the player; the ground _is_ different afterwards, and the physics
 reads it back. Felled obstacles and harvested salvage persist the same way.
 
 ## Consequences

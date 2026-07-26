@@ -22,12 +22,14 @@
   "dependencies": {
     "@dimforge/rapier3d": "^0.19.3",
     "box3d-wasm": "0.2.0",
+    "gsap": "^3.15.0",
     "three": "^0.185.1"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.47.0",
     "@types/node": "^22.19.19",
     "@types/three": "^0.185.0",
+    "happy-dom": "^20.11.1",
     "prettier": "^3.9.6",
     "typescript": "^7.0.2",
     "vite": "^8.1.5",

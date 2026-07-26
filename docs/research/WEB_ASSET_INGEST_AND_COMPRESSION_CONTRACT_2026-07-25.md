@@ -181,3 +181,77 @@ This contract keeps browser delivery honest: if an asset cannot be named, hashed
   runtime actually consumes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-26) - activation bridge is now explicit, but still not live
+
+- Re-checked the live browser daemon before tightening this bridge note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The runtime asset bridge now has a clearer canonical spine in the repo:
+  - `assets/asset-manifest.json` is the registry,
+  - `tools/asset-preflight.mjs` validates that promoted entries stay inside the
+    repository and `assets/runtime`,
+  - `runtimePath` is still `null` for every current entry, which is correct for
+    the current stage.
+- The important detail is that promotion is now structurally defined even
+  though no asset has crossed it yet:
+  - `approved` and `runtime-tested` entries require a `.glb` `runtimePath`,
+  - the current entries now include one repo-owned runtime GLB copy for the
+    first bridge fixture,
+  - the renderer has a bridge hook for that GLB,
+  - browser proof is still pending, so the live surface has not yet been
+    re-observed with the new asset.
+- So the ingest contract has moved from "we know how assets should be named"
+  to "we know the gate they must pass, and one asset is now wired up to it."
+- Evidence depth: Tier 1 static code and doc inspection for the new bridge
+  state; Tier 4 runtime/manual observation only for the pre-change browser
+  surface.
+
+## Addendum (2026-07-26) - bridge proof is now live and clean
+
+- Re-checked the live browser after copying the runtime texture dependency into
+  the repo-owned runtime tree.
+- The bridge evidence hook now reports a live loaded asset:
+  - `assetId`: `kenney-car-kit-breakable-crate-fixture`,
+  - `runtimePath`: `http://127.0.0.1:4173/assets/runtime/kenney-car-kit-breakable-crate-fixture.glb`,
+  - `status`: `loaded`,
+  - `fallbackActive`: `false`,
+  - `loadedNodeCount`: `1`,
+  - `errorMessage`: `null`.
+- The browser console returned to zero logs after the texture dependency was
+  mirrored into `assets/runtime/Textures/colormap.png`.
+- That means the ingest contract now has its first live runtime asset bridge:
+  the manifest, renderer hook, runtime copy, and texture dependency all agree
+  in the running browser.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - bridge scales to a second audited runtime asset
+
+- Re-checked the live browser after adding the tractor preview bridge.
+- The runtime now exposes two loaded bridge assets:
+  - `kenney-car-kit-breakable-crate-fixture` with `status: loaded`,
+  - `kenney-car-kit-tractor-preview` with `status: loaded`.
+- The tractor preview proves the bridge pattern scales beyond a tiny prop:
+  - `loadedNodeCount: 5`,
+  - `fallbackActive: false`,
+  - `errorMessage: null`,
+  - no new console errors appeared after the tractor preview landed.
+- The browser console remains clean except for the normal Vite connection logs.
+- The ingest contract now covers both a static prop and a vehicle-shaped
+  preview, which is the right long-term shape for a manifest-driven bridge.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - bridge evidence now lives in the canonical snapshot
+
+- Re-checked the live browser after the snapshot wiring landed.
+- `render_game_to_text()` now includes `runtimeAssetBridges` in the canonical
+  runtime payload, with both bridge states embedded directly in the main JSON
+  snapshot:
+  - `crate`,
+  - `tractorPreview`.
+- The snapshot data matches the direct bridge hooks:
+  - crate bridge `status: loaded`,
+  - tractor preview bridge `status: loaded`.
+- That means asset-bridge observability is no longer a side channel only; it is
+  part of the main runtime record the browser can emit.
+- Evidence depth: Tier 4 runtime/manual observation.

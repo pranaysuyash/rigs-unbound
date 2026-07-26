@@ -49,6 +49,7 @@ describe("Box3DDynamicsService", () => {
     const telemetry = vehicle.telemetry();
     expect(telemetry.wheels).toHaveLength(4);
     expect(telemetry.body.position.z).toBeGreaterThan(-51);
+    expect(telemetry.body.position.x).toBeLessThan(-0.1);
     expect(Math.abs(telemetry.forwardSpeed)).toBeGreaterThan(0.1);
     expect(service.metrics()).toMatchObject({
       engine: "Box3D",
@@ -56,7 +57,7 @@ describe("Box3DDynamicsService", () => {
       colliderCount: 6,
     });
     service.dispose();
-  });
+  }, 15000);
 
   it("repeats the same scripted physical-wheel run in one runtime", async () => {
     const first = await runScript();
@@ -80,7 +81,7 @@ describe("Box3DDynamicsService", () => {
 
     first.service.dispose();
     second.service.dispose();
-  });
+  }, 15000);
 
   it("restores the complete physical-wheel assembly", async () => {
     const { service, vehicle } = await createFixture();

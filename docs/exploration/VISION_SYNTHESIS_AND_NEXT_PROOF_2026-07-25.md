@@ -277,32 +277,32 @@ than gameplay history.
 
 These relationships should generate decisions across many activities:
 
-| Benefit | Cost or exposure | Player expression |
-|---|---|---|
-| More power | More noise, heat, fuel use, traction loss | Push now or preserve control |
-| More load | Less speed, stability, clearance, stopping authority | One risky trip or several safe trips |
-| Larger attachment | More capability, worse maneuverability and visibility | Specialize before entering a site |
-| More light/sensing | Better information, greater detection | See and be seen |
-| Faster completion | More damage/signature/cargo risk | Efficiency versus care |
-| Permanent terrain change | Better route or defense, ecological side effects | Shape the world deliberately |
-| Field repair | Immediate recovery, imperfect long-term condition | Continue or return home |
+| Benefit                  | Cost or exposure                                      | Player expression                    |
+| ------------------------ | ----------------------------------------------------- | ------------------------------------ |
+| More power               | More noise, heat, fuel use, traction loss             | Push now or preserve control         |
+| More load                | Less speed, stability, clearance, stopping authority  | One risky trip or several safe trips |
+| Larger attachment        | More capability, worse maneuverability and visibility | Specialize before entering a site    |
+| More light/sensing       | Better information, greater detection                 | See and be seen                      |
+| Faster completion        | More damage/signature/cargo risk                      | Efficiency versus care               |
+| Permanent terrain change | Better route or defense, ecological side effects      | Shape the world deliberately         |
+| Field repair             | Immediate recovery, imperfect long-term condition     | Continue or return home              |
 
 These are more valuable than isolated content because each new rig, region, and
 activity can reinterpret them.
 
 ### Activity recipes from shared mechanics
 
-| Activity | Shared mechanic composition | Persistent result |
-|---|---|---|
-| Farmfall | plough + sow + signature + defend + dawn | crop state, furrows, rig scars, mastery evidence |
-| Rescue | survey + route choice + winch/tow + stabilization | rescued machine, changed relationship, ruts/damage |
-| Construction | haul + lift + place + anchor | bridge, shelter, tower, or route becomes real |
-| Time trial | surface reading + route authorship + risk | ghost/replay, worn route, machine record |
-| Salvage extraction | sensing + quiet approach + attachment + escape load | recovered part, awakened hazard, altered wreck |
-| Fleet defense | park rigs + deploy modules + manage signatures | site survives, machines damaged, formation remembered |
-| Convoy | load distribution + escort + repair + route adaptation | cargo/characters arrive, route knowledge improves |
-| Flood response | hover/ford + pump/tow + changing water | drained area, rescued cargo, transformed access |
-| Launch operation | haul + assemble + fuel + protect + ignite | new scale/region becomes reachable |
+| Activity           | Shared mechanic composition                            | Persistent result                                     |
+| ------------------ | ------------------------------------------------------ | ----------------------------------------------------- |
+| Farmfall           | plough + sow + signature + defend + dawn               | crop state, furrows, rig scars, mastery evidence      |
+| Rescue             | survey + route choice + winch/tow + stabilization      | rescued machine, changed relationship, ruts/damage    |
+| Construction       | haul + lift + place + anchor                           | bridge, shelter, tower, or route becomes real         |
+| Time trial         | surface reading + route authorship + risk              | ghost/replay, worn route, machine record              |
+| Salvage extraction | sensing + quiet approach + attachment + escape load    | recovered part, awakened hazard, altered wreck        |
+| Fleet defense      | park rigs + deploy modules + manage signatures         | site survives, machines damaged, formation remembered |
+| Convoy             | load distribution + escort + repair + route adaptation | cargo/characters arrive, route knowledge improves     |
+| Flood response     | hover/ford + pump/tow + changing water                 | drained area, rescued cargo, transformed access       |
+| Launch operation   | haul + assemble + fuel + protect + ignite              | new scale/region becomes reachable                    |
 
 This is the path from tractor to rocket without becoming a menu anthology: each
 new genre is a denser composition of verbs the world already understands.
@@ -311,11 +311,11 @@ new genre is a denser composition of verbs the world already understands.
 
 The current rigs should not merely have different numbers:
 
-| Rig | Dominant fantasy | Excels through | Meaningful weakness |
-|---|---|---|---|
-| Torque | dependable working power | low-speed traction, ploughing, stable heavy tow | loud, slow, poor escape, large turning needs |
-| Spark | improvised momentum | acceleration, jumping, route shortcuts, rapid response | unstable load, fragile landings, poor mud/water authority |
-| Drift | access where ground fails | water crossing, broad survey, low-friction traversal | fan/wake signature, slope instability, weak precise pushing |
+| Rig    | Dominant fantasy          | Excels through                                         | Meaningful weakness                                         |
+| ------ | ------------------------- | ------------------------------------------------------ | ----------------------------------------------------------- |
+| Torque | dependable working power  | low-speed traction, ploughing, stable heavy tow        | loud, slow, poor escape, large turning needs                |
+| Spark  | improvised momentum       | acceleration, jumping, route shortcuts, rapid response | unstable load, fragile landings, poor mud/water authority   |
+| Drift  | access where ground fails | water crossing, broad survey, low-friction traversal   | fan/wake signature, slope instability, weak precise pushing |
 
 Future candidates should enter only when they introduce a new control truth:
 
@@ -712,11 +712,11 @@ parallel game made of plans.
 Before evaluating delight, run the same deterministic seed and crop state under
 three strategies:
 
-| Strategy | Expected signature | Expected threat behavior | Expected outcome |
-|---|---|---|---|
-| Loud / fast / lit | High, with legible causes | Earlier acquisition and stronger pursuit | Fast work, highest exposure |
-| Quiet / slow / dark | Low | Delayed or lost acquisition | Slower work, lower exposure |
-| Committed but inactive | Minimal rig signature; crop remains exposed | Crop-directed consumption still occurs | Material loss; passivity does not dominate |
+| Strategy               | Expected signature                          | Expected threat behavior                 | Expected outcome                           |
+| ---------------------- | ------------------------------------------- | ---------------------------------------- | ------------------------------------------ |
+| Loud / fast / lit      | High, with legible causes                   | Earlier acquisition and stronger pursuit | Fast work, highest exposure                |
+| Quiet / slow / dark    | Low                                         | Delayed or lost acquisition              | Slower work, lower exposure                |
+| Committed but inactive | Minimal rig signature; crop remains exposed | Crop-directed consumption still occurs   | Material loss; passivity does not dominate |
 
 In each strategy, capture noise, light, tool contribution, hunter target changes,
 crop outcome, rig damage, and whether plough-created terrain changed the result.

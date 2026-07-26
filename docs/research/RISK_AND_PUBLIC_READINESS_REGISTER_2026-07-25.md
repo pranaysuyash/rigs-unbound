@@ -21,27 +21,27 @@ That combination is an operating company portfolio, not one initial game.
 
 ## Risk register
 
-| Risk | Current exposure | Consequence | Current disposition | Closure gate |
-|---|---|---|---|---|
-| Scope multiplication | Very high conceptually | Content/QA explosion and no coherent core | Bound first slice; map later branches | First slice proves identity + continuity |
-| Weak vehicle feel | Unknown | Every mode feels hollow | Highest-priority probe | External players enjoy movement before breadth |
-| Disconnected minigames | High | Shared inventory masquerades as coherence | `VehiclePassport` + `ActivityContract` | One persistent consequence crosses a mode transition |
-| Browser compatibility | High | Excluded devices, broken public link | WebGL 2 compatibility path; WebGPU enhancement | Measured browser/device matrix |
-| Download/performance | High | Slow entry, thermal/memory failures | Budgets, LOD, streaming, pooling, quality scaling | Active-play traces on representative devices |
-| Local-save eviction | High once progress matters | Lost garage/progression | Export/import and optional cloud backup | Migration, eviction/recovery, conflict tests |
-| Auth/session theft | Deferred but high-risk | Account/inventory loss | Mature provider, secure cookies/session controls | Threat model and auth integration tests |
-| Multiplayer cheating/divergence | Deferred but high-risk | Unfair play, duplicated rewards | Server-authoritative inputs/results | Latency/attack/reconnect/idempotency suite |
-| Economy fraud | Deferred | Duplication, disputes, laundering, support load | No player trade/cash; append-only ledger if introduced | Reconciliation, escrow, recovery, legal review |
-| UGC abuse/copyright | Deferred | Harm, takedowns, malware, moderation burden | Data-only curated private sharing first | Provenance, quarantine, report/block/appeal/moderation |
-| Child safety/privacy | Undecided audience | Regulatory and player harm | Decide audience/regions before public social data | Age/privacy/safety design review |
-| Real vehicle IP | High if recognizable | Trademark/design/licensing dispute | Fictional original makes at launch | Per-asset clearance/license decision |
-| Third-party asset rights | Medium | Removal, attribution breach, commercial block | Asset provenance ledger | Exact license/evidence/hash before import |
-| Generative asset provenance | Medium | Unclear rights, style/source concerns | Proposal-only, tool/input/terms record, replacement path | Human review and provenance entry |
-| Accessibility | High if deferred | Exclusion and rework | DOM UI, named actions, assist/reduced-motion from slice 1 | Keyboard/gamepad/touch and WCAG-oriented review |
-| Background throttling/focus | High in browsers | Simulation jumps, unfair loss, battery waste | Suspend/reconcile explicitly | Visibility/focus automated tests |
-| WebSocket security | Deferred but high-risk | Injection, session abuse, DoS | WSS, Origin/session/message/rate/replay controls | Security test and audit logs |
-| Service shutdown | Low now, high after accounts/money | Lost value/trust | Local core, data export, sunset policy | Written before paid value |
-| Operator overload | High if social/economy added | Unhandled reports, restores, disputes | Preset pings/private invite first | Named owner, queues, SLAs, recovery tools |
+| Risk                            | Current exposure                   | Consequence                                     | Current disposition                                       | Closure gate                                           |
+| ------------------------------- | ---------------------------------- | ----------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| Scope multiplication            | Very high conceptually             | Content/QA explosion and no coherent core       | Bound first slice; map later branches                     | First slice proves identity + continuity               |
+| Weak vehicle feel               | Unknown                            | Every mode feels hollow                         | Highest-priority probe                                    | External players enjoy movement before breadth         |
+| Disconnected minigames          | High                               | Shared inventory masquerades as coherence       | `VehiclePassport` + `ActivityContract`                    | One persistent consequence crosses a mode transition   |
+| Browser compatibility           | High                               | Excluded devices, broken public link            | WebGL 2 compatibility path; WebGPU enhancement            | Measured browser/device matrix                         |
+| Download/performance            | High                               | Slow entry, thermal/memory failures             | Budgets, LOD, streaming, pooling, quality scaling         | Active-play traces on representative devices           |
+| Local-save eviction             | High once progress matters         | Lost garage/progression                         | Export/import and optional cloud backup                   | Migration, eviction/recovery, conflict tests           |
+| Auth/session theft              | Deferred but high-risk             | Account/inventory loss                          | Mature provider, secure cookies/session controls          | Threat model and auth integration tests                |
+| Multiplayer cheating/divergence | Deferred but high-risk             | Unfair play, duplicated rewards                 | Server-authoritative inputs/results                       | Latency/attack/reconnect/idempotency suite             |
+| Economy fraud                   | Deferred                           | Duplication, disputes, laundering, support load | No player trade/cash; append-only ledger if introduced    | Reconciliation, escrow, recovery, legal review         |
+| UGC abuse/copyright             | Deferred                           | Harm, takedowns, malware, moderation burden     | Data-only curated private sharing first                   | Provenance, quarantine, report/block/appeal/moderation |
+| Child safety/privacy            | Undecided audience                 | Regulatory and player harm                      | Decide audience/regions before public social data         | Age/privacy/safety design review                       |
+| Real vehicle IP                 | High if recognizable               | Trademark/design/licensing dispute              | Fictional original makes at launch                        | Per-asset clearance/license decision                   |
+| Third-party asset rights        | Medium                             | Removal, attribution breach, commercial block   | Asset provenance ledger                                   | Exact license/evidence/hash before import              |
+| Generative asset provenance     | Medium                             | Unclear rights, style/source concerns           | Proposal-only, tool/input/terms record, replacement path  | Human review and provenance entry                      |
+| Accessibility                   | High if deferred                   | Exclusion and rework                            | DOM UI, named actions, assist/reduced-motion from slice 1 | Keyboard/gamepad/touch and WCAG-oriented review        |
+| Background throttling/focus     | High in browsers                   | Simulation jumps, unfair loss, battery waste    | Suspend/reconcile explicitly                              | Visibility/focus automated tests                       |
+| WebSocket security              | Deferred but high-risk             | Injection, session abuse, DoS                   | WSS, Origin/session/message/rate/replay controls          | Security test and audit logs                           |
+| Service shutdown                | Low now, high after accounts/money | Lost value/trust                                | Local core, data export, sunset policy                    | Written before paid value                              |
+| Operator overload               | High if social/economy added       | Unhandled reports, restores, disputes           | Preset pings/private invite first                         | Named owner, queues, SLAs, recovery tools              |
 
 ## Browser facts that constrain design
 
@@ -148,14 +148,14 @@ Money or trading requires a separate ADR and, at minimum:
 
 ## Staged public model
 
-| Stage | Capability | Hard exclusions | Expansion evidence |
-|---|---|---|---|
-| A — Solo lab | One complete vehicle loop, guest play, local/exportable save, deterministic seeds | Account, payment, chat, UGC, trade | Cold load, restart, migration, input/accessibility, external playtest |
-| B — Account backup | Optional account link, cloud backup, privacy/export/delete | Paid/transferable inventory | Duplicate/stale/logout/delete/restore/conflict tests |
-| C — Invite co-op | 2–4 player authority, preset pings, reconnect | Public matchmaking, free chat/voice, seamless world | Cheat rejection, load/cost, idempotent reconnect/reward |
-| D — Curated creation | Whitelisted data/prefabs, bounded values, private links | Arbitrary code/shaders/binary uploads/public discovery | Provenance, quarantine, report/block/takedown/appeal/audit |
-| E — Optional commerce | Direct-priced non-transferable cosmetics/expansions | Cash-out, P2P trading, paid randomness | Receipts/refunds/reconciliation/parental/legal review |
-| F — New product decision | Public discovery/chat, broad UGC, trading, persistent social world | Automatic roadmap promotion | Dedicated trust/safety, fraud, legal, support, moderation, SRE budget |
+| Stage                    | Capability                                                                        | Hard exclusions                                        | Expansion evidence                                                    |
+| ------------------------ | --------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| A — Solo lab             | One complete vehicle loop, guest play, local/exportable save, deterministic seeds | Account, payment, chat, UGC, trade                     | Cold load, restart, migration, input/accessibility, external playtest |
+| B — Account backup       | Optional account link, cloud backup, privacy/export/delete                        | Paid/transferable inventory                            | Duplicate/stale/logout/delete/restore/conflict tests                  |
+| C — Invite co-op         | 2–4 player authority, preset pings, reconnect                                     | Public matchmaking, free chat/voice, seamless world    | Cheat rejection, load/cost, idempotent reconnect/reward               |
+| D — Curated creation     | Whitelisted data/prefabs, bounded values, private links                           | Arbitrary code/shaders/binary uploads/public discovery | Provenance, quarantine, report/block/takedown/appeal/audit            |
+| E — Optional commerce    | Direct-priced non-transferable cosmetics/expansions                               | Cash-out, P2P trading, paid randomness                 | Receipts/refunds/reconciliation/parental/legal review                 |
+| F — New product decision | Public discovery/chat, broad UGC, trading, persistent social world                | Automatic roadmap promotion                            | Dedicated trust/safety, fraud, legal, support, moderation, SRE budget |
 
 ## Expansion acceptance rules
 

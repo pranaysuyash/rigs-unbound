@@ -81,6 +81,7 @@ Repo evidence alignment:
 - Use the loading/bootstrap contract as the user-facing entry point for that selection.
 
 Evidence goal:
+
 - Deterministic profile switch from `full -> standard -> mobile-safe` with preserved action state.
 - No action loss from profile transition.
 - Visible loading progression until the first interactive frame.
@@ -91,6 +92,7 @@ Evidence goal:
 - Add readability fallbacks for UI/readouts independent of hue-only cues.
 
 Evidence goal:
+
 - Same control success across profiles, same mission outcomes.
 
 ### Lane 3 — Content ingest hardening (pipeline)
@@ -99,6 +101,7 @@ Evidence goal:
 - Add loader contract + reject path for oversized or invalid assets.
 
 Evidence goal:
+
 - Invalid content is rejected before simulation/world activation.
 
 ### Lane 4 — Command/event/state proof slice
@@ -108,6 +111,7 @@ Evidence goal:
 - Add one deterministic replay test for that interaction.
 
 Evidence goal:
+
 - Replay and telemetry show one explicit reason code and no world mutation without validated command.
 
 ## Long-term evidence model (motto-v4 aligned)
