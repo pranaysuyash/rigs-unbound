@@ -330,6 +330,12 @@ function boot(): void {
     setRecoveryState("restoring");
     recreateRenderer();
   };
+  const graphicsContextState = (): string =>
+    rendererRecoveryState.lost
+      ? "lost"
+      : rendererRecoveryState.restoring
+        ? "restoring"
+        : "healthy";
   const attachContextRecovery = (): void => {
     canvas.addEventListener("webglcontextlost", handleContextLost);
     canvas.addEventListener("webglcontextrestored", handleContextRestored);
@@ -338,8 +344,6 @@ function boot(): void {
     canvas.removeEventListener("webglcontextlost", handleContextLost);
     canvas.removeEventListener("webglcontextrestored", handleContextRestored);
   };
-
-  attachContextRecovery();
 
   const fieldMap = new FieldMap(mapCanvas, world);
   const input = new InputController();
@@ -442,7 +446,7 @@ function boot(): void {
   );
   const emergencyRecover =
     requiredElement<HTMLButtonElement>("#emergency-recover");
-  const saveStatus = requiredElement<HTMLElement>("#save-status");
+  let saveStatus!: HTMLElement;
   const runtimeDiagnostics = requiredElement<HTMLElement>(
     "#runtime-diagnostics",
   );
@@ -497,6 +501,7 @@ function boot(): void {
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
+  saveStatus = requiredElement<HTMLElement>("#save-status");
   const rumorMap = createRumorMapUI(document.body, () => {
     if (state.mapOpen) toggleMap(state);
   });
@@ -1321,7 +1326,7 @@ function boot(): void {
         ? `props:${visibility.submitted}/${visibility.candidates} n${visibility.near}/m${visibility.mid}/f${visibility.far} c${visibility.culled} cap${visibility.capacityLimited}`
         : "props:n/a";
       const profileSummary = `profile:${visibility?.profile ?? "n/a"} ${runtimeProfileSelection.state}${runtimeProfileSelection.reasons.length > 0 ? ` (${runtimeProfileSelection.reasons.join(",")})` : ""}`;
-      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${rendererMemorySummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
     }
 
     if (state.mapOpen && now - lastMapUpdate > 260) {
@@ -1340,6 +1345,7 @@ function boot(): void {
       {
         ...publicState(state, world),
         welcomeOpen: !worldEntered,
+        graphicsContext: graphicsContextState(),
         runtimeProfileSelection,
         runtimeAssetBridges: renderer.runtimeBridgeEvidenceList(),
         performance: performanceMonitor.snapshot(renderer.metrics()),

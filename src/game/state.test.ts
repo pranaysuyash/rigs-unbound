@@ -105,6 +105,30 @@ describe("rig gameplay kernel", () => {
     });
   });
 
+  it("does not block salvage with survey offer on a non-survey home rig", () => {
+    const { state, world } = scenario("SURVEY-PRIORITY");
+    const rig = activeRig(state);
+    const node = world.exploration.nearestNode(
+      rig.x,
+      rig.z,
+      SALVAGE_PICKUP_RADIUS,
+      world.collectedNodes,
+    );
+    if (!node) {
+      throw new Error("Missing salvage fixture for regression coverage");
+    }
+
+    rig.x = node.x;
+    rig.z = node.z;
+    settleWorld(state, world);
+    state.surveyRoute.status = "ready";
+
+    expect(resolvePrimaryAction(state, world)).toMatchObject({
+      kind: "collect-salvage",
+      label: `Collect ${node.value}`,
+    });
+  });
+
   it("starts every rig in a dry, stable, non-overlapping Home berth within switching range", () => {
     const { state, world } = scenario("HOME-BERTHS");
     const rigs = Object.values(state.rigs);

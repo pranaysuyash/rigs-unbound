@@ -140,6 +140,12 @@ export interface CameraResolutionEvidence {
   obstructionId: string | null;
   idealDistance: number;
   resolvedDistance: number;
+  minimumReadableDistance: number;
+  /**
+   * True when the final camera is clear of world/rig geometry and preserves the
+   * viewport-specific minimum composition distance.
+   */
+  readableComposition: boolean;
   /** Signed camera displacement along rig-forward; negative means behind. */
   forwardOffset: number;
   /** True when the resolved camera remains on the rear side of the rig. */
@@ -2311,15 +2317,25 @@ export class GameRenderer {
       .clone()
       .sub(focus)
       .dot(forward);
+    const resolvedDistance = Number(
+      focus.distanceTo(this.camera.position).toFixed(3),
+    );
+    const minimumReadableDistance =
+      state.cameraMode === "chase"
+        ? Number(chasePolicy.minimumReadableDistance.toFixed(3))
+        : 0;
     this.cameraResolution = {
       rigId: rig.id,
       mode: state.cameraMode,
       obstructionSource: obstruction?.source ?? null,
       obstructionId: obstruction?.id ?? null,
       idealDistance: Number(focus.distanceTo(idealDesired).toFixed(3)),
-      resolvedDistance: Number(
-        focus.distanceTo(this.camera.position).toFixed(3),
-      ),
+      resolvedDistance,
+      minimumReadableDistance,
+      readableComposition:
+        finalPathHit === null &&
+        selfIntersectionPart === null &&
+        resolvedDistance + 0.01 >= minimumReadableDistance,
       forwardOffset: Number(cameraForwardOffset.toFixed(3)),
       behindRig: cameraForwardOffset < -0.05,
       pathClear: finalPathHit === null,

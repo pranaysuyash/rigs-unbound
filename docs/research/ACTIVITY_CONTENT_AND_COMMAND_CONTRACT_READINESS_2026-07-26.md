@@ -101,7 +101,7 @@ These are real future boundaries, not evidence of a hidden data-driven system.
 
 Do not add a generic activity registry, arbitrary JSON loader, capability
 plugin host, or event bus solely to represent the cargo relay. That would add a
-parallel abstraction without a second use case and would weaken the current
+parallel abstraction without a third use case and would weaken the current
 typed validation path.
 
 The current direct primary-action path is acceptable for the one proven
@@ -124,10 +124,10 @@ pass (Tier 1).
 
 ## Trigger for the first coherent refactor
 
-Start the refactor when a second activity with materially different
+Start the refactor when a third activity with materially different
 requirements is approved, for example a timed survey route, field operation,
 or repair contract. The resulting first stage must migrate both activities;
-wrapping only the new one would create two activity truth paths.
+wrapping only the new one would create three activity truth paths.
 
 ### Stage 1: typed definitions, not untrusted data
 
@@ -159,15 +159,15 @@ Input / AI / future network request
 
 Commands express intent; events describe accepted outcomes. Neither rendering
 nor UI may write activity state directly. The initial command/event slice should
-cover the migrated cargo relay and the second activity only.
+cover the migrated cargo relay and the third activity only.
 
 #### Current first proof
 
 The cargo relay primary action now supplies a narrower local proof before the
-two-activity registry refactor: a versioned actor command is validated, the
+three-activity registry refactor: a versioned actor command is validated, the
 existing transition runs through `GameState`, and an immutable accepted or
 rejected outcome is captured by the run record. This does not change the
-two-activity requirement for generalizing activity definitions; it verifies the
+three-activity requirement for generalizing activity definitions; it verifies the
 command ownership seam that both future activities must reuse.
 
 ### Stage 3: external content only after the typed registry proves stable
@@ -197,7 +197,7 @@ The first activity-contract delivery is acceptable only when it supplies:
    impossible objective, and rejected command paths.
 3. A versioned event payload captured in the run record for one accepted and one
    rejected activity command.
-4. Tier 3 browser evidence that the migrated cargo relay and second activity
+4. Tier 3 browser evidence that the migrated cargo relay and third activity
    show the same outcome after save/load.
 5. Operator-visible diagnostics for validation rejections, state transitions,
    and content compatibility failures.
@@ -206,11 +206,11 @@ The first activity-contract delivery is acceptable only when it supplies:
 
 Preserve the current typed, single-activity implementation and its strict save
 validation. Build the generic boundary only as the first coherent refactor of
-two real activities. This is the long-term path because it generalizes stable
+three real activities. This is the long-term path because it generalizes stable
 contracts and ownership, while keeping vehicle feel, camera behavior, pacing,
 and authored landmarks deliberately specific.
 
-## Addendum (2026-07-26) - the affordance proof is real, so the two-activity gate stays the right boundary
+## Addendum (2026-07-26) - the affordance proof is real, so the three-activity gate stays the right boundary
 
 - Re-checked the current activity/command surface against the live resolver and
   state code.
@@ -252,7 +252,7 @@ and authored landmarks deliberately specific.
   - no content-ingestion path should be generalized yet.
 - So the repo now has a real command-outcome seam, but the long-term refactor
   should still wait until a third activity proves the same pattern instead of
-  forcing the current two-activity seam to pretend it is already a platform.
+  forcing the current three-activity seam to pretend it is already a platform.
 - Evidence depth: Tier 1 static source inspection. No browser or test execution
   was run in this update.
 
@@ -292,7 +292,7 @@ and authored landmarks deliberately specific.
 - Evidence tier: Tier 1 static source inspection. No browser/test execution was
   run in this pass.
 
-## Addendum (2026-07-26) - the next activity proof is still the second use case, with tow-plus-repair as the strongest candidate
+## Addendum (2026-07-26) - the next activity proof is still the third use case, with tow-plus-repair as the strongest candidate
 
 - Re-checked the current activity seam against the live command/state spine.
 - The repo still has one proven activity boundary and no second materially

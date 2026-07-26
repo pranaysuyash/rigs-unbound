@@ -856,6 +856,16 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
           );
         }, touchReplayBeforeReload.issues[0]?.sequence ?? 0)
       : [];
+  if (
+    touchReplayBeforeReload.ok === false &&
+    process.env.RIGS_REPLAY_FAILURE_DUMP
+  ) {
+    fs.writeFileSync(
+      process.env.RIGS_REPLAY_FAILURE_DUMP,
+      await touchFirstRungPage.evaluate(() => window.getRunRecord()),
+      "utf8",
+    );
+  }
   assert(
     touchReplayBeforeReload.ok === true &&
       touchReplayBeforeReload.status === "verified",
@@ -1737,6 +1747,20 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
       recovery: recoveredByTouch.progression.recovery,
     })}`,
   );
+  await touchPage.waitForFunction(
+    () => window.getCameraResolutionEvidence().readableComposition === true,
+  );
+  const narrowCamera = await touchPage.evaluate(() =>
+    window.getCameraResolutionEvidence(),
+  );
+  assert(
+    narrowCamera.mode === "chase" &&
+      narrowCamera.readableComposition === true &&
+      narrowCamera.resolvedDistance >= narrowCamera.minimumReadableDistance,
+    `Narrow recovery camera is clear but not compositionally readable: ${JSON.stringify(
+      narrowCamera,
+    )}`,
+  );
 
   const narrowLayout = await touchPage.evaluate(() => {
     const field = document.querySelector(".field-kit").getBoundingClientRect();
@@ -1858,6 +1882,7 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
           restored: restoredMetrics,
           narrow: narrowMetrics,
         },
+        narrowCamera,
         narrowLayout,
         consoleProblems,
         screenshots: [

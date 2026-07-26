@@ -771,6 +771,20 @@ The refusal criteria are equally important: do not authorize feature-specific
 render experiments, shader rewrites, or compute migration until the current
 proof loop itself is stable and observable.
 
+### 10.4 Delivery evidence (as executed)
+
+- **Use case 1 implemented:** explicit graphics-context recovery as a reliability
+  contract (WebGL lost/restore listeners, renderer teardown/recreate path, and
+  observable status transitions).
+- **Use case 2 implemented:** action priority now keeps ambient salvage/plough
+  pathways active at Home so non-survey rigs are not blocked by survey
+  presentation.
+- **Use case 3 implemented:** far-tier prop billboard writes include defensive checks so
+  runtime rendering cannot dereference missing mesh state.
+- **Long-term evidence update:** restart and context-loss status now flows through
+  run snapshots and developer diagnostics, so resilience moves from implicit to
+  explicit contract.
+
 This keeps WebGPU inside the product’s long-term architecture: not an end in
 itself, but a cleaner foundation for more persistent consequence, safer systems,
 and better world-driven tension.
