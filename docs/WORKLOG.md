@@ -6729,3 +6729,17 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   handler fan-out and consumer ownership remain future work.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — capability composition is live, but governance is still implicit
+
+- Rechecked the capability contract against `src/game/contracts.ts`,
+  `src/game/state.ts`, and the structured admission envelope added for the
+  relay-cargo path.
+- Confirmed the runtime is composition-first: base rig profiles plus fitted
+  modules still drive capability admission, and the first structured denial
+  envelope is backed by that path.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between live composition and
+  still-implicit governance structure.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.

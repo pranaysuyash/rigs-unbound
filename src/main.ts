@@ -409,11 +409,14 @@ function boot(): void {
   welcomePanel.setAttribute("aria-hidden", String(worldEntered));
   enterWorldButton.disabled = worldEntered;
   gameShell.setAttribute("aria-busy", "false");
-  bootstrapStatus.dataset.state = "measuring";
-  bootstrapStatus.textContent = worldEntered
-    ? "Measuring device performance…"
-    : "Measuring device performance… Choose Enter the field to begin.";
-  if (!worldEntered) {
+  if (worldEntered) {
+    bootstrapStatus.dataset.state = "ready";
+    bootstrapStatus.textContent =
+      "Field systems ready. Restored session controls are active.";
+  } else {
+    bootstrapStatus.dataset.state = "measuring";
+    bootstrapStatus.textContent =
+      "Measuring device performance… Choose Enter the field to begin.";
     requestAnimationFrame(() => enterWorldButton.focus());
   }
 

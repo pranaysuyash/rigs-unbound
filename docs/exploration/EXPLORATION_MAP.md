@@ -1532,3 +1532,17 @@ New exploration questions opened by this package:
   dispatch/ownership model.
 - The next proof for this lane is handler fan-out with per-handler ownership,
   replay-safe consumer split, and explicit deduplication policy.
+
+## Addendum — 2026-07-26 capability composition is live, but governance is still implicit
+
+- The capability contract now has a named addendum at
+  [CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md](../research/CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md).
+- The runtime’s capability model is already real and composition-first:
+  base profiles plus fitted modules drive capability admission, and the first
+  structured denial envelope is now backed by that composition path.
+- What is still missing is the deeper governance layer:
+  versioned capability definitions, adapter registration, mutable capability
+  state schemas, and per-capability migration rules.
+- The next proof for this lane is a second materially different capability or
+  adapter use case that justifies a registry without flattening the current
+  profile/module composition model.
