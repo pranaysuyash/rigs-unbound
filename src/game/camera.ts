@@ -52,7 +52,7 @@ export function chaseViewportPolicy(
     heightScale: 1.55,
     sideScale: 0,
     targetDrop: 2.2,
-    minimumReadableDistance: Math.max(8, chaseDistance * 0.82, track * 3),
+    minimumReadableDistance: Math.max(13, chaseDistance * 1.05, track * 4),
   };
 }
 

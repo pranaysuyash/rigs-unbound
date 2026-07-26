@@ -55,7 +55,7 @@ describe("chase viewport policy", () => {
       expect(policy.narrow).toBe(true);
       expect(policy.distanceScale).toBeGreaterThan(1);
       expect(policy.sideScale).toBe(0);
-      expect(policy.minimumReadableDistance).toBeGreaterThanOrEqual(8);
+      expect(policy.minimumReadableDistance).toBeGreaterThanOrEqual(13);
       expect(policy.minimumReadableDistance).toBeGreaterThan(
         profile.track * 2.5,
       );

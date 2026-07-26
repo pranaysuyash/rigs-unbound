@@ -2223,22 +2223,26 @@ export class GameRenderer {
             )
           : Math.max(3.2, profile.track * 1.35);
       if (focus.distanceTo(this.camera.position) < minimumRigClearance) {
-        const emergencySide = Math.max(6, profile.track * 2.5);
+        const emergencySide = narrow
+          ? Math.max(10, profile.track * 3.6)
+          : Math.max(6, profile.track * 2.5);
+        const emergencyBack = narrow ? -4 : -0.5;
+        const emergencyHeight = narrow ? 11 : 12;
         const emergencyCandidates = [
           focus
             .clone()
             .addScaledVector(right, emergencySide)
-            .addScaledVector(forward, -0.5)
-            .add(new THREE.Vector3(0, 12, 0)),
+            .addScaledVector(forward, emergencyBack)
+            .add(new THREE.Vector3(0, emergencyHeight, 0)),
           focus
             .clone()
             .addScaledVector(right, -emergencySide)
-            .addScaledVector(forward, -0.5)
-            .add(new THREE.Vector3(0, 12, 0)),
+            .addScaledVector(forward, emergencyBack)
+            .add(new THREE.Vector3(0, emergencyHeight, 0)),
           focus
             .clone()
-            .addScaledVector(forward, -4)
-            .add(new THREE.Vector3(0, 14, 0)),
+            .addScaledVector(forward, narrow ? -9 : -4)
+            .add(new THREE.Vector3(0, narrow ? 16 : 14, 0)),
         ];
         for (const candidate of emergencyCandidates) {
           candidate.y = Math.max(

@@ -13,7 +13,7 @@ repo can tell the difference between:
 - a future multi-candidate planner,
 - and a generic AI policy layer.
 
-The live code already has a real semantic resolver for one offer (`tow`) and a
+The live code already has real semantic resolvers for multiple offers and a
 single contextual-action resolution path. That is strong evidence for a
 behavior boundary. It is not yet a general planner.
 
@@ -46,7 +46,7 @@ The repo still lacks a named policy for:
 - multi-candidate planning,
 - candidate scoring and tie-breaking,
 - planner-owned branch traces,
-- versioned behavior schema for more than one real activity,
+- versioned behavior schema for multi-candidate decision surfaces,
 - generic plan execution separate from the immediate action resolver,
 - structured fallbacks when several offers are simultaneously valid.
 
@@ -84,22 +84,22 @@ The contract should fail visibly if it:
 - hides a rejected candidate's reason code
 - re-implements capability checks in multiple subsystems
 - turns the primary-action resolver into a hidden planner
-- claims generic planner coverage without a second real activity
+ - claims generic planner coverage without a multi-candidate proof
 
 ## Near-term proof slice
 
 The smallest durable proof for this contract is:
 
-1. one second activity that uses the same affordance boundary,
-2. one multi-candidate selector with deterministic tie-breaking,
+1. one multi-candidate selector over the existing affordance boundary,
+2. one deterministic tie-breaking rule for equal-score candidates,
 3. one planner trace that records the rejected and chosen candidates,
 4. one test for equal-input stability,
 5. one documented fallback when no candidate is valid.
 
 ## Open questions
 
-- Should the second behavior consumer be a surveying action, a repair action, or
-  a world-object interaction?
+- Should the first behavior selector compare survey, repair, or another world
+  interaction?
 - Should tie-breaking prefer proximity, capability strength, or explicit
   priority order?
 - Should planner traces stay in the run record or live in a separate behavior
@@ -114,8 +114,8 @@ The smallest durable proof for this contract is:
 
 The repo already has a real affordance resolver and a primary-action outcome
 path. This contract makes clear that those are still the foundation, not a
-general planner. The next step is to add a second genuine use case before
-inventing a broader planning abstraction.
+general planner. The next step is to add a multi-candidate decision proof
+before inventing a broader planning abstraction.
 
 ## Addendum (2026-07-26) - the resolver is real, and the planner is still future-bound
 
@@ -133,6 +133,6 @@ inventing a broader planning abstraction.
   - no multi-candidate selection,
   - no tie-break trace,
   - no generic behavior schema,
-  - no second real activity consumer yet.
+  - no multi-candidate proof yet.
 - So the right interpretation is narrow and durable: the app already has a real
   behavior contract, but the planner remains a deliberate future boundary.

@@ -1,7 +1,7 @@
 # WebGPU Readiness and Web Performance Analysis
 
-Date: 2026-07-25
-Status: **analysis complete; work items proposed, none started**
+Date: 2026-07-26
+Status: **analysis complete; one execution slice landed, remaining work staged in the long-term lane**
 Lenses: `webgpu` and `web-performance-optimization` skills (operator-loaded
 2026-07-25), applied to the live code. Evidence: Tier 1 (static audit with
 file:line citations) + Tier 2 (fresh production build output this session).
@@ -138,6 +138,30 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 | P3-b | Caching contract paragraph in deploy runbook                                               | docs           | trivial                                                                      |
 | P3-c | PWA/offline                                                                                | product        | deferred with ADR-0013 revisit                                               |
 | W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane  | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
+
+## 3.1 Executed slice since this document
+
+- P1-a is now implemented in the live entrypoint:
+  - renderer context listeners for `webglcontextlost` and `webglcontextrestored`,
+  - recovery/recreate and restart guidance paths (`recreateRenderer`, `rendererDisposeFailed`, `graphicsContextRestoreFailed`),
+  - context state in run snapshots and diagnostics (`graphicsContext`),
+  - explicit status messaging when restore is unavailable.
+- The first WebGPU lane behavior is therefore now: resilience-first, not feature-first.
+
+Evidence anchors:
+  - recovery attach/detach and checkpoint emission in `src/main.ts` (`241-352`, `308-312`, `273-290`, `323-325`, `500`, `1785`),
+  - context state in diagnostics snapshot in `src/main.ts:1350` and `src/main.ts:1330`.
+
+### Lane status after the executed slice
+
+| Lane | Status | Evidence in-repo |
+|---|---|---|
+| W1 reliability (`P1-a`) | ✅ completed | `src/main.ts` |
+| W1 probe (`W1`) | 🔴 pending | no `WebGPURenderer` branch yet |
+| P1-b chunked boot | 🔴 pending | `src/main.ts` boot path still synchronous |
+| P2-a input/longtask metrics | 🔴 pending | no observer path wired |
+| P2-b hot-path allocation | 🔴 pending | unchanged allocation pass |
+| P3-a/b/c policy | 🟡 pending | requires ops/protocol decisions |
 
 **What this analysis deliberately does NOT recommend now:** a WebGPU swap,
 GPU compute for terrain/dust, bundle-splitting of the three.module chunk

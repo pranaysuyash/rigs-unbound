@@ -789,6 +789,21 @@ This keeps WebGPU inside the product’s long-term architecture: not an end in
 itself, but a cleaner foundation for more persistent consequence, safer systems,
 and better world-driven tension.
 
+### 10.5 Use-case and improvement ledger (long-term execution, current state)
+
+| Use case | Why it exists in this vision | Current status | Next best action |
+|---|---|---|---|
+| Reliable recovery across WebGL loss events | Keeps long sessions from collapsing on context churn and preserves simulation continuity | ✅ Implemented in entrypoint recovery path (`src/main.ts`) | Keep and extend to `WebGPU.device.lost` when the renderer branch opens |
+| Boot readiness and action-readiness contract | Prevents misleading load telemetry and aligns readiness with player agency | ✅ Baseline contract exists (`firstInputReadyMs`, bootstrap state transitions) | Add explicit action-readiness checkpoint and capture timing-behavior observers (LCP/INP/CLS/longtask) |
+| Backend capability portability | Avoids a second rendering stack and keeps one world contract for both paths | 🟡 Recorded gap: resilience is in `WebGL` while probe + migration is deferred | Land `W1` probe contract: detect/record backend capability and add a gated `WebGPU` branch |
+| Night readability under performance mode changes | Preserves consequence legibility when visibility is most important | 🟡 Existing `WebGL` tone/fog contracts proven in `WebGPU` analysis | Re-validate fog/sky and signature contract before any default backend shift |
+| Scaling authored consequence states | Supports larger world memory and route richness without semantic drift | 🟡 No renderer-path blocker; world-memory contracts are intact | Measure and gate world-size expansion against deterministic replay/actor budgets |
+
+### 10.6 Anything else?
+
+- No unresolved WebGPU blockers are inside the gameplay contract itself.
+- The unresolved blockers are execution-policy and probe-lane items (W1/W2), so the next slice should stay in the rendering/performance lane until recoverability and metrics observability are complete.
+
 ## Pre-registered causal comparison
 
 Before evaluating delight, run the same deterministic seed and crop state under
