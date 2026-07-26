@@ -1522,3 +1522,13 @@ New exploration questions opened by this package:
 - Future subsystems should extend the structured snapshot/checkpoint/evidence
   APIs rather than create a parallel debug lane or expose internal tuning to
   players.
+
+## Addendum — 2026-07-26 event history is canonical, but dispatch ownership is still future work
+
+- The event-graph contract now has a named addendum at
+  [EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md).
+- The runtime’s versioned run record is now the canonical event-history
+  substrate, but it still only stages the graph instead of providing a shared
+  dispatch/ownership model.
+- The next proof for this lane is handler fan-out with per-handler ownership,
+  replay-safe consumer split, and explicit deduplication policy.

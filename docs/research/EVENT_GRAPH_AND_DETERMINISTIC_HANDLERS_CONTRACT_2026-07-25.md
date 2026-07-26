@@ -255,3 +255,19 @@ consumers reference the same ordered truth.
   flow across simulation, presentation, replay, and diagnostics.
 - That keeps the boundary honest: episode grammar can enrich what happens, but
   it does not replace the event graph or its handler ownership rules.
+
+## Addendum (2026-07-26) - the canonical record is real, but the shared dispatch graph is still missing
+
+- Re-checked the current record and authority wiring against the live source.
+- The repo now has a stronger canonical event-history substrate in
+  `src/game/run-record.ts`, so command, input, checkpoint, save, and outcome
+  entries are ordered, versioned, and classification-aware.
+- That still does not amount to a reusable shared dispatch graph:
+  - no registered handler fan-out,
+  - no per-handler ownership map,
+  - no replay-safe consumer split beyond the record classification,
+  - no explicit deduplication policy for shared consumers.
+- So the current record path is the staging surface for a future event graph,
+  not proof that the graph itself is already canonical.
+- Evidence depth: Tier 1 static inspection. No execution or runtime proof was
+  added in this pass.

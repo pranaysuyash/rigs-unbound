@@ -6716,3 +6716,16 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   surfaces instead of becoming a second authority.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — event history is canonical, but dispatch ownership is still future work
+
+- Rechecked the event-graph contract against the current record/history path
+  and the new versioned run-record envelope.
+- Confirmed the runtime already has a canonical event-history substrate, but
+  it still stages the graph rather than providing a shared dispatch/ownership
+  model.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the rule that record history is real while
+  handler fan-out and consumer ownership remain future work.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
