@@ -310,7 +310,7 @@ ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
   against a stale colour mid-session and passed after clearing `node_modules/.vite`.
   The gate can therefore pass against a manifest value that is no longer on disk.
 
-## 2026-07-26 — the activity-command seam is real, but the generic registry still waits for a second activity
+## 2026-07-26 — the activity-command seam is real, and the generic registry now waits for a third activity
 
 - Applied the `3d-games` lens to the activity/content readiness contract.
 - Rechecked `src/game/state.ts`, `src/game/affordances.ts`, and
@@ -6604,8 +6604,8 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 
 - Rechecked the activity-content and planner contracts against the live
   command/state spine.
-- Confirmed the repo still has one proven activity seam and no second materially
-  different activity in runtime.
+- Confirmed the repo already has two proven activity seams in source
+  (`cargo-relay` and `survey-route`).
 - Documented the strongest next candidate as a tow-plus-repair rescue flow,
   because it would reuse the matcher while forcing a distinct objective shape
   and recovery story.

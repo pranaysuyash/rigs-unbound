@@ -1994,8 +1994,7 @@ export class GameRenderer {
       // broad machines (and future articulated silhouettes) inside the safe
       // column between the field kit and touch controls. The policy remains
       // profile-scaled rather than branching on a rig id.
-      const distance =
-        profile.camera.chaseDistance * chasePolicy.distanceScale;
+      const distance = profile.camera.chaseDistance * chasePolicy.distanceScale;
       const height = profile.camera.chaseHeight * chasePolicy.heightScale;
       const side = profile.camera.chaseSide * chasePolicy.sideScale;
       desired = new THREE.Vector3(rig.x, rig.y + height, rig.z)

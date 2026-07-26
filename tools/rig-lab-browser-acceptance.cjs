@@ -841,6 +841,14 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
       ) === true
     );
   });
+  const touchReplayBeforeReload = await touchFirstRungPage.evaluate(() =>
+    window.getRunRecordReplayValidation(),
+  );
+  assert(
+    touchReplayBeforeReload.ok === true &&
+      touchReplayBeforeReload.status === "verified",
+    `Real-touch first-rung commands did not replay deterministically: ${JSON.stringify(touchReplayBeforeReload)}`,
+  );
   await touchFirstRungPage.reload({ waitUntil: "domcontentloaded" });
   await touchFirstRungPage.waitForFunction(
     () => typeof window.render_game_to_text === "function",
@@ -1782,6 +1790,19 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
     consoleProblems.length === 0,
     `Browser console or page errors: ${consoleProblems.join(" | ")}`,
   );
+  const fixtureReplayClassification = await page.evaluate(() =>
+    window.getRunRecordReplayValidation(),
+  );
+  assert(
+    fixtureReplayClassification.ok === false &&
+      fixtureReplayClassification.status === "unsupported-entry" &&
+      fixtureReplayClassification.issues.some(
+        (issue) =>
+          issue.code === "unsupported-entry" &&
+          issue.message.includes("non-replayable"),
+      ),
+    `Acceptance-only state injection was not exposed as non-replayable: ${JSON.stringify(fixtureReplayClassification)}`,
+  );
 
   console.log(
     JSON.stringify(
@@ -1802,7 +1823,11 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
         },
         freshAcquisition,
         firstRung: firstRungEvidence,
-        touchFirstRung: touchFirstRungEvidence,
+        touchFirstRung: {
+          ...touchFirstRungEvidence,
+          replayBeforeReload: touchReplayBeforeReload,
+        },
+        fixtureReplayClassification,
         terrainFaces: terrainFaceEvidence,
         relay: restored.activity,
         rigDistances: {

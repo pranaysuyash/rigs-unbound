@@ -233,7 +233,7 @@ and authored landmarks deliberately specific.
     generalizing later, not as a reason to generalize immediately.
 - Evidence tier: Tier 1 static inspection plus earlier recorded runtime notes.
 
-## Addendum (2026-07-26) - the command outcome seam is now real, but the generic activity registry still waits on a second offer
+## Addendum (2026-07-26) - the command outcome seam is now real, and the generic activity registry now waits on a third offer
 
 - Re-checked `src/game/state.ts`, `src/game/affordances.ts`, and the current
   activity-command path against the live repo state.
@@ -244,14 +244,15 @@ and authored landmarks deliberately specific.
   - the run record can observe that outcome without becoming the authority.
 - That is enough to justify keeping the typed, single-activity model as the
   canonical boundary for now.
-- What is still intentionally missing is the second materially different
+- What is still intentionally missing is a third materially different
   activity that would prove the generic registry shape:
-  - no second activity uses the same matcher,
-  - no shared `ActivityDefinition` registry has earned the runtime,
+  - no third activity uses the same matcher,
+  - no shared `ActivityDefinition` registry has earned the runtime beyond the
+    existing two activities,
   - no content-ingestion path should be generalized yet.
 - So the repo now has a real command-outcome seam, but the long-term refactor
-  should still wait until a second activity proves the same pattern instead of
-  forcing the current cargo-relay seam to pretend it is already a platform.
+  should still wait until a third activity proves the same pattern instead of
+  forcing the current two-activity seam to pretend it is already a platform.
 - Evidence depth: Tier 1 static source inspection. No browser or test execution
   was run in this update.
 

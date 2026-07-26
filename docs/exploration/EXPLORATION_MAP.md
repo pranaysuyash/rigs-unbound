@@ -895,7 +895,7 @@ This closes the earlier “second rig” and “measure local performance” evi
 
 1. Do players describe Torque and Spark as different fantasies, or merely slow and fast?
 2. Which locomotion family creates the next useful adapter boundary: bicycle balance, tracks, water, or flight?
-3. Can a second activity compose existing capabilities—such as tow + repair rescue—without adding an activity-specific controller?
+3. Can a third activity compose existing capabilities—such as tow + repair rescue—without adding an activity-specific controller?
 4. Which performance costs appear under cold-cache production loading and representative mobile hardware?
 5. How do collision, suspension, sound, animation, and camera communicate capability before the HUD does?
 
@@ -1442,7 +1442,7 @@ New exploration questions opened by this package:
   reasons.
 - A broad planner framework is premature until the app actually needs to rank
   competing valid actions rather than resolve one contextual action at a time.
-- The strongest second activity candidate is a tow-plus-repair rescue flow,
+- The strongest next activity candidate is a tow-plus-repair rescue flow,
   because it would reuse the matcher while forcing a distinct objective shape
   and recovery story.
 
