@@ -126,7 +126,7 @@ pass (Tier 1).
 
 Start the refactor when a third activity with materially different
 requirements is approved, for example a timed survey route, field operation,
-or repair contract. The resulting first stage must migrate both activities;
+or repair contract. The resulting first stage must migrate all three activities;
 wrapping only the new one would create three activity truth paths.
 
 ### Stage 1: typed definitions, not untrusted data
@@ -159,7 +159,7 @@ Input / AI / future network request
 
 Commands express intent; events describe accepted outcomes. Neither rendering
 nor UI may write activity state directly. The initial command/event slice should
-cover the migrated cargo relay and the third activity only.
+cover the migrated cargo relay, survey route, and the third activity only.
 
 #### Current first proof
 
@@ -222,13 +222,13 @@ and authored landmarks deliberately specific.
 - That means the repo now has a real structured proof for one activity seam,
   but it still does **not** have:
   - a versioned `ActivityDefinition` registry,
-  - a second materially different activity using the same matcher,
+  - a third materially different activity using the same matcher,
   - a generic command -> validate -> transition -> event pipeline for multiple
     activities,
   - content ingestion / semantic validation for untrusted packs.
 - The useful boundary is therefore unchanged:
   - keep the current typed single-activity model,
-  - defer the generic registry until a second real activity exists,
+  - defer the generic registry until a third real activity exists,
   - treat the live affordance resolver as the proof that the seam is worth
     generalizing later, not as a reason to generalize immediately.
 - Evidence tier: Tier 1 static inspection plus earlier recorded runtime notes.
@@ -264,7 +264,7 @@ and authored landmarks deliberately specific.
 - The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
   proposal sits above this contract, not beneath it.
 - This activity/content readiness note still owns the lower-level threshold:
-  a second materially different activity must prove the same matcher and
+  a third materially different activity must prove the same matcher and
   command/event seam before a generic activity registry is justified.
 - The episode grammar simply names how place, rig identity, pressure,
   discovery, and consequence combine into a single authored episode once the
@@ -285,7 +285,7 @@ and authored landmarks deliberately specific.
   registry.
 - The remaining boundary is still the same:
   - only the proven relay/primary-action seam uses the shared outcome shape,
-  - there is still no second materially different activity using the same
+  - there is still no third materially different activity using the same
     matcher,
   - the generic `ActivityDefinition` registry should still wait for the second
     activity proof.
@@ -295,7 +295,7 @@ and authored landmarks deliberately specific.
 ## Addendum (2026-07-26) - the next activity proof is still the third use case, with tow-plus-repair as the strongest candidate
 
 - Re-checked the current activity seam against the live command/state spine.
-- The repo still has one proven activity boundary and no second materially
+- The repo still has two proven activity boundaries and no second materially
   different activity in the runtime.
 - The strongest next candidate is a tow-plus-repair rescue flow because it can
   reuse the current affordance matcher while introducing a different objective
