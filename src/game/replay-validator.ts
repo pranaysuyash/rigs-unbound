@@ -41,6 +41,9 @@ import {
 
 /** Prevent a malformed record from consuming an unbounded local validation run. */
 export const MAX_REPLAY_ADVANCE_MS = 120_000;
+const FIXED_STEP_MS = FIXED_STEP_SECONDS * 1000;
+/** Floating elapsed clocks may drift by tiny fractions while still naming an exact tick. */
+const FIXED_STEP_ALIGNMENT_TOLERANCE_MS = 0.001;
 
 export type ReplayValidationStatus =
   | "verified"
@@ -207,6 +210,17 @@ function replayToElapsed(
   }
   if (deltaMs > MAX_REPLAY_ADVANCE_MS) {
     return `Replay timing gap exceeds ${MAX_REPLAY_ADVANCE_MS} ms.`;
+  }
+
+  const alignedStepCount = Math.round(deltaMs / FIXED_STEP_MS);
+  if (
+    Math.abs(deltaMs - alignedStepCount * FIXED_STEP_MS) <=
+    FIXED_STEP_ALIGNMENT_TOLERANCE_MS
+  ) {
+    for (let step = 0; step < alignedStepCount; step += 1) {
+      stepGame(session.state, session.world, session.input, FIXED_STEP_SECONDS);
+    }
+    return null;
   }
 
   let remainingSeconds = Math.max(0, deltaMs) / 1000;

@@ -287,7 +287,7 @@ and authored landmarks deliberately specific.
   - only the proven relay/primary-action seam uses the shared outcome shape,
   - there is still no third materially different activity using the same
     matcher,
-  - the generic `ActivityDefinition` registry should still wait for the second
+  - the generic `ActivityDefinition` registry should still wait for the third
     activity proof.
 - Evidence tier: Tier 1 static source inspection. No browser/test execution was
   run in this pass.
@@ -295,7 +295,7 @@ and authored landmarks deliberately specific.
 ## Addendum (2026-07-26) - the next activity proof is still the third use case, with tow-plus-repair as the strongest candidate
 
 - Re-checked the current activity seam against the live command/state spine.
-- The repo still has two proven activity boundaries and no second materially
+- The repo still has two proven activity boundaries and no third materially
   different activity in the runtime.
 - The strongest next candidate is a tow-plus-repair rescue flow because it can
   reuse the current affordance matcher while introducing a different objective

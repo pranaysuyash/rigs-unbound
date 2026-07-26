@@ -232,6 +232,17 @@ select:focus-visible,
   color: var(--signal-cyan);
 }
 
+/* The first-cut stage marks the transition from scavenging to terrain
+   transformation. A distinct border and label colour separate it from the
+   pre-fit gold guidance so the player sees progress. */
+.first-rung-objective[data-stage="first-cut"] {
+  border-left-color: var(--tractor-rust);
+}
+
+.first-rung-objective[data-stage="first-cut"] > span {
+  color: var(--tractor-rust);
+}
+
 @keyframes first-fit-confirm {
   from {
     transform: translateX(-0.5rem);

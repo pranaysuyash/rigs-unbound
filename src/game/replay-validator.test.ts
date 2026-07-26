@@ -8,6 +8,7 @@ import {
   repairRig,
   selectCamera,
   settleWorld,
+  stepGame,
 } from "./state";
 import { GameWorld } from "./gameworld";
 import {
@@ -92,6 +93,33 @@ describe("deterministic replay validator", () => {
       ok: true,
       status: "verified",
       commandsApplied: 1,
+      checkpointsVerified: 1,
+    });
+  });
+
+  it("keeps long fixed-step input transitions aligned despite elapsed float drift", () => {
+    const record = createRunRecord("REPLAY-INPUT-TICKS", 0);
+    const state = createInitialState(record.seed);
+    const world = new GameWorld(record.seed);
+
+    for (let tick = 0; tick < 240; tick += 1) {
+      const input = {
+        accelerate: tick % 6 < 3,
+        brake: tick % 17 === 0,
+        steerLeft: tick % 19 < 4,
+        steerRight: tick % 23 < 3,
+      };
+      appendRunRecordEntry(record, "input", "sample", state.elapsedMs, {
+        input,
+      });
+      stepGame(state, world, input);
+    }
+    checkpoint(record, state, world, "after-long-input-sequence");
+
+    expect(validateDeterministicReplay(record)).toMatchObject({
+      ok: true,
+      status: "verified",
+      inputsApplied: 240,
       checkpointsVerified: 1,
     });
   });
