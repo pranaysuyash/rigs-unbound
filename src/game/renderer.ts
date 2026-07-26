@@ -526,6 +526,16 @@ export class GameRenderer {
       material(0x7d746a),
       MAX_ROCK_INSTANCES,
     );
+    this.treeBillboards = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(1, 1),
+      material(0x5f7d4d),
+      MAX_TREE_INSTANCES,
+    );
+    this.rockBillboards = new THREE.InstancedMesh(
+      new THREE.PlaneGeometry(1, 1),
+      material(0x7d746a),
+      MAX_ROCK_INSTANCES,
+    );
     this.felledTrunks = new THREE.InstancedMesh(
       new THREE.CylinderGeometry(0.3, 0.34, 1, 6),
       material(0x6a5038),
@@ -554,6 +564,8 @@ export class GameRenderer {
       this.treeTrunks,
       this.treeCrowns,
       this.rocks,
+      this.treeBillboards,
+      this.rockBillboards,
       this.felledTrunks,
       this.salvageNodes,
       this.furrowDecals,
@@ -595,6 +607,8 @@ export class GameRenderer {
     let trees = 0;
     let rocks = 0;
     let felled = 0;
+    this.treeBillboardCount = 0;
+    this.rockBillboardCount = 0;
 
     for (const obstacle of obstacles) {
       if (tierFor(obstacle.x, obstacle.z) === "culled") continue;
@@ -639,12 +653,16 @@ export class GameRenderer {
     this.treeTrunks.count = trees;
     this.treeCrowns.count = trees;
     this.rocks.count = rocks;
+    this.treeBillboards.count = this.treeBillboardCount;
+    this.rockBillboards.count = this.rockBillboardCount;
     this.felledTrunks.count = felled;
     this.salvageNodes.count = nodeCount;
 
     this.treeTrunks.instanceMatrix.needsUpdate = true;
     this.treeCrowns.instanceMatrix.needsUpdate = true;
     this.rocks.instanceMatrix.needsUpdate = true;
+    this.treeBillboards.instanceMatrix.needsUpdate = true;
+    this.rockBillboards.instanceMatrix.needsUpdate = true;
     this.felledTrunks.instanceMatrix.needsUpdate = true;
     this.salvageNodes.instanceMatrix.needsUpdate = true;
 
@@ -730,6 +748,28 @@ export class GameRenderer {
     );
     this.dummy.updateMatrix();
     this.rocks.setMatrixAt(index, this.dummy.matrix);
+
+    // Also place billboard for far-tier LOD
+    const tier = classifyVisibility(
+      Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
+      visibilityProfile(this.activeVisibilityProfileId),
+    );
+    if (tier === "far" && this.rockBillboardCount < MAX_ROCK_INSTANCES) {
+      const halfHeight = rockVisualHalfHeight(obstacle);
+      this.dummy.position.set(
+        obstacle.x,
+        obstacle.groundY + halfHeight,
+        obstacle.z,
+      );
+      this.dummy.rotation.set(-Math.PI / 2, 0, 0); // Face up
+      this.dummy.scale.set(obstacle.radius * 1.5, obstacle.radius * 1.5, 1);
+      this.dummy.updateMatrix();
+      this.rockBillboards.setMatrixAt(
+        this.rockBillboardCount,
+        this.dummy.matrix,
+      );
+      this.rockBillboardCount += 1;
+    }
   }
 
   private placeNode(node: SalvageNode, index: number): void {

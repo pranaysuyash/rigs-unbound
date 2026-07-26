@@ -1489,3 +1489,14 @@ New exploration questions opened by this package:
 - The farm-to-city fringe is explicitly a dense test biome rather than the
   privileged center of the product. Underwater, orbital, miniature, fantasy,
   procedural, and other worlds remain equal possibilities.
+
+## Addendum — 2026-07-26 performance/readability operator bundle is now a draft artifact
+
+- The performance/readability lane now has a named draft operator bundle at
+  [docs/reviews/PERFORMANCE_READABILITY_OPERATOR_BUNDLE_2026-07-26.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/PERFORMANCE_READABILITY_OPERATOR_BUNDLE_2026-07-26.md).
+- The draft packages the recorded frame, draw, terrain, heap, input-readiness,
+  and save-size signals into one reviewable surface so maintainers do not have
+  to reconstruct the umbrella policy from scattered notes.
+- This is still a packaging proof, not a public threshold claim. The next proof
+  remains a clean representative-device capture plus a visible budget table
+  that can be read alongside the specialized contracts.

@@ -9,6 +9,7 @@ import {
   LANDMARKS,
   MODULES,
   RIG_PROFILES,
+  SAVE_SCHEMA_VERSION,
   type GameState,
   type RigId,
   worldMinuteOfDay,
@@ -1182,7 +1183,7 @@ describe("save recovery and migration", () => {
       lastDiagnostic: null,
     });
 
-    expect(recovered?.schemaVersion).toBe(6);
+    expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(recovered?.rigs["utility-tractor"].x).toBe(12);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
       true,
@@ -1215,7 +1216,7 @@ describe("save recovery and migration", () => {
 
     const recovered = recoverState(JSON.parse(JSON.stringify(v3)) as unknown);
 
-    expect(recovered?.schemaVersion).toBe(6);
+    expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].distanceTravelled).toBe(143);
     expect(recovered?.rigs["utility-tractor"].mobility.kind).toBe("ground");
@@ -1292,7 +1293,7 @@ describe("save recovery and migration", () => {
     };
 
     const recovered = recoverState(v2);
-    expect(recovered?.schemaVersion).toBe(6);
+    expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].condition).toBe(71);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(

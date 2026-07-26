@@ -6646,3 +6646,17 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   boundary instead of a hidden future bug.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — performance/readability bundle is now a named draft artifact
+
+- Rechecked the umbrella performance/readability baseline against the current
+  repo state and the existing live-snapshot trail.
+- Confirmed the draft operator bundle now exists at
+  `docs/reviews/PERFORMANCE_READABILITY_OPERATOR_BUNDLE_2026-07-26.md` and
+  packages the already-recorded frame, draw, terrain, heap, readiness, and
+  save signals into one readable operator surface.
+- Mirrored that draft into the exploration map and the baseline contract so
+  the repo now has a single named place to point at while the representative-
+  device capture remains outstanding.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.

@@ -11,17 +11,17 @@
 
 The current renderer (`src/game/renderer.ts`) demonstrates **strong foundational practices** (instancing, vertex colors, no shadow maps, blob shadows) but has **significant gaps** against the skill's production budgets. Key issues:
 
-| Metric | Current | Skill Budget (Tier 0) | Status |
-|--------|---------|----------------------|--------|
-| Draw Calls | ~15-20 (est.) | < 30 | ✅ Pass |
-| Triangles | ~200K+ (est.) | < 50K | ❌ **4x over** |
-| GPU Memory | Unknown | < 50MB | ❓ Unknown |
-| Texture Memory | ~0 (vertex colors) | < 10MB | ✅ Pass |
-| Shadow Maps | Disabled | 0 | ✅ Pass |
-| Pixel Ratio | 1.75 capped | 1.0 | ⚠️ High |
-| Frustum Culling | **Disabled on instanced meshes** | Enabled | ❌ Critical |
-| Auto-Degrade | Runtime profile policy (external) | FPS-based in-renderer | ⚠️ Partial |
-| LOD | Distance bands (visibility.ts) | Detailed component | ⚠️ Partial |
+| Metric          | Current                           | Skill Budget (Tier 0) | Status         |
+| --------------- | --------------------------------- | --------------------- | -------------- |
+| Draw Calls      | ~15-20 (est.)                     | < 30                  | ✅ Pass        |
+| Triangles       | ~200K+ (est.)                     | < 50K                 | ❌ **4x over** |
+| GPU Memory      | Unknown                           | < 50MB                | ❓ Unknown     |
+| Texture Memory  | ~0 (vertex colors)                | < 10MB                | ✅ Pass        |
+| Shadow Maps     | Disabled                          | 0                     | ✅ Pass        |
+| Pixel Ratio     | 1.75 capped                       | 1.0                   | ⚠️ High        |
+| Frustum Culling | **Disabled on instanced meshes**  | Enabled               | ❌ Critical    |
+| Auto-Degrade    | Runtime profile policy (external) | FPS-based in-renderer | ⚠️ Partial     |
+| LOD             | Distance bands (visibility.ts)    | Detailed component    | ⚠️ Partial     |
 
 ---
 
@@ -32,14 +32,16 @@ The current renderer (`src/game/renderer.ts`) demonstrates **strong foundational
 **Location:** `renderer.ts:541` (now fixed)
 
 **Before:**
+
 ```typescript
-mesh.frustumCulled = false;  // Applied to ALL instanced meshes
+mesh.frustumCulled = false; // Applied to ALL instanced meshes
 ```
 
 **After:**
+
 ```typescript
 mesh.frustumCulled = true;
-mesh.computeBoundingSphere();  // Validates sphere for frustum culling
+mesh.computeBoundingSphere(); // Validates sphere for frustum culling
 ```
 
 **Status:** ✅ **COMPLETE** — All 8 instanced meshes (tree trunks, crowns, billboards, rocks, rock billboards, felled trunks, salvage, furrow decals) now have frustum culling enabled with pre-computed bounding spheres.
@@ -51,6 +53,7 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 **Before:** ~250,000+ triangles vs <50,000 Tier 0 budget
 
 **Fixes Applied:**
+
 - ✅ Terrain STEP increased from 2.6m → 5.2m (reduces terrain vertices ~75%)
 - ✅ Tree crown billboards added for far-tier LOD (2 tris vs 20 tris for icosahedron)
 - ✅ Rock billboards added for far-tier LOD (2 tris vs 12 tris for dodecahedron)
@@ -65,6 +68,7 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 **Before:** External `RuntimeProfileController` only switched visibility radii
 
 **After:** ✅ **In-renderer auto-degrade** (`updateAutoDegrade()` + `setQualityTier()`)
+
 - 60-frame FPS history tracking
 - Three quality tiers (high/medium/low) with automatic DPR adjustment
 - 30-frame minimum before decisions
@@ -78,6 +82,7 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 **Before:** No GPU memory estimation
 
 **After:** ✅ `gpuMemoryMb` in `RendererMetrics` and `PerformanceSnapshot`
+
 - Estimation formula: `geometries × 1KB + textures × 4MB`
 - Reported in `PerformanceMonitor.snapshot()`
 
@@ -88,6 +93,7 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 **Before:** Hard-coded `Math.min(window.devicePixelRatio, 1.75)`
 
 **After:** ✅ Dynamic DPR per quality tier via `setQualityTier()`:
+
 - High: `min(devicePixelRatio, 1.75)`
 - Medium: `min(devicePixelRatio, 1.5)`
 - Low: `1.0`
@@ -99,6 +105,7 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 **Before:** `IcosahedronGeometry(1, 1)` = 20 faces × 900 instances = 54,000 tris
 
 **After:** ✅ Far-tier uses `PlaneGeometry(2, 3)` billboards (2 tris) + near/mid uses icosahedron
+
 - Tree billboards: `PlaneGeometry(2, 3)` with `MeshBasicMaterial`
 - Rock billboards: `PlaneGeometry(1.5, 1.5)` with `MeshBasicMaterial`
 - Populated in `placeTree()` / `placeRock()` based on visibility tier
@@ -115,24 +122,24 @@ mesh.computeBoundingSphere();  // Validates sphere for frustum culling
 
 ### Remaining Gaps (Not Yet Addressed)
 
-| Gap | Priority | Effort |
-|-----|----------|--------|
-| Tree trunk segments (6→4) | P1 | 2h |
-| Terrain LOD system (multiple detail levels) | P2 | 6h |
-| Furrow decals → terrain vertex colors | P3 | 4h |
-| Draw call / triangle Stats HUD | P2 | 2h |
-| Rock LOD at distance | P3 | 3h |
-| KTX2 texture pipeline | P3 | 4h |
+| Gap                                         | Priority | Effort |
+| ------------------------------------------- | -------- | ------ |
+| Tree trunk segments (6→4)                   | P1       | 2h     |
+| Terrain LOD system (multiple detail levels) | P2       | 6h     |
+| Furrow decals → terrain vertex colors       | P3       | 4h     |
+| Draw call / triangle Stats HUD              | P2       | 2h     |
+| Rock LOD at distance                        | P3       | 3h     |
+| KTX2 texture pipeline                       | P3       | 4h     |
 
 ---
 
 ### Verification Status
 
-| Check | Result |
-|-------|--------|
+| Check                | Result  |
+| -------------------- | ------- |
 | TypeScript typecheck | ✅ Pass |
-| All 240 unit tests | ✅ Pass |
-| Production build | ✅ Pass |
+| All 240 unit tests   | ✅ Pass |
+| Production build     | ✅ Pass |
 | Asset boundary check | ✅ Pass |
 
 ---

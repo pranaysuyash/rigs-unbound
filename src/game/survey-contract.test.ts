@@ -3,14 +3,19 @@ import { describe, expect, it } from "vitest";
 import {
   PRIMARY_ACTION_COMMAND_VERSION,
   createInitialState,
-  performPrimaryAction,
+  executePrimaryActionCommand,
   publicState,
   recoverState,
   resolvePrimaryAction,
+  stepGame,
 } from "./state";
 import { GameWorld } from "./gameworld";
-import { SAVE_SCHEMA_VERSION } from "./contracts";
-import { surveyRouteTargets } from "./activities";
+import { FIXED_STEP_SECONDS, SAVE_SCHEMA_VERSION } from "./contracts";
+import {
+  SURVEY_ROUTE_WINDOW_MINUTES,
+  activityDefinition,
+  surveyRouteTargets,
+} from "./activities";
 import { HOME_SITE } from "./world";
 import type { GameState } from "./contracts";
 
@@ -22,7 +27,7 @@ function atHome(state: GameState, rigId: GameState["activeRigId"]): void {
 }
 
 function takeContract(state: GameState, world: GameWorld) {
-  return performPrimaryAction(state, world, {
+  return executePrimaryActionCommand(state, world, {
     version: PRIMARY_ACTION_COMMAND_VERSION,
     type: "primary-action",
     actorId: state.activeRigId,
@@ -48,7 +53,7 @@ describe("survey contract", () => {
      */
     const world = new GameWorld("UNBOUND-260725");
     const state = createInitialState(world.seed);
-    atHome(state, "utility-tractor");
+    atHome(state, "toy-buggy");
 
     const resolution = resolvePrimaryAction(state, world);
     expect(resolution.kind).toBe("none");
@@ -89,6 +94,59 @@ describe("survey contract", () => {
 
     expect(resolvePrimaryAction(state, world).kind).not.toBe(
       "take-survey-contract",
+    );
+  });
+
+  it("expires on the world clock even when the stationary survey cache does not refresh", () => {
+    const world = new GameWorld("UNBOUND-260725");
+    const state = createInitialState(world.seed);
+    atHome(state, "marsh-skimmer");
+    takeContract(state, world);
+    const rig = state.rigs["marsh-skimmer"];
+    world.claimSurveyRefresh(rig.id, rig.x, rig.z);
+    state.worldTimeMinutes =
+      state.surveyRoute.startedAtMinutes! + SURVEY_ROUTE_WINDOW_MINUTES;
+
+    stepGame(
+      state,
+      world,
+      {
+        accelerate: false,
+        brake: false,
+        steerLeft: false,
+        steerRight: false,
+      },
+      FIXED_STEP_SECONDS,
+    );
+
+    expect(state.surveyRoute.status).toBe("failed");
+    expect(state.lastDiagnostic).toContain("lapsed");
+  });
+
+  it("awards the authored reward exactly once when all signals are sighted", () => {
+    const world = new GameWorld("UNBOUND-260725");
+    const state = createInitialState(world.seed);
+    atHome(state, "marsh-skimmer");
+    takeContract(state, world);
+    const rig = state.rigs["marsh-skimmer"];
+    world.claimSurveyRefresh(rig.id, rig.x, rig.z);
+    for (const target of surveyRouteTargets()) {
+      world.visibleSignals.add(target);
+    }
+    const before = state.salvage;
+    const input = {
+      accelerate: false,
+      brake: false,
+      steerLeft: false,
+      steerRight: false,
+    };
+
+    stepGame(state, world, input, FIXED_STEP_SECONDS);
+    stepGame(state, world, input, FIXED_STEP_SECONDS);
+
+    expect(state.surveyRoute.status).toBe("complete");
+    expect(state.salvage).toBe(
+      before + activityDefinition("survey-route").reward.salvage,
     );
   });
 

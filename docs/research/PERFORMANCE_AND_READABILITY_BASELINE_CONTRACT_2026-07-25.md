@@ -206,3 +206,18 @@ measured and explained as a whole.
 - This note does not expand the baseline into a story system; it only keeps the
   dependency visible so later episode work can rely on a stable umbrella
   policy surface.
+
+## Addendum (2026-07-26) - the umbrella policy now has a draft operator bundle, but it is still diagnostic
+
+- A named draft operator artifact now exists at
+  [docs/reviews/PERFORMANCE_READABILITY_OPERATOR_BUNDLE_2026-07-26.md](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/PERFORMANCE_READABILITY_OPERATOR_BUNDLE_2026-07-26.md).
+- The draft packages the already-recorded live snapshot and the policy mapping
+  into one readable surface, which makes the umbrella contract easier to
+  review without re-reading the full trail.
+- The artifact is still diagnostic only. It is not yet a public performance
+  claim, and it still needs a clean representative-device capture before the
+  repo can promote it to the canonical operator bundle.
+- The missing pieces remain the same at the policy level: a visible budget
+  table bound to final acceptance, a one-line fail-soft summary naming the
+  exceeded threshold, and a single maintained mapping back to the specialized
+  contract owners.

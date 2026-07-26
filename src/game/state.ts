@@ -450,18 +450,10 @@ export function resolvePrimaryAction(
       affordance: surveyAffordance,
     };
   }
-  if (
+  const surveyMismatch =
     surveyAffordance.reasonCode === "missing-capability" &&
     surveyAvailable &&
-    isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z)
-  ) {
-    return {
-      kind: "none",
-      label: "Survey required",
-      ariaLabel: "The survey contract requires a survey capability",
-      affordance: surveyAffordance,
-    };
-  }
+    isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
 
   const node = world.exploration.nearestNode(
     rig.x,
@@ -490,6 +482,18 @@ export function resolvePrimaryAction(
           label: "Lower blade",
           ariaLabel: "Lower field plough",
         };
+  }
+
+  // An impossible opportunity must not hide a legal contextual action such as
+  // salvage collection or a fitted tool. Surface the mismatch only as the
+  // fallback when nothing the active rig can actually do is in reach.
+  if (surveyMismatch) {
+    return {
+      kind: "none",
+      label: "Survey required",
+      ariaLabel: "The survey contract requires a survey capability",
+      affordance: surveyAffordance,
+    };
   }
 
   return {
@@ -644,7 +648,9 @@ export function executePrimaryActionCommand(
       : "no-contextual-action";
   state.lastDiagnostic =
     reasonCode === "missing-capability"
-      ? `${profile.fieldName} cannot attach this relay cargo: tow capability required.`
+      ? resolution.affordance?.affordanceId === "survey-contract-board"
+        ? `${profile.fieldName} cannot take this contract: survey capability required.`
+        : `${profile.fieldName} cannot attach this relay cargo: tow capability required.`
       : "Nothing in reach. Salvage sits off the graded tracks — leave the road.";
   return primaryActionEvent(command, resolution.kind, "rejected", reasonCode);
 }
@@ -1214,7 +1220,6 @@ export function stepGame(
         world.visibleSignals.add(signal.siteId);
       }
     }
-
   }
 
   /*
