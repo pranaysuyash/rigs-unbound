@@ -3579,3 +3579,53 @@ audio, and human-fun evidence remain open.
   - no operator-visible material-strategy flag.
 - The next exploration question is whether the first formal material contract
   should start from terrain transitions, weather feedback, or surface wear.
+
+## 2026-07-26 — performance/readability baseline recheck
+
+- Re-checked the live umbrella performance/readability lane with the
+  `3d-games` skill and a live browser snapshot.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The current performance snapshot gives us a real baseline to anchor:
+  - `averageFrameMs` is `20.25`,
+  - `p95FrameMs` is `21.7`,
+  - `framesPerSecond` is `49.4`,
+  - `drawCalls` is `73`,
+  - `triangles` is `104694`,
+  - `terrainBuildMs` is `92.7`,
+  - `heapUsedMb` is `29.4`,
+  - `firstControllableMs` is `469.2`,
+  - `saveBytes` is `2969`.
+- These values are a live diagnostic snapshot, not a representative-device
+  performance baseline: concurrent browser/trailer GPU activity contaminated
+  this session's timing evidence. They may guide the next clean capture but must
+  not support a public performance claim.
+- The remaining gap is still the umbrella policy surface:
+  - no visible within-budget / degraded / fail-soft table,
+  - no operator-facing summary that names the exceeded threshold,
+  - no single artifact that maps the live numbers back to the specialized
+    contracts as one operational policy.
+- The next exploration question is how much of that umbrella should be surfaced
+  in HUD versus debug tooling versus durable docs.
+
+## 2026-07-26 — minimap/world-coordinate recheck
+
+- Re-checked the live minimap/world-coordinate lane with the `3d-games` skill
+  and the current browser snapshot.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The current snapshot confirms the map is still doing real coordinate audit
+  work:
+  - `surveyedCells` is `19`,
+  - `surveyedFraction` is `0.0546`,
+  - `discoveries` currently contains `home-silo`,
+  - the nearest salvage and authored site list are still presented in world
+    coordinates.
+- The remaining gap is still the transform boundary:
+  - no round-trip world-pixel-world test,
+  - no `WorldFrame` / origin-revision record in runtime,
+  - no chunk-residency or origin-rebase proof,
+  - no diagnostic overlay for route cost, clearance, or capability-aware
+    pathing.
+- The next exploration question is how to make that map contract survive
+  rebasing and richer topologies without losing coordinate identity.

@@ -102,3 +102,25 @@ The smallest durable proof for this contract is:
 Portal visibility should not replace the existing open-world spatial model.
 It should make bounded interiors and connected spaces readable using the same
 deterministic architecture the rest of the world already uses.
+
+## Addendum (2026-07-26) - The current app is still open-world first, so portal visibility remains a future boundary
+
+- Re-checked the live browser surface on `Rigs Unbound — Field 02`; the
+  browser daemon is healthy and the current console buffer is still empty.
+- The current codebase still reads like an outdoor-first world:
+  - `src/game/world.ts` is authored around terrain, routes, biomes, and sites,
+    not bounded room graphs,
+  - `src/game/terrain.ts` resolves world visibility through terrain, authored
+    sites, and route authority,
+  - `src/game/renderer.ts` renders an open field with terrain, props, rigs, sky,
+    and atmosphere instead of room/portal propagation.
+- That means portal visibility is still a real contract boundary, but it is not
+  yet part of the live first-playable runtime:
+  - there is no room or bounded-space schema,
+  - there is no portal-edge state model,
+  - there is no telemetry for an active room or portal path,
+  - there is no fallback visibility mode because no portal graph exists yet.
+- The useful takeaway is that the app does not need portal visibility to be
+  usable today; it needs the contract so future interiors, workshops, tunnels,
+  and other bounded spaces can join the same deterministic visibility model
+  without inventing a second renderer path.

@@ -1,7 +1,7 @@
 # Motto v4 Review — Commit Attestation
 
 **Risk class:** standard
-**Review started:** 2026-07-26T01:20:12+00:00
+**Review started:** 2026-07-26T01:28:16+00:00
 **Sections reviewed:** 51 / 51
 
 ---
@@ -9,356 +9,356 @@
 ## §0.0.1 Whole-Answer Mandate (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:50+00:00
+**Reviewed at:** 2026-07-26T01:29:59+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md carries RU-0110 from reproduced defects through code, tests, browser evidence, documentation, git, and Sites release rather than stopping at a partial fix.
+docs/WORKLOG.md and three docs/research/ addenda preserve the complete late parallel research batch plus its limitations rather than dropping it after the gameplay commit.
 
 ## §0 Boldness and Long-Term Build Mandate
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:53+00:00
+**Reviewed at:** 2026-07-26T01:29:58+00:00
 
-src/game/scene-query.ts, camera.ts, and terrain-traversal.ts establish durable shared ports; the staged diff does not use rig-name or spawn-only patches.
+docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md keeps the long-term umbrella-policy direction while refusing unsupported runtime claims.
 
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:33+00:00
+**Reviewed at:** 2026-07-26T01:30:55+00:00
 
-Cross-section review of the exact staged RU-0110 release: 73 paths combine canonical camera queries and rig-owned mounts, shared terrain-face traversal, typed multi-rig berths and schema-v6 selective migration, contextual player UI, hardened browser acceptance, ADR/research continuity, and intentional QA images. Preservation audits found no stash, divergent branch, extra worktree, cache, secret, or unknown artifact. Risk-matched evidence passed: formatting, TypeScript, 125 root tests, seven kernel tests, five asset tests, asset preflight, production build, 903 local links, diff integrity, and earlier full 4173/4174 desktop/mobile browser runs with zero captured console/page errors. The Three.js chunk advisory, representative performance capture, versioned semantic events, acceptance-hook compile-out decision, and external-player feel session remain explicitly tracked. No destructive Git action, duplicate route or pipeline, unsupported launch claim, model change, or AI co-author trailer is included.
+Integrated review of the five-file late parallel documentation batch: docs/WORKLOG.md and the performance, minimap/coordinate, portal-visibility, and generated motto-review files preserve live research observations without changing runtime behavior. The performance values are explicitly diagnostic-only because concurrent browser/trailer GPU work contaminates timing; no public or representative-device claim is made. The coordinate and portal addenda reinforce existing canonical open-world contracts and keep rebasing, streaming, room graphs, telemetry, fallbacks, and operator policy visibly unimplemented. Post-commit stale-state checks isolated and preserved these edits; diff integrity and 903 local links pass. No code, schema, route, model, secret, artifact, destructive Git action, or AI co-author trailer is included.
 
 ## §0.1.1 'Anything Else?' Standing Review Prompt (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:54+00:00
+**Reviewed at:** 2026-07-26T01:30:01+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md records remaining performance, semantic-event, acceptance-hook, and external-playtest hardening found during the final sweep.
+docs/WORKLOG.md records open policy, transform, portal, and representative-device questions discovered by the late research recheck.
 
 ## §0.16 Instruction Surface Freshness Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:55+00:00
+**Reviewed at:** 2026-07-26T01:30:30+00:00
 
-Docs/context/agent-start/SESSION_CONTEXT.md exists from the current instruction stack; motto_v4.md is present and neither instruction source is modified in the staged diff.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.16 Instruction Surface Freshness Rule introduces no additional runtime obligation for these evidence addenda.
 
 ## §0.17 One Canonical Motto Rule (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:57+00:00
+**Reviewed at:** 2026-07-26T01:30:31+00:00
 
-motto_v4.md is the sole inspected project motto; no staged motto_v2.md or motto_v3.md duplicate exists.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.17 One Canonical Motto Rule (v4) introduces no additional runtime obligation for these evidence addenda.
 
 ## §0.1 Missed-Anything Sweep
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:21:59+00:00
+**Reviewed at:** 2026-07-26T01:30:01+00:00
 
-docs/WORKLOG.md records tests, browser ports, Three.js advisory, remaining risks, user/team/operator value, and all three review passes for the staged behavior.
+docs/WORKLOG.md adds the contamination caveat and remaining policy gaps so the research snapshot cannot be mistaken for a release-grade baseline.
 
 ## §0.2.1 Agent Time-Frame Honesty (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:00+00:00
+**Reviewed at:** 2026-07-26T01:30:04+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md frames future work as ordered RU commit/gate units rather than weeks, days, or sprint promises.
+docs/WORKLOG.md frames next work as concrete policy/contract questions without week, day, or sprint estimates.
 
 ## §0.2 Confidence Honesty Standard
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:01+00:00
+**Reviewed at:** 2026-07-26T01:30:03+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md separates Tier 2 tests, Tier 3 integration, Tier 4 browser evidence, inference limits, and hardening paths.
+docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md labels the live values diagnostic-only and requires clean representative-device capture.
 
 ## §0.3 Documentation Continuity
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:03+00:00
+**Reviewed at:** 2026-07-26T01:30:06+00:00
 
-docs/WORKLOG.md, docs/decisions/, docs/research/, docs/exploration/EXPLORATION_MAP.md, and the tracker are staged with the implementation.
+This staged batch is documentation continuity in docs/WORKLOG.md, docs/research/MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md, performance, portal, and motto review files.
 
 ## §0.4.1 Completion Confidence Gate
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:04+00:00
+**Reviewed at:** 2026-07-26T01:30:08+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md leaves RU-0110.11 open until commit, push, and Sites verification; no premature full-completion claim is staged.
+docs/WORKLOG.md does not mark umbrella performance policy, coordinate transforms, or portal visibility complete; missing runtime proofs remain explicit.
 
 ## §0.4.2 Multi-Pass Review
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:07+00:00
+**Reviewed at:** 2026-07-26T01:30:09+00:00
 
-docs/WORKLOG.md explicitly records immediate-correctness, architecture/long-term, and rule/supervision passes for this RU-0110 staged diff.
+docs/reviews/motto_review.md records the fresh full review; late docs were checked for factual scope, architecture continuity, preservation, links, and claim honesty.
 
 ## §0.4 Acceptance Contract Before Done
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:09+00:00
+**Reviewed at:** 2026-07-26T01:30:06+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md records player behavior, architecture, commands, evidence, caveats, artifacts, and closure paths.
+N/A: docs-only research addenda in docs/WORKLOG.md change no player behavior; they record exact observed metrics, limitations, gaps, and closure paths.
 
 ## §0.5 Evidence Tiers
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:10+00:00
+**Reviewed at:** 2026-07-26T01:30:10+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md labels automated Tier 2, integration Tier 3, and browser/manual Tier 4 evidence without overstating performance timings.
+docs/WORKLOG.md treats browser-daemon metrics as a live diagnostic snapshot and explicitly withholds representative-device/public performance claims.
 
 ## §0.6 Risk-Based Verification
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:12+00:00
+**Reviewed at:** 2026-07-26T01:30:12+00:00
 
-src/game/storage.ts and state.ts migration/state changes have unit, round-trip, full-suite, browser save/reload, invalid legacy, and recovery coverage documented in the acceptance review.
+N/A: staged docs/ files change no auth, payment, persistence mutation, migration, worker, webhook, or production configuration path.
 
 ## §0.7 AI Output Boundary Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:14+00:00
+**Reviewed at:** 2026-07-26T01:30:12+00:00
 
-src/game/ and docs/ generated proposals were checked against 125 tests, typecheck, production build, both browser ports, screenshots, and current git state before staging.
+Late parallel prose in docs/research/ was checked against the current runtime evidence and corrected with a GPU-contamination caveat before staging.
 
 ## §0.8 Data Layer and Configuration Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:15+00:00
+**Reviewed at:** 2026-07-26T01:30:13+00:00
 
-src/game/world.ts owns typed berth/structure data and src/game/storage.ts owns schema-v6 migration; tests and ADR-0019 document readers, compatibility, and canonical ownership.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.8 Data Layer and Configuration Rule introduces no additional runtime obligation for these evidence addenda.
 
 ## §0.9 Prompt, Model, and Routing Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:17+00:00
+**Reviewed at:** 2026-07-26T01:30:14+00:00
 
-N/A: no model provider, prompt, decoding, AI validation, retry, routing, cost, or model-backed feature appears in the staged src/ or docs/ behavior.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.9 Prompt, Model, and Routing Rule introduces no additional runtime obligation for these evidence addenda.
 
 ## §0.10 Observability Is Delivery
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:20+00:00
+**Reviewed at:** 2026-07-26T01:30:15+00:00
 
-src/main.ts exposes query-gated camera/traversal evidence, semantic terrain-face diagnostics, truthful save status, and developer-only runtime metrics documented in the review.
+docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md documents measurable runtime fields and the missing operator policy surface.
 
 ## §10 Pattern & Related-Issue Search
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:22+00:00
+**Reviewed at:** 2026-07-26T01:30:42+00:00
 
-src/game/scene-query.ts resolves B5/B9/B10 as one camera family; terrain-traversal.ts resolves B6 across all rig adapters; one action resolver closes B11/B12 drift.
+docs/research/ addenda connect performance, coordinates, and portal visibility to existing canonical contracts rather than inventing alternate runtime paths.
 
 ## §0.11.1 Launch-Claim Registry (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:24+00:00
+**Reviewed at:** 2026-07-26T01:30:19+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md makes only tested gameplay/browser claims and explicitly excludes representative performance and external-player feel claims.
+docs/WORKLOG.md explicitly prohibits using the contaminated performance snapshot for a public claim until a clean representative-device capture exists.
 
 ## §0.11 Customer-Facing Claims Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:25+00:00
+**Reviewed at:** 2026-07-26T01:30:17+00:00
 
-N/A: staged index.html, src/, and docs/ contain no insurance, money, refund, payout, eligibility, legal guarantee, or regulated customer claim.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.11 Customer-Facing Claims Rule introduces no additional runtime obligation for these evidence addenda.
 
 ## §11 Engineering Standards
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:27+00:00
+**Reviewed at:** 2026-07-26T01:30:43+00:00
 
-src/game/scene-query.ts, rig-ids.ts, terrain-traversal.ts, and world.ts consolidate ownership and avoid duplicate renderer, UI, or rig-specific pipelines.
+docs/research/PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md preserves open-world-first rendering and rejects a second portal renderer path.
 
 ## §0.12.1 Decision Records Are Appends, Not Edits (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:29+00:00
+**Reviewed at:** 2026-07-26T01:30:21+00:00
 
-docs/decisions/ADR-0007, ADR-0008, ADR-0010, ADR-0011, and ADR-0019 receive dated addenda and preserve their historical decision text.
+All research changes are dated addenda in docs/research/ and preserve earlier historical contract content intact.
 
 ## §0.12.2 ADR-First Process (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:31+00:00
+**Reviewed at:** 2026-07-26T01:30:23+00:00
 
-docs/decisions/ADR-0007, ADR-0008, ADR-0010, ADR-0011, and ADR-0019 record the load-bearing terrain, camera, UI, action, and persistence decisions implemented here.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.12.2 ADR-First Process (v4) introduces no additional runtime obligation for these evidence addenda.
 
 ## §0.12.3 Pattern Families (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:32+00:00
+**Reviewed at:** 2026-07-26T01:30:24+00:00
 
-docs/research/ and docs/plans/MASTER_EXECUTION_TRACKER.md classify shared camera, traversal, capability, authority, evidence, and world-scaling families beyond individual symptoms.
+docs/research/ addenda classify umbrella performance policy, coordinate-frame formalization, and bounded-room visibility as distinct long-term pattern families.
 
 ## §0.12.4 Cut/Keep/Finish Anchored to Product Shape (v4)
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:34+00:00
+**Reviewed at:** 2026-07-26T01:30:26+00:00
 
-src/game/rig-ids.ts and contracts.ts preserve canonical multi-Rig identity; Torque is an initial rig rather than the product identity or architecture boundary.
+docs/research/PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md keeps Rigs Unbound open-world first while allowing future interiors coherently.
 
 ## §0.12 Decision Record Requirement
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:35+00:00
+**Reviewed at:** 2026-07-26T01:30:20+00:00
 
-docs/decisions/ addenda record context, chosen seams, tradeoffs, migration/validation consequences, and future revisit triggers for this staged architecture.
+N/A: docs/research/ addenda refresh evidence and gaps but make no new load-bearing runtime decision requiring an ADR.
 
 ## §12 Product & Domain Alignment
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:36+00:00
+**Reviewed at:** 2026-07-26T01:30:44+00:00
 
-src/game/contracts.ts and world.ts strengthen a vehicle-as-character capability platform with reachable Torque, Spark, and Drift rather than isolated minigames.
+docs/research/MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md reinforces one persistent open-world coordinate truth for rigs, sites, discoveries, and routes.
 
 ## §13 Analysis Expectations
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:37+00:00
+**Reviewed at:** 2026-07-26T01:30:45+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md maps hidden camera ownership, acquisition logistics, all-adapter terrain penetration, UI truth drift, and harness lifecycle issues.
+docs/research/ addenda identify policy, transform, chunk/origin, portal-schema, telemetry, and evidence gaps without presenting them as implemented.
 
 ## §0.13 Scope Expansion Control
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:38+00:00
+**Reviewed at:** 2026-07-26T01:30:27+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md expands terrain only to the proven shared substrate and defers unrelated ecology/social work behind explicit dependency gates.
+The staged docs/research/ batch records future boundaries only; it does not expand into runtime performance policy, rebasing, streaming, or portal implementation.
 
 ## §0.14 Product Reality and Operator Workflow
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:39+00:00
+**Reviewed at:** 2026-07-26T01:30:28+00:00
 
-src/main.ts connects player input, rig/world mutation, persisted schema-v6 state, contextual visible labels, failure reasons, developer evidence, and recovery.
+docs/WORKLOG.md distinguishes what the live browser exposes from what operators and future runtime flows still cannot explain or recover.
 
 ## §14 Validation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:40+00:00
+**Reviewed at:** 2026-07-26T01:30:46+00:00
 
-Staged src/ passed format, typecheck, 125 root tests, seven kernel tests, five asset tests, build, 903 links, diff checks, and two-port desktop/mobile browser acceptance.
+The five staged docs/ files pass git diff checks and 903 local-link checks; no source file changed after the already-green gameplay commit.
 
 ## §15 Documentation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:40+00:00
+**Reviewed at:** 2026-07-26T01:30:48+00:00
 
-docs/WORKLOG.md, acceptance review, ADRs, exploration map, research contracts, tools/README.md, and master tracker document outcomes and deferred hardening.
+docs/WORKLOG.md and docs/research/ preserve findings, observed values, limitations, unresolved questions, and next closure criteria for other agents.
 
 ## §0.15 Third-Layer Rule: Models, Pipeline, Data
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:22:42+00:00
+**Reviewed at:** 2026-07-26T01:30:30+00:00
 
-N/A: no model-backed behavior changes; future AI authority/model/pipeline/data boundaries remain research-only in docs/research/AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §0.15 Third-Layer Rule: Models, Pipeline, Data introduces no additional runtime obligation for these evidence addenda.
 
 ## §16 Branch / Review Branch Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:02+00:00
+**Reviewed at:** 2026-07-26T01:30:49+00:00
 
-N/A: git branch and worktree audits show only refs/heads/main in /Users/pranay/Projects/Game_dev/rigs-unbound; no review branch or extra worktree is involved.
+N/A: docs-only changes in docs/WORKLOG.md are on main; no branch, review branch, merge, rebase, or worktree operation is involved.
 
 ## §17 Cleanup Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:42+00:00
+**Reviewed at:** 2026-07-26T01:30:49+00:00
 
-N/A: no destructive cleanup occurred in /Users/pranay/Projects/Game_dev/rigs-unbound; source, tests, research, history, and docs/reviews/assets/ evidence are preserved.
+N/A: the docs/ addenda are preserved parallel work; no deletion, artifact cleanup, branch cleanup, or history cleanup occurs.
 
 ## §18 Communication Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:44+00:00
+**Reviewed at:** 2026-07-26T01:30:51+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md exposes exact statuses, gates, outcomes, risks, and next dependencies; each mutating release step was reported before execution.
+docs/WORKLOG.md communicates current evidence, contamination caveat, missing policy, and next exploration question explicitly.
 
 ## §19 Primary Goal
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:46+00:00
+**Reviewed at:** 2026-07-26T01:30:52+00:00
 
-src/game/ and docs/ changes improve architectural integrity, player trust, rig extensibility, migration safety, QA evidence, and parallel-agent continuity.
+The docs/research/ addenda improve source-of-truth clarity and future scalability without changing or weakening the tested gameplay runtime.
 
 ## §1 Core Context Requirements
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:47+00:00
+**Reviewed at:** 2026-07-26T01:30:32+00:00
 
-Reviewed /Users/pranay/AGENTS.md, /Users/pranay/Projects/AGENTS.md, repo context, motto_v4.md, code/runtime, Git state, hooks, tests, and docs before commit.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §1 Core Context Requirements introduces no additional runtime obligation for these evidence addenda.
 
 ## §20 Commit Attribution Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:48+00:00
+**Reviewed at:** 2026-07-26T01:30:53+00:00
 
-Git config, .git/hooks/pre-commit, .git/hooks/prepare-commit-msg, .git/hooks/commit-msg, package.json, tools/, and scripts/ were searched; no AI co-author trailer will be added.
+Git hooks and config were already rechecked for this release; docs/reviews/motto_review.md adds no AI co-author trailer and the commit message will add none.
 
 ## §21 Code Is Evidence, Not a Boundary
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:50+00:00
+**Reviewed at:** 2026-07-26T01:30:54+00:00
 
-The canonical camera, berth, traversal, and action decisions land with src/game/ refactors, migration, tests, docs/decisions/ addenda, and browser evidence in one deliverable.
+N/A: this is a docs-only diff in docs/WORKLOG.md and docs/research/; §21 Code Is Evidence, Not a Boundary introduces no additional runtime obligation for these evidence addenda.
 
 ## §22 Automated Checks Are Advisory, Not Authority
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:51+00:00
+**Reviewed at:** 2026-07-26T01:30:54+00:00
 
-No suppression was added in src/; all configured objective checks pass from correct code, with only the documented non-blocking Three.js chunk-size advisory.
+docs/ files required no suppression or design downgrade; diff integrity and all 903 local Markdown links pass.
 
 ## §2 Global Working Style: Parallel Agents, Main First
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:23:52+00:00
+**Reviewed at:** 2026-07-26T01:30:33+00:00
 
-All parallel docs/research/ additions and docs/reviews/assets/ images visible in status were preserved by authorized add-A; no branch, stash, or worktree was lost.
+Five late docs/ paths arrived after the gameplay commit; stale-state checks caught, inspected, corrected, and preserved them in this separate documentation commit.
 
 ## §3 Git Safety Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:25+00:00
+**Reviewed at:** 2026-07-26T01:30:34+00:00
 
-docs/plans/MASTER_EXECUTION_TRACKER.md is inside the user-authorized add-A, hook, commit, push, and Sites scope; no reset, rebase, force push, deletion, or rewrite occurs.
+The user explicitly authorized add-A, full hook, commit, and push; this docs/ batch uses no destructive or history-altering Git operation.
 
 ## §4 Local Work Preservation Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:26+00:00
+**Reviewed at:** 2026-07-26T01:30:35+00:00
 
-docs/WORKLOG.md and every staged source/evidence path were covered by status, divergence, stash, worktree, and untracked audits; all source-worthy work is preserved.
+Git status isolated five post-commit docs/ changes; all are source-worthy research/review artifacts and are staged without losing parallel work.
 
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:27+00:00
+**Reviewed at:** 2026-07-26T01:30:36+00:00
 
-docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md matches freshly rechecked HEAD/origin, staged stat, tests, build, links, hooks, and browser evidence.
+The five docs/ paths were discovered by a post-commit status refresh; their diffs, links, and performance claims were rechecked before the second commit.
 
 ## §6 'Pre-existing' Is Not an Excuse
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:28+00:00
+**Reviewed at:** 2026-07-26T01:30:37+00:00
 
-src/game/camera.ts, terrain-traversal.ts, main.ts, and storage.ts fix the camera, terrain, UI, harness, and migration gaps inside the current blast radius.
+The performance evidence ambiguity inside docs/WORKLOG.md was corrected with a representative-device caveat instead of being carried forward silently.
 
 ## §7 Supersession / Canonical Replacement Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:29+00:00
+**Reviewed at:** 2026-07-26T01:30:39+00:00
 
-src/game/scene-query.ts supersedes renderer-only obstruction truth; state/world tables and one action resolver replace copied spawn/UI logic without parallel truth.
+docs/research/ addenda point to existing canonical performance, coordinate, and rendering contracts and create no second editable truth source.
 
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:31+00:00
+**Reviewed at:** 2026-07-26T01:30:40+00:00
 
-docs/WORKLOG.md documents this coherent RU-0110 gameplay, research, evidence, and acceptance release, jointly validated under explicit add-A authorization.
+The five docs/ files form one coherent late parallel research/review batch, separated from the already-created RU-0110 gameplay commit.
 
 ## §9 Artifact Handling
 
 **Status:** PASS
-**Reviewed at:** 2026-07-26T01:24:32+00:00
+**Reviewed at:** 2026-07-26T01:30:41+00:00
 
-docs/reviews/assets/ contains seven intentional QA PNGs: four refreshed acceptance captures and three active-rig hood proofs; no log, cache, secret, or unknown artifact is staged.
+N/A: the staged diff contains Markdown research/review files only; no PNG, JSON output, package file, cache, log, secret, or unknown artifact is included.

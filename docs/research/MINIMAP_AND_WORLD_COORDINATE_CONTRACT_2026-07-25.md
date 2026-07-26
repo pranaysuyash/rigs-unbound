@@ -163,3 +163,30 @@ larger open world will amplify the disagreement.
 - The right reading is that the map already acts as a coordinate audit for the
   current single-origin world, but the broader multi-frame / streaming / portal
   contract is still a next-step boundary.
+
+## Addendum (2026-07-26) - The live field map is still a coordinate audit, and the current browser snapshot proves it
+
+- Re-checked the live browser surface on `Rigs Unbound — Field 02`; the
+  browser daemon is healthy and the current console buffer is still empty.
+- The current runtime snapshot shows the map is still carrying real world
+  truth:
+  - `surveyedCells`: `19`
+  - `surveyedFraction`: `0.0546`
+  - `discoveries`: `["home-silo"]`
+  - the nearest salvage, workshop reach, and authored site list are all exposed
+    in world coordinates, not renderer-local guesses.
+- The coordinate story is still coherent with the code:
+  - world memory is persisted separately from renderer state,
+  - discoveries and surveyed cells are fed into the HUD/map path,
+  - the map remains a summary of the persistent world, not a second simulation.
+- What is still missing is the same partial transform boundary the contract
+  already names:
+  - no round-trip world-pixel-world test,
+  - no `WorldFrame` / origin-revision record in runtime,
+  - no chunk-residency or origin-rebase proof,
+  - no diagnostic overlay for route cost, clearance, or capability-aware
+    pathing.
+- The useful conclusion is that the current map is already doing important
+  navigation truth work; the next step is to formalize transforms so the same
+  contract can survive rebasing, streaming, and richer topologies without
+  losing coordinate identity.

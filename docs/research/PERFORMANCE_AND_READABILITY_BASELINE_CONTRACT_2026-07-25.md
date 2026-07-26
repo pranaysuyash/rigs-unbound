@@ -139,3 +139,35 @@ measured and explained as a whole.
 - The correct reading is that the baseline already exists as a set of working
   contracts, but not yet as one maintainable policy surface for operators and
   maintainers.
+
+## Addendum (2026-07-26) - The live surface now exposes a measurable baseline, but not the umbrella policy
+
+- Re-checked the live browser surface on `Rigs Unbound — Field 02`; the
+  browser daemon is healthy and the current console buffer is still empty.
+- The current performance snapshot is concrete enough to anchor the umbrella
+  contract:
+  - `averageFrameMs`: `20.25`
+  - `p95FrameMs`: `21.7`
+  - `framesPerSecond`: `49.4`
+  - `drawCalls`: `73`
+  - `triangles`: `104694`
+  - `terrainBuildMs`: `92.7`
+  - `heapUsedMb`: `29.4`
+  - `firstControllableMs`: `469.2`
+  - `saveBytes`: `2969`
+- Treat those values as a live diagnostic snapshot only. Concurrent
+  browser/trailer GPU activity contaminated this session's timing evidence, so
+  a clean representative-device capture remains required before performance
+  thresholds or public claims can cite them.
+- The same runtime snapshot shows why the baseline still matters:
+  - the field is playable and readable,
+  - the renderer is already under a real cost budget,
+  - the save/load path is compact enough to surface in operator evidence.
+- What is still missing is the umbrella policy layer the contract asks for:
+  - no explicit within-budget / degraded / fail-soft table,
+  - no operator-facing note that names which threshold was exceeded,
+  - no single surface that maps the live numbers back to the specialized
+    contracts as one readable operational artifact.
+- The practical reading is that the app already has measurable pressure and
+  visible readability, so the next step is to formalize the policy rather than
+  debate whether the baseline exists at all.
