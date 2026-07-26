@@ -8,9 +8,7 @@ export type RunRecordKind =
 export type RunRecordOriginDomain = "input" | "simulation" | "storage";
 
 export type RunRecordReplayClass =
-  | "supported"
-  | "diagnostic"
-  | "non-replayable";
+  "supported" | "diagnostic" | "non-replayable";
 
 export const RUN_RECORD_SCHEMA_VERSION = 4;
 export const RUN_RECORD_EVENT_VERSION = 1;

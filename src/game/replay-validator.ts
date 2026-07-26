@@ -335,10 +335,7 @@ export function validateDeterministicReplay(
         session,
       );
     }
-    if (
-      entry.kind === "command" &&
-      entry.replayClass === "diagnostic"
-    ) {
+    if (entry.kind === "command" && entry.replayClass === "diagnostic") {
       continue;
     }
     const timingIssue = replayToElapsed(session, entry.elapsedMs);

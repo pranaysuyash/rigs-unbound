@@ -43,7 +43,7 @@ import {
   treeTrunkHeight,
   type Obstacle,
 } from "./collision";
-import { RIG_HOOD_CAMERA_MOUNTS } from "./camera";
+import { chaseViewportPolicy, RIG_HOOD_CAMERA_MOUNTS } from "./camera";
 import type { SalvageNode } from "./exploration";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
@@ -1961,7 +1961,12 @@ export class GameRenderer {
       profile,
       this.reducedMotionQuery.matches,
     );
-    const narrow = this.camera.aspect < 0.8;
+    const chasePolicy = chaseViewportPolicy(
+      this.camera.aspect,
+      profile.camera.chaseDistance,
+      profile.track,
+    );
+    const narrow = chasePolicy.narrow;
     const forward = new THREE.Vector3(
       Math.sin(rig.heading),
       0,
@@ -1989,9 +1994,10 @@ export class GameRenderer {
       // broad machines (and future articulated silhouettes) inside the safe
       // column between the field kit and touch controls. The policy remains
       // profile-scaled rather than branching on a rig id.
-      const distance = profile.camera.chaseDistance * (narrow ? 2.5 : 1);
-      const height = profile.camera.chaseHeight * (narrow ? 1.55 : 1);
-      const side = profile.camera.chaseSide * (narrow ? 0 : 1);
+      const distance =
+        profile.camera.chaseDistance * chasePolicy.distanceScale;
+      const height = profile.camera.chaseHeight * chasePolicy.heightScale;
+      const side = profile.camera.chaseSide * chasePolicy.sideScale;
       desired = new THREE.Vector3(rig.x, rig.y + height, rig.z)
         .addScaledVector(forward, -distance)
         .add(
@@ -2004,7 +2010,7 @@ export class GameRenderer {
         .clone()
         .addScaledVector(forward, 4 + feedback.cameraForwardLook)
         .addScaledVector(right, feedback.cameraLateralLook);
-      if (narrow) target.y -= 2.2;
+      target.y -= chasePolicy.targetDrop;
     } else if (state.cameraMode === "hood") {
       // The silhouette owns a named socket. A shared focus-relative offset put
       // Torque's camera inside its hood and could never describe the much lower
@@ -2072,7 +2078,11 @@ export class GameRenderer {
       obstruction = queryCandidate(desired);
       if (obstruction) {
         desired = pullBeforeHit(desired, obstruction);
-        if (focus.distanceTo(desired) < 2.8) {
+        const minimumResolvedDistance =
+          state.cameraMode === "chase"
+            ? chasePolicy.minimumReadableDistance
+            : 2.8;
+        if (focus.distanceTo(desired) < minimumResolvedDistance) {
           // When the rig starts almost against a wall there is no usable boom
           // between focus and obstruction. Choose a deterministic shoulder/high
           // fallback rather than placing the near plane inside the rig.
@@ -2183,7 +2193,14 @@ export class GameRenderer {
       // too little room for the rig itself. Enforce the final composition
       // invariant at the boundary that actually renders: select a clear,
       // elevated rear shoulder rather than accepting a camera inside the cab.
-      const minimumRigClearance = Math.max(3.2, profile.track * 1.35);
+      const minimumRigClearance =
+        state.cameraMode === "chase"
+          ? Math.max(
+              3.2,
+              profile.track * 1.35,
+              chasePolicy.minimumReadableDistance,
+            )
+          : Math.max(3.2, profile.track * 1.35);
       if (focus.distanceTo(this.camera.position) < minimumRigClearance) {
         const emergencySide = Math.max(6, profile.track * 2.5);
         const emergencyCandidates = [

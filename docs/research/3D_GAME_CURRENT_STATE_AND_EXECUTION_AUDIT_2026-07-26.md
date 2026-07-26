@@ -36,8 +36,8 @@ the current browser, and command output are the current source of truth.
 | Renderer boundary | Simulation state and telemetry feed the renderer; renderer-only diagnostics do not own gameplay state. | 1 and 4 | Preserve |
 | Dynamics experiments | Rapier and Box3D implement project-owned dynamics contracts for isolated lab surfaces. | 1 and 4 | Keep replaceable and lab-scoped |
 | Locomotion | Ground and hover are bounded discriminated adapters with explicit mismatch errors. | 1 | Do not add a universal adapter yet |
-| Capabilities | Rig profiles compose capabilities and modules; the affordance resolver is versioned and deterministic. | 1 | Add a second real offer before generalizing |
-| Activities | Cargo relay is the first real capability-consuming activity seam. | 1 and browser path inspection | Prove a second activity before registry expansion |
+| Capabilities | Rig profiles compose capabilities and modules; the affordance resolver is versioned and deterministic. | 1 | Preserve; prove a third real offer before generalizing further |
+| Activities | Cargo relay and survey route are the first two real capability-consuming activity seams. | 1 and browser path inspection | Preserve the two-activity proof; generalize only after a third materially different offer |
 | Persistence | Versioned keys v1-v6, seed peek before world construction, state/world-memory restore, migration and invalid-payload recovery. | 1 | Add structured event observability only when the next workflow needs it |
 | Assets | Manifest and preflight enforce path, GLB, external-URI, hash, and approval rules. | 1 and 4 | Keep unapproved assets off the public player path |
 | Runtime fallback | Standard profile is selected from frame metrics and resource pressure. | 1 and 4 | First-input and first-controllable latency remain observations, not fallback causes |
@@ -174,13 +174,14 @@ The current shape is intentionally narrow and healthy:
 - modules add capabilities and tune physical traversal envelopes;
 - `resolveAffordance()` distinguishes unavailable world state, missing machine
   capability, and out-of-range deferred interaction;
-- the cargo relay is the first real world offer consuming this boundary;
+- the cargo relay and survey route are the first two real world offers
+  consuming this boundary;
 - the primary-action path validates a versioned command rather than allowing UI
   code to mutate state directly;
 - authored world references remain code-owned while the content set is small.
 
 The next architectural gate is not a universal JSON capability interpreter. It
-is a second independently useful world offer or activity that reuses the same
+is a third independently useful world offer or activity that reuses the same
 resolver and exposes one additional constraint. Only shared constraints should
 be generalized after that proof.
 
@@ -233,9 +234,9 @@ not more loader code. Until then, keep them on the developer/evidence surface.
 
 ### P1: next implementation slice
 
-- Add a second real activity or world offer using the existing capability and
-  affordance resolver.
-- Define the first shared constraint proven by both offers.
+- Add a third materially different activity or world offer using the existing
+  capability and affordance resolver.
+- Define the first shared constraint proven by the matched offers.
 - Add focused tests and one browser proof for legal, deferred, unavailable,
   and missing-capability outcomes.
 
@@ -247,7 +248,7 @@ not more loader code. Until then, keep them on the developer/evidence surface.
 
 ### P3: conditional platform work
 
-- Version typed activity/content definitions after the second consumer.
+- Version typed activity/content definitions after the third consumer.
 - Add structured command/event persistence when replay, AI, or authority needs
   it.
 - Add streaming only after measured world residency or memory pressure.
@@ -308,7 +309,7 @@ documentation and any next implementation slice are stable.
 
 | Gap | Current status | Closure criteria |
 |---|---|---|
-| Second capability-consuming offer/activity | Open by design | Two independent offers share a proven additional constraint and browser/test proof exists |
+| Third capability-consuming offer/activity | Open by design | Two independent offers already exist; a third materially different offer must share a proven constraint and browser/test proof exists |
 | Cross-engine parity | Open | Shared project-semantic fixture reports comparable outcomes and explicit engine limitations |
 | Terrain/water fallback envelope | Review | Named policy covers slope, water, recovery, and player-visible diagnostics |
 | Structured persistence events | Deferred | Replay/operator workflow requires durable reason-coded event history |

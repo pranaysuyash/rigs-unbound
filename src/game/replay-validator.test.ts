@@ -127,13 +127,9 @@ describe("deterministic replay validator", () => {
     const state = createInitialState(record.seed);
     const world = new GameWorld(record.seed);
 
-    appendRunRecordEntry(
-      record,
-      "command",
-      "setAcceptanceManualStepping",
-      0,
-      { enabled: true },
-    );
+    appendRunRecordEntry(record, "command", "setAcceptanceManualStepping", 0, {
+      enabled: true,
+    });
     checkpoint(record, state, world, "after-runner-control");
 
     expect(validateDeterministicReplay(record)).toMatchObject({

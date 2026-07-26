@@ -165,13 +165,9 @@ describe("run record", () => {
   it("keeps non-mutating acceptance runner controls diagnostic-only", () => {
     const record = createRunRecord("field-02", 0);
 
-    appendRunRecordEntry(
-      record,
-      "command",
-      "setAcceptanceManualStepping",
-      0,
-      { enabled: true },
-    );
+    appendRunRecordEntry(record, "command", "setAcceptanceManualStepping", 0, {
+      enabled: true,
+    });
 
     expect(record.entries[0]).toMatchObject({
       originDomain: "input",
