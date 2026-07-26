@@ -19,7 +19,15 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+async function flushRenderFrames(page, count = 4) {
+  // Force multiple render frames so the prop rebuild completes.
+  for (let i = 0; i < count; i += 1) {
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(r)));
+  }
+}
+
 async function captureVisibility(page) {
+  await flushRenderFrames(page);
   return page.evaluate(() => {
     const snap = window.getPerformanceSnapshot();
     return snap.visibility || null;
@@ -99,11 +107,11 @@ async function switchToRig(page, rigId) {
     await switchToRig(page, rigId);
 
     for (const tier of tiers) {
-      // Force the visibility profile
+      // Force the visibility profile and flush render frames
       await page.evaluate((profileId) => {
         window.__forceProfile(profileId);
       }, tier.profile);
-      await page.waitForTimeout(800);
+      await flushRenderFrames(page, 6);
 
       // Capture visibility metrics
       const vis = await captureVisibility(page);
