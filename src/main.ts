@@ -1169,7 +1169,17 @@ function boot(): void {
         : "Performance safeguard cleared: standard scenery detail restored.";
       if (worldEntered) {
         showToast(statusMessage);
-      } else {
+      } else if (
+        bootstrapStatus.dataset.state === "measuring" &&
+        metrics.frameSampleCount >= 90
+      ) {
+        // Transition from measuring to ready once the frame-sample collection
+        // window is wide enough for a meaningful profile decision.
+        bootstrapStatus.dataset.state = "ready";
+        bootstrapStatus.textContent = fallbackActive
+          ? "Field systems ready with reduced scenery detail."
+          : "Field systems ready with standard scenery detail.";
+      } else if (bootstrapStatus.dataset.state === "ready") {
         bootstrapStatus.textContent = fallbackActive
           ? "Field systems ready with reduced scenery detail."
           : "Field systems ready with standard scenery detail.";

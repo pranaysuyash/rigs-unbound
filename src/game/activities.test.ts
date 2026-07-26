@@ -73,9 +73,9 @@ describe("activity registry", () => {
 
   it("rejects duplicate ids", () => {
     const problems = validateActivityDefinitions([base, base]);
-    expect(problems.some((entry) => entry.problem === "duplicate activity id")).toBe(
-      true,
-    );
+    expect(
+      problems.some((entry) => entry.problem === "duplicate activity id"),
+    ).toBe(true);
   });
 
   it("rejects an unsupported contract version", () => {
@@ -93,7 +93,9 @@ describe("survey route rules", () => {
     "launch-ridge",
   ];
 
-  function running(overrides: Partial<SurveyRouteState> = {}): SurveyRouteState {
+  function running(
+    overrides: Partial<SurveyRouteState> = {},
+  ): SurveyRouteState {
     return {
       ...createSurveyRouteState(),
       status: "active",

@@ -91,7 +91,7 @@ It must not:
 - [x] Recoverable failure and explicit recovery capability exist.
 - [x] Persistence round-trip and malformed-record recovery are specified.
 - [x] Parallel active files were preserved.
-- [ ] Targeted reducer tests pass in the current checkout.
+- [x] Targeted reducer tests pass in the current checkout.
 - [ ] First-rung browser acceptance is rerun after active parallel edits settle.
 - [ ] Passage is wired to canonical runtime state and save ownership.
 - [ ] Second rig physically uses the inherited route.
@@ -121,8 +121,12 @@ forward without discarding parallel work or creating a second authority model.
 
 - Full project typecheck now passes, including
   `experiments/deterministic-kernel-probe`.
-- Full test suite now passes: 29 Vitest files, 241 tests, plus 7 deterministic
-  kernel probe tests.
+- The reducer now has seven passing tests. It preserves the failed lane needed
+  for recovery instead of defaulting silently to the heavy lane, imports the
+  canonical rig-id list, and rejects invalid event ticks.
+- The stale `surveyCadence` blocker above is resolved: cadence is runtime-owned
+  by `GameWorld`, clears with derived visibility, and intentionally forces one
+  post-load observation refresh.
 - The browser acceptance gate remains intentionally open because
   `tools/rig-lab-browser-acceptance.cjs` and its evidence assets are active
   parallel surfaces. Do not treat the green unit/integration suite as browser

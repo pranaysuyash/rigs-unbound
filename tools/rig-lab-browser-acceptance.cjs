@@ -812,6 +812,9 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
     "Touch return did not explain the newly relevant workshop control",
   );
   await touchFirstRungPage.locator("#control-lesson-dismiss").tap();
+  await touchFirstRungPage
+    .locator("#workshop-panel")
+    .waitFor({ state: "visible" });
   const touchRecommendedButton = touchFirstRungPage.locator(
     'button[data-module-id="lug-tires"]',
   );

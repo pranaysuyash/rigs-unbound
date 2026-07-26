@@ -99,3 +99,24 @@ reuse incompatible assumptions.
 Yes. A crop is not just a green mesh on a furrow. The durable decision is who
 owns the fact that soil was prepared, how that fact survives Reclamation-style
 terrain authorship, and what a harvest means to the existing economy.
+
+## Addendum (2026-07-26) — schema ownership conflict is now concrete
+
+The shared working tree now contains an unadmitted Survey Route implementation
+that also proposes schema v7 and the `rigs-unbound.save.v7` key. That makes this
+ADR's earlier “cultivation claims schema v7” statement stale as an executable
+instruction.
+
+Until the operator chooses the admission order:
+
+- do not merge cultivation fields into the current v7 shape;
+- do not describe either claimant as the accepted schema owner;
+- if Survey Route is admitted first, persistent cultivation must use an
+  explicit v7→v8 migration;
+- if cultivation is admitted first, Survey Route must be rebased onto that
+  accepted schema or deferred;
+- both migrations must preserve v6 world memory and the previous versioned key
+  as rollback evidence.
+
+Cultivation provenance, harvest meaning, bounds, timing, and terrain-after-sow
+policy remain open regardless of the version number.

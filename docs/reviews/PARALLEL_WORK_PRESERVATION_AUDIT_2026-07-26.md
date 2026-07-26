@@ -302,21 +302,20 @@ If file overlap makes these groups artificial, stop and regroup around the
 smallest coherent behavior rather than using partial staging to manufacture
 false independence.
 
-## Exact next decision
+## First-rung decision applied
 
-Before integrating P1 or P2, choose the relationship between fitted-part
-completion and first-cut:
+The relationship between fitted-part completion and first-cut is now:
 
-- **Recommended:** the first rung completes at fit; first-cut is the immediate
+- **Applied:** the first rung completes at fit; first-cut is an immediate
   optional proof-of-benefit and may become the opening beat of Unbound Passage
   or Farmfall.
-- **Stricter alternative:** first-cut is required for tutorial completion.
-- **Minimal alternative:** retain fit completion and remove the first-cut
-  guidance.
 
-The recommendation protects the already-understandable short onboarding while
-still giving the fitted part an immediate world consequence. External
-fresh-player evidence can falsify it.
+The staged tractor-mandatory completion proposal was removed from the working
+runtime and its tests. This preserves the short onboarding, the public
+reward→spend contract, and the explicit product rule that no one rig or
+capability defines the platform. Terrain transformation remains preserved as a
+separate proposed proof. External fresh-player evidence can still falsify the
+onboarding choice.
 
 ## Three-pass review
 

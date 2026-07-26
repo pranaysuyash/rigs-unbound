@@ -163,9 +163,7 @@ export function validateActivityDefinitions(
 }
 
 export function activityDefinition(id: ActivityId): ActivityDefinition {
-  const found = ACTIVITY_DEFINITIONS.find(
-    (definition) => definition.id === id,
-  );
+  const found = ACTIVITY_DEFINITIONS.find((definition) => definition.id === id);
   if (!found) throw new Error(`Unknown activity definition: ${id}`);
   return found;
 }
@@ -226,7 +224,9 @@ export function evaluateSurveyRoute(
     (target) => visibleSignals.has(target) && !state.sighted.includes(target),
   );
   const sighted =
-    newlySighted.length > 0 ? [...state.sighted, ...newlySighted] : state.sighted;
+    newlySighted.length > 0
+      ? [...state.sighted, ...newlySighted]
+      : state.sighted;
 
   const complete = targets.every((target) => sighted.includes(target));
   // Completion is checked before expiry: sighting the last target on the closing

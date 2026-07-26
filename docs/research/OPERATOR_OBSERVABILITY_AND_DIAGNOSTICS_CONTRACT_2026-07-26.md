@@ -89,6 +89,29 @@ This contract is extended whenever a new live subsystem gains a meaningful failu
 
 Yes: replay, asset, profile, and future streamed-content diagnostics should share correlation identifiers only after privacy/retention requirements are decided. The current local diagnostics do not justify a production telemetry claim.
 
+## Addendum (2026-07-26) - local diagnostics remain the acceptance surface, not a second authority
+
+- Re-checked the operator-observability contract against the current repo state.
+- The current local diagnostic picture already has the right separated pieces:
+  - public state snapshot,
+  - bounded run record,
+  - run-record verification,
+  - deterministic replay validation,
+  - performance snapshot,
+  - runtime profile selection,
+  - runtime asset bridge evidence,
+  - camera/rig evidence APIs,
+  - developer diagnostics DOM panel.
+- That means the repo already has a coherent developer/acceptance evidence lane.
+  What it still does **not** have is a reason to turn diagnostics into
+  gameplay authority or a production telemetry claim.
+- The useful boundary stays the same: new subsystems should extend a named
+  snapshot/checkpoint/evidence API, not invent a parallel debug interface or
+  smuggle internal tuning into the player surface.
+- The next proof slice for this lane is not a broader bus. It is a clearly
+  named diagnostics extension for the next meaningful subsystem, with privacy
+  and retention still decided before anything leaves the browser.
+
 ## Addendum (2026-07-26) - episode grammar depends on diagnostics to inspect consequence
 
 - The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)

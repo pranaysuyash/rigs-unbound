@@ -1,3 +1,33 @@
+## 2026-07-26 — active tranche contradictions converted into tested boundaries
+
+- Preserved the released rig-neutral first rung: the reward→return→fit loop
+  completes when any compatible rig fits its first part. Removed the staged
+  proposal that forced every player into Torque, a blade cut, and Long Furrow
+  before completion. Terrain transformation remains a separate capability
+  proof, not universal onboarding.
+- Corrected first-use guidance so the learned workshop lesson does not
+  immediately cascade into optional camera/map lessons and keep the workshop
+  hidden. Keyboard and touch now reach the same taught workshop transition.
+- Moved survey refresh cadence out of save state and into runtime-owned
+  `GameWorld` state. A restored world now rebuilds derived horizon visibility on
+  its first step, and reset clears both visibility and cadence.
+- Replaced the unsafe remove-before-write local-save attempt with one canonical
+  Web Storage replacement. Write failure is surfaced while the prior save
+  remains intact.
+- Hardened the experimental Unbound Passage reducer with failed-lane
+  provenance, canonical rig ids, and fail-closed event ticks.
+- Reconciled the new Survey Route candidate: stationary contracts expire on
+  world time, completion rewards exactly once, and impossible survey offers do
+  not hide legal salvage or tool actions.
+- Removed incomplete billboard ownership from the effective renderer path and
+  kept dynamic instance culling disabled until truthful aggregate bounds are
+  computed. Corrected the renderer research note's earlier false “complete”
+  claims.
+- Remaining admission choices are explicit: Survey Route versus cultivation
+  schema ownership, next-vertical sequencing, runtime Passage wiring,
+  emission listener semantics, renderer bounds/visual proof, replay coverage,
+  and external fresh-player comprehension.
+
 ## 2026-07-26 — the horizon rail now reports sight, not range
 
 - Revised my own answer from earlier the same day. I had gated unsurveyed sites
@@ -6658,5 +6688,31 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 - Mirrored that draft into the exploration map and the baseline contract so
   the repo now has a single named place to point at while the representative-
   device capture remains outstanding.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — world schema/content ingestion gate is now mirrored into the live map
+
+- Rechecked the authored-world lane against `src/game/world.ts` and the new
+  world-schema/content ingestion gate.
+- Confirmed the canonical world layout still lives in typed source and that
+  external content remains staged behind a future admission pipeline rather than
+  being treated as a second truth source.
+- Mirrored the gate into the exploration map so the repo now has one durable
+  place to point at for authored world truth versus future pack/region input.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — operator diagnostics stay a developer evidence lane
+
+- Rechecked the operator-observability contract against the current repo
+  state and the existing acceptance/debug evidence surfaces.
+- Confirmed the repo already has the right separated pieces for local
+  acceptance evidence, including the public snapshot, run record, replay
+  verifier, performance snapshot, runtime profile selection, asset evidence,
+  and developer diagnostics DOM panel.
+- Mirrored that contract into the exploration map so the repo keeps one
+  durable place to point at for the rule that diagnostics extend evidence
+  surfaces instead of becoming a second authority.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.

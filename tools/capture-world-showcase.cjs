@@ -52,11 +52,10 @@ async function waitForServer(url, attempts = 40) {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
-  const vite = spawn(
-    "npx",
-    ["vite", "--port", String(PORT), "--strictPort"],
-    { cwd: path.resolve(__dirname, ".."), stdio: "pipe" },
-  );
+  const vite = spawn("npx", ["vite", "--port", String(PORT), "--strictPort"], {
+    cwd: path.resolve(__dirname, ".."),
+    stdio: "pipe",
+  });
   vite.stderr.on("data", (chunk) => process.stderr.write(String(chunk)));
 
   const url = `http://127.0.0.1:${PORT}/`;
@@ -137,12 +136,10 @@ async function main() {
       written.push(worldPath);
 
       await page.evaluate(() => {
-        document
-          .querySelectorAll("[data-showcase-hidden]")
-          .forEach((el) => {
-            el.style.display = "";
-            el.removeAttribute("data-showcase-hidden");
-          });
+        document.querySelectorAll("[data-showcase-hidden]").forEach((el) => {
+          el.style.display = "";
+          el.removeAttribute("data-showcase-hidden");
+        });
       });
 
       process.stdout.write(`captured ${site.id} (${site.name})\n`);

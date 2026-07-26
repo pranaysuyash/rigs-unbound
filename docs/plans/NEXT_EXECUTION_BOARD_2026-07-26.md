@@ -99,25 +99,40 @@ Done only when its stated closure evidence exists.
     assigns purpose, dependencies, admission gates, and a proposed commit order;
     nothing was discarded.
 
-- [?] **B2 — Resolve the first-rung completion contract.**
+- [x] **B2 — Resolve the first-rung completion contract.**
   - Released behavior: fitting the part resolves to `free-explore` and marks
     the rung complete.
-  - Parallel proposal: require a real first-cut/use-in-world proof after fit.
-  - Decide whether first-cut is the rung's completion criterion, an optional
-    recommendation, or the opening of Unbound Passage/Farmfall.
+  - Decision: preserve that short, rig-neutral completion. A first-cut is an
+    optional capability-specific follow-on or a beat inside a later admitted
+    vertical; it is not universal onboarding.
+  - Reason: requiring the tractor blade after any rig's first fitted part
+    contradicted the product's explicit anti-anchoring principle and the
+    released reward→spend contract.
   - Keep guidance derived from canonical state; add no shadow quest ledger.
-  - Gate: one accepted contract, tests, wording, browser evidence, and docs.
+  - Evidence: resolver/tests restored; browser matrix rerun remains part of B7.
 
-- [ ] **B3 — Admit or reject Unbound Passage groundwork.**
+- [-] **B3 — Admit or reject Unbound Passage groundwork.**
   - Related: RU-0909.
-  - Re-run focused tests and full typecheck against the settled shared tree.
+  - Current evidence: pure reducer now preserves failed-lane provenance,
+    rejects invalid ticks, and passes seven focused tests plus typecheck.
   - Keep the reducer downstream of locomotion; no direct storage, renderer, or
     generic quest ownership.
   - Verify author provenance, inherited benefit, recoverable failure,
     malformed-record recovery, and schema ownership.
   - Gate: tests pass and the admission review has no stale blocker claims.
 
-- [ ] **B4 — Admit or reject emissions and cultivation groundwork.**
+- [?] **B3a — Admit or reject Survey Route 01 and its schema-v7 claim.**
+  - Current evidence: a second activity binding (`survey`) uses the shared
+    activity/affordance/state/save path; focused rules, integration, corruption,
+    v6 migration, stationary-expiry, and exactly-once reward tests pass.
+  - Fixes applied: impossible survey offers no longer hide legal actions;
+    expiry evaluates every fixed step rather than only after movement.
+  - Decision gate: operator admits this as the next runtime activity and accepts
+    that cultivation moves to schema v8, or rejects/resequences it before merge.
+  - Browser gate: take, sight, expire, retry, complete, reward, reload, touch,
+    accessibility, and comprehension.
+
+- [?] **B4 — Admit or reject emissions and cultivation groundwork.**
   - Related: RU-0202, RU-0203, ADR-0025, ADR-0026.
   - Emissions: source output stays separate from listener sensitivity, falloff,
     occlusion, and threat interpretation.
@@ -126,11 +141,14 @@ Done only when its stated closure evidence exists.
   - Gate: operator accepts decisions; tests, migration, typecheck, and browser
     evidence match.
 
-- [ ] **B5 — Remove or complete partial renderer work.**
+- [-] **B5 — Remove or complete partial renderer work.**
   - Related: RU-0503, RU-0506.
   - Preserve one visibility/LOD and DPR/profile authority.
   - Reject stale instance bounds, duplicate near/far representations,
     unpopulated matrices, counters surviving rebuilds, and wrong tier anchors.
+  - Current correction: incomplete billboards and dangling counters are absent;
+    dynamic instance clouds retain `frustumCulled = false` until truthful
+    aggregate bounds exist. Earlier “complete” research claims were withdrawn.
   - Gate: moving-anchor, bounds, profile, screenshot, and runtime-metric
     coverage passes.
 
@@ -279,13 +297,13 @@ Deferred, or Superseded with evidence.
 
 ## Immediate next call
 
-Do not add another mechanic yet. Finish A5 and B1:
+Do not add another mechanic yet. Finish the active admission matrix:
 
-1. reconcile exact version-9 release evidence;
-2. classify the current shared tree by coherent concern;
-3. decide the first-rung completion contract;
-4. rerun integrated gates;
-5. then request the sequencing decisions.
+1. finish the fresh full-suite/build/browser evidence;
+2. reconcile Survey Route's schema ownership with cultivation;
+3. close or explicitly defer renderer/replay gaps;
+4. request the remaining sequencing/admission decisions;
+5. only then wire another player-facing vertical.
 
 This protects the playable public baseline while preserving the ambitious
 cross-rig direction.

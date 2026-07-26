@@ -62,6 +62,16 @@ describe("survey contract", () => {
     expect(resolution.affordance?.mismatchSource).toBe("capability");
   });
 
+  it("does not block plough actions for non-survey rigs on the Home service area", () => {
+    const world = new GameWorld("UNBOUND-260725");
+    const state = createInitialState(world.seed);
+    atHome(state, "utility-tractor");
+
+    const resolution = resolvePrimaryAction(state, world);
+    expect(resolution.kind).toBe("lower-plough");
+    expect(resolution.label).toBe("Lower blade");
+  });
+
   it("is not offered away from the board", () => {
     const world = new GameWorld("UNBOUND-260725");
     const state = createInitialState(world.seed);

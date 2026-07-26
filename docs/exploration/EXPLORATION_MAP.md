@@ -1500,3 +1500,25 @@ New exploration questions opened by this package:
 - This is still a packaging proof, not a public threshold claim. The next proof
   remains a clean representative-device capture plus a visible budget table
   that can be read alongside the specialized contracts.
+
+## Addendum — 2026-07-26 world schema stays canonical while external content remains staged
+
+- The world schema/content lane now has a named gate at
+  [WORLD_SCHEMA_AND_CONTENT_INGESTION_GATE_2026-07-26.md](../research/WORLD_SCHEMA_AND_CONTENT_INGESTION_GATE_2026-07-26.md).
+- The current authored world remains the canonical source of world truth; the
+  new gate makes it explicit that arbitrary JSON, downloaded maps, or mod packs
+  should not become a second runtime truth source.
+- External-content admission stays separate from streaming/residency, which is
+  still its own boundary. The next proof for this lane is a real second producer
+  with schema validation, semantic checks, and versioned activation.
+
+## Addendum — 2026-07-26 operator diagnostics remain a developer evidence lane
+
+- The operator-observability contract now has a named addendum at
+  [OPERATOR_OBSERVABILITY_AND_DIAGNOSTICS_CONTRACT_2026-07-26.md](../research/OPERATOR_OBSERVABILITY_AND_DIAGNOSTICS_CONTRACT_2026-07-26.md).
+- The repo already has a coherent local evidence surface for acceptance and
+  debugging, but that surface must stay separate from gameplay authority and
+  from any future production telemetry claim.
+- Future subsystems should extend the structured snapshot/checkpoint/evidence
+  APIs rather than create a parallel debug lane or expose internal tuning to
+  players.

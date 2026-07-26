@@ -604,11 +604,13 @@ export class GameRenderer {
       return tier;
     };
 
+    // Reset billboard counters for this rebuild
+    this.treeBillboardCount = 0;
+    this.rockBillboardCount = 0;
+
     let trees = 0;
     let rocks = 0;
     let felled = 0;
-    this.treeBillboardCount = 0;
-    this.rockBillboardCount = 0;
 
     for (const obstacle of obstacles) {
       if (tierFor(obstacle.x, obstacle.z) === "culled") continue;
@@ -2377,6 +2379,7 @@ export class GameRenderer {
     textures: number;
     terrainBuildMs: number;
     visibility: PropVisibilityMetrics;
+    gpuMemoryMb: number;
   } {
     return {
       drawCalls: this.renderer.info.render.calls,
@@ -2385,7 +2388,18 @@ export class GameRenderer {
       textures: this.renderer.info.memory.textures,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
       visibility: { ...this.propVisibility },
+      gpuMemoryMb: this.estimateGpuMemoryMb(),
     };
+  }
+
+  /**
+   * Estimate GPU memory usage in MB based on renderer info.
+   * Formula: geometries * ~1KB + textures * ~4MB (assuming 1024x1024 RGBA)
+   */
+  private estimateGpuMemoryMb(): number {
+    const { geometries, textures } = this.renderer.info.memory;
+    const estimatedBytes = geometries * 1024 + textures * 1024 * 1024 * 4;
+    return Number((estimatedBytes / (1024 * 1024)).toFixed(1));
   }
 
   /**
