@@ -38,6 +38,7 @@ import {
   resolveControlLesson,
   type ControlLessonId,
 } from "./game/control-guidance";
+import { SALVAGE_PICKUP_RADIUS } from "./game/exploration";
 import { resolveFirstRung } from "./game/first-rung";
 import { GameWorld } from "./game/gameworld";
 import { InputController } from "./game/input";
@@ -50,6 +51,7 @@ import {
   RuntimeProfileController,
   selectRuntimeProfile,
   type RuntimeProfileSelection,
+  STANDARD_RUNTIME_PROFILE_BUDGET,
 } from "./game/runtime-profile-policy";
 import {
   appendRunRecordEntry,
@@ -98,6 +100,7 @@ import {
   saveState,
 } from "./game/storage";
 import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
+import { type VisibilityProfileId } from "./game/visibility";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
@@ -964,6 +967,15 @@ function boot(): void {
     } else if (rig.condition <= 0) {
       prompt.textContent =
         "Rig disabled · press X or Winch for emergency field recovery";
+    } else if (primaryAction.kind === "collect-salvage") {
+      const node = world.exploration.nearestNode(
+        rig.x,
+        rig.z,
+        SALVAGE_PICKUP_RADIUS,
+        world.collectedNodes,
+      );
+      const units = node?.value === 1 ? "unit" : "units";
+      prompt.textContent = `Salvage in reach · press Space or Act · ${node?.value ?? 1} ${units}`;
     } else if (workshop) {
       prompt.textContent =
         firstRung.stage === "choose-part"
@@ -1174,7 +1186,8 @@ function boot(): void {
         showToast(statusMessage);
       } else if (
         bootstrapStatus.dataset.state === "measuring" &&
-        metrics.frameSampleCount >= 90
+        metrics.frameSampleCount >=
+          STANDARD_RUNTIME_PROFILE_BUDGET.minimumFrameSamples
       ) {
         // Transition from measuring to ready once the frame-sample collection
         // window is wide enough for a meaningful profile decision.
@@ -1534,6 +1547,13 @@ function boot(): void {
   };
   window.getPerformanceSnapshot = () =>
     performanceMonitor.snapshot(renderer.metrics());
+
+  // Evidence-only: expose renderer profile switching for acceptance scripts.
+  // Temporary bridge — remove after the prop-count evidence capture.
+  (window as any).__forceProfile = (id: VisibilityProfileId) => {
+    renderer.setVisibilityProfile(id, state);
+    renderer.invalidate(state);
+  };
   recordCheckpoint("boot");
 
   // ---------------------------------------------------------------------------

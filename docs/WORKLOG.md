@@ -5110,6 +5110,19 @@ Field 02` in the current daemon snapshot.
   - no separate persistent camera-policy artifact beyond the save-state camera
     mode.
 
+## 2026-07-26 — camera lane is now a resolved policy surface
+
+- Re-checked the camera lane against the current browser surface and the
+  existing policy notes.
+- Confirmed the runtime already exposes camera selection, obstruction
+  evidence, and reduced-motion-safe behavior, so the camera lane is more than
+  a hidden renderer quirk.
+- Mirrored the latest boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between resolved camera policy
+  and the still-missing player-facing reason string / durable policy artifact.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
 ## 2026-07-26 — visibility and LOD recheck
 
 - Re-checked the live visibility lane with the `3d-games` skill.
@@ -6741,5 +6754,69 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 - Mirrored that boundary into the exploration map so the repo keeps one
   durable place to point at for the distinction between live composition and
   still-implicit governance structure.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — the public smoke-test gate is observable, but the bundled artifact is still missing
+
+- Rechecked the renderer/performance/accessibility contract against the current
+  repo state and the live gate hooks.
+- Confirmed the runtime already exposes the core public-smoke-test evidence
+  surface, but the bundled public-gate artifact is still missing as a single
+  reusable package.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between an observable gate and
+  a packaged public-release artifact.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — physics stability is real, but the envelope is still implicit
+
+- Rechecked the physics quality envelope contract against `src/game/physics.ts`
+  and `src/game/terrain-traversal.ts`.
+- Confirmed the runtime already has a deliberate first-playable motion model,
+  and the terrain-face refusal is now a real traversal-block reason in code.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between real stability signals
+  and a still-implicit physics envelope.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — persistence provenance is structured, but the broader envelope still matters
+
+- Rechecked the save/migration observability contract against `src/game/storage.ts`
+  and the structured persistence-provenance update already landed in the
+  contract.
+- Confirmed the runtime now preserves source key, source schema version,
+  world-memory presence, and recovery reason at the canonical persistence
+  boundary.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between structured provenance
+  and the still-missing operator summary envelope.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — lighting is live and readable, but the policy envelope is still implicit
+
+- Rechecked the lighting and atmosphere contract against `src/game/renderer.ts`
+  and the live Field 02 runtime snapshots.
+- Confirmed the runtime already keeps the field legible across day/gloam/night
+  with the current conservative lighting posture.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between a readable lighting
+  system and a still-implicit policy envelope.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — shader/material is live, but the state shell remains a narrow shader
+
+- Rechecked the shader/material contract against `src/game/renderer.ts` and
+  the current live runtime posture.
+- Confirmed the renderer still uses a readable baseline plus one scoped,
+  state-driven VFX shader, so the visual language is real but intentionally
+  narrow.
+- Mirrored that boundary into the exploration map so the repo keeps one
+  durable place to point at for the distinction between a narrow state-shell
+  shader and a general material system.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.

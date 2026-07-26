@@ -1,0 +1,132 @@
+{
+  "timestamp": "2026-07-26T17:50:48.333Z",
+  "url": "http://127.0.0.1:4173/?acceptance=field-02",
+  "profiles": {
+    "standard": {
+      "farMeters": 168,
+      "midMeters": 120,
+      "nearMeters": 64
+    },
+    "mobile-safe": {
+      "farMeters": 132,
+      "midMeters": 96,
+      "nearMeters": 48
+    }
+  },
+  "results": [
+    {
+      "rigId": "utility-tractor",
+      "tier": "standard",
+      "tierLabel": "Balanced (168m)",
+      "candidates": 247,
+      "submitted": 247,
+      "capacityLimited": 0,
+      "near": 19,
+      "mid": 79,
+      "far": 149,
+      "culled": 0,
+      "drawCalls": 56,
+      "triangles": 38948,
+      "geometries": 72,
+      "textures": 1,
+      "heapUsedMb": 29.6,
+      "fps": 117.5
+    },
+    {
+      "rigId": "utility-tractor",
+      "tier": "mobile-safe",
+      "tierLabel": "Conservative (132m)",
+      "candidates": 247,
+      "submitted": 247,
+      "capacityLimited": 0,
+      "near": 19,
+      "mid": 79,
+      "far": 149,
+      "culled": 0,
+      "drawCalls": 56,
+      "triangles": 38948,
+      "geometries": 72,
+      "textures": 1,
+      "heapUsedMb": 33.9,
+      "fps": 118
+    },
+    {
+      "rigId": "toy-buggy",
+      "tier": "standard",
+      "tierLabel": "Balanced (168m)",
+      "candidates": 242,
+      "submitted": 242,
+      "capacityLimited": 0,
+      "near": 20,
+      "mid": 75,
+      "far": 147,
+      "culled": 0,
+      "drawCalls": 67,
+      "triangles": 41120,
+      "geometries": 100,
+      "textures": 1,
+      "heapUsedMb": 31.7,
+      "fps": 118.5
+    },
+    {
+      "rigId": "toy-buggy",
+      "tier": "mobile-safe",
+      "tierLabel": "Conservative (132m)",
+      "candidates": 242,
+      "submitted": 242,
+      "capacityLimited": 0,
+      "near": 20,
+      "mid": 75,
+      "far": 147,
+      "culled": 0,
+      "drawCalls": 67,
+      "triangles": 41120,
+      "geometries": 100,
+      "textures": 1,
+      "heapUsedMb": 34.3,
+      "fps": 119
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "tier": "standard",
+      "tierLabel": "Balanced (168m)",
+      "candidates": 236,
+      "submitted": 236,
+      "capacityLimited": 0,
+      "near": 22,
+      "mid": 78,
+      "far": 136,
+      "culled": 0,
+      "drawCalls": 57,
+      "triangles": 41188,
+      "geometries": 116,
+      "textures": 1,
+      "heapUsedMb": 30.2,
+      "fps": 119
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "tier": "mobile-safe",
+      "tierLabel": "Conservative (132m)",
+      "candidates": 236,
+      "submitted": 236,
+      "capacityLimited": 0,
+      "near": 22,
+      "mid": 78,
+      "far": 136,
+      "culled": 0,
+      "drawCalls": 57,
+      "triangles": 41188,
+      "geometries": 116,
+      "textures": 1,
+      "heapUsedMb": 31.7,
+      "fps": 119
+    }
+  ],
+  "comparison": {
+    "totalBalanced": 725,
+    "totalConservative": 725,
+    "totalReduction": 0,
+    "totalReductionPct": "0.0%"
+  }
+}

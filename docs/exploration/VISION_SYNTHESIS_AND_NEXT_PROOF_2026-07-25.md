@@ -707,6 +707,74 @@ Otherwise append evidence to the existing plan, ADR update log, exploration map,
 or acceptance report. Documentation should preserve learning, not become a
 parallel game made of plans.
 
+## 10. WebGPU as a vision-lane, not a feature lane
+
+Treat graphics modernization as a long-term capability that serves the same
+player contract rather than adding a separate “tech mode.” This lane is
+acceptable only if it increases the quality of the same causal loop the vision
+already values: one machine, one consequential activity, one remembered world.
+It is grounded in the current `docs/research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md` findings.
+
+### 10.1 Use cases that align with the thesis
+
+1. **Backend portability and reliability**
+   - Run the same simulation scene on `WebGLRenderer` and `WebGPURenderer` from
+     the same feature contract.
+   - Keep context-loss and restart behavior explicit instead of boot-time fatal.
+   - Make backend and quality tier part of the operational profile evidence.
+
+2. **Night and danger readability as gameplay infrastructure**
+   - Preserve the fog/sky and contrast contract while improving throughput.
+   - Increase horizon legibility where it directly affects signature reading,
+     approach timing, and recovery choices.
+
+3. **World and consequence scale**
+   - Enable larger authored and mutated worlds (more terrain marks, routes,
+     obstacles, and world-memory states) without forcing content simplification.
+   - Keep memory persistence coherent by never changing meaning when changing
+     renderer.
+
+4. **Measured resilience on heterogeneous devices**
+   - Track backend capability in one recorded contract and make downgrade
+     behavior boringly reliable.
+   - Prioritize recoverability over benchmark vanity.
+
+5. **Future performance headroom reserve**
+   - Keep CPU deterministic as the base of truth for simulation.
+   - Allow compute migration only when it is gated by clear throughput
+     evidence and does not harm replay/simulation determinism.
+
+### 10.2 Near-term improvements to enter now
+
+- Add explicit graphics-context recovery paths and restart guidance.
+- Add boot progress and an action-ready readiness signal tied to first
+  controllable intent, not merely first render.
+- Normalize renderer stats under backend differences and keep them in the same
+  profile stream.
+- Record sourcemap and caching posture as product policy rather than one-off
+  build tuning.
+
+### 10.3 Roadmap by gate (ordered)
+
+- **W1: reliability-first lane** (now)
+  - context loss handling, restore path, and restart observability;
+  - boot progress and input-ready semantics.
+- **W2: compatibility probe lane** (post-Farmfall base acceptance)
+  - `WebGPURenderer` probe path with backend recorded in profile snapshots;
+  - night/fog contract revalidation before any default path changes.
+- **W3: conditional expansion lane** (after sustained device-matrix evidence)
+  - targeted compute experiments only where they unblock proven gameplay needs;
+  - reject any change that improves frame metrics while reducing trust in cause
+    and consequence.
+
+The refusal criteria are equally important: do not authorize feature-specific
+render experiments, shader rewrites, or compute migration until the current
+proof loop itself is stable and observable.
+
+This keeps WebGPU inside the product’s long-term architecture: not an end in
+itself, but a cleaner foundation for more persistent consequence, safer systems,
+and better world-driven tension.
+
 ## Pre-registered causal comparison
 
 Before evaluating delight, run the same deterministic seed and crop state under

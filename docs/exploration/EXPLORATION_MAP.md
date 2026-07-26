@@ -485,6 +485,7 @@ The immediate consequence is that the project should harden visibility, collisio
 - The replay artifact contract now lives in [Replay Artifact and Ghost Contract](../research/REPLAY_ARTIFACT_AND_GHOST_CONTRACT_2026-07-25.md), which makes the current bounded record shape explicit and keeps the missing playback, divergence, and compatibility rules visible.
 - The collision category and mask contract now lives in [Collision Category and Mask Contract](../research/COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md), which makes the current obstacle-resolution path explicit and keeps trigger/sensor/projectile role separation visible.
 - The camera feel contract now lives in [Camera Feel Contract](../research/CAMERA_FEEL_CONTRACT_2026-07-25.md), which makes the current profile-driven camera work explicit and keeps transition, obstruction, and reduced-motion rules visible.
+- Addendum (2026-07-26): the camera lane is now a resolved policy surface, not a hidden renderer quirk. The runtime already exposes camera selection, obstruction evidence, and reduced-motion-safe behavior; what remains missing is a player-facing reason string and a durable camera-policy artifact separate from save-state mode and runtime evidence.
 - The physics quality envelope contract now lives in [Physics Quality Envelope Contract](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md), which makes the deterministic traversal model, fallback expectations, and stability-state visibility explicit.
 - The resource budget and fallback envelope now lives in [Resource Budget and Fallback Envelope](../research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md), which makes the current measured frame/draw/memory posture explicit and keeps low-budget fallback policy visible.
 - The event graph and deterministic handlers contract now lives in [Event Graph and Deterministic Handlers Contract](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md), which makes the command/checkpoint/save flow explicit and keeps replay-safe event ownership visible.
@@ -1546,3 +1547,68 @@ New exploration questions opened by this package:
 - The next proof for this lane is a second materially different capability or
   adapter use case that justifies a registry without flattening the current
   profile/module composition model.
+
+## Addendum — 2026-07-26 the public smoke-test gate is observable, but the bundled artifact is still missing
+
+- The renderer/performance/accessibility contract now has a named addendum at
+  [RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md](../research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md).
+- The runtime already exposes the needed hooks and readable gate behavior, so
+  the public smoke-test gate is observable in practice.
+- What is still missing is the bundled public-gate artifact that binds the
+  profile matrix, checklist, KPI evidence, and fallback summary into one
+  reusable package.
+- The next proof for this lane is therefore packaging, not another basic
+  accessibility repair: one capture bundle and one canonical pass/fail summary
+  for fallback events.
+
+## Addendum — 2026-07-26 physics stability is real, but the envelope is still implicit
+
+- The physics contract now has a named addendum at
+  [PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md).
+- The runtime already exposes a deliberate first-playable motion model, and the
+  new terrain-face refusal exists in code as a real traversal-block reason.
+- What is still missing is the named stability envelope that says when the
+  physics layer has simplified behavior rather than merely exposing raw
+  signals.
+- The next proof for this lane is an explicit operator-visible stability class
+  or fallback summary on top of the existing terrain/obstacle/terrain-face
+  checks.
+
+## Addendum — 2026-07-26 persistence provenance is structured, but the broader observability envelope still matters
+
+- The save/migration observability contract now has a named addendum at
+  [SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md](../research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md).
+- The runtime now preserves source key, source schema version, world-memory
+  presence, and recovery reason at the canonical persistence boundary, so the
+  persistence path is no longer just a status string.
+- What is still missing is the broader observability envelope that makes those
+  provenance facts easy to review alongside operator-facing summaries and
+  replay-safe recovery notes.
+- The next proof for this lane is operator-visible summarization, not a new
+  persistence system.
+
+## Addendum — 2026-07-26 lighting is live and readable, but the policy envelope is still implicit
+
+- The lighting contract now has a named addendum at
+  [LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md](../research/LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md).
+- The runtime already keeps the field legible in day/gloam/night through the
+  existing phase-driven lighting posture, so lighting is clearly doing useful
+  gameplay work.
+- What is still missing is the named lighting policy envelope:
+  tier matrix, operator/debug strategy field, and a formal fallback rule for
+  when atmosphere should simplify before clarity is endangered.
+- The next proof for this lane is a first-class policy surface, not another
+  renderer-only adjustment.
+
+## Addendum — 2026-07-26 shader/material is live, but the state shell remains a narrow shader, not a general material system
+
+- The shader/material contract now has a named addendum at
+  [SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md](../research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md).
+- The renderer still uses a readable baseline plus one scoped, state-driven VFX
+  shader, so the visual language is real but intentionally narrow.
+- What is still missing is a generalized layered material/shader system, and
+  the next proof gate remains the same: only introduce new shader/material
+  modules when a player-facing readability failure cannot be solved by the
+  current baseline, fog, lighting, decals, or vertex-color path.
+- The current state shell stays a deliberate narrow shader, not a signal that
+  the repo should broaden into a shader fork per surface.

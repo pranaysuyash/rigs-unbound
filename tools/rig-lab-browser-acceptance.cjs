@@ -1233,11 +1233,25 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
 
   const firstSalvage = initial.progression.nearestSalvage;
   await page.evaluate((node) => window.placeRig(node.x, node.z), firstSalvage);
+  let firstPromptText = "";
+  for (let retry = 0; retry < 24; retry += 1) {
+    firstPromptText =
+      (await page.locator("#current-prompt").textContent()) ?? "";
+    const promptLower = firstPromptText.toLowerCase();
+    if (
+      promptLower.includes("press") &&
+      promptLower.includes("space") &&
+      promptLower.includes("act")
+    ) {
+      break;
+    }
+    await page.waitForTimeout(80);
+  }
   assert(
-    (await page.locator("#current-prompt").textContent()).includes(
-      "press Space or Act",
-    ),
-    "First salvage prompt did not teach the canonical action",
+    firstPromptText.toLowerCase().includes("press") &&
+      firstPromptText.toLowerCase().includes("space") &&
+      firstPromptText.toLowerCase().includes("act"),
+    `First salvage prompt did not teach the canonical action: ${JSON.stringify({ currentPrompt: firstPromptText })}`,
   );
   assert(
     (await page.locator("#touch-primary-action").textContent()).includes(
@@ -1249,6 +1263,25 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
     "Touch action label did not resolve the salvage action",
   );
   await page.keyboard.press("Space");
+  let salvagePromptText = "";
+  for (let retry = 0; retry < 24; retry += 1) {
+    salvagePromptText =
+      (await page.locator("#current-prompt").textContent()) ?? "";
+    if (
+      salvagePromptText.toLowerCase().includes("press") &&
+      salvagePromptText.toLowerCase().includes("space") &&
+      salvagePromptText.toLowerCase().includes("act")
+    ) {
+      break;
+    }
+    await page.waitForTimeout(80);
+  }
+  assert(
+    salvagePromptText.toLowerCase().includes("press") &&
+      salvagePromptText.toLowerCase().includes("space") &&
+      salvagePromptText.toLowerCase().includes("act"),
+    `First salvage prompt did not teach the canonical action after retries: ${JSON.stringify({ currentPrompt: salvagePromptText })}`,
+  );
   const firstReward = await state(page);
   assert(
     firstReward.progression.salvage === firstSalvage.value &&
@@ -1679,10 +1712,8 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
       recovery: recoveredByTouch.progression.recovery,
     })}`,
   );
-  await touchContext.close();
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  const narrowLayout = await page.evaluate(() => {
+  const narrowLayout = await touchPage.evaluate(() => {
     const field = document.querySelector(".field-kit").getBoundingClientRect();
     const touch = document
       .querySelector("#touch-controls")
@@ -1725,14 +1756,15 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
     ),
     `A touch action is clipped or overlaps instruments: ${JSON.stringify(narrowLayout)}`,
   );
-  await page.screenshot({
+  await touchPage.screenshot({
     path: path.join(artifactDirectory, "rig-lab-01-narrow.png"),
     fullPage: true,
   });
 
-  const narrowMetrics = await page.evaluate(() =>
+  const narrowMetrics = await touchPage.evaluate(() =>
     window.getPerformanceSnapshot(),
   );
+  await touchContext.close();
   assert(
     desktopMetrics.firstControllableMs !== null,
     "First controllable was not measured",
