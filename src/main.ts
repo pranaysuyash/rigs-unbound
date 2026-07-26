@@ -502,6 +502,7 @@ function boot(): void {
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
   saveStatus = requiredElement<HTMLElement>("#save-status");
+  attachContextRecovery();
   const rumorMap = createRumorMapUI(document.body, () => {
     if (state.mapOpen) toggleMap(state);
   });
