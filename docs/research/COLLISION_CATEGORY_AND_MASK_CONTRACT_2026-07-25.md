@@ -167,3 +167,24 @@ general collision-semantic proof.
 - That means the contract remains exactly where it should be for now:
   the game has a real collision foundation, but the next extension still needs a
   policy layer before broader interaction types can be added safely.
+
+## Addendum (2026-07-26) - the live collision foundation remains narrow and deterministic
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current collision behavior is still the narrow first-playable set:
+  - trees can be felled by heavy enough motion,
+  - rocks block and slide,
+  - the field stays deterministic and role-aware.
+- `src/game/collision.ts` and `src/game/physics.ts` still do not expose a
+  first-class category/mask matrix:
+  - no trigger class,
+  - no sensor class,
+  - no projectile class,
+  - no hazard routing separate from generic obstacle response.
+- The live runtime therefore still validates the narrow obstacle foundation,
+  but it does not yet need the broader collision vocabulary the contract names.
+- The useful conclusion is unchanged: the current collision model is stable and
+  readable, and the next extension should add a policy matrix before any new
+  contact classes are introduced.

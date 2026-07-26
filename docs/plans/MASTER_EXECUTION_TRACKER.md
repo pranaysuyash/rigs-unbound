@@ -32,10 +32,10 @@ canonical scope and acceptance contracts.
 |---:|:---:|---|---|---|
 | 1 | `[x]` | RU-0106–RU-0109: first-session P0 repair | These defects blocked entry, reward, recovery, or coherent time | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
 | 2 | `[x]` | RU-0110: remaining P1/P2 playtest defects | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed |
-| 3 | `[ ]` | RU-0601 + RU-0406: guidance and first meaningful spend | A reachable reward is not yet a complete first rung | Fresh profile reaches, understands, earns, and spends without project knowledge |
+| 3 | `[-]` | RU-0601 + RU-0406: guidance and first meaningful spend | A reachable reward is not yet a complete first rung | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge |
 | 4 | `[ ]` | RU-0202 + RU-0203: signatures and crops | Establish the deterministic day-side ecology before threats depend on it | Bounded serializable kernel state, failure recovery, telemetry, and tests |
 | 5 | `[ ]` | RU-0204 + RU-0205: night threats and dawn consequence | Complete the first consequence-bearing day→night→dawn loop | Threat failure/retry paths, persisted dawn record, player/operator explanation |
-| 6 | `[ ]` | RU-0206 + RU-0405: mastery and schema v6 | Progression must reward varied rig verbs without grind or save drift | Effective-profile composition, anti-grind tests, v5→v6 migration and recovery summary |
+| 6 | `[ ]` | RU-0206 + RU-0405: mastery and schema v7 | Progression must reward varied rig verbs without grind or save drift | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary |
 | 7 | `[ ]` | RU-0207 + RU-0208: presentation and fresh-eyes validation | Kernel completion is not player comprehension or fun evidence | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human |
 | 8 | `[ ]` | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility |
 | 9 | `[ ]` | RU-0304–RU-0307: deeper capability/physics proofs | Let real activities pose the next controller and collision questions | Shared roles, rescue activity, obstruction query, then one genuinely different motion family |
@@ -217,6 +217,100 @@ documentation must all agree.
     `a8869ad`, Sites version 7 terminal success, HTTP 200 for Field 02 and both
     canonical lab routes, full public production acceptance, zero captured
     console/page errors, and zero recent Worker error events.
+
+#### RU-0601 + RU-0406 live task list — first understandable reward and spend
+
+This is the next active work package. Its job is to close one complete
+first-session rung before Farmfall adds more systems:
+
+`notice a reachable opportunity → collect Scrap → return to Home Silo → choose
+and fit a useful part → understand what changed → use that change in the world`.
+
+The guidance layer must be derived from canonical game state. It must not become
+a parallel quest state machine, add a second currency, or cover the playfield
+with permanent instructions.
+
+- [x] **RU-0601/0406.0 — Establish the current first-rung baseline.**
+  - Fresh state starts with zero salvage.
+  - The authored `first-recovery-cache` is 18 m from Home and awards 3 salvage.
+  - The cheapest compatible modules cost 5; therefore the guaranteed first
+    reward cannot currently buy a module.
+  - The HUD already points toward nearby salvage and the workshop already
+    performs canonical fitting, but neither surface explains the complete
+    earn→return→spend→benefit chain.
+  - Evidence level: Tier 1 current-source inspection plus the version-7
+    production acceptance baseline. The full first-spend flow remains unproven.
+- [ ] **RU-0601/0406.1 — Add one pure first-rung stage resolver.**
+  - Derive stages from existing canonical facts: first cache collected,
+    current salvage, workshop reach, and fitted modules.
+  - Proposed stages: `find-cache`, `collect-cache`, `return-home`, `choose-part`,
+    `part-fitted`, and `free-explore`.
+  - Return semantic objective, short mobile label, full accessible label,
+    target position, and optional recommended module.
+  - Keep the resolver read-only and renderer-independent; mutation remains in
+    `performPrimaryAction()` and `installModule()`.
+  - Tests: every stage, boundary distances, unexpected active rig, restored
+    saves, already-fitted saves, and no contradictory stage.
+- [ ] **RU-0406.2 — Make the guaranteed first reward economically complete.**
+  - Keep one currency: salvage/Scrap. Do not add credits, Favor, premium
+    currency, or hidden tutorial grants.
+  - Raise the uncollected authored first cache to the exact cheapest meaningful
+    spend threshold, currently 5, or document and prove a better equally short
+    authored payout path before implementation.
+  - Preserve already-collected saves without retroactive duplication or a
+    migration exploit; new/fresh profiles receive the corrected authored value.
+  - Tests: fresh payout, collected-node idempotency, save/reload, malformed
+    state bounds, and total/lifetime counters.
+- [ ] **RU-0601.3 — Turn the opportunity compass into contextual guidance.**
+  - Use one compact objective chip plus the existing transient action prompt;
+    keep the center and lower-middle playfield clear.
+  - Express a verb and consequence, not quest bureaucracy:
+    `Recover 5 Scrap`, `Return to Home Silo`, `Fit a part`, `Test the new grip`.
+  - Preserve curiosity after the first part is fitted by collapsing back to
+    world opportunities rather than continuing a forced tutorial rail.
+  - Desktop and `390×844` layouts must preserve the playfield, 44 px touch
+    targets, focus order, aria-live restraint, reduced motion, and player/
+    developer surface separation.
+- [ ] **RU-0406.4 — Make the first workshop choice understandable and usable.**
+  - Replace list-item click inference with explicit accessible install buttons
+    or an equally strong native control contract.
+  - Mark compatible, fitted, affordable, unavailable, and recommended states
+    without relying on color alone.
+  - Recommend a part because of its next world consequence, not because it is
+    numerically cheapest. Current candidate: Lug tyres for Torque, tied to mud
+    grip and the Long Furrow direction.
+  - Keep other valid choices available; guidance may recommend but must not
+    silently buy, lock the player into one build, or expose internal tuning.
+  - Keyboard number keys, pointer, touch, and accessible names must invoke the
+    same canonical `installModule()` path.
+- [ ] **RU-0406.5 — Make the fitted change perceptible.**
+  - After fitting, explain the exact capability/traversal change and direct the
+    player toward a nearby place where it matters.
+  - Add a bounded success transition and feedback cue; respect reduced motion.
+  - Do not claim the part helps where `effectiveProfile()` shows no meaningful
+    change for the active rig.
+  - Tests compare pre/post effective profile and player-visible consequence;
+    browser evidence must show the fitted module survives save/reload.
+- [ ] **RU-0601/0406.6 — Add operator and acceptance evidence.**
+  - Extend `render_game_to_text()` with the derived first-rung stage,
+    recommended module, target, affordability, and completion reason.
+  - Record semantic commands/checkpoints for collection and fitting without
+    adding a second progression ledger.
+  - Fresh browser flow must use real driving and real workshop interaction:
+    no teleport, direct state grant, or direct `installRigModule()` shortcut.
+  - Cover player and developer URLs, desktop and narrow view, keyboard,
+    pointer, real touch, save/reload, reduced motion, and zero console/page
+    errors on development, rebuilt preview, and public production.
+- [ ] **RU-0601/0406.7 — Close documentation and release.**
+  - Append the relevant progression/UI ADRs, core-loop contract, exploration
+    map, worklog, acceptance review, and this tracker.
+  - Run the three motto-v4 passes, missed-anything sweep, format, typecheck,
+    full tests, build, links, visual inspection, and complete browser matrix.
+  - Preserve parallel work; run the full managed hook; commit without agent
+    attribution; push `main`; save/deploy the exact pushed Sites source; append
+    the deployment ledger and rollback target.
+  - Closure: a fresh player can describe what they found, what they bought, and
+    what became newly possible without reading project documentation.
 
 #### Closed predecessor checklist — RU-0106 through RU-0109
 
@@ -414,10 +508,10 @@ documentation must all agree.
   - Gate: start visibly dilapidated; stabilize and repair; fit one signature
     working attachment and one support choice; body/sound/handling/history show
     the transformation without a universal stat ladder.
-- [ ] **RU-0405 — Save schema v6 and migration observability.**
-  - Context: schema v5 is now owned by ADR-0019 world-clock and emergency
-    recovery state.
-  - Gate: crops/mastery/dawn/signature state migrate from v5 with reason-coded
+- [ ] **RU-0405 — Save schema v7 and migration observability.**
+  - Context: schema v6 is now owned by ADR-0019 world-clock, emergency
+    recovery state, and canonical multi-rig Home berths.
+  - Gate: crops/mastery/dawn/signature state migrate from v6 with reason-coded
     recovery, bounded data, round-trip tests, and operator-visible summary.
 - [ ] **RU-0406 — First job and first meaningful spend.**
   - Gate: a new player reaches, understands, earns, and spends the first Scrap

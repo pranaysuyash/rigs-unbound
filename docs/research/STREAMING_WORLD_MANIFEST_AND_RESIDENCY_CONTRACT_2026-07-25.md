@@ -185,3 +185,32 @@ layer instead of turning into a silent second world model.
 - The useful conclusion is unchanged but now freshly confirmed: streaming is a
   real next boundary, not a hidden implementation already waiting underneath the
   current field.
+
+## Addendum (2026-07-26) - the world remains intentionally single-residency
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/gameworld.ts` still owns one canonical `GameWorld` with:
+  - one terrain field,
+  - one obstacle field,
+  - one exploration field,
+  - bounded spatial sets for felling, collection, and survey history.
+- `src/game/storage.ts` still writes and restores that world as one composed
+  payload alongside state, with versioned keys rather than streamed manifests.
+- The live snapshot still behaves like one playable residency, not a chunk
+  manager:
+  - one field substrate,
+  - one save boundary,
+  - one spatial-memory record,
+  - no residency lifecycle state.
+- What is still missing is the streaming layer the contract names:
+  - no `WorldChunkManifest`,
+  - no pending/active/evicted/rollback residency states,
+  - no activation validation,
+  - no active-chunk budget counters,
+  - no unload/rollback observability.
+- The useful conclusion is the same but now freshly confirmed on Sunday, July
+  26, 2026: streaming is still a future boundary, and the current world should
+  remain treated as a canonical single-residency substrate until a real chunk
+  lifecycle is proven.

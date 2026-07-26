@@ -173,3 +173,37 @@ The physics layer is already stable enough to be a first-playable foundation. Th
 - So the contract’s next useful step is still the same: keep the shared
   terrain-face guard and add an explicit envelope/state summary on top of it
   instead of burying the rule inside motion math.
+
+## Addendum (2026-07-26) - the live physics posture is still stable, and the envelope is still implicit
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current live performance snapshot remains in the first-playable band:
+  - `averageFrameMs`: `20`
+  - `p95FrameMs`: `21.5`
+  - `framesPerSecond`: `50`
+  - `drawCalls`: `72`
+  - `triangles`: `104694`
+  - `heapUsedMb`: `16.5`
+  - `firstControllableMs`: `469.2`
+- Treat those figures as diagnostic-only. Concurrent browser and capture
+  workloads can contaminate timing evidence, so a clean representative-device
+  profile remains required before the values define thresholds or public
+  performance claims.
+- `src/game/physics.ts` still behaves like a deliberate first-playable motion
+  model:
+  - fixed-step determinism,
+  - terrain contact under four sampled wheels,
+  - explicit slope, grip, slip, water, and stall outcomes,
+  - terrain-face refusal now exists as a real traversal block reason in code.
+- The runtime therefore already has the right signals for a quality envelope,
+  but the policy surface is still missing:
+  - no named stability states,
+  - no explicit operator-visible summary of simplified physics,
+  - no formal terrain/obstacle fallback envelope,
+  - no boundary summary that says when the physics layer has simplified
+    behavior rather than merely exposing the raw factors.
+- The useful boundary is unchanged: the motion model is intentional and
+  measurable, but it still needs a first-class stability envelope before future
+  locomotion or hazard work starts layering on more feel changes.

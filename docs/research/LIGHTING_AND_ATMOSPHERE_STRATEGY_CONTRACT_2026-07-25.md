@@ -182,3 +182,29 @@ budgets still preserve clarity, mood, and terrain legibility.
 - So lighting remains an intentional and readable system, but it still needs a
   first-class policy surface before the fallback story can be queried or
   governed as data.
+
+## Addendum (2026-07-26) - the live field is readable in day phase, but the strategy is still implicit
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live runtime snapshot shows the field is currently readable in `day`
+  phase:
+  - `phase`: `day`
+  - `cameraMode`: `chase`
+  - the active rig remains visible and stationary in the current snapshot
+  - performance remains in the same readable band as the prior rechecks
+- The renderer still applies the same conservative lighting posture:
+  - directional sun + hemisphere light,
+  - phase-driven fog/sky/headlight changes,
+  - blob-shadow fallback posture.
+- The current live state therefore proves the value of the current policy:
+  the field remains legible without expensive shadow infrastructure.
+- What is still missing is the named policy envelope:
+  - no tier matrix in contract data,
+  - no operator/debug field naming the active lighting strategy,
+  - no formal fallback rule stating exactly when atmosphere should simplify
+    before clarity is endangered.
+- The useful conclusion is unchanged: the lighting system is doing the right
+  thing, but the policy still needs to be first-class so future atmosphere
+  changes can be governed rather than inferred from renderer code.

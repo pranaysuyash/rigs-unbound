@@ -3897,6 +3897,136 @@ audio, and human-fun evidence remain open.
 - The next exploration question is which atmosphere cue should become the first
   named policy item: dawn/dusk, fog, or storm conditions.
 
+## 2026-07-26 — lighting and atmosphere live-field recheck
+
+- Re-checked the live lighting lane again with the `3d-games` skill and a live
+  performance snapshot.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live snapshot currently shows `phase: day` and `cameraMode: chase`, with
+  the field still readable under the existing conservative lighting posture.
+- The current runtime still uses:
+  - directional sun + hemisphere light,
+  - phase-driven fog/sky/headlight changes,
+  - blob-shadow fallback posture.
+- The remaining gap is still the policy envelope:
+  - no tier matrix in contract data,
+  - no operator/debug field naming the active lighting strategy,
+  - no formal fallback rule stating exactly when atmosphere should simplify
+    before clarity is endangered.
+- The next exploration question is whether the first named atmosphere cue
+  should be dawn/dusk, fog, or storm conditions.
+
+## 2026-07-26 — physics quality and collision recheck
+
+- Re-checked the live physics/collision lanes with the `3d-games` skill and a
+  live performance snapshot.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live performance snapshot remains in the first-playable band:
+  - `averageFrameMs` is `20`,
+  - `p95FrameMs` is `21.5`,
+  - `framesPerSecond` is `50`,
+  - `drawCalls` is `72`,
+  - `triangles` is `104694`,
+  - `heapUsedMb` is `16.5`,
+  - `firstControllableMs` is `469.2`.
+- These figures are a diagnostic snapshot, not a representative-device
+  baseline. Concurrent browser and capture workloads remain capable of
+  contaminating timing evidence, so they must not support public performance
+  claims or threshold decisions without a clean profile run.
+- The current physics model still has the right motion signals:
+  - fixed-step determinism,
+  - terrain contact under four sampled wheels,
+  - explicit slope, grip, slip, water, and stall outcomes,
+  - terrain-face refusal now exists as a real traversal block reason in code.
+- The current collision model still stays intentionally narrow:
+  - trees can be felled by heavy enough motion,
+  - rocks block and slide,
+  - no trigger/sensor/projectile/hazard matrix exists yet.
+- The remaining gap is the policy envelope for both lanes:
+  - no named physics stability states,
+  - no operator-visible summary of simplified physics,
+  - no first-class collision category/mask matrix.
+- The next exploration question is which lane should get the first formal
+  policy artifact: stability states or collision categories.
+
+## 2026-07-26 — minimap and world-coordinate recheck
+
+- Re-checked the live minimap/world-coordinate lane with the `3d-games` skill
+  and a live world snapshot.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current snapshot still proves the map is a real navigation audit:
+  - `phase` is `gloam`,
+  - `surveyedCells` is `19`,
+  - `surveyedFraction` is `0.0546`,
+  - `discoveries` contains `home-silo`,
+  - `nearestSalvage`, `workshopInReach`, and authored sites are all reported in
+    world coordinates.
+- `src/game/minimap.ts` still derives the map from canonical world constants and
+  persistent world memory rather than from renderer geometry or physics
+  handles.
+- The remaining gap is still the transform contract:
+  - no round-trip world-pixel-world test,
+  - no `WorldFrame` / origin-revision record in runtime,
+  - no chunk-residency or origin-rebase proof,
+  - no diagnostic overlay for route cost, clearance, or capability-aware
+    pathing.
+- The next exploration question is how to make that contract survive rebasing
+  and richer topologies without losing coordinate identity.
+
+## 2026-07-26 — renderer performance and accessibility recheck
+
+- Re-checked the live renderer/performance/accessibility lane with the current
+  browser daemon status and a live runtime snapshot.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The live snapshot still shows the game in a readable first-playable band:
+  - `phase` is `gloam`,
+  - `cameraMode` is `chase`,
+  - the active rig and objective remain visible and recoverable,
+  - performance remains bounded and measurable.
+- The runtime evidence hooks remain real:
+  - `window.render_game_to_text()`,
+  - `window.getPerformanceSnapshot()`,
+  - `window.selectCamera()`,
+  - `window.getCameraResolutionEvidence()`.
+- The remaining gap is still the public-gate package:
+  - no capture bundle binding the profile matrix, checklist, and KPI evidence,
+  - no canonical pass/fail summary for fallback events,
+  - no operator-ready artifact that can be carried forward as the official
+    smoke-test record.
+- The next exploration question is which artifact should be the first packaged
+  public-gate deliverable: capture bundle, pass/fail summary, or both together.
+
+## 2026-07-26 — streaming-world residency recheck
+
+- Re-checked the live streaming-world lane with the `3d-games` skill and the
+  current browser daemon status.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- `src/game/gameworld.ts` still owns one canonical `GameWorld` with:
+  - one terrain field,
+  - one obstacle field,
+  - one exploration field,
+  - bounded spatial sets for felling, collection, and survey history.
+- `src/game/storage.ts` still writes and restores that world as one composed
+  payload alongside state, with versioned keys rather than streamed manifests.
+- The live snapshot still behaves like one playable residency:
+  - one field substrate,
+  - one save boundary,
+  - one spatial-memory record,
+  - no residency lifecycle state.
+- The remaining gap is still the streaming layer:
+  - no `WorldChunkManifest`,
+  - no pending/active/evicted/rollback residency states,
+  - no activation validation,
+  - no active-chunk budget counters,
+  - no unload/rollback observability.
+- The next exploration question is what should author the first chunk lifecycle
+  proof: world data, route/biome cells, or a hybrid manifest.
+
 ## 2026-07-26 — RU-0110 public release and handoff
 
 - Pushed guarded gameplay commit `9c10d2b` and late-research preservation commit

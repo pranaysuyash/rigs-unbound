@@ -209,3 +209,30 @@ Together they define the public-smoke-test contract without widening the product
   be promoted before the gate becomes a durable delivery artifact.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - the live gate remains observable, but the bundled public artifact is still missing
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current live snapshot still shows the same playable, readable band:
+  - `phase`: `gloam`,
+  - `cameraMode`: `chase`,
+  - performance remains in the same bounded first-playable range,
+  - the active rig and objective remain visible and recoverable in the current
+    snapshot.
+- The runtime evidence hooks remain real and exposed:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - `window.getCameraResolutionEvidence()`
+- The current sample did not surface a separate camera-resolution record, which
+  is a good reminder that the gate still needs the packaged bundle rather than
+  only ad hoc runtime inspection.
+- What is still missing is the fully bundled public-gate artifact:
+  - a capture bundle binding the profile matrix, checklist, and KPI evidence,
+  - a canonical pass/fail summary for fallback events,
+  - an operator-ready package that can be carried forward as the official smoke
+    test record.
+- The useful conclusion is unchanged: the runtime is still good enough to
+  measure, but the release package remains the missing part of the contract.

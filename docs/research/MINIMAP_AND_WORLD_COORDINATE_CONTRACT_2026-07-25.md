@@ -190,3 +190,30 @@ larger open world will amplify the disagreement.
   navigation truth work; the next step is to formalize transforms so the same
   contract can survive rebasing, streaming, and richer topologies without
   losing coordinate identity.
+
+## Addendum (2026-07-26) - the live map still audits world truth, but the transform contract is still partial
+
+- Re-checked the live browser daemon before writing this note.
+- The daemon is healthy, the current page is still `Rigs Unbound — Field 02`,
+  and the console log buffer is still empty.
+- The current runtime snapshot still proves the map is a real navigation audit:
+  - `phase`: `gloam`
+  - `surveyedCells`: `19`
+  - `surveyedFraction`: `0.0546`
+  - `discoveries`: `["home-silo"]`
+  - `nearestSalvage`, `workshopInReach`, and authored sites are all reported in
+    world coordinates
+- `src/game/minimap.ts` still derives the map from canonical world constants and
+  persistent world memory rather than from renderer geometry or physics
+  handles.
+- That means the current map remains a real summary of world truth, not a second
+  simulation.
+- What is still missing is the transform contract boundary:
+  - no round-trip world-pixel-world test,
+  - no `WorldFrame` / origin-revision record in runtime,
+  - no chunk-residency or origin-rebase proof,
+  - no diagnostic overlay for route cost, clearance, or capability-aware
+    pathing.
+- The useful conclusion is unchanged: the map already does the important truth
+  work, and the next step is to formalize transforms so it can survive rebasing
+  and richer topologies without losing coordinate identity.
