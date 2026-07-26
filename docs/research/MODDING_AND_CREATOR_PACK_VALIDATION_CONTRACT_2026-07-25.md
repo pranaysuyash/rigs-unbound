@@ -177,3 +177,25 @@ shadow runtime.
   an active runtime feature.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - creator-pack lifecycle is still broader than the current asset validation slice
+
+- Re-checked the modding contract against the current repo state and the asset
+  validation path.
+- The runtime now proves a strong local content posture:
+  - data-driven rig/world content is already real,
+  - load-time validation and migration are already real,
+  - asset manifests and preflight validation already gate runtime imports,
+  - imported runtime assets remain separate from public approval.
+- That means pack-like validation exists in slices, but the general creator-pack
+  lifecycle is still missing:
+  - no versioned pack manifest in the playable path,
+  - no explicit dependency graph for packs,
+  - no staged publication or moderation workflow,
+  - no public creator-discovery surface,
+  - no safe disable/rollback path for a pack lifecycle that is actually
+    present in runtime.
+- The next proof should therefore be a local-only pack manifest and rollback
+  test first, not a public UGC system. Public moderation stays future-gated.
+- Evidence depth: Tier 1 static inspection of the current validation/asset
+  contracts, with the earlier Tier 4 runtime anchor unchanged.

@@ -166,3 +166,13 @@ direction, not completion of the full event/authority envelope. It still lacks
 versioned command IDs, structured rejection reason codes, and emitted domain
 events. Those remain required before network authority or creator-authored
 interaction packs.
+
+## Update log
+
+- 2026-07-26: The canonical bounded run record advanced from schema v1 to v2.
+  Its entries now carry deterministic sequence/id, event-envelope version,
+  origin-domain ownership, and replayable-versus-diagnostics classification.
+  This satisfies the ADR's first reusable event-envelope proof without adding
+  an independent bus or granting presentation mutation authority. Ordered input
+  entries intentionally do not deduplicate; future idempotent handler events
+  must carry their own declared key and policy.

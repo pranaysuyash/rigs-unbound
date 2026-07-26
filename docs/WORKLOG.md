@@ -1,3 +1,45 @@
+## 2026-07-26 — authority lane continuation
+
+- Read the authority-model groundwork contract against the current command/event and save/recovery spine.
+- Confirmed the live mode is still local-first; the next proof should be one local authenticated mutation envelope rather than a multiplayer claim.
+- Appended the concrete local-authority gap to the contract and the canonical exploration map.
+- Evidence depth: Tier 1 static inspection with prior Tier 4 runtime anchors.
+
+## 2026-07-26 — engine-branch lane continuation
+
+- Read the engine-branch evaluation contract against the current repo posture.
+- Confirmed the canonical Three.js path is explicit, but the branch-opening trigger is still missing.
+- Appended the measurable-trigger gap to the engine-branch contract and the canonical exploration map.
+- Evidence depth: Tier 1 static inspection.
+
+## 2026-07-26 — measured runtime-profile policy seed
+
+- Applied the `3d-web-experience` skill to the existing browser telemetry and
+  visibility ladder.
+- Added frame-sample observability plus a pure `standard`/`mobile-safe`
+  selection policy that never guesses from user-agent data or auto-promotes
+  `full`. It holds standard until a 90-frame window exists and records every
+  fallback reason.
+- Added focused unit coverage for insufficient evidence, within-budget standard,
+  and multi-reason low-budget fallback selection.
+- Evidence depth: Tier 1 source/test implementation. No tests, browser run, or
+  representative-device capture was executed in this pass.
+- Open closure: wire the policy to safe renderer profile swapping, make the
+  active decision visible, define hysteresis, and capture fallback continuity.
+
+## 2026-07-26 — versioned run-record event envelope
+
+- Evolved the existing bounded run record rather than creating a parallel event
+  store. Schema v2 entries now expose deterministic sequence/id, event version,
+  origin domain, and replayable-versus-diagnostics classification.
+- Added focused unit coverage for ordered repeated inputs, diagnostic checkpoint
+  and save classifications, and envelope verification.
+- Evidence depth: Tier 1 source/test inspection. No automated test or runtime
+  execution was run in this pass.
+- Open closure: event-specific payload schemas, handler registration/fan-out,
+  idempotent event kinds, durable migration, and authority transport remain
+  separate gates.
+
 ## 2026-07-26 — collision-policy continuation
 
 - Applied the named `3d-games` skill to the real collision and scene-query
@@ -10,6 +52,13 @@
   hazard, or AI line-of-sight system.
 - Evidence depth: Tier 1 static source/test/contract review. No checks were run
   during this documentation pass.
+
+## 2026-07-26 — creator-pack lane continuation
+
+- Read the modding and authoring validation contracts against the current asset and content-validation slices.
+- Confirmed that local content validation is real, but general creator-pack lifecycle support is still future-gated.
+- Appended the pack-lifecycle gap to the modding and authoring contracts and the canonical exploration map.
+- Evidence depth: Tier 1 static inspection with earlier Tier 4 runtime anchor.
 
 ## 2026-07-26 — behavior/planner lane continuation
 
@@ -4427,3 +4476,37 @@ never invoked — that search has now paid out twice in one pass.
   selection, LOD, occlusion culling, or mobile acceptance evidence.
 - No tests, typecheck, browser run, benchmark, or git operation was performed in
   this pass. Existing parallel-work evidence remains separate and preserved.
+
+## 2026-07-26 - contextual first-use controls and integrated acceptance
+
+- Added one rig-neutral first-use guidance resolver for drive, contextual act,
+  workshop fit, blade, camera, surveyed map, nearby rig switching, and recovery.
+- Lessons explain purpose plus keyboard/touch input, retire on use or dismissal,
+  and persist only as the browser UI preference
+  `rigs-unbound.control-lessons.v1`.
+- Kept the surveyed map's fog-of-war knowledge contract; the new `M`/`Map`
+  lesson introduces it when useful rather than creating an omniscient minimap.
+- Rebuilt the production artifact and restarted the preview before refreshing
+  visual evidence. This caught and eliminated stale-bundle screenshot evidence.
+- Verified desktop and 390×844 first-use layouts in:
+  - `docs/reviews/assets/control-guidance-first-use-desktop.png`
+  - `docs/reviews/assets/control-guidance-first-use-narrow.png`
+- Current integrated evidence:
+  - `npm test`: 16 Vitest files / 150 tests and 7/7 kernel-probe tests passed.
+  - `npm run test:assets`: 7/7 passed.
+  - `npm run test:physics-lab`: passed with six cameras and clean console.
+  - `npm run test:box3d-lab`: passed with negative left-steer heading, six
+    cameras, and clean console.
+  - production `npm run test:browser`: passed fresh control lesson, signed
+    steering, six views, structure collision, activity/save, desktop/narrow,
+    and clean-console checks.
+  - `npm run build`: passed and copied the three approved runtime assets into
+    `dist/client/assets/runtime`.
+- No commit, push, branch, cleanup, or deletion was performed. Parallel asset,
+  rendering, exploration, and UI work remains preserved in the shared tree.
+
+### Anything else?
+
+The next input-layer milestone is not more hard-coded tips. It is a canonical
+binding registry that can supply the permanent strip, contextual prompts,
+first-use lessons, remap UI, and device glyphs from the same semantic actions.

@@ -1,7 +1,23 @@
 export type RunRecordKind = "command" | "checkpoint" | "input" | "save";
 
+export type RunRecordOriginDomain = "input" | "simulation" | "storage";
+
+export const RUN_RECORD_SCHEMA_VERSION = 2;
+export const RUN_RECORD_EVENT_VERSION = 1;
+
 export interface RunRecordEntry {
+  /** Monotonic across retained and dropped entries for this in-memory record. */
+  sequence: number;
+  /** Stable identifier for cross-referencing a recorded outcome. */
+  id: string;
+  /** Version of the shared event-envelope fields below. */
+  eventVersion: typeof RUN_RECORD_EVENT_VERSION;
   kind: RunRecordKind;
+  originDomain: RunRecordOriginDomain;
+  /** True only when the entry can participate in deterministic replay input. */
+  replayable: boolean;
+  /** True for observability anchors that never mutate replay state. */
+  diagnosticsOnly: boolean;
   name: string;
   elapsedMs: number;
   atMs: number;
@@ -9,7 +25,7 @@ export interface RunRecordEntry {
 }
 
 export interface RunRecord {
-  schemaVersion: 1;
+  schemaVersion: typeof RUN_RECORD_SCHEMA_VERSION;
   seed: string;
   startedAtMs: number;
   droppedEntries: number;
@@ -39,12 +55,44 @@ export function stableHashText(value: string): string {
 
 export function createRunRecord(seed: string, startedAtMs: number): RunRecord {
   return {
-    schemaVersion: 1,
+    schemaVersion: RUN_RECORD_SCHEMA_VERSION,
     seed,
     startedAtMs,
     droppedEntries: 0,
     entries: [],
   };
+}
+
+function eventMetadata(kind: RunRecordKind): Pick<
+  RunRecordEntry,
+  "originDomain" | "replayable" | "diagnosticsOnly"
+> {
+  switch (kind) {
+    case "input":
+      return {
+        originDomain: "input",
+        replayable: true,
+        diagnosticsOnly: false,
+      };
+    case "command":
+      return {
+        originDomain: "input",
+        replayable: true,
+        diagnosticsOnly: false,
+      };
+    case "checkpoint":
+      return {
+        originDomain: "simulation",
+        replayable: false,
+        diagnosticsOnly: true,
+      };
+    case "save":
+      return {
+        originDomain: "storage",
+        replayable: false,
+        diagnosticsOnly: true,
+      };
+  }
 }
 
 export function appendRunRecordEntry(
@@ -63,8 +111,13 @@ export function appendRunRecordEntry(
     record.droppedEntries += removedEntries;
   }
 
+  const sequence = record.droppedEntries + record.entries.length;
   record.entries.push({
+    sequence,
+    id: `${record.seed}:${sequence}`,
+    eventVersion: RUN_RECORD_EVENT_VERSION,
     kind,
+    ...eventMetadata(kind),
     name,
     elapsedMs: Math.max(0, elapsedMs),
     atMs: Math.round(now()),
@@ -79,7 +132,7 @@ export function snapshotRunRecord(record: RunRecord): string {
 export function verifyRunRecord(record: RunRecord): RunRecordVerification {
   const issues: string[] = [];
 
-  if (record.schemaVersion !== 1) {
+  if (record.schemaVersion !== RUN_RECORD_SCHEMA_VERSION) {
     issues.push(
       `Unexpected run record schema version: ${record.schemaVersion}`,
     );
@@ -95,7 +148,36 @@ export function verifyRunRecord(record: RunRecord): RunRecordVerification {
   }
 
   let previousElapsed = -1;
+  let previousSequence = record.droppedEntries - 1;
   for (const [index, entry] of record.entries.entries()) {
+    if (!Number.isInteger(entry.sequence) || entry.sequence < 0) {
+      issues.push(`Entry ${index} has invalid sequence.`);
+    }
+    if (entry.sequence <= previousSequence) {
+      issues.push(`Entry ${index} sequence did not advance.`);
+    }
+    previousSequence = entry.sequence;
+    if (
+      typeof entry.id !== "string" ||
+      entry.id !== `${record.seed}:${entry.sequence}`
+    ) {
+      issues.push(`Entry ${index} has an invalid event id.`);
+    }
+    if (entry.eventVersion !== RUN_RECORD_EVENT_VERSION) {
+      issues.push(`Entry ${index} has an unsupported event version.`);
+    }
+    if (
+      entry.originDomain !== "input" &&
+      entry.originDomain !== "simulation" &&
+      entry.originDomain !== "storage"
+    ) {
+      issues.push(`Entry ${index} has an invalid origin domain.`);
+    }
+    if (entry.replayable === entry.diagnosticsOnly) {
+      issues.push(
+        `Entry ${index} must be either replayable or diagnostics-only.`,
+      );
+    }
     if (typeof entry.name !== "string" || entry.name.length === 0) {
       issues.push(`Entry ${index} has no name.`);
     }

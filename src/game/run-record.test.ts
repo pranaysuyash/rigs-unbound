@@ -3,6 +3,8 @@ import {
   appendRunRecordEntry,
   createRunRecord,
   MAX_RUN_RECORD_ENTRIES,
+  RUN_RECORD_EVENT_VERSION,
+  RUN_RECORD_SCHEMA_VERSION,
   stableHashText,
   verifyRunRecord,
   snapshotRunRecord,
@@ -17,7 +19,13 @@ describe("run record", () => {
     });
 
     expect(record.entries[0]).toMatchObject({
+      sequence: 0,
+      id: "field-02:0",
+      eventVersion: RUN_RECORD_EVENT_VERSION,
       kind: "command",
+      originDomain: "input",
+      replayable: true,
+      diagnosticsOnly: false,
       name: "enterWorld",
       elapsedMs: 0,
       payload: { source: "test" },
@@ -27,7 +35,7 @@ describe("run record", () => {
       issues: [],
     });
     expect(JSON.parse(snapshotRunRecord(record))).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: RUN_RECORD_SCHEMA_VERSION,
       seed: "field-02",
       startedAtMs: 42,
       droppedEntries: 0,
@@ -70,5 +78,37 @@ describe("run record", () => {
     expect(verifyRunRecord(record).issues).toContain(
       "Checkpoint entry 0 is missing a tick hash.",
     );
+  });
+
+  it("assigns ordered envelope metadata without collapsing repeated inputs", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(record, "input", "forward", 0);
+    appendRunRecordEntry(record, "input", "forward", 1);
+    appendRunRecordEntry(record, "checkpoint", "post-input", 2, {
+      tickHash: "h1234",
+    });
+    appendRunRecordEntry(record, "save", "autosave", 3);
+
+    expect(record.entries.map((entry) => entry.sequence)).toEqual([0, 1, 2, 3]);
+    expect(record.entries.map((entry) => entry.id)).toEqual([
+      "field-02:0",
+      "field-02:1",
+      "field-02:2",
+      "field-02:3",
+    ]);
+    expect(record.entries.map((entry) => entry.originDomain)).toEqual([
+      "input",
+      "input",
+      "simulation",
+      "storage",
+    ]);
+    expect(record.entries.map((entry) => entry.replayable)).toEqual([
+      true,
+      true,
+      false,
+      false,
+    ]);
+    expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
   });
 });

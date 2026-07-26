@@ -147,6 +147,33 @@ It gives the browser layer a durable rule: progress and fallback must be visible
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
 
+## Addendum (2026-07-26) - measured fallback policy is now explicit, renderer activation remains next
+
+- `src/game/runtime-profile-policy.ts` now owns a conservative selection rule
+  backed by the existing `PerformanceSnapshot`: retain `standard` until at
+  least 90 bounded frame samples exist, then request `mobile-safe` only when
+  average frame, p95 frame, or first-controllable budgets exceed the declared
+  policy.
+- The selector never auto-promotes to `full`. That profile remains a
+  representative-device benchmark decision, not a user-agent or warmup guess.
+- `PerformanceSnapshot.frameSampleCount` now makes the timing evidence itself
+  inspectable, avoiding a fallback decision based on an empty or one-frame
+  window. The returned reasons are intended for player-safe status text and
+  developer diagnostics rather than hidden tuning.
+- This is not yet a runtime fallback. The renderer still binds the active
+  visibility profile at construction; the next implementation stage must allow
+  a safe profile swap, rebuild its bounded props, expose the active selection,
+  and prove semantic input/camera continuity.
+- Evidence depth: Tier 1 source and focused-test implementation. Tests have not
+  been executed in this pass; budget values remain provisional until a
+  representative capture bundle accepts or revises them.
+
+## Anything else? (profile-policy seed)
+
+Heap is intentionally not a selection trigger yet because browser memory
+telemetry is not universally available. It remains observable evidence until a
+cross-browser, representative-device policy can state what it means safely.
+
 ## Addendum (2026-07-25) - current Field 02 snapshot and remaining bootstrap gap
 
 - Re-checked the live browser daemon after the earlier shell audit.

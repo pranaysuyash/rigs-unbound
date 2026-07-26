@@ -194,3 +194,17 @@ adapters must declare how their native axes map to semantic forward and
 semantic left at one bounded boundary. Camera acceptance should keep checking
 signed side as well as distance, because a camera can be clear and still be on
 the wrong side of the vehicle.
+
+## Addendum (2026-07-26): current integrated evidence
+
+Later same-day integration increased the full result to 16 Vitest files and 150
+passing tests plus 7/7 deterministic-kernel tests. Production Field 02 browser
+acceptance also passed after the runtime asset bridge was copied into the
+production output. The test still proves negative heading under real left
+input, rear-side chase placement, all six named camera policies, Launch Ridge
+push-out, and a clean browser console.
+
+The browser run now also introduces the semantic drive control to a fresh
+player and retires it after real input. This is complementary evidence: the
+camera shows the rig's front correctly, signed motion follows that front, and
+the first-use explanation names that relationship explicitly.

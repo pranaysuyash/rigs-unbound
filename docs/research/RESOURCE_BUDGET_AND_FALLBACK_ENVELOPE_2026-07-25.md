@@ -239,3 +239,23 @@ The engine can already tell us when it is getting expensive. This contract makes
   - no proof that fallback activates before overload becomes user-visible.
 - That means the budget story is measurable today, but still not owned as a
   first-class fallback contract.
+
+## Addendum (2026-07-26) - fallback policy seed chooses only from measured pressure
+
+- The measurement envelope now includes `frameSampleCount`, so timing summaries
+  disclose how much evidence supports their average and p95 values.
+- `src/game/runtime-profile-policy.ts` provides the first explicit fallback
+  policy. It holds `standard` while evidence is insufficient and requests
+  `mobile-safe` after 90 samples only for declared average-frame, p95-frame, or
+  first-controllable budget breaches. The result includes every trigger reason.
+- This is intentionally scoped to renderer visibility work. It does not lower
+  simulation frequency, change input, mutate saves, or auto-select `full`.
+- Remaining closure: renderer profile mutation, visible operator/player status,
+  hysteresis/recovery rules, and representative capture evidence before these
+  provisional budgets become public performance claims.
+
+## Anything else? (fallback-policy seed)
+
+A profile decision without a sample count would be a disguised hardware guess.
+The policy therefore makes insufficient evidence a visible state, not a reason
+to silently degrade or promote the player.

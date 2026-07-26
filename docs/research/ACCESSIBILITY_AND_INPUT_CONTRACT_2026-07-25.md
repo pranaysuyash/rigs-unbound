@@ -179,3 +179,25 @@ stay durable as more actions and more devices are added.
 
 No additional accessibility ownership moved into the renderer: DOM remains the
 source of truth for entry state and the canvas remains the focused play surface.
+
+## Addendum (2026-07-26): first-use explanations follow semantic relevance
+
+- The runtime now has one canonical contextual lesson resolver for drive,
+  contextual act, workshop fit, blade, camera, surveyed map, nearby rig switch,
+  and recovery controls.
+- Each lesson explains purpose plus keyboard and touch input. It is non-modal,
+  retires on actual use or explicit dismissal, and is suppressed when welcome,
+  map, or pause owns attention.
+- Learned lesson IDs are resilient browser-local UI preferences. They do not
+  enter the world save, progression, activity, or Rig contracts.
+- This closes the “first encounter explanation” gap for the current action set.
+  Remappable bindings, gamepad glyphs, cross-device preference sync, and human
+  comprehension evidence remain open.
+- Evidence depth: Tier 2 resolver coverage, Tier 3 production browser
+  acceptance, and Tier 4 desktop plus 390×844 visual inspection.
+
+## Anything else?
+
+The new layer complements rather than replaces the permanent control strip and
+contextual action prompt. Future binding work should make all three read from
+one canonical semantic-action registry.

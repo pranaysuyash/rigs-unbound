@@ -1096,6 +1096,8 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the second locomotion family now has a dedicated contract note, so the hover/ground boundary stays explicit across save/reload and rollback.
 - Addendum (2026-07-25): the authority-model gap now has a dedicated contract note, so shared-state and server-authoritative behavior remain future-only.
 - Addendum (2026-07-25): the engine-branch gap now has a dedicated contract note, so alternate backends remain bounded comparison branches instead of shadow products.
+- Addendum (2026-07-26): the engine-branch lane still lacks a measurable branch-opening trigger, so Three.js stays the canonical v1 path until a benchmark bundle justifies a bounded comparison branch.
+- Addendum (2026-07-26): the authority lane is still local-first, but the next proof should be one local authenticated mutation envelope (save, repair, or module install) rather than any multiplayer claim.
 - Addendum (2026-07-25): the verification-harness gap now has a dedicated contract note, so confidence changes stay reproducible and auditable.
 - Addendum (2026-07-25): the Physics Lab browser-experience gap now has a dedicated contract note, so the separate lab route and acceptance runner stay visible as a browser evidence fixture rather than an untracked side page.
 - Addendum (2026-07-25): the world-and-architecture scalability gap now has a dedicated contract note, so chunk growth, activity packs, migration boundaries, and shared-state readiness stay bounded and testable.
@@ -1273,3 +1275,12 @@ New exploration questions opened by this package:
   reasons.
 - A broad planner framework is premature until the app actually needs to rank
   competing valid actions rather than resolve one contextual action at a time.
+
+## Addendum — 2026-07-26 creator-pack lifecycle is still broader than the asset slice
+
+- The modding and authoring contracts confirm that the runtime already validates
+  slices of content, but the pack lifecycle itself is still missing.
+- The next proof should be a local-only pack manifest and rollback test before
+  any public moderation or creator-discovery surface is considered.
+- Pack validation should stay distinct from runtime authority so local content
+  remains data-first instead of becoming a second mutable truth source.

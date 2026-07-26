@@ -18,6 +18,8 @@ export interface PerformanceSnapshot extends Omit<
   firstInputReadyMs: number | null;
   averageFrameMs: number;
   p95FrameMs: number;
+  /** Number of bounded frame samples behind average and p95 values. */
+  frameSampleCount: number;
   framesPerSecond: number;
   heapUsedMb: number | null;
   loadDurationMs: number;
@@ -94,6 +96,7 @@ export class PerformanceMonitor {
           : Number(this.firstInputReadyMs.toFixed(1)),
       averageFrameMs: Number(averageFrameMs.toFixed(2)),
       p95FrameMs: Number(p95FrameMs.toFixed(2)),
+      frameSampleCount: samples.length,
       framesPerSecond:
         averageFrameMs <= 0 ? 0 : Number((1000 / averageFrameMs).toFixed(1)),
       drawCalls: renderer.drawCalls,

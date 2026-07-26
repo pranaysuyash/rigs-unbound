@@ -106,3 +106,22 @@ The smallest durable proof for this contract is:
 Three.js remains the canonical path until evidence says otherwise.
 This contract keeps any alternate backend comparison short, measurable, and
 disposable.
+
+## Addendum (2026-07-26) - the canonical path is explicit, but the measurable branch trigger is still missing
+
+- Re-checked the engine-branch contract against the current repo state and the
+  live runtime posture.
+- The contract now has the right hard boundary:
+  - Three.js remains the canonical v1 path,
+  - alternate backends remain comparison branches, not shadow products.
+- What is still missing is the trigger that would justify opening that branch:
+  - no named measurable pressure threshold that currently demands an alternate
+    backend comparison,
+  - no branch-opening evidence bundle,
+  - no stop-condition artifact tied to a specific benchmark run,
+  - no acceptance/rejection decision record for a live comparison branch.
+- The correct next proof is therefore not a new renderer path; it is a bounded
+  benchmark trigger definition that can say when the comparison branch is
+  allowed to exist at all.
+- Evidence depth: Tier 1 static contract inspection, with the existing live
+  runtime/posture evidence unchanged.

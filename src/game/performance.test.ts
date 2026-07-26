@@ -19,4 +19,19 @@ describe("performance readiness markers", () => {
     expect(snapshot.firstControllableMs).toBe(40);
     expect(snapshot.loadDurationMs).toBe(4.25);
   });
+
+  it("reports how many bounded frames support its timing summary", () => {
+    const monitor = new PerformanceMonitor(0, 0);
+    const metrics = { drawCalls: 0, triangles: 0 };
+
+    monitor.recordFrame(12);
+    monitor.recordFrame(16);
+    monitor.recordFrame(20);
+
+    expect(monitor.snapshot(metrics)).toMatchObject({
+      frameSampleCount: 3,
+      averageFrameMs: 16,
+      p95FrameMs: 20,
+    });
+  });
 });

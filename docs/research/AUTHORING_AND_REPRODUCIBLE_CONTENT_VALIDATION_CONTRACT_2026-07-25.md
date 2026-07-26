@@ -183,3 +183,26 @@ validated content without guessing where it came from.
 - The useful boundary is therefore unchanged: the repo already validates the
   content it knows about, but it still needs a general reproducible authoring
   manifest before the whole content lifecycle becomes first-class.
+
+## Addendum (2026-07-26) - authoring validation is real, but the pack envelope still needs a lifecycle note
+
+- Re-checked the authoring contract against the current modding and asset
+  validation lanes.
+- The repo already validates the content slices that matter today:
+  - state/load paths reject bad or incompatible records,
+  - asset manifests are versioned and rights-aware,
+  - GLB preflight rejects unsafe or incomplete runtime imports,
+  - runtime-ready and validation-only behavior is still distinguishable in the
+    asset slice.
+- What is still missing is the generalized authoring-pack envelope:
+  - a versioned pack manifest that covers activities or world modules,
+  - a reproducible validation-result artifact for pack admission,
+  - a clean runtime-ready / validation-only / deprecated status signal across
+    the broader authored-content surface,
+  - a lifecycle hook that can disable or roll back a bad pack without turning
+    the pack into a second authority surface.
+- So the contract is still correctly staged: validation exists in slices, but a
+  general pack lifecycle must be named before creator content becomes a
+  reusable product surface.
+- Evidence depth: Tier 1 static inspection of the current validation and asset
+  contracts.

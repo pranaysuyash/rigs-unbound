@@ -199,3 +199,32 @@ The game already has meaningful outcomes and records. This contract makes those 
 - Evidence depth: Tier 1 static inspection of the contract and run-record
   source, with the existing Tier 4 runtime observations remaining the staging
   proof base.
+
+## Addendum (2026-07-26) - versioned envelope lands in the canonical record
+
+- `src/game/run-record.ts` is now the one shared event-envelope substrate. The
+  record schema is v2 and every new entry carries a deterministic sequence and
+  id, `eventVersion`, `originDomain`, and complementary `replayable` /
+  `diagnosticsOnly` classification.
+- Existing kinds map deliberately: command and input are input-origin replay
+  candidates; checkpoint is a simulation diagnostic anchor; save is a storage
+  diagnostic anchor. This is a classification contract, not a claim that all
+  current command payloads are already cross-runtime replay-safe.
+- Repeated inputs are preserved rather than deduplicated. Input history is an
+  ordered fact stream, so premature deduplication would silently change replay
+  meaning. A future handler bus must declare a separate idempotency key only
+  for event kinds whose semantics are safely coalescible.
+- `verifyRunRecord` now rejects invalid sequence, id, event version, origin, or
+  classification before existing checkpoint-hash checks run. The bounded trim
+  maintains monotonic IDs because sequence includes prior dropped entries.
+- Still open: handler registration/fan-out, event-specific payload schemas,
+  durable record migration, and authority transport. Presentation remains a
+  consumer of state and does not receive mutation authority.
+- Evidence depth: Tier 1 source and focused-unit-test implementation. The tests
+  are present but have not been executed in this pass.
+
+## Anything else? (envelope)
+
+No second event store was added. The existing run record remains bounded and
+diagnostic-first, while its envelope fields make later replay, UI, and authority
+consumers reference the same ordered truth.

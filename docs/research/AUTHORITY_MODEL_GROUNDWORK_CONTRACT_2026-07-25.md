@@ -232,3 +232,24 @@ changes can be validated without collapsing speculative input into truth.
 - The useful conclusion is unchanged but now freshly anchored: local-first
   authority is the product reality, and shared-state authority remains a named
   future boundary rather than an implied capability.
+
+## Addendum (2026-07-26) - the first authority-shaped proof should be local, not networked
+
+- Re-checked the authority contract against the current run-record and event
+  envelope state.
+- The repo now has a stronger staging spine for authority claims:
+  - commands are explicit,
+  - run-record history is versioned and event-shaped,
+  - kernel ordering is deterministic,
+  - save/restore already handles local recovery.
+- That means the next authority proof should stay local-first and concrete:
+  - one authenticated mutation request/response shape for a save, repair, or
+    module install,
+  - one reject path that leaves speculative state untouched,
+  - one visible durable-mutation outcome field,
+  - one recovery note that preserves the source/version that was accepted or
+    rejected.
+- The important boundary is unchanged: this is still a local authority
+  contract, not a multiplayer or server-authoritative implementation note.
+- Evidence depth: Tier 1 static inspection of the current kernel/save/run-record
+  spine, with the prior Tier 4 runtime anchors unchanged.
