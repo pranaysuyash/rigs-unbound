@@ -576,9 +576,9 @@ ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
   registry.
 - The remaining boundary is still the same:
   - only the proven relay/primary-action seam uses the shared outcome shape,
-  - there is still no second materially different activity using the same
+  - there is still no third materially different activity using the same
     matcher,
-  - the generic `ActivityDefinition` registry should still wait for the second
+  - the generic `ActivityDefinition` registry should still wait for the third
     activity proof.
 - Evidence depth: Tier 1 static source inspection. No browser/test execution
   was run in this update.
@@ -3637,7 +3637,8 @@ audio, and human-fun evidence remain open.
 - Confirmed the current runtime metrics are already being surfaced in the live
   browser state, alongside a clean run-record verification result.
 - The missing layer is still the canonical capture bundle and tiered evidence
-  summary the contract names.
+  summary the contract names, but the first bundle candidate is now named in
+  the verification-harness contract.
 - This keeps the harness in the right role: it organizes real evidence, but it
   is not yet the finished cross-contract capture package.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
@@ -4658,7 +4659,8 @@ Field 02` in the current daemon snapshot.
 - Appended a new addendum to
   `docs/research/VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md`
   clarifying that the proof surface is real while the canonical bundle and
-  confidence transition rule remain unnamed.
+  confidence transition rule remain unnamed, and then naming the first bundle
+  candidate set explicitly.
 - Evidence depth: Tier 1 static inspection plus live browser status check.
 - Runtime state during this note: browser daemon healthy, current title
   `Rigs Unbound — Field 02`, console logs `0`.
@@ -6848,3 +6850,32 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   `docs/reviews/INTEGRATED_ADMISSION_MATRIX_2026-07-26.md` and linked B7 to it.
   External-player comprehension, representative-device performance, replay
   truth, operator decisions, commit/push, and public deployment remain open.
+
+## 2026-07-26 — replay truth and real-touch fixed-step reconstruction passed
+
+- Added run-record schema 4 replay classes: `supported`, `diagnostic`, and
+  `non-replayable`.
+- Unknown or acceptance-only state-changing commands no longer masquerade as
+  diagnostics or produce a false `verified` result.
+- Added canonical replay handling for repair and reset; acceptance blade, map,
+  and recovery helpers now record the same semantic tap commands as real input.
+- A real-touch first-rung replay initially diverged after 130 input samples by
+  `0.001` in two wheel-compression values. The cause was accumulated
+  floating-point partial steps at elapsed values that represented exact fixed
+  ticks.
+- Added fixed-step alignment within `0.001 ms`, a 240-transition regression
+  test, compact checkpoint difference paths, and
+  `tools/replay-record-inspect.ts`.
+- The captured 252-entry touch record then verified with 225 inputs, three
+  commands, and thirteen checkpoints.
+- Final frozen browser evidence on `4193` passed the full matrix with zero
+  captured console/page problems. It verified the real-touch first rung,
+  verified canonical post-reload history, and rejected a later acceptance-only
+  `placeRig` as `unsupported-entry`.
+- Full verification: 31 Vitest files / 275 tests, 7/7 kernel tests, typecheck,
+  production build, and player-asset boundary passed.
+- During the verification window, concurrent work reintroduced a
+  tractor/blade-specific `first-cut` requirement into the universal first rung.
+  That contradicted B2 and broke typecheck plus two first-rung tests. The
+  rig-neutral “any first compatible fit completes the rung” contract was
+  restored; terrain transformation remains a separate capability proof.

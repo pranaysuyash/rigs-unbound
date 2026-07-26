@@ -14,6 +14,7 @@ describe("first progression rung", () => {
 
   it("points a fresh profile toward the guaranteed authored cache", () => {
     const state = createInitialState();
+    const rig = state.rigs[state.activeRigId];
 
     const result = resolveFirstRung(state, new Set());
 
@@ -25,6 +26,15 @@ describe("first progression rung", () => {
       affordable: false,
       complete: false,
     });
+    const cacheHeading = Math.atan2(
+      FIRST_SALVAGE_NODE.x - rig.x,
+      FIRST_SALVAGE_NODE.z - rig.z,
+    );
+    const headingError = Math.atan2(
+      Math.sin(cacheHeading - rig.heading),
+      Math.cos(cacheHeading - rig.heading),
+    );
+    expect(Math.abs(headingError)).toBeLessThan(0.2);
   });
 
   it("changes to collection guidance only inside real interaction range", () => {
@@ -141,7 +151,10 @@ describe("first progression rung", () => {
     expect(after.lugBonus).toBeGreaterThan(before.lugBonus);
     expect(after.tireGrip).toBeGreaterThan(before.tireGrip);
     const resolution = resolveFirstRung(state, new Set());
-    expect(resolution.stage).toBe("first-cut");
+    expect(resolution).toMatchObject({
+      stage: "free-explore",
+      complete: true,
+    });
     expect(MODULES[FIRST_RUNG_RECOMMENDED_MODULE].promise).toContain(
       "Bites into mud",
     );

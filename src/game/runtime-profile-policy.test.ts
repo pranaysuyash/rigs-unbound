@@ -40,12 +40,16 @@ function snapshot(
     ...baseSnapshot,
     ...overrides,
     sampledAt: overrides.sampledAt ?? baseSnapshot.sampledAt,
-    firstControllableMs: overrides.firstControllableMs ?? baseSnapshot.firstControllableMs,
-    firstInputReadyMs: overrides.firstInputReadyMs ?? baseSnapshot.firstInputReadyMs,
-    firstActionReadyMs: overrides.firstActionReadyMs ?? baseSnapshot.firstActionReadyMs,
+    firstControllableMs:
+      overrides.firstControllableMs ?? baseSnapshot.firstControllableMs,
+    firstInputReadyMs:
+      overrides.firstInputReadyMs ?? baseSnapshot.firstInputReadyMs,
+    firstActionReadyMs:
+      overrides.firstActionReadyMs ?? baseSnapshot.firstActionReadyMs,
     averageFrameMs: overrides.averageFrameMs ?? baseSnapshot.averageFrameMs,
     p95FrameMs: overrides.p95FrameMs ?? baseSnapshot.p95FrameMs,
-    frameSampleCount: overrides.frameSampleCount ?? baseSnapshot.frameSampleCount,
+    frameSampleCount:
+      overrides.frameSampleCount ?? baseSnapshot.frameSampleCount,
     totalFrameSampleCount:
       overrides.totalFrameSampleCount ?? baseSnapshot.totalFrameSampleCount,
     framesPerSecond: overrides.framesPerSecond ?? baseSnapshot.framesPerSecond,
@@ -55,13 +59,15 @@ function snapshot(
     textures: overrides.textures ?? baseSnapshot.textures,
     heapUsedMb: overrides.heapUsedMb ?? baseSnapshot.heapUsedMb,
     loadDurationMs: overrides.loadDurationMs ?? baseSnapshot.loadDurationMs,
-    lastSaveDurationMs: overrides.lastSaveDurationMs ?? baseSnapshot.lastSaveDurationMs,
+    lastSaveDurationMs:
+      overrides.lastSaveDurationMs ?? baseSnapshot.lastSaveDurationMs,
     saveBytes: overrides.saveBytes ?? baseSnapshot.saveBytes,
     terrainBuildMs: overrides.terrainBuildMs ?? baseSnapshot.terrainBuildMs,
     visibility: overrides.visibility ?? baseSnapshot.visibility,
     gpuMemoryMb: overrides.gpuMemoryMb ?? baseSnapshot.gpuMemoryMb,
     largestContentfulPaintMs:
-      overrides.largestContentfulPaintMs ?? baseSnapshot.largestContentfulPaintMs,
+      overrides.largestContentfulPaintMs ??
+      baseSnapshot.largestContentfulPaintMs,
     inputDelayMs: overrides.inputDelayMs ?? baseSnapshot.inputDelayMs,
     cumulativeLayoutShift:
       overrides.cumulativeLayoutShift ?? baseSnapshot.cumulativeLayoutShift,

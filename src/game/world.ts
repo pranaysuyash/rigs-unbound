@@ -1447,9 +1447,10 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
     rigId: "utility-tractor",
     x: HOME_SITE.x,
     z: HOME_SITE.z - 9,
-    // Facing south keeps the first chase view looking back through the authored
-    // Home structures, which continuously exercises obstruction resolution.
-    heading: Math.PI,
+    // Face roughly toward the guaranteed first cache. A new or recovered player
+    // should see playable terrain and the next useful direction, not look back
+    // through workshop geometry merely to exercise camera collision.
+    heading: -Math.PI / 2,
     label: "Torque service berth",
   },
   "toy-buggy": {

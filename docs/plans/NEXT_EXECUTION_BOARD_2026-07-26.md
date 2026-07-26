@@ -152,13 +152,18 @@ Done only when its stated closure evidence exists.
   - Gate: moving-anchor, bounds, profile, screenshot, and runtime-metric
     coverage passes.
 
-- [ ] **B6 — Reconcile replay/run-record truth.**
+- [x] **B6 — Reconcile replay/run-record truth.**
   - Related: RU-0701.
   - Classify every command as replay-supported, diagnostic, or non-replayable.
   - Cover malformed kinds, repair, reset, recovery, map, input timing, and
     acceptance-only commands.
   - Gate: fresh first-rung replay status is honest and unsupported commands are
     visible rather than misrepresented.
+  - Evidence:
+    [Replay and run-record truth acceptance](../reviews/REPLAY_RUN_RECORD_ACCEPTANCE_2026-07-26.md).
+    Schema 4 distinguishes supported, diagnostic, and non-replayable entries;
+    real-touch fixed-step reconstruction, repair/reset, malformed/truncated
+    records, and explicit acceptance-fixture refusal pass.
 
 - [x] **B7 — Run the full integrated admission matrix.**
   - Format and diff hygiene.

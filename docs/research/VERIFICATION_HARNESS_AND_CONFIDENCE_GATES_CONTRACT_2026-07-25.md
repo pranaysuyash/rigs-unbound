@@ -157,3 +157,18 @@ It keeps future confidence changes reproducible and easy to audit.
   - no explicit confidence transition rule is yet attached to a capture bundle.
 - So this contract is correctly staged as the evidence layer above the
   specialized contracts, not as a finished harness product.
+
+## Addendum (2026-07-26) - the first capture bundle candidate is now named, but still not packaged
+
+- The current review-image set gives the harness a concrete starting point for a
+  canonical bundle:
+  - `docs/reviews/assets/field-02-front-forward.png`
+  - `docs/reviews/assets/field-02-top-down.png`
+  - `docs/reviews/assets/first-rung-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-narrow.png`
+- The bundle is still not canonical because the files are not yet grouped,
+  tiered, and accompanied by a shared confidence summary.
+- That means the next proof slice is not another screenshot or another metric;
+  it is packaging the existing evidence into one named bundle with one visible
+  summary of what each capture proves.

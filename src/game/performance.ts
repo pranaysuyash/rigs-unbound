@@ -216,7 +216,10 @@ export class PerformanceMonitor {
         if (layoutShift.hadRecentInput === true) {
           continue;
         }
-        if (typeof layoutShift.value === "number" && Number.isFinite(layoutShift.value)) {
+        if (
+          typeof layoutShift.value === "number" &&
+          Number.isFinite(layoutShift.value)
+        ) {
           this.webVitals.cumulativeLayoutShift += layoutShift.value;
         }
       }
@@ -288,7 +291,9 @@ export class PerformanceMonitor {
         this.webVitals.inputDelayMs === null
           ? null
           : Number(this.webVitals.inputDelayMs.toFixed(1)),
-      cumulativeLayoutShift: Number(this.webVitals.cumulativeLayoutShift.toFixed(4)),
+      cumulativeLayoutShift: Number(
+        this.webVitals.cumulativeLayoutShift.toFixed(4),
+      ),
       longTaskCount: this.webVitals.longTaskCount,
       longTaskDurationMs: Number(this.webVitals.longTaskDurationMs.toFixed(1)),
       loadDurationMs: Number(this.loadDurationMs.toFixed(2)),

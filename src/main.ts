@@ -283,8 +283,7 @@ function boot(): void {
       runtimeProfileSelection = selectRuntimeProfile(
         performanceMonitor.snapshot(renderer.metrics()),
       );
-      statusMessage =
-        `Graphics context restored. Recovered on ${runtimeBridgeMode} profile ${runtimeProfileSelection.profile}.`;
+      statusMessage = `Graphics context restored. Recovered on ${runtimeBridgeMode} profile ${runtimeProfileSelection.profile}.`;
       saveStatus.textContent = statusMessage;
       recordCheckpoint("graphicsContextRestored", {
         profile: runtimeProfileSelection.profile,

@@ -88,6 +88,27 @@ RIGS_PLAYWRIGHT_MODULE=/absolute/path/to/playwright npm run test:browser
 
 This is local Tier 3/4 evidence. It is not a public-deployment or representative-device benchmark.
 
+## Replay record inspector
+
+`replay-record-inspect.ts` validates a JSON run-record export against the
+deterministic replay subset and prints compact divergence paths when a
+checkpoint differs.
+
+```bash
+npx vite-node tools/replay-record-inspect.ts /path/to/run-record.json
+```
+
+It exits zero only for a verified record. Invalid, truncated, unsupported, and
+diverged records exit non-zero, making it suitable for local diagnostics or a
+future CI artifact check.
+
+The Field 02 browser harness can preserve a failed touch replay outside the
+repository when deeper inspection is needed:
+
+```bash
+RIGS_REPLAY_FAILURE_DUMP=/tmp/rigs-touch-run-record.json npm run test:browser
+```
+
 ## Physics Lab 01 browser acceptance
 
 `physics-lab-browser-acceptance.cjs` verifies the bounded Rapier evidence

@@ -3,10 +3,10 @@
 - Date: 2026-07-26
 - Status: local matrix passed; public deployment and fresh-player evidence remain separate gates
 - Risk class: medium gameplay, persistence, input, camera, collision, and presentation integration
-- Exact frozen browser build: `/tmp/rigs-unbound-acceptance.c6sHjF`
+- Exact frozen browser build: `/tmp/rigs-unbound-acceptance.hWrIQK`
 - Live local URL while this task remains active:
-  `http://127.0.0.1:4191/?acceptance=field-02`
-- Player bundle exercised: `assets/field-CjWqzqqX.js`
+  `http://127.0.0.1:4193/?acceptance=field-02`
+- Player bundle exercised: `assets/field-HCf1jyDO.js`
 
 ## User-visible behavior verified
 
@@ -54,7 +54,7 @@ with the currently executable semantic action for any compatible rig.
 
 - `npm test`:
   - 31 Vitest files passed;
-  - 267 Vitest tests passed;
+  - 275 Vitest tests passed;
   - seven deterministic-kernel tests passed.
 - `npm run test:assets`: nine tests passed.
 - `npm run assets:preflight`: four manifest entries, zero findings.
@@ -101,6 +101,14 @@ The harness printed its successful report before Chrome teardown exceeded its
 five-second grace period. The command still exited zero. Teardown latency is a
 tooling cleanup observation, not player-runtime acceptance evidence.
 
+The final replay-aware rerun also proved:
+
+- the real-touch first rung reconstructed 204 input samples, three commands,
+  and thirteen checkpoints without divergence;
+- the canonical post-reload history validated;
+- a later acceptance-only `placeRig` entry changed validation to
+  `unsupported-entry` instead of being silently skipped.
+
 ## Three-pass outcome
 
 ### Pass 1 — immediate correctness and completeness
@@ -127,10 +135,8 @@ deployment gates remain visibly open on the execution board.
 1. Run the external fresh-player comprehension test in A6.
 2. Resolve operator decisions for Survey Route, Unbound Passage sequencing,
    emission/listener admission, and cultivation/schema ownership.
-3. Close replay/run-record command classification in B6.
-4. Run representative-device performance work rather than extrapolating this
+3. Run representative-device performance work rather than extrapolating this
    machine's numbers.
-5. Commit, push, and deploy only after explicit approval and a fresh
+4. Commit, push, and deploy only after explicit approval and a fresh
    preservation audit. The current public Sites version does not contain this
    local tranche.
-

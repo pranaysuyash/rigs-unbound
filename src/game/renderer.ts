@@ -246,6 +246,7 @@ export class GameRenderer {
   private salvageNodes!: THREE.InstancedMesh;
   private furrowDecals!: THREE.InstancedMesh;
   private water!: THREE.Mesh;
+  private waterMaterial!: THREE.ShaderMaterial;
   private sky!: THREE.Mesh;
 
   private dust!: THREE.Points;
@@ -496,20 +497,210 @@ export class GameRenderer {
   }
 
   private buildWater(): void {
+    // Custom water shader with wave animation, foam, depth-based color, and specular highlights
+    const waterUniforms = {
+      time: { value: 0 },
+      waterColor: { value: new THREE.Color(SURFACES.water.color) },
+      waterLevel: { value: WATER_LEVEL },
+      sunDirection: { value: new THREE.Vector3(-0.6, 0.8, -0.4).normalize() },
+      sunColor: { value: new THREE.Color(0xffd58a) },
+      foamColor: { value: new THREE.Color(0xffffff) },
+      deepColor: { value: new THREE.Color(0x0a1f2e) },
+      shallowColor: { value: new THREE.Color(0x2a6b8a) },
+      cameraPosition: { value: new THREE.Vector3() },
+      waveScale: { value: 1.0 },
+      waveSpeed: { value: 0.8 },
+      foamThreshold: { value: 0.65 },
+      foamStrength: { value: 0.35 },
+      specularPower: { value: 40.0 },
+      specularIntensity: { value: 0.6 },
+    };
+
+    const waterMaterial = new THREE.ShaderMaterial({
+      uniforms: waterUniforms,
+      vertexShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldPosition;
+        varying vec3 vNormal;
+
+        uniform float time;
+        uniform float waveScale;
+        uniform float waveSpeed;
+
+        // Gerstner wave function
+        vec3 gerstnerWave(vec2 position, vec2 direction, float amplitude, float wavelength, float speed, float time) {
+          float k = 2.0 * 3.14159265 / wavelength;
+          float c = sqrt(9.81 / k);
+          float f = k * dot(direction, position) - speed * time;
+          float a = amplitude / k;
+
+          float sinF = sin(f);
+          float cosF = cos(f);
+
+          return vec3(
+            direction.x * a * sinF,
+            a * cosF,
+            direction.y * a * sinF
+          );
+        }
+
+        void main() {
+          vUv = uv;
+          vec3 pos = position;
+
+          // Sum multiple Gerstner waves
+          vec3 waveOffset = vec3(0.0);
+          waveOffset += gerstnerWave(pos.xz, normalize(vec2(1.0, 0.3)), 0.15 * waveScale, 12.0, 1.2 * waveSpeed, time);
+          waveOffset += gerstnerWave(pos.xz, normalize(vec2(0.7, -0.7)), 0.1 * waveScale, 8.0, 1.5 * waveSpeed, time);
+          waveOffset += gerstnerWave(pos.xz, normalize(vec2(0.3, 1.0)), 0.08 * waveScale, 5.0, 1.8 * waveSpeed, time);
+          waveOffset += gerstnerWave(pos.xz, normalize(vec2(-0.5, 0.8)), 0.05 * waveScale, 3.0, 2.2 * waveSpeed, time);
+
+          pos += waveOffset;
+
+          // Calculate normal from wave derivatives (simplified)
+          vec2 eps = vec2(0.1, 0.0);
+          float h0 = pos.y;
+          float hx = h0;
+          float hy = h0;
+          
+          // Approximate normal from finite differences
+          vec3 normal = normalize(vec3(
+            -waveOffset.x / 0.1,
+            1.0,
+            -waveOffset.z / 0.1
+          ));
+
+          vNormal = normalize(normalMatrix * normal);
+
+          vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+          vWorldPosition = worldPosition.xyz;
+
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        varying vec3 vWorldPosition;
+        varying vec3 vNormal;
+
+        uniform float time;
+        uniform vec3 waterColor;
+        uniform float waterLevel;
+        uniform vec3 sunDirection;
+        uniform vec3 sunColor;
+        uniform vec3 foamColor;
+        uniform vec3 deepColor;
+        uniform vec3 shallowColor;
+        uniform vec3 cameraPosition;
+        uniform float foamThreshold;
+        uniform float foamStrength;
+        uniform float specularPower;
+        uniform float specularIntensity;
+
+        // Fresnel-Schlick approximation
+        float fresnelSchlick(float cosTheta, float roughness) {
+          float f0 = 0.02;
+          return f0 + (1.0 - f0) * pow(1.0 - cosTheta, 5.0);
+        }
+
+        // Value noise for foam
+        float random(vec2 st) {
+          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+        }
+
+        float noise(vec2 st) {
+          vec2 i = floor(st);
+          vec2 f = fract(st);
+
+          float a = random(i);
+          float b = random(i + vec2(1.0, 0.0));
+          float c = random(i + vec2(0.0, 1.0));
+          float d = random(i + vec2(1.0, 1.0));
+
+          vec2 u = f * f * (3.0 - 2.0 * f);
+
+          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+        }
+
+        // Fractal Brownian Motion
+        float fbm(vec2 st, float time) {
+          float value = 0.0;
+          float amplitude = 0.5;
+          for (int i = 0; i < 5; i++) {
+            value += amplitude * noise(st);
+            st *= 2.0;
+            amplitude *= 0.5;
+          }
+          return value;
+        }
+
+        void main() {
+          // Depth-based color blending
+          float depth = max(0.0, waterLevel - vWorldPosition.y);
+          float depthFactor = smoothstep(0.0, 8.0, depth);
+          vec3 baseColor = mix(shallowColor, deepColor, depthFactor);
+
+          // Fresnel effect for surface reflection
+          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
+          float cosTheta = dot(vNormal, viewDir);
+          float fresnel = pow(1.0 - max(0.0, cosTheta), 4.0);
+
+          // Sun specular (Blinn-Phong)
+          vec3 halfVector = normalize(sunDirection + viewDir);
+          float spec = max(0.0, dot(vNormal, halfVector));
+          float specular = pow(max(spec, 0.0), 40.0) * 0.6;
+
+          // Foam generation using noise
+          float foamNoise = fbm(vUv * 20.0 + vec2(time * 0.1, time * 0.05), time);
+          float foamEdge = smoothstep(0.6, 0.8, foamNoise);
+          
+          // Wave crest foam (based on normal angle)
+          float waveFoam = smoothstep(0.7, 0.95, vNormal.y);
+          
+          // Combine foam sources
+          float foam = max(foamEdge, waveFoam) * 0.35;
+          foam = clamp(foam, 0.0, 1.0);
+
+          // Specular highlight from sun
+          vec3 halfVector = normalize(sunDirection + viewDir);
+          float spec = max(0.0, dot(vNormal, normalize(sunDirection + viewDir)));
+          float sunSpec = pow(max(spec, 0.0), 40.0) * 0.6;
+
+          // Final color composition
+          vec3 color = baseColor;
+          
+          // Add sun specular
+          color += sunColor * sunSpec * max(0.0, dot(vNormal, sunDirection));
+          
+          // Add foam
+          color = mix(baseColor, vec3(1.0, 1.0, 1.0), foam * 0.8);
+          
+          // Add sun specular
+          color += sunColor * sunSpec * max(0.0, dot(vNormal, sunDirection));
+          
+          // Fresnel reflection
+          color = mix(color, vec3(0.2, 0.4, 0.6) * sunColor, fresnel * 0.3);
+          
+          // Final opacity based on depth and angle
+          float opacity = 0.75;
+          opacity *= 1.0 - fresnel * 0.3;
+          
+          gl_FragColor = vec4(color, opacity);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+    });
     this.water = new THREE.Mesh(
-      new THREE.PlaneGeometry(TERRAIN_SPAN, TERRAIN_SPAN, 1, 1),
-      new THREE.MeshStandardMaterial({
-        color: SURFACES.water.color,
-        transparent: true,
-        opacity: 0.76,
-        roughness: 0.16,
-        metalness: 0.3,
-      }),
+      new THREE.PlaneGeometry(TERRAIN_SPAN, TERRAIN_SPAN, 128, 128),
+      waterMaterial,
     );
     this.water.rotation.x = -Math.PI / 2;
     this.water.position.y = WATER_LEVEL;
     this.water.name = "water";
     this.scene.add(this.water);
+
+    this.waterMaterial = waterMaterial;
   }
 
   // ---------------------------------------------------------------------------
@@ -1701,7 +1892,21 @@ export class GameRenderer {
     if (phase === this.currentPhase) return;
     this.currentPhase = phase;
     const stars = this.scene.getObjectByName("night-stars");
-    const waterMaterial = this.water.material as THREE.MeshStandardMaterial;
+    const waterMaterial = this.waterMaterial;
+    const waterUniforms = waterMaterial.uniforms as {
+      waterColor: { value: THREE.Color };
+      deepColor: { value: THREE.Color };
+      shallowColor: { value: THREE.Color };
+    };
+    const setWaterPalette = (
+      waterColor: number,
+      deepColor: number,
+      shallowColor: number,
+    ): void => {
+      waterUniforms.waterColor.value.setHex(waterColor);
+      waterUniforms.deepColor.value.setHex(deepColor);
+      waterUniforms.shallowColor.value.setHex(shallowColor);
+    };
 
     if (phase === "day") {
       this.scene.background = new THREE.Color(0xbfd5c5);
@@ -1710,7 +1915,7 @@ export class GameRenderer {
       this.sun.color.setHex(0xffdeb0);
       this.sun.intensity = 2.5;
       this.hemisphere.intensity = 1.6;
-      waterMaterial.color.setHex(0x3d6672);
+      setWaterPalette(0x3d6672, 0x0b1720, 0x0f3f5f);
       for (const rig of this.rigs.values()) rig.headlights.intensity = 0;
       if (stars) stars.visible = false;
     } else if (phase === "gloam") {
@@ -1720,7 +1925,7 @@ export class GameRenderer {
       this.sun.color.setHex(0xff9d66);
       this.sun.intensity = 1.3;
       this.hemisphere.intensity = 0.9;
-      waterMaterial.color.setHex(0x4a4a58);
+      setWaterPalette(0x4a4a58, 0x17202f, 0x2a5a77);
       for (const rig of this.rigs.values()) rig.headlights.intensity = 60;
       if (stars) stars.visible = true;
     } else {
@@ -1730,7 +1935,7 @@ export class GameRenderer {
       this.sun.color.setHex(0x86a8d6);
       this.sun.intensity = 0.35;
       this.hemisphere.intensity = 0.45;
-      waterMaterial.color.setHex(0x1c3340);
+      setWaterPalette(0x1c3340, 0x060d14, 0x14364c);
       for (const rig of this.rigs.values()) rig.headlights.intensity = 150;
       if (stars) stars.visible = true;
     }
