@@ -422,39 +422,6 @@ export function resolvePrimaryAction(
     };
   }
 
-  /*
-   * The survey contract board, offered at the home site.
-   *
-   * Ranked below cargo because a machine already carrying a crate has a more
-   * specific intent, and above salvage because taking a contract is a deliberate
-   * act while salvage is ambient. It resolves through the same affordance contract
-   * as the crate, so a machine without `survey` gets the same explained refusal
-   * rather than a silently missing prompt.
-   */
-  const surveyAvailable =
-    state.surveyRoute.status === "ready" ||
-    state.surveyRoute.status === "failed";
-  const surveyAffordance = resolveAffordance(
-    SURVEY_CONTRACT_AFFORDANCE,
-    { capabilities: profile.capabilities },
-    {
-      available: surveyAvailable,
-      inRange: isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z),
-    },
-  );
-  if (surveyAffordance.outcome === "legal") {
-    return {
-      kind: "take-survey-contract",
-      label: "Take contract",
-      ariaLabel: "Take the survey contract",
-      affordance: surveyAffordance,
-    };
-  }
-  const surveyMismatch =
-    surveyAffordance.reasonCode === "missing-capability" &&
-    surveyAvailable &&
-    isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
-
   const node = world.exploration.nearestNode(
     rig.x,
     rig.z,
@@ -483,6 +450,36 @@ export function resolvePrimaryAction(
           ariaLabel: "Lower field plough",
         };
   }
+
+  /*
+   * The survey contract board is a deliberate local offer, but it must not hide
+   * ambient actions (collecting salvage) or immediate tool intent (plough control).
+   * Keep this branch after salvage/plough checks so non-survey rigs retain expected
+   * interaction paths at Home.
+   */
+  const surveyAvailable =
+    state.surveyRoute.status === "ready" ||
+    state.surveyRoute.status === "failed";
+  const surveyAffordance = resolveAffordance(
+    SURVEY_CONTRACT_AFFORDANCE,
+    { capabilities: profile.capabilities },
+    {
+      available: surveyAvailable,
+      inRange: isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z),
+    },
+  );
+  if (surveyAffordance.outcome === "legal") {
+    return {
+      kind: "take-survey-contract",
+      label: "Take contract",
+      ariaLabel: "Take the survey contract",
+      affordance: surveyAffordance,
+    };
+  }
+  const surveyMismatch =
+    surveyAffordance.reasonCode === "missing-capability" &&
+    surveyAvailable &&
+    isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
 
   // An impossible opportunity must not hide a legal contextual action such as
   // salvage collection or a fitted tool. Surface the mismatch only as the

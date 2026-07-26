@@ -236,11 +236,111 @@ function boot(): void {
   const acceptanceSurface = surfaceParameters.get("acceptance") === "field-02";
   const developerSurface =
     acceptanceSurface || surfaceParameters.get("surface") === "developer";
-  const renderer = new GameRenderer(
-    canvas,
-    world,
-    runtimeBridgeSpecs(developerSurface ? "developer" : "player"),
-  );
+  const runtimeBridgeMode = developerSurface ? "developer" : "player";
+  let statusMessage = loadResult.message;
+
+  const createRenderer = (): GameRenderer =>
+    new GameRenderer(canvas, world, runtimeBridgeSpecs(runtimeBridgeMode));
+  let renderer = createRenderer();
+  const rendererRecoveryState = {
+    lost: false,
+    restoring: false,
+  };
+
+  const setRecoveryState = (state: "healthy" | "lost" | "restoring"): void => {
+    switch (state) {
+      case "healthy":
+        rendererRecoveryState.lost = false;
+        rendererRecoveryState.restoring = false;
+        break;
+      case "lost":
+        rendererRecoveryState.lost = true;
+        rendererRecoveryState.restoring = false;
+        break;
+      case "restoring":
+        rendererRecoveryState.lost = true;
+        rendererRecoveryState.restoring = true;
+        break;
+    }
+  };
+
+  const disposeRenderer = (): void => {
+    try {
+      renderer.dispose();
+    } catch (error) {
+      console.error("Renderer dispose failed during recovery.", error);
+      if (typeof recordCheckpoint === "function") {
+        recordCheckpoint("rendererDisposeFailed", { error: String(error) });
+      }
+    }
+  };
+
+  const recreateRenderer = (): void => {
+    if (!rendererRecoveryState.lost) return;
+    try {
+      renderer = createRenderer();
+      renderer.invalidate(state);
+      runtimeProfileSelection = selectRuntimeProfile(
+        performanceMonitor.snapshot(renderer.metrics()),
+      );
+      statusMessage =
+        `Graphics context restored. Recovered on ${runtimeBridgeMode} profile ${runtimeProfileSelection.profile}.`;
+      saveStatus.textContent = statusMessage;
+      recordCheckpoint("graphicsContextRestored", {
+        profile: runtimeProfileSelection.profile,
+      });
+      setRecoveryState("healthy");
+      previousTime = performance.now();
+      accumulator = 0;
+      saveAccumulator = 0;
+      active = true;
+      updateInterface(performance.now() + 10);
+      requestAnimationFrame(frame);
+    } catch (error) {
+      disposeRenderer();
+      const message = "Graphics context restore failed. Reload the page.";
+      statusMessage = message;
+      saveStatus.textContent = statusMessage;
+      showToast(message);
+      recordCheckpoint("graphicsContextRestoreFailed", {
+        error: String(error),
+      });
+    }
+  };
+
+  const handleContextLost = (event: Event): void => {
+    const contextEvent = event as WebGLContextEvent & { isLost?: boolean };
+    event.preventDefault();
+    if (rendererRecoveryState.lost) {
+      return;
+    }
+    setRecoveryState("lost");
+    disposeRenderer();
+    active = false;
+    statusMessage = "Graphics context lost. Waiting for restore.";
+    saveStatus.textContent = statusMessage;
+    showToast("Graphics context lost. Reconnect to continue.");
+    recordCheckpoint("graphicsContextLost", {
+      statusMessage: contextEvent.statusMessage ?? null,
+      wasLost: contextEvent.isLost,
+    });
+  };
+  const handleContextRestored = (): void => {
+    if (!rendererRecoveryState.lost) return;
+    setRecoveryState("restoring");
+    recreateRenderer();
+  };
+  const attachContextRecovery = (): void => {
+    canvas.addEventListener("webglcontextlost", handleContextLost);
+    canvas.addEventListener("webglcontextrestored", handleContextRestored);
+  };
+  const detachContextRecovery = (): void => {
+    canvas.removeEventListener("webglcontextlost", handleContextLost);
+    canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+  };
+
+  attachContextRecovery();
+
   const fieldMap = new FieldMap(mapCanvas, world);
   const input = new InputController();
   const audio = new RigAudio();
@@ -422,7 +522,6 @@ function boot(): void {
     requestAnimationFrame(() => enterWorldButton.focus());
   }
 
-  let statusMessage = loadResult.message;
   saveStatus.textContent = statusMessage;
   runtimeDiagnostics.hidden = !developerSurface;
   physicsLabLink.hidden = !developerSurface;
@@ -1676,6 +1775,7 @@ function boot(): void {
     active = false;
     persist();
     input.dispose();
+    detachContextRecovery();
     renderer.dispose();
     audio.dispose();
   };

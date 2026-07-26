@@ -655,16 +655,24 @@ export class GameRenderer {
     this.treeTrunks.count = trees;
     this.treeCrowns.count = trees;
     this.rocks.count = rocks;
-    this.treeBillboards.count = this.treeBillboardCount;
-    this.rockBillboards.count = this.rockBillboardCount;
+    if (this.treeBillboards !== undefined) {
+      this.treeBillboards.count = this.treeBillboardCount;
+    }
+    if (this.rockBillboards !== undefined) {
+      this.rockBillboards.count = this.rockBillboardCount;
+    }
     this.felledTrunks.count = felled;
     this.salvageNodes.count = nodeCount;
 
     this.treeTrunks.instanceMatrix.needsUpdate = true;
     this.treeCrowns.instanceMatrix.needsUpdate = true;
     this.rocks.instanceMatrix.needsUpdate = true;
-    this.treeBillboards.instanceMatrix.needsUpdate = true;
-    this.rockBillboards.instanceMatrix.needsUpdate = true;
+    if (this.treeBillboards !== undefined) {
+      this.treeBillboards.instanceMatrix.needsUpdate = true;
+    }
+    if (this.rockBillboards !== undefined) {
+      this.rockBillboards.instanceMatrix.needsUpdate = true;
+    }
     this.felledTrunks.instanceMatrix.needsUpdate = true;
     this.salvageNodes.instanceMatrix.needsUpdate = true;
 
@@ -701,7 +709,11 @@ export class GameRenderer {
       Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
       visibilityProfile(this.activeVisibilityProfileId),
     );
-    if (tier === "far" && this.treeBillboardCount < MAX_TREE_INSTANCES) {
+    if (
+      tier === "far" &&
+      this.treeBillboards !== undefined &&
+      this.treeBillboardCount < MAX_TREE_INSTANCES
+    ) {
       this.dummy.position.set(
         obstacle.x,
         treeCrownCenterY(obstacle),
@@ -756,7 +768,11 @@ export class GameRenderer {
       Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
       visibilityProfile(this.activeVisibilityProfileId),
     );
-    if (tier === "far" && this.rockBillboardCount < MAX_ROCK_INSTANCES) {
+    if (
+      tier === "far" &&
+      this.rockBillboards !== undefined &&
+      this.rockBillboardCount < MAX_ROCK_INSTANCES
+    ) {
       const halfHeight = rockVisualHalfHeight(obstacle);
       this.dummy.position.set(
         obstacle.x,

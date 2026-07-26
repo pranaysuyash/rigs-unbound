@@ -844,10 +844,27 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
   const touchReplayBeforeReload = await touchFirstRungPage.evaluate(() =>
     window.getRunRecordReplayValidation(),
   );
+  const touchReplayFailureContext =
+    touchReplayBeforeReload.ok === false
+      ? await touchFirstRungPage.evaluate((sequence) => {
+          const record = JSON.parse(window.getRunRecord());
+          return record.entries.filter(
+            (entry) =>
+              typeof entry.sequence === "number" &&
+              entry.sequence >= sequence - 4 &&
+              entry.sequence <= sequence + 2,
+          );
+        }, touchReplayBeforeReload.issues[0]?.sequence ?? 0)
+      : [];
   assert(
     touchReplayBeforeReload.ok === true &&
       touchReplayBeforeReload.status === "verified",
-    `Real-touch first-rung commands did not replay deterministically: ${JSON.stringify(touchReplayBeforeReload)}`,
+    `Real-touch first-rung commands did not replay deterministically: ${JSON.stringify(
+      {
+        validation: touchReplayBeforeReload,
+        entries: touchReplayFailureContext,
+      },
+    )}`,
   );
   await touchFirstRungPage.reload({ waitUntil: "domcontentloaded" });
   await touchFirstRungPage.waitForFunction(
