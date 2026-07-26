@@ -19,8 +19,10 @@ import {
   installModule,
   performPrimaryAction,
   publicState,
+  repairRig,
   selectActiveRig,
   selectCamera,
+  settleWorld,
   recoverState,
   stepGame,
   switchActiveRig,
@@ -224,6 +226,14 @@ function replayCommand(
     }
     case "enterWorld":
       return null;
+    case "repairRig":
+      repairRig(session.state);
+      return null;
+    case "reset":
+      session.world.reset();
+      session.state = createInitialState(session.state.seed);
+      settleWorld(session.state, session.world);
+      return null;
     default:
       return `Replay does not support command '${entry.name}'.`;
   }
@@ -309,10 +319,25 @@ export function validateDeterministicReplay(
   let checkpointsVerified = 0;
 
   for (const entry of record.entries) {
+    if (entry.replayClass === "non-replayable") {
+      return result(
+        "unsupported-entry",
+        [
+          issue(
+            entry.sequence,
+            "unsupported-entry",
+            `Run contains non-replayable ${entry.kind} '${entry.name}'.`,
+          ),
+        ],
+        commandsApplied,
+        inputsApplied,
+        checkpointsVerified,
+        session,
+      );
+    }
     if (
       entry.kind === "command" &&
-      !entry.replayable &&
-      entry.diagnosticsOnly
+      entry.replayClass === "diagnostic"
     ) {
       continue;
     }

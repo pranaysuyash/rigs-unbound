@@ -5,7 +5,9 @@ import {
   cycleCamera,
   performPrimaryAction,
   publicState,
+  repairRig,
   selectCamera,
+  settleWorld,
 } from "./state";
 import { GameWorld } from "./gameworld";
 import {
@@ -94,7 +96,7 @@ describe("deterministic replay validator", () => {
     });
   });
 
-  it("classifies commands outside the portable subset as diagnostics", () => {
+  it("refuses to certify a command outside the portable subset", () => {
     const record = createRunRecord("REPLAY-UNSUPPORTED", 0);
 
     appendRunRecordEntry(record, "command", "placeRig", 0, {
@@ -104,12 +106,82 @@ describe("deterministic replay validator", () => {
 
     expect(record.entries[0]).toMatchObject({
       replayable: false,
-      diagnosticsOnly: true,
+      diagnosticsOnly: false,
+      replayClass: "non-replayable",
     });
+    expect(validateDeterministicReplay(record)).toMatchObject({
+      ok: false,
+      status: "unsupported-entry",
+      commandsApplied: 0,
+      issues: [
+        expect.objectContaining({
+          sequence: 0,
+          message: "Run contains non-replayable command 'placeRig'.",
+        }),
+      ],
+    });
+  });
+
+  it("ignores a diagnostic-only runner control without certifying a mutation", () => {
+    const record = createRunRecord("REPLAY-DIAGNOSTIC", 0);
+    const state = createInitialState(record.seed);
+    const world = new GameWorld(record.seed);
+
+    appendRunRecordEntry(
+      record,
+      "command",
+      "setAcceptanceManualStepping",
+      0,
+      { enabled: true },
+    );
+    checkpoint(record, state, world, "after-runner-control");
+
     expect(validateDeterministicReplay(record)).toMatchObject({
       ok: true,
       status: "verified",
       commandsApplied: 0,
+      checkpointsVerified: 1,
+    });
+  });
+
+  it("replays repair and reset through canonical reducers", () => {
+    const state = createInitialState("REPLAY-RECOVERY");
+    const world = new GameWorld(state.seed);
+    state.salvage = 10;
+    state.rigs[state.activeRigId].condition = 50;
+
+    const contextualRecord = createRunRecord(
+      state.seed,
+      0,
+      createRunRecordInitialContext(state, world),
+    );
+    appendRunRecordEntry(
+      contextualRecord,
+      "command",
+      "repairRig",
+      state.elapsedMs,
+      {},
+    );
+    repairRig(state);
+    checkpoint(contextualRecord, state, world, "after-repair");
+
+    appendRunRecordEntry(
+      contextualRecord,
+      "command",
+      "reset",
+      state.elapsedMs,
+      {},
+    );
+    world.reset();
+    const resetState = createInitialState(state.seed);
+    settleWorld(resetState, world);
+    checkpoint(contextualRecord, resetState, world, "after-reset");
+
+    expect(validateDeterministicReplay(contextualRecord)).toMatchObject({
+      ok: true,
+      status: "verified",
+      commandsApplied: 2,
+      checkpointsVerified: 2,
     });
   });
 

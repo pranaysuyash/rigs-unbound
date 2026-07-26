@@ -100,7 +100,6 @@ import {
   saveState,
 } from "./game/storage";
 import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
-import { type VisibilityProfileId } from "./game/visibility";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
@@ -1506,16 +1505,17 @@ function boot(): void {
     return settleAndReport();
   };
   window.toggleBlade = () => {
+    recordCommand("tap", { action: "blade", source: "acceptance" });
     toggleBladeMode(state);
     return settleAndReport();
   };
   window.winchRecoverRig = () => {
-    recordCommand("winchRecoverRig", {});
+    recordCommand("tap", { action: "recover", source: "acceptance" });
     winchRecover(state, world);
     return settleAndReport();
   };
   window.toggleFieldMap = () => {
-    recordCommand("toggleFieldMap", {});
+    recordCommand("tap", { action: "map", source: "acceptance" });
     toggleMap(state);
     mapOverlay.hidden = !state.mapOpen;
     if (state.mapOpen) fieldMap.draw(state);
@@ -1548,12 +1548,6 @@ function boot(): void {
   window.getPerformanceSnapshot = () =>
     performanceMonitor.snapshot(renderer.metrics());
 
-  // Evidence-only: expose renderer profile switching for acceptance scripts.
-  // Temporary bridge — remove after the prop-count evidence capture.
-  (window as any).__forceProfile = (id: VisibilityProfileId) => {
-    renderer.setVisibilityProfile(id, state);
-    renderer.invalidate(state);
-  };
   recordCheckpoint("boot");
 
   // ---------------------------------------------------------------------------

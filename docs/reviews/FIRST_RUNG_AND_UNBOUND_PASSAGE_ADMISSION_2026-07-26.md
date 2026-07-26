@@ -131,3 +131,29 @@ forward without discarding parallel work or creating a second authority model.
   `tools/rig-lab-browser-acceptance.cjs` and its evidence assets are active
   parallel surfaces. Do not treat the green unit/integration suite as browser
   comprehension or mobile proof.
+
+## Addendum (2026-07-26) — version 10 closes the first-rung browser gate
+
+The historical “browser acceptance remains open” statements above are now
+superseded for the first rung.
+
+Sites version 10, sourced from
+`6b4536f900cc98404767096cd3eb4f45bac53fda`, passed the full production browser
+harness on desktop and a `390×844` real-touch context with zero captured console
+problems. Both paths recovered the authored five-salvage cache, returned Home,
+fitted lug tyres, observed the visible module, reloaded, and restored canonical
+`free-explore` completion.
+
+The admitted contract is:
+
+- fitting any meaningful first module completes the mandatory first rung;
+- “use the fitted part” is free-exploration guidance, not a shadow quest state;
+- a first-cut is optional immediate proof for a plough-capable rig or a beat
+  inside Unbound Passage;
+- first-cut is not universal onboarding, because the first fitted rig or module
+  may not expose the plough capability.
+
+Unbound Passage runtime wiring, inherited-route browser proof, and external
+fresh-player comprehension remain open. See
+`SITES_VERSION_10_RELEASE_2026-07-26.md` for exact provenance, evidence tiers,
+visual findings, and the production acceptance record.

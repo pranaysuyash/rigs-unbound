@@ -27,6 +27,7 @@ describe("run record", () => {
       originDomain: "input",
       replayable: true,
       diagnosticsOnly: false,
+      replayClass: "supported",
       name: "enterWorld",
       elapsedMs: 0,
       payload: { source: "test" },
@@ -87,8 +88,8 @@ describe("run record", () => {
   it("assigns ordered envelope metadata without collapsing repeated inputs", () => {
     const record = createRunRecord("field-02", 0);
 
-    appendRunRecordEntry(record, "input", "forward", 0);
-    appendRunRecordEntry(record, "input", "forward", 1);
+    appendRunRecordEntry(record, "input", "sample", 0);
+    appendRunRecordEntry(record, "input", "sample", 1);
     appendRunRecordEntry(record, "checkpoint", "post-input", 2, {
       tickHash: "h1234",
     });
@@ -112,6 +113,12 @@ describe("run record", () => {
       true,
       false,
       false,
+    ]);
+    expect(record.entries.map((entry) => entry.replayClass)).toEqual([
+      "supported",
+      "supported",
+      "diagnostic",
+      "diagnostic",
     ]);
     expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
   });
@@ -138,7 +145,7 @@ describe("run record", () => {
     expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
   });
 
-  it("marks non-portable commands as diagnostics instead of replay promises", () => {
+  it("marks non-portable commands as non-replayable instead of diagnostics", () => {
     const record = createRunRecord("field-02", 0);
 
     appendRunRecordEntry(record, "command", "placeRig", 0, {
@@ -149,7 +156,28 @@ describe("run record", () => {
     expect(record.entries[0]).toMatchObject({
       originDomain: "input",
       replayable: false,
+      diagnosticsOnly: false,
+      replayClass: "non-replayable",
+    });
+    expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
+  });
+
+  it("keeps non-mutating acceptance runner controls diagnostic-only", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(
+      record,
+      "command",
+      "setAcceptanceManualStepping",
+      0,
+      { enabled: true },
+    );
+
+    expect(record.entries[0]).toMatchObject({
+      originDomain: "input",
+      replayable: false,
       diagnosticsOnly: true,
+      replayClass: "diagnostic",
     });
     expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
   });

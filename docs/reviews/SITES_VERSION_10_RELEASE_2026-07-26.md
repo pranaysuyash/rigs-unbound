@@ -165,14 +165,14 @@ Inferred or still unknown:
 - broader device/GPU/browser performance;
 - gamepad and assistive-technology quality;
 - whether the current HUD experiments should remain canonical;
-- whether first-cut should be mandatory, optional proof, or the opening of the
-  next vertical slice.
+- how first-cut should be presented: optional immediate proof or the opening
+  beat of the next vertical slice. It is not mandatory first-rung completion.
 
 ## Next closure path
 
 1. Treat fitting the first module as completion of the mandatory first rung.
 2. Keep first-cut as an immediate optional proof or as the opening beat of
-   Unbound Passage, pending the recorded operator decision.
+   Unbound Passage; do not make it universal onboarding.
 3. Fix narrow chase framing before claiming responsive visual acceptance.
 4. Establish a first-session HUD budget and progressive disclosure policy.
 5. Rerun local dev and preview acceptance from a stable, non-mutating build.
@@ -199,4 +199,3 @@ as explicit product contracts rather than treating test success as sufficient.
 Recorded exact checks, evidence tiers, inferred claims, artifacts, remaining
 risks, and closure steps. No local parallel changes were discarded or rewritten
 for this release.
-

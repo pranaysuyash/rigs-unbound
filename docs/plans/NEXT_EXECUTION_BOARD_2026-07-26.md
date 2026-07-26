@@ -4,7 +4,7 @@
 - Status: active, living execution board
 - Canonical parent: [Master Execution Tracker](MASTER_EXECUTION_TRACKER.md)
 - Product direction: [Exploration Map](../exploration/EXPLORATION_MAP.md)
-- Release evidence: [Sites Version 9 Release](../reviews/SITES_VERSION_9_RELEASE_2026-07-26.md)
+- Release evidence: [Sites Version 10 Release](../reviews/SITES_VERSION_10_RELEASE_2026-07-26.md)
 - Owner: project owner; agents update status and evidence in the same change
 
 This is the focused working view of the larger master tracker. It does not
@@ -182,13 +182,19 @@ Done only when its stated closure evidence exists.
     invalidating shared `dist` asset hashes. Public deployment and external
     comprehension remain separate gates.
 
-- [ ] **B8 — Commit, push, and deploy admitted groups.**
+- [x] **B8 — Commit, push, and deploy admitted groups.**
   - Re-run preservation audit before each mutation.
   - Commit by coherent concern only after its gates pass.
   - Run the complete managed hook.
   - Push, verify GitHub, save/deploy exact source in Sites, and rerun public
     acceptance.
   - Gate: local, GitHub, Sites, tests, browser, and docs agree.
+  - Evidence: the admitted integration checkpoints were pushed through
+    `6b4536f900cc98404767096cd3eb4f45bac53fda`; that exact source was built in
+    isolation, saved as Sites version 10, deployed successfully, and passed the
+    full public production browser harness with zero captured console problems.
+    See
+    [Sites Version 10 Release](../reviews/SITES_VERSION_10_RELEASE_2026-07-26.md).
 
 ## Phase C — Next playable vertical
 

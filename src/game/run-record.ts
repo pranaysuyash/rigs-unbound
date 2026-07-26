@@ -7,7 +7,12 @@ export type RunRecordKind =
 
 export type RunRecordOriginDomain = "input" | "simulation" | "storage";
 
-export const RUN_RECORD_SCHEMA_VERSION = 3;
+export type RunRecordReplayClass =
+  | "supported"
+  | "diagnostic"
+  | "non-replayable";
+
+export const RUN_RECORD_SCHEMA_VERSION = 4;
 export const RUN_RECORD_EVENT_VERSION = 1;
 export const RUN_RECORD_INITIAL_CONTEXT_VERSION = 1;
 
@@ -24,6 +29,13 @@ export interface RunRecordEntry {
   replayable: boolean;
   /** True for observability anchors that never mutate replay state. */
   diagnosticsOnly: boolean;
+  /**
+   * Honest replay admission:
+   * - supported entries reconstruct deterministic state;
+   * - diagnostic entries are observations and may be ignored;
+   * - non-replayable entries can change the run but cannot be reconstructed.
+   */
+  replayClass: RunRecordReplayClass;
   name: string;
   elapsedMs: number;
   atMs: number;
@@ -114,53 +126,74 @@ const REPLAYABLE_COMMAND_NAMES = new Set([
   "primaryAction",
   "tap",
   "enterWorld",
+  "repairRig",
+  "reset",
 ]);
 
 export function isReplayableCommandName(name: string): boolean {
   return REPLAYABLE_COMMAND_NAMES.has(name);
 }
 
+const DIAGNOSTIC_COMMAND_NAMES = new Set(["setAcceptanceManualStepping"]);
+
 function eventMetadata(
   kind: RunRecordKind,
   name: string,
-): Pick<RunRecordEntry, "originDomain" | "replayable" | "diagnosticsOnly"> {
+): Pick<
+  RunRecordEntry,
+  "originDomain" | "replayable" | "diagnosticsOnly" | "replayClass"
+> {
   switch (kind) {
-    case "input":
+    case "input": {
+      const supported = name === "sample";
       return {
         originDomain: "input",
-        replayable: true,
+        replayable: supported,
         diagnosticsOnly: false,
+        replayClass: supported ? "supported" : "non-replayable",
       };
-    case "command":
-      const replayable = isReplayableCommandName(name);
+    }
+    case "command": {
+      const supported = isReplayableCommandName(name);
+      const diagnostic = DIAGNOSTIC_COMMAND_NAMES.has(name);
       return {
         originDomain: "input",
-        replayable,
-        diagnosticsOnly: !replayable,
+        replayable: supported,
+        diagnosticsOnly: diagnostic,
+        replayClass: supported
+          ? "supported"
+          : diagnostic
+            ? "diagnostic"
+            : "non-replayable",
       };
+    }
     case "checkpoint":
       return {
         originDomain: "simulation",
         replayable: false,
         diagnosticsOnly: true,
+        replayClass: "diagnostic",
       };
     case "event":
       return {
         originDomain: "simulation",
         replayable: false,
         diagnosticsOnly: true,
+        replayClass: "diagnostic",
       };
     case "load":
       return {
         originDomain: "storage",
         replayable: false,
         diagnosticsOnly: true,
+        replayClass: "diagnostic",
       };
     case "save":
       return {
         originDomain: "storage",
         replayable: false,
         diagnosticsOnly: true,
+        replayClass: "diagnostic",
       };
   }
 }
@@ -278,10 +311,21 @@ export function verifyRunRecord(record: RunRecord): RunRecordVerification {
     ) {
       issues.push(`Entry ${index} has an invalid origin domain.`);
     }
-    if (entry.replayable === entry.diagnosticsOnly) {
-      issues.push(
-        `Entry ${index} must be either replayable or diagnostics-only.`,
-      );
+    if (
+      entry.replayClass !== "supported" &&
+      entry.replayClass !== "diagnostic" &&
+      entry.replayClass !== "non-replayable"
+    ) {
+      issues.push(`Entry ${index} has an invalid replay class.`);
+    } else if (
+      (entry.replayClass === "supported" &&
+        (!entry.replayable || entry.diagnosticsOnly)) ||
+      (entry.replayClass === "diagnostic" &&
+        (entry.replayable || !entry.diagnosticsOnly)) ||
+      (entry.replayClass === "non-replayable" &&
+        (entry.replayable || entry.diagnosticsOnly))
+    ) {
+      issues.push(`Entry ${index} has inconsistent replay flags.`);
     }
     if (
       entry.kind !== "command" &&
@@ -298,7 +342,8 @@ export function verifyRunRecord(record: RunRecord): RunRecordVerification {
     if (
       entry.originDomain !== expectedMetadata.originDomain ||
       entry.replayable !== expectedMetadata.replayable ||
-      entry.diagnosticsOnly !== expectedMetadata.diagnosticsOnly
+      entry.diagnosticsOnly !== expectedMetadata.diagnosticsOnly ||
+      entry.replayClass !== expectedMetadata.replayClass
     ) {
       issues.push(`Entry ${index} has metadata incompatible with its kind.`);
     }
