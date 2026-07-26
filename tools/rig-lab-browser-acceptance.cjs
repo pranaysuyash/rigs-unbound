@@ -145,6 +145,7 @@ async function driveToWithKeyboard(
   target,
   stoppingRadius,
   maxSteps = 220,
+  terminalFirstRungStage = null,
 ) {
   let nearestDistance = Number.POSITIVE_INFINITY;
   let finalRig = null;
@@ -153,6 +154,20 @@ async function driveToWithKeyboard(
   for (let step = 0; step < maxSteps; step += 1) {
     const current = await state(page);
     const rig = current.activeRig;
+    if (
+      terminalFirstRungStage !== null &&
+      current.progression.firstRung.stage === terminalFirstRungStage
+    ) {
+      await page.keyboard.up("KeyW");
+      await page.keyboard.up("KeyS");
+      await page.keyboard.up("KeyA");
+      await page.keyboard.up("KeyD");
+      return {
+        steps: step,
+        nearestDistance,
+        terminalFirstRungStage,
+      };
+    }
     finalRig = rig;
     finalDiagnostic = current.lastDiagnostic;
     const dx = target.x - rig.x;
@@ -405,8 +420,9 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   const homeApproach = await driveToWithKeyboard(
     firstRungPage,
     { x: -10, z: 8 },
-    2.5,
+    4,
     180,
+    "choose-part",
   );
   const homeStop = await stopWithKeyboard(firstRungPage);
   await firstRungPage.waitForFunction(
@@ -1158,7 +1174,19 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   });
 
   await page.waitForFunction(
-    () => window.getPerformanceSnapshot().saveBytes > 0,
+    () => {
+      const raw = localStorage.getItem("rigs-unbound.save.v6");
+      if (!raw) return false;
+      try {
+        const payload = JSON.parse(raw);
+        return (
+          payload?.state?.cargoRelay?.status === "complete" &&
+          window.getPerformanceSnapshot().saveBytes > 0
+        );
+      } catch {
+        return false;
+      }
+    },
     undefined,
     { timeout: 12_000 },
   );

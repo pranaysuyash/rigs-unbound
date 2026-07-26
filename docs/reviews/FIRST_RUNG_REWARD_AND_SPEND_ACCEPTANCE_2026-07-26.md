@@ -109,10 +109,11 @@ browser acceptance remain explicit open gates.
 
 ## Remaining gates
 
-- [ ] Full tests, kernel probe, asset tests/preflight, typecheck, format, build.
-- [ ] Exact final `4173` browser acceptance.
-- [ ] Rebuilt exact-final `4174` browser acceptance and direct asset-path checks.
-- [ ] Inspect the refreshed first-rung desktop and narrow captures.
+- [x] Full tests, kernel probe, asset tests/preflight, typecheck, format, build.
+- [x] Exact final `4173` browser acceptance.
+- [x] Rebuilt exact-final `4174` browser acceptance and bundled asset-boundary
+      assertion.
+- [x] Inspect the refreshed first-rung desktop and narrow captures.
 - [ ] Full motto-v4 hook with fresh attestation.
 - [ ] `git add -A`, commit without agent attribution, push, and remote-SHA proof.
 - [ ] Sites save/deploy from that exact pushed source state.
@@ -126,6 +127,45 @@ Yes. The immediate product constraint is no longer missing systems; it is
 feedback hierarchy and visual breathing room. The next UI pass should show one
 primary interaction layer at a time and treat the narrow screenshot as an
 active design problem rather than a checkbox.
+
+## Addendum (2026-07-26) — finalized 4173 and 4174 acceptance
+
+The finalized combined harness passed against both required local surfaces:
+
+- `http://127.0.0.1:4173/?acceptance=field-02` — development surface, developer
+  asset bridges required and resolved;
+- `http://127.0.0.1:4174/?acceptance=field-02` — freshly rebuilt
+  production-like surface, developer asset bridges required to be absent.
+
+Both runs completed the real-keyboard first rung without teleporting or
+granting state: drive to the authored cache, stop, collect with Space, drive
+back into the canonical Home service area, stop, fit Lug tyres through the
+workshop button, observe the visible tread, save, reload, and observe the fitted
+module again. Both continued through the cross-rig, relay, ramp, terrain-face,
+deep-water hover, camera, reduced-motion, desktop, and `390×844` matrix with
+zero captured console/page problems.
+
+The harness corrections found during stabilization were contract corrections,
+not bypasses:
+
+- the hover fixture now points away from the Sunken Flats stilt so collision
+  damage cannot masquerade as drowning;
+- the production build expects zero developer bridges on both initial and
+  recreated pages;
+- cache interaction brakes before Act so momentum cannot leave the pickup
+  radius;
+- Home return terminates on the real `choose-part` state transition instead of
+  requiring point-perfect parking;
+- recreated contexts clear storage once before asserting fresh Home berths;
+- boot-relative input readiness is no longer numerically compared with
+  entry-relative controllable-frame latency.
+
+Visual inspection is deliberately not marked as public-quality closure.
+`first-rung-desktop.png` proves the fitted tread and Long Furrow consequence,
+but the side camera is too close to the barn/tractor and simultaneous
+workshop/HUD layers crowd the frame. The narrow capture is unclipped but still
+overloaded. These are active visual-composition tasks, not failures of the
+functional first-rung contract.
 
 ## Addendum (2026-07-26) — current 4180 full acceptance pass
 

@@ -1,6 +1,6 @@
 # ADR-0006: Rig profiles, capabilities, and contrasting evidence
 
-- Status: **Accepted**
+- Status: **Accepted product principle; implemented contrasting evidence**
 - Date: 2026-07-25
 - Decision owner: project owner
 - Implementation owner: current project agent
@@ -89,6 +89,12 @@ The v2 schema may migrate again; it must not be silently rewritten in place. A f
 ## Update log
 
 - 2026-07-25: Accepted after the project owner supplied the broad vehicle-universe hierarchy, portability test, and adjacent-capability sequence and asked implementation to continue.
+- 2026-07-26: Provenance scope corrected. The operator directly established
+  the broad vehicle-universe and no-tractor-privilege principle. The exact
+  buggy/towing/ramp fixture was supplied through ChatGPT background and selected
+  as an implementation hypothesis; its runtime evidence does not make that
+  fixture a permanent product mandate. Effective status is indexed in
+  [the decision register](README.md).
 
 ## Anything else?
 

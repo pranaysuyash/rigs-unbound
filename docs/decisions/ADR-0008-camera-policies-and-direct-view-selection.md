@@ -1,7 +1,8 @@
 # ADR-0008: Camera policies and direct view selection
 
 - Date: 2026-07-25
-- Status: accepted for the local reference runtime
+- Status: direct operator outcome; implemented and verified for the local
+  reference runtime
 - Owner / next reviewer: project owner
 - Affected runtime: `src/game/contracts.ts`, `src/game/state.ts`, `src/game/renderer.ts`, `src/main.ts`
 
@@ -149,3 +150,7 @@ rig demonstrates that the current profile-scaled envelope is insufficient.
 
 - 2026-07-26: Added signed camera-side observability, rear-side browser
   assertions, and final rig-clearance fallback.
+- 2026-07-26: Status vocabulary corrected. Direct camera-selection and
+  top-down-view outcomes are operator direction; the exact local policy and
+  collision implementation are runtime evidence, not a universal camera
+  architecture sign-off. See [the decision register](README.md).

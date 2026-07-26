@@ -1,7 +1,7 @@
 # ADR-0009: Bounded mobility adapters own locomotion-specific state
 
 - Date: 2026-07-25
-- Status: accepted for the bounded Field 02 proof
+- Status: implemented and verified for the bounded Field 02 proof
 - Decision owner: project owner through the standing vehicle-universe mandate
 - Implementation owner: current project agent
 - Next reviewer: project owner after Marsh Skimmer browser evidence
@@ -188,3 +188,8 @@ one bounded adapter plus one renderer factory, the experiment has failed.
   direction. This does not invalidate bounded mobility adapters: controller
   family and solver implementation remain separate decisions, and the authored
   ground/hover adapters remain comparison evidence.
+- 2026-07-26: Status and physics provenance corrected. The bounded ground/hover
+  adapter proof is implemented and verified; the historical solver-acceptance
+  statement above is no longer current authority. ADR-0017 now records Rapier
+  and Box3D as evidence fixtures, and ADR-0023 remains Proposed. See
+  [the decision register](README.md).

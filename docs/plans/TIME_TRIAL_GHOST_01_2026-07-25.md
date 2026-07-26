@@ -1,7 +1,8 @@
 # Plan: Time Trial 01 — circuits, checkpoints, and ghost replay
 
 Date: 2026-07-25
-Status: **planned; queued behind Farmfall Slice 01** (operator direction 2026-07-25: "do all" — this is the third workstream)
+Status: **queued execution candidate; exact design remains proposed** (the
+operator's “do all” direction keeps the workstream in scope)
 Decisions: ADR-0002 addendum (same-fleet time trial as cross-mode proof),
 ADR-0014 step 4 (replay/run-records), ADR-0003 (`RunSpec`/`RunRecord` model),
 ADR-0006 (capability portability — circuits must not require a specific rig).
@@ -75,3 +76,11 @@ Yes. The ghost is the cheapest possible rehearsal for the hardest deferred
 system (authority/netcode). Treat its bit-exactness gate as non-negotiable:
 a ghost that "mostly" replays is evidence the determinism contract is broken,
 and everything downstream (replays, spectating, authority) inherits the rot.
+
+## Addendum — 2026-07-26 provenance boundary
+
+The workstream remains required by the operator's “do all” direction. The
+specific circuit schema, record caps, shadow-state strategy, save version, and
+presentation remain agent-authored proposals until implementation and evidence
+justify them. This preserves the obligation without treating the first plan
+draft as operator-signed architecture.

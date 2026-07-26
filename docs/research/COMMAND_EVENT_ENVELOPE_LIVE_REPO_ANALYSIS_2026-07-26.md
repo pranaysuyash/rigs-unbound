@@ -126,3 +126,15 @@ That keeps the work aligned with the roadmap:
   reusable world-event handler system.
 - Evidence depth: Tier 1 static source inspection. No fresh browser capture or
   test execution was run in this pass.
+
+## Addendum (2026-07-26) - episode grammar depends on this envelope to stay inspectable
+
+- Re-checked the envelope against the episode-grammar direction.
+- Episode grammar can name the lived moment only if the command/event envelope
+  can carry authoritative outcomes, replay classification, and diagnostics
+  without becoming a second authority surface.
+- The run record remains the current audit spine; it should feed replay and
+  consequence inspection, not replace the story-composition layer.
+- The next durable step is still the shared event graph, but the envelope is
+  the prerequisite boundary beneath it.
+- Evidence tier: Tier 1 static inspection.

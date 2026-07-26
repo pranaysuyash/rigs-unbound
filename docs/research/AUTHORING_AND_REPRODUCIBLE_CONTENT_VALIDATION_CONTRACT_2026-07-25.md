@@ -232,3 +232,17 @@ validated content without guessing where it came from.
   the general authoring contract remains future-facing until the non-asset
   content lifecycle is named with the same rigor.
 - Evidence depth: Tier 1 static source and schema inspection.
+
+## Addendum (2026-07-26) - episode grammar needs this envelope, but it does not replace it
+
+- Re-checked the general authoring contract against the compositional episode
+  grammar direction.
+- Episode grammar can compose on top of validated authored content, but it
+  cannot substitute for the content-manifest, provenance, validation-result, or
+  lifecycle rules that make authored content reproducible.
+- That means the authoring envelope is the upstream truth for activities,
+  modules, and generated content, while episode grammar is the downstream story
+  composition layer.
+- The next durable proof remains a versioned general content-manifest schema
+  that can classify validation-only, runtime-ready, and deprecated states.
+- Evidence tier: Tier 1 static inspection.

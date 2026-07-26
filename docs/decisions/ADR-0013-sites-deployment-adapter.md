@@ -1,7 +1,7 @@
 # ADR-0013: Sites deployment adapter
 
 - Date: 2026-07-25
-- Status: Accepted
+- Status: implemented and verified deployment adapter
 - Owner / next reviewer: project owner
 
 ## Context
@@ -60,12 +60,18 @@ Keep the existing Vite application and add one bounded deployment adapter:
 
 ### 2026-07-25 — Operational handoff added
 
-The accepted adapter remains unchanged. The repeatable source-push, build,
+The implemented adapter remains unchanged. The repeatable source-push, build,
 package, version, public-deploy, verification, rollback, and cross-agent
 handoff procedure now lives in
 [Sites update and deployment runbook](../operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md).
 This separates the durable architecture decision from its evolving operational
 procedure without creating a second deployment source of truth.
+
+### 2026-07-26 — Status vocabulary correction
+
+This ADR records the implemented Sites adapter and release evidence. It does
+not establish permanent operator sign-off on one hosting provider. Effective
+status is indexed in [the decision register](README.md).
 
 ## Anything else?
 

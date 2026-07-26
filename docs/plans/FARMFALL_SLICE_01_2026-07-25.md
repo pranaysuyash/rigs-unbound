@@ -1,7 +1,9 @@
 # Plan: Farmfall Slice 01 — crops, signature ecology, night threats, dawn consequences + mastery kernel
 
 Date: 2026-07-25
-Status: **active implementation plan** (operator direction 2026-07-25: "do all"; scope revised same day after simulated-playtest synthesis)
+Status: **active execution candidate; exact design remains proposed** (the
+operator's “do all” direction keeps the workstream in scope; it does not accept
+every agent-authored implementation detail)
 
 ## Scope revision — 2026-07-25 (playtest-driven, prepended as Phase 0)
 
@@ -147,3 +149,12 @@ hunters of noise/light — or we recreate the "generic spider drone" problem
 this slice exists to kill; (2) the night must be **worth** entering: mature
 crops harvested at night should carry a bonus or exclusivity, otherwise the
 optimal strategy is to sleep through the game's central loop.
+
+## Addendum — 2026-07-26 provenance and sequencing
+
+The operator's “do all” instruction establishes that Farmfall remains an open
+workstream. It does not convert the proposed signature formula, threat family,
+crop bounds, save version, mastery balance, or presentation into accepted
+architecture before implementation evidence exists. Each phase remains subject
+to the current code, decision register, tests, browser evidence, and
+first-principles review.

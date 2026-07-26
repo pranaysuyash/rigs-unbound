@@ -111,3 +111,14 @@ Replace this gate with an implemented, versioned director contract only when a r
 ## Anything else?
 
 Yes: procedural selection and AI-driven generation are separate risks. A deterministic authored candidate selector is the first proof; model-assisted content adds a distinct untrusted-input, privacy, cost, and safety layer that requires its own decision record.
+
+## Addendum (2026-07-26) - the director remains a proposal layer above episode grammar
+
+- Re-checked the admission gate against the broader compositional direction.
+- The procedural director may rank or propose candidates, but it should not own
+  story composition, world mutation, or player preference inference.
+- Episode grammar remains the layer that composes the lived run; the director
+  only feeds validated options into that story system.
+- The first durable proof is still a small authored multi-candidate choice, not
+  a generative or personalized runtime.
+- Evidence tier: Tier 1 static inspection.

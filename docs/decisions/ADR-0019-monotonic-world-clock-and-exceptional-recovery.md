@@ -1,15 +1,18 @@
 # ADR-0019 — Monotonic world clock and exceptional recovery
 
 - Date: 2026-07-26
-- Status: Accepted and implemented
+- Status: implemented and verified for the current runtime
 - Owner: Rigs Unbound runtime
 - Related work: RU-0106 through RU-0109
 
 ## Update log
 
-- 2026-07-26 — Accepted and implemented as the state-contract repair for the
+- 2026-07-26 — Implemented and verified as the state-contract repair for the
   four P0 fresh-eyes defects. The decision preserves the canonical Rig and
   capability model while assigning schema v5 to clock/recovery state.
+- 2026-07-26 — Status vocabulary corrected: runtime evidence is not operator
+  sign-off on a permanent product policy. See
+  [the decision register](README.md).
 
 ## Context
 

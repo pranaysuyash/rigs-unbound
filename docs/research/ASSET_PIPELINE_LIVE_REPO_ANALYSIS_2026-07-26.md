@@ -110,3 +110,16 @@ loading.
 
 Evidence tier: Tier 1 static inspection. This note does not claim a new runtime
 capture or a budget approval.
+
+## Addendum (2026-07-26) - public approval is the promotion gate, not the bridge proof
+
+- Re-checked the bridge contract against the current asset/provenance lane.
+- `runtime-tested` is the browser proof that the runtime can ingest the GLB.
+- `publicRuntimeApproved` is the separate decision that allows the player
+  surface to treat that asset as shippable truth.
+- That promotion gate belongs to the asset/provenance lane, not to episode
+  grammar or any other story-composition surface.
+- The durable next step is a separate promotion record with rights,
+  provenance, consumer budget, and operator-visible reason attached to the
+  approval decision.
+- Evidence tier: Tier 1 static inspection.

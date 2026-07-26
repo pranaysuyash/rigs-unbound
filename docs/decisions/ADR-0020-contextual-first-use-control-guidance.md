@@ -1,7 +1,7 @@
 # ADR-0020 — Contextual first-use control guidance
 
 - Date: 2026-07-26
-- Status: Accepted and implemented locally
+- Status: implemented and verified locally; release evidence remains open
 - Owner: Rigs Unbound interaction shell
 - Related runtime: Field 02
 
@@ -91,3 +91,10 @@ a parallel tutorial system.
 The permanent control strip, contextual prompt, and first-use lesson serve
 different jobs: recall, immediate affordance, and explanation. They should share
 semantic action truth while remaining distinct presentation layers.
+
+## Update log
+
+- 2026-07-26: Status vocabulary corrected. The local implementation and
+  browser evidence are real; exact-final preview, real-touch, public release,
+  and human-comprehension evidence remain open. See
+  [the decision register](README.md).

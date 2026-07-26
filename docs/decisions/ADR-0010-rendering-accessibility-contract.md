@@ -121,10 +121,10 @@ Do not treat this as an art-only ADR; treat it as a systems contract that protec
 ## Update log
 
 - 2026-07-25: proposed from the current multi-skill analysis pass to turn renderer/accessibility gaps into enforced gates before the next public-facing build.
-- 2026-07-25: the project owner's perception-chain direction accepted the
-  reduced-motion and feedback portions for implementation. ADR-0012 now derives
-  shared motion expression from authoritative rig telemetry; full quality
-  profiles, budgets, and player-facing comfort controls remain proposed here.
+- 2026-07-25: the operator's perception-chain outcome made reduced-motion and
+  feedback active implementation requirements. ADR-0012 now derives shared
+  motion expression from authoritative rig telemetry; full quality profiles,
+  budgets, and player-facing comfort controls remain proposed here.
 
 ## Addendum (2026-07-26): player and developer evidence surfaces separated
 

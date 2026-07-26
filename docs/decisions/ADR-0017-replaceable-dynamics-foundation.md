@@ -1,7 +1,8 @@
 # ADR-0017: Rapier is the first replaceable browser dynamics foundation
 
 - Date: 2026-07-25
-- Status: accepted by operator direction
+- Status: historical solver acceptance withdrawn; implemented evidence fixture
+- Historical status: accepted by operator direction
 - Current status (2026-07-26): **implemented evidence fixture; solver-specific
   acceptance withdrawn as unsupported; replacement policy is Proposed in
   ADR-0023 and requires operator sign-off**
@@ -11,8 +12,9 @@
 
 ## Provenance correction — 2026-07-26
 
-The historical status and attribution above are preserved so the original
-record remains auditable, but they are not current authority.
+The historical status and attribution are preserved in the explicit historical
+status field and update log so the original record remains auditable, but they
+are not current authority.
 
 The physics exploration map and later Box3D review were AI-generated background
 supplied by the operator for evaluation. Their recommendation language was

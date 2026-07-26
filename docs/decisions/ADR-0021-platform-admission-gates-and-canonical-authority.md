@@ -1,7 +1,7 @@
 # ADR-0021: Platform Admission Gates and Canonical Authority
 
 **Date:** 2026-07-26  
-**Status:** Accepted  
+**Status:** Proposed — explicit operator sign-off required
 **Decision type:** Load-bearing architecture policy  
 **Evidence tier:** Tier 1 static architecture/source review for this decision. Linked artifacts may hold stronger evidence for individual existing behavior.
 
@@ -109,6 +109,16 @@ The first implementation must solve the named use case, retain a safe fallback, 
 ### 2026-07-26 - Initial decision
 
 Established the canonical-authority and admission-gate policy from current source and documented architecture boundaries. No framework subsystem was activated by this ADR.
+
+### 2026-07-26 - Provenance and status correction
+
+The initial **Accepted** label was unsupported. This is a load-bearing policy
+derived by agents from Tier 1 architecture review and `motto_v4.md`; no explicit
+operator sign-off for the exact decision text was recorded. The proposal and
+linked analysis remain useful, but the effective status is **Proposed —
+explicit operator sign-off required**. See
+[the decision register](README.md) and the
+[provenance audit](../reviews/DECISION_PROVENANCE_AND_RECOMMENDATION_STATUS_AUDIT_2026-07-26.md).
 
 ## Anything else?
 

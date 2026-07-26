@@ -1,5 +1,23 @@
 # Project tools
 
+## Documentation authority-language audit
+
+`audit-doc-authority-language.mjs` recursively scans Markdown for high-risk
+decision, operator-attribution, recommendation, and implementation language.
+It reports review candidates with file/line evidence; findings are not
+automatically errors because an `Accepted` decision can be legitimate when its
+sign-off is traceable.
+
+```bash
+node tools/audit-doc-authority-language.mjs docs
+node tools/audit-doc-authority-language.mjs --json docs/decisions docs/research
+node --test tools/audit-doc-authority-language.test.mjs
+```
+
+Use `--fail-on-findings` only after a reviewed allowlist or a zero-finding
+policy is intentionally adopted. The default audit is non-mutating and prints
+Markdown so status-inflation work can be reproduced without ad-hoc searches.
+
 ## Field 02 browser acceptance
 
 `rig-lab-browser-acceptance.cjs` retains its original Rig Lab filename for

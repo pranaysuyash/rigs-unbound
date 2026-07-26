@@ -1,6 +1,7 @@
 # ADR-0007: Terrain is the simulation substrate, and we own the traversal model
 
-- Status: **Accepted for the current runtime** (supersedes nothing; extends ADR-0001 and ADR-0003)
+- Status: **Implemented and verified for the current runtime** (supersedes
+  nothing; extends ADR-0001 and ADR-0003)
 - Date: 2026-07-25
 - Deciders: project owner (Pranay), implementing agent
 - Related: [ADR-0001](ADR-0001-headless-gameplay-kernel-and-engine-bakeoff.md), [ADR-0003](ADR-0003-versioned-gameplay-content-composition.md), [ADR-0006](ADR-0006-rig-capability-portability.md)
@@ -173,6 +174,10 @@ Three cross-cutting items the per-item analysis missed:
 - 2026-07-25: Accepted and implemented in the same pass; see
   `docs/plans/OPEN_WORLD_TRAVERSAL_2026-07-25.md` for the gated commit order and
   acceptance contract.
+- 2026-07-26: Status vocabulary corrected to **Implemented and verified for the
+  current runtime**. The historical “Accepted” label meant technical adoption,
+  not operator sign-off on a universal terrain/world architecture. See
+  [the decision register](README.md).
 
 ## Addendum (2026-07-26): shared terrain-face traversability boundary
 

@@ -464,7 +464,9 @@ The immediate consequence is that the project should harden visibility, collisio
 - The physics quality envelope contract now lives in [Physics Quality Envelope Contract](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md), which makes the deterministic traversal model, fallback expectations, and stability-state visibility explicit.
 - The resource budget and fallback envelope now lives in [Resource Budget and Fallback Envelope](../research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md), which makes the current measured frame/draw/memory posture explicit and keeps low-budget fallback policy visible.
 - The event graph and deterministic handlers contract now lives in [Event Graph and Deterministic Handlers Contract](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md), which makes the command/checkpoint/save flow explicit and keeps replay-safe event ownership visible.
+- The command/event envelope now also carries the episode-grammar boundary, so replay and diagnostics remain inspectable without inventing a second history source.
 - The ECS threshold contract now lives in [ECS Threshold and Composition Readiness Contract](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md), which makes the actor-count and coupling threshold explicit and keeps composition migration proof-based.
+- The ECS threshold also sits beneath episode grammar, so story composition should continue to use the current machine-centric model until measured pressure proves a migration.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,
@@ -1123,8 +1125,10 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the portal-visibility gap now has a dedicated contract note, so bounded rooms and indoor spaces stay readable alongside distance and chunk culling.
 - Addendum (2026-07-25): the accessibility/input gap now has a dedicated contract note, so named actions, remaps, and comfort settings stay explicit across keyboard, gamepad, and touch.
 - Addendum (2026-07-25): the kernel-ordering gap now has a dedicated contract note, so mutable subsystems stay gated behind the authoritative step order.
+- Addendum (2026-07-26): the kernel-ordering gate also carries the episode-grammar boundary, so story composition consumes authoritative outcomes instead of authoring state directly.
 - Addendum (2026-07-25): the save/migration gap now has a dedicated contract note, so recovery, versioning, and fallback paths stay explainable.
 - Addendum (2026-07-25): the authoring/content-validation gap now has a dedicated contract note, so manifests, provenance, and runtime-ready status stay reproducible.
+- Addendum (2026-07-26): the authoring/content-validation gate also sits beneath episode grammar, so story composition consumes validated content instead of replacing the manifest envelope.
 - Addendum (2026-07-25): the performance/readability baseline now has a dedicated contract note, so the shared thresholds stay readable as one umbrella policy.
 - Addendum (2026-07-25): the second locomotion family now has a dedicated contract note, so the hover/ground boundary stays explicit across save/reload and rollback.
 - Addendum (2026-07-25): the authority-model gap now has a dedicated contract note, so shared-state and server-authoritative behavior remain future-only.
@@ -1275,6 +1279,26 @@ New exploration questions opened by this package:
   decision before a bridge asset is treated as shippable truth.
 - The bridge is therefore a proof of browser ingestion and visibility, not a
   waiver for rights review or production grading.
+
+## Addendum — 2026-07-26 asset public approval stays separate from story composition
+
+- The asset promotion gate belongs to the asset/provenance lane, not to the
+  episode-grammar or story-composition layer.
+- `runtime-tested` proves the browser can ingest the asset; public approval is
+  the separate decision that lets the player surface treat it as shippable
+  truth.
+- The promotion decision should carry rights, provenance, budget, and operator
+  reason fields so the approval is auditable on its own.
+
+## Addendum — 2026-07-26 procedural director remains a proposal layer
+
+- The procedural director is the candidate-ranking and offer layer, not the
+  authority for story composition, world mutation, or player preference
+  inference.
+- Episode grammar remains the layer that composes the lived run; the director
+  only supplies validated options into that story system.
+- The first proof remains a small authored multi-candidate choice, not a
+  generative or personalized runtime.
 
 ## Addendum — 2026-07-26 command/event envelope still missing
 

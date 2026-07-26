@@ -307,14 +307,16 @@ with permanent instructions.
   - Cover player and developer URLs, desktop and narrow view, keyboard,
     pointer, real touch, save/reload, reduced motion, and zero console/page
     errors on development, rebuilt preview, and public production.
-  - Current evidence (2026-07-26): the full 4180 development acceptance passed
-    with zero console/page problems, real W/A/S/D collection/return, pointer
-    workshop fit, visible and persisted Lug tyres, six cameras, collision,
-    reduced motion, desktop, and `390×844` coverage. Evidence:
-    [first-rung acceptance addendum](../reviews/FIRST_RUNG_REWARD_AND_SPEND_ACCEPTANCE_2026-07-26.md#addendum-2026-07-26--current-4180-full-acceptance-pass).
-    Exact-final 4174 rebuilt preview, real touch, and public-production evidence
+  - Current evidence (2026-07-26): the finalized harness passed on `4173`
+    development and the freshly rebuilt `4174` production-like preview with
+    zero console/page problems. Both used real keyboard collection/return,
+    pointer workshop fit, visible and persisted Lug tyres, six cameras,
+    collision, reduced motion, desktop, and `390×844` coverage. The `4174`
+    build also proved zero developer/private runtime asset bridges. Evidence:
+    [first-rung acceptance addendum](../reviews/FIRST_RUNG_REWARD_AND_SPEND_ACCEPTANCE_2026-07-26.md#addendum-2026-07-26--finalized-4173-and-4174-acceptance).
+    Real touch, public-production, and external-player comprehension evidence
     keep this item in progress.
-- [ ] **RU-0601/0406.7 — Close documentation and release.**
+- [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
   - Run the three motto-v4 passes, missed-anything sweep, format, typecheck,
@@ -711,7 +713,7 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     implementation.
   - Evidence:
     [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
-- [-] **RU-0903 — Decision-provenance and sign-off audit.**
+- [x] **RU-0903 — Decision-provenance and sign-off audit.**
   - Scope: extend the completed physics audit across ADR-0006, ADR-0012,
     ADR-0018, ADR-0021, Farmfall, Time Trial Ghost, and other “operator
     direction” claims.
@@ -720,6 +722,14 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     evidence; correct status append-only.
   - Closure: every load-bearing Accepted decision has a traceable sign-off or is
     returned to Proposed/Deferred without deleting its history.
+  - Closure evidence (2026-07-26): added the canonical
+    [decision register](../decisions/README.md) and
+    [cross-session provenance audit](../reviews/DECISION_PROVENANCE_AND_RECOMMENDATION_STATUS_AUDIT_2026-07-26.md);
+    corrected ADR-0006/0012 scope, returned unsupported load-bearing ADR-0021
+    to Proposed, reclassified technical ADR-0022/0024 as implemented evidence,
+    preserved the documented direct sign-off behind ADR-0018, and bounded
+    Farmfall/Time Trial plan authority without removing them from the active
+    work queue.
 - [-] **RU-0904 — Tracker and authority deduplication.**
   - Scope: reconcile RU-0110.3 versus RU-0306, local technical acceptance versus
     product acceptance, and overlapping research/live-implementation entries.
@@ -744,11 +754,15 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     and confirmed no stale v3 startup, clause, source, bridge, or uppercase
     context-path references remain in the live stack. Project `motto_v2.md` and
     `motto_v3.md` are absent.
-- [~] **RU-0906 — Research recommendation status-inflation audit.**
+- [-] **RU-0906 — Research recommendation status-inflation audit.**
   - Scope: reconcile “Adopt,” “Approved,” “Used,” and implementation-authority
     labels across library, engine, UI, asset, and tooling evaluations.
   - Closure: every label is backed by current code/evidence and sign-off or is
     relabelled Candidate/Proposed/Experimental/Rejected/Deferred.
+  - Current progress (2026-07-26): the decision register now defines the
+    canonical recommendation vocabulary; the high-impact physics/library
+    evaluation carries a current-status correction; repository-wide detection
+    and correction of remaining recommendation verbs is the next active pass.
 - [?] **RU-0907 — Evidence-lab production-surface decision.**
   - Scope: decide whether Physics Lab and Box3D Probe remain direct production
     routes, become developer-only build entries, or move to a separate evidence

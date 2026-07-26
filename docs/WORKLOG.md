@@ -1,3 +1,32 @@
+## 2026-07-26 — finalized 4173/4174 first-rung and production-boundary evidence
+
+- Stabilized the real-keyboard first-rung browser path around the product
+  contract: collect only after braking, return to the Home service area rather
+  than its centre, and stop on the derived `choose-part` transition.
+- Isolated deep-water hover from authored stilt collision by giving the fixture
+  a deterministic heading away from the platform.
+- Made runtime asset-bridge assertions environment-aware on initial and
+  recreated pages. Development requires resolved developer candidates;
+  production-like builds require none.
+- Passed the finalized full acceptance on `4173` and freshly rebuilt `4174`
+  with zero captured console/page problems. The `4174` run additionally proved
+  the production bundle exposes no developer/private runtime bridges.
+- Inspected refreshed evidence. Lug tread and the post-fit Long Furrow
+  consequence are perceptible; the first-rung side composition and narrow HUD
+  remain crowded and are tracked as visual-polish work rather than silently
+  accepted as public-quality captures.
+
+### Three-pass outcome
+
+1. Immediate correctness: first-rung, hover, persistence, camera, responsive,
+   and player/developer boundary assertions pass on both local surfaces.
+2. Architecture: the harness observes canonical derived state and public input;
+   it does not teleport, grant rewards, or introduce a second progression or
+   asset-admission authority.
+3. Supervision readiness: exact URLs, remaining real-touch/public-production
+   gates, visual limitations, and the release path are recorded in the
+   acceptance report and master tracker.
+
 ## 2026-07-26 — the instruction stack is v4-only from source through generated context
 
 - Corrected the canonical `/Users/pranay/Downloads/motto_v4.md` multi-pass
@@ -6236,5 +6265,71 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   episode grammar stays the story-composition layer above it.
 - Mirrored the same decision into `docs/exploration/EXPLORATION_MAP.md` so the
   accessibility/profile and event-sharing lanes keep the same durable boundary.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — asset public approval bridged from runtime proof
+
+- Added an addendum to `docs/research/ASSET_PIPELINE_LIVE_REPO_ANALYSIS_2026-07-26.md`
+  stating that `runtime-tested` bridge assets are browser ingestion proofs,
+  while `publicRuntimeApproved` remains the separate promotion gate.
+- Mirrored the same public-approval boundary into `docs/exploration/EXPLORATION_MAP.md`
+  so the asset lane keeps its promotion decision separate from story
+  composition and public presentation.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — procedural director bridged above episode grammar
+
+- Added an addendum to `docs/research/PROCEDURAL_DIRECTOR_AND_GENERATED_CONTENT_ADMISSION_GATE_2026-07-26.md`
+  stating that the procedural director remains a proposal layer above episode
+  grammar rather than the authority for story composition or world mutation.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  director, episode-grammar, and generated-content lanes keep a shared
+  proposal-vs-authority distinction.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — kernel ordering bridged to episode grammar
+
+- Added an addendum to `docs/research/KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on kernel order for durable consequence
+  and must consume authoritative outcomes rather than authoring state.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  kernel-ordering lane explicitly owns the mutation order beneath story
+  composition.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — authoring validation bridged to episode grammar
+
+- Added an addendum to `docs/research/AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on validated authored content but does
+  not replace the content-manifest envelope.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  authoring/content-validation lane stays the upstream truth for runtime-ready,
+  validation-only, and deprecated content states.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — ECS readiness bridged to episode grammar
+
+- Added an addendum to `docs/research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md`
+  stating that episode grammar composes above the current machine-centric
+  composition model and that ECS remains a future migration threshold.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  ECS lane stays a proof-based threshold rather than an implicit rewrite path.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — command/event envelope bridged to episode grammar
+
+- Added an addendum to `docs/research/COMMAND_EVENT_ENVELOPE_LIVE_REPO_ANALYSIS_2026-07-26.md`
+  stating that episode grammar depends on the command/event envelope to stay
+  inspectable and that the run record remains the audit spine rather than a
+  second authority surface.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  command/event lane remains the shared history spine beneath story
+  composition, replay, and diagnostics.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static documentation inspection and editing.

@@ -1,7 +1,7 @@
 # ADR-0022: Separate runtime profile pressure from player input latency
 
 - Date: 2026-07-26
-- Status: accepted for implementation
+- Status: implemented and verified for the current runtime
 - Owner: Pranay
 - Implementation owner: project team
 - Related:
@@ -97,3 +97,6 @@ profile selection and must not be solved by reusing input-latency metrics.
 - 2026-07-26: separated renderer pressure from user-controlled world-entry
   timing after live browser evidence showed a healthy renderer entering
   `mobile-safe` solely because `firstControllableMs` exceeded the policy.
+- 2026-07-26: Status vocabulary corrected. This is a reversible technical
+  decision supported by runtime and test evidence, not an operator-signed
+  product policy. See [the decision register](README.md).

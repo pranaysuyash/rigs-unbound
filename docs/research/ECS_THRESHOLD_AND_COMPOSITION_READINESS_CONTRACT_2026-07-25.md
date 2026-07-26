@@ -194,3 +194,15 @@ The right long-term goal is to keep the machine-centric composition model explic
   canonical one until measured pressure proves otherwise.
 - Evidence depth: Tier 1 static source inspection of the current profile,
   module, and motion composition paths.
+
+## Addendum (2026-07-26) - episode grammar composes above ECS readiness, not inside it
+
+- Re-checked the ECS threshold against the compositional episode direction.
+- Episode grammar should consume the current machine-centric composition model
+  and its validated outcomes; it should not be used to justify an ECS rewrite
+  before measured pressure exists.
+- ECS remains a future migration decision, while the episode grammar remains
+  the story-composition layer above the current adapter/profile model.
+- The durable threshold proof still needs a quantified trigger plus a
+  migration-preserving identity test before ECS becomes a first-class change.
+- Evidence tier: Tier 1 static inspection.

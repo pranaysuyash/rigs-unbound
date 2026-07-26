@@ -1,7 +1,7 @@
 # ADR-0024: Isolate real-key browser acceptance from continuous renderers
 
 - Date: 2026-07-26
-- Status: Accepted
+- Status: implemented and verified for the current acceptance harness
 - Scope: `tools/rig-lab-browser-acceptance.cjs`
 
 ## Context
@@ -65,3 +65,14 @@ Revisit this decision if the browser acceptance suite gains a headless mode
 with a deterministic virtual-time scheduler, if the renderer becomes explicitly
 pausable at the page boundary, or if the first-rung proof moves to a dedicated
 test surface with equivalent public-input semantics.
+
+## Update log
+
+- 2026-07-26: Status vocabulary corrected. This is an implemented test-harness
+  lifecycle decision supported by integration evidence, not operator sign-off
+  on product architecture. See [the decision register](README.md).
+
+## Anything else?
+
+No. The isolation keeps the public keyboard and product assertions intact; it
+changes only acceptance-process lifecycle.

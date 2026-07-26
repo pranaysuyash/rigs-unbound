@@ -150,3 +150,16 @@ explicit so future mutable systems stay auditable and replay-safe.
     responsibilities.
 - So the current state remains the right one for a first-playable game, but the
   gate surface itself is still implicit rather than a named contract artifact.
+
+## Addendum (2026-07-26) - episode grammar depends on kernel order for durable consequence
+
+- Re-checked the gate surface against the episode-grammar proposal.
+- Episode grammar can compose above the kernel, but it cannot replace the
+  kernel's ordered mutation steps or replay-safe event boundaries.
+- The kernel remains the authority for input, validation, mutation, event
+  emission, and snapshot/presentation order.
+- That means the episode grammar should consume authoritative outcomes, not
+  author the world directly.
+- The next durable proof is a named read/write authority table that keeps this
+  boundary explicit for future mutable subsystems.
+- Evidence tier: Tier 1 static inspection.

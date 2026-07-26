@@ -1,7 +1,7 @@
 # ADR-0012: Rig perception is a shared gameplay contract
 
 - Date: 2026-07-25
-- Status: accepted for the local reference runtime
+- Status: accepted product principle; implemented and verified local frame
 - Owner / next reviewer: project owner
 - Affected runtime: `src/game/feedback.ts`, `src/game/renderer.ts`,
   `src/game/audio.ts`, `src/main.ts`
@@ -140,3 +140,8 @@ the only warning is a gameplay regression.
   architecture work established the command/capability separation decision at
   that number. Browser screenshot review also strengthened the shared portrait
   chase pullback after Drift remained clipped at `390 × 844`.
+- 2026-07-26: Provenance scope corrected. The operator directly supplied the
+  interaction-chain principle. `RigFeedbackFrame` is the implemented,
+  evidence-backed local seam chosen to realize it; implementation evidence does
+  not imply operator sign-off on every field. Effective status is indexed in
+  [the decision register](README.md).
