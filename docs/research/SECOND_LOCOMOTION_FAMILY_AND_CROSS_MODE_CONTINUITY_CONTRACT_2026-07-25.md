@@ -125,3 +125,36 @@ without collapsing shared controls or recovery behavior.
 - This makes the contract a true architecture seam now, not a speculative
   design note. The remaining work is to make its recovery and continuity
   guarantees explicit and testable.
+
+## Addendum (2026-07-26) - bounded ground and hover adapters are a real proof
+
+### Static evidence reconciled
+
+- `physics.ts` now dispatches motion and settling through the bounded
+  `MOBILITY_ADAPTERS` registry. Ground and hover implementations each reject a
+  mismatched profile/state pairing before they mutate a rig.
+- `contracts.ts` stores locomotion-only state as a discriminated ground/hover
+  union rather than pretending every machine owns four wheels.
+- `state.ts` creates and recovers mobility state from the profile's adapter
+  identity. Malformed or mismatched persisted mobility fails closed instead of
+  receiving a permissive fallback.
+- Existing state coverage includes deterministic hover behavior, steep-ground
+  strain, and migration protection against rewriting ground rigs as hover rigs.
+
+### Decision
+
+Ground and hover are now accepted as the first bounded locomotion proof. Do not
+replace them with a generic vehicle superclass, an ECS migration, or a larger
+adapter taxonomy merely because a registry exists.
+
+The current adapter context contains ground-specific options such as ramps and
+jumping alongside shared towing. This is acceptable for two proven adapters,
+but it is the explicit review point for a third family. Before adding boat,
+flight, rail, articulated, or orbital locomotion, demonstrate whether that
+family needs a distinct input/body/context contract. If it does, introduce a
+versioned locomotion context that separates shared intent from
+family-specific options rather than adding optional fields and mode branches to
+every existing adapter.
+
+Evidence depth: Tier 1 fresh static code review, retaining existing focused and
+runtime evidence without claiming it was re-run in this pass.

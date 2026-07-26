@@ -17,8 +17,8 @@ Original prompt: Explore and document a public browser-based open-world game in 
   Sites adapter (ADR-0013)
 - Project name: **Rigs Unbound**
 - GitHub repository: `pranaysuyash/rigs-unbound`
-- Public deployment: **live**, Sites version 6 sourced from commit
-  `f5a007d1e9866fea510fcef1cfba102a7ee85e13`. Field 02 and the canonical Rapier
+- Public deployment: **live**, Sites version 7 sourced from commit
+  `a8869ad25f72929b62b6722cb262c91b2b6c7999`. Field 02 and the canonical Rapier
   Physics Lab and Box3D Probe routes each returned HTTP 200 after deployment;
   a fresh public browser passed the welcome/schema/first-cache/readiness
   contract with zero console entries. The live build trails `main` whenever a
@@ -26,9 +26,10 @@ Original prompt: Explore and document a public browser-based open-world game in 
   [deploy runbook](docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md)
 - Canonical task list:
   [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
-- Released candidate: schema v5 first-rung repair is validated on `4173`,
-  rebuilt production preview `4174`, and the public Sites URL; RU-0106 through
-  RU-0109 are closed in the tracker.
+- Released baseline: schema v6 / RU-0110 production acceptance passed on
+  `4173`, rebuilt production preview `4174`, and the public Sites URL.
+- Current local candidate: the first understandable reward-and-spend package is
+  implemented but remains uncommitted and undeployed pending its declared gates.
 
 ## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
 
@@ -44,8 +45,8 @@ Original prompt: Explore and document a public browser-based open-world game in 
   consuming 108% of a 16.7 ms frame budget on its own.
 - Simulated-playtest citations resolved: all four `PLAYTEST_SIM_*` reports now exist
   and state plainly that they are AI players, not humans.
-- **Known live-site gap:** the deployed build steers backwards (holding left turns
-  clockwise). `main` is correct. The link should not be shared until it is redeployed.
+- **Resolved historical gap:** signed steering was corrected and verified in
+  Sites version 7.
 
 Verification: typecheck clean; 141 root tests + 7 kernel-probe tests; build passes;
 format check passes; blade, proximity refusal, and `sites` confirmed in a browser.
@@ -357,3 +358,28 @@ Yes. The highest-value next work is the playtest-discovered first-rung repair
 phase-clock consistency), followed by the complete Farmfall loop. More engine
 or scenery breadth before that would strengthen the playground while leaving
 the game itself hard to find.
+
+## Physics decision provenance correction — 2026-07-26
+
+- Ran `wide-open-brainstorm` with internal Codex subagents only; no external
+  models were used.
+- Confirmed that ADR-0017 and the Box3D plan converted AI-generated material
+  supplied for evaluation into unsupported “operator decision” language.
+- Preserved Field 02, Physics Lab 01, Box3D Probe 01, their tests, dependencies,
+  and evidence; no solver, route, dependency, or runtime code was changed.
+- Reclassified Rapier and Box3D as implemented evidence fixtures. No final or
+  per-family solver policy is currently accepted.
+- Added the Tier 1
+  `PHYSICS_DECISION_PROVENANCE_AND_FIRST_PRINCIPLES_AUDIT_2026-07-26.md`.
+- Added ADR-0023 as Proposed, requiring explicit operator sign-off.
+- Paused new solver/backend work and solver-ranking claims until a named
+  player-fantasy question and fair comparison contract are accepted.
+- Corrected a wider unsupported claim that PyBullet had already been used to
+  validate the authored/Rapier physics math.
+
+## Anything else?
+
+The current code separation is useful evidence, but the shared dynamics
+telemetry still requires wheel state. It remains a wheeled-lab seam rather than
+a universal Rig physics contract until a contrasting non-wheel family exposes
+the next real abstraction.

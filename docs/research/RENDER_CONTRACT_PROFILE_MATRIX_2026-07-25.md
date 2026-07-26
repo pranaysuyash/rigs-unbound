@@ -100,3 +100,19 @@ fresh benchmark or browser run is claimed by this addendum.
   profile or change an object's visual representation at runtime.
 - Evidence level: Tier 1 static source inspection. Runtime values still need
   browser/benchmark capture before they can support performance claims.
+
+## Addendum (2026-07-26) - the render profile matrix supports episode grammar, but it is not the episode grammar
+
+- The profile matrix already does important support work for episodes: it
+  keeps the render budget, visibility tier, and fallback policy readable across
+  device classes.
+- That makes it a support layer for the episode grammar, because episodes only
+  stay legible if the player can still read the world under the chosen runtime
+  profile.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - the render profile matrix keeps that moment readable under budget,
+  - the active profile remains a presentation policy, not story ownership.
+- This note intentionally does not promote the profile matrix into a gameplay
+  system; it only keeps the dependency visible so later episode work can rely
+  on the same profile policy.

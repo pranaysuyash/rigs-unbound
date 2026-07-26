@@ -6,6 +6,11 @@ const playwrightModule =
   "/Users/pranay/Projects/skills/testing/playwright-skill/node_modules/playwright";
 const { chromium } = require(playwrightModule);
 
+const { armWatchdog } = require("./browser-watchdog.cjs");
+
+// A browser script that cannot exit is worse than one that fails.
+armWatchdog({ minutes: 15, label: "box3d lab acceptance" });
+
 const TARGET_URL =
   process.env.RIGS_BOX3D_LAB_URL ||
   "http://127.0.0.1:4173/box3d-lab.html?acceptance=box3d-probe-01";

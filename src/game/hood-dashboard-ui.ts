@@ -17,7 +17,9 @@ export interface HoodDashboardController {
   dispose(): void;
 }
 
-export function createHoodDashboardUI(container: HTMLElement): HoodDashboardController {
+export function createHoodDashboardUI(
+  container: HTMLElement,
+): HoodDashboardController {
   const panel = document.createElement("div");
   panel.id = "hood-dashboard-panel";
   panel.className = "hood-dashboard-panel hidden";
@@ -77,7 +79,6 @@ export function createHoodDashboardUI(container: HTMLElement): HoodDashboardCont
   let lastSpeed = 0;
   let lastStrain = 0;
 
-
   const controller: HoodDashboardController = {
     element: panel,
 
@@ -92,7 +93,7 @@ export function createHoodDashboardUI(container: HTMLElement): HoodDashboardCont
       gsap.fromTo(
         panel,
         { y: 60, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+        { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" },
       );
     },
 
@@ -131,8 +132,10 @@ export function createHoodDashboardUI(container: HTMLElement): HoodDashboardCont
       const surfaceBadge = panel.querySelector("#surface-name-badge");
 
       if (speedVal) speedVal.textContent = speed.toFixed(1);
-      if (strainPercent) strainPercent.textContent = `${Math.round(strain * 100)}%`;
-      if (surfaceBadge) surfaceBadge.textContent = activeRig.telemetry.surfaceId.toUpperCase();
+      if (strainPercent)
+        strainPercent.textContent = `${Math.round(strain * 100)}%`;
+      if (surfaceBadge)
+        surfaceBadge.textContent = activeRig.telemetry.surfaceId.toUpperCase();
 
       // Smooth Needle Angle Updates via GSAP
       const speedNeedle = panel.querySelector("#speed-needle");

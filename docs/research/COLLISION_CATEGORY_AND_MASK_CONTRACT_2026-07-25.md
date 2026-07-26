@@ -257,3 +257,58 @@ load.
 The collision policy must remain simulation-owned. Render meshes and imported
 assets can supply geometry only through an authored mapping; they cannot create
 new physical roles by loading successfully.
+
+## Addendum (2026-07-26) - source scan still shows narrow obstacle-only runtime collision
+
+- Re-checked the runtime collision path after the earlier authored-structure
+  note and the latest source scan.
+- `src/game/collision.ts` still implements the same narrow first-playable
+  behavior:
+  - trees are fellable,
+  - rocks block and slide,
+  - determinism is preserved through the generated obstacle field.
+- The source scan still does not show a first-class category/mask registry in
+  runtime code:
+  - no trigger class,
+  - no sensor class,
+  - no projectile class,
+  - no hazard routing separate from generic obstacle response.
+- So the policy boundary remains exactly where it should be for now:
+  the current game has a stable collision foundation, but broader pairwise
+  admission still needs a dedicated policy layer before new contact classes are
+  added.
+
+## Addendum (2026-07-26) - the live runtime is still obstacle-only, which keeps the matrix trigger honest
+
+- Re-checked the current collision and physics code against the live browser
+  surface and the current repo state.
+- `src/game/collision.ts` still resolves the same narrow first-playable roles:
+  trees can be felled, rocks block and slide, and authored structure parts stay
+  under solver-independent ownership.
+- `src/game/physics.ts` still consumes that outcome as a deterministic motion
+  result; there is still no first-class category/mask registry in the runtime.
+- The important implication is that the next matrix proof should not be a broad
+  refactor of the existing obstacle resolver. The next proof should be the first
+  third consumer that truly needs pairwise admission, such as a trigger,
+  sensor, projectile, pickup, or hazard.
+- That keeps the current collision foundation honest: obstacle resolution is
+  real, and the broader category/mask contract remains a deliberate future
+  boundary.
+- Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-26) - collision masks support episode grammar, but the matrix still remains future-bound
+
+- The current collision foundation already does the important support work for
+  episode readability: it keeps traversal, obstruction, and camera-safe
+  geometry deterministic.
+- That makes collision a support layer for the episode grammar, because
+  episodes only stay readable if the player can understand what blocks, what
+  yields, and what remains decorative.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - collision policy makes physical obstruction and traversal readable,
+  - future category/mask rules will keep that readability stable when triggers,
+    sensors, or other pairwise consumers arrive.
+- This note does not introduce the category/mask matrix early; it only keeps
+  the dependency visible so later episode work can rely on the current
+  deterministic collision foundation.

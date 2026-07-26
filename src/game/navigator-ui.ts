@@ -8,7 +8,6 @@
 import type { GameState, RigState } from "./contracts";
 import { WORLD_SITES } from "./world";
 
-
 export interface Waypoint {
   id: string;
   x: number;
@@ -70,7 +69,9 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
   const waypoints: Waypoint[] = [];
   let radarAngle = 0;
 
-  const radarSvg = panel.querySelector("#nav-radar-svg") as SVGSVGElement | null;
+  const radarSvg = panel.querySelector(
+    "#nav-radar-svg",
+  ) as SVGSVGElement | null;
   const clearBtn = panel.querySelector("#clear-waypoints-btn");
 
   if (clearBtn) {
@@ -188,7 +189,6 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
           infoText.textContent = "WAYPOINT: NONE";
         }
       }
-
     },
 
     dispose() {

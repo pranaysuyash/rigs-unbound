@@ -44,6 +44,36 @@
         "sourcePath": { "type": "string", "minLength": 1 },
         "sourceRef": { "type": "string", "minLength": 1 },
         "runtimePath": { "type": ["string", "null"] },
+        "runtimePresentation": {
+          "type": "object",
+          "required": [
+            "siteId",
+            "offsetX",
+            "offsetZ",
+            "yaw",
+            "targetMaxDimension",
+            "fallbackWidth",
+            "fallbackHeight",
+            "fallbackDepth",
+            "fallbackColor"
+          ],
+          "properties": {
+            "siteId": { "type": "string", "minLength": 1 },
+            "offsetX": { "type": "number" },
+            "offsetZ": { "type": "number" },
+            "yaw": { "type": "number" },
+            "targetMaxDimension": { "type": "number", "exclusiveMinimum": 0 },
+            "fallbackWidth": { "type": "number", "exclusiveMinimum": 0 },
+            "fallbackHeight": { "type": "number", "exclusiveMinimum": 0 },
+            "fallbackDepth": { "type": "number", "exclusiveMinimum": 0 },
+            "fallbackColor": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 16777215
+            }
+          },
+          "additionalProperties": false
+        },
         "licensePath": { "type": "string", "minLength": 1 },
         "licenseSha256": {
           "type": "string",

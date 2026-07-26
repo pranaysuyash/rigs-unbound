@@ -259,3 +259,124 @@ The engine can already tell us when it is getting expensive. This contract makes
 A profile decision without a sample count would be a disguised hardware guess.
 The policy therefore makes insufficient evidence a visible state, not a reason
 to silently degrade or promote the player.
+
+## Addendum (2026-07-26) - first low-budget fallback is active and auditable
+
+- The renderer now accepts a runtime visibility-profile change through one
+  project-owned method. The first qualified profile decision immediately
+  rebuilds deterministic instanced scenery against the `mobile-safe` distance
+  budget while leaving simulation semantics untouched.
+- Fallback activation records its exact reason codes in the canonical run-record
+  checkpoint, appears in developer diagnostics and text snapshots, and produces
+  a player-facing reduced-scenery notice.
+- Recovery is deliberately held for this session. A later recovery policy must
+  establish hysteresis and a cooldown from captured evidence; it must not cause
+  visibility-profile oscillation around a transient frame spike.
+- Remaining envelope work: cross-system budgets beyond visibility, independent
+  renderer-swap tests, player/browser fallback continuity capture, and a
+  representative-device threshold decision.
+
+## Anything else? (active fallback)
+
+This is a visual-budget fallback, not a simulation LOD system. AI, physics,
+audio, and persistence still retain their current cadence and authority.
+
+## Addendum (2026-07-26) - the renderer fallback is active, but cross-system resource ownership is still future work
+
+- Re-checked the live source for the current fallback path and diagnostics
+  wiring.
+- `src/main.ts` now distinguishes the fallback clearly in user-facing text and
+  developer diagnostics:
+  - `runtimeProfileFallback` and `runtimeProfileRecovery` checkpoints record the
+    selected profile plus the triggering reasons;
+  - the player-facing message says `Performance safeguard active: reduced
+    scenery detail.` when fallback engages;
+  - the developer diagnostics show the active profile, visibility counts, draw
+    calls, geometry/texture counts, heap where available, and the current
+    runtime bridge summary.
+- `src/game/runtime-profile-policy.ts` still scopes automatic fallback to the
+  measured visibility budget only. It does not lower simulation cadence, change
+  input semantics, or guess at thermal/battery conditions.
+- That means the contract has crossed the important first boundary: fallback is
+  no longer just a theoretical policy. The remaining gap is the broader
+  resource-governance envelope:
+  - no cross-system CPU/GPU/memory ledger,
+  - no named subsystem owner for those budgets,
+  - no thermal or battery-sensitive policy,
+  - no evidence-backed representative-device threshold for the wider app.
+- The current state is therefore a real and auditable visual fallback, but not
+  yet a full resource governor for the whole game.
+- Evidence depth: Tier 1 static source inspection. No browser capture or test
+  execution was run in this pass.
+
+## Addendum (2026-07-26) - fallback recovery now has a monotonic evidence window
+
+- The first active fallback now has a paired recovery contract. A monotonic
+  lifetime frame count prevents the 240-frame rolling timing buffer from
+  disabling recovery once it stops increasing.
+- `mobile-safe` stays active for 180 healthy frames after pressure clears. It
+  then restores `standard`, records `runtimeProfileRecovery`, and explains the
+  perceptible restored-scenery change without changing simulation semantics.
+- New pressure before that window completes refreshes fallback reason codes and
+  holds the conservative profile. This avoids repeated prop rebuilds at a
+  threshold boundary.
+- Remaining closure: representative-device capture to tune constants, prove
+  before/after resource deltas, and confirm recovery readability in browser.
+
+## Anything else? (recovery window)
+
+No profile can claim an upgraded device class from recovery. `full` remains an
+explicit benchmark decision outside the adaptive fallback controller.
+
+## Addendum (2026-07-26) - the visible fallback is real, but the wider budget ledger is still missing
+
+- Re-checked the current browser wiring in `src/main.ts` against the live
+  performance policy.
+- The runtime now makes the fallback and recovery path visible to both players
+  and operators:
+  - `runtimeProfileFallback` and `runtimeProfileRecovery` checkpoints record the
+    active profile plus triggering reasons;
+  - the player sees `Performance safeguard active: reduced scenery detail.`
+    while fallback is engaged;
+  - developer diagnostics expose fps, draw calls, geometry/texture counts,
+    heap, bridge status, visibility counts, and the active profile summary.
+- `src/game/runtime-profile-policy.ts` keeps the automatic profile policy
+  tightly scoped to measured visibility pressure and the recovery window. It
+  does not infer thermal, battery, CPU, or memory behavior from user-agent
+  hints.
+- So the contract’s first proof is now stronger than “metrics exist”:
+  the app has a real, explainable visual fallback with recovery.
+- The remaining gap is still the broader resource-governance envelope:
+  - no cross-system CPU/GPU/memory ledger,
+  - no named subsystem owner for those budgets,
+  - no thermal or battery-sensitive policy,
+  - no representative-device threshold for the wider app.
+- Evidence depth: Tier 1 static source inspection. No browser capture or test
+  execution was run in this pass.
+
+## Addendum (2026-07-26) - renderer resource counts are observable without inventing a VRAM claim
+
+- `RendererMetrics` and `PerformanceSnapshot` now include raw
+  `WebGLRenderer.info.memory` geometry and texture allocation counts.
+- The developer diagnostics, browser performance snapshot, and run-record
+  checkpoints therefore expose frame pressure alongside draw calls, triangles,
+  geometry count, texture count, heap where available, and prop visibility.
+- These counts are observability only. They are not converted into guessed GPU
+  megabytes and do not yet trigger fallback, because byte cost depends on actual
+  geometry attributes, texture dimensions/formats, driver behavior, and device.
+- The existing measured visibility policy remains the sole automatic fallback.
+  A future asset/residency policy must establish a real measured threshold before
+  geometry or texture counts can change runtime behavior.
+- Evidence depth: Tier 1 source/test implementation. No renderer capture or
+  focused test execution was run in this pass.
+
+## Addendum (2026-07-26) - episode grammar depends on this envelope to stay readable under pressure
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this resource envelope.
+- The episode grammar does not define budget policy or fallback selection; it
+  depends on this contract so pressure, discovery, and consequence stay
+  readable when the app enters a reduced or degraded state.
+- That keeps the split clean: the resource envelope owns fallback and pressure
+  policy, while the episode grammar owns how that policy shapes a playable
+  episode.

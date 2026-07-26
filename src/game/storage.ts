@@ -42,15 +42,33 @@ export interface LoadResult {
   status: "fresh" | "restored" | "migrated" | "recovered";
   message: string;
   loadDurationMs: number;
+  /** The versioned storage slot read, when any. */
+  sourceKey: (typeof READ_KEYS)[number] | null;
+  /** Schema observed before recovery normalizes the state to the current shape. */
+  sourceSchemaVersion: number | null;
+  /** Whether the successful source payload included a world-memory half. */
+  worldMemoryPresent: boolean;
+  /** Populated only when a source record was rejected and replaced. */
+  recoveryReason: "invalid-payload" | "storage-unavailable" | null;
 }
 
 export interface SaveResult {
   durationMs: number;
   bytes: number;
+  saveKey: typeof SAVE_KEY;
+  schemaVersion: GameState["schemaVersion"];
 }
 
 function now(): number {
   return globalThis.performance?.now() ?? Date.now();
+}
+
+function schemaVersionOf(value: unknown): number | null {
+  if (!value || typeof value !== "object") return null;
+  const schemaVersion = (value as { schemaVersion?: unknown }).schemaVersion;
+  return typeof schemaVersion === "number" && Number.isFinite(schemaVersion)
+    ? schemaVersion
+    : null;
 }
 
 /**
@@ -60,13 +78,72 @@ function now(): number {
  * returned state is settled onto the terrain before the caller's first step, so a
  * restored session never begins mid-fall.
  */
+/**
+ * Read only the seed from the newest save record, without applying anything.
+ *
+ * The world has to be constructed for the *right* seed before `loadState` pours
+ * spatial memory into it. Previously boot built a default world, restored
+ * deformation, felled obstacles, collected nodes and surveyed cells into it, and
+ * then — if the record carried a different seed — threw that entire world away and
+ * built another. The rigs survived; every trace they had left on the ground did not.
+ *
+ * Returns null when there is no readable record, so callers fall back to the
+ * default seed.
+ */
+export function peekSavedSeed(storage: Storage): string | null {
+  for (const key of READ_KEYS) {
+    let raw: string | null = null;
+    try {
+      raw = storage.getItem(key);
+    } catch {
+      return null;
+    }
+    if (raw === null) continue;
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      const container = parsed as { state?: unknown };
+      const stateCandidate =
+        container && typeof container === "object" && container.state
+          ? container.state
+          : parsed;
+      // Seed admission is state admission. Trusting a seed before the enclosing
+      // record passes recovery can construct procedural terrain from a record
+      // that loadState later rejects, leaving GameWorld and GameState divergent.
+      return recoverState(stateCandidate)?.seed ?? null;
+    } catch {
+      // Unreadable record; the caller's default seed is the right fallback.
+    }
+    return null;
+  }
+  return null;
+}
+
 export function loadState(storage: Storage, world: GameWorld): LoadResult {
   const startedAt = now();
 
   let raw: string | null = null;
   let sourceKey: (typeof READ_KEYS)[number] | null = null;
   for (const key of READ_KEYS) {
-    const value = storage.getItem(key);
+    let value: string | null;
+    try {
+      value = storage.getItem(key);
+    } catch {
+      world.reset();
+      const state = createInitialState(world.seed);
+      state.lastDiagnostic =
+        "Local storage is unavailable; this field will not restore progress.";
+      settleWorld(state, world);
+      return {
+        state,
+        status: "recovered",
+        message: state.lastDiagnostic,
+        loadDurationMs: now() - startedAt,
+        sourceKey: null,
+        sourceSchemaVersion: null,
+        worldMemoryPresent: false,
+        recoveryReason: "storage-unavailable",
+      };
+    }
     if (value !== null) {
       raw = value;
       sourceKey = key;
@@ -82,6 +159,10 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
       status: "fresh",
       message: "New field ready · progress saves locally",
       loadDurationMs: now() - startedAt,
+      sourceKey: null,
+      sourceSchemaVersion: null,
+      worldMemoryPresent: false,
+      recoveryReason: null,
     };
   }
 
@@ -93,11 +174,23 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
       container && typeof container === "object" && container.state
         ? container.state
         : parsed;
+    const sourceSchemaVersion = schemaVersionOf(stateCandidate);
 
     const recovered = recoverState(stateCandidate);
     if (recovered) {
-      if (container && typeof container === "object" && container.worldMemory) {
-        world.restore(container.worldMemory);
+      if (recovered.seed !== world.seed) {
+        throw new Error(
+          `Save seed ${recovered.seed} does not match world seed ${world.seed}.`,
+        );
+      }
+      const worldMemory =
+        container && typeof container === "object"
+          ? container.worldMemory
+          : undefined;
+      const worldMemoryPresent =
+        worldMemory !== undefined && worldMemory !== null;
+      if (worldMemory !== undefined && worldMemory !== null) {
+        world.restore(worldMemory);
       } else {
         world.reset();
       }
@@ -110,6 +203,10 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
           ? "Earlier local save migrated"
           : "Local save restored",
         loadDurationMs: now() - startedAt,
+        sourceKey,
+        sourceSchemaVersion,
+        worldMemoryPresent,
+        recoveryReason: null,
       };
     }
   } catch {
@@ -117,7 +214,9 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
   }
 
   world.reset();
-  const state = createInitialState();
+  // Recovery must preserve the constructor invariant even when a caller did not
+  // run seed preflight (or storage changed between preflight and load).
+  const state = createInitialState(world.seed);
   state.lastDiagnostic =
     "An incompatible local record was replaced with a clean field.";
   settleWorld(state, world);
@@ -126,6 +225,27 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
     status: "recovered",
     message: state.lastDiagnostic,
     loadDurationMs: now() - startedAt,
+    sourceKey,
+    sourceSchemaVersion:
+      raw === null
+        ? null
+        : schemaVersionOf(
+            (() => {
+              try {
+                const parsed = JSON.parse(raw) as unknown;
+                const container = parsed as Partial<SavePayload>;
+                return container &&
+                  typeof container === "object" &&
+                  container.state
+                  ? container.state
+                  : parsed;
+              } catch {
+                return null;
+              }
+            })(),
+          ),
+    worldMemoryPresent: false,
+    recoveryReason: "invalid-payload",
   };
 }
 
@@ -141,6 +261,8 @@ export function saveState(
   return {
     durationMs: now() - startedAt,
     bytes: new TextEncoder().encode(serialized).byteLength,
+    saveKey: SAVE_KEY,
+    schemaVersion: state.schemaVersion,
   };
 }
 

@@ -58,9 +58,20 @@ export const CAMERA_LABELS: Readonly<Record<CameraMode, string>> = {
   survey: "Survey",
 };
 export { RIG_IDS, type RigId } from "./rig-ids";
-export type MobilityAdapter = "ground" | "hover";
-export type RigCapability =
-  "plough" | "tow" | "jump" | "winch" | "survey" | "ford" | "hover";
+/** Stable adapter vocabulary for specialised locomotion implementations. */
+export const MOBILITY_ADAPTERS = ["ground", "hover"] as const;
+export type MobilityAdapter = (typeof MOBILITY_ADAPTERS)[number];
+/** Stable machine capability vocabulary shared by profiles, modules, and offers. */
+export const RIG_CAPABILITIES = [
+  "plough",
+  "tow",
+  "jump",
+  "winch",
+  "survey",
+  "ford",
+  "hover",
+] as const;
+export type RigCapability = (typeof RIG_CAPABILITIES)[number];
 export type AttachmentId = "field-plough" | "tow-hook";
 export type ActivityStatus = "ready" | "active" | "complete";
 
@@ -217,7 +228,8 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     fieldName: "Spark",
     mobilityAdapter: "ground",
     capabilities: ["tow", "jump"],
-    enginePower: 19,
+
+    enginePower: 22,
     lowSpeedTorque: 0.22,
     lugSpeed: 5.5,
     reverseAcceleration: 8,
@@ -631,9 +643,26 @@ export const LANDMARKS: readonly LandmarkDefinition[] = WORLD_SITES.map(
   }),
 );
 
+/** Maximum spatial distance for switching control between two physical rigs. */
+export const RIG_SWITCH_RANGE = 34;
+
 /** The cargo relay route, expressed relative to authored sites. */
 export const CARGO_PICKUP = { x: 26, z: -6, radius: 5 } as const;
-export const CARGO_DELIVERY = { x: 18, z: -46, radius: 6 } as const;
+const CARGO_DELIVERY_SITE_ID = "long-furrow";
+const cargoDeliverySite = WORLD_SITES.find(
+  (site) => site.id === CARGO_DELIVERY_SITE_ID,
+);
+if (!cargoDeliverySite) {
+  throw new Error(
+    `Missing authored cargo delivery site: ${CARGO_DELIVERY_SITE_ID}`,
+  );
+}
+export const CARGO_DELIVERY = {
+  siteId: cargoDeliverySite.id,
+  x: cargoDeliverySite.x,
+  z: cargoDeliverySite.z,
+  radius: 6,
+} as const;
 export const BUGGY_RAMP = {
   x: 24,
   z: -26,

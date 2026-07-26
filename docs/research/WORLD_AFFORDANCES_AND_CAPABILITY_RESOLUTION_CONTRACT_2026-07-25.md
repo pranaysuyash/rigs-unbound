@@ -209,3 +209,21 @@ machines can ask the same question and get the same answer.
   deliberately not a claim of generic activity schemas, content ingestion,
   planner integration, or runtime/browser verification. Workshop, plough,
   survey, and future site verbs remain candidates for a second real use case.
+
+## Addendum (2026-07-26) - world affordance resolution supports episode grammar, but it is not the episode grammar
+
+- The current world/capability surface already does the important support work
+  for the game: it tells the player what the world offers, what the rig can
+  claim, and whether the interaction is legal, deferred, or impossible.
+- That makes affordance resolution a support layer for the episode grammar,
+  because episodes only stay readable if the player can understand which
+  opportunities were available and why a mismatch happened.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - world affordance resolution makes the possible actions and refusals
+    inspectable,
+  - future behavior/activity work can consume that same record without
+    inventing a parallel truth source.
+- This note intentionally does not broaden the resolver into a planner or
+  activity system; it only keeps the dependency visible so future episode work
+  can rely on the same affordance vocabulary.

@@ -12,7 +12,7 @@
     />
     <meta name="theme-color" content="#17201c" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>Rigs Unbound — Field 02</title>
+    <title>Rigs Unbound</title>
   </head>
   <body>
     <a class="skip-link" href="#game-canvas">Skip to playable world</a>
@@ -25,7 +25,7 @@
 
       <header class="masthead" aria-label="Game status">
         <div class="wordmark">
-          <span class="wordmark__eyebrow">Field 02 · terrain traversal</span>
+          <span class="wordmark__eyebrow" id="world-designation">World</span>
           <strong>Rigs Unbound</strong>
         </div>
         <div class="masthead__right">
@@ -282,7 +282,9 @@
         aria-describedby="welcome-description bootstrap-status"
       >
         <div class="welcome-panel__plate">
-          <span class="welcome-panel__index">Field 02 / terrain traversal</span>
+          <span class="welcome-panel__index" id="welcome-designation"
+            >World</span
+          >
           <h2 id="welcome-title">The ground decides.</h2>
           <p id="welcome-description">
             Torque makes full pulling force from a standstill and claws through

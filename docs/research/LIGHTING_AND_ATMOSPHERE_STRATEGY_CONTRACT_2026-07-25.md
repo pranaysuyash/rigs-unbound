@@ -208,3 +208,18 @@ budgets still preserve clarity, mood, and terrain legibility.
 - The useful conclusion is unchanged: the lighting system is doing the right
   thing, but the policy still needs to be first-class so future atmosphere
   changes can be governed rather than inferred from renderer code.
+
+## Addendum (2026-07-26) - lighting posture supports episode grammar but does not replace it
+
+- The current lighting posture already does the important supporting job:
+  it keeps mood, weather, and fallback readability legible.
+- That makes it a dependency of the episode grammar, because episodes need
+  pressure and consequence to remain readable in the world rather than only in
+  simulation text.
+- The layering stays explicit:
+  - episode grammar names the lived situation,
+  - lighting and atmosphere make that situation visually readable,
+  - fallback lighting preserves clarity when budgets tighten.
+- This note is intentionally narrow. It does not turn lighting into a story
+  system or a mission system; it only keeps the visual policy surface explicit
+  so later episode work can rely on it.

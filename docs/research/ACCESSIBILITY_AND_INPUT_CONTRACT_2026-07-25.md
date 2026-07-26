@@ -201,3 +201,54 @@ source of truth for entry state and the canvas remains the focused play surface.
 The new layer complements rather than replaces the permanent control strip and
 contextual action prompt. Future binding work should make all three read from
 one canonical semantic-action registry.
+
+## Addendum (2026-07-26) - first-use guidance is canonical, but remapping is still future work
+
+- Re-checked `src/main.ts`, `src/game/control-guidance.ts`, and
+  `src/game/input.ts` against the current input lane.
+- The runtime now has a real canonical first-use guidance surface:
+  - `resolveControlLesson()` picks a single context-aware lesson from semantic
+    gameplay relevance,
+  - the lessons are non-modal and suppress themselves when welcome, map, or
+    pause owns attention,
+  - learned lesson IDs persist in browser-local storage so the same explanation
+    does not keep reappearing after the player has used it.
+- That is a meaningful accessibility improvement because the browser can now
+  explain the current action set without turning the HUD into a full help
+  screen.
+- The input policy is still missing the next layer the contract names:
+  - no persisted remap schema,
+  - no visible input/accessibility profile state,
+  - no cross-device preference sync,
+  - no formal parity statement for intentionally unsupported differences.
+- So the runtime now closes the “how do I learn what this does?” gap, while the
+  “how do I remap or persist my preferred controls?” gap remains open.
+- Evidence depth: Tier 1 static source inspection of the current browser
+  control-guidance path.
+
+## Addendum (2026-07-26): the binding table is still browser-key canonical, not preference canonical
+
+- Re-checked `src/game/input.ts`, `src/main.ts`, and the current accessibility
+  contract against the live control path.
+- The runtime still uses a fixed `KEY_ACTIONS` table for keyboard bindings, so
+  the browser key map is authoritative at input time.
+- Learned control lessons are persisted separately, but they only remember help
+  state. They do not save or restore the actual binding layout.
+- That leaves the next accessibility/input contract layer open:
+  - a canonical binding registry,
+  - remap persistence,
+  - restore-before-sampling behavior,
+  - and a reload proof that the preferred layout survives session reset.
+- Evidence depth: Tier 1 static source inspection. No browser or reload proof
+  was run in this pass.
+
+## Addendum (2026-07-26) - episode grammar depends on this layer to make player agency expressible
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this input contract.
+- The episode grammar does not define controls, remaps, or comfort policy; it
+  depends on this layer so the player can actually express the chosen episode
+  through named actions, readable feedback, and device parity.
+- That keeps the boundary clean: input/accessibility owns player agency and
+  comfort, while the episode grammar owns how those actions are composed into a
+  richer story shape.

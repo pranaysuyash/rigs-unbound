@@ -43,12 +43,19 @@ import {
   type PerformanceSnapshot,
 } from "./game/performance";
 import {
+  RuntimeProfileController,
+  selectRuntimeProfile,
+  type RuntimeProfileSelection,
+} from "./game/runtime-profile-policy";
+import {
   appendRunRecordEntry,
+  createRunRecordInitialContext,
   createRunRecord,
   snapshotRunRecord,
   verifyRunRecord,
   stableHashText,
 } from "./game/run-record";
+import { validateDeterministicReplay } from "./game/replay-validator";
 import { GameRenderer } from "./game/renderer";
 import type {
   CameraResolutionEvidence,
@@ -80,14 +87,18 @@ import {
   winchRecover,
   workshopInReach,
 } from "./game/state";
-import { clearState, loadState, saveState } from "./game/storage";
+import {
+  clearState,
+  loadState,
+  peekSavedSeed,
+  saveState,
+} from "./game/storage";
 import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
 import { createHoodDashboardUI } from "./game/hood-dashboard-ui";
 import { createNavigatorUI } from "./game/navigator-ui";
-
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
@@ -99,6 +110,9 @@ declare global {
     render_game_to_text: () => string;
     getRunRecord: () => string;
     getRunRecordVerification: () => ReturnType<typeof verifyRunRecord>;
+    getRunRecordReplayValidation: () => ReturnType<
+      typeof validateDeterministicReplay
+    >;
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
@@ -167,6 +181,20 @@ function headingLabel(heading: number): string {
 }
 
 /**
+ * Coarse range to an unsurveyed signal.
+ *
+ * A metre-accurate readout for a place the player has never seen is knowledge the
+ * machine has no way to have. Bands keep the rail useful for choosing a heading
+ * without turning it into a range-finder onto unexplored ground.
+ */
+function distanceBand(metres: number): string {
+  if (metres < 60) return "close";
+  if (metres < 140) return "near";
+  if (metres < 260) return "far";
+  return "distant";
+}
+
+/**
  * Describe a grade in words as well as a bar.
  *
  * Icon + text + state, never colour alone: the grade readout has to work for a
@@ -186,18 +214,17 @@ function boot(): void {
   const canvas = requiredElement<HTMLCanvasElement>("#game-canvas");
   const mapCanvas = requiredElement<HTMLCanvasElement>("#map-canvas");
 
-  // The world must exist before the save is read, because loading applies the
-  // record's spatial memory into it and settles the rigs onto its terrain.
+  // The world must exist before the save is read, because loading pours the
+  // record's spatial memory into it. So the seed has to be known *first* — building
+  // a default world, restoring deformation and surveyed cells into it, then
+  // replacing it for a different seed silently discarded every mark the player had
+  // left on the ground.
   const bootState = createInitialState();
-  let world = new GameWorld(bootState.seed);
+  const savedSeed = peekSavedSeed(window.localStorage);
+  const world = new GameWorld(savedSeed ?? bootState.seed);
   const loadResult = loadState(window.localStorage, world);
+  // Reassigned by the reset control, so this cannot be const.
   let state = loadResult.state;
-  if (state.seed !== world.seed) {
-    // A restored record can carry a different seed than the default. Rebuild the
-    // world for it rather than silently playing the wrong terrain.
-    world = new GameWorld(state.seed);
-    settleWorld(state, world);
-  }
 
   const surfaceParameters = new URLSearchParams(window.location.search);
   const acceptanceSurface = surfaceParameters.get("acceptance") === "field-02";
@@ -215,7 +242,15 @@ function boot(): void {
     BOOT_STARTED_AT,
     loadResult.loadDurationMs,
   );
-  const runRecord = createRunRecord(state.seed, BOOT_STARTED_AT);
+  let runtimeProfileSelection: RuntimeProfileSelection = selectRuntimeProfile(
+    performanceMonitor.snapshot(renderer.metrics()),
+  );
+  const runtimeProfileController = new RuntimeProfileController();
+  const runRecord = createRunRecord(
+    state.seed,
+    BOOT_STARTED_AT,
+    createRunRecordInitialContext(state, world),
+  );
   let acceptanceManualStepping = false;
   document.body.dataset.surface = developerSurface ? "developer" : "player";
   const markInputReady = (): void => performanceMonitor.markInputReady();
@@ -231,6 +266,22 @@ function boot(): void {
       ...payload,
     });
   };
+
+  const recordEvent = (
+    name: string,
+    payload: Record<string, unknown> = {},
+  ): void => {
+    appendRunRecordEntry(runRecord, "event", name, state.elapsedMs, payload);
+  };
+
+  appendRunRecordEntry(runRecord, "load", "loadState", state.elapsedMs, {
+    status: loadResult.status,
+    sourceKey: loadResult.sourceKey,
+    sourceSchemaVersion: loadResult.sourceSchemaVersion,
+    worldMemoryPresent: loadResult.worldMemoryPresent,
+    recoveryReason: loadResult.recoveryReason,
+    loadDurationMs: loadResult.loadDurationMs,
+  });
 
   const recordCheckpoint = (
     name: string,
@@ -252,6 +303,15 @@ function boot(): void {
   const timeLabel = requiredElement<HTMLElement>("#time-label");
   const surfaceLabel = requiredElement<HTMLElement>("#surface-label");
   const biomeLabel = requiredElement<HTMLElement>("#biome-label");
+  const worldDesignation = requiredElement<HTMLElement>("#world-designation");
+  const welcomeDesignation = requiredElement<HTMLElement>(
+    "#welcome-designation",
+  );
+  const worldDesignationText = developerSurface
+    ? `Field 02 · ${state.seed}`
+    : `World ${state.seed}`;
+  worldDesignation.textContent = worldDesignationText;
+  welcomeDesignation.textContent = worldDesignationText;
   const rigValue = requiredElement<HTMLElement>("#rig-value");
   const speedValue = requiredElement<HTMLElement>("#speed-value");
   const capabilityValue = requiredElement<HTMLElement>("#capability-value");
@@ -378,13 +438,15 @@ function boot(): void {
   for (const landmark of LANDMARKS) {
     const item = document.createElement("li");
     item.dataset.landmarkId = landmark.id;
+    // Deliberately unnamed until surveyed: the rail is an instrument reading a
+    // signal, not a gazetteer. `update` fills in the name once it is earned.
     item.innerHTML = `
       <span class="opportunity-rail__signal" aria-hidden="true"></span>
       <span>
-        <strong>${landmark.name}</strong>
-        <small>${landmark.verb}</small>
+        <strong>Unsurveyed</strong>
+        <small>no bearing</small>
       </span>
-      <em>-- m</em>
+      <em>--</em>
     `;
     landmarkList.append(item);
   }
@@ -455,6 +517,9 @@ function boot(): void {
   const enterWorld = (source: "welcome-panel" | "keyboard"): void => {
     if (worldEntered) return;
     markInputReady();
+    performanceMonitor.beginControllableMeasurement();
+    performanceMonitor.resetFrameWindow();
+    runtimeProfileController.reset();
     recordCommand("enterWorld", { source });
     worldEntered = true;
     input.setEnabled(true);
@@ -476,7 +541,6 @@ function boot(): void {
     if (!worldEntered) return;
     markInputReady();
     void audio.unlock();
-    recordCommand("tap", { action });
     const lessonIdByAction: Partial<Record<TapAction, ControlLessonId>> = {
       primary: "act",
       switchRig: "switch-rig",
@@ -491,22 +555,29 @@ function boot(): void {
     }
     if (action === "primary") {
       const before = state.salvage;
-      performPrimaryAction(state, world);
+      recordCommand("primaryAction", { source: "tap" });
+      const event = performPrimaryAction(state, world);
+      recordEvent("primaryActionOutcome", { source: "tap", event });
       if (state.salvage > before) audio.chirp(720);
       announce();
     } else if (action === "switchRig") {
-      switchActiveRig(state);
+      recordCommand("tap", { action });
+      const event = switchActiveRig(state);
+      recordEvent("rigSelectionOutcome", { source: "tap", event });
       announce();
     } else if (action === "camera") {
+      recordCommand("tap", { action });
       cycleCamera(state);
       cameraSelect.value = state.cameraMode;
       showToast(`${CAMERA_LABELS[state.cameraMode]} view.`);
     } else if (action === "phase") {
+      recordCommand("tap", { action });
       cyclePhase(state);
       showToast(
         `${state.phase === "day" ? "Daylight" : state.phase === "gloam" ? "Gloam" : "Night"} active.`,
       );
     } else if (action === "map") {
+      recordCommand("tap", { action });
       toggleMap(state);
       mapOverlay.hidden = !state.mapOpen;
       if (state.mapOpen) {
@@ -516,12 +587,15 @@ function boot(): void {
         rumorMap.close();
       }
     } else if (action === "blade") {
+      recordCommand("tap", { action });
       toggleBladeMode(state);
       announce();
     } else if (action === "recover") {
+      recordCommand("tap", { action });
       winchRecover(state, world);
       announce();
     } else {
+      recordCommand("tap", { action });
       togglePause(state);
       pauseOverlay.hidden = !state.paused;
     }
@@ -881,7 +955,9 @@ function boot(): void {
       prompt.textContent =
         firstRung.stage === "choose-part"
           ? `${firstRung.objective} · ${state.salvage} salvage ready`
-          : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
+          : firstRung.complete && rig.modules.includes("lug-tires")
+            ? "Lug tyres fitted · grip upgraded · take the mud line toward Long Furrow"
+            : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
     } else if (relay.cargo.attachedRigId === rig.id) {
       const distance = Math.round(
         Math.hypot(rig.x - LANDMARKS[1]!.x, rig.z - LANDMARKS[1]!.z),
@@ -927,7 +1003,6 @@ function boot(): void {
     navigatorUI.update(state);
 
     for (const landmark of LANDMARKS) {
-
       const item = landmarkList.querySelector<HTMLElement>(
         `[data-landmark-id="${landmark.id}"]`,
       );
@@ -939,9 +1014,25 @@ function boot(): void {
         (discovery) => discovery.id === landmark.id,
       );
       item.classList.toggle("is-discovered", discovered);
+      const nameElement = item.querySelector<HTMLElement>("strong");
+      const detailElement = item.querySelector<HTMLElement>("small");
       const distanceElement = item.querySelector<HTMLElement>("em");
+      if (nameElement) {
+        nameElement.textContent = discovered ? landmark.name : "Unsurveyed";
+      }
+      if (detailElement) {
+        // Before you have been there, a machine can tell which way the signal lies
+        // and roughly how far. It cannot tell you what the place is for.
+        detailElement.textContent = discovered
+          ? landmark.verb
+          : `bearing ${headingLabel(
+              Math.atan2(landmark.x - rig.x, landmark.z - rig.z),
+            )}`;
+      }
       if (distanceElement) {
-        distanceElement.textContent = discovered ? "found" : `${distance} m`;
+        distanceElement.textContent = discovered
+          ? "found"
+          : distanceBand(distance);
       }
     }
 
@@ -994,7 +1085,32 @@ function boot(): void {
       showToast(state.lastDiagnostic);
     }
 
-    const metrics = performanceMonitor.snapshot(renderer.metrics());
+    let metrics = performanceMonitor.snapshot(renderer.metrics());
+    runtimeProfileSelection = runtimeProfileController.evaluate(metrics);
+    if (
+      metrics.visibility?.profile !== runtimeProfileSelection.profile &&
+      renderer.setVisibilityProfile(runtimeProfileSelection.profile, state)
+    ) {
+      metrics = performanceMonitor.snapshot(renderer.metrics());
+      const fallbackActive = runtimeProfileSelection.profile === "mobile-safe";
+      statusMessage = fallbackActive
+        ? "Performance safeguard active: reduced scenery detail."
+        : "Performance safeguard cleared: standard scenery detail restored.";
+      if (worldEntered) {
+        showToast(statusMessage);
+      } else {
+        bootstrapStatus.textContent = fallbackActive
+          ? "Field systems ready with reduced scenery detail."
+          : "Field systems ready with standard scenery detail.";
+      }
+      recordCheckpoint(
+        fallbackActive ? "runtimeProfileFallback" : "runtimeProfileRecovery",
+        {
+          profile: runtimeProfileSelection.profile,
+          reasons: runtimeProfileSelection.reasons,
+        },
+      );
+    }
     saveStatus.textContent = statusMessage;
     if (developerSurface) {
       const heap =
@@ -1004,11 +1120,13 @@ function boot(): void {
         (bridge) => bridge.status === "loaded",
       ).length;
       const bridgeSummary = `bridges:${loadedBridges}/${bridgeStates.length}`;
+      const rendererMemorySummary = `geo:${metrics.geometries} tex:${metrics.textures}`;
       const visibility = metrics.visibility;
       const visibilitySummary = visibility
         ? `props:${visibility.submitted}/${visibility.candidates} n${visibility.near}/m${visibility.mid}/f${visibility.far} c${visibility.culled} cap${visibility.capacityLimited}`
         : "props:n/a";
-      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${heap} · ${bridgeSummary} · ${visibilitySummary}`;
+      const profileSummary = `profile:${visibility?.profile ?? "n/a"} ${runtimeProfileSelection.state}${runtimeProfileSelection.reasons.length > 0 ? ` (${runtimeProfileSelection.reasons.join(",")})` : ""}`;
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${rendererMemorySummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
     }
 
     if (state.mapOpen && now - lastMapUpdate > 260) {
@@ -1027,6 +1145,7 @@ function boot(): void {
       {
         ...publicState(state, world),
         welcomeOpen: !worldEntered,
+        runtimeProfileSelection,
         runtimeAssetBridges: renderer.runtimeBridgeEvidenceList(),
         performance: performanceMonitor.snapshot(renderer.metrics()),
         fieldMapBuildMs: Number.isFinite(fieldMap.buildMs)
@@ -1049,6 +1168,8 @@ function boot(): void {
   window.render_game_to_text = snapshot;
   window.getRunRecord = () => snapshotRunRecord(runRecord);
   window.getRunRecordVerification = () => verifyRunRecord(runRecord);
+  window.getRunRecordReplayValidation = () =>
+    validateDeterministicReplay(runRecord);
   window.advanceTime = (milliseconds: number) => {
     recordCommand("advanceTime", { milliseconds });
     advanceGame(state, world, milliseconds);
@@ -1059,7 +1180,8 @@ function boot(): void {
       throw new Error(`Unknown rig id: ${String(rigId)}`);
     }
     recordCommand("selectRig", { rigId });
-    selectActiveRig(state, rigId);
+    const event = selectActiveRig(state, rigId);
+    recordEvent("rigSelectionOutcome", { source: "window", event });
     return settleAndReport();
   };
   window.selectCamera = (cameraMode: CameraMode) => {
@@ -1247,8 +1369,9 @@ function boot(): void {
     return settleAndReport();
   };
   window.performRigAction = () => {
-    recordCommand("performRigAction", {});
-    performPrimaryAction(state, world);
+    recordCommand("primaryAction", { source: "acceptance" });
+    const event = performPrimaryAction(state, world);
+    recordEvent("primaryActionOutcome", { source: "acceptance", event });
     return settleAndReport();
   };
   window.applyRigInput = (
@@ -1349,6 +1472,8 @@ function boot(): void {
     appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {
       bytes: result.bytes,
       durationMs: result.durationMs,
+      saveKey: result.saveKey,
+      schemaVersion: result.schemaVersion,
       statusMessage,
     });
   };
@@ -1365,7 +1490,9 @@ function boot(): void {
     } else {
       accumulator = 0;
     }
-    performanceMonitor.recordFrame(frameDurationMs);
+    if (worldEntered && document.visibilityState === "visible") {
+      performanceMonitor.recordFrame(frameDurationMs);
+    }
 
     while (
       worldEntered &&
@@ -1403,6 +1530,7 @@ function boot(): void {
     if (rig.condition < previousRigCondition - 0.4) {
       const severity = Math.min(1, (previousRigCondition - rig.condition) / 10);
       renderer.addShake(0.35 + severity * 0.7);
+      renderer.recordConditionImpact(rig.id);
       audio.impact(0.35 + severity * 0.65);
     }
     previousCondition[rig.id] = rig.condition;
@@ -1432,6 +1560,8 @@ function boot(): void {
       // and integrate a second of motion in one frame.
       previousTime = performance.now();
       accumulator = 0;
+      performanceMonitor.resetFrameWindow();
+      runtimeProfileController.reset();
     }
   });
 

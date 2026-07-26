@@ -296,6 +296,11 @@ Lane order is intentionally staged to avoid architecture theatre:
 - Add a web asset ingest/compression contract so browser-facing assets carry source, derived, and replacement state before activation.
 - Add browser-visible reject diagnostics for invalid, oversized, or unsupported assets.
 - Add safe replacement and deprecation behavior for runtime asset entries.
+- Require an isolated resource-attribution record before public promotion: exact
+  runtime derivative bytes, decoded mesh/texture facts, before/after/dispose
+  renderer-count captures, target-profile budget, and fallback evidence.
+- Treat aggregate geometry/texture counts as whole-runtime observability only;
+  do not infer per-asset VRAM from GLB bytes or loaded node counts.
 - Keep runtime consuming validated manifests only, not raw source files.
 - Asset pipeline note: [ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md) now captures the source-to-manifest and replacement boundary.
 
@@ -545,3 +550,18 @@ Linked decision artifact for this architecture phase:
 - Add a dedicated runner or shared scenario entry for lab boot, controls, pause/debug/reset, fallback, and recovery.
 - Keep Field 02 canonical so the lab supplements rather than competes with the public game path.
 - Physics-lab contract note: [PHYSICS_LAB_BROWSER_EXPERIENCE_AND_ACCEPTANCE_CONTRACT_2026-07-25.md](./PHYSICS_LAB_BROWSER_EXPERIENCE_AND_ACCEPTANCE_CONTRACT_2026-07-25.md) now captures the lab boundary.
+
+## Addendum (2026-07-26) - episode grammar sits above the visual policy lanes
+
+- The roadmap already separates shader/material and lighting/readability as
+  their own policy lanes.
+- That is the correct shape for the current game: the episode grammar names the
+  lived moment, while these visual lanes make that moment readable.
+- In practice that means:
+  - Lane R and Lane W support episode readability,
+  - they do not replace the episode grammar,
+  - future episode work should compose through them instead of creating a new
+    visual fork.
+- This addendum keeps the umbrella roadmap aligned with the newer exploration
+  notes so later work can find the dependency without re-deriving it from
+  scratch.

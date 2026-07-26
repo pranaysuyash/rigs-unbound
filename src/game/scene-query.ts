@@ -16,6 +16,7 @@ import {
 } from "./collision";
 import type { TerrainField } from "./terrain";
 import {
+  WORLD_SITES,
   WORLD_STRUCTURE_PARTS,
   findSite,
   type WorldStructurePart,
@@ -66,6 +67,55 @@ interface StructureWorldCentre {
   y: number;
   z: number;
 }
+
+/**
+ * Collider parts grouped by the site they belong to, with the radius that bounds
+ * them, precomputed once at module load.
+ *
+ * `resolveRigStructureCollision` runs inside the fixed-step kernel. Walking every
+ * authored part every step means one `findSite` scan and one `terrain.height`
+ * evaluation per part per step, and `terrain.height` is domain-warped fBm — the
+ * most expensive pure function in the project. That cost was tolerable while a
+ * handful of parts existed and became the dominant per-step cost as soon as the
+ * sites were given real landmarks. A rig is near at most one site, so grouping
+ * lets the whole valley be rejected with one distance test per site and evaluates
+ * terrain height once per *nearby site* rather than once per part.
+ *
+ * This is a pure reorganisation of the same arithmetic: the parts iterated, the
+ * order they are iterated in, and the centre each one resolves to are unchanged.
+ */
+interface SiteColliderGroup {
+  siteX: number;
+  siteZ: number;
+  /** Bounds every collider in the group, measured from the site centre. */
+  reach: number;
+  parts: readonly WorldStructurePart[];
+}
+
+function partReach(part: WorldStructurePart): number {
+  const half =
+    part.shape.kind === "box"
+      ? Math.hypot(part.shape.width, part.shape.depth) * 0.5
+      : part.shape.radius;
+  return Math.hypot(part.localX, part.localZ) + half;
+}
+
+const SITE_COLLIDER_GROUPS: readonly SiteColliderGroup[] = WORLD_SITES.map(
+  (site) => {
+    const parts = WORLD_STRUCTURE_PARTS.filter(
+      (part) => part.siteId === site.id && part.rigCollider,
+    );
+    return {
+      siteX: site.x,
+      siteZ: site.z,
+      reach: parts.reduce(
+        (widest, part) => Math.max(widest, partReach(part)),
+        0,
+      ),
+      parts,
+    };
+  },
+).filter((group) => group.parts.length > 0);
 
 function structureWorldCentre(
   part: WorldStructurePart,
@@ -390,58 +440,71 @@ export function resolveRigStructureCollision(
     }
   };
 
-  for (const part of WORLD_STRUCTURE_PARTS) {
-    if (!part.rigCollider) continue;
-    const centre = structureWorldCentre(part, source.terrain);
-    if (!centre) continue;
+  for (const group of SITE_COLLIDER_GROUPS) {
+    if (
+      Math.hypot(rig.x - group.siteX, rig.z - group.siteZ) >
+      group.reach + radius
+    ) {
+      continue;
+    }
+    // One fBm evaluation per nearby site rather than one per part.
+    const baseY = source.terrain.height(group.siteX, group.siteZ);
 
-    if (part.shape.kind === "box") {
-      const rotation = part.rotationY ?? 0;
-      const cosine = Math.cos(rotation);
-      const sine = Math.sin(rotation);
-      const deltaX = rig.x - centre.x;
-      const deltaZ = rig.z - centre.z;
-      const localX = cosine * deltaX - sine * deltaZ;
-      const localZ = sine * deltaX + cosine * deltaZ;
-      const extentX = part.shape.width * 0.5 + radius;
-      const extentZ = part.shape.depth * 0.5 + radius;
-      if (Math.abs(localX) >= extentX || Math.abs(localZ) >= extentZ) {
+    for (const part of group.parts) {
+      const centre = {
+        x: group.siteX + part.localX,
+        y: baseY + part.localY,
+        z: group.siteZ + part.localZ,
+      };
+
+      if (part.shape.kind === "box") {
+        const rotation = part.rotationY ?? 0;
+        const cosine = Math.cos(rotation);
+        const sine = Math.sin(rotation);
+        const deltaX = rig.x - centre.x;
+        const deltaZ = rig.z - centre.z;
+        const localX = cosine * deltaX - sine * deltaZ;
+        const localZ = sine * deltaX + cosine * deltaZ;
+        const extentX = part.shape.width * 0.5 + radius;
+        const extentZ = part.shape.depth * 0.5 + radius;
+        if (Math.abs(localX) >= extentX || Math.abs(localZ) >= extentZ) {
+          continue;
+        }
+
+        const penetrationX = extentX - Math.abs(localX);
+        const penetrationZ = extentZ - Math.abs(localZ);
+        let localNormalX = 0;
+        let localNormalZ = 0;
+        let overlap: number;
+        if (penetrationX < penetrationZ) {
+          localNormalX = localX < 0 ? -1 : 1;
+          overlap = penetrationX;
+        } else {
+          localNormalZ = localZ < 0 ? -1 : 1;
+          overlap = penetrationZ;
+        }
+        const normalX = cosine * localNormalX + sine * localNormalZ;
+        const normalZ = -sine * localNormalX + cosine * localNormalZ;
+        rig.x += normalX * (overlap + 0.001);
+        rig.z += normalZ * (overlap + 0.001);
+        registerHit(part, normalX, normalZ);
         continue;
       }
 
-      const penetrationX = extentX - Math.abs(localX);
-      const penetrationZ = extentZ - Math.abs(localZ);
-      let localNormalX = 0;
-      let localNormalZ = 0;
-      let overlap: number;
-      if (penetrationX < penetrationZ) {
-        localNormalX = localX < 0 ? -1 : 1;
-        overlap = penetrationX;
-      } else {
-        localNormalZ = localZ < 0 ? -1 : 1;
-        overlap = penetrationZ;
-      }
-      const normalX = cosine * localNormalX + sine * localNormalZ;
-      const normalZ = -sine * localNormalX + cosine * localNormalZ;
+      const minimum = part.shape.radius + radius;
+      const deltaX = rig.x - centre.x;
+      const deltaZ = rig.z - centre.z;
+      const distance = Math.hypot(deltaX, deltaZ);
+      if (distance >= minimum) continue;
+      const normalX =
+        distance > EPSILON ? deltaX / distance : -Math.sin(rig.heading);
+      const normalZ =
+        distance > EPSILON ? deltaZ / distance : -Math.cos(rig.heading);
+      const overlap = minimum - distance;
       rig.x += normalX * (overlap + 0.001);
       rig.z += normalZ * (overlap + 0.001);
       registerHit(part, normalX, normalZ);
-      continue;
     }
-
-    const minimum = part.shape.radius + radius;
-    const deltaX = rig.x - centre.x;
-    const deltaZ = rig.z - centre.z;
-    const distance = Math.hypot(deltaX, deltaZ);
-    if (distance >= minimum) continue;
-    const normalX =
-      distance > EPSILON ? deltaX / distance : -Math.sin(rig.heading);
-    const normalZ =
-      distance > EPSILON ? deltaZ / distance : -Math.cos(rig.heading);
-    const overlap = minimum - distance;
-    rig.x += normalX * (overlap + 0.001);
-    rig.z += normalZ * (overlap + 0.001);
-    registerHit(part, normalX, normalZ);
   }
 
   return outcome;

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { PerformanceSnapshot } from "./performance";
-import { selectRuntimeProfile } from "./runtime-profile-policy";
+import { PerformanceMonitor, type PerformanceSnapshot } from "./performance";
+import {
+  RuntimeProfileController,
+  selectRuntimeProfile,
+} from "./runtime-profile-policy";
 
 function snapshot(
   overrides: Partial<PerformanceSnapshot> = {},
@@ -12,15 +15,19 @@ function snapshot(
     averageFrameMs: 16.67,
     p95FrameMs: 20,
     frameSampleCount: 90,
+    totalFrameSampleCount: 90,
     framesPerSecond: 60,
     drawCalls: 72,
     triangles: 100_000,
+    geometries: overrides.geometries ?? 44,
+    textures: overrides.textures ?? 1,
     heapUsedMb: null,
     loadDurationMs: 3,
     lastSaveDurationMs: 0,
     saveBytes: 0,
     terrainBuildMs: null,
     visibility: null,
+    gpuMemoryMb: overrides.gpuMemoryMb ?? null,
     ...overrides,
   };
 }
@@ -48,17 +55,191 @@ describe("runtime profile policy", () => {
         snapshot({
           averageFrameMs: 26,
           p95FrameMs: 34,
-          firstControllableMs: 2_600,
         }),
       ),
     ).toEqual({
       profile: "mobile-safe",
       state: "fallback",
-      reasons: [
-        "average-frame-budget",
-        "p95-frame-budget",
-        "first-controllable-budget",
-      ],
+      reasons: ["average-frame-budget", "p95-frame-budget"],
     });
+  });
+
+  it("holds fallback through a healthy hysteresis window before recovery", () => {
+    const controller = new RuntimeProfileController(
+      {
+        minimumFrameSamples: 3,
+        maximumAverageFrameMs: 20,
+        maximumP95FrameMs: 30,
+        maximumFirstControllableMs: 2_500,
+      },
+      { minimumHealthyFrames: 5 },
+    );
+
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 3,
+          averageFrameMs: 21,
+        }),
+      ),
+    ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 7,
+        }),
+      ),
+    ).toEqual({
+      profile: "mobile-safe",
+      state: "fallback",
+      reasons: ["average-frame-budget", "recovery-window"],
+    });
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 8,
+        }),
+      ),
+    ).toEqual({ profile: "standard", state: "within-budget", reasons: [] });
+  });
+
+  it("restarts the healthy recovery window after renewed renderer pressure", () => {
+    const controller = new RuntimeProfileController(
+      {
+        minimumFrameSamples: 3,
+        maximumAverageFrameMs: 20,
+        maximumP95FrameMs: 30,
+        maximumFirstControllableMs: 2_500,
+      },
+      { minimumHealthyFrames: 5 },
+    );
+
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 3,
+          averageFrameMs: 21,
+        }),
+      ),
+    ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
+    expect(
+      controller.evaluate(
+        snapshot({ frameSampleCount: 3, totalFrameSampleCount: 6 }),
+      ),
+    ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 7,
+          averageFrameMs: 21,
+        }),
+      ),
+    ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
+    expect(
+      controller.evaluate(
+        snapshot({ frameSampleCount: 3, totalFrameSampleCount: 11 }),
+      ),
+    ).toEqual({
+      profile: "mobile-safe",
+      state: "fallback",
+      reasons: ["average-frame-budget", "recovery-window"],
+    });
+    expect(
+      controller.evaluate(
+        snapshot({ frameSampleCount: 3, totalFrameSampleCount: 12 }),
+      ),
+    ).toEqual({ profile: "standard", state: "within-budget", reasons: [] });
+  });
+
+  it("resets fallback hysteresis when controllable frame evidence is discarded", () => {
+    const controller = new RuntimeProfileController(
+      {
+        minimumFrameSamples: 3,
+        maximumAverageFrameMs: 20,
+        maximumP95FrameMs: 30,
+        maximumFirstControllableMs: 2_500,
+      },
+      { minimumHealthyFrames: 5 },
+    );
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 3,
+          totalFrameSampleCount: 3,
+          averageFrameMs: 21,
+        }),
+      ),
+    ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
+
+    controller.reset();
+
+    expect(
+      controller.evaluate(
+        snapshot({
+          frameSampleCount: 0,
+          totalFrameSampleCount: 0,
+          averageFrameMs: 0,
+          p95FrameMs: 0,
+        }),
+      ),
+    ).toEqual({
+      profile: "standard",
+      state: "awaiting-evidence",
+      reasons: ["insufficient-frame-samples"],
+    });
+  });
+});
+
+describe("first controllable frame budget", () => {
+  /**
+   * The budget exists because a link-native game loses a visitor in seconds. These
+   * assert it actually changes the selection — an unconsumed budget field is the
+   * same inert-promise defect as a module that advertises a capability it lacks.
+   */
+  it("degrades immediately on a slow first frame, without waiting for frame samples", () => {
+    const selection = selectRuntimeProfile(
+      snapshot({ firstControllableMs: 6_000, frameSampleCount: 0 }),
+    );
+    expect(selection.profile).toBe("mobile-safe");
+    expect(selection.state).toBe("fallback");
+    expect(selection.reasons).toContain("first-controllable-budget");
+  });
+
+  it("leaves a fast first frame on the standard profile", () => {
+    const selection = selectRuntimeProfile(
+      snapshot({ firstControllableMs: 450 }),
+    );
+    expect(selection.reasons).not.toContain("first-controllable-budget");
+    expect(selection.profile).toBe("standard");
+  });
+
+  it("does not degrade when the first frame has not been reached yet", () => {
+    const selection = selectRuntimeProfile(
+      snapshot({ firstControllableMs: null, frameSampleCount: 0 }),
+    );
+    expect(selection.reasons).toEqual(["insufficient-frame-samples"]);
+  });
+
+  it("excludes welcome-panel dwell from the first controllable budget", () => {
+    const monitor = new PerformanceMonitor(0, 3);
+    const renderer = {
+      drawCalls: 1,
+      triangles: 12,
+      geometries: 1,
+      textures: 0,
+    };
+
+    monitor.beginControllableMeasurement(120_000);
+    monitor.markControllable(120_016);
+
+    expect(
+      selectRuntimeProfile(monitor.snapshot(renderer)).reasons,
+    ).not.toContain("first-controllable-budget");
+    expect(monitor.snapshot(renderer).firstControllableMs).toBe(16);
   });
 });

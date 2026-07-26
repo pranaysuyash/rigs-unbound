@@ -32,16 +32,17 @@ canonical scope and acceptance contracts.
 | ----: | :----: | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 |     1 | `[x]`  | RU-0106–RU-0109: first-session P0 repair                          | These defects blocked entry, reward, recovery, or coherent time                               | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
 |     2 | `[x]`  | RU-0110: remaining P1/P2 playtest defects                         | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed                        |
-|     3 | `[-]`  | RU-0601 + RU-0406: guidance and first meaningful spend            | A reachable reward is not yet a complete first rung                                           | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge                    |
-|     4 | `[ ]`  | RU-0202 + RU-0203: signatures and crops                           | Establish the deterministic day-side ecology before threats depend on it                      | Bounded serializable kernel state, failure recovery, telemetry, and tests                                                     |
-|     5 | `[ ]`  | RU-0204 + RU-0205: night threats and dawn consequence             | Complete the first consequence-bearing day→night→dawn loop                                    | Threat failure/retry paths, persisted dawn record, player/operator explanation                                                |
-|     6 | `[ ]`  | RU-0206 + RU-0405: mastery and schema v7                          | Progression must reward varied rig verbs without grind or save drift                          | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary                                         |
-|     7 | `[ ]`  | RU-0207 + RU-0208: presentation and fresh-eyes validation         | Kernel completion is not player comprehension or fun evidence                                 | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human                                          |
-|     8 | `[ ]`  | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter          | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility                            |
-|     9 | `[ ]`  | RU-0304–RU-0307: deeper capability/physics proofs                 | Let real activities pose the next controller and collision questions                          | Shared roles, rescue activity, obstruction query, then one genuinely different motion family                                  |
-|    10 | `[ ]`  | RU-0701–RU-0703: replay, guest identity, optional account link    | Sharing starts with inspectable local artifacts, not real-time authority                      | Ghost artifact, export/import, then accepted auth/conflict ADR                                                                |
-|    11 | `[>]`  | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder      | High-leverage but depends on stable state, authority, moderation, and recovery                | Named dependencies and operational safety gates close first                                                                   |
-|    12 | `[~]`  | RU-0801–RU-0808: continuous research/skill coverage               | Research continues in parallel but must produce decisions or probes                           | Each recommendation is accepted, rejected, deferred, or linked to measured evidence                                           |
+|     3 | `[-]`  | RU-0901–RU-0907: session synthesis, provenance, and authority     | Missing synthesis and invented decision authority can misroute every later workstream         | Canonical proposal captured; ADR statuses sourced; tracker deduplicated; lab/public authority explicitly decided              |
+|     4 | `[-]`  | RU-0601 + RU-0406: guidance and first meaningful spend            | A reachable reward is not yet a complete first rung                                           | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge                    |
+|     5 | `[ ]`  | RU-0202 + RU-0203: signatures and crops                           | Establish the deterministic day-side ecology before threats depend on it                      | Bounded serializable kernel state, failure recovery, telemetry, and tests                                                     |
+|     6 | `[ ]`  | RU-0204 + RU-0205: night threats and dawn consequence             | Complete the first consequence-bearing day→night→dawn loop                                    | Threat failure/retry paths, persisted dawn record, player/operator explanation                                                |
+|     7 | `[ ]`  | RU-0206 + RU-0405: mastery and schema v7                          | Progression must reward varied rig verbs without grind or save drift                          | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary                                         |
+|     8 | `[ ]`  | RU-0207 + RU-0208: presentation and fresh-eyes validation         | Kernel completion is not player comprehension or fun evidence                                 | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human                                          |
+|     9 | `[ ]`  | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter          | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility                            |
+|    10 | `[ ]`  | RU-0304–RU-0307: deeper capability/physics proofs                 | Let real activities pose the next controller and collision questions                          | Shared roles, rescue activity, obstruction query, then one genuinely different motion family                                  |
+|    11 | `[ ]`  | RU-0701–RU-0703: replay, guest identity, optional account link    | Sharing starts with inspectable local artifacts, not real-time authority                      | Ghost artifact, export/import, then accepted auth/conflict ADR                                                                |
+|    12 | `[>]`  | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder      | High-leverage but depends on stable state, authority, moderation, and recovery                | Named dependencies and operational safety gates close first                                                                   |
+|    13 | `[~]`  | RU-0801–RU-0808: continuous research/skill coverage               | Research continues in parallel but must produce decisions or probes                           | Each recommendation is accepted, rejected, deferred, or linked to measured evidence                                           |
 
 ### Active work package checklist
 
@@ -121,6 +122,11 @@ documentation must all agree.
     observes obstacle pull-in, records the canonical felled-world mutation,
     and observes clear outward recovery. Port 4173 completed with exit code 0
     and zero captured console/page errors.
+  - Evidence correction (2026-07-26): the current Home berth can present a
+    fully clear 12.996 m chase path. Fresh-spawn acceptance therefore checks a
+    clear-or-resolved conditional contract instead of requiring an obstruction
+    to exist. The deterministic Launch Ridge structure and standing/felled-tree
+    fixtures continue to prove typed inward resolution and outward recovery.
 - [x] **RU-0110.6 — Create canonical, non-overlapping starting-rig berths.**
   - Keep spatial switching. Until an explicit claim/unlock mission exists,
     place every advertised starting rig at distinct Home Silo service berths
@@ -215,7 +221,7 @@ documentation must all agree.
     then update deployment provenance for the next agents.
   - Evidence: guarded gameplay commit `9c10d2b`, preserved research head
     `a8869ad`, Sites version 7 terminal success, HTTP 200 for Field 02 and both
-    canonical lab routes, full public production acceptance, zero captured
+    public evidence lab routes, full public production acceptance, zero captured
     console/page errors, and zero recent Worker error events.
 
 #### RU-0601 + RU-0406 live task list — first understandable reward and spend
@@ -240,7 +246,7 @@ with permanent instructions.
     earn→return→spend→benefit chain.
   - Evidence level: Tier 1 current-source inspection plus the version-7
     production acceptance baseline. The full first-spend flow remains unproven.
-- [ ] **RU-0601/0406.1 — Add one pure first-rung stage resolver.**
+- [x] **RU-0601/0406.1 — Add one pure first-rung stage resolver.**
   - Derive stages from existing canonical facts: first cache collected,
     current salvage, workshop reach, and fitted modules.
   - Proposed stages: `find-cache`, `collect-cache`, `return-home`, `choose-part`,
@@ -251,7 +257,7 @@ with permanent instructions.
     `performPrimaryAction()` and `installModule()`.
   - Tests: every stage, boundary distances, unexpected active rig, restored
     saves, already-fitted saves, and no contradictory stage.
-- [ ] **RU-0406.2 — Make the guaranteed first reward economically complete.**
+- [x] **RU-0406.2 — Make the guaranteed first reward economically complete.**
   - Keep one currency: salvage/Scrap. Do not add credits, Favor, premium
     currency, or hidden tutorial grants.
   - Raise the uncollected authored first cache to the exact cheapest meaningful
@@ -261,7 +267,7 @@ with permanent instructions.
     migration exploit; new/fresh profiles receive the corrected authored value.
   - Tests: fresh payout, collected-node idempotency, save/reload, malformed
     state bounds, and total/lifetime counters.
-- [ ] **RU-0601.3 — Turn the opportunity compass into contextual guidance.**
+- [x] **RU-0601.3 — Turn the opportunity compass into contextual guidance.**
   - Use one compact objective chip plus the existing transient action prompt;
     keep the center and lower-middle playfield clear.
   - Express a verb and consequence, not quest bureaucracy:
@@ -271,7 +277,7 @@ with permanent instructions.
   - Desktop and `390×844` layouts must preserve the playfield, 44 px touch
     targets, focus order, aria-live restraint, reduced motion, and player/
     developer surface separation.
-- [ ] **RU-0406.4 — Make the first workshop choice understandable and usable.**
+- [x] **RU-0406.4 — Make the first workshop choice understandable and usable.**
   - Replace list-item click inference with explicit accessible install buttons
     or an equally strong native control contract.
   - Mark compatible, fitted, affordable, unavailable, and recommended states
@@ -283,7 +289,7 @@ with permanent instructions.
     silently buy, lock the player into one build, or expose internal tuning.
   - Keyboard number keys, pointer, touch, and accessible names must invoke the
     same canonical `installModule()` path.
-- [ ] **RU-0406.5 — Make the fitted change perceptible.**
+- [x] **RU-0406.5 — Make the fitted change perceptible.**
   - After fitting, explain the exact capability/traversal change and direct the
     player toward a nearby place where it matters.
   - Add a bounded success transition and feedback cue; respect reduced motion.
@@ -291,7 +297,7 @@ with permanent instructions.
     change for the active rig.
   - Tests compare pre/post effective profile and player-visible consequence;
     browser evidence must show the fitted module survives save/reload.
-- [ ] **RU-0601/0406.6 — Add operator and acceptance evidence.**
+- [-] **RU-0601/0406.6 — Add operator and acceptance evidence.**
   - Extend `render_game_to_text()` with the derived first-rung stage,
     recommended module, target, affordability, and completion reason.
   - Record semantic commands/checkpoints for collection and fitting without
@@ -301,6 +307,13 @@ with permanent instructions.
   - Cover player and developer URLs, desktop and narrow view, keyboard,
     pointer, real touch, save/reload, reduced motion, and zero console/page
     errors on development, rebuilt preview, and public production.
+  - Current evidence (2026-07-26): the full 4180 development acceptance passed
+    with zero console/page problems, real W/A/S/D collection/return, pointer
+    workshop fit, visible and persisted Lug tyres, six cameras, collision,
+    reduced motion, desktop, and `390×844` coverage. Evidence:
+    [first-rung acceptance addendum](../reviews/FIRST_RUNG_REWARD_AND_SPEND_ACCEPTANCE_2026-07-26.md#addendum-2026-07-26--current-4180-full-acceptance-pass).
+    Exact-final 4174 rebuilt preview, real touch, and public-production evidence
+    keep this item in progress.
 - [ ] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
@@ -359,10 +372,10 @@ with permanent instructions.
   - Closure: `git add -A`; full v4 hook attestation; guarded commit; push to
     `origin/main`; Sites version saved and production deployment succeeded from
     that exact pushed commit; live smoke check recorded.
-- [x] **RU-0005 — Keep deployment provenance current for version 6.**
+- [x] **RU-0005 — Keep deployment provenance current through version 7.**
   - Evidence: `progress.md`, the Sites runbook deployment ledger, the
-    deployment acceptance addendum, and this tracker name version 6 and source
-    commit `f5a007d1e9866fea510fcef1cfba102a7ee85e13`.
+    deployment acceptance addendum, and this tracker name version 7 and source
+    commit `a8869ad25f72929b62b6722cb262c91b2b6c7999`.
   - Closure: after every deployed commit, update `progress.md` and this tracker
     with the deployed source SHA and evidence tier. Reopen this recurring gate
     when a newer production release is created.
@@ -475,9 +488,13 @@ with permanent instructions.
   - Boundary: evidence compares controller families; it does not select a final
     physics engine.
 - [ ] **RU-0304 — Shared collision-role/mask fixture.**
+  - Status: paused pending operator sign-off on ADR-0023 and a named
+    player-fantasy comparison question.
   - Gate: Rapier and Box3D express the same project-owned blocked/fellable/
     trigger/sensor/hazard/attachment roles without solver handles in game state.
 - [ ] **RU-0305 — Unstable trailer + lifting arm activity.**
+  - Status: proposed candidate harness, not mandatory solver work; requires
+    operator sign-off on ADR-0023.
   - Gate: one rescue/construction/recovery job exercises attachment ownership,
     breakage, load, capture/recovery, feedback, and candidate comparison.
 - [ ] **RU-0306 — Camera-obstruction query port.**
@@ -563,9 +580,11 @@ with permanent instructions.
 - [ ] **RU-0603 — Accessibility profile completion.**
   - Gate: reduced motion, contrast, non-audio threat cues, keyboard focus,
     readable touch targets, zoom/text behavior, and WebGL failure fallback.
-- [ ] **RU-0604 — Separate player surface from evidence laboratories.**
+- [x] **RU-0604 — Separate player surface from evidence laboratories.**
   - Gate: labs remain reachable through an explicit developer/evidence route
     while the public field flow presents player goals rather than debug tools.
+  - Evidence: RU-0110.8 browser matrix; the player surface hides laboratory
+    navigation/diagnostics and admits no developer-only runtime bridge assets.
 - [ ] **RU-0605 — Audio and haptic human review.**
   - Gate: a human listens to the procedural mix across load/slip/phase and
     records comfort/readability findings; haptic design remains capability- and
@@ -660,7 +679,91 @@ code and linked to accepted, rejected, deferred, or implemented outcomes.
     packaging runbook, deployment status polling, and public URL.
   - Continuing duty: RU-0005.
 
-## 9. Recurring acceptance gates
+## 9. Session-wide synthesis, provenance, and authority closure
+
+This section captures the work that the 2026-07-26 session inventory found
+outside the earlier tracker. It is not a second roadmap: these tasks repair the
+canonical product/decision trail that every numbered workstream consumes.
+
+- [x] **RU-0901 — Canonical compositional episode grammar.**
+  - Scope: record the seven-part grammar
+    (`Rig identity + Place + Contract graph + Pressure curve + Rule modifier +
+Discovery chain + Persistent consequence`), the pressure/modifier/
+    discovery/consequence taxonomy, and the mechanic lattice.
+  - Include: failure-generated recovery contracts, VehiclePassport history,
+    social footprint, behavioural cargo, cross-rig mysteries, adaptive HUD
+    lenses, post-run consequence summaries, and automatic story captures.
+  - Closure: one project-local proposal links the existing mechanic grammar,
+    VehiclePassport, activity, persistence, replay, and world-memory contracts
+    without claiming operator acceptance.
+  - Evidence:
+    [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+- [x] **RU-0902 — Storm Relay and non-privileged frontier proof.**
+  - Scope: capture the complete Storm Relay experiment for Torque, Spark, and
+    Drift, including rising water, fragile cargo, radio interference,
+    capability-specific solutions, persistent success, and stranded-rig
+    recovery on failure.
+  - Boundary: the farm-to-city fringe is a dense test biome, not the universe's
+    privileged center; underwater, orbital, miniature, fantasy, procedural, and
+    other worlds remain equally valid.
+  - Closure: the proposal states what it tests, what remains reusable, its
+    coherence/admission checks, and why it is not automatically the next
+    implementation.
+  - Evidence:
+    [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+- [-] **RU-0903 — Decision-provenance and sign-off audit.**
+  - Scope: extend the completed physics audit across ADR-0006, ADR-0012,
+    ADR-0018, ADR-0021, Farmfall, Time Trial Ghost, and other “operator
+    direction” claims.
+  - Gate: distinguish direct operator statement, explicit sign-off,
+    operator-supplied AI/third-party proposal, agent inference, and runtime
+    evidence; correct status append-only.
+  - Closure: every load-bearing Accepted decision has a traceable sign-off or is
+    returned to Proposed/Deferred without deleting its history.
+- [-] **RU-0904 — Tracker and authority deduplication.**
+  - Scope: reconcile RU-0110.3 versus RU-0306, local technical acceptance versus
+    product acceptance, and overlapping research/live-implementation entries.
+  - Closure: every active item has one owner, one status, one dependency chain,
+    and one evidence ceiling.
+  - Partial closure (2026-07-26): preserved both decisions while resolving the
+    duplicate `ADR-0023` identifier; solver-neutral dynamics remains ADR-0023
+    and the newer browser-harness lifecycle decision is now ADR-0024.
+- [x] **RU-0905 — Canonical motto-v4 stale-reference correction.**
+  - Finding: project `motto_v4.md` declares v4 canonical but its multi-pass
+    section still says to revalidate against motto-v3.
+  - Gate: locate and correct the canonical upstream instruction source, rerun
+    `agent-start`, and confirm generated project surfaces no longer reintroduce
+    the stale reference.
+  - Closure evidence (2026-07-26): corrected
+    `/Users/pranay/Downloads/motto_v4.md`, `/Users/pranay/AGENTS.md`,
+    `/Users/pranay/Projects/AGENTS.md`, and
+    `/Users/pranay/Projects/agent-start`; made the bootstrap use one v4 source
+    with a v4 workspace fallback; removed the generated “legacy bridge”
+    contract; aligned canonical context paths to lowercase `docs/context`; ran
+    `bash -n`; regenerated this project twice after the instruction changes;
+    and confirmed no stale v3 startup, clause, source, bridge, or uppercase
+    context-path references remain in the live stack. Project `motto_v2.md` and
+    `motto_v3.md` are absent.
+- [~] **RU-0906 — Research recommendation status-inflation audit.**
+  - Scope: reconcile “Adopt,” “Approved,” “Used,” and implementation-authority
+    labels across library, engine, UI, asset, and tooling evaluations.
+  - Closure: every label is backed by current code/evidence and sign-off or is
+    relabelled Candidate/Proposed/Experimental/Rejected/Deferred.
+- [?] **RU-0907 — Evidence-lab production-surface decision.**
+  - Scope: decide whether Physics Lab and Box3D Probe remain direct production
+    routes, become developer-only build entries, or move to a separate evidence
+    deployment.
+  - Dependency: operator sign-off on ADR-0023 and alignment with RU-0604.
+  - Closure: build, navigation, deployment, documentation, and rollback all
+    express the same accepted policy.
+- [ ] **RU-0908 — Session-wide requirement completion audit.**
+  - Gate: recheck every explicit requirement, task ID, proposal, test,
+    acceptance condition, deferred item, and decision against current code,
+    runtime, docs, and external evidence.
+  - Closure: no item is called Done from intent, documentation, or narrow tests;
+    unresolved work remains visibly active with a concrete closure path.
+
+## 10. Recurring acceptance gates
 
 - [ ] **Before each commit:** re-read current status; classify every local
       item; inspect hooks and attribution; run targeted tests, typecheck, build,

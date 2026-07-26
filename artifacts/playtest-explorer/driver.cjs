@@ -1,6 +1,11 @@
 // Persistent playtest driver. Watches queue.ndjson for commands, one JSON per line.
 const fs = require("fs");
 const path = require("path");
+const { armWatchdog } = require("../../tools/browser-watchdog.cjs");
+
+// A browser script that cannot exit is worse than one that fails.
+armWatchdog({ minutes: 30, label: "playtest driver" });
+
 const {
   chromium,
 } = require("/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright");

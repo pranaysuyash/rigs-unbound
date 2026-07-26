@@ -517,3 +517,38 @@ Quality: High (desktop/powerful mobile)
   be treated as a shipped presentation system instead of an architectural lane.
 - Evidence depth: Tier 1 static contract inspection plus Tier 4 prior browser
   anchoring for the runtime surface.
+
+## Addendum (2026-07-26) - the runtime pieces exist, but the shell is still not a canonical browser-proved profile
+
+- Re-checked the shell-related runtime hooks in `src/game/renderer.ts`,
+  `src/game/feedback.ts`, and `src/game/audio.ts`.
+- The shell is now real enough to point at in code:
+  - the renderer has a state-shell mesh and material slot,
+  - the feedback frame carries integrity and impact data,
+  - the audio layer already modulates a shell oscillator from integrity.
+- That still does not equal a canonical presentation system:
+  - the shell language is not yet promoted to one browser-proved visual profile,
+  - the selected quality band is not yet the authoritative owner of that shell
+    language,
+  - representative-device proof is still missing for the shell look itself.
+- So the repo has crossed from concept-only to partial runtime substrate, but
+  the shell remains an architectural lane until one browser-proved visual
+  profile owns it.
+- Evidence depth: Tier 1 static source inspection. No new browser/device proof
+  was run in this update.
+
+## Addendum (2026-07-26) - state-shell presentation supports episode grammar, but it is not the episode grammar
+
+- The current shell language already does useful support work for the game:
+  it makes rig condition, impact, and state transitions readable at a glance.
+- That makes the shell a support layer for the episode grammar, because
+  episodes only stay legible when the player can read the machine’s condition
+  as part of the lived moment.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - state-shell presentation reinforces that moment with the current rig’s
+    visible condition language,
+  - the shell remains presentation, not authority.
+- This note intentionally does not promote the shell into a separate gameplay
+  system; it only keeps the dependency visible so future episode work can rely
+  on the same readable rig-state language.

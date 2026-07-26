@@ -194,3 +194,70 @@ implicit behavior glued onto the main loop.
   layered simulation behavior, and the next durable step is to name the
   governance and downgrade policy so the budget story is reviewable instead of
   implicit.
+
+## Addendum (2026-07-26) - renderer resource inputs are observable, cross-layer governance remains future-bound
+
+`RendererMetrics` now includes raw Three.js geometry and texture counts in
+addition to the existing frame and draw-path signals. This is a useful renderer
+domain input for future governance because it distinguishes a visible-frame
+problem from a resource-retention problem without claiming a browser-specific
+VRAM total.
+
+It does not yet constitute the governance ledger described by this contract:
+
+- there is no comparable authoritative budget sample yet for active actors,
+  residency, persistence cost, or future behavior/weather/economy domains;
+- no cross-domain priority order decides which subsystem may degrade first;
+- geometry/texture counts are not mapped to an automatic fallback threshold;
+- asset bridge attribution requires a separate isolated measurement protocol,
+  because aggregate counts include procedural and shared runtime resources.
+
+The correct current boundary is therefore: renderer resource metrics are
+observable diagnostics, while `mobile-safe` remains the only implemented
+renderer-profile fallback. A cross-layer ledger becomes implementation-ready
+only after at least one non-render domain has a measured pressure signal and a
+safe degradation action that can be compared against the renderer policy.
+
+Evidence tier: Tier 1 static inspection. No new fallback action, target-device
+measurement, or cross-layer policy was introduced by this addendum.
+
+## Addendum (2026-07-26) - the simulation stack is layered, but only the renderer has an active downgrade path
+
+- Re-checked the current runtime against the simulation-layer contract.
+- The code already behaves like a layered sim in practice:
+  - `src/game/state.ts` owns deterministic kernel ordering and game-state
+    consequences,
+  - `src/game/gameworld.ts` keeps spatial memory bounded and serializable,
+  - `src/game/performance.ts` measures pressure,
+  - `src/game/runtime-profile-policy.ts` turns measured pressure into a
+    renderer-only fallback path,
+  - `src/main.ts` surfaces the measurements and selected profile.
+- That means the layers are not merely conceptual anymore; they are explicit in
+  the runtime.
+- What is still missing is the broader governance ledger:
+  - no named budget owner for non-render layers,
+  - no active-actor/residency/save budget table,
+  - no first-class downgrade policy for simulation, persistence, or content
+    layers,
+  - no visible operator summary that compares those layers against the renderer
+    policy.
+- So the durable boundary is now sharper: the repo has a real layered
+  simulation with one active renderer downgrade path, but the cross-layer
+  resource-governance envelope remains future work.
+
+## Addendum (2026-07-26) - simulation governance supports episode grammar, but it does not replace it
+
+- The layered simulation already does important support work for episodes:
+  it keeps domain order, ownership, and fallback policy readable when multiple
+  systems interact.
+- That makes simulation governance a support layer for the episode grammar,
+  because episodes only stay coherent if weather, economy, traffic, persistence,
+  and presentation still follow a visible order under pressure.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - simulation governance keeps the interacting domains ordered and
+    downgradeable,
+  - the episode layer remains the story-composition layer above those domains.
+- This note intentionally does not promote the governance ledger into a story
+  system; it only keeps the dependency visible so future episode work can rely
+  on the same domain-order policy.

@@ -60,6 +60,8 @@ const playwrightModule =
   "/Users/pranay/Projects/skills/testing/playwright-skill/node_modules/playwright";
 const { chromium } = require(playwrightModule);
 
+const { armWatchdog } = require("./browser-watchdog.cjs");
+
 const TARGET_URL =
   process.env.RIGS_UNBOUND_URL ||
   "https://rigs-unbound.suyashpranay.chatgpt.site/";
@@ -392,22 +394,8 @@ async function resolveGround(page) {
  * this fires and takes the process down rather than leaving it resident. `unref`
  * keeps the timer itself from extending the run.
  */
-function armWatchdog(minutes = 20) {
-  const timer = setTimeout(
-    () => {
-      process.stderr.write(
-        `\nwatchdog: capture exceeded ${minutes} min, forcing exit\n`,
-      );
-      process.exit(1);
-    },
-    minutes * 60 * 1000,
-  );
-  timer.unref();
-  return timer;
-}
-
 async function main() {
-  const watchdog = armWatchdog();
+  const watchdog = armWatchdog({ minutes: 20, label: "trailer capture" });
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   const headless = process.env.RIGS_TRAILER_HEADLESS === "1";
 

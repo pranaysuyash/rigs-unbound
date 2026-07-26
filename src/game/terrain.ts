@@ -81,7 +81,7 @@ const MAX_ROUTE_GRADE = 0.16;
 const ROUTE_SAMPLE_SPACING = 6;
 
 /** How strongly a corridor centre overrides natural terrain. */
-const ROUTE_AUTHORITY = 0.95;
+const ROUTE_AUTHORITY = 1;
 
 interface RouteProfile {
   ax: number;
@@ -134,6 +134,17 @@ export class TerrainField {
   private readonly deformation = new Map<number, number>();
 
   /**
+   * Monotonic mutation counter for the deformation map.
+   *
+   * The renderer must not gate mesh refreshes on `deformation.size`: deepening an
+   * existing furrow changes a cell's value without changing the count, and the
+   * FIFO eviction at capacity deletes one cell and adds another, also leaving the
+   * count unchanged. Either case desynchronises the visible mesh from the terrain
+   * the physics reads. A revision that only ever increases cannot miss an edit.
+   */
+  private revision = 0;
+
+  /**
    * Route profiles, built on first use rather than in the constructor. They are
    * derived from `naturalHeight`, and building them eagerly would make
    * construction cost ~300 height samples even for callers that only ever ask
@@ -162,18 +173,65 @@ export class TerrainField {
    * claims a proportionally larger region, so region size is authored by the
    * same number that authors terrain influence.
    */
-  biomeAt(x: number, z: number): BiomeId {
-    let best: BiomeId = "meadow";
-    let bestScore = Infinity;
+  /**
+   * Smoothly blended biome character at a point.
+   *
+   * Regions used to resolve as a nearest-site Voronoi, which gave every place a
+   * hard boundary: relief and moisture snapped from one biome's values to
+   * another's across a single metre. That is the mathematical cause of the
+   * "circular island, empty gap, circular island" read — the terrain was
+   * numerically continuous but its *character* was not.
+   *
+   * Now every site contributes an inverse-square-ish influence and the continuous
+   * properties are a weighted average, so badlands relief decays into meadow
+   * relief over a hundred metres rather than at a line. `biomeAt` still returns a
+   * discrete id for lookups that need one (obstacle density, salvage yield), and it
+   * returns the argmax of the same weights, so the two never disagree.
+   */
+  private biomeInfluence(
+    x: number,
+    z: number,
+  ): { moistureBias: number; reliefScale: number; dominant: BiomeId } {
+    let totalWeight = 0;
+    let moistureBias = 0;
+    let reliefScale = 0;
+    let dominant: BiomeId = "meadow";
+    let bestWeight = -1;
+
     for (const site of WORLD_SITES) {
-      const score =
-        Math.hypot(x - site.x, z - site.z) / Math.max(1, site.anchorRadius);
-      if (score < bestScore) {
-        bestScore = score;
-        best = site.biome;
+      const distance = Math.hypot(x - site.x, z - site.z);
+      // Influence falls off with the square of distance measured in units of the
+      // site's own radius, so a large site claims a proportionally larger region
+      // without ever drawing an edge.
+      const scaled = distance / Math.max(1, site.anchorRadius * 1.9);
+      const weight = 1 / (0.12 + scaled * scaled);
+      const biome = BIOMES[site.biome];
+      totalWeight += weight;
+      moistureBias += biome.moistureBias * weight;
+      reliefScale += biome.reliefScale * weight;
+      if (weight > bestWeight) {
+        bestWeight = weight;
+        dominant = site.biome;
       }
     }
-    return best;
+
+    if (totalWeight <= 0) {
+      const fallback = BIOMES.meadow;
+      return {
+        moistureBias: fallback.moistureBias,
+        reliefScale: fallback.reliefScale,
+        dominant: "meadow",
+      };
+    }
+    return {
+      moistureBias: moistureBias / totalWeight,
+      reliefScale: reliefScale / totalWeight,
+      dominant,
+    };
+  }
+
+  biomeAt(x: number, z: number): BiomeId {
+    return this.biomeInfluence(x, z).dominant;
   }
 
   /**
@@ -182,10 +240,15 @@ export class TerrainField {
    * `height()` needs both numbers for every sample, and computing them separately
    * meant projecting onto all five route centrelines twice per terrain query — on
    * the hottest path in the game. One loop, two results.
+   *
+   * Overlapping authored routes are blended rather than selected by a single
+   * winner. A max-weight winner can change at an intersection, carrying a
+   * different corridor elevation across the boundary and creating a hidden
+   * derivative discontinuity for suspension and grade queries.
    */
   private routeAt(x: number, z: number): { weight: number; elevation: number } {
-    let bestWeight = 0;
-    let elevation = 0;
+    let totalWeight = 0;
+    let weightedElevation = 0;
 
     for (const profile of this.profiles()) {
       const offsetX = x - profile.ax;
@@ -201,20 +264,24 @@ export class TerrainField {
       );
       const weight =
         1 - smoothStep(profile.halfWidth * 0.55, profile.halfWidth, lateral);
-      if (weight <= bestWeight) continue;
+      if (weight <= 0) continue;
 
       const samples = profile.elevations.length;
       const position = (along / Math.max(1e-6, profile.length)) * (samples - 1);
       const index = clamp(Math.floor(position), 0, samples - 2);
-      bestWeight = weight;
-      elevation = lerp(
+      const elevation = lerp(
         profile.elevations[index]!,
         profile.elevations[index + 1]!,
         position - index,
       );
+      totalWeight += weight;
+      weightedElevation += elevation * weight;
     }
 
-    return { weight: bestWeight, elevation };
+    return {
+      weight: clamp(totalWeight, 0, 1),
+      elevation: totalWeight > 0 ? weightedElevation / totalWeight : 0,
+    };
   }
 
   /** 0..1 weight describing how strongly a point lies inside an authored track. */
@@ -228,7 +295,7 @@ export class TerrainField {
       octaves: 3,
       gain: 0.55,
     });
-    const bias = BIOMES[this.biomeAt(x, z)].moistureBias;
+    const bias = this.biomeInfluence(x, z).moistureBias;
     return clamp(0.5 + raw * 0.5 + bias, 0, 1);
   }
 
@@ -243,6 +310,16 @@ export class TerrainField {
     for (const site of WORLD_SITES) {
       const distance = Math.hypot(x - site.x, z - site.z);
       if (distance >= site.anchorRadius) continue;
+      // One smooth falloff, deliberately. A two-stage core-plus-halo version was
+      // tried and reverted: `min(1, core + halo)` plateaus at 1 and then falls off a
+      // cliff when the core dies, which puts a derivative discontinuity at the pad
+      // edge. Measured result was a 0.23 slope four metres from the spawn point and
+      // rigs that could not pull away — exactly the "an anchor should not feel like
+      // a pothole at its own edge" failure that `radialFalloff` exists to avoid.
+      //
+      // The circular-island read is fixed by shrinking `anchorRadius` to the
+      // footprint scale instead, so the flat disc is ~10 m with a long gentle
+      // transition, rather than tens of metres of table followed by an edge.
       const candidate =
         radialFalloff(distance, site.anchorRadius, 0.62) * site.anchorStrength;
       if (candidate > weight) {
@@ -293,11 +370,12 @@ export class TerrainField {
         gain: 0.52,
       }) * 23;
 
-    // 2. Mid relief, scaled by the biome's character.
-    const relief = BIOMES[this.biomeAt(x, z)].reliefScale;
+    // 2. Mid relief, scaled by the blended biome character so a region's
+    //    roughness fades into its neighbour instead of switching at a boundary.
+    const relief = this.biomeInfluence(x, z).reliefScale;
     height +=
       fbm2(x * 0.0122, z * 0.0122, this.detailSeed, { octaves: 4 }) *
-      5.4 *
+      4.7 *
       relief *
       (1 - 0.85 * anchorWeight);
 
@@ -579,8 +657,12 @@ export class TerrainField {
     }
 
     for (const site of WORLD_SITES) {
-      if (!site.padSurface || !site.serviceRadius) continue;
-      if (Math.hypot(x - site.x, z - site.z) <= site.serviceRadius) {
+      if (!("padSurface" in site) || !("serviceRadius" in site)) continue;
+      if (
+        site.padSurface &&
+        site.serviceRadius &&
+        Math.hypot(x - site.x, z - site.z) <= site.serviceRadius
+      ) {
         return SURFACES[site.padSurface];
       }
     }
@@ -661,6 +743,7 @@ export class TerrainField {
           }
         }
         this.deformation.set(key, next);
+        this.revision += 1;
         changed = true;
       }
     }
@@ -669,6 +752,16 @@ export class TerrainField {
 
   deformationCount(): number {
     return this.deformation.size;
+  }
+
+  /**
+   * Mutation revision. Increases on every accepted cell edit, load, and clear.
+   *
+   * Consumers that mirror terrain state (the render mesh, a minimap tile cache)
+   * must compare this rather than `deformationCount()`.
+   */
+  deformationRevision(): number {
+    return this.revision;
   }
 
   /** Serialisable deformation snapshot for the save record. */
@@ -685,6 +778,7 @@ export class TerrainField {
   /** Replace deformation from a validated save record. */
   loadDeformations(entries: readonly DeformationEntry[]): void {
     this.deformation.clear();
+    this.revision += 1;
     for (const entry of entries.slice(-MAX_DEFORM_CELLS)) {
       if (
         !Number.isFinite(entry.cx) ||
@@ -701,7 +795,10 @@ export class TerrainField {
   }
 
   clearDeformations(): void {
-    this.deformation.clear();
+    if (this.deformation.size > 0) {
+      this.deformation.clear();
+      this.revision += 1;
+    }
   }
 
   // ---------------------------------------------------------------------------

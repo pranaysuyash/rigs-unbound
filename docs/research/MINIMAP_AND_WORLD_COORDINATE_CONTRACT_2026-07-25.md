@@ -217,3 +217,25 @@ larger open world will amplify the disagreement.
 - The useful conclusion is unchanged: the map already does the important truth
   work, and the next step is to formalize transforms so it can survive rebasing
   and richer topologies without losing coordinate identity.
+
+## Addendum (2026-07-26) - the minimap is canonical, but the navigator radar still carries a separate scale assumption
+
+- Re-checked the map and navigator source together.
+- `src/game/minimap.ts` still derives the field map from the canonical world
+  constants, so the minimap stays anchored to `WORLD_RADIUS` and persistent
+  world memory.
+- `src/game/navigator-ui.ts` still uses an independent hardcoded `200` world
+  scale for radar positioning and click-to-world conversion.
+- That means the coordinate layer currently has two different scale
+  assumptions:
+  - the authoritative minimap/world-map contract,
+  - the tactical radar overlay contract.
+- This is not a second simulation, but it is a real transform divergence that
+  should be made explicit before any rebasing or streaming work tries to reuse
+  the same UI surfaces.
+- The broader gap is unchanged:
+  - no round-trip world-pixel-world test,
+  - no `WorldFrame` / origin-revision record in runtime,
+  - no chunk-residency or origin-rebase proof,
+  - no diagnostic overlay for route cost, clearance, or capability-aware
+    pathing.

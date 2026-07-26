@@ -169,6 +169,14 @@ interaction packs.
 
 ## Update log
 
+- 2026-07-26: The cargo relay primary action is now the first full local
+  command proof. `executePrimaryActionCommand()` validates a versioned actor
+  intent, applies the existing authoritative state transition, and returns an
+  immutable accepted/rejected event with stable reason codes. The compatibility
+  wrapper used by input surfaces returns the same event, and both browser call
+  sites capture it in the bounded run record. This is still a local vertical
+  slice, not a shared event graph, replay playback engine, or network authority
+  implementation.
 - 2026-07-26: The canonical bounded run record advanced from schema v1 to v2.
   Its entries now carry deterministic sequence/id, event-envelope version,
   origin-domain ownership, and replayable-versus-diagnostics classification.
@@ -176,3 +184,25 @@ interaction packs.
   an independent bus or granting presentation mutation authority. Ordered input
   entries intentionally do not deduplicate; future idempotent handler events
   must carry their own declared key and policy.
+- 2026-07-26: The primary-action recorder wiring now enforces the distinction
+  the envelope requires: `primaryAction` remains replayable input intent, while
+  `primaryActionOutcome` is a simulation-origin diagnostics-only `event`.
+  Verification rejects kind/metadata disagreement. This is a local
+  command/outcome proof, not replay playback, a general event graph, or network
+  authority.
+- 2026-07-26: A local deterministic replay validator now reconstitutes the
+  seed-backed state/world pair and verifies canonical checkpoint hashes for a
+  declared command subset. It explicitly rejects unported replayable commands
+  and treats diagnostic events as non-input. This proves command/event trust
+  separation can be executed without granting renderer/UI authority; it does
+  not promote the bounded record into a general event bus or multiplayer layer.
+- 2026-07-26: Rig selection is the second local command/outcome proof. The
+  versioned `select-rig` executor centralizes existing active-actor, stability,
+  spatial-range, and idempotency semantics; browser inputs record its separate
+  simulation outcome. This validates a non-affordance command shape without
+  introducing a general bus, remote authority, or speculative state layer.
+- 2026-07-26: The bounded run record advanced to schema v3 with an immutable,
+  hash-bound initial state/world-memory context. Local replay validation now
+  restores that exact admitted context instead of assuming a fresh seed, while
+  refusing any tampered or unrecoverable baseline. This adds no save-import API,
+  context migration, ghost sharing, or shared authority claim.

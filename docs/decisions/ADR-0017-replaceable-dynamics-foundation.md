@@ -2,9 +2,37 @@
 
 - Date: 2026-07-25
 - Status: accepted by operator direction
+- Current status (2026-07-26): **implemented evidence fixture; solver-specific
+  acceptance withdrawn as unsupported; replacement policy is Proposed in
+  ADR-0023 and requires operator sign-off**
 - Decision owner / next reviewer: project owner
 - Implementation owner: current project agent
 - Related: ADR-0001, ADR-0006, ADR-0007, ADR-0009, ADR-0011, ADR-0012
+
+## Provenance correction — 2026-07-26
+
+The historical status and attribution above are preserved so the original
+record remains auditable, but they are not current authority.
+
+The physics exploration map and later Box3D review were AI-generated background
+supplied by the operator for evaluation. Their recommendation language was
+incorrectly transformed into “operator direction,” a “newer operator decision,”
+and an accepted solver choice. Supplying an AI proposal is not authorship,
+endorsement, or sign-off.
+
+The operator has explicitly corrected that attribution and asked for the
+decision to be re-derived from first principles using the internal-only
+`wide-open-brainstorm` process. Therefore:
+
+- Rapier remains an implemented raycast-wheel evidence fixture;
+- Box3D remains an implemented physical-wheel evidence fixture;
+- Field 02 remains the authored canonical product runtime;
+- no Rapier, Box3D, Jolt, hybrid, or authored-only solver policy is accepted;
+- the durable solver-neutral ownership model and future evidence gates are
+  Proposed in
+  [ADR-0023](ADR-0023-solver-neutral-dynamics-evidence-program.md);
+- no code, dependency, route, or packaging consequence follows until the
+  operator signs off on that proposal.
 
 ## Context
 
@@ -182,6 +210,13 @@ build; it does not make every rig behave like the laboratory buggy.
 
 ## Update log
 
+- 2026-07-26: Corrected decision provenance after operator feedback. The
+  supplied physics map and Box3D review were AI-generated evaluation inputs, not
+  explicit operator decisions. The solver-specific acceptance and mandatory
+  experiment language are withdrawn as current authority. Existing
+  implementations and evidence remain preserved. ADR-0023 now carries the
+  replacement policy as Proposed, pending operator sign-off. See
+  `docs/reviews/PHYSICS_DECISION_PROVENANCE_AND_FIRST_PRINCIPLES_AUDIT_2026-07-26.md`.
 - 2026-07-25: Accepted from the project owner's supplied physics exploration
   map. This supersedes the research-only adoption gate in the earlier browser
   physics catalog while preserving its requirement for project-owned ports,

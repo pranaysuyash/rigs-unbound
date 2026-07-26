@@ -21,7 +21,6 @@ describe("Navigator UI", () => {
     expect(controller.getWaypoints()).toHaveLength(1);
     expect(controller.getWaypoints()[0]?.label).toBe("SCOUT PING");
 
-
     controller.clearWaypoint(wp1.id);
     expect(controller.getWaypoints()).toHaveLength(0);
 

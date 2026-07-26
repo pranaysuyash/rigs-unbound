@@ -44,10 +44,11 @@ npm run test:browser
 `assets/asset-manifest.json` is the canonical registry for reviewed source and
 runtime asset candidates. It keeps semantic IDs, approval state, rights status,
 source/reference paths, and `.glb` runtime paths separate from renderer code.
-The registry currently contains concept/proposed records, including two
-manifest-owned runtime bridge candidates. Their renderer load/fallback path is
-implemented, but neither candidate is `approved` or `runtime-tested` until its
-browser evidence and rights review are recorded.
+The registry currently contains concept records and two manifest-owned,
+runtime-tested developer bridge fixtures. Their Car Kit 3.0 CC0 evidence,
+runtime hashes, loader/fallback behavior, and browser evidence are recorded.
+Neither is approved as default player-surface production art or included in a
+production build while `publicRuntimeApproved` remains false.
 
 Run the bounded structural preflight with:
 
@@ -114,3 +115,28 @@ Run it against the live server:
 ```bash
 npm run test:box3d-lab
 ```
+
+## `browser-watchdog.cjs`
+
+A hard deadline for any script that drives a browser. Playwright can throw
+_after_ launching a browser but _before_ the calling script's `finally` is
+reachable — `newPage()` failing when the host is out of GPU processes is the case
+this repository has actually hit. The script then never exits, the browser is
+never closed, and the process holds a slot indefinitely. A 14-hour trailer
+capture and an 18-hour playtest driver were both lost to that shape.
+
+Every browser-driving script in `tools/` and `artifacts/playtest-explorer/` arms
+it at module load. The timer is `unref`'d, so arming it never keeps a finished
+process alive; it fires only on a genuine overrun, and exits non-zero so an
+overrun reads as the failure it is.
+
+```js
+const { armWatchdog } = require("./browser-watchdog.cjs");
+
+armWatchdog({ minutes: 20, label: "trailer capture" });
+```
+
+Pick `minutes` from the script's realistic worst case, not its typical case — the
+deadline is there to bound a hang, not to enforce a performance budget. Add it to
+any new browser script; a script that cannot exit is worse than one that fails,
+because a failure is visible.

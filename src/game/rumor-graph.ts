@@ -8,8 +8,13 @@
  * of all nodes and edges in the exploration web.
  */
 
-import type { BiomeId } from "./world";
-import type { GameState, RigCapability } from "./contracts";
+import { WORLD_SITES, type BiomeId } from "./world";
+import {
+  CARGO_DELIVERY,
+  CARGO_PICKUP,
+  type GameState,
+  type RigCapability,
+} from "./contracts";
 
 export type RumorNodeType = "site" | "module" | "cargo_route" | "hazard_gate";
 export type RumorNodeStatus =
@@ -53,113 +58,79 @@ export interface RumorGraph {
   };
 }
 
-/** Static definition of all rumor nodes in the game world. */
-const GRAPH_NODES_DEF: Omit<RumorNode, "status">[] = [
-  {
-    id: "home-silo",
-    type: "site",
-    title: "Home Silo",
+/** Rumor-specific enrichment; spatial site facts remain owned by `WORLD_SITES`. */
+const SITE_RUMOR_DETAILS: Readonly<
+  Record<string, Pick<RumorNode, "description" | "requiredCapability">>
+> = {
+  "home-silo": {
     description:
       "Central workshop and home base. Equipped with repair pad and primary rig lab.",
-    biome: "meadow",
-    siteId: "home-silo",
-    x: 0,
-    z: 12,
-    elevation: 1.8,
-    verb: "restore",
   },
-  {
-    id: "long-furrow",
-    type: "site",
-    title: "Long Furrow",
+  "long-furrow": {
     description:
       "Soft farmland terrace requiring plough attachment to till soil and cut irrigation channels.",
-    biome: "farmland",
-    siteId: "long-furrow",
-    x: 18,
-    z: -46,
-    elevation: 1.1,
     requiredCapability: "plough",
-    verb: "till",
   },
-  {
-    id: "quarry-shelf",
-    type: "site",
-    title: "Quarry Shelf",
+  "quarry-shelf": {
     description:
       "High elevation rocky shelf with high-relief survey vantage point and heavy cargo depot.",
-    biome: "highland",
-    siteId: "quarry-shelf",
-    x: 82,
-    z: 44,
-    elevation: 12,
     requiredCapability: "tow",
-    verb: "haul",
   },
-  {
-    id: "salvage-yard",
-    type: "site",
-    title: "Rustline Salvage",
+  "salvage-yard": {
     description:
       "Badlands scrap depot rich in high-grade salvage nodes; requires heavy torque to haul scrap.",
-    biome: "badlands",
-    siteId: "salvage-yard",
-    x: 148,
-    z: -108,
-    elevation: 9.5,
     requiredCapability: "winch",
-    verb: "tow",
   },
-  {
-    id: "toy-grove",
-    type: "site",
-    title: "Toy Grove",
+  "toy-grove": {
     description:
       "Dense forest basin sheltering agile light vehicles and high-grip agility trails.",
-    biome: "grove",
-    siteId: "toy-grove",
-    x: 110,
-    z: 148,
-    elevation: 4.2,
     requiredCapability: "jump",
-    verb: "shrink",
   },
-  {
-    id: "sunken-flats",
-    type: "site",
-    title: "Sunken Flats",
+  "sunken-flats": {
     description:
       "Flooded marsh basin where ordinary ground wheels stall; ford or hover capabilities required.",
-    biome: "marsh",
-    siteId: "sunken-flats",
-    x: -126,
-    z: -130,
-    elevation: -1.5,
     requiredCapability: "hover",
-    verb: "wade",
   },
-  {
-    id: "launch-ridge",
-    type: "site",
-    title: "Launch Ridge",
+  "launch-ridge": {
     description:
       "Impassable outer mountain boundary; highest elevation survey point overlooking the entire atlas.",
-    biome: "highland",
-    siteId: "launch-ridge",
-    x: -150,
-    z: 140,
-    elevation: 45,
     requiredCapability: "survey",
-    verb: "ascend",
   },
+};
+
+const SITE_NODES_DEF: readonly Omit<RumorNode, "status">[] = WORLD_SITES.map(
+  (site) => {
+    const details = SITE_RUMOR_DETAILS[site.id];
+    return {
+      id: site.id,
+      type: "site",
+      title: site.name,
+      description:
+        details?.description ?? `A ${site.biome} opportunity in the field.`,
+      biome: site.biome,
+      siteId: site.id,
+      x: site.x,
+      z: site.z,
+      elevation: site.elevation,
+      ...(details?.requiredCapability
+        ? { requiredCapability: details.requiredCapability }
+        : {}),
+      verb: site.verb,
+    };
+  },
+);
+
+/** Static graph-only nodes; their location derives from the activity contract. */
+const GRAPH_NODES_DEF: readonly Omit<RumorNode, "status">[] = [
+  ...SITE_NODES_DEF,
   {
     id: "cargo-relay-route",
     type: "cargo_route",
     title: "Overland Freight Corridor",
     description:
-      "Active cargo relay contract connecting Home Silo to Quarry Shelf over steep highland tracks.",
-    x: 41,
-    z: 28,
+      "Active cargo relay from the field pickup to the Long Furrow delivery terrace.",
+    x: (CARGO_PICKUP.x + CARGO_DELIVERY.x) / 2,
+    z: (CARGO_PICKUP.z + CARGO_DELIVERY.z) / 2,
     verb: "deliver",
   },
 ];
@@ -181,11 +152,18 @@ const GRAPH_EDGES_DEF: Omit<RumorEdge, "active">[] = [
     label: "Highland Ascent",
   },
   {
-    id: "quarry-to-cargo",
-    fromId: "quarry-shelf",
+    id: "home-to-cargo",
+    fromId: "home-silo",
     toId: "cargo-relay-route",
     type: "cargo_route",
-    label: "Cargo Supply Line",
+    label: "Relay pickup",
+  },
+  {
+    id: "cargo-to-delivery",
+    fromId: "cargo-relay-route",
+    toId: CARGO_DELIVERY.siteId,
+    type: "cargo_route",
+    label: "Freight delivery",
   },
   {
     id: "quarry-to-salvage",
@@ -254,8 +232,6 @@ export function deriveRumorGraph(state: GameState): RumorGraph {
         status = "completed";
       } else if (state.cargoRelay.status === "active") {
         status = "visited";
-      } else if (discoveredSet.has("quarry-shelf")) {
-        status = "rumored";
       }
     }
 

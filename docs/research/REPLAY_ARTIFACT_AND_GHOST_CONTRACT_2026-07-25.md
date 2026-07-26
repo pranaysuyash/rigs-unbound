@@ -252,3 +252,183 @@ The bounded recorder is already real. This contract makes it explicit what still
   - no trust split between diagnostics-only and replay-safe output.
 - So replay remains a real next layer, but not yet a first-class browser
   artifact.
+
+## Addendum (2026-07-26) - the record is still real, and the missing layer is still playback
+
+- Re-checked the replay lane against the current repo state and the live
+  browser history already recorded in the worklog.
+- `src/game/run-record.ts` still carries the right bounded spine:
+  versioned schema, deterministic seed, monotonic ids, replayable vs
+  diagnostics-only classification, and checkpoint tick-hash validation.
+- `src/main.ts` still exposes the record and verifier hooks, so the browser can
+  audit the run but not yet replay it.
+- The important boundary has not changed:
+  - record and verify are real,
+  - playback, ghost compatibility, and divergence reporting are still missing.
+- The next replay proof should therefore start as a debug validator or local
+  playback harness before it tries to become a shareable ghost surface.
+- Evidence tier: Tier 1 static inspection plus earlier recorded runtime notes.
+
+## Addendum (2026-07-26) - source scan still finds no playback entrypoint
+
+- Searched the live `src` and `docs/research` lanes for playback and ghost
+  wiring after re-checking the record-only boundary.
+- The scan still finds the bounded record spine and documentation about the
+  missing layer, but no source-level playback entrypoint, ghost share API, or
+  divergence-report executor in runtime code.
+- That keeps the boundary honest:
+  - the repo can record and verify runs,
+  - the repo cannot yet replay or share them from the app surface.
+- The next real proof is still a small playback harness or validator, not a
+  broader ghost/social feature.
+
+## Addendum (2026-07-26) - local deterministic replay validator is the first executable proof
+
+`src/game/replay-validator.ts` now provides a renderer-free local validator.
+It reconstructs `GameState` and `GameWorld` from the record seed, executes a
+small declared command subset, advances sampled input at recorded simulation
+anchors, ignores diagnostics-only simulation events, and compares canonical
+`publicState` hashes at every checkpoint.
+
+The validator has deliberately visible stop conditions:
+
+- malformed run records fail as `invalid-record`;
+- bad input or command payloads fail as `invalid-payload`;
+- replayable entries outside the declared portable subset fail as
+  `unsupported-entry`;
+- checkpoint mismatch fails as `diverged` with the sequence and hash details.
+
+The first portable subset is intentionally small: `enterWorld`, `selectRig`,
+`selectCamera`, `installModule`, `primaryAction`, `advanceTime`, boolean input
+samples, and named non-primary tap actions that delegate to canonical state
+reducers. Primary tap dispatch is no longer recorded as a second command; its
+semantic `primaryAction` command is the only replayable intent. Acceptance-only
+helpers, resets, storage, renderer/profile transitions, and unknown actions
+remain rejected rather than acquiring guessed semantics. This is a debug
+validator, not a browser playback control, ghost/share API, or network
+protocol.
+
+Evidence tier: Tier 1 source and focused test coverage. No test, browser run,
+or real saved-record replay was executed in this change.
+
+## Addendum (2026-07-26) - browser-visible replay validation exists, but playback is still a separate surface
+
+- Re-checked the current source against `src/main.ts`, `src/game/run-record.ts`,
+  and `src/game/replay-validator.ts`.
+- The browser surface now exposes three distinct hooks:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+  - `window.getRunRecordReplayValidation()`
+- `validateDeterministicReplay()` is now the first real executable proof beyond
+  raw record verification:
+  - it reconstructs the admitted initial context,
+  - replays the portable command/input subset against the deterministic kernel,
+  - verifies checkpoint tick hashes,
+  - and reports unsupported or diverged entries with explicit codes.
+- This means the lane has crossed from “record only” to “record plus browser-
+  visible replay validation.”
+- The missing boundary is still the product artifact surface:
+  - no browser playback transport,
+  - no ghost/share compatibility envelope,
+  - no end-user replay divergence report,
+  - no trust split for replay-safe versus diagnostics-only artifact data.
+- So the correct current description is **record + verify + replay validation**,
+  not yet a public replay/ghost feature.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture or
+  test execution was run in this pass.
+
+## Addendum (2026-07-26) - primary-action intent and outcome now have distinct replay trust
+
+The bounded record now has an explicit `event` entry kind. The first use is the
+primary-action vertical slice:
+
+- `primaryAction` is a replayable input-origin command, preserving the intent
+  issued by a player or acceptance harness;
+- `primaryActionOutcome` is a simulation-origin, diagnostics-only event,
+  preserving the accepted/rejected authoritative result without pretending it
+  is an input to replay;
+- record verification now rejects metadata that conflicts with an entry kind,
+  so a simulation outcome cannot silently be recast as replayable input.
+
+This corrects a real audit-boundary mismatch in the previous recorder wiring.
+It does not create playback: a future harness must still define the accepted
+command subset, reconstruct a compatible initial world, execute commands at
+their deterministic anchors, and compare resulting checkpoint hashes with a
+clear divergence report. Ghost sharing remains out of scope until that local
+validator exists.
+
+Evidence tier: Tier 1 static source and focused test inspection. No replay run,
+browser observation, or playback verification was performed for this change.
+
+## Addendum (2026-07-26) - browser exposes validation verdict, not playback controls
+
+The existing run-record observability surface now also exposes
+`window.getRunRecordReplayValidation()`. It returns the local validator's
+structured verdict for the current in-memory record without mutating the game:
+
+- `verified` means the supported deterministic subset reached every recorded
+  checkpoint hash;
+- `unsupported-entry`, `invalid-payload`, and `invalid-record` identify why a
+  record cannot be replayed safely;
+- `diverged` identifies the checkpoint sequence and expected/actual hash.
+
+This makes replay readiness inspectable from the same acceptance/debug surface
+as structural record verification. It is intentionally not a replay button, a
+renderer mode, a save import API, or a share/ghost feature. Browser execution
+of the hook remains a required Tier 3+ proof before claiming a real runtime
+record validates end to end.
+
+## Addendum (2026-07-26) - replay schema v3 admits the actual initial simulation context
+
+Run records now capture a versioned immutable initial context exactly once at
+creation: canonical `GameState`, bounded `GameWorld` memory, and separate
+integrity hashes for each. The browser captures it after the existing load and
+world-settle path, so a record from a restored local save begins from the state
+the player actually entered rather than an invented fresh seed.
+
+The local validator verifies context version, seed binding, state/world-memory
+hashes, and state recoverability before replaying entries. This makes restored
+session validation possible while retaining clear limits:
+
+- the context is an in-memory run artifact, not a second save key or save-import
+  interface;
+- bounded world-memory caps still govern retained context size;
+- no context migration or cross-build ghost compatibility is claimed;
+- malformed or tampered context fails structural validation before simulation.
+
+Evidence tier: Tier 1 source and focused test coverage. No browser replay,
+saved artifact import, cross-version replay, or ghost sharing was executed.
+
+## Addendum (2026-07-26) - replay validation now has an admitted baseline, but playback is still not a product surface
+
+- Re-checked `src/game/run-record.ts`, `src/game/replay-validator.ts`, and
+  `src/game/storage.ts` against the replay lane.
+- The current run record now carries a versioned admitted initial context with
+  separate hashes for the initial state and initial world memory, so restored
+  sessions can be validated from the actual entry baseline instead of an
+  invented fresh seed.
+- The local replay validator uses that admitted baseline, replays the portable
+  command/input subset, and uses checkpoint hashes as the divergence anchor.
+- That is a real internal improvement:
+  - storage provenance is explicit,
+  - non-fresh local sessions have a reconstructible baseline,
+  - checkpoint divergence remains sequence- and hash-specific.
+- The product surface is still missing:
+  - no browser playback transport,
+  - no ghost/share compatibility envelope,
+  - no user-facing replay divergence report,
+  - no replay-safe trust split exposed to players.
+- So the lane is now best described as record + structured provenance +
+  validation, with playback and ghost sharing still future work.
+- Evidence depth: Tier 1 static source inspection only.
+
+## Addendum (2026-07-26) - episode grammar needs replay to make consequence inspectable
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal depends on this contract for inspectable consequence history.
+- Episode grammar describes how an episode is composed; replay describes how
+  the resulting commands, checkpoints, and bounded history can be replayed,
+  verified, and compared later.
+- That means the episode layer remains a story-composition layer, while the
+  replay layer remains the audit and ghost substrate for what actually
+  happened.

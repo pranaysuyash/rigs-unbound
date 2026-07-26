@@ -81,6 +81,7 @@ reproducible primitive geometry—not a final-engine decision.
 - [3D Game Contract Index](docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Master execution tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 - [Exploration map](docs/exploration/EXPLORATION_MAP.md)
+- [Compositional episode grammar and Storm Relay](docs/exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 - [Wide-open concept exploration](docs/exploration/OPEN_WORLD_VEHICLE_GAME_BRAINSTORM_2026-07-25.md)
 - [Visual direction preference and variants](docs/exploration/VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md)
 - [Tractor restoration and modular growth](docs/exploration/TRACTOR_RESTORATION_AND_MODULAR_GROWTH_2026-07-25.md)
@@ -149,7 +150,7 @@ semantic forward/steering input, all six views, desktop/narrow evidence, and a
 production-route load check (Tier 3/4); collision semantics, minimap integration,
 native recording bindings, and like-for-like Jolt comparison remain open. The
 public Sites version 7 is accepted with a terminal `succeeded` status, HTTP 200
-responses for Field 02 and both canonical lab routes, and full production
+responses for Field 02 and both public evidence lab routes, and full production
 browser acceptance of schema-v6 state, three-rig acquisition, camera and terrain
 boundaries, persistence, input parity, and narrow layout with zero captured
 console/page or recent Worker errors (Tier 4). This does not add a

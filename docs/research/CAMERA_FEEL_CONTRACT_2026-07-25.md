@@ -184,3 +184,76 @@ player.
     mode.
 - So the camera layer is real, legible, and already doing gameplay work, but
   its policy is still implicit in code rather than first-class contract data.
+
+## Addendum (2026-07-26) - policy implementation exceeds the original first proof
+
+- The `3d-games` review corrected a stale framing in this contract. The current
+  camera path already satisfies most of the stated proof slice in executable
+  form, not merely as renderer-local offsets:
+  - `CAMERA_MODES` is a typed, persisted vocabulary with direct and cyclic
+    selection;
+  - named rig hood sockets separate silhouette truth from shared mode meaning;
+  - chase and side modes query terrain, procedural obstacles, and authored
+    structures, pull inward immediately, recover outward smoothly, and select
+    clear shoulder fallbacks when the boom is unusably short;
+  - mode changes and material focus discontinuities cut to a safe pose instead
+    of interpolating through the rig;
+  - reduced motion removes optional FOV expression while preserving spatial
+    policy and safety;
+  - `CameraResolutionEvidence` records mode, obstruction source/id, ideal and
+    resolved distance, rear-side state, path clearance, and self-intersection.
+- The source tests already cover ordered mode selection, obstruction-query
+  primitives, felled-tree restoration, nearest-hit selection, and feedback
+  motion clamping. Existing browser acceptance cited by ADR-0008 covers
+  rig-clearance and rear-side evidence.
+- Decision: do not add a parallel camera-policy schema now. It would duplicate
+  `CAMERA_MODES`, rig mounts, scene-query roles, and the existing final-pose
+  evidence. The remaining product decision is narrower: advisory camera
+  recommendations must carry a reason, remain player-overridable, and consume
+  this canonical vocabulary rather than creating activity-specific views.
+- Evidence depth: Tier 1 fresh static source/test/contract analysis, with prior
+  Tier 2 and Tier 4 acceptance evidence explicitly retained but not re-run here.
+
+## Anything else? (camera-policy reconciliation)
+
+Future camera work should focus on captured player feel across real rigs and
+viewports, not on inventing a second state machine. A new mode needs a reusable
+spatial meaning, a source-of-truth owner, and a clear acceptance invariant.
+
+## Addendum (2026-07-26) - the camera lane is now a resolved policy surface, not a hidden renderer quirk
+
+- Re-checked the current camera implementation against `src/main.ts`,
+  `src/game/renderer.ts`, and `src/game/state.ts`.
+- The runtime now makes camera choice and camera evidence directly inspectable:
+  - the UI exposes `camera-select`,
+  - selecting a mode records a `selectCamera` command and checkpoint,
+  - the renderer exposes `getCameraResolutionEvidence()`,
+  - `CameraResolutionEvidence` reports mode, obstruction source/id, resolved
+    clearance, forward offset, and whether the final pose remains behind the
+    rig.
+- The behavior itself is already canonical and durable:
+  - named modes remain shared by state and renderer,
+  - obstruction pull-in remains terrain/obstacle aware,
+  - reduced-motion keeps the spatial policy while trimming extra expression,
+  - speed-based FOV is presentation-only and not a separate camera brain.
+- So the camera lane no longer looks like “we need a camera system”; it looks
+  like “we need better player-facing explanation of an already working camera
+  policy.”
+- The remaining gap is therefore narrower than the original contract:
+  - no explicit player-facing camera reason string,
+  - no advisory recommendation surface for mode choice,
+  - no durable camera-policy artifact separate from save-state mode plus
+    runtime evidence.
+- Evidence depth: Tier 1 static source inspection of the current browser and
+  renderer wiring.
+
+## Addendum (2026-07-26) - episode grammar relies on this layer to frame pressure and consequence
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this camera contract.
+- Episode grammar does not redefine camera policy; it depends on the camera
+  lane to make pressure, discovery, and consequence legible through framing,
+  obstruction handling, and mode choice.
+- This keeps the split clean: the camera contract owns the player-facing view
+  policy, while the episode grammar owns how that view is used to tell a
+  richer episode.

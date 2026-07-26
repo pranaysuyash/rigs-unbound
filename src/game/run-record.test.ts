@@ -4,6 +4,7 @@ import {
   createRunRecord,
   MAX_RUN_RECORD_ENTRIES,
   RUN_RECORD_EVENT_VERSION,
+  RUN_RECORD_INITIAL_CONTEXT_VERSION,
   RUN_RECORD_SCHEMA_VERSION,
   stableHashText,
   verifyRunRecord,
@@ -38,6 +39,9 @@ describe("run record", () => {
       schemaVersion: RUN_RECORD_SCHEMA_VERSION,
       seed: "field-02",
       startedAtMs: 42,
+      initialContext: {
+        version: RUN_RECORD_INITIAL_CONTEXT_VERSION,
+      },
       droppedEntries: 0,
     });
   });
@@ -110,5 +114,74 @@ describe("run record", () => {
       false,
     ]);
     expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
+  });
+
+  it("keeps authoritative outcomes simulation-owned diagnostics", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(record, "command", "primaryAction", 0, {
+      source: "test",
+    });
+    appendRunRecordEntry(record, "event", "primaryActionOutcome", 1, {
+      accepted: true,
+    });
+
+    expect(record.entries.map((entry) => entry.kind)).toEqual([
+      "command",
+      "event",
+    ]);
+    expect(record.entries[1]).toMatchObject({
+      originDomain: "simulation",
+      replayable: false,
+      diagnosticsOnly: true,
+    });
+    expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
+  });
+
+  it("marks non-portable commands as diagnostics instead of replay promises", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(record, "command", "placeRig", 0, {
+      x: 10,
+      z: 20,
+    });
+
+    expect(record.entries[0]).toMatchObject({
+      originDomain: "input",
+      replayable: false,
+      diagnosticsOnly: true,
+    });
+    expect(verifyRunRecord(record)).toMatchObject({ ok: true, issues: [] });
+  });
+
+  it("reports a garbage runtime kind without throwing", () => {
+    const record = createRunRecord("field-02", 0);
+    appendRunRecordEntry(record, "event", "test", 0);
+    (record.entries[0] as { kind: string }).kind = "garbage";
+
+    expect(() => verifyRunRecord(record)).not.toThrow();
+    expect(verifyRunRecord(record).issues).toContain(
+      "Entry 0 has an invalid kind.",
+    );
+  });
+
+  it("rejects envelope metadata that conflicts with its entry kind", () => {
+    const record = createRunRecord("field-02", 0);
+
+    appendRunRecordEntry(record, "event", "primaryActionOutcome", 0);
+    record.entries[0]!.originDomain = "input";
+
+    expect(verifyRunRecord(record).issues).toContain(
+      "Entry 0 has metadata incompatible with its kind.",
+    );
+  });
+
+  it("rejects a tampered initial simulation context", () => {
+    const record = createRunRecord("field-02", 0);
+    record.initialContext.stateHash = "h00000000";
+
+    expect(verifyRunRecord(record).issues).toContain(
+      "Run record initial state hash is invalid.",
+    );
   });
 });

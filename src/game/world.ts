@@ -135,6 +135,25 @@ export const SURFACES: Readonly<Record<SurfaceId, SurfaceMaterial>> = {
 export type BiomeId =
   "meadow" | "farmland" | "badlands" | "grove" | "highland" | "marsh";
 
+/**
+ * The stable verbs authored sites promise to the player.
+ *
+ * This is content vocabulary, not an activity implementation registry. Keeping
+ * it owned by the world schema prevents a typo in a landmark from drifting away
+ * from discovery, rumor, navigation, and future validated content-pack rules.
+ */
+export const WORLD_SITE_VERBS = [
+  "restore",
+  "till",
+  "haul",
+  "tow",
+  "shrink",
+  "wade",
+  "ascend",
+] as const;
+
+export type WorldSiteVerb = (typeof WORLD_SITE_VERBS)[number];
+
 export interface BiomeDefinition {
   id: BiomeId;
   displayName: string;
@@ -193,12 +212,20 @@ export interface WorldSite {
   id: string;
   name: string;
   /** The verb this place promises. Shown in the opportunity rail. */
-  verb: string;
+  verb: WorldSiteVerb;
   x: number;
   z: number;
   /** Radius within which the site counts as discovered. */
   discoverRadius: number;
-  /** Terrain anchor radius. Beyond this the site stops influencing elevation. */
+  /**
+   * Terrain anchor radius, in metres. Beyond this the site stops influencing
+   * elevation.
+   *
+   * Kept close to the structure footprint on purpose. Large radii flatten tens of
+   * metres at full strength and then stop, which is what made each site read as a
+   * circular island stamped onto procedural filler. Small radii give a buildable
+   * pad with a long, gentle transition into the surrounding land.
+   */
   anchorRadius: number;
   /** Elevation the anchor pulls terrain toward, in metres. */
   elevation: number;
@@ -232,7 +259,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: 0,
     z: 12,
     discoverRadius: 16,
-    anchorRadius: 58,
+    anchorRadius: 46,
     elevation: 1.8,
     anchorStrength: 0.99,
     biome: "meadow",
@@ -247,7 +274,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: 18,
     z: -46,
     discoverRadius: 22,
-    anchorRadius: 46,
+    anchorRadius: 34,
     elevation: 1.1,
     anchorStrength: 0.98,
     biome: "farmland",
@@ -261,7 +288,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: 82,
     z: 44,
     discoverRadius: 20,
-    anchorRadius: 34,
+    anchorRadius: 22,
     elevation: 12,
     anchorStrength: 0.97,
     biome: "highland",
@@ -275,7 +302,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: 148,
     z: -108,
     discoverRadius: 24,
-    anchorRadius: 40,
+    anchorRadius: 24,
     elevation: 9.5,
     anchorStrength: 0.97,
     biome: "badlands",
@@ -289,7 +316,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: 110,
     z: 148,
     discoverRadius: 24,
-    anchorRadius: 38,
+    anchorRadius: 22,
     elevation: 4.2,
     anchorStrength: 0.96,
     biome: "grove",
@@ -303,7 +330,7 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: -126,
     z: -130,
     discoverRadius: 26,
-    anchorRadius: 52,
+    anchorRadius: 32,
     elevation: -1.5,
     anchorStrength: 0.98,
     biome: "marsh",
@@ -315,17 +342,32 @@ export const WORLD_SITES: readonly WorldSite[] = [
     x: -158,
     z: 140,
     discoverRadius: 26,
-    anchorRadius: 44,
+    anchorRadius: 26,
     elevation: 46,
     anchorStrength: 0.985,
     biome: "highland",
     padSurface: "rock",
     serviceRadius: 22,
   },
-] as const;
+] as const satisfies readonly WorldSite[];
+
+/** Stable IDs derived from the one canonical authored site table. */
+export type WorldSiteId = (typeof WORLD_SITES)[number]["id"];
 
 export function findSite(id: string): WorldSite | undefined {
   return WORLD_SITES.find((site) => site.id === id);
+}
+
+/** Canonical service-area predicate shared by workshop and guidance queries. */
+export function isWithinSiteServiceArea(
+  site: WorldSite,
+  x: number,
+  z: number,
+): boolean {
+  return (
+    Math.hypot(x - site.x, z - site.z) <=
+    (site.serviceRadius ?? site.discoverRadius)
+  );
 }
 
 /** A site id that is guaranteed to exist, for spawn and workshop lookups. */
@@ -365,7 +407,7 @@ export type WorldStructureShape =
 
 export interface WorldStructurePart {
   id: string;
-  siteId: string;
+  siteId: WorldSiteId;
   localX: number;
   localY: number;
   localZ: number;
@@ -377,6 +419,15 @@ export interface WorldStructurePart {
   cameraOccluder: boolean;
   /** True when a moving rig must remain outside this ground-level part. */
   rigCollider: boolean;
+  /**
+   * True for the one part per site that carries the unvisited signal.
+   *
+   * It is lit while the site is undiscovered and goes dark once the player has
+   * driven there. The signal has to hang on a structure that belongs to the place:
+   * an identical marker at every site makes a valley read as an instrumented test
+   * fixture rather than somewhere people work.
+   */
+  discoverySignal?: boolean;
 }
 
 export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
@@ -528,6 +579,815 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     cameraOccluder: true,
     rigCollider: true,
   },
+  // Salvage yard: crates stacked off a clear apron, under a gantry that reads
+  // from the far side of the valley. Previously renderer-only scenery that rigs
+  // drove straight through.
+  {
+    id: "salvage-crate-0",
+    siteId: "salvage-yard",
+    localX: -4.4,
+    localY: 0.7,
+    localZ: 8.2,
+    shape: { kind: "box", width: 2.6, height: 1.4, depth: 2.1 },
+    color: 0x8c3f2d,
+    rotationY: -0.42,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-1",
+    siteId: "salvage-yard",
+    localX: -1.5,
+    localY: 1.1,
+    localZ: 8.2,
+    shape: { kind: "box", width: 2.6, height: 2.2, depth: 2.1 },
+    color: 0x76513e,
+    rotationY: -0.28,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-2",
+    siteId: "salvage-yard",
+    localX: 1.4,
+    localY: 1.5,
+    localZ: 8.2,
+    shape: { kind: "box", width: 2.6, height: 3.0, depth: 2.1 },
+    color: 0x8c3f2d,
+    rotationY: -0.14,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-3",
+    siteId: "salvage-yard",
+    localX: 4.3,
+    localY: 0.7,
+    localZ: 8.2,
+    shape: { kind: "box", width: 2.6, height: 1.4, depth: 2.1 },
+    color: 0x76513e,
+    rotationY: 0.0,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-4",
+    siteId: "salvage-yard",
+    localX: -4.4,
+    localY: 1.1,
+    localZ: 10.8,
+    shape: { kind: "box", width: 2.6, height: 2.2, depth: 2.1 },
+    color: 0x8c3f2d,
+    rotationY: 0.14,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-5",
+    siteId: "salvage-yard",
+    localX: -1.5,
+    localY: 1.5,
+    localZ: 10.8,
+    shape: { kind: "box", width: 2.6, height: 3.0, depth: 2.1 },
+    color: 0x76513e,
+    rotationY: 0.28,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-6",
+    siteId: "salvage-yard",
+    localX: 1.4,
+    localY: 0.7,
+    localZ: 10.8,
+    shape: { kind: "box", width: 2.6, height: 1.4, depth: 2.1 },
+    color: 0x8c3f2d,
+    rotationY: 0.42,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-crate-7",
+    siteId: "salvage-yard",
+    localX: 4.3,
+    localY: 1.1,
+    localZ: 10.8,
+    shape: { kind: "box", width: 2.6, height: 2.2, depth: 2.1 },
+    color: 0x76513e,
+    rotationY: 0.56,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-arch-left",
+    siteId: "salvage-yard",
+    localX: -3.8,
+    localY: 3,
+    localZ: -6,
+    shape: { kind: "box", width: 0.8, height: 6, depth: 0.8 },
+    color: 0x55382f,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-arch-right",
+    siteId: "salvage-yard",
+    localX: 3.8,
+    localY: 3,
+    localZ: -6,
+    shape: { kind: "box", width: 0.8, height: 6, depth: 0.8 },
+    color: 0x55382f,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-arch-top",
+    siteId: "salvage-yard",
+    localX: 0,
+    localY: 6,
+    localZ: -6,
+    shape: { kind: "box", width: 8.5, height: 0.8, depth: 0.8 },
+    color: 0x55382f,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "salvage-gantry-left",
+    siteId: "salvage-yard",
+    localX: -7.5,
+    localY: 5.2,
+    localZ: 9.5,
+    shape: { kind: "box", width: 1.1, height: 10.4, depth: 1.1 },
+    color: 0x6d6a5f,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-gantry-right",
+    siteId: "salvage-yard",
+    localX: 7.5,
+    localY: 5.2,
+    localZ: 9.5,
+    shape: { kind: "box", width: 1.1, height: 10.4, depth: 1.1 },
+    color: 0x6d6a5f,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "salvage-gantry-beam",
+    siteId: "salvage-yard",
+    localX: 0,
+    localY: 10.9,
+    localZ: 9.5,
+    shape: { kind: "box", width: 17, height: 1.2, depth: 1.4 },
+    color: 0x7d7a6c,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "salvage-gantry-hoist",
+    siteId: "salvage-yard",
+    localX: -1.6,
+    localY: 8.9,
+    localZ: 9.5,
+    shape: { kind: "box", width: 1.8, height: 2.6, depth: 1.8 },
+    color: 0x8f4a2f,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "salvage-gantry-lamp",
+    siteId: "salvage-yard",
+    localX: 0,
+    localY: 12.1,
+    localZ: 9.5,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.42,
+      radiusBottom: 0.42,
+      height: 0.9,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // Toy grove: loose blocks plus a stacked tower. Giant toys, so the silhouette
+  // is unmistakable at range and nothing about it reads as instrumentation.
+  {
+    id: "toy-block-0",
+    siteId: "toy-grove",
+    localX: 6.0,
+    localY: 1.4,
+    localZ: -3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0xc8553d,
+    rotationY: 0.0,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-1",
+    siteId: "toy-grove",
+    localX: 9.0,
+    localY: 1.4,
+    localZ: -3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0x4d8a92,
+    rotationY: 0.22,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-2",
+    siteId: "toy-grove",
+    localX: 12.0,
+    localY: 1.4,
+    localZ: -3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0xe1ad52,
+    rotationY: 0.44,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-3",
+    siteId: "toy-grove",
+    localX: 15.0,
+    localY: 1.4,
+    localZ: -3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0x77578f,
+    rotationY: 0.66,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-4",
+    siteId: "toy-grove",
+    localX: 6.0,
+    localY: 1.4,
+    localZ: 0,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0xc8553d,
+    rotationY: 0.88,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-5",
+    siteId: "toy-grove",
+    localX: 9.0,
+    localY: 1.4,
+    localZ: 0,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0x4d8a92,
+    rotationY: 1.1,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-6",
+    siteId: "toy-grove",
+    localX: 12.0,
+    localY: 1.4,
+    localZ: 0,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0xe1ad52,
+    rotationY: 1.32,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-7",
+    siteId: "toy-grove",
+    localX: 15.0,
+    localY: 4.2,
+    localZ: 0,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0x77578f,
+    rotationY: 1.54,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-8",
+    siteId: "toy-grove",
+    localX: 6.0,
+    localY: 4.2,
+    localZ: 3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0xc8553d,
+    rotationY: 1.76,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-block-9",
+    siteId: "toy-grove",
+    localX: 9.0,
+    localY: 4.2,
+    localZ: 3,
+    shape: { kind: "box", width: 2.8, height: 2.8, depth: 2.8 },
+    color: 0x4d8a92,
+    rotationY: 1.98,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-tower-0",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 1.75,
+    localZ: -4.5,
+    shape: { kind: "box", width: 3.4, height: 3.4, depth: 3.4 },
+    color: 0x4d8a92,
+    rotationY: -0.36,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "toy-tower-1",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 5.25,
+    localZ: -4.5,
+    shape: { kind: "box", width: 3.4, height: 3.4, depth: 3.4 },
+    color: 0xe1ad52,
+    rotationY: -0.18,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "toy-tower-2",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 8.75,
+    localZ: -4.5,
+    shape: { kind: "box", width: 3.4, height: 3.4, depth: 3.4 },
+    color: 0x77578f,
+    rotationY: 0.0,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "toy-tower-3",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 12.25,
+    localZ: -4.5,
+    shape: { kind: "box", width: 3.4, height: 3.4, depth: 3.4 },
+    color: 0xc8553d,
+    rotationY: 0.18,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "toy-tower-4",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 15.75,
+    localZ: -4.5,
+    shape: { kind: "box", width: 3.4, height: 3.4, depth: 3.4 },
+    color: 0x4d8a92,
+    rotationY: 0.36,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "toy-tower-lamp",
+    siteId: "toy-grove",
+    localX: -8.5,
+    localY: 19.3,
+    localZ: -4.5,
+    shape: {
+      kind: "cylinder",
+      radius: 0.45,
+      radiusTop: 0.45,
+      radiusBottom: 0.45,
+      height: 1.0,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // Quarry shelf: cut slabs and a crusher hopper on legs. The hopper tapers
+  // downward, which is why it is a cylinder with an inset top rather than a cone.
+  {
+    id: "quarry-slab-0",
+    siteId: "quarry-shelf",
+    localX: -15.1,
+    localY: 0.45,
+    localZ: -1.7,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.0,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-slab-1",
+    siteId: "quarry-shelf",
+    localX: -10.5,
+    localY: 0.45,
+    localZ: -1.7,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.09,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-slab-2",
+    siteId: "quarry-shelf",
+    localX: -5.9,
+    localY: 0.45,
+    localZ: -1.7,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.18,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-slab-3",
+    siteId: "quarry-shelf",
+    localX: -15.1,
+    localY: 1.35,
+    localZ: 1.8,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.27,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-slab-4",
+    siteId: "quarry-shelf",
+    localX: -10.5,
+    localY: 1.35,
+    localZ: 1.8,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.36,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-slab-5",
+    siteId: "quarry-shelf",
+    localX: -5.9,
+    localY: 1.35,
+    localZ: 1.8,
+    shape: { kind: "box", width: 4.2, height: 0.9, depth: 3.2 },
+    color: 0x8b8278,
+    rotationY: 0.45,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-hopper-leg-nn",
+    siteId: "quarry-shelf",
+    localX: 7.3,
+    localY: 3.6,
+    localZ: -3.2,
+    shape: { kind: "box", width: 0.75, height: 7.2, depth: 0.75 },
+    color: 0x5f5b52,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-hopper-leg-pn",
+    siteId: "quarry-shelf",
+    localX: 13.7,
+    localY: 3.6,
+    localZ: -3.2,
+    shape: { kind: "box", width: 0.75, height: 7.2, depth: 0.75 },
+    color: 0x5f5b52,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-hopper-leg-np",
+    siteId: "quarry-shelf",
+    localX: 7.3,
+    localY: 3.6,
+    localZ: 3.2,
+    shape: { kind: "box", width: 0.75, height: 7.2, depth: 0.75 },
+    color: 0x5f5b52,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-hopper-leg-pp",
+    siteId: "quarry-shelf",
+    localX: 13.7,
+    localY: 3.6,
+    localZ: 3.2,
+    shape: { kind: "box", width: 0.75, height: 7.2, depth: 0.75 },
+    color: 0x5f5b52,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "quarry-hopper",
+    siteId: "quarry-shelf",
+    localX: 10.5,
+    localY: 9.6,
+    localZ: 0,
+    shape: {
+      kind: "cylinder",
+      radius: 4.6,
+      radiusTop: 1.3,
+      radiusBottom: 4.6,
+      height: 4.8,
+      radialSegments: 6,
+    },
+    color: 0x9a8f80,
+    roughness: 0.9,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "quarry-hopper-cap",
+    siteId: "quarry-shelf",
+    localX: 10.5,
+    localY: 12.4,
+    localZ: 0,
+    shape: { kind: "box", width: 9.4, height: 0.7, depth: 9.4 },
+    color: 0x6c665c,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "quarry-hopper-lamp",
+    siteId: "quarry-shelf",
+    localX: 10.5,
+    localY: 13.3,
+    localZ: 0,
+    shape: {
+      kind: "cylinder",
+      radius: 0.44,
+      radiusTop: 0.44,
+      radiusBottom: 0.44,
+      height: 0.95,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // Long furrow: an irrigation standpipe. A working field needs water more than
+  // it needs a marker, and a tank on a pipe is visible over the whole terrace.
+  {
+    id: "furrow-standpipe",
+    siteId: "long-furrow",
+    localX: -11,
+    localY: 6.6,
+    localZ: 6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.7,
+      radiusTop: 0.55,
+      radiusBottom: 0.7,
+      height: 13.2,
+      radialSegments: 10,
+    },
+    color: 0x8a9095,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "furrow-tank",
+    siteId: "long-furrow",
+    localX: -11,
+    localY: 14.4,
+    localZ: 6,
+    shape: {
+      kind: "cylinder",
+      radius: 2.6,
+      radiusTop: 2.6,
+      radiusBottom: 2.6,
+      height: 2.6,
+      radialSegments: 12,
+    },
+    color: 0x3f5b46,
+    roughness: 0.85,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-tank-cap",
+    siteId: "long-furrow",
+    localX: -11,
+    localY: 16.4,
+    localZ: 6,
+    shape: { kind: "cone", radius: 2.8, height: 1.6, radialSegments: 12 },
+    color: 0x2f4436,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-tank-lamp",
+    siteId: "long-furrow",
+    localX: -11,
+    localY: 17.6,
+    localZ: 6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.4,
+      radiusTop: 0.4,
+      radiusBottom: 0.4,
+      height: 0.9,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // Sunken flats: a platform on stilts. Everything else here is under water, so
+  // the only thing that can carry a signal is something standing above it.
+  {
+    id: "flats-stilt-nn",
+    siteId: "sunken-flats",
+    localX: 6.4,
+    localY: 4.6,
+    localZ: -9.6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.34,
+      radiusBottom: 0.42,
+      height: 9.2,
+      radialSegments: 8,
+    },
+    color: 0x6b6252,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "flats-stilt-pn",
+    siteId: "sunken-flats",
+    localX: 11.6,
+    localY: 4.6,
+    localZ: -9.6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.34,
+      radiusBottom: 0.42,
+      height: 9.2,
+      radialSegments: 8,
+    },
+    color: 0x6b6252,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "flats-stilt-np",
+    siteId: "sunken-flats",
+    localX: 6.4,
+    localY: 4.6,
+    localZ: -4.4,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.34,
+      radiusBottom: 0.42,
+      height: 9.2,
+      radialSegments: 8,
+    },
+    color: 0x6b6252,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "flats-stilt-pp",
+    siteId: "sunken-flats",
+    localX: 11.6,
+    localY: 4.6,
+    localZ: -4.4,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.34,
+      radiusBottom: 0.42,
+      height: 9.2,
+      radialSegments: 8,
+    },
+    color: 0x6b6252,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "flats-deck",
+    siteId: "sunken-flats",
+    localX: 9,
+    localY: 9.5,
+    localZ: -7,
+    shape: { kind: "box", width: 7.4, height: 0.6, depth: 7.4 },
+    color: 0x7a6a52,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "flats-hut",
+    siteId: "sunken-flats",
+    localX: 9.9,
+    localY: 11.3,
+    localZ: -7.8,
+    shape: { kind: "box", width: 3, height: 3.1, depth: 2.8 },
+    color: 0x4e6b6e,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "flats-signal-post",
+    siteId: "sunken-flats",
+    localX: 6.9,
+    localY: 11.9,
+    localZ: -5.4,
+    shape: {
+      kind: "cylinder",
+      radius: 0.28,
+      radiusTop: 0.28,
+      radiusBottom: 0.28,
+      height: 4.2,
+      radialSegments: 8,
+    },
+    color: 0x59554c,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "flats-signal-lamp",
+    siteId: "sunken-flats",
+    localX: 6.9,
+    localY: 14.4,
+    localZ: -5.4,
+    shape: {
+      kind: "cylinder",
+      radius: 0.44,
+      radiusTop: 0.44,
+      radiusBottom: 0.44,
+      height: 1.0,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // The two sites that already had authored structures need only the signal.
+  {
+    id: "home-silo-lamp",
+    siteId: "home-silo",
+    localX: 6,
+    localY: 13.6,
+    localZ: -2,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.42,
+      radiusBottom: 0.42,
+      height: 0.95,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+  {
+    id: "launch-ridge-lamp",
+    siteId: "launch-ridge",
+    localX: 0,
+    localY: 15.2,
+    localZ: -6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.44,
+      radiusTop: 0.44,
+      radiusBottom: 0.44,
+      height: 1.0,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
 ] as const;
 
 export interface RigHomeBerth {
@@ -573,8 +1433,8 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
 } as const;
 
 export interface RouteSegment {
-  from: string;
-  to: string;
+  from: WorldSiteId;
+  to: WorldSiteId;
   /** Half-width of the graded corridor, in metres. */
   halfWidth: number;
 }
@@ -612,7 +1472,9 @@ export const RESOLVED_ROUTES: readonly ResolvedRoute[] = WORLD_ROUTES.flatMap(
     const from = findSite(segment.from);
     const to = findSite(segment.to);
     if (!from || !to) {
-      return [];
+      throw new Error(
+        `World route references an unknown site: ${segment.from} -> ${segment.to}.`,
+      );
     }
     return [
       {

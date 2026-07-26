@@ -197,7 +197,7 @@ the wrong side of the vehicle.
 
 ## Addendum (2026-07-26): current integrated evidence
 
-Later same-day integration increased the full result to 16 Vitest files and 150
+Later same-day integration increased the full result to 21 Vitest files and 167
 passing tests plus 7/7 deterministic-kernel tests. Production Field 02 browser
 acceptance also passed after the runtime asset bridge was copied into the
 production output. The test still proves negative heading under real left

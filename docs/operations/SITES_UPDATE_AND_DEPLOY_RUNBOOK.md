@@ -329,10 +329,11 @@ If production is broken:
 Do not force-push or rewrite Git history as a rollback mechanism. Do not delete
 the failed saved version; it is useful operational evidence.
 
-The current rollback candidates are version 6
-(`f5a007d1e9866fea510fcef1cfba102a7ee85e13`) and version 5
-(`1e7992125824a850eb27a9f9d2bbdbc95b229e2b`). Resolve their opaque version IDs
-through Sites at rollback time rather than copying or guessing IDs.
+The primary rollback target is version 7
+(`a8869ad25f72929b62b6722cb262c91b2b6c7999`). Version 6
+(`f5a007d1e9866fea510fcef1cfba102a7ee85e13`) remains the prior first-rung-P0
+fallback. Resolve opaque version IDs through Sites at rollback time rather than
+copying or guessing IDs.
 
 ## Known failure modes
 
@@ -356,7 +357,10 @@ through Sites at rollback time rather than copying or guessing IDs.
 - The main JavaScript bundle currently exceeds Vite's 500 kB advisory threshold.
   Treat code-splitting as a measured performance decision, not a deployment
   correctness workaround.
-- Hosting and public deployment do not authorize publishing paid source assets.
+- Hosting does not authorize mirroring the Kenney All-in-One bundle or
+  publishing assets without entry-specific provenance and approval. Selective
+  CC0 assets may ship only through the manifest, license, hash, runtime, and
+  production-art gates.
 
 ## Three-pass review of this runbook
 

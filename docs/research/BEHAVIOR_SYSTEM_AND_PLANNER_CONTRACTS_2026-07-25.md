@@ -195,3 +195,42 @@ grow as readers of the world rather than silent co-authors of state.
   promoting a planner abstraction before the product needs one.
 - Evidence depth: Tier 1 static inspection of the current command/spine and
   capability contracts, with the existing Tier 4 runtime anchor unchanged.
+
+## Addendum (2026-07-26) - affordance resolution is now real, so the planner trigger is narrower
+
+- Re-checked the current command/state path against the live capability and
+  world affordance code.
+- `src/game/affordances.ts` now provides a real versioned resolver with
+  `legal`, `deferred`, and `impossible` outcomes, stable reason codes, and
+  mismatch ownership.
+- `src/game/state.ts` already uses that resolver in the relay-cargo/tow path,
+  which means the repo has a genuine structured decision boundary for one real
+  world offer.
+- That narrows the planner trigger rather than widening it:
+  - the project now has one explicit affordance resolver,
+  - but still no versioned behavior schema,
+  - no candidate enumeration interface,
+  - no deterministic tie-break surface for equal-score candidates,
+  - no separate branch-trace stream.
+- The correct next proof is therefore still a multi-candidate selector, not a
+  general planner framework. The current single-verb decision path is already
+  honest; the planner becomes necessary only when the game needs to rank
+  multiple valid actions instead of resolve one contextual offer.
+- Evidence depth: Tier 1 static inspection, with the existing Tier 4 runtime
+  anchor unchanged.
+
+## Addendum (2026-07-26) - behavior/planner support episode grammar, but they do not replace it
+
+- The current behavior spine already does useful support work for episodes:
+  it turns intent, affordances, and command-state decisions into deterministic
+  choices.
+- That makes behavior/planner logic a support layer for the episode grammar,
+  because episodes only stay readable when the player can understand why one
+  action, branch, or candidate won over another.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - behavior/planner logic selects or rejects the next valid action,
+  - command/state code still owns the actual mutation.
+- This note intentionally does not promote the planner into a second authority
+  layer; it only keeps the dependency visible so later episode work can rely on
+  the same deterministic choice surface.

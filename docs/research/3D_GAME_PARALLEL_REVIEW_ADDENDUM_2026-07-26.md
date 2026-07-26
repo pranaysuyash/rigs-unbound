@@ -70,3 +70,24 @@ Every open item above has an evidence tier and a concrete closure gate. No Tier 
 ## Follow-up ownership
 
 The next implementation owner should take the smallest vertical proof in this order: command/event slice, replay playback, collision masks, budget state/fallback, then a second capability/affordance consumer. Renderer LOD and streaming remain parallelizable only when their own measured pressure and browser evidence justify implementation. Project-owner acceptance is required before changing ADR-0014 from proposed or introducing authority/ECS as active scope.
+
+## Addendum (2026-07-26) - current boundary map after the live lane rechecks
+
+- Re-checked the repo against the current live lane notes already recorded in
+  the worklog and research contracts.
+- The current status split is now clearer:
+  - visibility budget: active and auditable, with `mobile-safe` fallback and a
+    recovery window;
+  - replay: record and verify are real, playback is still missing;
+  - collision: obstacle truth is real, category/mask matrix is still future;
+  - streaming: the world remains single-residency, chunk residency is still
+    future-bound.
+- That means the next implementation owner should still take the same smallest
+  vertical proof order, but with a narrower budget implication:
+  - budget work now extends beyond visibility toward cross-system ownership and
+    representative-device capture, rather than starting from zero policy.
+- The broader architectural conclusion is unchanged: the repo has a real
+  first-playable core, and every larger system still needs a measured trigger
+  before it becomes active scope.
+- Evidence tier: Tier 1 static inspection plus earlier recorded runtime notes
+  in the worklog.

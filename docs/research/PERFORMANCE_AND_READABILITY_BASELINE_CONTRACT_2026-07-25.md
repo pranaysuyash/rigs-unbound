@@ -171,3 +171,38 @@ measured and explained as a whole.
 - The practical reading is that the app already has measurable pressure and
   visible readability, so the next step is to formalize the policy rather than
   debate whether the baseline exists at all.
+
+## Addendum (2026-07-26) - the umbrella policy remains the missing operator artifact
+
+- Re-checked the baseline contract against the current repo state and the
+  live-field evidence trail.
+- The repo now has enough measured pieces to support the umbrella policy:
+  culling, LOD, camera, collision, readability, accessibility, and performance
+  thresholds are all named somewhere in the contract stack.
+- What still does not exist as a first-class artifact is the operator-facing
+  budget table that combines those thresholds into one readable state summary
+  for within-budget, degraded, and fail-soft conditions.
+- The runtime can already show the numbers; the missing step is the one place
+  that tells maintainers which threshold was exceeded and which fallback band
+  the system is currently occupying.
+- Treat the current live snapshot as diagnostic only until a clean
+  representative-device capture can confirm the thresholds without concurrent
+  browser/GPU contamination.
+
+## Addendum (2026-07-26) - the umbrella baseline supports episode grammar, but it is not the episode grammar
+
+- The performance/readability baseline already does the umbrella job for the
+  current playable: it keeps culling, LOD, camera, collision, lighting, and
+  budget pressure readable as one policy surface.
+- That makes it a support layer for the episode grammar, because episodes only
+  stay legible if the player can still read the whole playable loop under load
+  and degrade conditions.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - the performance/readability baseline keeps that moment readable under
+    pressure,
+  - fail-soft states preserve enough clarity for the episode to remain
+    interpretable.
+- This note does not expand the baseline into a story system; it only keeps the
+  dependency visible so later episode work can rely on a stable umbrella
+  policy surface.

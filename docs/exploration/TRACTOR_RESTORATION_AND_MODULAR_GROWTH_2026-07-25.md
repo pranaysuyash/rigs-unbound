@@ -291,3 +291,15 @@ The interface should answer:
 ## Anything else?
 
 The best final tractor should not look as if every upgrade was installed. It should look as if the player made a sequence of decisions, solved particular problems, and kept a few beloved scars.
+
+## Addendum (2026-07-26) - episode grammar becomes visible as machine history, not a new progression layer
+
+- The new [Compositional Episode Grammar and Storm Relay](COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal composes above this tractor arc.
+- It does not replace restoration, specialization, or module switching.
+- Instead, it names the shape of the experiences that leave behind the visible
+  history this doc already cares about: scars, repairs, module choices,
+  recovered capability, and earned familiarity.
+- In practical terms, the episode grammar turns lived episodes into machine
+  history, while this contract still owns the actual progression grammar for
+  tractor identity and modular growth.

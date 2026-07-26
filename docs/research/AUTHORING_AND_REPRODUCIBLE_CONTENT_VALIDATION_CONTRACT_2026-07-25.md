@@ -206,3 +206,29 @@ validated content without guessing where it came from.
   reusable product surface.
 - Evidence depth: Tier 1 static inspection of the current validation and asset
   contracts.
+
+## Addendum (2026-07-26) - asset admission is schema-backed, but the general authoring manifest is still broader than the asset slice
+
+- Re-checked `assets/asset-manifest.schema.json`, `assets/asset-manifest.json`,
+  and `tools/asset-preflight.mjs` against the current authoring lane.
+- The repo now proves a real, reproducible asset-admission slice:
+  - the manifest has a versioned schema,
+  - required provenance and rights fields are enforced,
+  - preflight validates GLB structure, safe dependency paths, and missing
+    external dependencies,
+  - runtime approval remains separated from public approval.
+- That is enough to say the asset lane is no longer a loose convention; it is a
+  validated contract with explicit admission gates.
+- The broader authoring envelope is still missing, though:
+  - no general versioned content-manifest schema for activities or world
+    modules,
+  - no reproducible validation-result artifact for the broader authored-content
+    path,
+  - no runtime-ready / validation-only / deprecated lifecycle signal across the
+    whole content model,
+  - no general pack lifecycle that can disable or roll back invalid authored
+    content without becoming a second authority surface.
+- So the right reading is: asset authoring is real and reproducible today, but
+  the general authoring contract remains future-facing until the non-asset
+  content lifecycle is named with the same rigor.
+- Evidence depth: Tier 1 static source and schema inspection.

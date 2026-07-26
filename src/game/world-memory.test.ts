@@ -13,7 +13,7 @@ describe("World Memory Soil Displacement System", () => {
     const state = createInitialState("test-seed");
     state.furrows.push(
       { x: 10, z: 20, heading: 0, createdAt: 100, rigId: "utility-tractor" },
-      { x: 10, z: 20, heading: 0, createdAt: 101, rigId: "utility-tractor" }
+      { x: 10, z: 20, heading: 0, createdAt: 101, rigId: "utility-tractor" },
     );
 
     const map = deriveSoilDisplacement(state);

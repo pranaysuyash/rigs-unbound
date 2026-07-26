@@ -114,6 +114,9 @@ export class RigAudio {
   private tyreGain: GainNode | null = null;
   private tyreFilter: BiquadFilterNode | null = null;
 
+  private shellOscillator: OscillatorNode | null = null;
+  private shellGain: GainNode | null = null;
+
   private enabled = true;
   private currentVoice: RigId | null = null;
 
@@ -199,6 +202,17 @@ export class RigAudio {
     this.tyreSource.loop = true;
     this.tyreSource.connect(this.tyreFilter);
     this.tyreSource.start();
+
+    // State Shell: Resonant harmonic sine oscillator modulated by integrity
+    this.shellGain = context.createGain();
+    this.shellGain.gain.value = 0;
+    this.shellGain.connect(this.master);
+
+    this.shellOscillator = context.createOscillator();
+    this.shellOscillator.type = "sine";
+    this.shellOscillator.frequency.value = 110; // Low A tone
+    this.shellOscillator.connect(this.shellGain);
+    this.shellOscillator.start();
   }
 
   setEnabled(enabled: boolean): void {
@@ -293,6 +307,14 @@ export class RigAudio {
       ? 0
       : clamp(motionLayer * surface.spray * contact, 0, 0.34);
     this.tyreGain.gain.setTargetAtTime(tyreLevel, now, 0.07);
+
+    // Modulate State Shell overcharge hum frequency and level
+    if (this.shellOscillator && this.shellGain) {
+      const shellFreq = 110 + feedback.integrityRatio * 55; // Pitch rises with full integrity
+      const shellLevel = paused ? 0 : (1 - feedback.integrityRatio) * 0.12; // Louder when strained
+      this.shellOscillator.frequency.setTargetAtTime(shellFreq, now, 0.1);
+      this.shellGain.gain.setTargetAtTime(shellLevel, now, 0.1);
+    }
   }
 
   /**

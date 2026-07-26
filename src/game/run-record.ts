@@ -1,9 +1,15 @@
-export type RunRecordKind = "command" | "checkpoint" | "input" | "save";
+import type { GameState } from "./contracts";
+import { GameWorld, type WorldMemoryRecord } from "./gameworld";
+import { createInitialState } from "./state";
+
+export type RunRecordKind =
+  "command" | "checkpoint" | "event" | "input" | "load" | "save";
 
 export type RunRecordOriginDomain = "input" | "simulation" | "storage";
 
-export const RUN_RECORD_SCHEMA_VERSION = 2;
+export const RUN_RECORD_SCHEMA_VERSION = 3;
 export const RUN_RECORD_EVENT_VERSION = 1;
+export const RUN_RECORD_INITIAL_CONTEXT_VERSION = 1;
 
 export interface RunRecordEntry {
   /** Monotonic across retained and dropped entries for this in-memory record. */
@@ -24,10 +30,20 @@ export interface RunRecordEntry {
   payload: Record<string, unknown>;
 }
 
+/** Immutable simulation baseline required to replay a non-fresh local session. */
+export interface RunRecordInitialContext {
+  version: typeof RUN_RECORD_INITIAL_CONTEXT_VERSION;
+  state: GameState;
+  worldMemory: WorldMemoryRecord;
+  stateHash: string;
+  worldMemoryHash: string;
+}
+
 export interface RunRecord {
   schemaVersion: typeof RUN_RECORD_SCHEMA_VERSION;
   seed: string;
   startedAtMs: number;
+  initialContext: RunRecordInitialContext;
   droppedEntries: number;
   entries: RunRecordEntry[];
 }
@@ -53,20 +69,61 @@ export function stableHashText(value: string): string {
   return `h${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
-export function createRunRecord(seed: string, startedAtMs: number): RunRecord {
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+export function createRunRecordInitialContext(
+  state: GameState,
+  world: GameWorld,
+): RunRecordInitialContext {
+  const stateSnapshot = cloneJson(state);
+  const worldMemory = cloneJson(world.snapshot());
+  return {
+    version: RUN_RECORD_INITIAL_CONTEXT_VERSION,
+    state: stateSnapshot,
+    worldMemory,
+    stateHash: stableHashText(JSON.stringify(stateSnapshot)),
+    worldMemoryHash: stableHashText(JSON.stringify(worldMemory)),
+  };
+}
+
+export function createRunRecord(
+  seed: string,
+  startedAtMs: number,
+  initialContext = createRunRecordInitialContext(
+    createInitialState(seed),
+    new GameWorld(seed),
+  ),
+): RunRecord {
   return {
     schemaVersion: RUN_RECORD_SCHEMA_VERSION,
     seed,
     startedAtMs,
+    initialContext,
     droppedEntries: 0,
     entries: [],
   };
 }
 
-function eventMetadata(kind: RunRecordKind): Pick<
-  RunRecordEntry,
-  "originDomain" | "replayable" | "diagnosticsOnly"
-> {
+const REPLAYABLE_COMMAND_NAMES = new Set([
+  "advanceTime",
+  "selectRig",
+  "selectCamera",
+  "installModule",
+  "primaryAction",
+  "tap",
+  "enterWorld",
+]);
+
+export function isReplayableCommandName(name: string): boolean {
+  return REPLAYABLE_COMMAND_NAMES.has(name);
+}
+
+function eventMetadata(
+  kind: RunRecordKind,
+  name: string,
+): Pick<RunRecordEntry, "originDomain" | "replayable" | "diagnosticsOnly"> {
   switch (kind) {
     case "input":
       return {
@@ -75,14 +132,27 @@ function eventMetadata(kind: RunRecordKind): Pick<
         diagnosticsOnly: false,
       };
     case "command":
+      const replayable = isReplayableCommandName(name);
       return {
         originDomain: "input",
-        replayable: true,
-        diagnosticsOnly: false,
+        replayable,
+        diagnosticsOnly: !replayable,
       };
     case "checkpoint":
       return {
         originDomain: "simulation",
+        replayable: false,
+        diagnosticsOnly: true,
+      };
+    case "event":
+      return {
+        originDomain: "simulation",
+        replayable: false,
+        diagnosticsOnly: true,
+      };
+    case "load":
+      return {
+        originDomain: "storage",
         replayable: false,
         diagnosticsOnly: true,
       };
@@ -117,7 +187,7 @@ export function appendRunRecordEntry(
     id: `${record.seed}:${sequence}`,
     eventVersion: RUN_RECORD_EVENT_VERSION,
     kind,
-    ...eventMetadata(kind),
+    ...eventMetadata(kind, name),
     name,
     elapsedMs: Math.max(0, elapsedMs),
     atMs: Math.round(now()),
@@ -142,6 +212,41 @@ export function verifyRunRecord(record: RunRecord): RunRecordVerification {
   }
   if (!Number.isFinite(record.startedAtMs)) {
     issues.push("Run record start time is not finite.");
+  }
+  const initialContext = record.initialContext;
+  if (!initialContext || typeof initialContext !== "object") {
+    issues.push("Run record initial context is missing.");
+  } else {
+    if (initialContext.version !== RUN_RECORD_INITIAL_CONTEXT_VERSION) {
+      issues.push("Run record initial context version is unsupported.");
+    }
+    if (!initialContext.state || typeof initialContext.state !== "object") {
+      issues.push("Run record initial state is missing.");
+    } else {
+      const initialSeed = (initialContext.state as { seed?: unknown }).seed;
+      if (initialSeed !== record.seed) {
+        issues.push(
+          "Run record initial state seed does not match record seed.",
+        );
+      }
+      if (
+        initialContext.stateHash !==
+        stableHashText(JSON.stringify(initialContext.state))
+      ) {
+        issues.push("Run record initial state hash is invalid.");
+      }
+    }
+    if (
+      !initialContext.worldMemory ||
+      typeof initialContext.worldMemory !== "object"
+    ) {
+      issues.push("Run record initial world memory is missing.");
+    } else if (
+      initialContext.worldMemoryHash !==
+      stableHashText(JSON.stringify(initialContext.worldMemory))
+    ) {
+      issues.push("Run record initial world-memory hash is invalid.");
+    }
   }
   if (!Number.isInteger(record.droppedEntries) || record.droppedEntries < 0) {
     issues.push("Run record dropped entry count is invalid.");
@@ -177,6 +282,25 @@ export function verifyRunRecord(record: RunRecord): RunRecordVerification {
       issues.push(
         `Entry ${index} must be either replayable or diagnostics-only.`,
       );
+    }
+    if (
+      entry.kind !== "command" &&
+      entry.kind !== "checkpoint" &&
+      entry.kind !== "event" &&
+      entry.kind !== "input" &&
+      entry.kind !== "load" &&
+      entry.kind !== "save"
+    ) {
+      issues.push(`Entry ${index} has an invalid kind.`);
+      continue;
+    }
+    const expectedMetadata = eventMetadata(entry.kind, entry.name);
+    if (
+      entry.originDomain !== expectedMetadata.originDomain ||
+      entry.replayable !== expectedMetadata.replayable ||
+      entry.diagnosticsOnly !== expectedMetadata.diagnosticsOnly
+    ) {
+      issues.push(`Entry ${index} has metadata incompatible with its kind.`);
     }
     if (typeof entry.name !== "string" || entry.name.length === 0) {
       issues.push(`Entry ${index} has no name.`);

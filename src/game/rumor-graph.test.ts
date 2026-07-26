@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { CARGO_DELIVERY, CARGO_PICKUP } from "./contracts";
 import { deriveRumorGraph } from "./rumor-graph";
 import { createInitialState } from "./state";
+import { WORLD_SITES } from "./world";
 
 describe("rumor-graph kernel", () => {
   it("derives correct initial rumor graph with home silo visited and connected sites rumored", () => {
@@ -28,6 +30,32 @@ describe("rumor-graph kernel", () => {
     // Quarry shelf neighbors should now be rumored
     expect(graph.nodes["salvage-yard"]?.status).toBe("rumored");
     expect(graph.nodes["toy-grove"]?.status).toBe("rumored");
+  });
+
+  it("derives site and relay facts from canonical world and activity definitions", () => {
+    const graph = deriveRumorGraph(createInitialState("canonical-graph"));
+
+    for (const site of WORLD_SITES) {
+      expect(graph.nodes[site.id]).toMatchObject({
+        title: site.name,
+        x: site.x,
+        z: site.z,
+        elevation: site.elevation,
+        biome: site.biome,
+        verb: site.verb,
+      });
+    }
+
+    expect(graph.nodes["cargo-relay-route"]).toMatchObject({
+      x: (CARGO_PICKUP.x + CARGO_DELIVERY.x) / 2,
+      z: (CARGO_PICKUP.z + CARGO_DELIVERY.z) / 2,
+    });
+    expect(graph.edges).toContainEqual(
+      expect.objectContaining({
+        id: "cargo-to-delivery",
+        toId: CARGO_DELIVERY.siteId,
+      }),
+    );
   });
 
   it("activates connection edges between discovered nodes", () => {

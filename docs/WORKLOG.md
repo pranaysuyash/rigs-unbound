@@ -1,3 +1,1246 @@
+## 2026-07-26 — the instruction stack is v4-only from source through generated context
+
+- Corrected the canonical `/Users/pranay/Downloads/motto_v4.md` multi-pass
+  clause from “revalidate against motto_v3” to motto_v4.
+- Updated `/Users/pranay/AGENTS.md` and `/Users/pranay/Projects/AGENTS.md` so
+  startup loads the only canonical project doctrine, `motto_v4.md`, and treats
+  v2/v3 filenames as retired rather than compatibility inputs.
+- Corrected the shared hook description to require the actual v4 attestation.
+- Updated `/Users/pranay/Projects/agent-start` to remove the exported “legacy
+  bridge,” report retired doctrine paths honestly, and use the workspace v4
+  file as a real fallback when the Downloads source is unavailable.
+- Resolved a second instruction drift: shared docs said `Docs/context` while
+  the executable generator and this repository use canonical lowercase
+  `docs/context`.
+- `bash -n /Users/pranay/Projects/agent-start` passed. Regenerated the current
+  project context after both instruction changes. The project now has one
+  `motto_v4.md`, no v2/v3 doctrine files, and generated context that names only
+  v4 as authority.
+
+## 2026-07-26 — the first reward-to-fit loop passed on the current shared runtime
+
+- Ran the complete Field 02 acceptance against the stable current development
+  server at `http://127.0.0.1:4180/?acceptance=field-02`.
+- The first-rung lane uses only real W/A/S/D keys, canonical Space collection,
+  the real workshop button, and save/reload. It does not teleport, grant
+  currency, or call an installation mutation hook.
+- Reworked the acceptance-only route controller to converge through bounded
+  forward/reverse corrections, stop inside interaction areas, and use dry
+  navigation waypoints without weakening collision.
+- Corrected stale or over-specific assertions encountered during the run:
+  product title versus developer world designation; clear-or-resolved Home
+  chase camera; the canonical 4.6 m cache boundary; Home workshop momentum;
+  the new solid Sunken Flats stilt platform; and incomparable boot-relative
+  versus entry-relative performance timestamps.
+- Tier 4 result: full browser acceptance passed with zero console/page
+  problems. First-rung fit/restoration, six cameras, rear-side chase, Top-down,
+  authored and procedural camera collision, relay, ramp, terrain faces,
+  deep-water hover, reduced motion, desktop, and `390×844` checks all passed.
+- Current performance sample was local development evidence, not a production
+  budget claim: 659.7 ms entry-relative first controllable, 11.77 ms average /
+  17.6 ms p95 frame time, 125 draw calls, 105,274 triangles, 32.6 MB reported
+  heap, and 3,193-byte current save.
+- Focused first-rung/control/command tests passed 32/32; main and kernel
+  typechecks passed; harness syntax and touched formatting passed.
+- Visual QA: desktop makes the fitted tread and Long Furrow consequence
+  legible. The narrow composition remains crowded even though controls are
+  unclipped; real-touch and external-player comprehension remain open.
+- Preserved both concurrent ADRs and removed their duplicate identifier:
+  solver-neutral dynamics remains ADR-0023; browser acceptance renderer
+  lifecycle is ADR-0024.
+- Exact-final 4174 rebuilt preview, full release gates, public production,
+  real touch, human comprehension, and deployment remain open.
+
+## 2026-07-26 — the landmarks caused a real per-step regression, and the rail was giving away the map
+
+- **Regression I introduced, caught and fixed.** Authoring the site landmarks took
+  `WORLD_STRUCTURE_PARTS` from ~13 parts to 72, and `resolveRigStructureCollision`
+  walked every collider every step. Each part cost a `findSite` linear scan _and_ a
+  full `terrain.height` evaluation — domain-warped fBm, the most expensive pure
+  function in the project. Two simulation tests that had been passing in about a
+  second timed out at 5 s.
+  - Host load was 334 at the time, so blaming contention was available and would
+    have been wrong. The arithmetic says otherwise: ~50 colliders x one fBm sample
+    per step is a real cost that did not exist before this change.
+  - Fixed by precomputing `SITE_COLLIDER_GROUPS` at module load — colliders grouped
+    by site with a bounding reach — so the kernel rejects a whole site with one
+    distance test and evaluates terrain height once per _nearby site_ instead of
+    once per part. A rig is near at most one site, so the common case is now a
+    handful of arithmetic operations.
+  - It is a pure reorganisation: same parts, same iteration order, same resolved
+    centres. Measured on the two tests that had been timing out:
+    `traversal model > low-range gearing climbs from rest` went from a 5 s timeout
+    (17 648 ms elapsed) to **373 ms**, and `world memory > cuts the terrain when
+ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
+    220 tests green, exit 0. The numbers rule out host contention as the cause:
+    contention does not resolve by rearranging a loop.
+  - This is the third time in this session that the fix was "stop recomputing a
+    pure function inside the step loop" (the obstacle field was the first, at 63x).
+    The pattern is worth naming: authored-world growth is cheap to render and
+    expensive to collide against, so any new authored table needs a spatial reject
+    before it needs anything else.
+- **The opportunity rail was contradicting the survey model.** It was built once at
+  boot from `LANDMARKS` with every site's name, verb and a live metre-accurate
+  distance — including places the player had never seen. The game's whole
+  exploration premise is that the map only reveals ground the machine could
+  actually see, and the HUD was handing over a complete gazetteer for free.
+  - An unsurveyed site now reads `Unsurveyed`, a cardinal `bearing`, and a coarse
+    band (close / near / far / distant). The name and the verb are what discovery
+    pays out, so they arrive on arrival.
+  - Reused the existing `headingLabel` rather than writing a second cardinal
+    vocabulary. The world's forward vector is `(sin heading, cos heading)`, so
+    `atan2(dx, dz)` is the same angle convention: +Z is north, +X is east.
+  - Verified live against the geometry rather than by eye: quarry-shelf at
+    dx +34 / dz +6 reads E, toy-grove at +62/+110 reads NE, sunken-flats at
+    -174/-168 reads SW, launch-ridge at -206/+102 reads NW, and every band matches
+    its measured distance.
+- Evidence depth: Tier 3 for the rail (browser-verified against computed bearings)
+  and Tier 3 for the collision fix (targeted suites green, full suite re-run).
+
+## 2026-07-26 — the automation hang was a missing invariant, not three unlucky scripts
+
+- Third occurrence this session of the same failure shape: a Playwright script
+  that launches a browser, throws before its own `finally` is reachable, and then
+  never exits. `tools/capture-trailer.cjs` burned 14 hours that way, and
+  `artifacts/playtest-explorer/driver.cjs` was found still running after 19 h 36 m
+  having written nothing since 23:00 the previous night.
+- Counted the blast radius instead of fixing the instance: 12 browser-driving
+  scripts in the repo, exactly one of which had a deadline — the one already
+  hardened after it hung. Eleven could hang forever.
+- Extracted the guard as `tools/browser-watchdog.cjs` and armed it at module load
+  in all 12, including replacing `capture-trailer.cjs`'s private copy so there is
+  one definition rather than two. The timer is `unref`'d, so arming it never keeps
+  a finished process alive, and it exits non-zero because an overrun is a failure.
+- Deadlines are set from each script's realistic worst case (15 min for the
+  acceptance runs, 25 for the captures, 30 for the playtest driver), not from its
+  typical case. The deadline bounds a hang; it is not a performance budget.
+- Documented in `tools/README.md` with the rule for new scripts: a browser script
+  that cannot exit is worse than one that fails, because a failure is visible.
+- Verified with `node --check` on all 13 touched files.
+- Host state at the time, recorded because it distorted every timing in this
+  session: load average 334, WindowServer at 90% CPU, 76 Chrome renderers, 93 node
+  processes (almost all idle MCP servers). `ps` itself timed out at 120 s. No
+  frame-timing measurement taken under these conditions is usable.
+
+## 2026-07-26 — the sites became places, and the runtime-profile budget stopped being decoration
+
+- Closed the last renderer-owned parallel truth source for world geometry.
+  `scene-query.ts` already stated the invariant — "a visible landmark cannot
+  become renderer-only scenery that rigs pass through" — and the salvage crates,
+  toy blocks, quarry slabs and entrance arch violated it. All 8 crates, 10 blocks,
+  6 slabs and the arch were renderer-hardcoded meshes with no collider and no
+  camera occlusion: you drove straight through every one of them.
+- Moved them into `WORLD_STRUCTURE_PARTS` unchanged in shape and colour, so they
+  now get collision and camera occlusion from the canonical route for free. The
+  clusters were shifted off site centre, because a solid prop pile on a route
+  endpoint is a place you cannot arrive at.
+- Authored a distinct landmark for the five sites that had none: a gantry crane
+  over the salvage yard, a stacked toy tower, a quarry hopper on legs, an
+  irrigation standpipe and tank at the long furrow, and a stilt platform above the
+  sunken flats. 59 authored parts in total.
+- Deleted the uniform cyan ring and 11-metre mast that stood at every site. They
+  were doing real work — the mast marked an unvisited place at range — so the work
+  was preserved rather than dropped: `WorldStructurePart.discoverySignal` marks the
+  one part per site that carries the unvisited lamp, and the renderer lights it or
+  darkens it from `state.discoveries`. Identical instrument gizmos at seven sites
+  is what made a valley read as a test fixture.
+- Removed "Field 02" from the player surface (document title, masthead eyebrow,
+  welcome plate). The seed is already a readable, shareable world identity, so the
+  masthead names the world — `World UNBOUND-260725` — rather than the acceptance
+  fixture the surface was cut from. The fixture label survives on the developer
+  surface, where an acceptance run genuinely needs it.
+- Implemented `maximumFirstControllableMs` end to end instead of accepting its
+  deletion. Time-to-first-controllable-frame is the decisive metric for a
+  link-native game, and it is evidence available on the first frame — long before a
+  90-sample frame window can say anything. It is now declared on
+  `RuntimeProfileBudget`, carried in the standard budget at 2 500 ms, checked
+  _before_ the sample-count gate, and reported as a `first-controllable-budget`
+  fallback reason. A declared-but-unconsumed budget field is the same inert-promise
+  defect as a module that advertises a capability it lacks.
+- Removed `fpsHistory`, `degraded` and `qualityTier` from the renderer. They were a
+  second auto-degrade path that was never read or written; runtime quality
+  degradation is owned by `RuntimeProfileController` -> `setVisibilityProfile`
+  (`src/main.ts`), which works.
+- New invariants in `world-schema.test.ts`: every site keeps open approach
+  bearings into its discovery radius (rays walked inward from outside the
+  footprint, >25% of the compass clear), every site has exactly one discovery
+  signal, every part stays inside its site's anchor radius, and every signal sits
+  at least 10 m up so it reads over terrain.
+  - The first version of that test asserted a clear apron at the exact site centre
+    and failed on authored barns that predate this work. It was asserting the wrong
+    thing: discovery fires inside `discoverRadius` (16-26 m), so a rig never needs
+    the centre. Rewritten as the property the game actually requires.
+- Evidence depth: Tier 3. 27 test files / 220 tests green, `tsc --noEmit` clean,
+  and browser-verified at `127.0.0.1:4174` — no console errors, document title and
+  masthead read `Rigs Unbound` / `World UNBOUND-260725`, and the salvage arch plus
+  the gantry with its lamp lit are visible from the western approach.
+- Not a regression, recorded so it is not rediscovered: the pale quads that appear
+  under a rig with the blade down are fill-mode furrow marks. Cut and fill share
+  one `FurrowMark` with no mode, so filled ground is drawn with cut geometry. Still
+  open, on the review list.
+- Also recorded: `__RUNTIME_ASSET_ENTRIES__` is inlined by a Vite `define`, so a
+  manifest edit does not invalidate the cached transform. One asset test failed
+  against a stale colour mid-session and passed after clearing `node_modules/.vite`.
+  The gate can therefore pass against a manifest value that is no longer on disk.
+
+## 2026-07-26 — the activity-command seam is real, but the generic registry still waits for a second activity
+
+- Applied the `3d-games` lens to the activity/content readiness contract.
+- Rechecked `src/game/state.ts`, `src/game/affordances.ts`, and
+  `docs/research/ACTIVITY_CONTENT_AND_COMMAND_CONTRACT_READINESS_2026-07-26.md`.
+- Confirmed the seam is now real:
+  - a versioned affordance resolves to legal / deferred / impossible,
+  - the primary-action path records a structured accepted/rejected outcome,
+  - the run record observes the outcome without owning the authority.
+- The remaining boundary is still deliberate:
+  - no second materially different activity has proven the same pattern,
+  - the generic `ActivityDefinition` registry remains correctly deferred,
+  - content ingestion should stay out until the second proof exists.
+- Recorded the finding in the activity-readiness contract so the repo keeps a
+  durable note of why the single-activity model is still the right boundary.
+- Evidence depth: Tier 1 static source inspection. No browser or test execution
+  was run in this update.
+
+## 2026-07-26 — the State Shell has runtime hooks, but not yet one canonical browser-proved visual profile
+
+- Applied the `3d-games` / visual-quality lens to the State Shell lane.
+- Rechecked `src/game/renderer.ts`, `src/game/feedback.ts`, `src/game/audio.ts`,
+  and `docs/research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md`.
+- Confirmed the shell is no longer just a concept:
+  - the renderer already has a state-shell mesh and material slot,
+  - the shared feedback frame carries integrity and impact data,
+  - the audio layer already modulates a shell oscillator from integrity.
+- The remaining gap is promotion, not invention:
+  - no single browser-proved visual shell profile owns the language yet,
+  - no representative-device proof ties the shell look to a named quality band,
+  - the shell remains an architectural lane rather than a shipped presentation
+    system.
+- Recorded the issue in a dedicated review and mirrored it into the visual
+  quality research trail so the repo keeps a durable note of the shell’s
+  current boundary.
+- Evidence depth: Tier 1 static source inspection. No browser/device capture
+  was run in this update.
+
+## 2026-07-26 — the browser-delivery policy is still unnamed, but the narrow/mobile surface is holding up
+
+- Applied the `3d-web-experience` lens to the browser-delivery contract.
+- Rechecked `docs/research/3D_WEB_EXPERIENCE_LIVE_REPO_ANALYSIS_2026-07-26.md`,
+  `docs/research/WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md`,
+  and the live narrow/mobile review trail.
+- Confirmed the browser delivery path is already intentionally shaped:
+  - narrow/mobile layout support exists,
+  - touch controls use the same named semantic action model,
+  - runtime profile and asset fallback handling are visible in code,
+  - the shell remains truthful during boot.
+- Confirmed the recent live review did not show a layout break at `390×844`:
+  - no horizontal overflow,
+  - touch controls visible,
+  - map overlay fits the narrow viewport.
+- The remaining gap is the public naming of the browser-delivery policy, not
+  another layout patch.
+- Evidence depth: Tier 1 static source inspection plus the earlier Tier 4 live
+  browser review trail. No new browser run was performed in this update.
+
+## 2026-07-26 — the performance/readability umbrella policy is still missing as one operator artifact
+
+- Applied the `Accessibility Auditor` / readability lens to the umbrella
+  performance baseline.
+- Rechecked `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md`
+  against the current repo notes and live surface evidence.
+- Confirmed the component thresholds are real and named across the stack:
+  culling, LOD, camera, collision, accessibility, and performance contracts
+  are already present.
+- The remaining gap is the operator-facing umbrella artifact:
+  - no single visible budget table yet,
+  - no one-line fail-soft summary naming the exceeded threshold,
+  - no canonical table that tells maintainers which budget band the app is in.
+- Recorded the gap in the baseline contract so the repo keeps one durable note
+  of the remaining policy surface instead of scattering the same observation
+  across multiple reviews.
+- Evidence depth: Tier 1 static source inspection plus the previously recorded
+  live diagnostic snapshot. No new browser or device walkthrough was run in
+  this update.
+
+## 2026-07-26 — visible profile state is still operator-facing even though the runtime can already compute it
+
+- Applied the `Accessibility Auditor` lens to the profile-visibility contract.
+- Rechecked `src/main.ts`, `src/game/runtime-profile-policy.ts`, and the
+  profile-visibility research trail.
+- Confirmed the runtime already knows the active profile and fallback reasons:
+  - profile selection is computed in code,
+  - `runtimeDiagnostics` includes profile summary data,
+  - the developer/evidence surface can explain the chosen profile.
+- The remaining gap is player-facing visibility:
+  - the public HUD does not yet show a durable profile indicator,
+  - fallback/reduced-profile state is still mostly operator-facing,
+  - the public shell has not been given a plain-language comfort/profile readout.
+- Recorded the issue in a dedicated review and mirrored it into the profile
+  analysis trail so the repo keeps a durable note of the next accessibility
+  contract.
+- Evidence depth: Tier 1 static source inspection. No browser or screen-reader
+  walkthrough was run in this update.
+
+## 2026-07-26 — input remap persistence is still open even though lesson guidance is canonical
+
+- Applied the `Accessibility Auditor` lens to the control-input contract.
+- Rechecked `src/game/input.ts`, `src/main.ts`, and
+  `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md`.
+- Confirmed the live input path is still browser-key canonical:
+  - `KEY_ACTIONS` remains a fixed keyboard-to-action map,
+  - gamepad and gyro are sampled alongside it,
+  - learned control lessons persist separately as guidance, not bindings.
+- The remaining gap is preference persistence, not discovery:
+  - no canonical binding registry is visible,
+  - no remap layout is saved/restored,
+  - no reload-survival proof exists yet for preferred controls.
+- Recorded the issue in a dedicated review and mirrored it into the input
+  contract so the repo keeps a durable record of the next accessibility layer.
+- Evidence depth: Tier 1 static source inspection. No browser, reload, or
+  device walkthrough was run in this update.
+
+## 2026-07-26 — mute works in-session, but the preference still is not persisted
+
+- Applied the `3d-web-experience` / audio-presentation lens to the mute
+  control.
+- Rechecked `src/main.ts` and `src/game/audio.ts`.
+- Confirmed the current mute interaction is safe and functional:
+  - button label and `aria-pressed` update immediately,
+  - audio enablement toggles in-session,
+  - no-audio remains a safe outcome for the browser.
+- The remaining gap is persistence:
+  - no visible local preference key or save path exists for mute,
+  - the current source does not restore mute on reload,
+  - the setting is still session-only.
+- Recorded the issue in a dedicated review and mirrored it into the audio
+  contract so the repo keeps a durable record of the preference gap.
+- Evidence depth: Tier 1 static source inspection. No browser or reload
+  walkthrough was run in this update.
+
+## 2026-07-26 — save and recovery are truthful, but the announcement contract is still implicit
+
+- Applied the `Accessibility Auditor` lens to the persistence/status path.
+- Rechecked `index.html` and `src/main.ts`.
+- Confirmed the save line is already honest:
+  - `#save-status` receives fresh, restored, migrated, recovered, fallback,
+    and reset messages,
+  - the text remains visible in the shell,
+  - bootstrap announcements are handled separately.
+- The remaining gap is announcement, not content:
+  - `#save-status` is still only a visible text field,
+  - it is not a dedicated live region or named recovery announcement contract,
+  - the player can read the state but may not hear or otherwise receive the
+    transition explicitly.
+- Recorded the issue in a dedicated review and mirrored it into the analysis
+  trail so the repository keeps a durable backlog of remaining player-surface
+  contracts.
+- Evidence depth: Tier 1 static source inspection. No browser or screen-reader
+  walkthrough was run in this update.
+
+## 2026-07-26 — the workshop is a capability gate, but it still lacks a discovery/focus contract
+
+- Applied the `Accessibility Auditor` lens to the workshop surface.
+- Rechecked `index.html` and `src/main.ts`.
+- Confirmed the workshop already acts like a real progression gate:
+  - it appears only when in reach,
+  - it hides while the map is open,
+  - it presents module choices that change rig capability.
+- The remaining gap is discoverability and focus:
+  - `#workshop-panel` is only a labeled section,
+  - there is no dedicated focus entry or restore path,
+  - its appearance is not explicitly announced as a new capability moment.
+- Recorded the issue in a dedicated review and mirrored it into the analysis
+  trail so the repository keeps a durable backlog of remaining player-surface
+  contracts.
+- Evidence depth: Tier 1 static source inspection. No browser or screen-reader
+  walkthrough was run in this update.
+
+## 2026-07-26 — pause is visible, but the announcement contract is still implicit
+
+- Applied the `Accessibility Auditor` lens to the pause-state path.
+- Rechecked `src/main.ts`, `index.html`, and the paused-state prompt update.
+- Confirmed pause is already a real mode switch:
+  - `current-prompt` changes to `Paused.`,
+  - the full-screen pause overlay appears,
+  - paused state suppresses normal simulation activity.
+- The remaining gap is announcement, not visibility:
+  - the prompt is not a dedicated live region,
+  - the overlay is visual only,
+  - there is no explicit pause-status announcement contract yet.
+- Recorded the issue in a dedicated review and mirrored it into the analysis
+  trail so the repo keeps a durable accessibility backlog.
+- Evidence depth: Tier 1 static source inspection. No browser or screen-reader
+  walkthrough was run in this update.
+
+## 2026-07-26 — the map overlay is a real mode switch, but it still lacks a dialog/focus contract
+
+- Applied the `Accessibility Auditor` lens to the map overlay interaction.
+- Rechecked `index.html`, `src/main.ts`, and `src/styles.css`.
+- Confirmed the map surface is already modal-like in behavior:
+  - it toggles a full-screen overlay,
+  - it suppresses some HUD/helper surfaces while open,
+  - `Escape` closes the map before pause.
+- The remaining gap is semantic and focus-related:
+  - `#map-overlay` is only a labeled section,
+  - it lacks `role="dialog"` / `aria-modal="true"`,
+  - focus does not move into the overlay on open,
+  - focus does not restore to the opener on close.
+- Recorded the issue in a dedicated review and added a research addendum so
+  the repo keeps a durable accessibility trail instead of chat-only notes.
+- Evidence depth: Tier 1 static source inspection. No browser or screen-reader
+  walkthrough was run in this update.
+
+## 2026-07-26 — the renderer performance lane has shifted from "basic culling and memory visibility" to quality-tier integration
+
+- Applied the `3d-web-experience` lens to the renderer-performance lane.
+- Rechecked `src/game/renderer.ts`, `src/game/performance.ts`, and
+  `src/main.ts`.
+- Confirmed the live renderer already has the earlier culling/memory fixes that
+  the first analysis note treated as missing:
+  - instanced meshes now compute bounding spheres and keep frustum culling on;
+  - the performance snapshot now includes `gpuMemoryMb`.
+- The remaining live gap is narrower and more useful:
+  - renderer quality knobs are still mostly static;
+  - pixel ratio is still capped with a hard-coded `1.75`;
+  - runtime profile selection reaches visibility detail, but not DPR or other
+    expensive renderer budgets.
+- That makes adaptive quality-tier integration the next renderer-focused gap,
+  not a repeat of the earlier culling or GPU-memory findings.
+- Evidence depth: Tier 1 static source inspection. No browser run or render
+  capture was performed in this update.
+
+## 2026-07-26 — the lab snapshot is richer than Field 02 for physics inspection, but it is still a lab-local metric shape
+
+- Applied the `3d-web-experience` lens to the Physics Lab 01 evidence fixture.
+- Rechecked `src/physics-lab/main.ts` and the lab shell.
+- Confirmed the lab exposes a dedicated physics-specific snapshot with:
+  - controller family,
+  - paused/debug state,
+  - camera mode,
+  - physics frequency,
+  - time scale,
+  - surface identity and friction/rolling values,
+  - vehicle telemetry,
+  - dynamics metrics,
+  - render metrics,
+  - recovery count.
+- That makes the lab a stronger solver/chassis inspection surface than Field 02,
+  but the metric shape is still lab-local rather than a canonical runtime budget
+  schema.
+- The useful boundary is clearer now:
+  - Physics Lab 01 is a supporting evidence fixture,
+  - Field 02 remains the canonical player loop,
+  - and the two surfaces should keep distinct metric shapes.
+- Evidence depth: Tier 1 static source inspection. No browser run or capture
+  was performed in this update.
+
+## 2026-07-26 — the primary-action path now proves a local command outcome, but still only for one proven activity seam
+
+- Applied the `3d-games` lens to the activity/command readiness lane.
+- Rechecked `src/game/state.ts` and `src/main.ts`.
+- Confirmed the primary-action path is now a real versioned command boundary:
+  - `resolvePrimaryAction()` picks a semantic action before mutation,
+  - `executePrimaryActionCommand()` validates the versioned command and returns
+    a structured accepted/rejected outcome,
+  - `performPrimaryAction()` remains the compatibility entrypoint but now
+    returns that same event,
+  - browser call sites capture the accepted/rejected event in the bounded run
+    record.
+- That is a real proof slice for one activity seam, not a generic activity
+  registry.
+- The remaining boundary is still the same:
+  - only the proven relay/primary-action seam uses the shared outcome shape,
+  - there is still no second materially different activity using the same
+    matcher,
+  - the generic `ActivityDefinition` registry should still wait for the second
+    activity proof.
+- Evidence depth: Tier 1 static source inspection. No browser/test execution
+  was run in this update.
+
+## 2026-07-26 — the snapshot now carries transition and save timing, but not the full readability rubric
+
+- Applied the `3d-games` lens to the runtime-instrumentation lane.
+- Rechecked `src/game/performance.ts` and `src/main.ts`.
+- Confirmed the snapshot already exposes useful readable pressure signals:
+  - frame timing,
+  - FPS,
+  - draw calls,
+  - triangles,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - first-input-ready time,
+  - save size,
+  - terrain-build time.
+- The remaining mismatch is the rubric, not the presence of metrics:
+  - the KPI note still asks for per-frame actor count,
+  - and active physics count,
+  - but the live snapshot does not name those directly.
+- So the runtime has a partially complete readability envelope: transition latency and save/load pressure are visible, while the actor/physics dimension remains implicit.
+- Evidence depth: Tier 1 static source inspection. No fresh browser or benchmark capture was run in this update.
+
+## 2026-07-26 — save/recovery messages are truthful, but they still are not a dedicated announcement surface
+
+- Applied the `Accessibility Auditor` lens to the persistence/readout path.
+- Rechecked `src/main.ts` and `index.html`.
+- Confirmed the save/recovery messages are truthful:
+  - fresh, restored, migrated, recovered, and fallback states are written to
+    `#save-status`,
+  - the text is updated from the live load result and runtime fallback
+    decisions.
+- The remaining gap is announcement, not truth:
+  - `#save-status` is still visual-only,
+  - it does not have its own `role="status"` or `aria-live`,
+  - bootstrap announcements are handled separately by `#bootstrap-status`.
+- So the player can read the persistence state, but may not be told about it
+  through a dedicated assistive-technology announcement path yet.
+- Evidence depth: Tier 1 static source inspection. No runtime assistive-tech
+  walkthrough was run in this update.
+
+## 2026-07-26 — the bootstrap shell is announced, but the persistence/status line is still visual only
+
+- Applied the `Accessibility Auditor` lens to the public shell and status
+  surfaces.
+- Rechecked `index.html` and `src/main.ts`.
+- Confirmed the bootstrap entry path is already announced:
+  - `#bootstrap-status` has `role="status"`, `aria-live="polite"`, and
+    `aria-atomic="true"`,
+  - the shell also uses `aria-busy` during the transition from loading to
+    ready.
+- The persistence/status line is still only visible text:
+  - `#save-status` updates on load/recovery/profile changes,
+  - but it does not currently have its own live-region contract.
+- So the player can already hear the bootstrap shell, but may still miss
+  persistence or recovery changes unless they are announced through another
+  path.
+- Evidence depth: Tier 1 static source inspection. No runtime assistive-tech
+  walkthrough was run in this update.
+
+## 2026-07-26 — runtime-bridge 3D is already separated from gameplay-critical world truth, but the boundary is still implicit
+
+- Applied the `3d-web-experience` lens to the runtime-bridge / gameplay-truth boundary.
+- Rechecked `src/game/runtime-assets.ts`, `src/game/scene-query.ts`, and
+  `src/game/renderer.ts`.
+- Confirmed the code already keeps two different truths separate:
+  - imported runtime-bridge assets are filtered by manifest ownership and
+    public approval, and they keep fallback geometry alive on failure,
+  - camera obstruction and visible-world queries still come from terrain,
+    obstacles, felled state, and authored structures rather than from bridge
+    meshes.
+- That means the repo already has a real line between decorative/runtime-bridge
+  3D and gameplay-critical world truth.
+- The remaining gap is that the browser-delivery contract still doesn’t name
+  that boundary publicly, so future contributors have to infer it from the code.
+- Evidence depth: Tier 1 static source inspection. No runtime or browser pass
+  was run in this update.
+
+## 2026-07-26 — touch and narrow-layout support are real, but the browser delivery contract still needs a public name
+
+- Applied the `3d-web-experience` lens to the browser delivery lane.
+- Rechecked `src/main.ts` and `src/styles.css`.
+- Confirmed the browser is already intentionally mobile-aware:
+  - touch buttons route through the same semantic actions as keyboard and gamepad,
+  - pointer capture/release keeps the touch flow in the same action model,
+  - a coarse-pointer / narrow-width media query repositions the touch controls
+    below the field kit instead of overlapping the desktop HUD.
+- That means the experience is not desktop-only; the narrow/mobile layout is
+  already part of the current browser contract.
+- The remaining gap is still the named browser-delivery policy that explains
+  which pieces are essential, which can degrade, and which are optional.
+- Evidence depth: Tier 1 static source inspection. No runtime or device capture
+  was run in this update.
+
+## 2026-07-26 — the current lighting/material envelope is coherent, but still mostly implicit
+
+- Applied the `3d-games` lens to the presentation / lighting lane.
+- Rechecked `src/game/renderer.ts` and the existing shader/material contract trail.
+- Confirmed the live renderer already has a deliberate baseline:
+  - one directional sun plus one hemisphere fill,
+  - ACES filmic tone mapping and explicit exposure,
+  - phase-driven sky, fog, water, and headlight changes,
+  - a narrow `state-shell` shader for rig integrity feedback rather than a broad custom shader stack.
+- The remaining gap is still the named envelope:
+  - no player/operator-visible lighting/material strategy field in the public surface,
+  - no tiered material envelope that says when to stay baseline versus introduce richer modifiers,
+  - no evidence that the shader/material lane should branch beyond the current scoped shader.
+- Evidence depth: Tier 1 static source inspection. No runtime or browser pass was run in this update.
+
+## 2026-07-26 — the public shell is truthful, but the active profile is still operator-facing
+
+- Applied the accessibility/profile-visibility lens to the live browser surface.
+- Rechecked `src/main.ts`, `src/styles.css`, and the browser-visible runtime diagnostics path.
+- Confirmed the player-facing shell already does its job truthfully:
+  - `bootstrapStatus` names the entry state,
+  - `saveStatus` names the persistence state,
+  - the welcome flow stays operable with keyboard focus and semantic buttons.
+- The remaining gap is still the active profile signal:
+  - `runtimeDiagnostics` stays hidden on the player surface,
+  - active runtime profile and fallback reasons remain in the developer/evidence surface,
+  - there is no durable visible input/accessibility profile indicator in the public HUD.
+- Evidence depth: Tier 1 static source inspection. No runtime or browser pass was run in this update.
+
+## 2026-07-26 — asset admission is schema-backed, but the broader authoring manifest is still future-facing
+
+- Applied the `3d-games` lens to the authoring / reproducible-content lane.
+- Rechecked `assets/asset-manifest.schema.json`, `assets/asset-manifest.json`,
+  and `tools/asset-preflight.mjs`.
+- Confirmed the repo now proves a real, reproducible asset-admission slice:
+  - the manifest has a versioned schema,
+  - required provenance and rights fields are enforced,
+  - preflight validates GLB structure, safe dependency paths, and missing
+    external dependencies,
+  - runtime approval remains separated from public approval.
+- The remaining gap is still the broader authoring envelope:
+  - no general versioned content-manifest schema for activities or world
+    modules,
+  - no reproducible validation-result artifact for the broader authored-content
+    path,
+  - no runtime-ready / validation-only / deprecated lifecycle signal across the
+    whole content model,
+  - no general pack lifecycle that can disable or roll back invalid authored
+    content without becoming a second authority surface.
+- Evidence depth: Tier 1 static source and schema inspection. No runtime or
+  test pass was run in this update.
+
+## 2026-07-26 — module composition is explicit, and ECS still lacks a measured threshold
+
+- Applied the `3d-games` lens to the ECS threshold lane.
+- Rechecked `src/game/contracts.ts`, `src/game/state.ts`, and
+  `src/game/physics.ts`.
+- Confirmed the runtime still expresses composition directly through the
+  machine-centric model:
+  - `RigProfile` carries capabilities and camera/motion tuning as explicit
+    data,
+  - `installModule()` validates module fit, cost, ownership, and workshop
+    access before mutating the active rig,
+  - `effectiveProfile()` composes installed modules onto an immutable rig
+    blueprint rather than delegating to a generic ECS runtime.
+- The remaining gap is still the threshold proof itself:
+  - no quantified actor-count or coupling trigger,
+  - no canonical multi-capability entity schema beyond the current rig model,
+  - no migration proof that preserves identity through a composition-model
+    change,
+  - no evidence that the current adapter model has crossed its useful limits.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — module composition and asset admission are real, but pack lifecycle is still future-gated
+
+- Applied the `3d-games` lens to the modding / creator-pack lane.
+- Rechecked `src/game/contracts.ts`, `src/game/state.ts`,
+  `src/game/runtime-assets.ts`, and `assets/asset-manifest.json`.
+- Confirmed the runtime now proves the important local substrate for packs:
+  - rig capabilities and modules are data-driven,
+  - `installModule()` validates cost, compatibility, and ownership before
+    mutating canonical rig state,
+  - asset admission is gated by a versioned manifest and preflight/rights
+    metadata,
+  - runtime bridges remain separated from public approval.
+- The remaining gap is still the pack lifecycle itself:
+  - no versioned pack manifest in the playable path,
+  - no explicit pack dependency graph,
+  - no staged publication or moderation workflow,
+  - no general safe disable / rollback path for player-activatable packs.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — event outcomes still do not justify a generic runtime bus
+
+- Applied the `3d-games` lens to the shared event-graph lane.
+- Rechecked `src/main.ts`, `src/game/state.ts`, and `src/game/run-record.ts`.
+- Confirmed the current architecture still has only a few direct consumers for
+  semantic outcomes:
+  - browser HUD / status surfaces,
+  - replay and verification hooks,
+  - diagnostics / run-record capture,
+  - the owning simulation/state reducers.
+- The repo still has not crossed the justification threshold for a generic
+  runtime event bus or fan-out registry.
+- The bounded run record remains the audit/replay spine, not a pub/sub system.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — first-use guidance is canonical, but remapping is still future work
+
+- Applied the `3d-games` lens to the input and control-guidance lane.
+- Rechecked `src/main.ts`, `src/game/control-guidance.ts`, and
+  `src/game/input.ts`.
+- Confirmed the runtime now has a real canonical first-use guidance surface:
+  - `resolveControlLesson()` picks a single context-aware lesson from semantic
+    gameplay relevance,
+  - the lessons are non-modal and suppress themselves when welcome, map, or
+    pause owns attention,
+  - learned lesson IDs persist in browser-local storage so the same explanation
+    does not keep reappearing after the player has used it.
+- The remaining gap is still the policy layer the contract names:
+  - no persisted remap schema,
+  - no visible input/accessibility profile state,
+  - no cross-device preference sync,
+  - no formal parity statement for intentionally unsupported differences.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — local authority now exposes source metadata and reject paths
+
+- Applied the `3d-games` lens to the authority lane.
+- Rechecked `src/main.ts`, `src/game/state.ts`, and `src/game/storage.ts`.
+- Confirmed the local-first authority model now makes its structure explicit:
+  - `primaryAction` and `selectRig` each emit a versioned command intent plus a
+    separate simulation-origin outcome event,
+  - accepted and rejected outcomes carry stable reason codes,
+  - `loadState()` surfaces `sourceKey`, `sourceSchemaVersion`,
+    `worldMemoryPresent`, and `recoveryReason`.
+- The remaining gap is still the remote/shared-state envelope:
+  - no authenticated remote mutation API,
+  - no shared-state/server-authoritative boundary,
+  - no durable-value rejection transport.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — resource fallback is visible, but the wider budget ledger is still open
+
+- Applied the `3d-games` lens to the resource-budget lane.
+- Rechecked `src/game/performance.ts`, `src/game/runtime-profile-policy.ts`,
+  and the browser wiring in `src/main.ts`.
+- Confirmed the runtime now has a real visible fallback and recovery path:
+  - `runtimeProfileFallback` and `runtimeProfileRecovery` checkpoints record the
+    active profile plus triggering reasons,
+  - the player sees `Performance safeguard active: reduced scenery detail.`,
+  - developer diagnostics expose fps, draw calls, geometry/texture counts,
+    heap, bridge status, visibility counts, and the active profile summary.
+- The remaining gap is still the broader resource-governance envelope:
+  - no cross-system CPU/GPU/memory ledger,
+  - no named subsystem owner for those budgets,
+  - no thermal or battery-sensitive policy,
+  - no representative-device threshold for the wider app.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — replay validation now has an admitted baseline
+
+- Applied the `3d-games` lens to the replay lane.
+- Rechecked `src/game/run-record.ts`, `src/game/replay-validator.ts`, and
+  `src/game/storage.ts`.
+- Confirmed the current run record now carries a versioned admitted initial
+  context with separate state and world-memory hashes.
+- Confirmed the local replay validator now reconstructs from that admitted
+  baseline and uses checkpoint hashes as the divergence anchor.
+- The remaining gap is still the same public artifact boundary:
+  - no browser playback transport,
+  - no ghost/share compatibility envelope,
+  - no user-facing replay divergence report,
+  - no replay-safe trust split exposed to players.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — visibility tiering is explicit, representation LOD is still future work
+
+- Applied the `3d-games` lens to the visibility/LOD lane.
+- Rechecked `src/game/visibility.ts` and the renderer diagnostics path that
+  surfaces it.
+- Confirmed the runtime now has a stable visibility budget:
+  - `full`, `standard`, and `mobile-safe` profiles,
+  - `near`, `mid`, `far`, and `culled` tiers,
+  - candidate/submitted/capacity-limited counters,
+  - active profile exposure in developer diagnostics.
+- The active `standard` profile still preserves the existing `farMeters = 168`
+  radius, so this remains accounting and observability rather than geometric
+  asset LOD.
+- The remaining gap is still representation-level LOD for imported assets.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — camera feel is now a resolved policy surface
+
+- Applied the `3d-games` lens to the camera lane.
+- Rechecked `src/main.ts`, `src/game/renderer.ts`, and `src/game/state.ts`.
+- Confirmed the camera is no longer hidden behind renderer-only behavior:
+  - `camera-select` is visible in the UI,
+  - camera changes record commands and checkpoints,
+  - `getCameraResolutionEvidence()` exposes obstruction and resolved pose data,
+  - reduced-motion trims expression without changing spatial safety.
+- The remaining gap is not the camera system itself but the player-facing
+  explanation layer:
+  - no explicit camera reason string,
+  - no advisory recommendation surface,
+  - no separate durable camera-policy artifact beyond save-state mode plus
+    runtime evidence.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — browser loading and profile affordance recheck
+
+- Applied the `3d-web-experience` lens to the public browser surface.
+- Rechecked `src/main.ts`, `src/styles.css`, and the loading/bootstrap contract.
+- Confirmed the browser has an explicit shell and operator-visible state:
+  - `bootstrapStatus` flips to `ready`,
+  - fallback profile text is visible when scenery detail is reduced,
+  - `runtimeDiagnostics` exposes renderer and profile evidence,
+  - `mapProgress` is world-survey progress and sight range.
+- The gap remains first-class browser affordance, not raw readiness:
+  - no public loading percentage,
+  - no loading bar,
+  - no visible profile chooser.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — streaming residency and asset approval separation
+
+- Applied the `3d-games` lens to the next world-scale boundary.
+- Rechecked the live source split:
+  - `src/game/gameworld.ts`
+  - `src/game/storage.ts`
+  - `assets/asset-manifest.json`
+  - `src/game/runtime-assets.ts`
+- Confirmed the world is still one canonical residency, while asset approval is
+  already a separate manifest gate:
+  - world memory snapshots and restores remain composed through one save
+    payload,
+  - runtime bridge assets are filtered by `publicRuntimeApproved`,
+  - streaming should therefore keep residency ownership separate from asset
+    provenance.
+- The remaining gap is still the same first-principles boundary:
+  - no chunk manifest,
+  - no residency lifecycle,
+  - no activation/unload/rollback planner,
+  - no active-chunk budget or churn counters.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — asset pipeline and provenance recheck
+
+- Applied the `3d-games` lens to the asset-governance lane.
+- Rechecked the manifest and runtime bridge source:
+  - `assets/asset-manifest.json`
+  - `src/game/runtime-assets.ts`
+  - `docs/research/ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md`
+- Confirmed the registry now has four entries and two runtime-tested GLB bridge
+  assets, while `publicRuntimeApproved` still gates player visibility.
+- The current gap is narrower and more useful:
+  - no publicRuntimeApproved asset yet,
+  - no manifest-backed public release path,
+  - no replacement/deprecation cycle exercised on a publicly approved asset.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture or
+  test execution was run in this pass.
+
+## 2026-07-26 — command and event envelope recheck
+
+- Applied the `3d-games` lane to the event-graph boundary.
+- Rechecked `src/main.ts`, `src/game/run-record.ts`, and
+  `src/game/replay-validator.ts`.
+- Confirmed the repo now has a reusable local event envelope:
+  - ordered entries with `eventVersion`, `originDomain`, and replayability
+    classification,
+  - command and diagnostics-only outcome capture in the same bounded history,
+  - replay validation that can re-run the portable subset and reject
+    unsupported or divergent entries.
+- The shared event graph itself is still missing:
+  - no generic subscriber/fan-out registry,
+  - no per-handler ownership map,
+  - no deduplication policy for replay-safe consumers,
+  - no domain-owned event bus separate from the run record.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture or
+  test execution was run in this pass.
+
+## 2026-07-26 — authority boundary recheck
+
+- Applied the `3d-games` lens to the current authority lane.
+- Rechecked `src/main.ts`, `src/game/state.ts`, `src/game/run-record.ts`, and
+  the active authority contract.
+- Confirmed the live mode is still local-first and deterministic, but now with
+  a sharper intent/outcome split:
+  - command intent is recorded explicitly,
+  - canonical state mutation still lives in the simulation kernel,
+  - a separate simulation-origin event records the authoritative outcome,
+  - replayable input is separated from diagnostics-only simulation/storage
+    entries in the run record.
+- The missing layer remains unchanged:
+  - no authenticated request/response boundary,
+  - no explicit reject-path state separation beyond local deterministic
+    mutation,
+  - no durable-value recovery metadata as policy,
+  - no operator-visible authoritative outcome summary,
+  - no shared-state/server-authoritative artifact.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## 2026-07-26 — replay validation surface recheck
+
+- Applied the `3d-games` lane to the replay/proof boundary.
+- Rechecked `src/game/run-record.ts`, `src/game/replay-validator.ts`, and
+  `src/main.ts`.
+- Confirmed the browser now exposes:
+  - `getRunRecord()`,
+  - `getRunRecordVerification()`,
+  - `getRunRecordReplayValidation()`.
+- The validator is now a real executable proof:
+  - it reconstructs the admitted initial context,
+  - replays the portable command/input subset,
+  - verifies checkpoint tick hashes,
+  - and reports unsupported or diverged entries with explicit codes.
+- The missing boundary remains the product artifact surface:
+  - no browser playback transport,
+  - no ghost/share compatibility envelope,
+  - no end-user replay divergence report,
+  - no trust split for replay-safe versus diagnostics-only artifact data.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture or
+  test execution was run in this pass.
+
+## 2026-07-26 — resource budget and fallback envelope recheck
+
+- Applied the `3d-games` lens to the active resource-governance lane.
+- Rechecked `src/game/performance.ts`, `src/game/runtime-profile-policy.ts`,
+  and `src/main.ts` against the existing resource-budget contract.
+- Confirmed the repo now has a real visual-budget fallback path:
+  - runtime checkpoints record `runtimeProfileFallback` and
+    `runtimeProfileRecovery` with reasons,
+  - the player sees `Performance safeguard active: reduced scenery detail.`,
+  - developer diagnostics show the active profile, visibility counts, draw
+    calls, geometry/texture counts, and heap where available.
+- The remaining gap is broader than renderer pressure:
+  - no cross-system CPU/GPU/memory ledger,
+  - no named subsystem owner for the wider budgets,
+  - no thermal or battery-sensitive policy,
+  - no evidence-backed representative-device threshold for the full app.
+- Evidence depth: Tier 1 static source inspection. No browser capture or test
+  execution was run in this pass.
+
+## 2026-07-26 — 3D skill-to-repo ledger synthesis pass
+
+- Continued the active 3D analysis using the `3d-games` lens after the browser
+  loading/bootstrap lane.
+- Rechecked the current renderer, camera, portal, visibility, and collision
+  evidence, then consolidated the lane boundaries in the active execution
+  ledger.
+- Current synthesis:
+  - visibility/LOD now has a real Tier 1 seam in `src/game/visibility.ts`, but
+    it still stops short of representation-changing asset LOD or subsystem
+    cadence control;
+  - camera policy is already explicit enough that the remaining work is
+    product-facing recommendation/visibility, not a parallel state machine;
+  - portal visibility remains future-bound because the world is still
+    open-world first and has no room graph or portal edge model;
+  - collision remains a narrow deterministic obstacle/terrain-face boundary,
+    with the broader category/mask registry still deferred until a third
+    contact class needs it.
+- Evidence depth: Tier 1 static source inspection. No fresh runtime capture
+  was run in this pass.
+
+## 2026-07-26 — web loading/bootstrap surface recheck
+
+- Applied the `3d-web-experience` skill to the browser-facing loading lane.
+- Rechecked `src/main.ts` and `src/styles.css` against the existing
+  `WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT` note.
+- Confirmed the browser already has a real textual bootstrap shell and
+  operator-visible diagnostics:
+  - `bootstrapStatus` starts as live text and flips to `ready` on world entry,
+  - `runtimeDiagnostics` exposes the selected profile and fallback reasons,
+  - `mapProgress` reports surveyed world coverage and sight range.
+- The remaining gap is a named public loading affordance:
+  - `mapProgress` is world-survey progress, not startup progress,
+  - there is no dedicated loading percentage or progress bar,
+  - there is no visible profile chooser on the public surface.
+- Evidence depth: Tier 1 static source inspection. The browser daemon poll
+  timed out in this pass, so no fresh runtime capture was added.
+
+## 2026-07-26 — renderer resource-count observability
+
+- Applied the `threejs-performance` skill to the existing performance monitor,
+  renderer metrics, and fallback policy.
+- Added raw renderer geometry and texture allocation counts to snapshots,
+  checkpoints, and developer diagnostics without fabricating a GPU-memory byte
+  estimate or adding unmeasured automatic degradation.
+- Kept adaptive behavior scoped to the proven visibility policy; asset and
+  residency budgets remain future measured decisions.
+- Evidence depth: Tier 1 source/test implementation. No test or browser capture
+  was run in this pass.
+
+## 2026-07-26 — bounded mobility-adapter proof reconciliation
+
+- Rechecked ground and hover motion against the current contracts, physics
+  registry, state creation, and recovery behavior.
+- Confirmed the project has a real two-family locomotion proof: discriminated
+  mobility state, strict profile/state mismatch rejection, shared semantic
+  input, and adapter-owned stepping/settling.
+- Recorded the third-family gate: only a real new locomotion grammar may justify
+  a versioned shared context; no generic vehicle hierarchy or speculative
+  adapter taxonomy was added.
+- Evidence depth: Tier 1 static source review, retaining prior focused/runtime
+  evidence without rerunning it.
+
+## 2026-07-26 — event-graph staging surface recheck
+
+- Re-checked the command/event lane against the live `run-record` envelope and
+  the browser entry wiring.
+- Confirmed the repo now has a canonical ordered history substrate, but still
+  no shared dispatch graph:
+  - no fan-out registry,
+  - no per-handler ownership map,
+  - no replay-safe dedup policy,
+  - no playback-vs-diagnostics consumer split.
+- Recorded the distinction in the event-graph contract so later work does not
+  confuse canonical command history with a first-class event bus.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — replay source-scan recheck
+
+- Re-checked the replay lane after the latest record-only confirmation.
+- A fresh source scan still finds no playback entrypoint, ghost share API, or
+  divergence-report executor in runtime code.
+- The repo remains strong as a recorder/verifier, but not yet as a shareable
+  replay surface.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — collision source-scan recheck
+
+- Re-checked the runtime collision lane after the latest source scan.
+- `src/game/collision.ts` still only exposes the narrow first-playable obstacle
+  behavior:
+  - trees are fellable,
+  - rocks block and slide,
+  - determinism is preserved through the generated obstacle field.
+- The repo still has no first-class category/mask registry in runtime code, so
+  triggers, sensors, hazards, and projectiles remain future policy work rather
+  than hidden assumptions.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — streaming residency source-scan recheck
+
+- Re-checked the world residency lane against the current source.
+- `src/game/gameworld.ts` still models one canonical world with terrain,
+  obstacles, and exploration as live fields, not chunk manifests.
+- `src/game/storage.ts` still persists that world as one composed payload
+  alongside state, so load/save remains single-residency.
+- `src/game/world.ts` still defines one authored field bounded by one radius and
+  one site set, which keeps the streaming trigger intentionally future-bound.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — asset authority and mesh contract recheck
+
+- Re-checked the asset authority lane against the live manifest and runtime
+  bridge.
+- The manifest now has two real runtime GLB entries, but both remain
+  `publicRuntimeApproved: false`, so the bridge is developer-scoped rather than
+  publicly approved.
+- That means the live runtime bridge exists, but the manifest still owns the
+  source, rights, and approval boundary rather than the mesh itself.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — behavior/planner contract introduced
+
+- Added a dedicated contract note for the current affordance resolver and
+  primary-action path.
+- The repo now distinguishes a real deterministic behavior boundary from a
+  future multi-candidate planner:
+  - one versioned affordance contract exists,
+  - primary action resolution consumes it,
+  - no general planner or tie-break trace exists yet.
+- Evidence depth: Tier 1 source/doc implementation. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — accessibility and profile-visibility recheck
+
+- Re-checked the live public surface with the accessibility skill.
+- The UI already has real keyboard and focus mechanics plus semantic button and
+  link controls; it is not pointer-only.
+- The remaining gap is still the same:
+  - no player-facing profile/status indicator,
+  - fallback/reduced-profile state is still mostly indirect to players,
+  - the public contract for comfort state is still not explicit.
+- Evidence depth: Tier 1 static source inspection. No runtime/browser proof was
+  run in this step.
+
+## 2026-07-26 — ecs threshold and composition recheck
+
+- Re-checked the live composition lane against the ECS threshold contract and
+  the current runtime source.
+- The code still expresses the machine-centric model directly:
+  - `src/game/contracts.ts` composes installed modules onto immutable rig
+    blueprints,
+  - `src/game/state.ts` keeps rigs, modules, and world state explicit,
+  - `src/game/gameworld.ts` keeps world memory as bounded sets and snapshots.
+- The current live scale still does not justify an ECS migration:
+  - only three rigs are active,
+  - authored sites remain a small fixed set,
+  - world memory is bounded and replayable,
+  - no broad entity zoo or coupling pressure is visible yet.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — authority local intent/outcome split recheck
+
+- Re-checked the live authority lane after the run-record event-envelope
+  correction.
+- The local authority boundary is now more explicit:
+  - `src/main.ts` records explicit `primaryAction` intent,
+  - `src/game/state.ts` resolves and mutates canonical state locally,
+  - `src/main.ts` records a separate simulation-origin `primaryActionOutcome`
+    event.
+- That keeps the current authority mode local-first while still making the
+  intent-versus-outcome split auditable in the run record.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — simulation layers and resource governance recheck
+
+- Re-checked the live simulation-layer lane against the current runtime source.
+- The code already behaves like a layered sim in practice:
+  - `src/game/state.ts` owns deterministic kernel ordering and game-state
+    consequences,
+  - `src/game/gameworld.ts` keeps spatial memory bounded and serializable,
+  - `src/game/performance.ts` measures pressure,
+  - `src/game/runtime-profile-policy.ts` turns measured pressure into a
+    renderer-only fallback path,
+  - `src/main.ts` surfaces the measurements and selected profile.
+- The missing layer is still broader resource governance:
+  - no budget owner for non-render layers,
+  - no active-actor/residency/save budget table,
+  - no first-class downgrade policy for simulation, persistence, or content
+    layers.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — modding and creator-pack lifecycle recheck
+
+- Re-checked the live content-admission lane against the manifest and
+  preflight code.
+- Asset admission is now real in a local slice:
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, path safety, digest
+    integrity, and missing dependencies,
+  - runtime bridges exist for approved/tested GLBs while public approval stays
+    separately gated.
+- The broader creator-pack lifecycle is still missing:
+  - no versioned pack manifest in the playable path,
+  - no explicit dependency graph for packs,
+  - no staged publication or moderation workflow,
+  - no runtime-ready / validation-only / deprecated status across general
+    authored content,
+  - no safe disable or rollback path for a pack lifecycle that players can
+    actually activate.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — minimap and navigator coordinate recheck
+
+- Re-checked the live coordinate layer against the minimap and navigator UI
+  source.
+- The field map remains anchored to the canonical world radius and persistent
+  world memory.
+- The tactical navigator overlay still uses a separate hardcoded `200` world
+  scale for radar placement and click-to-world conversion.
+- That means the UI has two explicit scale assumptions today, which should stay
+  visible until a formal rebasing / transform contract exists.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this step.
+
+## 2026-07-26 — rumor-map canonical world and activity alignment
+
+- Replaced duplicated site coordinates, names, biomes, elevations, and verbs in
+  the live rumor graph with derivation from `WORLD_SITES`.
+- Corrected the visible cargo-relay story from an obsolete Quarry Shelf route to
+  the canonical Long Furrow delivery contract, including its graph placement
+  and delivery edge.
+- Preserved graph-specific descriptions, capability gates, and relationship
+  metadata, and added focused canonical-source coverage.
+- Evidence depth: Tier 1 source/test implementation. No test or browser map
+  interaction was run in this pass.
+
+## 2026-07-26 — world-memory projection ownership containment
+
+- Audited `src/game/world-memory.ts` against canonical terrain deformation,
+  storage, and rendering paths. The soil-cell map is currently test-only and
+  derives from state history; it is not a live simulation, persistence, or
+  rendering source.
+- Preserved the prototype but marked it read-only and non-authoritative so a
+  future route-wear or map feature cannot accidentally create a second terrain
+  truth source.
+- Added a durable activation contract requiring derivation from canonical world
+  deltas, disposable reconstruction, and equivalence evidence before use.
+- Evidence depth: Tier 1 static reference/source review. No runtime behavior or
+  test execution claimed.
+
+## 2026-07-26 — shader and material contract reconciliation
+
+- Applied the dedicated `threejs-shaders` skill to the current renderer and
+  corrected the material strategy record: the field uses PBR/vertex-color
+  baselines plus one presentation-only state-shell shader, not a generic shader
+  library or standard-material-only path.
+- Confirmed its uniforms derive from canonical rig feedback and it remains
+  non-authoritative, non-solid VFX; no terrain/weather/wear shader fork was
+  added without a measured player-readability requirement.
+- Recorded the adoption gate for future shader work: canonical input ownership,
+  baseline fallback, strategy diagnostics, and Tier 2/Tier 3 evidence.
+- Evidence depth: Tier 1 static source and skill review. No shader/browser
+  verification run in this pass.
+
+## 2026-07-26 — primary-action command and outcome proof
+
+- Added the first explicit local command contract around cargo relay primary
+  actions: versioned actor intent -> validation -> existing state transition ->
+  immutable accepted/rejected outcome with stable reason codes.
+- Preserved `performPrimaryAction` as the compatibility entrypoint and captured
+  its returned outcome in the bounded run record at player and acceptance call
+  sites, without adding a second event store or a network authority path.
+- Added focused state coverage for accepted relay attachment and rejected
+  inactive-actor commands.
+- Evidence depth: Tier 1 source/test implementation. No test, replay playback,
+  or browser acceptance run in this pass.
+
+## 2026-07-26 — runtime-profile renewed-pressure correction
+
+- Corrected `RuntimeProfileController` so every new measured fallback breach
+  restarts the required uninterrupted healthy recovery interval.
+- Added a regression case covering initial fallback, partial recovery, renewed
+  renderer pressure, insufficient renewed health, and eventual valid recovery.
+- Kept the issue review open because focused test and browser fixture evidence
+  were not run in this pass; static code presence is not behavioral proof.
+- Evidence depth: Tier 1 source/test implementation.
+
+## 2026-07-26 — activity and content-contract readiness boundary
+
+- Reconciled current rig, module, affordance, activity-state, and primary-action
+  code against the machine/capability architecture direction.
+- Confirmed typed authored tables and a single cargo relay remain the correct
+  current implementation, while activity definitions, per-contract versioning,
+  semantic command validation, and domain events are not yet implemented.
+- Recorded the two-activity proof gate and the staged typed-definition ->
+  command/event -> external-content validation path in
+  `docs/research/ACTIVITY_CONTENT_AND_COMMAND_CONTRACT_READINESS_2026-07-26.md`.
+- Evidence depth: Tier 1 static inspection; no external-content or browser
+  validation claimed.
+
+## 2026-07-26 — production-asset LOD gate reconciliation
+
+- Applied the `3d-asset-production` skill to the manifest, runtime bridge, and
+  visibility policy.
+- Confirmed the two GLB bridge candidates are runtime-tested developer assets
+  with one representation each and no public approval; they do not prove
+  geometric LOD.
+- Recorded the first real LOD admission requirements: linked variants, stable
+  spatial/collision/socket/material contracts, provenance, thresholds, and
+  browser/readability evidence.
+- Evidence depth: Tier 1 source/manifest review, retaining prior bridge runtime
+  evidence without re-running it.
+
+## 2026-07-26 — camera-policy reconciliation
+
+- Applied the user-named `3d-games` camera guidance to current code, tests,
+  contracts, and ADR evidence.
+- Corrected the camera contract: the executable policy already has typed modes,
+  per-rig sockets, collision-aware final-pose resolution, reduced-motion
+  behavior, mode/discontinuity safety, and detailed camera evidence.
+- Avoided adding a duplicate camera framework. The remaining real work is
+  explainable player-overridable recommendations and current browser feel
+  capture across rigs/viewports.
+- Evidence depth: Tier 1 fresh static review, retaining prior Tier 2/Tier 4
+  evidence without claiming it was re-run.
+
 ## 2026-07-26 — authority lane continuation
 
 - Read the authority-model groundwork contract against the current command/event and save/recovery spine.
@@ -11,6 +1254,45 @@
 - Confirmed the canonical Three.js path is explicit, but the branch-opening trigger is still missing.
 - Appended the measurable-trigger gap to the engine-branch contract and the canonical exploration map.
 - Evidence depth: Tier 1 static inspection.
+
+## 2026-07-26 — runtime-profile hysteresis issue review
+
+- Identified a local recovery-clock defect after the initial hysteresis pass:
+  renewed measured pressure updates reasons but does not yet reset the recovery
+  window.
+- Added `docs/reviews/runtime_profile_hysteresis_issue_review.md` with the
+  user/system impact, exact correction, focused regression shape, and browser
+  acceptance evidence required before the recovery guarantee is claimed.
+- Status: open correction required; initial fallback remains separately scoped.
+
+## 2026-07-26 — renderer fallback recovery hysteresis
+
+- Added monotonic lifetime frame evidence so policy timing does not depend on a
+  capped rolling frame window.
+- Added a controller that holds `mobile-safe` through 180 healthy frames,
+  refreshes the hold on renewed pressure, and restores `standard` once the
+  evidence window closes.
+- Fallback and recovery are both visible, checkpointed, and limited to the
+  renderer's deterministic visibility budget.
+- Evidence depth: Tier 1 source/test implementation. No tests, browser
+  verification, or representative-device capture was run in this pass.
+- Open closure: calibrate the provisional window from captures and prove
+  readability/cost deltas across actual profile transitions.
+
+## 2026-07-26 — measured renderer visibility fallback
+
+- Connected the measured `standard`/`mobile-safe` policy to the renderer's
+  actual instanced-prop budget through `GameRenderer.setVisibilityProfile`.
+- First qualified pressure activates a stable, one-way session fallback,
+  immediately rebuilds deterministic scenery, records a checkpoint with reason
+  codes, exposes state in snapshots/developer diagnostics, and presents a
+  player-safe reduced-scenery notice.
+- No gameplay state, input meaning, physics cadence, save behavior, or automatic
+  `full` promotion changed.
+- Evidence depth: Tier 1 source implementation. No automated tests, browser
+  session, or representative-device capture was run in this pass.
+- Open closure: renderer-swap tests, hysteresis/recovery policy, before/after
+  metrics capture, and browser readability proof.
 
 ## 2026-07-26 — measured runtime-profile policy seed
 
@@ -2854,6 +4136,23 @@ Field 02` in the current daemon snapshot.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
 
+## 2026-07-26 — planner trigger narrowed by live affordance resolution
+
+- Re-checked the behavior/planner lane against the current command/state spine
+  and the live affordance resolver.
+- `src/game/affordances.ts` now provides a real versioned resolver with
+  `legal`, `deferred`, and `impossible` outcomes plus stable reason codes and
+  mismatch ownership.
+- `src/game/state.ts` already uses that resolver for the relay-cargo/tow path,
+  so the repo has one honest structured decision boundary.
+- That means the planner trigger is now narrower, not broader:
+  - there is still no versioned behavior schema,
+  - no candidate enumeration interface,
+  - no deterministic tie-break surface for equal-score candidates,
+  - no separate branch-trace stream.
+- The next planner proof should therefore be a multi-candidate selector, not a
+  general planner framework.
+
 ## 2026-07-25 — authoring and reproducible content validation recheck
 
 - Re-read the authoring and reproducible content validation contract against the
@@ -4394,6 +5693,24 @@ signed side evidence should remain part of camera regression acceptance.
 - Added focused pure resolver coverage in `src/game/affordances.test.ts` and updated the affordance/capability contracts with the exact boundary: one real proof exists, while generic activity schemas, content ingestion, adapter registries, planner integration, and authority work remain deliberately deferred pending a second use case.
 - No tests, typecheck, browser run, benchmark, or git operation was performed in this pass. Existing parallel-work evidence remains separate and preserved.
 
+## 2026-07-26 — activity/content contract readiness recheck
+
+- Re-checked the activity/content lane against the current resolver and command
+  state.
+- `src/game/affordances.ts` now provides a versioned, deterministic resolver
+  with `legal`, `deferred`, and `impossible` outcomes for the relay-cargo/tow
+  interaction.
+- `src/game/state.ts` still treats that as a contextual command-resolution
+  seam, not a general activity registry.
+- The generic activity boundary remains the same:
+  - no versioned `ActivityDefinition` registry,
+  - no second materially different activity using the same matcher,
+  - no multi-activity command -> validate -> transition -> event pipeline,
+  - no content ingestion / semantic validation for untrusted packs.
+- The useful conclusion is unchanged: the repo now has a real affordance proof
+  for one seam, and it should only generalize once a second real activity
+  exists.
+
 ## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
 
 ### What changed for a player
@@ -4488,11 +5805,13 @@ never invoked — that search has now paid out twice in one pass.
   lesson introduces it when useful rather than creating an omniscient minimap.
 - Rebuilt the production artifact and restarted the preview before refreshing
   visual evidence. This caught and eliminated stale-bundle screenshot evidence.
+- Bounded post-report Chrome teardown in the browser acceptance harness; the
+  corrected production run now exits `0` after emitting its result.
 - Verified desktop and 390×844 first-use layouts in:
   - `docs/reviews/assets/control-guidance-first-use-desktop.png`
   - `docs/reviews/assets/control-guidance-first-use-narrow.png`
 - Current integrated evidence:
-  - `npm test`: 16 Vitest files / 150 tests and 7/7 kernel-probe tests passed.
+  - `npm test`: 21 Vitest files / 167 tests and 7/7 kernel-probe tests passed.
   - `npm run test:assets`: 7/7 passed.
   - `npm run test:physics-lab`: passed with six cameras and clean console.
   - `npm run test:box3d-lab`: passed with negative left-steer heading, six
@@ -4500,6 +5819,8 @@ never invoked — that search has now paid out twice in one pass.
   - production `npm run test:browser`: passed fresh control lesson, signed
     steering, six views, structure collision, activity/save, desktop/narrow,
     and clean-console checks.
+  - current `4173` `npm run test:browser`: repeated the full flow and exited
+    `0` with `consoleProblems: []`.
   - `npm run build`: passed and copied the three approved runtime assets into
     `dist/client/assets/runtime`.
 - No commit, push, branch, cleanup, or deletion was performed. Parallel asset,
@@ -4510,3 +5831,410 @@ never invoked — that search has now paid out twice in one pass.
 The next input-layer milestone is not more hard-coded tips. It is a canonical
 binding registry that can supply the permanent strip, contextual prompts,
 first-use lessons, remap UI, and device glyphs from the same semantic actions.
+
+## 2026-07-26 — collision category/mask recheck
+
+- Re-checked the live collision lane against the current browser surface and
+  the source.
+- The runtime still only needs the obstacle foundation that exists today:
+  - trees are fellable,
+  - rocks block and slide,
+  - authored structure parts remain under solver-independent collision flags.
+- There is still no first-class category/mask registry in the runtime, which is
+  correct for the current first-playable scope.
+- The next collision proof should therefore be the first third consumer that
+  actually needs pairwise admission, such as a trigger, sensor, projectile,
+  pickup, or hazard.
+- That keeps the contract honest: the repo has a real collision foundation, and
+  the broader matrix remains a deliberate future boundary rather than a silent
+  assumption.
+
+## 2026-07-26 — streaming-world residency recheck
+
+- Re-checked the streaming-world lane against the current world substrate.
+- `src/game/gameworld.ts` still owns one canonical `GameWorld` with one terrain
+  field, one obstacle field, and one exploration field.
+- `src/game/storage.ts` still writes and restores that world as one composed
+  payload alongside state, rather than loading or evicting chunk manifests.
+- `src/game/world.ts` still defines one authored field bounded by a single
+  radius and authored site set, not a streamed residency graph.
+- That means the world remains intentionally single-residency.
+- The next safe proof remains a bounded residency planner with a real measured
+  trigger, not a broad streaming rewrite.
+
+## 2026-07-26 — live boundary map synthesis
+
+- Consolidated the current lane rechecks into one cross-cutting summary.
+- The current split is now:
+  - visibility budget: active and auditable, with `mobile-safe` fallback and a
+    recovery window;
+  - replay: record and verify are real, playback is still missing;
+  - collision: obstacle truth is real, category/mask matrix is still future;
+  - streaming: the world remains single-residency, chunk residency is still
+    future-bound.
+- The next implementation order remains unchanged: command/event slice, replay
+  playback, collision masks, budget state/fallback beyond visibility, then a
+  second capability/affordance consumer.
+- The useful architectural conclusion is still the same: the repo has a real
+  first-playable core, and larger systems should stay gated by measured
+  pressure rather than assumed future complexity.
+
+## 2026-07-26 — replay artifact recheck
+
+- Re-checked the replay lane against the current repo state and the recorded
+  live browser history.
+- `src/game/run-record.ts` still carries the right bounded replay spine:
+  versioned schema, deterministic seed, monotonic ids, replayable vs
+  diagnostics-only classification, and checkpoint tick-hash validation.
+- `src/main.ts` still exposes the record and verifier hooks, which keeps the
+  browser in audit-log territory.
+- The missing layer is still replay playback and ghost compatibility:
+  - no exposed playback path,
+  - no compatibility envelope,
+  - no divergence report,
+  - no diagnostics-vs-replay-safe trust split.
+- The next replay proof should start as a debug validator or local playback
+  harness before it tries to become a shareable ghost surface.
+
+## 2026-07-26 — runtime asset resource-attribution gate
+
+- Reconciled the runtime asset bridge with the renderer's newly exposed
+  aggregate geometry/texture counters.
+- The two signals deliberately remain separate:
+  - bridge status and node count prove a manifest-owned GLB reached the scene;
+  - aggregate counts show whole-runtime resource pressure, not per-asset VRAM.
+- Documented the public-promotion evidence protocol: exact derivative bytes,
+  decoded mesh/texture facts, isolated before/after/dispose captures, target
+  profile budget, and fallback evidence.
+- No manifest schema expansion, automatic fallback rule, asset promotion, test,
+  browser run, or build was performed. The gate is Tier 1 design/static
+  evidence until an asset is actually considered for public approval.
+
+## 2026-07-26 — primary-action recorder trust-boundary correction
+
+- Reconciled the run-record implementation against the deterministic
+  command/validation/transition/event split.
+- Corrected the concrete mismatch: `primaryActionOutcome` was previously
+  recorded as a replayable input command even though it is the authoritative
+  simulation result of an already-recorded intent.
+- Added a simulation-origin, diagnostics-only `event` record kind, strict
+  kind-to-envelope metadata validation, and focused coverage for valid outcome
+  events plus malformed metadata rejection.
+- The tap and acceptance paths now record explicit `primaryAction` intent and a
+  separate `primaryActionOutcome` event. No playback, ghost API, shared event
+  bus, browser run, build, or test execution was performed; current evidence is
+  Tier 1 static source/test inspection.
+
+## 2026-07-26 — bounded deterministic replay validator
+
+- Added a renderer-free local replay validator that reconstructs the canonical
+  state/world pair from a run-record seed and checks `publicState` checkpoint
+  hashes after replaying only declared deterministic inputs and commands.
+- The validator reports structural invalidity, malformed payloads, unsupported
+  replayable entries, and divergence separately; it refuses to turn acceptance
+  helpers or diagnostics into replay behavior.
+- Added focused coverage for a valid command sequence, ignored simulation event,
+  unsupported command, and checkpoint divergence.
+- This remains a local debug proof, not browser playback, a ghost/share API,
+  or a network authority layer. No test, build, browser run, or git action was
+  performed; evidence is Tier 1 static source/test inspection.
+
+## 2026-07-26 — replayable tap-command alignment
+
+- Removed duplicated primary tap dispatch from the replayable command stream;
+  the named `primaryAction` command is now the sole replay intent and its
+  outcome remains a simulation diagnostic event.
+- Extended the validator through canonical reducers for named non-primary tap
+  actions: rig switch, camera cycle, phase, pause, map, blade, and recovery.
+- Acceptance helpers, reset/storage paths, unknown actions, and legacy primary
+  tap records remain explicitly rejected rather than being replayed with
+  invented behavior. No test, build, browser run, or git action was performed;
+  evidence is Tier 1 static source/test inspection.
+
+## 2026-07-26 — replay validation observability hook
+
+- Added the read-only `window.getRunRecordReplayValidation()` acceptance/debug
+  hook beside structural run-record verification.
+- The hook reports validator status and issue details without replaying on the
+  player surface or mutating game state. Runtime/browser proof remains pending;
+  no test, build, browser run, or git action was performed in this slice.
+
+## 2026-07-26 — replay initial-context admission
+
+- Advanced run records to schema v3 with one immutable, hash-bound initial
+  state/world-memory context captured after canonical load and world settling.
+- The validator now restores that admitted baseline before processing commands,
+  making restored local sessions eligible for deterministic validation rather
+  than silently replaying from a fresh seed.
+- Added focused context-integrity and restored-context replay coverage. This is
+  not a second persistence path, replay import, cross-build migration, or ghost
+  share feature. No test, build, browser run, or git action was performed;
+  evidence is Tier 1 static source/test inspection.
+
+## 2026-07-26 — structured persistence provenance
+
+- Extended the existing load/save results with source slot, source schema,
+  world-memory presence, invalid-payload recovery reason, and canonical save
+  key/schema facts.
+- Added a storage-origin diagnostics-only boot load record and enriched save
+  records without introducing another storage route or replaying durable state.
+- Added focused fresh/migrated/recovered/save-provenance coverage. A restored
+  save remains intentionally outside seed-only replay validation until a future
+  artifact admits initial state and world-memory snapshots. No test, build,
+  browser run, or git action was performed; evidence is Tier 1 static
+  source/test inspection.
+
+## 2026-07-26 — second local authority command proof
+
+- Consolidated rig selection behind a versioned local `select-rig` command and
+  immutable outcome with active-actor, stability, range, unsupported-command,
+  and idempotency semantics.
+- Existing tap and acceptance selection paths now retain replayable intent and
+  record a separate simulation-origin selection outcome.
+- Added focused accepted, inactive-actor rejection, and idempotent-target
+  coverage. No test, build, browser run, network action, or git action was
+  performed; evidence is Tier 1 static source/test inspection.
+
+## 2026-07-26 — episode grammar bridged above activity contracts
+
+- Added a durable bridge from the new episode-grammar proposal to the core
+  loop, contract index, exploration map, and activity/content readiness note.
+- The episode grammar now reads as a composition layer above activity
+  validation, not a replacement for the lower-level activity/content threshold.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the event layer
+
+- Added a durable bridge from the episode-grammar proposal to the event graph
+  and deterministic handlers contract.
+- The event layer now explicitly owns the persistent consequence side of the
+  episode grammar, while the grammar itself remains the story-composition
+  layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar linked to the core loop
+
+- Linked the new compositional episode grammar proposal into the canonical
+  contract index and exploration map.
+- Added a core-loop addendum stating that the episode grammar composes above
+  the loop rather than replacing it.
+- The loop remains the canonical 30-second/session grammar; the new proposal
+  now names how place, rig identity, pressure, discovery, and persistent
+  consequence combine into a single authored episode.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the world-growth boundary
+
+- Added a world-growth addendum stating the episode grammar does not define
+  chunk residency, load radius, unload policy, or migration boundaries.
+- The growth contract remains the lower-level policy layer until a measured
+  scale trigger proves a real residency system is needed.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to tractor restoration history
+
+- Added a tractor-restoration addendum stating the episode grammar composes
+  above restoration, specialization, and module switching.
+- The tractor arc still owns the machine-progression grammar; the episode layer
+  now explains how lived episodes become visible machine history and scars.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to replay history
+
+- Added a replay-contract addendum stating the episode grammar depends on
+  inspectable consequence history without replacing the replay substrate.
+- The replay layer now explicitly owns the audit/ghost history for what
+  happened, while the episode grammar remains the story-composition layer.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to save/migration observability
+
+- Added a save-observability addendum stating the episode grammar depends on
+  persistence to carry visible machine-history changes across reloads and
+  schema changes.
+- The persistence envelope now explicitly owns the durability of episode
+  consequence, while the episode grammar remains the story-composition layer.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to camera and visibility
+
+- Added camera and visibility addenda stating the episode grammar depends on
+  player-legibility layers to frame pressure, discovery, and consequence.
+- Camera policy and visibility/LOD remain the view and budget layers; the
+  episode grammar remains the story-composition layer above them.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to accessibility/input
+
+- Added an accessibility/input addendum stating the episode grammar depends on
+  named actions, remaps, and comfort policy to make player agency expressible.
+- Input/accessibility remains the player-agency and comfort layer; the episode
+  grammar remains the story-composition layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to operator observability
+
+- Added an operator-diagnostics addendum stating the episode grammar depends
+  on diagnostics to inspect consequence, history, and fallback.
+- Operator observability remains the explainability and investigation layer;
+  the episode grammar remains the story-composition layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the resource envelope
+
+- Added a resource-envelope addendum stating the episode grammar depends on
+  the fallback and pressure policy to keep episodes readable under load.
+- The resource envelope remains the budget and fallback layer; the episode
+  grammar remains the story-composition layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to web loading bootstrap
+
+- Added a bootstrap addendum stating the episode grammar depends on truthful
+  entry state rather than a fake or implied start state.
+- The web-loading/profile bootstrap contract remains the entry-truth layer;
+  the episode grammar remains the story-composition layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to progression and economy
+
+- Added a progression addendum stating the episode grammar depends on the
+  Scrap/Insight/Favor/Parts grammar and the reward schedule to leave lasting
+  progression consequences.
+- The progression contract remains the long-arc resource and reward layer; the
+  episode grammar remains the story-composition layer above it.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to lighting and materials
+
+- Added addenda to `docs/research/LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md`
+  and `docs/research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md`
+  stating that lighting and material posture support episode readability but do
+  not replace the episode grammar.
+- The lighting and material contracts remain the visual policy layers; the
+  episode grammar remains the story-composition layer above them.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the optimization roadmap umbrella
+
+- Added an addendum to `docs/research/3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md`
+  stating that the episode grammar sits above the roadmap’s visual policy
+  lanes.
+- The roadmap remains the umbrella planning surface; the episode grammar
+  remains the story-composition layer above the visual policy lanes.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the performance/readability baseline
+
+- Added an addendum to `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md`
+  stating that the performance/readability baseline supports episode grammar
+  but is not the episode grammar.
+- The baseline remains the umbrella operator policy; the episode grammar
+  remains the story-composition layer above that umbrella.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to collision policy
+
+- Added an addendum to `docs/research/COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md`
+  stating that collision policy supports episode grammar but the broader
+  category/mask matrix remains future-bound.
+- Collision remains the deterministic obstruction layer; the episode grammar
+  remains the story-composition layer above that obstruction policy.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to audio presentation
+
+- Added an addendum to `docs/research/AUDIO_PRESENTATION_AND_SPATIAL_BUDGET_CONTRACT_2026-07-26.md`
+  stating that audio presentation supports episode grammar but does not own it.
+- Audio remains a presentation consumer of authoritative state; the episode
+  grammar remains the story-composition layer above that feedback surface.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to world affordance resolution
+
+- Added an addendum to `docs/research/WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md`
+  stating that world affordance resolution supports episode grammar but is not
+  the episode grammar.
+- World affordance resolution remains the legality/deferred/impossible layer;
+  the episode grammar remains the story-composition layer above that offer
+  vocabulary.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to behavior/planner logic
+
+- Added an addendum to `docs/research/BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md`
+  stating that behavior/planner logic supports episode grammar but does not
+  replace it.
+- Behavior/planner logic remains the deterministic choice layer; the episode
+  grammar remains the story-composition layer above that decision surface.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to simulation governance
+
+- Added an addendum to `docs/research/SIMULATION_LAYERS_AND_RESOURCE_GOVERNANCE_CONTRACT_2026-07-25.md`
+  stating that simulation governance supports episode grammar but does not
+  replace it.
+- Simulation governance remains the domain-order and fallback layer; the
+  episode grammar remains the story-composition layer above those domains.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to streaming residency
+
+- Added an addendum to `docs/research/STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md`
+  stating that streaming residency supports episode grammar but is not the
+  episode grammar.
+- Streaming residency remains future-bound; the episode grammar remains the
+  story-composition layer above the canonical world substrate.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to state-shell presentation
+
+- Added an addendum to `docs/research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md`
+  stating that state-shell presentation supports episode grammar but is not
+  the episode grammar.
+- State-shell presentation remains the readable rig-state layer; the episode
+  grammar remains the story-composition layer above that visual language.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the render profile matrix
+
+- Added an addendum to `docs/research/RENDER_CONTRACT_PROFILE_MATRIX_2026-07-25.md`
+  stating that the render profile matrix supports episode grammar but is not
+  the episode grammar.
+- The profile matrix remains the runtime visibility policy; the episode grammar
+  remains the story-composition layer above that policy.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — episode grammar bridged to the event observer gate
+
+- Added an addendum to `docs/research/EVENT_PROPAGATION_AND_PRESENTATION_OBSERVER_GATE_2026-07-26.md`
+  stating that the observer gate remains the propagation boundary while the
+  episode grammar stays the story-composition layer above it.
+- Mirrored the same decision into `docs/exploration/EXPLORATION_MAP.md` so the
+  accessibility/profile and event-sharing lanes keep the same durable boundary.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.

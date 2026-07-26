@@ -1,6 +1,11 @@
 const {
   chromium,
 } = require("/Users/pranay/Projects/Game_dev/rigs-unbound/experiments/deterministic-kernel-probe/node_modules/playwright");
+
+const { armWatchdog } = require("../../tools/browser-watchdog.cjs");
+
+// A browser script that cannot exit is worse than one that fails.
+armWatchdog({ minutes: 15, label: "playtest fresh check" });
 (async () => {
   const browser = await chromium.launch({
     channel: "chrome",

@@ -45,7 +45,7 @@ panel, map, or pause layer owns attention.
 - disabled-rig recovery outranks optional lessons;
 - malformed or unknown local preference data fails safely.
 
-The current full result is 16 Vitest files and 150 passing tests plus 7/7
+The current full result is 21 Vitest files and 167 passing tests plus 7/7
 deterministic-kernel tests.
 
 ### Tier 3 — browser integration
@@ -55,7 +55,8 @@ preference produces `data-lesson-id="drive"`, exposes keyboard and touch
 instructions, and retires the lesson only after real forward input. The same
 run also passed signed steering, all six camera views, authored collision,
 relay delivery, ramp, save/restore, desktop, and narrow-layout checks with no
-console problems.
+console problems. The full suite was then repeated against the current
+user-facing development server on port `4173` and exited `0`.
 
 ### Tier 4 — visual inspection
 
@@ -74,7 +75,9 @@ without covering the lesson content.
 Checked fresh entry, relevance priority, performed/dismissed retirement,
 malformed storage, desktop layout, and 390×844 touch layout. Corrected the
 production-preview evidence after detecting that the first screenshot run was
-serving a stale pre-rebuild CSS bundle.
+serving a stale pre-rebuild CSS bundle. Bounded Chrome teardown after a
+successful report so the one-shot acceptance command exits truthfully instead
+of becoming an accidental monitor.
 
 ### Pass 2 — architecture and long-term viability
 

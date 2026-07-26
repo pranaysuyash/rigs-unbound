@@ -205,3 +205,24 @@ of the mesh approach.
 Revisit this decision if Rigs Unbound limits vehicles to static decorative props,
 or if a future runtime format provides a formally validated, portable contract
 for all gameplay semantics currently held outside the mesh.
+
+## Addendum (2026-07-26) - runtime bridge exists, but public approval is still gated
+
+- Re-checked the live manifest and runtime bridge after the asset-production
+  skill pass.
+- The manifest is no longer just a reference registry:
+  - two entries now carry real `runtimePath` values,
+  - both are runtime-tested GLB bridges,
+  - both still remain `publicRuntimeApproved: false`.
+- The runtime bridge is therefore real, but it is still developer-scoped rather
+  than publicly approved.
+- That keeps the contract honest:
+  - `assets/asset-manifest.json` owns identity, source, license, and approval
+    state;
+  - `src/game/runtime-assets.ts` owns the bridge gate and presentation contract;
+  - the runtime asset bridge is not yet the same thing as public runtime
+    approval.
+- `runtimePath: null` remains correct only for the reference-only entries. It is
+  no longer a universal statement about the whole manifest.
+- The next durable asset proof should be a public-runtime admission gate or a
+  vehicle-specific mesh contract, not another hidden bridge.

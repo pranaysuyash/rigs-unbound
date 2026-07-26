@@ -193,3 +193,26 @@ This contract is satisfied when a player can:
 
 This note gives the game-design layer a durable loop grammar that matches the existing technical contracts.
 It keeps the rest of the system honest: renderer, camera, progression, and world state must serve this loop, not compete with it.
+
+## Addendum (2026-07-26): the loop now has a named episode-grammar proposal above it
+
+- The core loop remains the canonical 30-second and session-loop contract.
+- The next product-level layer above it is now named in
+  [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+- That proposal does not replace this loop contract. It composes place, rig
+  identity, pressure, discovery, and consequence into a single authored
+  episode that still resolves back into this loop.
+- In other words: the loop stays the loop, and the episode grammar is the
+  next durable way to combine it with richer contracts.
+
+## Addendum (2026-07-26) - episode grammar depends on this progression grammar to leave lasting rewards
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this progression contract.
+- The episode grammar does not define Scrap, Insight, Favor, Parts, or the
+  reward schedule; it depends on this contract so episodes can leave behind
+  durable progression, mastery, and story consequences instead of just a
+  momentary scene.
+- This keeps the split clean: progression owns the long-arc resource and reward
+  grammar, while the episode grammar owns how those rewards are assembled into
+  a playable episode.

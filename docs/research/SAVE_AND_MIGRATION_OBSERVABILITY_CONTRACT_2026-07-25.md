@@ -183,3 +183,35 @@ diagnostic and run record rather than a versioned persistence-event schema.
   - no explicit operator summary separate from the status string and toast.
 - So the lane is still in the right place: persistent state is resilient and
   visible, while the named observability contract remains the next step.
+
+## Addendum (2026-07-26) - persistence provenance is now structured at the canonical boundary
+
+`LoadResult` now preserves the facts that were previously collapsed into a
+status string: source key, source schema version before normalization, whether
+the accepted payload included world memory, and an explicit invalid-payload
+recovery reason. `SaveResult` now returns the canonical save key and current
+schema version alongside byte and duration measurements.
+
+The run record records boot loading as a storage-origin diagnostics-only `load`
+entry and includes the same provenance fields; save entries now carry their
+canonical key and schema. This keeps persistence observations separate from
+replayable input and avoids storing a second copy of recovery history.
+
+The remaining boundary is intentional: records restored from durable storage
+cannot be seed-replayed by the local validator unless a future replay artifact
+also carries an admitted initial-state/world-memory snapshot. No such snapshot
+or import/playback path was added here.
+
+Evidence tier: Tier 1 source and focused test coverage. No migration/browser
+run or storage integration execution was performed for this change.
+
+## Addendum (2026-07-26) - episode grammar depends on save/migration to preserve consequence across sessions
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this contract, but it still depends on this layer to keep
+  episode consequence durable across reloads and schema changes.
+- The persistence envelope therefore remains the mechanism that carries the
+  scars, repairs, module choices, and other visible machine-history changes
+  the episode grammar creates.
+- This does not add a new save system; it names the relationship between the
+  story-composition layer and the existing persistence observability contract.

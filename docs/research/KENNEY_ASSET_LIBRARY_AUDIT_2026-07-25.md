@@ -1,6 +1,6 @@
 # Kenney Asset Library Audit
 
-- Status: **source library inspected; no asset imported**
+- Status: **source library inspected; two CC0 developer fixtures imported**
 - Date: 2026-07-25
 - Source owner: Project owner
 - Source location: private external asset library outside the repository (`Kenney Game Assets All-in-1 3.4.0`)
@@ -215,3 +215,13 @@ The library changes the economics of exploration: a new vehicle or biome can now
 - The live browser confirms this preview loaded cleanly with five nodes and no
   bridge errors.
 - Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-26) - approval and distribution boundary
+
+The purchased All-in-One bundle remains private. The crate and tractor copies
+are selective Car Kit derivatives with recorded pack-level CC0 evidence,
+matching hashes, and runtime-tested developer-surface behavior. They remain
+`publicRuntimeApproved: false`: this is a production-art and production-package
+gate, not an unresolved-license claim. The production packager must exclude
+their bytes until an entry-specific approval record closes art fit, resource
+budget, LOD/profile intent, and player-surface browser acceptance.

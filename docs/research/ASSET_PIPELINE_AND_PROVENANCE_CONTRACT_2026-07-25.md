@@ -217,7 +217,8 @@ null`.
   - browser proof is still pending because the change has not been observed live.
 - Next concrete step from here is browser observation of the imported prop,
   not another candidate search.
-- Evidence depth: Tier 1 static code and doc inspection, plus Tier 4 runtime
+- Evidence depth: Tier 1 static code and documentation inspection; browser
+  observation was still pending at this checkpoint.
 
 ## Addendum (2026-07-26) - source-of-truth reconciliation for runtime bridge candidates
 
@@ -243,10 +244,55 @@ longer accurate at the source-wiring level. The accurate current claim is:
 > remain `proposed`. A fresh browser observation and rights review are still
 > required before either is promoted to `runtime-tested` or `approved`.
 
+This paragraph is a historical checkpoint. Later addenda and the current
+manifest supersede the `proposed` status: both bridge entries are now
+`runtime-tested`, while `publicRuntimeApproved` remains false.
+
 Evidence tier: Tier 1 static inspection of the manifest, preflight, runtime
 asset registry, renderer bridge, and test fixture. This addendum does not claim
 a new browser run or approve either asset for distribution.
-observation for the pre-change surface only.
+
+## Addendum (2026-07-26) - resource attribution is a promotion gate, not manifest fiction
+
+The renderer now exposes aggregate Three.js resource counts (`geometries` and
+`textures`) through the performance snapshot. This improves whole-runtime
+observability, but it does **not** establish an individual asset memory budget:
+
+- the counts include procedural terrain, shared materials, runtime-built props,
+  bridge assets, and any retained loader resources;
+- `loadedNodeCount` proves that a bridge asset entered the scene graph, not its
+  decoded geometry, texture, CPU-memory, or GPU-memory cost;
+- browser/driver memory behavior cannot be truthfully derived from the GLB file
+  size or from a node count alone.
+
+Therefore an asset must not be promoted from `runtime-tested` to
+`publicRuntimeApproved` on the basis of its bridge status alone. The first
+resource-aware promotion record for a candidate must contain all of the
+following:
+
+1. source and derived runtime byte sizes, tied to the manifest hash;
+2. decoded mesh evidence: mesh count, vertices, indices, material count, and
+   whether geometry is shared or unique;
+3. decoded texture evidence: source path, dimensions, format, mip policy, and
+   sharing/duplication relationship;
+4. an isolated browser capture of renderer resource counts before load, after
+   successful load, and after a controlled unload/dispose path where that path
+   exists;
+5. a stated target-profile budget and a decision recording whether the measured
+   delta fits it;
+6. fallback/error evidence, because a small asset that silently falls back is
+   not a successful runtime candidate.
+
+The renderer counters are deliberately an input to that capture, not a false
+per-asset VRAM estimator and not a new automatic fallback trigger. The current
+manifest schema remains appropriate because it records identity, provenance,
+hash, and approval state; budget facts should be admitted only after they are
+measured and linked to the exact runtime derivative. The next implementation
+trigger is the first candidate being considered for public approval, not merely
+another `runtime-tested` bridge asset.
+
+Evidence tier: Tier 1 static inspection. No asset has been newly promoted and
+no resource capture was run for this addendum.
 
 ## Addendum (2026-07-26) - tractor preview proves the bridge scales beyond one prop
 
@@ -345,3 +391,78 @@ observation for the pre-change surface only.
   enough to declare the assets production-approved.
 - Evidence depth: Tier 1 static manifest inspection plus Tier 4 live browser
   status continuity.
+
+## Addendum (2026-07-26) - production output carries the approved runtime-copy boundary
+
+- Development serving `assets/runtime` did not by itself prove that a production
+  preview could resolve the same manifest paths. A stale production artifact
+  returned the HTML fallback for those binary URLs and exposed the gap.
+- The canonical source remains `assets/runtime`; the production packager is
+  manifest-aware and copies only entries whose `publicRuntimeApproved` gate is
+  true. Developer serving can still exercise runtime-tested fixtures locally.
+- The earlier production preview contained both CC0 bridge fixtures. That was
+  valid license-wise but contradicted the intended distribution boundary.
+- Current closure requires the rebuilt production artifact and direct HTTP
+  checks to prove both unapproved fixture paths are absent before release.
+- Evidence depth: Tier 1 current-source inspection until the rebuilt artifact
+  and preview checks are recorded.
+
+## Anything else?
+
+If the asset set grows enough to need fingerprinting or remote hosting, replace
+the copy hook with one manifest-aware bundling stage. Do not create a second
+editable runtime-assets directory.
+
+## Addendum (2026-07-26) - asset LOD remains correctly gated behind a real delivery candidate
+
+- The `3d-asset-production` review reconciled runtime bridge evidence with the
+  current manifest. The crate fixture and tractor preview are now accurately
+  `runtime-tested` developer-surface assets, not merely `proposed` entries;
+  both still carry `publicRuntimeApproved: false` and therefore remain outside
+  the player runtime surface.
+- Neither entry has an authored LOD chain. Each manifest record has one GLB
+  `runtimePath`, and the derived `RuntimeBridgeSpec` exposes one runtime URL.
+  The current near/mid/far visibility counters are distance classification, not
+  a claim that a mesh, material, texture, collision proxy, or socket hierarchy
+  changes representation by tier.
+- Decision: do not add placeholder LOD metadata or a generic LOD loader now.
+  That would create a second asset truth before one approved asset has real
+  source/export variants. The first qualifying candidate must declare stable
+  LOD0/LOD1/LOD2 asset identities, bounds, pivot/socket/collision invariants,
+  material-slot compatibility, provenance hashes, screen/distance thresholds,
+  and browser/import evidence before runtime switching is introduced.
+- This keeps the current split honest: procedural world props use the existing
+  visibility budget; imported bridge assets prove manifest delivery but not
+  asset-production readiness; a future public asset may prove representation
+  LOD through the same manifest authority.
+- Evidence depth: Tier 1 manifest/runtime-registry/source inspection, retaining
+  prior Tier 3/Tier 4 bridge proof without re-running it in this pass.
+
+## Anything else? (asset LOD gate)
+
+Collision and camera roles must remain stable across LODs. A lower mesh may
+change visual detail, never silently remove a declared socket or turn a solid
+authored landmark into pass-through scenery.
+
+## Addendum (2026-07-26) - runtime-tested assets are live, but public approval is still the gate
+
+- Re-checked the manifest and runtime bridge source after the live bridge notes.
+- The registry now has four entries:
+  - two reference/concept records,
+  - two runtime-tested static-prop entries with repo-owned `.glb` paths.
+- `src/game/runtime-assets.ts` derives bridge specs from the manifest and uses
+  `publicRuntimeApproved` to split player and developer visibility:
+  - developer surfaces can see every runtime-path bridge,
+  - player surfaces only see entries that are explicitly approved.
+- That keeps the runtime bridge honest:
+  - a bridge can be live and browser-visible,
+  - but it still is not publicly approved unless the manifest says so.
+- The current gap is now narrower and more useful:
+  - no publicRuntimeApproved asset yet,
+  - no manifest-backed public release path,
+  - no replacement/deprecation cycle exercised on a publicly approved asset.
+- So the asset pipeline is no longer just reference-first. It now has live
+  runtime bridges, but it still keeps public approval as the explicit gate
+  before a browser asset can be treated as part of the release surface.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture or
+  test execution was run in this pass.

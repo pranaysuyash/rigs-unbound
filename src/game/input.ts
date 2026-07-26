@@ -39,10 +39,38 @@ export class InputController {
     this.held.clear();
   };
 
+  private gyroEnabled = false;
+  private gyroTilt = 0;
+
+  private readonly onDeviceOrientation = (
+    event: DeviceOrientationEvent,
+  ): void => {
+    if (!this.gyroEnabled || !this.enabled || event.gamma === null) return;
+    this.gyroTilt = event.gamma; // Left/Right roll tilt in degrees
+
+    const DEADZONE = 3.5;
+    if (this.gyroTilt < -DEADZONE) {
+      this.held.add("steerLeft");
+      this.held.delete("steerRight");
+    } else if (this.gyroTilt > DEADZONE) {
+      this.held.add("steerRight");
+      this.held.delete("steerLeft");
+    } else {
+      // Within deadzone: don't override manual touch/keyboard unless gyro is primary
+    }
+  };
+
   constructor() {
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
     window.addEventListener("blur", this.onBlur);
+    if (typeof window !== "undefined" && "DeviceOrientationEvent" in window) {
+      window.addEventListener("deviceorientation", this.onDeviceOrientation);
+    }
+  }
+
+  setGyroEnabled(enabled: boolean): void {
+    this.gyroEnabled = enabled;
   }
 
   hold(action: ContinuousAction, active: boolean): void {

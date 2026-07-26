@@ -214,3 +214,119 @@ layer instead of turning into a silent second world model.
   26, 2026: streaming is still a future boundary, and the current world should
   remain treated as a canonical single-residency substrate until a real chunk
   lifecycle is proven.
+
+## Addendum (2026-07-26) - residency must partition memory, not world truth
+
+### Static evidence reviewed
+
+- `src/game/gameworld.ts` constructs one seed-bound `GameWorld` containing one
+  `TerrainField`, one `ObstacleField`, and one `ExplorationField`. Its spatial
+  memory is one bounded `WorldMemoryRecord`: deformation entries plus global
+  sets for felled obstacles, collected nodes, and surveyed cells.
+- `src/game/storage.ts` writes that record atomically beside `GameState` in one
+  versioned local payload and restores it into the same world instance before
+  settling the rig on terrain.
+- `src/game/terrain.ts` keeps deformation as a sparse coordinate-keyed map and
+  exposes the canonical terrain queries used by physics, collision, cameras,
+  exploration, and rendering.
+- `src/game/world.ts` currently defines one authored field bounded by
+  `WORLD_RADIUS = 250`; it is authored world data, not a manifest graph.
+
+### Decision
+
+Do not add a renderer-local chunk cache, per-system chunk stores, or an
+activate/unload facade now. Each would duplicate the current world truth while
+there is no measured residency pressure and no content boundary that needs
+independent loading.
+
+When a measured scale trigger exists, chunking must partition **residency and
+memory ownership**, while `GameWorld` remains the only query surface for
+terrain, obstacles, exploration, collision, and persistence. A chunk may be
+inactive in memory; it must never become an alternative answer to what the
+world is at a coordinate.
+
+### First safe implementation slice
+
+The first code slice must be a bounded, testable residency planner rather than
+general streaming infrastructure:
+
+1. Define a deterministic `WorldChunkKey` from fixed world-grid coordinates and
+   a versioned manifest carrying seed/content compatibility metadata.
+2. Give each persisted spatial delta an explicit owning key while preserving
+   cross-boundary queries through `GameWorld`.
+3. Model only `requested`, `validated`, `active`, `evicted`, and `rejected`
+   states, with no frame-timing-dependent transitions.
+4. Enforce an active-chunk budget and record activation latency, eviction count,
+   validation failures, and pressure fallbacks.
+
+## Addendum (2026-07-26) - residency should stay separate from asset approval
+
+- Re-checked the current runtime split while continuing the streaming lane.
+- The world save path is still the single residency truth:
+  - `src/game/gameworld.ts` snapshots terrain deformation plus bounded spatial
+    sets for felled, collected, and surveyed world memory.
+  - `src/game/storage.ts` composes that memory back into one save payload with
+    `GameState`; it does not route through a chunk manifest or per-region load
+    table.
+- The asset side is already governed by a different contract surface:
+  - `assets/asset-manifest.json` carries runtime bridge entries,
+  - `src/game/runtime-assets.ts` filters them with `publicRuntimeApproved`,
+  - player-facing use and content approval are therefore distinct from spatial
+    residency.
+- The useful boundary is now sharper:
+  - streaming should own where world memory is resident,
+  - asset provenance should own what content is allowed to surface,
+  - neither should silently become the other.
+- The next safe streaming proof should continue to be a bounded residency
+  planner, not a general asset-loader rewrite or renderer-local cache.
+- Evidence depth: Tier 1 static source inspection using the current world/save
+  code and the live asset-manifest bridge path.
+5. Prove that an activate -> mutate -> evict -> reactivate sequence preserves
+   terrain, obstacle, exploration, and save/load outcomes, including mutations
+   on a chunk border.
+
+### Trigger and acceptance gate
+
+Start that slice only after a profiler identifies one concrete pressure source:
+
+- world/asset memory exceeding the declared device budget,
+- simulation or render work scaling with unloaded-distance content,
+- content that cannot be represented in the current authored field without
+  independent residency, or
+- a planned travel boundary whose assets need asynchronous activation.
+
+The initial proof needs Tier 2 lifecycle and persistence tests followed by Tier
+3 browser evidence. Until then, the correct status is **documented future
+boundary, deliberately not implemented**. This static recheck is Tier 1; it
+does not claim fresh runtime or performance evidence.
+
+## Addendum (2026-07-26) - the current world is still a single residency, which keeps the trigger honest
+
+- Re-checked the world substrate against the current repo state.
+- `src/game/gameworld.ts` still owns one canonical `GameWorld` with one terrain
+  field, one obstacle field, and one exploration field.
+- `src/game/storage.ts` still writes and restores that world as one composed
+  payload alongside state, rather than loading or evicting chunk manifests.
+- `src/game/world.ts` still defines one authored field bounded by a single
+  radius and authored site set, not a streamed residency graph.
+- The useful conclusion is unchanged: streaming is still a real future
+  boundary, not a hidden implementation already waiting under the current
+  field.
+- The next safe proof should still be a bounded residency planner with a real
+  measured trigger, not a broad streaming rewrite.
+- Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-26) - streaming residency supports episode grammar, but it is not the episode grammar
+
+- The current single-residency world already does the important support work
+  for episode continuity: it keeps the field, the save boundary, and the
+  authored world truth coherent while the player moves through it.
+- That makes streaming residency a support layer for the episode grammar,
+  because episodes only stay readable if the world remains the same world even
+  when memory residency later becomes chunked.
+- The layering stays explicit:
+  - episode grammar names the lived moment,
+  - streaming residency will own where world memory is resident,
+  - the world substrate itself remains the canonical truth for what exists.
+- This note intentionally keeps streaming future-bound; it only makes the
+  dependency visible so later episode work can rely on the same world truth.

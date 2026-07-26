@@ -9,6 +9,7 @@ import {
   preflightGlbBuffer,
   preflightManifestFile,
 } from "./asset-preflight.mjs";
+import { assertPlayerBuildAssetBoundary } from "./assert-player-build-assets.mjs";
 
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -95,6 +96,17 @@ test("truncated and unsafe GLB dependencies are rejected", async () => {
             status: "runtime-tested",
             sourceType: "test",
             runtimePath: "assets/runtime/asset.glb",
+            runtimePresentation: {
+              siteId: "test-site",
+              offsetX: 0,
+              offsetZ: 0,
+              yaw: 0,
+              targetMaxDimension: 1,
+              fallbackWidth: 1,
+              fallbackHeight: 1,
+              fallbackDepth: 1,
+              fallbackColor: 0,
+            },
             publicRuntimeApproved: false,
             rightsStatus: "test",
             intendedUse: "test",
@@ -250,6 +262,17 @@ test("runtime bytes must match the manifest digest", async () => {
             status: "runtime-tested",
             sourceType: "test",
             runtimePath: "assets/runtime/asset.glb",
+            runtimePresentation: {
+              siteId: "test-site",
+              offsetX: 0,
+              offsetZ: 0,
+              yaw: 0,
+              targetMaxDimension: 1,
+              fallbackWidth: 1,
+              fallbackHeight: 1,
+              fallbackDepth: 1,
+              fallbackColor: 0,
+            },
             publicRuntimeApproved: false,
             sha256: "0".repeat(64),
             rightsStatus: "test",
@@ -264,6 +287,84 @@ test("runtime bytes must match the manifest digest", async () => {
     assert.ok(
       report.findings.some((item) => item.code === "runtime-sha256-mismatch"),
     );
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("player build assertion rejects unapproved files and compiled identities", async () => {
+  const tempRoot = await mkdtemp(
+    path.join(os.tmpdir(), "rigs-unbound-player-build-"),
+  );
+  try {
+    const manifestPath = path.join(tempRoot, "assets/asset-manifest.json");
+    const runtimePath = path.join(
+      tempRoot,
+      "dist/client/assets/runtime/proof.glb",
+    );
+    const bundlePath = path.join(tempRoot, "dist/client/assets/app.js");
+    await mkdir(path.dirname(manifestPath), { recursive: true });
+    await mkdir(path.dirname(runtimePath), { recursive: true });
+    await mkdir(path.dirname(bundlePath), { recursive: true });
+    await writeFile(
+      manifestPath,
+      JSON.stringify({
+        entries: [
+          {
+            id: "developer-proof",
+            runtimePath: "assets/runtime/proof.glb",
+            publicRuntimeApproved: false,
+          },
+        ],
+      }),
+    );
+    await writeFile(runtimePath, "proof");
+    await writeFile(bundlePath, 'const id = "developer-proof";');
+
+    const findings = await assertPlayerBuildAssetBoundary(
+      manifestPath,
+      path.join(tempRoot, "dist/client"),
+    );
+
+    assert.ok(findings.some((item) => item.includes("runtime file exists")));
+    assert.ok(
+      findings.some((item) => item.includes("manifest identity is exposed")),
+    );
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("player build assertion accepts a distribution with no unapproved exposure", async () => {
+  const tempRoot = await mkdtemp(
+    path.join(os.tmpdir(), "rigs-unbound-clean-player-build-"),
+  );
+  try {
+    const manifestPath = path.join(tempRoot, "assets/asset-manifest.json");
+    const bundlePath = path.join(tempRoot, "dist/client/assets/app.js");
+    await mkdir(path.dirname(manifestPath), { recursive: true });
+    await mkdir(path.dirname(bundlePath), { recursive: true });
+    await writeFile(
+      manifestPath,
+      JSON.stringify({
+        entries: [
+          {
+            id: "developer-proof",
+            runtimePath: "assets/runtime/proof.glb",
+            publicRuntimeApproved: false,
+          },
+        ],
+      }),
+    );
+    await writeFile(bundlePath, 'const player = "ready";');
+
+    await assert.doesNotReject(async () => {
+      const findings = await assertPlayerBuildAssetBoundary(
+        manifestPath,
+        path.join(tempRoot, "dist/client"),
+      );
+      assert.deepEqual(findings, []);
+    });
   } finally {
     await rm(tempRoot, { recursive: true, force: true });
   }

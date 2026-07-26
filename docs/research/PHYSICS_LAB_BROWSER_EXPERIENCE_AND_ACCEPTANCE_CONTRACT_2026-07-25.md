@@ -147,3 +147,33 @@ problem.
 The fixture must continue proving its own removal boundary. If Field 02 cannot
 build and run without loading Rapier or the laboratory module, the lab has
 crossed from bounded evidence into shadow architecture.
+
+## Addendum (2026-07-26) - the lab snapshot is richer than Field 02 for physics inspection, but it is still a lab-local metric shape
+
+- Re-checked `src/physics-lab/main.ts` and the lab shell in the current
+  worktree.
+- The lab now exposes a dedicated, physics-specific snapshot shape with:
+  - controller family,
+  - paused/debug state,
+  - camera mode,
+  - physics frequency,
+  - time scale,
+  - surface identity and friction/rolling values,
+  - vehicle telemetry,
+  - dynamics metrics,
+  - render metrics,
+  - recovery count.
+- That makes Physics Lab 01 a stronger inspection surface than Field 02 for
+  solver and chassis questions because the lab reports the physics-specific
+  numbers directly in a simpler scene.
+- But the lab metrics are still lab-local:
+  - they are not the same schema as the main-field performance snapshot,
+  - they are designed for solver and camera inspection, not for the full
+    runtime budget rubric,
+  - they should remain a supporting evidence fixture rather than a second
+    canonical metrics source.
+- The useful boundary is therefore clearer now: Physics Lab 01 already gives us
+  a dedicated, inspectable physics evidence fixture, while the main field keeps
+  the canonical player loop and broader runtime observability.
+- Evidence tier: Tier 1 static source inspection. No browser run or capture
+  was performed in this pass.

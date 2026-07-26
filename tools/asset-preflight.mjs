@@ -342,6 +342,41 @@ function validateEntry(entry, index, repoRoot, assetRoot) {
       ),
     );
   }
+  if (
+    entry.runtimePath &&
+    (!entry.runtimePresentation ||
+      typeof entry.runtimePresentation.siteId !== "string" ||
+      entry.runtimePresentation.siteId.length === 0 ||
+      [
+        "offsetX",
+        "offsetZ",
+        "yaw",
+        "targetMaxDimension",
+        "fallbackWidth",
+        "fallbackHeight",
+        "fallbackDepth",
+        "fallbackColor",
+      ].some(
+        (field) =>
+          typeof entry.runtimePresentation[field] !== "number" ||
+          !Number.isFinite(entry.runtimePresentation[field]),
+      ) ||
+      entry.runtimePresentation.targetMaxDimension <= 0 ||
+      entry.runtimePresentation.fallbackWidth <= 0 ||
+      entry.runtimePresentation.fallbackHeight <= 0 ||
+      entry.runtimePresentation.fallbackDepth <= 0 ||
+      !Number.isInteger(entry.runtimePresentation.fallbackColor) ||
+      entry.runtimePresentation.fallbackColor < 0 ||
+      entry.runtimePresentation.fallbackColor > 0xffffff)
+  ) {
+    findings.push(
+      finding(
+        "runtime-presentation-invalid",
+        `${prefix}.runtimePresentation must define a site anchor, finite offsets, and positive fallback dimensions for runtime assets.`,
+        entry.id ?? null,
+      ),
+    );
+  }
   if (entry.sha256 !== undefined && !/^[a-f0-9]{64}$/.test(entry.sha256)) {
     findings.push(
       finding(

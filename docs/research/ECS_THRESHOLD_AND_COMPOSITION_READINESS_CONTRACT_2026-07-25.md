@@ -170,3 +170,27 @@ The right long-term goal is to keep the machine-centric composition model explic
     replace it.
 - The missing part is still the measured trigger and migration proof, not the
   composition model itself.
+
+## Addendum (2026-07-26) - module composition is explicit, and ECS still lacks a measured threshold
+
+- Re-checked `src/game/contracts.ts`, `src/game/state.ts`, and
+  `src/game/physics.ts` against the ECS threshold contract.
+- The runtime still expresses composition directly through the machine-centric
+  model:
+  - `RigProfile` carries capabilities and camera/motion tuning as explicit
+    data,
+  - `installModule()` validates module fit, cost, ownership, and workshop
+    access before mutating the active rig,
+  - `effectiveProfile()` composes installed modules onto an immutable rig
+    blueprint rather than delegating to a generic entity-component runtime.
+- That is a strong composition posture, but it is still not ECS:
+  - no quantified actor-count or coupling trigger,
+  - no canonical multi-capability entity schema beyond the current rig model,
+  - no migration proof that preserves identity through a composition-model
+    change,
+  - no evidence that the current adapter model has crossed its useful limits.
+- So the correct threshold reading is unchanged: ECS remains a future migration
+  decision, and the current machine-centric composition model should stay the
+  canonical one until measured pressure proves otherwise.
+- Evidence depth: Tier 1 static source inspection of the current profile,
+  module, and motion composition paths.

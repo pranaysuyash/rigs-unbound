@@ -221,3 +221,28 @@ It exists to make the render policy measurable under realistic profile condition
   bundle.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - the snapshot now carries transition and save timing, but not the full readability rubric
+
+- Re-checked `src/game/performance.ts` against the current KPI rubric.
+- The runtime snapshot already exposes several useful readable pressure signals:
+  - frame timing,
+  - FPS,
+  - draw calls,
+  - triangles,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - first-input-ready time,
+  - save size,
+  - terrain-build time.
+- `src/main.ts` continues to surface that snapshot through `window.getPerformanceSnapshot()` and the developer diagnostics line, so the data are not hidden from maintainers.
+- But the KPI rubric still asks for two signals the current snapshot does not name directly:
+  - per-frame actor count,
+  - active physics count.
+- The live runtime therefore has a partially complete readability envelope:
+  - transition latency is measurable,
+  - fallback/degrade visibility is present,
+  - save/load pressure is observable,
+  - but the actor/physics dimension remains implicit rather than a first-class field.
+- Evidence depth: Tier 1 static inspection. No fresh browser or benchmark capture was run in this pass.

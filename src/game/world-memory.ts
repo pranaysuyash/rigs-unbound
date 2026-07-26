@@ -1,12 +1,16 @@
 /**
- * World Memory & Soil Displacement System.
+ * Derived soil-displacement projection.
  *
- * Extends the signature world-memory element (ploughing terrain leaves persistent furrows).
- * Computes elevation displacement and modifies local soil surface state dynamically.
+ * This is an experimental, read-only interpretation of saved furrow and rig
+ * telemetry data. It does not mutate terrain, drive surface queries, render
+ * props, or participate in persistence. `GameWorld.terrain` and
+ * `WorldMemoryRecord` remain the only canonical spatial-memory sources.
+ *
+ * Keep this module pure until a future feature has a named consumer and derives
+ * from canonical world deltas rather than creating a second mutable soil model.
  */
 
 import type { GameState, RigState } from "./contracts";
-
 
 export interface SoilDisplacementCell {
   cellX: number;
@@ -27,9 +31,11 @@ export function soilCellOf(x: number, z: number): [number, number] {
 }
 
 /**
- * Evaluates active furrows and rig movement to record persistent soil displacement cells.
+ * Derive a transient coarse soil summary for a future non-authoritative consumer.
  */
-export function deriveSoilDisplacement(state: GameState): Map<string, SoilDisplacementCell> {
+export function deriveSoilDisplacement(
+  state: GameState,
+): Map<string, SoilDisplacementCell> {
   const map = new Map<string, SoilDisplacementCell>();
 
   for (const mark of state.furrows) {

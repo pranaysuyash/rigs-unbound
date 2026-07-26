@@ -157,3 +157,72 @@ special cases.
   The correct step is to formalize the current baseline into a named
   material/modifier contract so weather, wear, and hazard cues can grow without
   splitting the renderer into special-case branches.
+
+## Addendum (2026-07-26) - the state shell is a proven narrow shader, not a material system
+
+### Static evidence reconciled
+
+- `renderer.ts` builds authored rig parts with a shared
+  `THREE.MeshPhysicalMaterial` helper, while terrain retains a vertex-colored
+  `THREE.MeshStandardMaterial` baseline.
+- The renderer already owns one explicit `THREE.ShaderMaterial`: the transparent
+  `vfx:state-shell` around each rig.
+- Its only inputs are presentation data derived from canonical rig state:
+  elapsed presentation time, integrity ratio, and last-impact position/time.
+  It renders a Fresnel-like integrity envelope and short hit ripple; it does
+  not mutate simulation, collision, save state, or capability behavior.
+- The state shell is deliberately non-solid for camera collision, so it cannot
+  become accidental physical world geometry.
+
+### Corrected classification
+
+The active renderer is **not** “standard materials only,” but it also does not
+have a generic shader library or layered material system. It has a low-cost PBR
+and vertex-color baseline plus one scoped, state-driven VFX shader. This is the
+right current shape: the shader communicates a real player-relevant condition
+without forcing terrain, props, water, or every rig through bespoke GLSL.
+
+### Remaining gap and adoption gate
+
+The state shell has no separately named shader-strategy diagnostic or explicit
+compile-failure fallback material. Do not broaden it by cloning the shader into
+terrain, weather, wear, or hazard forks.
+
+Introduce a new shader/material module only when all of these are true:
+
+1. A player-facing readability failure is observed that vertex color, PBR
+   parameters, geometry, fog, decals, or lighting cannot solve.
+2. The source input is canonical presentation data with an explicit owner, such
+   as sampled terrain wetness or a versioned damage state; no shader may infer
+   gameplay truth independently.
+3. The module names a cheap baseline fallback that preserves the same affordance
+   distinction on WebGL-compatible devices.
+4. Diagnostics identify the active visual strategy and fallback reason without
+   exposing internal tuning controls to players.
+5. Tier 2 material/strategy tests and Tier 3 browser capture show readability,
+   fallback continuity, and no unacceptable draw-call or frame-budget change.
+
+The first candidate should be chosen from a demonstrated ambiguity between
+surface affordance and visual reading, not from a desire for richer effects.
+Until that evidence exists, preserve the current state shell and material
+baseline as the intentional visual contract.
+
+Evidence depth: Tier 1 static renderer inspection and shader-skill review. No
+shader compile, fallback, or browser readability verification was run in this
+pass.
+
+## Addendum (2026-07-26) - the material envelope supports episode grammar but is not the episode grammar
+
+- The current material path already gives the world a readable visual language
+  for terrain, props, weather, and wear cues.
+- That makes it a support layer for the episode grammar, because episodes only
+  stay meaningful if the player can read surface conditions, hazard state, and
+  vehicle identity at a glance.
+- The layering stays explicit:
+  - episode grammar defines the lived moment,
+  - material modifiers make that moment visually legible,
+  - fallback materials preserve legibility when richer shader paths are
+    unavailable.
+- This note does not promote the material system into a new gameplay layer; it
+  just pins the visual contract to the larger episode framework so future
+  additions do not splinter readability into ad hoc forks.

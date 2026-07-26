@@ -253,3 +253,96 @@ changes can be validated without collapsing speculative input into truth.
   contract, not a multiplayer or server-authoritative implementation note.
 - Evidence depth: Tier 1 static inspection of the current kernel/save/run-record
   spine, with the prior Tier 4 runtime anchors unchanged.
+
+## Addendum (2026-07-26) - intent and authoritative outcome are now separated locally
+
+- Re-checked the current run-record and browser entry wiring against the live
+  source.
+- The local authority boundary is now clearer in code:
+  - `src/main.ts` records explicit command intent,
+  - `src/game/state.ts` applies the canonical deterministic mutation,
+  - `src/main.ts` records a separate simulation-origin event for the outcome,
+  - `src/game/run-record.ts` classifies entries as replayable input or
+    diagnostics-only simulation/storage data.
+- That is a real step beyond a generic “input mutates state” path because the
+  record can now distinguish what was asked from what the simulation answered.
+- What is still missing is the authority envelope the contract names:
+  - no authenticated request/response boundary,
+  - no explicit reject-path state separation beyond local deterministic
+    mutation,
+  - no durable-value recovery metadata surfaced as policy,
+  - no operator-visible authoritative outcome summary,
+  - no shared-state/server-authoritative artifact.
+- So the current mode remains local-first and deterministic, but the local
+  intent/outcome split is now explicit enough to support the next authority
+  proof.
+- Evidence depth: Tier 1 static source inspection. No runtime or test pass was
+  run in this update.
+
+## Addendum (2026-07-26) - intent and authoritative outcome are now separated locally
+
+- Re-checked the current record path after the event-envelope correction.
+- The live code now makes the local authority boundary more explicit:
+  - `src/main.ts` records explicit `primaryAction` intent,
+  - `src/game/state.ts` resolves and mutates the canonical state locally,
+  - `src/main.ts` records a separate simulation-origin `primaryActionOutcome`
+    event in the bounded run record.
+- That is a useful authority-shaped split because it distinguishes:
+  - what the player requested,
+  - what the kernel accepted or rejected,
+  - and what the canonical simulation actually did.
+- The boundary is still local-first, not networked:
+  - no authenticated remote mutation API,
+  - no shared-state/server-authoritative boundary,
+  - no durable-value rejection transport.
+- So the current authority model is stronger than a plain command log, but it is
+  still not a multiplayer or server-authoritative implementation.
+
+## Addendum (2026-07-26) - rig selection is the second local authority-shaped command
+
+Rig selection now follows the same local intent/validation/outcome boundary as
+the primary action, without creating a general command bus. A versioned
+`select-rig` command contains the requesting active rig and target rig;
+execution checks command compatibility, active-actor ownership, stability, and
+spatial range before changing canonical state.
+
+The resulting event is explicit about three different outcomes:
+
+- accepted with `changed: true` for a valid nearby switch;
+- accepted with `changed: false` for an idempotent duplicate target;
+- rejected with a stable reason for unsupported commands, inactive actors,
+  unstable active rigs, or out-of-range targets.
+
+The browser records the replayable selection intent and a separate
+simulation-origin `rigSelectionOutcome` event. This strengthens local authority
+and replay auditability; it is not authentication, remote ownership, conflict
+resolution, multiplayer transport, or server authority. Those remain gated on
+a real shared-state requirement.
+
+Evidence tier: Tier 1 static source and focused test coverage. No network,
+browser, or integration verification was run for this change.
+
+## Addendum (2026-07-26) - local authority now exposes source metadata and stable reject paths
+
+- Re-checked `src/main.ts`, `src/game/state.ts`, and `src/game/storage.ts`
+  against the authority lane.
+- The local-first authority model is now more explicit at both command and
+  recovery boundaries:
+  - `primaryAction` and `selectRig` each emit a versioned command intent plus a
+    separate simulation-origin outcome event;
+  - accepted and rejected outcomes now carry stable reason codes rather than
+    collapsing into a single success path;
+  - `loadState()` surfaces `sourceKey`, `sourceSchemaVersion`,
+    `worldMemoryPresent`, and `recoveryReason`, so a restored or recovered
+    session keeps its provenance visible.
+- That is useful authority-shaped metadata because it keeps speculative input,
+  canonical mutation, and recovery provenance separate inside the local
+  product mode.
+- The boundary is still local-first, not networked:
+  - no authenticated remote mutation API,
+  - no shared-state/server-authoritative boundary,
+  - no durable-value rejection transport.
+- So the current authority model is still the canonical single-player mode, but
+  it now exposes enough local request/response structure to support the next
+  proof without inventing multiplayer semantics too early.
+- Evidence depth: Tier 1 static source inspection.

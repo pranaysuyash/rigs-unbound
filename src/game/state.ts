@@ -38,6 +38,7 @@ import {
   phaseForWorldTime,
   PREVIOUS_SAVE_SCHEMA_VERSION,
   RIG_IDS,
+  RIG_SWITCH_RANGE,
   RIG_LAB_SAVE_SCHEMA_VERSION,
   RIG_PROFILES,
   type RigCapability,
@@ -64,6 +65,7 @@ import { rigIsStable, settleRig, stepRigMotion } from "./physics";
 import {
   findSite,
   HOME_SITE,
+  isWithinSiteServiceArea,
   RESOLVED_ROUTES,
   RIG_HOME_BERTHS,
   WORLD_SITES,
@@ -95,7 +97,7 @@ const PLOUGH_FILL = 0.075;
  * an errand, and the winch and the module fitted to the rig you left behind both
  * start to matter.
  */
-export const RIG_SWITCH_RANGE = 34;
+export { RIG_SWITCH_RANGE } from "./contracts";
 
 /** Salvage cost to restore a rig to full condition. */
 export const REPAIR_COST = 3;
@@ -292,9 +294,9 @@ export function workshopInReach(state: GameState) {
   const rig = activeRig(state);
   return WORLD_SITES.find(
     (site) =>
+      "workshop" in site &&
       site.workshop === true &&
-      Math.hypot(rig.x - site.x, rig.z - site.z) <=
-        (site.serviceRadius ?? site.discoverRadius),
+      isWithinSiteServiceArea(site, rig.x, rig.z),
   );
 }
 
@@ -309,6 +311,39 @@ export type PrimaryActionKind =
   | "lower-plough"
   | "raise-plough"
   | "none";
+
+/** Versioned local intent contract for the first command/event proof slice. */
+export const PRIMARY_ACTION_COMMAND_VERSION = 1 as const;
+export const PRIMARY_ACTION_EVENT_VERSION = 1 as const;
+
+export interface PrimaryActionCommand {
+  version: typeof PRIMARY_ACTION_COMMAND_VERSION;
+  type: "primary-action";
+  actorId: RigId;
+}
+
+export type PrimaryActionRejectionReason =
+  | "inactive-actor"
+  | "unsupported-command"
+  | "offer-unavailable"
+  | "missing-capability"
+  | "no-contextual-action";
+
+/**
+ * An immutable outcome of a validated primary-action command.
+ *
+ * The bounded run record assigns sequence/id metadata when it captures this
+ * event. Keeping those concerns separate prevents an input-history detail from
+ * becoming simulation authority.
+ */
+export interface PrimaryActionEvent {
+  version: typeof PRIMARY_ACTION_EVENT_VERSION;
+  type: "primary-action-resolved";
+  command: PrimaryActionCommand;
+  action: PrimaryActionKind;
+  outcome: "accepted" | "rejected";
+  reasonCode?: PrimaryActionRejectionReason;
+}
 
 export interface PrimaryActionResolution {
   kind: PrimaryActionKind;
@@ -418,7 +453,49 @@ export function resolvePrimaryAction(
  * tool for. Every branch sets a diagnostic explaining the verb *and* its
  * consequence, per the UI rules in `DESIGN.md`.
  */
-export function performPrimaryAction(state: GameState, world: GameWorld): void {
+function primaryActionEvent(
+  command: PrimaryActionCommand,
+  action: PrimaryActionKind,
+  outcome: PrimaryActionEvent["outcome"],
+  reasonCode?: PrimaryActionRejectionReason,
+): PrimaryActionEvent {
+  return {
+    version: PRIMARY_ACTION_EVENT_VERSION,
+    type: "primary-action-resolved",
+    command: { ...command },
+    action,
+    outcome,
+    ...(reasonCode ? { reasonCode } : {}),
+  };
+}
+
+/**
+ * Validate, transition, and report the first explicit local activity command.
+ *
+ * This intentionally remains a narrow vertical slice. It establishes the
+ * command -> validation -> transition -> event contract without inventing a
+ * second event store or granting presentation ownership of game state.
+ */
+export function executePrimaryActionCommand(
+  state: GameState,
+  world: GameWorld,
+  command: PrimaryActionCommand,
+): PrimaryActionEvent {
+  if (
+    command.version !== PRIMARY_ACTION_COMMAND_VERSION ||
+    command.type !== "primary-action"
+  ) {
+    return primaryActionEvent(
+      command,
+      "none",
+      "rejected",
+      "unsupported-command",
+    );
+  }
+  if (command.actorId !== state.activeRigId) {
+    return primaryActionEvent(command, "none", "rejected", "inactive-actor");
+  }
+
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
   const relay = state.cargoRelay;
@@ -434,7 +511,7 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     cargo.y = world.terrain.height(cargo.x, cargo.z) + 0.65;
     attachment(rig, "tow-hook")!.engaged = false;
     state.lastDiagnostic = "Cargo released. The relay clock keeps running.";
-    return;
+    return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
   if (resolution.kind === "attach-cargo") {
@@ -445,7 +522,7 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
       relay.startedAt = state.elapsedMs;
     }
     state.lastDiagnostic = `${profile.displayName} attached the relay crate. Haul it to Long Furrow.`;
-    return;
+    return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
   if (resolution.kind === "collect-salvage") {
@@ -458,13 +535,18 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     if (!node) {
       state.lastDiagnostic =
         "The salvage signal moved out of reach. Reposition and try again.";
-      return;
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
     }
     world.collect(node.id);
     state.salvage += node.value;
     state.salvageCollected += node.value;
     state.lastDiagnostic = `Recovered ${node.value} salvage. ${state.salvage} in the bin.`;
-    return;
+    return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
   if (
@@ -474,19 +556,41 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     const plough = attachment(rig, "field-plough");
     if (!plough) {
       state.lastDiagnostic = "The field plough is no longer available.";
-      return;
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
     }
     plough.engaged = !plough.engaged;
     state.lastDiagnostic = plough.engaged
       ? "Field plough lowered. Soft ground will hold the cut."
       : "Field plough raised.";
-    return;
+    return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
-  state.lastDiagnostic =
+  const reasonCode =
     resolution.affordance?.reasonCode === "missing-capability"
+      ? "missing-capability"
+      : "no-contextual-action";
+  state.lastDiagnostic =
+    reasonCode === "missing-capability"
       ? `${profile.fieldName} cannot attach this relay cargo: tow capability required.`
       : "Nothing in reach. Salvage sits off the graded tracks — leave the road.";
+  return primaryActionEvent(command, resolution.kind, "rejected", reasonCode);
+}
+
+/** Compatibility entrypoint for existing input and browser surfaces. */
+export function performPrimaryAction(
+  state: GameState,
+  world: GameWorld,
+): PrimaryActionEvent {
+  return executePrimaryActionCommand(state, world, {
+    version: PRIMARY_ACTION_COMMAND_VERSION,
+    type: "primary-action",
+    actorId: state.activeRigId,
+  });
 }
 
 /**
@@ -536,8 +640,8 @@ export function winchRecover(state: GameState, world: GameWorld): void {
   }
 
   // Nearest point on the authored track network within reach.
-  let bestX = HOME_SITE.x;
-  let bestZ = HOME_SITE.z;
+  let bestX: number = HOME_SITE.x;
+  let bestZ: number = HOME_SITE.z;
   let bestDistance = Infinity;
   for (const route of RESOLVED_ROUTES) {
     const dx = route.bx - route.ax;
@@ -631,20 +735,82 @@ export function repairRig(state: GameState): void {
   state.lastDiagnostic = `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}%.`;
 }
 
-export function selectActiveRig(state: GameState, rigId: RigId): void {
-  if (state.activeRigId === rigId) return;
+/** Versioned local intent contract for the second command/event proof slice. */
+export const RIG_SELECTION_COMMAND_VERSION = 1 as const;
+export const RIG_SELECTION_EVENT_VERSION = 1 as const;
+
+export interface RigSelectionCommand {
+  version: typeof RIG_SELECTION_COMMAND_VERSION;
+  type: "select-rig";
+  actorId: RigId;
+  targetRigId: RigId;
+}
+
+export type RigSelectionRejectionReason =
+  | "inactive-actor"
+  | "target-out-of-range"
+  | "unstable-active-rig"
+  | "unsupported-command";
+
+export interface RigSelectionEvent {
+  version: typeof RIG_SELECTION_EVENT_VERSION;
+  type: "rig-selection-resolved";
+  command: RigSelectionCommand;
+  outcome: "accepted" | "rejected";
+  /** Duplicate selection is accepted but has no state transition. */
+  changed: boolean;
+  reasonCode?: RigSelectionRejectionReason;
+}
+
+function rigSelectionEvent(
+  command: RigSelectionCommand,
+  outcome: RigSelectionEvent["outcome"],
+  changed: boolean,
+  reasonCode?: RigSelectionRejectionReason,
+): RigSelectionEvent {
+  return {
+    version: RIG_SELECTION_EVENT_VERSION,
+    type: "rig-selection-resolved",
+    command: { ...command },
+    outcome,
+    changed,
+    reasonCode,
+  };
+}
+
+export function executeRigSelectionCommand(
+  state: GameState,
+  command: RigSelectionCommand,
+): RigSelectionEvent {
+  if (
+    command.version !== RIG_SELECTION_COMMAND_VERSION ||
+    command.type !== "select-rig" ||
+    !RIG_IDS.includes(command.actorId) ||
+    !RIG_IDS.includes(command.targetRigId)
+  ) {
+    state.lastDiagnostic = "Selection command is unsupported.";
+    return rigSelectionEvent(command, "rejected", false, "unsupported-command");
+  }
+  if (command.actorId !== state.activeRigId) {
+    state.lastDiagnostic = "Only the active rig can request a rig switch.";
+    return rigSelectionEvent(command, "rejected", false, "inactive-actor");
+  }
+  if (command.targetRigId === state.activeRigId) {
+    return rigSelectionEvent(command, "accepted", false);
+  }
+
   const current = activeRig(state);
   if (!rigIsStable(current)) {
     state.lastDiagnostic =
       "Stabilize the active rig before switching machines.";
-    return;
+    return rigSelectionEvent(command, "rejected", false, "unstable-active-rig");
   }
 
   // Rigs are objects in the world, not entries in a menu.
-  const target = state.rigs[rigId];
+  const target = state.rigs[command.targetRigId];
   const distance = Math.hypot(target.x - current.x, target.z - current.z);
   if (distance > RIG_SWITCH_RANGE) {
-    const targetProfile = effectiveProfile(rigId, target.modules);
+    const targetProfile = effectiveProfile(command.targetRigId, target.modules);
     const nearest = WORLD_SITES.reduce<{ name: string; d: number } | null>(
       (best, site) => {
         const d = Math.hypot(target.x - site.x, target.z - site.z);
@@ -654,18 +820,31 @@ export function selectActiveRig(state: GameState, rigId: RigId): void {
     );
     const where = nearest && nearest.d < 60 ? ` at the ${nearest.name}` : "";
     state.lastDiagnostic = `${targetProfile.fieldName} is ${Math.round(distance)} m away${where}. Drive to it.`;
-    return;
+    return rigSelectionEvent(command, "rejected", false, "target-out-of-range");
   }
 
   current.speed = 0;
   current.steering = 0;
-  state.activeRigId = rigId;
-  const profile = effectiveProfile(rigId, state.rigs[rigId].modules);
+  state.activeRigId = command.targetRigId;
+  const profile = effectiveProfile(command.targetRigId, target.modules);
   state.lastDiagnostic = `${profile.displayName} active · ${profile.capabilities.join(" + ")}.`;
+  return rigSelectionEvent(command, "accepted", true);
 }
 
-export function switchActiveRig(state: GameState): void {
-  selectActiveRig(state, cycle(RIG_IDS, state.activeRigId));
+export function selectActiveRig(
+  state: GameState,
+  rigId: RigId,
+): RigSelectionEvent {
+  return executeRigSelectionCommand(state, {
+    version: RIG_SELECTION_COMMAND_VERSION,
+    type: "select-rig",
+    actorId: state.activeRigId,
+    targetRigId: rigId,
+  });
+}
+
+export function switchActiveRig(state: GameState): RigSelectionEvent {
+  return selectActiveRig(state, cycle(RIG_IDS, state.activeRigId));
 }
 
 /**
@@ -1123,7 +1302,7 @@ export function publicState(state: GameState, world: GameWorld): object {
       x: site.x,
       z: site.z,
       discoverRadius: site.discoverRadius,
-      workshop: site.workshop === true,
+      workshop: "workshop" in site && site.workshop === true,
     })),
     worldMemory: {
       furrowCount: state.furrows.length,
@@ -1303,8 +1482,15 @@ function recoverRig(
         engaged: boolean;
         mode?: unknown;
       };
-      // Any unrecognised or absent blade direction becomes `cut`, so records
-      // written before the blade had a direction load without special-casing.
+      // Blade direction belongs to the plough alone. Attaching it to every
+      // attachment made a save round-trip *mutate* state — the tow hook came back
+      // carrying `mode: "cut"` — which changed the public-state hash and broke
+      // deterministic replay at the very first checkpoint. Any unrecognised or
+      // absent direction on the plough still becomes `cut`, so pre-blade records
+      // load unchanged.
+      if (entry.id !== "field-plough") {
+        return { id: entry.id, engaged: entry.engaged };
+      }
       return {
         id: entry.id,
         engaged: entry.engaged,
@@ -1316,6 +1502,10 @@ function recoverRig(
   const profile = RIG_PROFILES[id];
   const radius = Math.hypot(candidate.x, candidate.z);
   const scale = radius > WORLD_LIMIT ? WORLD_LIMIT / radius : 1;
+  const recordedTelemetry =
+    candidate.telemetry && typeof candidate.telemetry === "object"
+      ? (candidate.telemetry as Record<string, unknown>)
+      : null;
 
   return {
     id,
@@ -1341,7 +1531,31 @@ function recoverRig(
     mobility,
     attachments,
     modules: recoverModules(candidate.modules, id),
-    telemetry: template.telemetry,
+    telemetry: {
+      surfaceId:
+        typeof recordedTelemetry?.surfaceId === "string"
+          ? recordedTelemetry.surfaceId
+          : template.telemetry.surfaceId,
+      grade: isFiniteNumber(recordedTelemetry?.grade)
+        ? recordedTelemetry.grade
+        : template.telemetry.grade,
+      grip: isFiniteNumber(recordedTelemetry?.grip)
+        ? recordedTelemetry.grip
+        : template.telemetry.grip,
+      slip: isFiniteNumber(recordedTelemetry?.slip)
+        ? clamp(recordedTelemetry.slip, 0, 1)
+        : template.telemetry.slip,
+      waterDepth: isFiniteNumber(recordedTelemetry?.waterDepth)
+        ? Math.max(0, recordedTelemetry.waterDepth)
+        : template.telemetry.waterDepth,
+      engineLoad: isFiniteNumber(recordedTelemetry?.engineLoad)
+        ? clamp(recordedTelemetry.engineLoad, 0, 1)
+        : template.telemetry.engineLoad,
+      stalled:
+        typeof recordedTelemetry?.stalled === "boolean"
+          ? recordedTelemetry.stalled
+          : template.telemetry.stalled,
+    },
   };
 }
 
@@ -1509,10 +1723,15 @@ function recoverShared(
           ? Math.max(0, recovery.lastEmergencyAtMs)
           : null,
     },
+    // Preserve the recorded diagnostic verbatim, including null. Recovery used to
+    // substitute a "record restored" message here, which meant an identical save
+    // round-tripped to a *different* state — breaking deterministic replay at the
+    // first checkpoint. A restore notice is a presentation concern and belongs in
+    // `LoadResult.message`, which `storage.ts` already returns for that purpose.
     lastDiagnostic:
       typeof candidate.lastDiagnostic === "string"
         ? candidate.lastDiagnostic
-        : "Local rig lab record restored.",
+        : null,
   };
 }
 

@@ -2,7 +2,7 @@
 
 Status: living canonical map
 Started: 2026-07-25
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 ## How to use this map
 
@@ -16,7 +16,10 @@ Every meaningful discovery should either update an area below or create a linked
 - **Deferred** — excluded from the current decision unit with a closure trigger.
 - **Rejected** — considered and declined with a reason.
 
-Evidence follows the project tiers from assumption (Tier 0) to production-like/real-data observation (Tier 5). No area below has Tier 3+ game evidence yet.
+Evidence follows the project tiers from assumption (Tier 0) to
+production-like/real-data observation (Tier 5). Current areas range from Tier 0
+proposals through Tier 4 local/public browser observation; each linked
+acceptance record owns its specific tier.
 
 ## Navigation
 
@@ -52,6 +55,13 @@ Evidence follows the project tiers from assumption (Tier 0) to production-like/r
 `garage/workshop → choose objective or follow curiosity → travel → encounter/activity → consequence → return/recover → modify vehicle → reveal new possibility`
 
 The living loop contract is now captured in [Core Loop and Progression Contract](../research/CORE_LOOP_AND_PROGRESSION_CONTRACT_2026-07-25.md).
+
+### Episode grammar / storm relay
+
+The next product-level seam after the core loop is not “more modes” but a
+compositional episode grammar that lets place, rig identity, pressure,
+discovery, and persistent consequence combine into a single authored episode.
+See [Compositional Episode Grammar and Storm Relay](../research/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
 
 ### Long arc
 
@@ -534,6 +544,12 @@ The vehicle's physical state, sounds, animations, and body language should be th
 8. **Visual haptics** — camera shake, FOV pulse, hitstop, and vignette effects as browser-native "force feedback."
 9. **Asymmetric co-op** — phone-as-navigator via WebSocket for multi-device multiplayer.
 
+State Shell, Rumor Map, and Hood Dashboard now exist as implemented
+presentation experiments. They consume canonical state but are not accepted as
+canonical product direction until browser readability, accessibility,
+performance, and player-comprehension evidence supports a retain/revise/remove
+decision.
+
 ### Surfaces to explore
 
 - instant play/guest entry;
@@ -550,11 +566,10 @@ The vehicle's physical state, sounds, animations, and body language should be th
 - settings/accessibility;
 - connection/save conflict/operator-readable errors.
 
-### Requirements
+### Accepted baseline requirements
 
 - remappable named actions;
 - keyboard, gamepad, pointer, and touch;
-- gyroscope/accelerometer steering (opt-in, mobile);
 - scalable DOM text and semantic controls;
 - reduced motion and camera-shake controls;
 - hold/toggle alternatives;
@@ -564,10 +579,15 @@ The vehicle's physical state, sounds, animations, and body language should be th
 - switch access and one-handed control schemes;
 - safe area, resize, orientation, and narrow-screen behavior;
 - onboarding through consequences and experimentation rather than modal walls;
-- progressive HUD unlock as onboarding mechanism;
 - audio as UI: engine sound, spatial threat cues, satisfying tool feedback;
-- gamepad rumble via vibrationActuator API (progressive enhancement);
-- mobile haptic patterns via Vibration API.
+
+### Research candidates requiring decision and a falsifiable probe
+
+- gyroscope/accelerometer steering;
+- progressive HUD unlock;
+- gamepad and mobile vibration;
+- asymmetric phone navigator;
+- Patchwork Dashboard as a mandatory presentation layer.
 
 ### Anti-patterns to guard against
 
@@ -597,7 +617,13 @@ Research:
 - asset registry, file hashes, provenance, licenses, attribution, and modification records;
 - generated-asset review and replacement path.
 
-The locally owned Kenney All-in-1 3.4.0 bundle is now a **Proposed** selective prototype source. The first candidate manifest uses the current Car Kit tractor and box, Racing Kit ramp, Nature Kit props, and animated Graveyard zombie as identical cross-engine fixtures. No asset has been imported. The full bundle remains private and outside runtime/project truth; every selected import needs per-pack license evidence, hashes, normalization checks, and a Patchwork Atlas fit review. See the [Kenney asset library audit](../research/KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md).
+The locally owned Kenney All-in-1 3.4.0 bundle is a **Proposed** selective
+prototype source and remains private. Two Car Kit GLBs are now repo-owned,
+CC0-evidenced, preflighted, and runtime-tested on the developer/evidence
+surface. They remain excluded from the default player surface and production
+distribution because `publicRuntimeApproved` is false; they are not canonical
+production art, individually budgeted, or LOD-ready. See the
+[Kenney asset library audit](../research/KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md).
 
 Direct project-owner preference now strengthens the tactile repaired-vehicle/diorama/near-isometric direction. New model-sheet, camera, and comparative art boards propose a hierarchy rather than a blended style: Patchwork Atlas as the persistent base, Signal Noir as a danger/information-state transformation, and Salvage Opera as a rare aspiration/event crescendo. Next evidence is an orthographic tractor turnaround, grayscale/mobile silhouette tests, a non-generic enemy ecology, and an actual camera graybox. See [Visual Direction Preference and Variants](VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md).
 
@@ -609,7 +635,14 @@ Applied the imported `3d-asset-production` skill as a static review of the curre
 
 The recommended next slice is deliberately narrow: define a canonical asset manifest and bounded GLB preflight before importing a broad pack or replacing the procedural renderer. The review and decision questions are recorded in [Asset Production Skill Review](../research/ASSET_PRODUCTION_SKILL_REVIEW_2026-07-25.md).
 
-Slice A is now implemented: the canonical manifest, versioned schema, dependency-free GLB preflight, and focused tests exist. No runtime asset, loader, or renderer behavior changed. The imported `img2threejs` intake gate rejects the original collage model sheet as reconstruction ground truth because foreground coverage is 0.991 and the silhouette is not isolable. A generated isolated three-quarter reference now passes technical probe and reference admission, but it still needs multi-angle/human review before reconstruction or runtime promotion. The authority clarification is now explicit: a validated mesh may be the shipped visual truth for a profile, while a linked vehicle blueprint remains authoritative for behavior and compatibility. See [Asset Authority and Shipped Mesh Contract](../research/ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md). Slice B therefore remains a discussion and rights/fixture-selection decision.
+Slice A is implemented: the canonical manifest, versioned schema,
+dependency-free GLB preflight, and focused tests exist. Slice B now exists as a
+developer/evidence bridge for two Car Kit fixtures. That proves import,
+fallback, and runtime observation; it does not approve the fixtures as
+production art or grant them canonical vehicle identity. The imported
+`img2threejs` intake gate still rejects the original collage model sheet as
+reconstruction ground truth because foreground coverage is 0.991 and the
+silhouette is not isolable. See [Asset Authority and Shipped Mesh Contract](../research/ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md).
 
 ## Browser, deployment, and performance
 
@@ -1222,6 +1255,16 @@ New exploration questions opened by this package:
 - Next proof should be a visible profile indicator plus one truthful loading
   or fallback state that survives the live Field 02 browser surface.
 
+## Addendum — 2026-07-26 observer gate keeps shared consequences narrow
+
+- The event/presentation observer gate is the current shared propagation
+  boundary for audio, VFX, accessible DOM/status surfaces, diagnostics, and
+  replay capture.
+- It should stay a narrow propagation layer, not become a generic pub/sub bus,
+  until multiple independent consumers actually duplicate wiring.
+- The episode grammar can compose above this gate when one semantic outcome
+  must fan out, but the gate remains the owner of that fan-out boundary.
+
 ## Addendum — 2026-07-26 asset-production bridge versus approval
 
 - The `3d-asset-production` pass confirms the repo now has runtime-tested
@@ -1284,3 +1327,39 @@ New exploration questions opened by this package:
   any public moderation or creator-discovery surface is considered.
 - Pack validation should stay distinct from runtime authority so local content
   remains data-first instead of becoming a second mutable truth source.
+
+## Addendum — 2026-07-26 physics decision provenance and solver authority
+
+- An internal-only `wide-open-brainstorm` audit found that AI-generated physics
+  recommendations supplied for evaluation had been incorrectly attributed to
+  the operator and promoted into accepted Rapier/mandatory Box3D decisions.
+- The current executable truth is narrower and stronger: Field 02 is the
+  authored product runtime; Rapier raycast wheels and Box3D physical wheels are
+  bounded evidence fixtures behind project-owned services.
+- The current probes vary both solver and controller technique, so they prove
+  boundary flexibility rather than an engine ranking.
+- New backend work, solver-ranking claims, and public-lab promotion are paused.
+  The labs, tests, and historical evidence remain preserved.
+- The durable no-global-solver default, controller-family admission model,
+  evidence gates, and decision-provenance taxonomy are Proposed in ADR-0023 and
+  require explicit operator sign-off.
+- A broader pattern audit remains open for other load-bearing ADRs whose
+  “Accepted” status may have been inferred from supplied AI material rather than
+  explicit operator acceptance.
+
+## Addendum — 2026-07-26 compositional episode grammar and Storm Relay
+
+- The previously scattered episode ideas now have one canonical proposal:
+  [Compositional Episode Grammar and Storm Relay](COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+- It records the seven-part episode grammar, separates pressure/modifier/
+  discovery/consequence, defines the mechanic lattice and idea-mixer coherence
+  checks, and connects VehiclePassport, social footprint, behavioural cargo,
+  cross-rig mysteries, failure-generated recovery, story capture, and post-run
+  consequence summaries.
+- Storm Relay is captured as a future three-rig evidence candidate, not an
+  accepted roadmap item. It tests rising-water pressure, radio-interference
+  navigation, behavioural cargo, capability-specific solutions, persistent
+  outcomes, and recovery contracts.
+- The farm-to-city fringe is explicitly a dense test biome rather than the
+  privileged center of the product. Underwater, orbital, miniature, fantasy,
+  procedural, and other worlds remain equal possibilities.

@@ -2,9 +2,24 @@
 
 - Date: 2026-07-25
 - Status: active bounded experiment
+- Current decision status (2026-07-26): implemented evidence fixture; “mandatory”
+  status withdrawn as unsupported by explicit operator sign-off
 - Decision: [ADR-0017](../decisions/ADR-0017-replaceable-dynamics-foundation.md)
 - Owner / next reviewer: project owner
 - Evidence ceiling before implementation: Tier 1 static inspection
+
+## Provenance correction — 2026-07-26
+
+The historical “operator-supplied review” wording below describes how the
+material arrived, not who authored or accepted it. The review was AI-generated
+background supplied for evaluation. Its recommendation that Box3D become a
+mandatory experiment was incorrectly elevated into operator authority.
+
+Probe 01 remains useful, implemented physical-wheel evidence. It does not make
+Box3D mandatory, rank Box3D against Rapier, or select a product solver. Further
+backend work is paused until the operator signs off on a named player-fantasy
+question and the fair-comparison gates proposed in
+[ADR-0023](../decisions/ADR-0023-solver-neutral-dynamics-evidence-program.md).
 
 ## Decision
 

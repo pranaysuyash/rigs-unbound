@@ -1,12 +1,14 @@
 import {
   MODULES,
   RIG_IDS,
+  RIG_PROFILES,
+  RIG_SWITCH_RANGE,
   type GameState,
   type ModuleId,
   type RigId,
 } from "./contracts";
 import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
-import { HOME_SITE } from "./world";
+import { HOME_SITE, isWithinSiteServiceArea } from "./world";
 
 export const FIRST_RUNG_RECOMMENDED_MODULE: ModuleId = "lug-tires";
 
@@ -15,6 +17,8 @@ export type FirstRungStage =
   | "collect-cache"
   | "earn-more"
   | "return-home"
+  | "reach-rig"
+  | "switch-rig"
   | "choose-part"
   | "free-explore";
 
@@ -33,10 +37,7 @@ export interface FirstRungResolution {
 
 function atHomeWorkshop(state: GameState): boolean {
   const rig = state.rigs[state.activeRigId];
-  return (
-    Math.hypot(rig.x - HOME_SITE.x, rig.z - HOME_SITE.z) <=
-    (HOME_SITE.serviceRadius ?? HOME_SITE.discoverRadius)
-  );
+  return isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
 }
 
 function firstCompatibleRig(
@@ -45,7 +46,19 @@ function firstCompatibleRig(
 ): RigId | null {
   const definition = MODULES[moduleId];
   if (definition.fits.includes(state.activeRigId)) return state.activeRigId;
-  return RIG_IDS.find((rigId) => definition.fits.includes(rigId)) ?? null;
+  const active = state.rigs[state.activeRigId];
+  return (
+    RIG_IDS.filter((rigId) => definition.fits.includes(rigId)).sort(
+      (leftId, rightId) => {
+        const left = state.rigs[leftId];
+        const right = state.rigs[rightId];
+        return (
+          Math.hypot(left.x - active.x, left.z - active.z) -
+          Math.hypot(right.x - active.x, right.z - active.z)
+        );
+      },
+    )[0] ?? null
+  );
 }
 
 function hasFittedPart(state: GameState): boolean {
@@ -86,6 +99,36 @@ export function resolveFirstRung(
   const affordable = state.salvage >= recommendedModule.cost;
 
   if (affordable) {
+    const activeRigCanFit = recommendedRigId === state.activeRigId;
+    if (!activeRigCanFit && recommendedRigId !== null) {
+      const active = state.rigs[state.activeRigId];
+      const compatible = state.rigs[recommendedRigId];
+      const compatibleName = RIG_PROFILES[recommendedRigId].fieldName;
+      const compatibleDistance = Math.hypot(
+        compatible.x - active.x,
+        compatible.z - active.z,
+      );
+      const compatibleInReach = compatibleDistance <= RIG_SWITCH_RANGE;
+      return {
+        stage: compatibleInReach ? "switch-rig" : "reach-rig",
+        objective: compatibleInReach
+          ? `Switch to ${compatibleName}`
+          : `Reach ${compatibleName}`,
+        shortLabel: compatibleInReach ? "Switch rig" : "Reach compatible rig",
+        ariaLabel: compatibleInReach
+          ? `Switch to the nearby ${compatibleName}, then return to Home Silo and fit ${recommendedModule.name}.`
+          : `Drive to the ${compatibleName}, ${Math.ceil(compatibleDistance)} metres away, so you can switch rigs and fit ${recommendedModule.name}.`,
+        reason: compatibleInReach
+          ? "A compatible physical rig is inside switching range."
+          : "The compatible physical rig must be reached before control can switch.",
+        target: { x: compatible.x, z: compatible.z },
+        recommendedModuleId,
+        recommendedRigId,
+        affordable,
+        complete: false,
+      };
+    }
+
     if (!atHomeWorkshop(state)) {
       return {
         stage: "return-home",
@@ -101,19 +144,12 @@ export function resolveFirstRung(
       };
     }
 
-    const activeRigCanFit = recommendedRigId === state.activeRigId;
     return {
       stage: "choose-part",
-      objective: activeRigCanFit
-        ? `Fit ${recommendedModule.name}`
-        : `Switch rig · fit ${recommendedModule.name}`,
-      shortLabel: activeRigCanFit ? "Fit a part" : "Switch and fit",
-      ariaLabel: activeRigCanFit
-        ? `At Home Silo, fit ${recommendedModule.name} for ${recommendedModule.cost} salvage. ${recommendedModule.promise}`
-        : `At Home Silo, switch to a compatible rig and fit ${recommendedModule.name} for ${recommendedModule.cost} salvage.`,
-      reason: activeRigCanFit
-        ? "The recommended part is affordable at the workshop."
-        : "The active rig cannot fit the recommended part.",
+      objective: `Fit ${recommendedModule.name}`,
+      shortLabel: "Fit a part",
+      ariaLabel: `At Home Silo, fit ${recommendedModule.name} for ${recommendedModule.cost} salvage. ${recommendedModule.promise}`,
+      reason: "The recommended part is affordable at the workshop.",
       target: { x: HOME_SITE.x, z: HOME_SITE.z },
       recommendedModuleId,
       recommendedRigId,

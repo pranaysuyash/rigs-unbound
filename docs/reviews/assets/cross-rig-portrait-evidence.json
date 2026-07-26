@@ -1,0 +1,408 @@
+{
+  "timestamp": "2026-07-26T14:17:51.487Z",
+  "url": "http://127.0.0.1:4173/?acceptance=field-02",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "results": [
+    {
+      "rigId": "utility-tractor",
+      "desktop": {
+        "resolvedDistance": 10.404,
+        "idealDistance": 12.996,
+        "forwardOffset": -1.503,
+        "pathClear": true,
+        "cameraFocusContractMet": true
+      },
+      "portrait": {
+        "resolvedDistance": 10.493,
+        "idealDistance": 29.082,
+        "forwardOffset": -1.5,
+        "pathClear": true,
+        "mode": "chase",
+        "selfIntersecting": false,
+        "obstructionSource": "structure",
+        "obstructionId": "home-silo-body",
+        "behindRig": true,
+        "cameraFocusContractMet": true,
+        "expectedFocusOffset": 1.7,
+        "actualFocusOffset": 1.7
+      },
+      "distancePullbackRatio": 2.237765466297322,
+      "distancePullbackVerified": true,
+      "forwardOffsetNearZero": true,
+      "overlapFree": true,
+      "allButtonsOnScreen": true,
+      "touchDisplay": "flex",
+      "gapPx": 54.5,
+      "buttonCount": 10,
+      "buttons": [
+        {
+          "label": "←",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 10.390625,
+          "right": 59.984375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↑",
+          "top": 728.828125,
+          "bottom": 778.421875,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↓",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "→",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 120.765625,
+          "right": 170.359375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "Lower blade",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 246.5,
+          "right": 317.8125,
+          "width": 71.3125,
+          "height": 35.1875
+        },
+        {
+          "label": "Rig",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "Cam",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 246.5,
+          "right": 317.8125,
+          "width": 71.3125,
+          "height": 35.1875
+        },
+        {
+          "label": "Map",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "Blade: cut",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 246.5,
+          "right": 317.8125,
+          "width": 71.3125,
+          "height": 35.1875
+        },
+        {
+          "label": "No winch",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        }
+      ],
+      "viewport": [
+        390,
+        844
+      ],
+      "allPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "desktop": {
+        "resolvedDistance": 11.248,
+        "idealDistance": 9.923,
+        "forwardOffset": -1.5,
+        "pathClear": true,
+        "cameraFocusContractMet": true
+      },
+      "portrait": {
+        "resolvedDistance": 11.248,
+        "idealDistance": 22.376,
+        "forwardOffset": -1.5,
+        "pathClear": true,
+        "mode": "chase",
+        "selfIntersecting": false,
+        "obstructionSource": "structure",
+        "obstructionId": "home-silo-body",
+        "behindRig": true,
+        "cameraFocusContractMet": true,
+        "expectedFocusOffset": 1.05,
+        "actualFocusOffset": 1.05
+      },
+      "distancePullbackRatio": 2.2549632167691223,
+      "distancePullbackVerified": true,
+      "forwardOffsetNearZero": true,
+      "overlapFree": true,
+      "allButtonsOnScreen": true,
+      "touchDisplay": "flex",
+      "gapPx": 54.5,
+      "buttonCount": 10,
+      "buttons": [
+        {
+          "label": "←",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 10.390625,
+          "right": 59.984375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↑",
+          "top": 728.828125,
+          "bottom": 778.421875,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↓",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "→",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 120.765625,
+          "right": 170.359375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "Explore",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "Rig",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "Cam",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "Map",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "No blade",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "No winch",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        }
+      ],
+      "viewport": [
+        390,
+        844
+      ],
+      "allPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "desktop": {
+        "resolvedDistance": 12.764,
+        "idealDistance": 11.766,
+        "forwardOffset": -1.5,
+        "pathClear": true,
+        "cameraFocusContractMet": true
+      },
+      "portrait": {
+        "resolvedDistance": 12.764,
+        "idealDistance": 26.345,
+        "forwardOffset": -1.5,
+        "pathClear": true,
+        "mode": "chase",
+        "selfIntersecting": false,
+        "obstructionSource": "structure",
+        "obstructionId": "home-silo-body",
+        "behindRig": true,
+        "cameraFocusContractMet": true,
+        "expectedFocusOffset": 1.3,
+        "actualFocusOffset": 1.3
+      },
+      "distancePullbackRatio": 2.2390787013428524,
+      "distancePullbackVerified": true,
+      "forwardOffsetNearZero": true,
+      "overlapFree": true,
+      "allButtonsOnScreen": true,
+      "touchDisplay": "flex",
+      "gapPx": 54.5,
+      "buttonCount": 10,
+      "buttons": [
+        {
+          "label": "←",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 10.390625,
+          "right": 59.984375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↑",
+          "top": 728.828125,
+          "bottom": 778.421875,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "↓",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 65.578125,
+          "right": 115.171875,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "→",
+          "top": 784.015625,
+          "bottom": 833.609375,
+          "left": 120.765625,
+          "right": 170.359375,
+          "width": 49.59375,
+          "height": 49.59375
+        },
+        {
+          "label": "Explore",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "Rig",
+          "top": 716.859375,
+          "bottom": 752.046875,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "Cam",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "Map",
+          "top": 757.640625,
+          "bottom": 792.828125,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        },
+        {
+          "label": "No blade",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 263.5625,
+          "right": 317.8125,
+          "width": 54.25,
+          "height": 35.1875
+        },
+        {
+          "label": "No winch",
+          "top": 798.421875,
+          "bottom": 833.609375,
+          "left": 323.40625,
+          "right": 379.609375,
+          "width": 56.203125,
+          "height": 35.1875
+        }
+      ],
+      "viewport": [
+        390,
+        844
+      ],
+      "allPassed": true
+    }
+  ],
+  "summary": {
+    "totalRigs": 3,
+    "pathClearCount": 3,
+    "focusMetCount": 3,
+    "overlapFreeCount": 3,
+    "allButtonsOnScreenCount": 3,
+    "pullbackCount": 3,
+    "sideNearZeroCount": 3,
+    "allPassedCount": 3,
+    "consoleProblems": 0
+  }
+}

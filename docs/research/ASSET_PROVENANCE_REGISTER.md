@@ -186,3 +186,14 @@ A concept image can influence architecture and expectations even when it never s
   the playable path.
 - The next provenance obligation becomes a versioned runtime asset manifest
   once imported art enters the browser runtime.
+
+## Addendum (2026-07-26) - current runtime and distribution reconciliation
+
+The purchased All-in-One bundle remains a private source library and must not
+be mirrored as a bundle. Two selectively copied Car Kit derivatives now carry
+pack-level CC0 evidence, matching source/runtime hashes, and `runtime-tested`
+developer-bridge status. CC0 rights permit use and redistribution;
+`publicRuntimeApproved: false` means they are not approved as default
+player-surface production art and are excluded from the production artifact.
+Earlier “nothing copied” and “browser verification pending” statements above
+are historical checkpoints superseded by this addendum.

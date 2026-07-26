@@ -459,6 +459,35 @@ The remaining gap is precise:
 | Snapshot-driven renderer/UI response                       | Explicit replayable versus diagnostics-only event classification |
 | Capability-aware local action gating                       | Ordering, deduplication, and fan-out policy                      |
 
+## Addendum (2026-07-26) - visibility, camera, portal, and collision boundaries are now split into distinct evidence lanes
+
+The follow-up `3d-games` review in this audit clarified four lanes that should
+stay separate instead of collapsing into one generic renderer story:
+
+- **Visibility / LOD:** `src/game/visibility.ts` now makes the near/mid/far/
+  culled seam explicit for prop visibility and performance diagnostics, but it
+  is still a policy seam rather than representation-changing asset LOD or
+  subsystem cadence control.
+- **Camera:** `src/game/camera.ts`, `src/game/renderer.ts`, and
+  `src/main.ts` already hold a real mode/mount/obstruction policy. That lane is
+  mature enough that the remaining work is product-facing recommendation or
+  exposure, not a second camera state machine.
+- **Portal visibility:** `src/game/world.ts` and `src/game/renderer.ts` still
+  read as open-world first. The portal contract remains future-bound because no
+  room graph, portal edge state, or portal telemetry exists in the live path.
+- **Collision:** `src/game/collision.ts` plus `src/game/terrain-traversal.ts`
+  give the runtime a narrow deterministic obstacle and terrain-face boundary,
+  but no broad collision category/mask registry yet. The current matrix trigger
+  should remain deferred until a third contact class actually needs it.
+
+The useful synthesis is that the repo now has multiple named evidence lanes,
+not one monolithic “3D polish” bucket. That is the right shape for the next
+vertical proofs: use the lanes independently, keep each contract honest, and do
+not promote one lane’s policy seam into another lane’s architecture.
+
+Evidence depth: Tier 1 static source inspection for this audit pass. No fresh
+runtime capture was run here.
+
 [`src/main.ts`](/Users/pranay/Projects/Game_dev/rigs-unbound/src/main.ts) still
 records a command/checkpoint around several direct calls such as module
 installation, repair, recovery, rig switching, and primary action. That is

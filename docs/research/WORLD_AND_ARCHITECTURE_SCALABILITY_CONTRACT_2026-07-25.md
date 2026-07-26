@@ -148,3 +148,14 @@ It is a boundary note that keeps local growth measurable until the product genui
   - no future shared-state readiness boundary beyond documentation.
 - So the world is intentionally compact and durable today, but it is still not
   a streamed or residencied world system.
+
+## Addendum (2026-07-26) - episode grammar composes inside this boundary, it does not replace it
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal lives above this scalability contract.
+- It changes how place, rig identity, pressure, discovery, and consequence are
+  combined into a playable episode, but it does not define chunk residency,
+  load radius, unload policy, or migration boundaries.
+- In practical terms: the episode grammar can make world changes feel richer,
+  but the underlying world-growth policy still remains the same single-residency
+  boundary until a measured scale trigger proves otherwise.

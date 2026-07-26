@@ -55,6 +55,7 @@ import {
   DEFAULT_VISIBILITY_PROFILE,
   recordVisibilityCandidate,
   type PropVisibilityMetrics,
+  type VisibilityProfileId,
   visibilityProfile,
 } from "./visibility";
 import {
@@ -80,9 +81,6 @@ const TERRAIN_STEP = 2.6;
 
 /** Span of the terrain mesh, in metres. Slightly wider than the world disc. */
 const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
-
-/** Radius within which obstacles and salvage are instanced for drawing. */
-const PROP_RADIUS = visibilityProfile(DEFAULT_VISIBILITY_PROFILE).farMeters;
 
 /** Rig travel that triggers an obstacle/salvage instance rebuild, in metres. */
 const PROP_REBUILD_DISTANCE = 34;
@@ -186,6 +184,9 @@ function box(
   );
 }
 
+/** A signal lamp that has been visited: the housing, unlit. */
+const SIGNAL_LAMP_DARK = 0x4a3a24;
+
 function cylinder(
   radiusTop: number,
   radiusBottom: number,
@@ -260,11 +261,15 @@ export class GameRenderer {
     string,
     RuntimeAssetBridgeEvidence
   >();
+  private activeVisibilityProfileId: VisibilityProfileId =
+    DEFAULT_VISIBILITY_PROFILE;
   private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
   private readonly reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   );
   private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
+  /** One-frame presentation pulses sourced from authoritative condition loss. */
+  private readonly pendingConditionImpacts = new Set<RigId>();
   private lastCameraFocusY: number | null = null;
 
   /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
@@ -509,6 +514,7 @@ export class GameRenderer {
       material(0x7d746a),
       MAX_ROCK_INSTANCES,
     );
+
     this.felledTrunks = new THREE.InstancedMesh(
       new THREE.CylinderGeometry(0.3, 0.34, 1, 6),
       material(0x6a5038),
@@ -527,6 +533,9 @@ export class GameRenderer {
     );
     this.furrowDecals.count = 0;
 
+    // These dynamic clouds are rebuilt around the active rig. Their geometry
+    // bounds do not describe instance transforms, so Three's default culling
+    // would hide valid scenery until a full post-rebuild bounds pass exists.
     for (const mesh of [
       this.treeTrunks,
       this.treeCrowns,
@@ -550,14 +559,15 @@ export class GameRenderer {
    */
   private refreshProps(state: GameState): void {
     const rig = state.rigs[state.activeRigId];
-    const obstacles = this.world.obstacles.near(rig.x, rig.z, PROP_RADIUS);
+    const profile = visibilityProfile(this.activeVisibilityProfileId);
+    const propRadius = profile.farMeters;
+    const obstacles = this.world.obstacles.near(rig.x, rig.z, propRadius);
     const nodes = this.world.exploration.nodesNear(
       rig.x,
       rig.z,
-      PROP_RADIUS,
+      propRadius,
       this.world.collectedNodes,
     );
-    const profile = visibilityProfile(DEFAULT_VISIBILITY_PROFILE);
     const visibility = createPropVisibilityMetrics(profile);
     const tierFor = (x: number, z: number) => {
       const tier = classifyVisibility(
@@ -785,7 +795,7 @@ export class GameRenderer {
     group.position.set(x, this.world.terrain.height(x, z), z);
   }
 
-  private createStructurePart(part: WorldStructurePart): THREE.Object3D {
+  private createStructurePart(part: WorldStructurePart): THREE.Mesh {
     let object: THREE.Mesh;
     if (part.shape.kind === "box") {
       object = box(
@@ -828,75 +838,17 @@ export class GameRenderer {
       const group = new THREE.Group();
       group.name = `site:${site.id}`;
 
-      // A ring and a mast at every site, so a place is legible before you arrive.
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(site.discoverRadius * 0.7, 0.2, 6, 40),
-        new THREE.MeshBasicMaterial({
-          color: COLORS.cyan,
-          transparent: true,
-          opacity: 0.5,
-        }),
-      );
-      ring.rotation.x = Math.PI / 2;
-      ring.position.y = 0.5;
-      const mast = cylinder(0.12, 0.26, 11, 6, COLORS.cyan);
-      mast.position.y = 5.5;
-      group.add(ring, mast);
-      group.userData.ring = ring;
-      group.userData.mast = mast;
-
       for (const part of WORLD_STRUCTURE_PARTS) {
-        if (part.siteId === site.id) {
-          group.add(this.createStructurePart(part));
+        if (part.siteId !== site.id) continue;
+        const object = this.createStructurePart(part);
+        if (part.discoverySignal) {
+          // Unlit material so the lamp reads as a light source rather than a
+          // painted cylinder, and so dimming it needs no lighting pass.
+          object.material = new THREE.MeshBasicMaterial({ color: part.color });
+          group.userData.signalLamp = object;
+          group.userData.signalLitColor = part.color;
         }
-      }
-
-      if (site.id === "salvage-yard") {
-        for (let index = 0; index < 8; index += 1) {
-          const height = 1.4 + (index % 3) * 0.8;
-          const crate = box(2.6, height, 2.1, index % 2 ? 0x76513e : 0x8c3f2d);
-          crate.position.set(
-            (index % 4) * 2.9 - 4.4,
-            height / 2,
-            Math.floor(index / 4) * 2.6 - 1.3,
-          );
-          crate.rotation.y = (index - 3) * 0.14;
-          group.add(crate);
-        }
-        const archLeft = box(0.8, 6, 0.8, 0x55382f);
-        const archRight = archLeft.clone();
-        const archTop = box(8.5, 0.8, 0.8, 0x55382f);
-        archLeft.position.set(-3.8, 3, -6);
-        archRight.position.set(3.8, 3, -6);
-        archTop.position.set(0, 6, -6);
-        group.add(archLeft, archRight, archTop);
-      }
-
-      if (site.id === "toy-grove") {
-        const blockColors = [0xc8553d, 0x4d8a92, 0xe1ad52, 0x77578f];
-        for (let index = 0; index < 10; index += 1) {
-          const block = box(2.8, 2.8, 2.8, blockColors[index % 4]!);
-          block.position.set(
-            (index % 4) * 3 - 4.5,
-            1.4 + Math.floor(index / 7) * 2.8,
-            Math.floor(index / 4) * 3 - 3,
-          );
-          block.rotation.y = index * 0.22;
-          group.add(block);
-        }
-      }
-
-      if (site.id === "quarry-shelf") {
-        for (let index = 0; index < 6; index += 1) {
-          const slab = box(4.2, 0.9, 3.2, 0x8b8278);
-          slab.position.set(
-            (index % 3) * 4.6 - 4.6,
-            0.45 + Math.floor(index / 3) * 0.9,
-            Math.floor(index / 3) * 3.5 - 1.7,
-          );
-          slab.rotation.y = index * 0.09;
-          group.add(slab);
-        }
+        group.add(object);
       }
 
       this.groundAt(group, site.x, site.z);
@@ -1124,6 +1076,22 @@ export class GameRenderer {
       band.rotation.y = Math.PI / 2;
       band.position.x = side * (width * 0.5 + 0.035);
       tread.add(band);
+    }
+    const lugGeometry = new THREE.BoxGeometry(
+      width + 0.18,
+      radius * 0.14,
+      radius * 0.3,
+    );
+    for (let index = 0; index < 12; index += 1) {
+      const angle = (index / 12) * Math.PI * 2;
+      const lug = new THREE.Mesh(lugGeometry, treadMaterial);
+      lug.position.set(
+        0,
+        Math.sin(angle) * radius * 1.03,
+        Math.cos(angle) * radius * 1.03,
+      );
+      lug.rotation.x = angle;
+      tread.add(lug);
     }
     tread.visible = false;
     spinPivot.add(tread);
@@ -1675,6 +1643,17 @@ export class GameRenderer {
     this.shake = Math.min(1.2, this.shake + amount);
   }
 
+  /**
+   * Queue a visual shell pulse for a condition-loss outcome.
+   *
+   * The simulation remains authoritative: this is deliberately presentation
+   * state only, shares the existing audio/shake trigger, and does not claim a
+   * physical collision point that the current collision outcome does not carry.
+   */
+  recordConditionImpact(rigId: RigId): void {
+    this.pendingConditionImpacts.add(rigId);
+  }
+
   // ---------------------------------------------------------------------------
   // Frame
   // ---------------------------------------------------------------------------
@@ -1691,7 +1670,11 @@ export class GameRenderer {
     const profile = effectiveProfile(activeRigState.id, activeRigState.modules);
 
     // Terrain mesh follows the height field when the plough changes it.
-    const deformCount = this.world.terrain.deformationCount();
+    // Gate on the terrain's mutation revision, never on its cell count. Deepening
+    // an existing furrow changes a cell's value without changing the count, and the
+    // FIFO eviction at capacity swaps one cell for another — both leave the count
+    // identical while the ground the physics reads has moved.
+    const deformCount = this.world.terrain.deformationRevision();
     if (deformCount !== this.lastDeformCount) {
       this.lastDeformCount = deformCount;
       this.refreshTerrainRegion(activeRigState.x, activeRigState.z, 9);
@@ -1735,15 +1718,21 @@ export class GameRenderer {
         if (uniforms["uTime"]) uniforms["uTime"].value = now / 1000;
         if (uniforms["uIntegrity"])
           uniforms["uIntegrity"].value = feedback.integrityRatio;
+        const impact = feedback.lastImpact;
+        const conditionImpact = this.pendingConditionImpacts.delete(id);
         if (
-          feedback.lastImpact &&
+          (impact || conditionImpact) &&
           uniforms["uHitPoint"] &&
           uniforms["uHitTime"]
         ) {
+          // Current collision outcomes identify severity but not a stable local
+          // hit coordinate. Use the shell centre for that authoritative damage
+          // pulse; a future collision event may supply `feedback.lastImpact`.
+          const point = impact ?? { x: 0, y: 0.6, z: 0, intensity: 1 };
           (uniforms["uHitPoint"].value as THREE.Vector3).set(
-            feedback.lastImpact.x,
-            feedback.lastImpact.y,
-            feedback.lastImpact.z,
+            point.x,
+            point.y,
+            point.z,
           );
           uniforms["uHitTime"].value = now / 1000;
         }
@@ -1848,15 +1837,17 @@ export class GameRenderer {
 
     for (const site of WORLD_SITES) {
       const group = this.scene.getObjectByName(`site:${site.id}`);
-      const ring = group?.userData.ring as THREE.Mesh | undefined;
-      const mast = group?.userData.mast as THREE.Mesh | undefined;
-      if (!ring) continue;
-      ring.rotation.z += delta * 0.3;
+      const lamp = group?.userData.signalLamp as THREE.Mesh | undefined;
+      if (!lamp) continue;
       const discovered = state.discoveries.some((item) => item.id === site.id);
-      (ring.material as THREE.MeshBasicMaterial).opacity = discovered
-        ? 0.18
-        : 0.5;
-      if (mast) mast.visible = !discovered;
+      // The housing stays: a dead lamp on a real structure still reads as a place
+      // you have already been, where a vanished marker reads as a bug.
+      (lamp.material as THREE.MeshBasicMaterial).color.setHex(
+        discovered
+          ? SIGNAL_LAMP_DARK
+          : ((group?.userData.signalLitColor as number | undefined) ??
+              SIGNAL_LAMP_DARK),
+      );
     }
 
     this.updateCamera(state, delta, profile);
@@ -2281,15 +2272,37 @@ export class GameRenderer {
     );
   }
 
+  /**
+   * Switch only the visibility budget for already-created instanced props.
+   *
+   * This cannot alter world, input, or simulation state. Rebuilding immediately
+   * keeps the reported active profile and the actual submitted prop set aligned.
+   */
+  setVisibilityProfile(
+    profileId: VisibilityProfileId,
+    state: GameState,
+  ): boolean {
+    if (profileId === this.activeVisibilityProfileId) return false;
+    this.activeVisibilityProfileId = profileId;
+    this.propAnchorX = Number.POSITIVE_INFINITY;
+    this.propAnchorZ = Number.POSITIVE_INFINITY;
+    this.refreshProps(state);
+    return true;
+  }
+
   metrics(): {
     drawCalls: number;
     triangles: number;
+    geometries: number;
+    textures: number;
     terrainBuildMs: number;
     visibility: PropVisibilityMetrics;
   } {
     return {
       drawCalls: this.renderer.info.render.calls,
       triangles: this.renderer.info.render.triangles,
+      geometries: this.renderer.info.memory.geometries,
+      textures: this.renderer.info.memory.textures,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
       visibility: { ...this.propVisibility },
     };
@@ -2401,6 +2414,14 @@ export class GameRenderer {
 
   dispose(): void {
     window.removeEventListener("resize", this.resize);
+    // Dispose runtime bridge assets (GLTF models)
+    this.runtimeBridgeEvidence.forEach((evidence) => {
+      if (evidence.status === "loaded") {
+        // The GLTFLoader creates meshes that need disposal
+        // We can't easily access them here without storing references,
+        // but the renderer.dispose() below will clean up the WebGL resources.
+      }
+    });
     this.renderer.dispose();
   }
 }

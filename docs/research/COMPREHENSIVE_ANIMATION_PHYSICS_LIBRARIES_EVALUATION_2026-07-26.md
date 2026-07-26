@@ -5,6 +5,26 @@
 **Source Baseline:** 2026 Catalog of 409 JS & Python Animation, Physics, 3D, and Simulation Libraries (`Downloads/researches_lists/`)  
 **Motto Alignment:** `motto_v4.md` — First-Principles, Long-Term Architecture, Decoupled Authority, Zero Breaking Changes.
 
+## Current-status correction — 2026-07-26
+
+This catalog synthesis contains status inflation that must not be read as
+runtime or operator authority:
+
+- static search found no PyBullet implementation or evidence artifact that
+  validates `src/game/physics.ts` or Rapier vehicle math;
+- PyBullet, Manim, Taichi, MoviePy/imageio, and Rerun entries are candidates or
+  proposals unless a linked executable artifact proves use;
+- Field 02's product simulation authority remains the authored TypeScript
+  runtime; Rapier is isolated to Physics Lab 01 and is not part of Field 02
+  authority;
+- “Approved,” “Used,” and “simulation authority” statements later in this
+  historical synthesis are withdrawn unless independently supported by current
+  code, evidence, and explicit operator sign-off.
+
+The original rows remain below as an auditable record. Current physics policy is
+Proposed in
+[ADR-0023](../decisions/ADR-0023-solver-neutral-dynamics-evidence-program.md).
+
 ---
 
 ## Executive Summary

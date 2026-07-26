@@ -174,6 +174,75 @@ Heap is intentionally not a selection trigger yet because browser memory
 telemetry is not universally available. It remains observable evidence until a
 cross-browser, representative-device policy can state what it means safely.
 
+## Addendum (2026-07-26) - measured fallback now changes the real visibility budget
+
+- `GameRenderer.setVisibilityProfile(...)` is the canonical mutable boundary for
+  the existing instanced-prop budget. It rebuilds the same deterministic prop
+  set immediately with the selected profile's radius and preserves world,
+  input, camera, save, and simulation state.
+- The browser entry evaluates the measured policy during HUD updates. On the
+  first supported fallback decision it switches from `standard` to
+  `mobile-safe`, records a `runtimeProfileFallback` checkpoint with reasons,
+  exposes selection in `render_game_to_text()` and developer diagnostics, and
+  tells the player that scenery detail was reduced.
+- The fallback is intentionally one-way for the current session. Automatic
+  recovery needs a separately measured hysteresis/cooldown policy; repeatedly
+  swapping scenery around a threshold would be worse than a stable conservative
+  result.
+- `full` remains benchmark-only. The profile policy cannot promote into it.
+- Evidence depth: Tier 1 source/test implementation. Browser and
+  representative-device continuity evidence still need to prove that the swap
+  is readable and that the fallback has the intended cost reduction.
+
+## Anything else? (real fallback)
+
+The visible player message names only the perceptible change. Detailed reasons
+remain in diagnostics and the checkpoint payload, so public copy does not leak
+internal tuning language while operators retain an audit trail.
+
+## Addendum (2026-07-26) - recovery is now hysteretic rather than permanently degraded
+
+- `PerformanceSnapshot.totalFrameSampleCount` now supplies a monotonic evidence
+  clock alongside the bounded timing window. The latter is correct for current
+  frame quality; the former is required for a recovery hold that remains valid
+  after the rolling buffer reaches capacity.
+- `RuntimeProfileController` keeps `mobile-safe` active for 180 healthy frames
+  after measured pressure clears, then restores `standard` once. A renewed
+  breach immediately refreshes the fallback reasons and restarts the hold.
+- Both transitions rebuild the canonical deterministic scenery set, announce a
+  plain-language player status, expose the state in snapshots/diagnostics, and
+  record distinct fallback or recovery checkpoints.
+- Evidence depth: Tier 1 source/test implementation. The 180-frame value is a
+  provisional policy constant until representative browser capture proves the
+  transition is imperceptible enough and preserves the intended cost reduction.
+
+## Anything else? (hysteresis)
+
+The controller is intentionally scoped to existing visibility work. It does not
+invent adaptive physics, AI, audio, or save-rate changes from render pressure.
+
+## Addendum (2026-07-26) - the bootstrap state is textual and operator-visible, but not a named loading meter
+
+- Re-checked the live browser bootstrap path against `src/main.ts` and
+  `src/styles.css`.
+- The browser already has a real textual shell:
+  - `bootstrapStatus` is created at startup,
+  - it is flipped to `ready` when the world handoff completes,
+  - the shell prevents the app from looking like a dead box while the scene is
+    still warming up.
+- The browser already has operator-visible runtime state:
+  - `runtimeDiagnostics` carries the selected profile and fallback reasons,
+  - `mapProgress` reports surveyed world coverage and sight range.
+- What is still missing is a separately named public loading/progress surface:
+  - `mapProgress` is world-survey progress, not a startup progress meter,
+  - there is no dedicated loading percentage or progress bar for the player,
+  - there is no visible profile chooser on the public surface.
+- So the correct reading is not that the browser is dead or silent; the current
+  gap is that the loading story is still implicit rather than a first-class,
+  named browser affordance.
+- Evidence depth: Tier 1 static source inspection. No fresh browser capture was
+  run in this pass because the browser daemon poll timed out.
+
 ## Addendum (2026-07-25) - current Field 02 snapshot and remaining bootstrap gap
 
 - Re-checked the live browser daemon after the earlier shell audit.
@@ -189,5 +258,40 @@ cross-browser, representative-device policy can state what it means safely.
   only partially explicit. The remaining work is to decide whether a visible
   loading/progress affordance should be promoted from “implicit enough” into a
   first-class browser state.
+
+## Addendum (2026-07-26) - the shell is explicit, but progress and chooser remain implicit
+
+- Re-checked the current browser entry against `src/main.ts` and
+  `src/styles.css`.
+- The startup shell is now unmistakably real:
+  - `bootstrapStatus` exists in the welcome panel,
+  - it flips to `ready` when world entry completes,
+  - if a fallback profile is active before entry, the shell can say
+    `Field systems ready with reduced scenery detail.`
+- The browser also has explicit developer visibility:
+  - `runtimeDiagnostics` shows renderer memory, bridge evidence, visibility,
+    and profile state,
+  - `mapProgress` reports survey progress and sight range.
+- The remaining browser-facing gap is still the same first-class affordance
+  problem:
+  - `mapProgress` is not startup loading progress,
+  - the public surface still has no dedicated loading percentage or bar,
+  - there is still no visible profile chooser for the player.
+- So the 3D web-experience lane now has a sharper conclusion:
+  the app is trustworthy during boot, but the browser story remains shell-led
+  rather than progress-led.
+- Evidence depth: Tier 1 static source inspection on the current browser entry
+  and stylesheet.
+
+## Addendum (2026-07-26) - episode grammar depends on truthful bootstrap, not a fake start state
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this bootstrap contract.
+- The episode grammar does not define loading, progress meters, or profile
+  selection; it depends on this layer so the player enters a truthful shell and
+  then experiences the chosen episode from a real ready state.
+- This keeps the split clean: bootstrap owns entry truth and fallback clarity,
+  while the episode grammar owns the authored experience that begins after the
+  shell becomes ready.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.

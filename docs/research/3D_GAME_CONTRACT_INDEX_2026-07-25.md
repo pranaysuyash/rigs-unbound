@@ -42,7 +42,7 @@ current 3D-game architecture map easier to traverse.
 | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | Asset authority/mesh     | [Asset Authority and Shipped Mesh Contract](./ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md)                                   | Reference-vs-mesh truth boundary, shipped visual geometry, vehicle blueprint compatibility |
 | Streaming world          | [Streaming World Manifest and Residency Contract](./STREAMING_WORLD_MANIFEST_AND_RESIDENCY_CONTRACT_2026-07-25.md)               | Chunk lifecycle, residency, rollback, unload policy                                        |
-| Asset pipeline           | [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)                                 | Source-to-runtime asset flow, provenance, replacement rules                                |
+| Asset pipeline           | [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)                                 | Source-to-runtime asset flow, provenance, replacement rules, resource-aware promotion gate |
 | Web asset ingest         | [Web Asset Ingest and Compression Contract](./WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25.md)                           | Browser-facing asset manifests, compression, activation gating                             |
 | Web loading/bootstrap    | [Web Loading and Profile Bootstrap Contract](./WEB_LOADING_AND_PROFILE_BOOTSTRAP_CONTRACT_2026-07-25.md)                         | Shell/loading states, fallback preview, profile selection                                  |
 | Authoring validation     | [Authoring and Reproducible Content Validation Contract](./AUTHORING_AND_REPRODUCIBLE_CONTENT_VALIDATION_CONTRACT_2026-07-25.md) | Validator-first manifests, reproducible content admission                                  |
@@ -74,6 +74,7 @@ current 3D-game architecture map easier to traverse.
 - [3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](./3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+- [Compositional Episode Grammar and Storm Relay](./COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 
 ## Supporting continuity artifacts
 

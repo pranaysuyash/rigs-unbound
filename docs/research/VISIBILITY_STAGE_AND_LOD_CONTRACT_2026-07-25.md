@@ -187,3 +187,56 @@ benchmark, or representative-device run is claimed in this addendum.
   separate future claims requiring their own measurements.
 - Evidence level: Tier 1 static source inspection; no browser or benchmark run
   was performed in this pass.
+
+## Addendum (2026-07-26) - visibility tiers are not imported-asset LODs
+
+- The visibility classifier now has a measured runtime fallback path, but the
+  production-asset review confirms that it still changes only the bounded
+  procedural prop set. It does not select different mesh representations.
+- The two manifest-owned GLB bridge candidates each have one runtime URL and
+  are developer-only pending public approval. They cannot truthfully establish
+  LOD0/LOD1/LOD2 behavior.
+- The first geometric LOD proof must be an asset-delivery slice, not a renderer
+  shortcut: one approved static asset with linked variants, stable spatial and
+  collision/socket contracts, distance thresholds, import validation, and
+  before/after browser cost/readability evidence.
+- Until that proof exists, `near`, `mid`, and `far` mean visibility accounting
+  only. This distinction prevents a future profile selector from presenting
+  draw-radius reduction as richer asset optimization than it actually is.
+
+## Anything else? (LOD truth)
+
+The current fallback remains valuable because it reduces deterministic scenery
+work without changing gameplay. It should not be marketed or documented as
+geometric LOD until representation variants have passed the asset gate.
+
+## Addendum (2026-07-26) - visibility is measured, but representation LOD is still future work
+
+- Re-checked the live visibility code in `src/game/visibility.ts` and the
+  renderer diagnostics that consume it.
+- The runtime now has a stable visibility budget surface:
+  - `full`, `standard`, and `mobile-safe` distance profiles,
+  - `near`, `mid`, `far`, and `culled` classification,
+  - candidate/submitted/capacity-limited counters in `PropVisibilityMetrics`,
+  - the active profile surfaced alongside draw calls and frame timing.
+- The active `standard` profile still preserves the existing `farMeters = 168`
+  radius, so this is a measured accounting seam rather than a geometric
+  content change.
+- That means the contract can now say something more precise:
+  visibility is explicit and observable, but imported-asset representation LOD
+  is still missing.
+- The next proof should therefore be an asset-delivery slice with actual
+  representation variants, not another renderer-local distance shortcut.
+- Evidence depth: Tier 1 static source inspection of `src/game/visibility.ts`
+  plus the current renderer diagnostic path.
+
+## Addendum (2026-07-26) - episode grammar depends on visibility to keep episodes readable
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal sits above this visibility contract.
+- The episode grammar does not change the visibility budget or LOD policy; it
+  depends on them so the player can actually read the pressure, discovery, and
+  persistent consequence the episode is trying to communicate.
+- This preserves the boundary: visibility/LOD remains the legibility layer,
+  while episode grammar remains the story-composition layer that uses that
+  legibility.

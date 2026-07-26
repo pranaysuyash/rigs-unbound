@@ -228,3 +228,30 @@ The game already has meaningful outcomes and records. This contract makes those 
 No second event store was added. The existing run record remains bounded and
 diagnostic-first, while its envelope fields make later replay, UI, and authority
 consumers reference the same ordered truth.
+
+## Addendum (2026-07-26) - staging surface is canonical, dispatch graph is still missing
+
+- Re-checked the live command and run-record wiring after the envelope landed.
+- The repo now has a canonical event-history substrate in
+  `src/game/run-record.ts`, so command, input, checkpoint, and save outcomes are
+  real, ordered, and versioned.
+- That still does not amount to a shared dispatch graph:
+  - no registered handler fan-out,
+  - no per-handler ownership map,
+  - no deduplication policy for replay-safe consumers,
+  - no explicit playback-vs-diagnostics consumer split.
+- So the right reading is unchanged but now sharper: the command-history path is
+  the staging surface for a future event graph, not evidence that the event
+  graph itself is already canonical.
+
+## Addendum (2026-07-26) - episode grammar depends on this layer for durable consequence
+
+- The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+  proposal composes pressure, discovery, and persistent consequence above this
+  contract, but it still relies on this contract to record the actual durable
+  consequence.
+- In other words: the episode grammar names the authored story shape, while
+  the event graph owns the reusable ordered truth that lets that consequence
+  flow across simulation, presentation, replay, and diagnostics.
+- That keeps the boundary honest: episode grammar can enrich what happens, but
+  it does not replace the event graph or its handler ownership rules.

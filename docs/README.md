@@ -8,6 +8,7 @@ the real work.
 
 - [3D Game Contract Index](research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Exploration Map](exploration/EXPLORATION_MAP.md)
+- [Compositional Episode Grammar and Storm Relay](exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 - [Master Execution Tracker](plans/MASTER_EXECUTION_TRACKER.md)
 - [Worklog](WORKLOG.md)
 

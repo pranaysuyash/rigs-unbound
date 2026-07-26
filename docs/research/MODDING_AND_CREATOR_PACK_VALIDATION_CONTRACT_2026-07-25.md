@@ -199,3 +199,51 @@ shadow runtime.
   test first, not a public UGC system. Public moderation stays future-gated.
 - Evidence depth: Tier 1 static inspection of the current validation/asset
   contracts, with the earlier Tier 4 runtime anchor unchanged.
+
+## Addendum (2026-07-26) - asset admission is real, but pack lifecycle is still not first-class
+
+- Re-checked the modding lane against the current manifest and preflight code.
+- The runtime now has a real asset-admission slice:
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, path safety, digest
+    integrity, and missing dependencies,
+  - runtime bridges exist for approved/tested GLBs while public approval stays
+    separately gated.
+- That proves content can be admitted and rejected in a reproducible local
+  slice.
+- What is still missing is the broader creator-pack lifecycle:
+  - no versioned pack manifest in the playable path,
+  - no explicit dependency graph for packs,
+  - no staged publication or moderation workflow,
+  - no runtime-ready / validation-only / deprecated status across general
+    authored content,
+  - no safe disable or rollback path for a pack lifecycle that players can
+    actually activate.
+- So the modding lane is still future-facing at the pack level, even though the
+  asset slice is now real enough to serve as the first reusable proof.
+
+## Addendum (2026-07-26) - module composition and asset admission are real, but the pack lifecycle is still future-gated
+
+- Re-checked the modding lane against `src/game/contracts.ts`,
+  `src/game/state.ts`, `src/game/runtime-assets.ts`, and `assets/asset-manifest.json`.
+- The runtime now proves the important local substrate for packs:
+  - rig capabilities and modules are data-driven rather than hardcoded
+    inheritance,
+  - `installModule()` still validates cost, compatibility, and ownership before
+    mutating canonical rig state,
+  - asset admission is gated by a versioned manifest and preflight/rights
+    metadata,
+  - runtime bridges remain separated from public approval.
+- That means the content model is real enough to support creator packs without
+  inventing a second runtime truth source.
+- The remaining gap is the pack lifecycle itself:
+  - no versioned pack manifest in the playable path,
+  - no explicit pack dependency graph,
+  - no staged publication or moderation workflow,
+  - no general safe disable / rollback path for player-activatable packs.
+- So the modding lane remains future-facing at the pack level, while the local
+  module/asset substrate is already strong enough to be the first reusable
+  contract boundary.
+- Evidence depth: Tier 1 static source inspection of the current data-driven
+  modules and asset admission path.
