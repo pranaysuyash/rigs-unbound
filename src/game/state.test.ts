@@ -108,6 +108,9 @@ describe("rig gameplay kernel", () => {
   it("does not block salvage with survey offer on a non-survey home rig", () => {
     const { state, world } = scenario("SURVEY-PRIORITY");
     const rig = activeRig(state);
+    rig.x = FIRST_SALVAGE_NODE.x;
+    rig.z = FIRST_SALVAGE_NODE.z;
+    settleWorld(state, world);
     const node = world.exploration.nearestNode(
       rig.x,
       rig.z,
@@ -118,9 +121,6 @@ describe("rig gameplay kernel", () => {
       throw new Error("Missing salvage fixture for regression coverage");
     }
 
-    rig.x = node.x;
-    rig.z = node.z;
-    settleWorld(state, world);
     state.surveyRoute.status = "ready";
 
     expect(resolvePrimaryAction(state, world)).toMatchObject({

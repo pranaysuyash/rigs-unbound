@@ -364,6 +364,12 @@ function boot(): void {
   let acceptanceManualStepping = false;
   document.body.dataset.surface = developerSurface ? "developer" : "player";
   const markInputReady = (): void => performanceMonitor.markInputReady();
+  const markActionReady = (): void => {
+    const firstActionReadyMs = performanceMonitor.markActionReady();
+    if (firstActionReadyMs !== null) {
+      recordCheckpoint("actionReady", { firstActionReadyMs });
+    }
+  };
 
   const recordCommand = (
     name: string,
@@ -606,6 +612,7 @@ function boot(): void {
     moduleId: ModuleId,
     source: "keyboard" | "workshop-panel" | "acceptance",
   ): void => {
+    markActionReady();
     const before = resolveFirstRung(state, world.collectedNodes);
     recordCommand("installModule", { moduleId, source });
     installModule(state, world, moduleId);
@@ -657,6 +664,7 @@ function boot(): void {
 
   const tap = (action: TapAction): void => {
     if (!worldEntered) return;
+    markActionReady();
     markInputReady();
     void audio.unlock();
     const lessonIdByAction: Partial<Record<TapAction, ControlLessonId>> = {
@@ -787,7 +795,12 @@ function boot(): void {
     "[data-hold-action]",
   )) {
     const action = button.dataset.holdAction as ContinuousAction;
-    const setHeld = (active: boolean): void => input.hold(action, active);
+    const setHeld = (active: boolean): void => {
+      if (active) {
+        markActionReady();
+      }
+      input.hold(action, active);
+    };
     button.addEventListener("pointerdown", (event) => {
       event.preventDefault();
       button.setPointerCapture(event.pointerId);
@@ -813,6 +826,7 @@ function boot(): void {
     );
     if (!button || button.disabled) return;
     markInputReady();
+    markActionReady();
     void audio.unlock();
     fitModule(button.dataset.moduleId as ModuleId, "workshop-panel");
   });
@@ -1571,6 +1585,7 @@ function boot(): void {
     return settleAndReport();
   };
   window.performRigAction = () => {
+    markActionReady();
     recordCommand("primaryAction", { source: "acceptance" });
     const event = performPrimaryAction(state, world);
     recordEvent("primaryActionOutcome", { source: "acceptance", event });
@@ -1595,6 +1610,14 @@ function boot(): void {
       steerLeft: requestedInput.steerLeft === true,
       steerRight: requestedInput.steerRight === true,
     };
+    if (
+      inputFrame.accelerate ||
+      inputFrame.brake ||
+      inputFrame.steerLeft ||
+      inputFrame.steerRight
+    ) {
+      markActionReady();
+    }
     if (!Number.isFinite(milliseconds) || milliseconds <= 0) {
       return snapshot();
     }
@@ -1611,16 +1634,19 @@ function boot(): void {
     return settleAndReport();
   };
   window.toggleBlade = () => {
+    markActionReady();
     recordCommand("tap", { action: "blade", source: "acceptance" });
     toggleBladeMode(state);
     return settleAndReport();
   };
   window.winchRecoverRig = () => {
+    markActionReady();
     recordCommand("tap", { action: "recover", source: "acceptance" });
     winchRecover(state, world);
     return settleAndReport();
   };
   window.toggleFieldMap = () => {
+    markActionReady();
     recordCommand("tap", { action: "map", source: "acceptance" });
     toggleMap(state);
     mapOverlay.hidden = !state.mapOpen;
@@ -1718,6 +1744,7 @@ function boot(): void {
         sampledInput.steerLeft ||
         sampledInput.steerRight
       ) {
+        markActionReady();
         markControlLessonLearned("drive", "performed");
       }
       if (

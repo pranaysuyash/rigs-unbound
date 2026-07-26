@@ -19,6 +19,7 @@ export interface PerformanceSnapshot {
   sampledAt: number;
   firstControllableMs: number | null;
   firstInputReadyMs: number | null;
+  firstActionReadyMs: number | null;
   averageFrameMs: number;
   p95FrameMs: number;
   /** Number of bounded frame samples behind average and p95 values. */
@@ -34,6 +35,11 @@ export interface PerformanceSnapshot {
   visibility: PropVisibilityMetrics | null;
   /** Estimated GPU memory usage in MB. */
   gpuMemoryMb: number | null;
+  largestContentfulPaintMs: number | null;
+  inputDelayMs: number | null;
+  cumulativeLayoutShift: number;
+  longTaskCount: number;
+  longTaskDurationMs: number;
   drawCalls: number;
   triangles: number;
   geometries: number;
@@ -44,20 +50,43 @@ interface ChromePerformanceMemory {
   usedJSHeapSize: number;
 }
 
+type PerformanceObserverEntryType = string;
+
+type LayoutShiftLike = {
+  hadRecentInput?: boolean;
+  value?: number;
+};
+type EventTimingLike = {
+  duration?: number;
+};
+
 export class PerformanceMonitor {
   private readonly frameDurations: number[] = [];
   private totalFrameSampleCount = 0;
   private firstControllableMs: number | null = null;
   private controllableMeasurementStartedAt: number;
   private firstInputReadyMs: number | null = null;
+  private firstActionReadyMs: number | null = null;
   private lastSaveDurationMs = 0;
   private saveBytes = 0;
+  private readonly webVitals = {
+    largestContentfulPaintMs: null as number | null,
+    inputDelayMs: null as number | null,
+    cumulativeLayoutShift: 0,
+    longTaskCount: 0,
+    longTaskDurationMs: 0,
+  };
+  private static readonly WEBVITAL_EVENT_TYPE: string = "event";
+  private static readonly LAYOUT_SHIFT_TYPE: string = "layout-shift";
+  private static readonly LONGTASK_TYPE: string = "longtask";
+  private static readonly LCP_TYPE: string = "largest-contentful-paint";
 
   constructor(
     private readonly bootStartedAt: number,
     private readonly loadDurationMs: number,
   ) {
     this.controllableMeasurementStartedAt = bootStartedAt;
+    this.initializeWebVitalObservers();
   }
 
   /**
@@ -84,6 +113,13 @@ export class PerformanceMonitor {
     if (this.firstInputReadyMs === null) {
       this.firstInputReadyMs = Math.max(0, at - this.bootStartedAt);
     }
+  }
+
+  markActionReady(at = performance.now()): number | null {
+    if (this.firstActionReadyMs === null) {
+      this.firstActionReadyMs = Math.max(0, at - this.bootStartedAt);
+    }
+    return this.firstActionReadyMs;
   }
 
   recordFrame(durationMs: number): void {
@@ -114,6 +150,89 @@ export class PerformanceMonitor {
     this.saveBytes = Math.max(0, bytes);
   }
 
+  private supportsObserverType(entryType: string): boolean {
+    if (typeof PerformanceObserver === "undefined") {
+      return false;
+    }
+    if (typeof PerformanceObserver.supportedEntryTypes === "undefined") {
+      return false;
+    }
+    return PerformanceObserver.supportedEntryTypes.includes(entryType);
+  }
+
+  private initializeWebVitalObservers(): void {
+    if (typeof PerformanceObserver === "undefined") {
+      return;
+    }
+
+    const observe = (
+      entryType: string,
+      callback: (entries: PerformanceEntry[]) => void,
+    ): void => {
+      if (!this.supportsObserverType(entryType)) {
+        return;
+      }
+      try {
+        const observer = new PerformanceObserver((list): void => {
+          callback(list.getEntries());
+        });
+        observer.observe({
+          type: entryType as PerformanceObserverEntryType,
+          buffered: true,
+        });
+      } catch {
+        return;
+      }
+    };
+
+    observe(PerformanceMonitor.LCP_TYPE, (entries) => {
+      for (const entry of entries) {
+        this.webVitals.largestContentfulPaintMs = Math.max(
+          this.webVitals.largestContentfulPaintMs ?? 0,
+          entry.startTime,
+        );
+      }
+    });
+
+    observe(PerformanceMonitor.WEBVITAL_EVENT_TYPE, (entries) => {
+      for (const entry of entries) {
+        const eventTiming = entry as EventTimingLike;
+        if (eventTiming.duration === undefined) {
+          continue;
+        }
+        if (!Number.isFinite(eventTiming.duration)) {
+          continue;
+        }
+        this.webVitals.inputDelayMs = Math.max(
+          this.webVitals.inputDelayMs ?? 0,
+          eventTiming.duration,
+        );
+      }
+    });
+
+    observe(PerformanceMonitor.LAYOUT_SHIFT_TYPE, (entries) => {
+      for (const entry of entries) {
+        const layoutShift = entry as LayoutShiftLike;
+        if (layoutShift.hadRecentInput === true) {
+          continue;
+        }
+        if (typeof layoutShift.value === "number" && Number.isFinite(layoutShift.value)) {
+          this.webVitals.cumulativeLayoutShift += layoutShift.value;
+        }
+      }
+    });
+
+    observe(PerformanceMonitor.LONGTASK_TYPE, (entries) => {
+      for (const entry of entries) {
+        if (!Number.isFinite(entry.duration)) {
+          continue;
+        }
+        this.webVitals.longTaskCount += 1;
+        this.webVitals.longTaskDurationMs += entry.duration;
+      }
+    });
+  }
+
   snapshot(renderer: RendererMetrics): PerformanceSnapshot {
     const samples = [...this.frameDurations].sort(
       (left, right) => left - right,
@@ -142,6 +261,10 @@ export class PerformanceMonitor {
         this.firstInputReadyMs === null
           ? null
           : Number(this.firstInputReadyMs.toFixed(1)),
+      firstActionReadyMs:
+        this.firstActionReadyMs === null
+          ? null
+          : Number(this.firstActionReadyMs.toFixed(1)),
       averageFrameMs: Number(averageFrameMs.toFixed(2)),
       p95FrameMs: Number(p95FrameMs.toFixed(2)),
       frameSampleCount: samples.length,
@@ -157,6 +280,17 @@ export class PerformanceMonitor {
       heapUsedMb: memory.memory
         ? Number((memory.memory.usedJSHeapSize / 1_048_576).toFixed(1))
         : null,
+      largestContentfulPaintMs:
+        this.webVitals.largestContentfulPaintMs === null
+          ? null
+          : Number(this.webVitals.largestContentfulPaintMs.toFixed(1)),
+      inputDelayMs:
+        this.webVitals.inputDelayMs === null
+          ? null
+          : Number(this.webVitals.inputDelayMs.toFixed(1)),
+      cumulativeLayoutShift: Number(this.webVitals.cumulativeLayoutShift.toFixed(4)),
+      longTaskCount: this.webVitals.longTaskCount,
+      longTaskDurationMs: Number(this.webVitals.longTaskDurationMs.toFixed(1)),
       loadDurationMs: Number(this.loadDurationMs.toFixed(2)),
       lastSaveDurationMs: Number(this.lastSaveDurationMs.toFixed(2)),
       saveBytes: this.saveBytes,

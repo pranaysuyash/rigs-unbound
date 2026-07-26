@@ -57,12 +57,11 @@ rewrite. This directly de-risks the ADR-0010 "enhancement-only" path.
    `import * as THREE from "three"` wholesale (`renderer.ts:23`) means both
    entries would pull whichever build is aliased.
 
-**R3 — No GPU-context resilience exists at all, on either backend.**
-No `webglcontextlost` listener, no restore path, no WebGPU `device.lost`
-handling, no feature detection — a lost context is a frozen canvas until
-reload, with only the boot-time `try/catch` error panel (`main.ts:895-905`)
-as mitigation. This is a **WebGL gap first** and the cheapest high-value
-resilience work available. **[WORK ITEM P1]**
+**R3 — WebGL recovery gap is now closed.**
+`main.ts` now has `webglcontextlost`/`webglcontextrestored` recovery and
+restart observability (`recovery` checkpoints + diagnostics state). The remaining
+gap is WebGPU parity (`device.lost` handling and branch parity checks when WebGPU
+shipping is enabled). That is now tracked in **W1**.
 
 **R4 — GPU compute candidates are real but not yet justified.**
 Ranked by measured/structural cost: (1) terrain height-field sampling —
@@ -146,7 +145,16 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
   - recovery/recreate and restart guidance paths (`recreateRenderer`, `rendererDisposeFailed`, `graphicsContextRestoreFailed`),
   - context state in run snapshots and diagnostics (`graphicsContext`),
   - explicit status messaging when restore is unavailable.
-- The first WebGPU lane behavior is therefore now: resilience-first, not feature-first.
+- P2-a action readiness + Web Vitals/LCP/CLS/INP/longtask observability is now added:
+  - `firstActionReadyMs` and checkpoint in `performance.ts` (`markActionReady`,
+    `snapshot`, `actionReady` checkpoint),
+  - native browser `PerformanceObserver` adapters for LCP (`largest-contentful-paint`),
+    CLS (`layout-shift`), INP proxy (`event`), and longtasks (`longtask`) metrics.
+  - snapshot exports now include web-vitals fields (`largestContentfulPaintMs`,
+    `inputDelayMs`, `cumulativeLayoutShift`, `longTaskCount`,
+    `longTaskDurationMs`, `firstActionReadyMs`).
+- The first WebGPU lane behavior is therefore now: resilience and action-readiness
+  are first, not feature-first.
 
 Evidence anchors:
   - recovery attach/detach and checkpoint emission in `src/main.ts` (`241-352`, `308-312`, `273-290`, `323-325`, `500`, `1785`),
@@ -159,7 +167,7 @@ Evidence anchors:
 | W1 reliability (`P1-a`) | ✅ completed | `src/main.ts` |
 | W1 probe (`W1`) | 🔴 pending | no `WebGPURenderer` branch yet |
 | P1-b chunked boot | 🔴 pending | `src/main.ts` boot path still synchronous |
-| P2-a input/longtask metrics | 🔴 pending | no observer path wired |
+| P2-a input/longtask metrics | ✅ completed | `src/game/performance.ts` |
 | P2-b hot-path allocation | 🔴 pending | unchanged allocation pass |
 | P3-a/b/c policy | 🟡 pending | requires ops/protocol decisions |
 

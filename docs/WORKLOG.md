@@ -5843,7 +5843,7 @@ signed side evidence should remain part of camera regression acceptance.
 
 - Added a narrowly scoped, versioned capability-affordance resolver in `src/game/affordances.ts` and applied it to the real relay-cargo/tow interaction in `src/game/state.ts`.
 - The resolver emits deterministic legal, deferred, or impossible outcomes with stable reason codes and mismatch ownership; it draws the capability claim from the canonical composed rig profile instead of rig identity.
-- Added focused pure resolver coverage in `src/game/affordances.test.ts` and updated the affordance/capability contracts with the exact boundary: one real proof exists, while generic activity schemas, content ingestion, adapter registries, planner integration, and authority work remain deliberately deferred pending a second use case.
+- Added focused pure resolver coverage in `src/game/affordances.test.ts` and updated the affordance/capability contracts with the exact boundary: two real activity seams exist, while generic activity schemas, content ingestion, adapter registries, planner integration, and authority work remain deliberately deferred pending a multi-candidate proof.
 - No tests, typecheck, browser run, benchmark, or git operation was performed in this pass. Existing parallel-work evidence remains separate and preserved.
 
 ## 2026-07-26 — activity/content contract readiness recheck
@@ -5857,12 +5857,11 @@ signed side evidence should remain part of camera regression acceptance.
   seam, not a general activity registry.
 - The generic activity boundary remains the same:
   - no versioned `ActivityDefinition` registry,
-  - no second materially different activity using the same matcher,
+  - no third materially different activity using the same matcher,
   - no multi-activity command -> validate -> transition -> event pipeline,
   - no content ingestion / semantic validation for untrusted packs.
-- The useful conclusion is unchanged: the repo now has a real affordance proof
-  for one seam, and it should only generalize once a second real activity
-  exists.
+- The useful conclusion is unchanged: the repo now has two real activity seams,
+  and it should only generalize once a multi-candidate proof exists.
 
 ## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
 

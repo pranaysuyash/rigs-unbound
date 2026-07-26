@@ -8,10 +8,11 @@ import {
 function snapshot(
   overrides: Partial<PerformanceSnapshot> = {},
 ): PerformanceSnapshot {
-  return {
+  const baseSnapshot: PerformanceSnapshot = {
     sampledAt: 0,
     firstControllableMs: 400,
     firstInputReadyMs: 300,
+    firstActionReadyMs: null,
     averageFrameMs: 16.67,
     p95FrameMs: 20,
     frameSampleCount: 90,
@@ -19,16 +20,54 @@ function snapshot(
     framesPerSecond: 60,
     drawCalls: 72,
     triangles: 100_000,
-    geometries: overrides.geometries ?? 44,
-    textures: overrides.textures ?? 1,
+    geometries: 44,
+    textures: 1,
     heapUsedMb: null,
     loadDurationMs: 3,
     lastSaveDurationMs: 0,
     saveBytes: 0,
     terrainBuildMs: null,
     visibility: null,
-    gpuMemoryMb: overrides.gpuMemoryMb ?? null,
+    gpuMemoryMb: null,
+    largestContentfulPaintMs: null,
+    inputDelayMs: null,
+    cumulativeLayoutShift: 0,
+    longTaskCount: 0,
+    longTaskDurationMs: 0,
+  };
+
+  return {
+    ...baseSnapshot,
     ...overrides,
+    sampledAt: overrides.sampledAt ?? baseSnapshot.sampledAt,
+    firstControllableMs: overrides.firstControllableMs ?? baseSnapshot.firstControllableMs,
+    firstInputReadyMs: overrides.firstInputReadyMs ?? baseSnapshot.firstInputReadyMs,
+    firstActionReadyMs: overrides.firstActionReadyMs ?? baseSnapshot.firstActionReadyMs,
+    averageFrameMs: overrides.averageFrameMs ?? baseSnapshot.averageFrameMs,
+    p95FrameMs: overrides.p95FrameMs ?? baseSnapshot.p95FrameMs,
+    frameSampleCount: overrides.frameSampleCount ?? baseSnapshot.frameSampleCount,
+    totalFrameSampleCount:
+      overrides.totalFrameSampleCount ?? baseSnapshot.totalFrameSampleCount,
+    framesPerSecond: overrides.framesPerSecond ?? baseSnapshot.framesPerSecond,
+    drawCalls: overrides.drawCalls ?? baseSnapshot.drawCalls,
+    triangles: overrides.triangles ?? baseSnapshot.triangles,
+    geometries: overrides.geometries ?? baseSnapshot.geometries,
+    textures: overrides.textures ?? baseSnapshot.textures,
+    heapUsedMb: overrides.heapUsedMb ?? baseSnapshot.heapUsedMb,
+    loadDurationMs: overrides.loadDurationMs ?? baseSnapshot.loadDurationMs,
+    lastSaveDurationMs: overrides.lastSaveDurationMs ?? baseSnapshot.lastSaveDurationMs,
+    saveBytes: overrides.saveBytes ?? baseSnapshot.saveBytes,
+    terrainBuildMs: overrides.terrainBuildMs ?? baseSnapshot.terrainBuildMs,
+    visibility: overrides.visibility ?? baseSnapshot.visibility,
+    gpuMemoryMb: overrides.gpuMemoryMb ?? baseSnapshot.gpuMemoryMb,
+    largestContentfulPaintMs:
+      overrides.largestContentfulPaintMs ?? baseSnapshot.largestContentfulPaintMs,
+    inputDelayMs: overrides.inputDelayMs ?? baseSnapshot.inputDelayMs,
+    cumulativeLayoutShift:
+      overrides.cumulativeLayoutShift ?? baseSnapshot.cumulativeLayoutShift,
+    longTaskCount: overrides.longTaskCount ?? baseSnapshot.longTaskCount,
+    longTaskDurationMs:
+      overrides.longTaskDurationMs ?? baseSnapshot.longTaskDurationMs,
   };
 }
 

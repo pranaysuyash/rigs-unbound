@@ -16,13 +16,20 @@ describe("performance readiness markers", () => {
 
     monitor.markInputReady(125);
     monitor.markInputReady(190);
+    monitor.markActionReady(130);
+    monitor.markActionReady(230);
     monitor.beginControllableMeasurement(130);
     monitor.markControllable(140);
     monitor.markControllable(210);
 
     const snapshot = monitor.snapshot(metrics);
     expect(snapshot.firstInputReadyMs).toBe(25);
+    expect(snapshot.firstActionReadyMs).toBe(30);
     expect(snapshot.firstControllableMs).toBe(10);
+    expect(snapshot.inputDelayMs).toBeNull();
+    expect(snapshot.largestContentfulPaintMs).toBeNull();
+    expect(snapshot.cumulativeLayoutShift).toBe(0);
+    expect(snapshot.longTaskCount).toBe(0);
     expect(snapshot.loadDurationMs).toBe(4.25);
     expect(snapshot.geometries).toBe(4);
     expect(snapshot.textures).toBe(2);

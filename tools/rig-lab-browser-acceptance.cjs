@@ -1831,6 +1831,18 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
     consoleProblems.length === 0,
     `Browser console or page errors: ${consoleProblems.join(" | ")}`,
   );
+  const portableReplayAtEnd = await page.evaluate(() =>
+    window.getRunRecordReplayValidation(),
+  );
+  assert(
+    portableReplayAtEnd.ok === true &&
+      portableReplayAtEnd.status === "verified",
+    `Canonical post-reload command history did not replay: ${JSON.stringify(portableReplayAtEnd)}`,
+  );
+  await page.evaluate(() => {
+    const current = JSON.parse(window.render_game_to_text()).activeRig;
+    window.placeRig(current.x, current.z, current.heading);
+  });
   const fixtureReplayClassification = await page.evaluate(() =>
     window.getRunRecordReplayValidation(),
   );
@@ -1868,6 +1880,7 @@ async function stopWithTouch(page, cdp, maxSteps = 40) {
           ...touchFirstRungEvidence,
           replayBeforeReload: touchReplayBeforeReload,
         },
+        portableReplayAtEnd,
         fixtureReplayClassification,
         terrainFaces: terrainFaceEvidence,
         relay: restored.activity,

@@ -784,6 +784,10 @@ proof loop itself is stable and observable.
 - **Long-term evidence update:** restart and context-loss status now flows through
   run snapshots and developer diagnostics, so resilience moves from implicit to
   explicit contract.
+- **Use case 4 implemented:** `action-readiness` and core browser timing path is
+  now visible in runtime contract (`src/game/performance.ts` and `src/main.ts`), with
+  explicit `actionReady` checkpoints and `largestContentfulPaintMs`, `inputDelayMs`,
+  `cumulativeLayoutShift`, and `longTask*` fields in the snapshot payload.
 
 This keeps WebGPU inside the product’s long-term architecture: not an end in
 itself, but a cleaner foundation for more persistent consequence, safer systems,
@@ -794,7 +798,7 @@ and better world-driven tension.
 | Use case | Why it exists in this vision | Current status | Next best action |
 |---|---|---|---|
 | Reliable recovery across WebGL loss events | Keeps long sessions from collapsing on context churn and preserves simulation continuity | ✅ Implemented in entrypoint recovery path (`src/main.ts`) | Keep and extend to `WebGPU.device.lost` when the renderer branch opens |
-| Boot readiness and action-readiness contract | Prevents misleading load telemetry and aligns readiness with player agency | ✅ Baseline contract exists (`firstInputReadyMs`, bootstrap state transitions) | Add explicit action-readiness checkpoint and capture timing-behavior observers (LCP/INP/CLS/longtask) |
+| Boot readiness and action-readiness contract | Prevents misleading load telemetry and aligns readiness with player agency | ✅ Implemented (`firstActionReadyMs`, `actionReady` checkpoint, observers in `src/game/performance.ts`) | Close loop with W1 probe and keep INP proxy sample interpretation in acceptance proof |
 | Backend capability portability | Avoids a second rendering stack and keeps one world contract for both paths | 🟡 Recorded gap: resilience is in `WebGL` while probe + migration is deferred | Land `W1` probe contract: detect/record backend capability and add a gated `WebGPU` branch |
 | Night readability under performance mode changes | Preserves consequence legibility when visibility is most important | 🟡 Existing `WebGL` tone/fog contracts proven in `WebGPU` analysis | Re-validate fog/sky and signature contract before any default backend shift |
 | Scaling authored consequence states | Supports larger world memory and route richness without semantic drift | 🟡 No renderer-path blocker; world-memory contracts are intact | Measure and gate world-size expansion against deterministic replay/actor budgets |

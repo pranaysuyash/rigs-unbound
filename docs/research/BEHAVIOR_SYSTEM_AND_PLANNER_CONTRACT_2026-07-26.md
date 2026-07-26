@@ -84,7 +84,7 @@ The contract should fail visibly if it:
 - hides a rejected candidate's reason code
 - re-implements capability checks in multiple subsystems
 - turns the primary-action resolver into a hidden planner
- - claims generic planner coverage without a multi-candidate proof
+- claims generic planner coverage without a multi-candidate proof
 
 ## Near-term proof slice
 

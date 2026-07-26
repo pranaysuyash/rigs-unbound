@@ -140,7 +140,8 @@ describe("first progression rung", () => {
     const after = effectiveProfile(rig.id, rig.modules);
     expect(after.lugBonus).toBeGreaterThan(before.lugBonus);
     expect(after.tireGrip).toBeGreaterThan(before.tireGrip);
-    expect(resolveFirstRung(state, new Set()).complete).toBe(true);
+    const resolution = resolveFirstRung(state, new Set());
+    expect(resolution.stage).toBe("first-cut");
     expect(MODULES[FIRST_RUNG_RECOMMENDED_MODULE].promise).toContain(
       "Bites into mud",
     );
