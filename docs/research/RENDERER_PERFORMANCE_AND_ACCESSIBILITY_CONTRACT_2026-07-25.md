@@ -236,3 +236,16 @@ Together they define the public-smoke-test contract without widening the product
     test record.
 - The useful conclusion is unchanged: the runtime is still good enough to
   measure, but the release package remains the missing part of the contract.
+
+## Addendum (2026-07-26) - episode grammar depends on this gate to stay readable publicly
+
+- Re-checked the public-smoke-test contract against the episode-grammar
+  direction.
+- Episode grammar can only stay readable in the public promise if the smoke-
+  test gate binds camera, performance, and accessibility evidence into one
+  reviewable bundle.
+- That makes this contract the public readability gate beneath episode
+  grammar, not the story-composition layer itself.
+- The missing artifact remains the same bundled public-gate package, but the
+  dependency boundary is now explicit.
+- Evidence tier: Tier 1 static inspection.

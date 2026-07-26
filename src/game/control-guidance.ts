@@ -123,10 +123,26 @@ export function resolveControlLesson(
   context: ControlGuidanceContext,
   learned: ReadonlySet<ControlLessonId>,
 ): ControlLesson | null {
-  const candidates: Array<ControlLesson | null> = [
+  const urgentCandidates: Array<ControlLesson | null> = [
     context.recoveryRelevant ? STATIC_LESSONS.recovery : null,
     contextualActionLesson(context.primaryActionKind),
-    context.workshopRelevant ? STATIC_LESSONS.workshop : null,
+  ];
+  const urgentLesson = urgentCandidates.find(
+    (candidate) => candidate !== null && !learned.has(candidate.id),
+  );
+  if (urgentLesson) return urgentLesson;
+
+  /*
+   * A workflow-critical surface owns its teaching moment. Once the workshop
+   * lesson is learned, do not cascade immediately into camera/map lessons while
+   * the player is still trying to fit the requested part; those optional
+   * controls become relevant again after this spatial workflow ends.
+   */
+  if (context.workshopRelevant) {
+    return learned.has("workshop") ? null : STATIC_LESSONS.workshop;
+  }
+
+  const candidates: Array<ControlLesson | null> = [
     !context.hasDriven ? STATIC_LESSONS.drive : null,
     context.bladeRelevant ? STATIC_LESSONS.blade : null,
     context.cameraRelevant ? STATIC_LESSONS.camera : null,

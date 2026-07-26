@@ -25,6 +25,20 @@ The original rows remain below as an auditable record. Current physics policy is
 Proposed in
 [ADR-0023](../decisions/ADR-0023-solver-neutral-dynamics-evidence-program.md).
 
+### Effective tool disposition
+
+| Tool              | Effective status                       | Current evidence ceiling                                                                         |
+| ----------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| GSAP              | Runtime-tested presentation dependency | Used by `src/game/hood-dashboard-ui.ts` and `src/game/rumor-map-ui.ts`; not simulation authority |
+| Theatre.js        | Candidate                              | No current executable project artifact                                                           |
+| PyBullet          | Candidate / unproven comparison tool   | No current validation artifact for Field 02 or Rapier math                                       |
+| Manim             | Candidate                              | No current project evidence generator                                                            |
+| Taichi            | Research candidate                     | No current project integration                                                                   |
+| MoviePy / imageio | Candidate                              | Media artifacts do not prove these named libraries produced them                                 |
+| Rerun             | Candidate                              | No current telemetry integration                                                                 |
+| Rapier            | Implemented evidence fixture           | Physics Lab 01 only                                                                              |
+| Box3D             | Implemented evidence fixture           | Isolated comparison probe only                                                                   |
+
 ---
 
 ## Executive Summary

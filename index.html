@@ -55,6 +55,15 @@
           <span>First fit</span>
           <strong id="first-rung-objective-text">Recover 5 salvage</strong>
         </p>
+        <p
+          id="survey-contract"
+          class="first-rung-objective survey-contract"
+          aria-live="polite"
+          hidden
+        >
+          <span>Survey</span>
+          <strong id="survey-contract-text">Contract ready</strong>
+        </p>
         <h1 id="current-prompt">Drive toward anything that pulls you.</h1>
         <button
           id="emergency-recover"
@@ -299,11 +308,10 @@
             class="welcome-panel__status"
             role="status"
             aria-live="polite"
-            aria-atomic="true"
-            data-state="loading"
-          >
-            Preparing field systems.
-          </p>
+            aria-atomic="true"          data-state="loading"
+>
+  Loading field systems…
+</p>
           <button id="enter-world" type="button">Enter the field</button>
         </div>
       </section>

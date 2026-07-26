@@ -224,6 +224,40 @@ export class ExplorationField {
   // ---------------------------------------------------------------------------
 
   /**
+   * Whether terrain leaves an unbroken line between an eye and a target point.
+   *
+   * The single definition of "can this machine see that" in the project. Both the
+   * survey sweep and horizon-signal visibility go through here, because two
+   * independent notions of visibility would drift and the player would end up with
+   * a map and a HUD that disagree about the same hill.
+   *
+   * 10 samples at 0.6 m tolerance is deliberately coarse: it is a gameplay
+   * sightline, not a rendering occlusion query, and a sightline that costs a
+   * hundred fBm evaluations cannot be run at gameplay rates.
+   */
+  sightlineClear(
+    eyeX: number,
+    eyeY: number,
+    eyeZ: number,
+    targetX: number,
+    targetY: number,
+    targetZ: number,
+  ): boolean {
+    return (
+      this.terrain.raymarchBlocked(
+        eyeX,
+        eyeY,
+        eyeZ,
+        targetX,
+        targetY,
+        targetZ,
+        10,
+        0.6,
+      ) >= 1
+    );
+  }
+
+  /**
    * Map every survey cell visible from an eye position.
    *
    * Cells inside `SURVEY_FREE_RADIUS` are mapped unconditionally — you can see
@@ -260,17 +294,11 @@ export class ExplorationField {
 
         if (distance > SURVEY_FREE_RADIUS) {
           const targetY = this.terrain.height(targetX, targetZ) + 1.2;
-          const clear = this.terrain.raymarchBlocked(
-            eyeX,
-            eyeY,
-            eyeZ,
-            targetX,
-            targetY,
-            targetZ,
-            10,
-            0.6,
-          );
-          if (clear < 1) continue;
+          if (
+            !this.sightlineClear(eyeX, eyeY, eyeZ, targetX, targetY, targetZ)
+          ) {
+            continue;
+          }
           vantage = Math.max(vantage, eyeY - targetY);
         }
 

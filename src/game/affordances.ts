@@ -51,6 +51,20 @@ export const RELAY_CARGO_TOW_AFFORDANCE: WorldAffordanceDefinition = {
 };
 
 /**
+ * The survey contract board at the home site.
+ *
+ * The second offer, and the one that proves the contract generalises: it needs a
+ * different capability, belongs to a different activity binding, and resolves
+ * through exactly the same four outcomes as the crate.
+ */
+export const SURVEY_CONTRACT_AFFORDANCE: WorldAffordanceDefinition = {
+  id: "survey-contract-board",
+  version: AFFORDANCE_CONTRACT_VERSION,
+  owningDomain: "activity",
+  requiredCapability: "survey",
+};
+
+/**
  * Resolve an offer in a fixed order.
  *
  * An unavailable offer cannot be acted on. A machine without the required

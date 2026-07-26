@@ -14,13 +14,15 @@ const RULES = [
   {
     id: "operator-direction",
     category: "operator-attribution",
-    pattern: /\boperator (?:direction|decision|accepted|approved|rejected|ratified)\b/i,
+    pattern:
+      /\boperator (?:direction|decision|accepted|approved|rejected|ratified)\b/i,
     note: "Operator attribution requires a traceable direct statement or sign-off.",
   },
   {
     id: "project-owner-attribution",
     category: "operator-attribution",
-    pattern: /\bproject owner\b.{0,48}\b(?:accepted|approved|supplied|decided|rejected|ratified)\b/i,
+    pattern:
+      /\bproject owner\b.{0,48}\b(?:accepted|approved|supplied|decided|rejected|ratified)\b/i,
     note: "Supplying material is not the same as authoring or accepting it.",
   },
   {
@@ -38,7 +40,8 @@ const RULES = [
   {
     id: "mandatory-claim",
     category: "decision-authority",
-    pattern: /\bmandatory\b.{0,64}\b(?:experiment|branch|runtime|system|framework|engine)\b/i,
+    pattern:
+      /\bmandatory\b.{0,64}\b(?:experiment|branch|runtime|system|framework|engine)\b/i,
     note: "Mandatory architecture or experiment language requires an accepted decision.",
   },
 ];

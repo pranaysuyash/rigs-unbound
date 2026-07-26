@@ -156,3 +156,15 @@ That keeps the work aligned with the skill guidance:
   can degrade, and what is optional.
 - Evidence tier: Tier 1 static source inspection plus the already recorded
   Tier 4 browser review trail.
+
+## Addendum (2026-07-26) - episode grammar depends on browser delivery, but it does not replace it
+
+- Re-checked the browser-delivery lane against the episode-grammar direction.
+- Episode grammar can only stay readable publicly if the browser-delivery
+  policy stays explicit about what is essential, what can degrade, and what is
+  optional.
+- That makes the browser-delivery contract a prerequisite beneath episode
+  grammar, not the story-composition layer itself.
+- The current browser-first surface remains the live mode; the missing layer is
+  the named delivery policy and its public promise boundary.
+- Evidence tier: Tier 1 static inspection.

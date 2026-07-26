@@ -1,7 +1,7 @@
 # ADR-0012: Rig perception is a shared gameplay contract
 
 - Date: 2026-07-25
-- Status: accepted product principle; implemented and verified local frame
+- Status: operator-requested exploration; implemented and verified local frame
 - Owner / next reviewer: project owner
 - Affected runtime: `src/game/feedback.ts`, `src/game/renderer.ts`,
   `src/game/audio.ts`, `src/main.ts`
@@ -15,7 +15,9 @@ surface state, damage, and speed. Rendering, audio, camera, particles, and the
 HUD consume parts of that state, but each layer can interpret the same event
 differently or omit it.
 
-The project owner supplied a stronger product rule:
+Operator-supplied AI feedback proposed the following product rule. The operator
+asked that the attached ideas be explored and implemented, but did not author
+this exact sentence:
 
 > Physics, controls, animation, lighting, camera, sound and feedback are
 > gameplay systems.
@@ -134,14 +136,17 @@ the only warning is a gameplay regression.
 
 ## Update log
 
-- 2026-07-25: Accepted from the project owner's interaction-chain direction and
-  implemented as a shared derived feedback frame with browser evidence.
+- 2026-07-25 historical wording, withdrawn as provenance: “Accepted from the
+  project owner's interaction-chain direction.” The exact chain was
+  operator-supplied AI feedback; the shared derived frame was an agent-selected
+  implementation with browser evidence.
 - 2026-07-25: Renumbered from the initially drafted ADR-0011 after parallel
   architecture work established the command/capability separation decision at
   that number. Browser screenshot review also strengthened the shared portrait
   chase pullback after Drift remained clipped at `390 × 844`.
-- 2026-07-26: Provenance scope corrected. The operator directly supplied the
-  interaction-chain principle. `RigFeedbackFrame` is the implemented,
-  evidence-backed local seam chosen to realize it; implementation evidence does
-  not imply operator sign-off on every field. Effective status is indexed in
-  [the decision register](README.md).
+- 2026-07-26: Provenance scope corrected. The operator supplied the
+  interaction-chain proposal for evaluation and asked that the ideas be acted
+  on; that transport does not make the exact wording operator-authored.
+  `RigFeedbackFrame` is the implemented, evidence-backed local seam chosen to
+  realize it; implementation evidence does not imply operator sign-off on every
+  field. Effective status is indexed in [the decision register](README.md).

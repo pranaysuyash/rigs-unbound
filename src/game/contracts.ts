@@ -1,8 +1,10 @@
 import { WORLD_SITES } from "./world";
 import type { RigId } from "./rig-ids";
 
-export const SAVE_SCHEMA_VERSION = 6 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 5 as const;
+export const SAVE_SCHEMA_VERSION = 7 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 6 as const;
+/** v5 predates the Drift berth relocation. */
+export const DRIFT_BERTH_SAVE_SCHEMA_VERSION = 5 as const;
 export const FIELD_CLOCK_SAVE_SCHEMA_VERSION = 4 as const;
 export const FIELD_02_SAVE_SCHEMA_VERSION = 3 as const;
 export const RIG_LAB_SAVE_SCHEMA_VERSION = 2 as const;
@@ -591,6 +593,23 @@ export interface CargoRelayState {
   cargo: CargoState;
 }
 
+/**
+ * A survey contract: paid for line of sight, never for arrival.
+ *
+ * Lives beside `CargoRelayState` because both are save state and the save schema
+ * owns its own shapes. The *rules* live in `activities.ts`; this is only what
+ * persists. Timing is in diegetic world minutes rather than elapsed milliseconds,
+ * because a survey is bounded by the light, not by how long the player sat parked.
+ */
+export interface SurveyRouteState {
+  id: "survey-route";
+  status: ActivityStatus | "failed";
+  startedAtMinutes: number | null;
+  /** Site ids sighted so far, in the order they were first seen. */
+  sighted: readonly string[];
+  bestSightedCount: number;
+}
+
 export interface GameState {
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   seed: string;
@@ -604,6 +623,7 @@ export interface GameState {
   activeRigId: RigId;
   rigs: Record<RigId, RigState>;
   cargoRelay: CargoRelayState;
+  surveyRoute: SurveyRouteState;
   furrows: FurrowMark[];
   discoveries: DiscoveryState[];
   /** Spendable resource. One resource by design; see the exploration map. */

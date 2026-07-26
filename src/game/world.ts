@@ -1390,6 +1390,42 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
   },
 ] as const;
 
+/**
+ * Where each site's horizon signal physically is, derived from the authored part
+ * that carries it.
+ *
+ * The lamp's world height needs the site's terrain height added at runtime, so this
+ * table holds local offsets only. Deriving it means a landmark cannot be moved in
+ * `WORLD_STRUCTURE_PARTS` while a second table keeps pointing at the old place.
+ */
+export interface SiteSignal {
+  siteId: WorldSiteId;
+  x: number;
+  z: number;
+  localY: number;
+}
+
+export const SITE_SIGNALS: readonly SiteSignal[] = WORLD_SITES.flatMap(
+  (site) => {
+    const part = WORLD_STRUCTURE_PARTS.find(
+      (candidate) =>
+        candidate.siteId === site.id && candidate.discoverySignal === true,
+    );
+    if (!part) return [];
+    return [
+      {
+        siteId: site.id,
+        x: site.x + part.localX,
+        z: site.z + part.localZ,
+        // Top of the lamp: a signal is seen over a rise by its highest point.
+        localY:
+          part.localY +
+          (part.shape.kind === "cylinder" ? part.shape.height * 0.5 : 0),
+      },
+    ];
+  },
+);
+
 export interface RigHomeBerth {
   rigId: RigId;
   /** World-space berth centre. */

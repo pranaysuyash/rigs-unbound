@@ -74,6 +74,42 @@ async function state(page) {
   throw new Error("Unreachable state retry boundary");
 }
 
+function planPlayerDrivePulse(rig, target) {
+  const dx = target.x - rig.x;
+  const dz = target.z - rig.z;
+  const distance = Math.hypot(dx, dz);
+  const desired = Math.atan2(dx, dz);
+  const normalizeAngle = (angle) => {
+    let normalized = angle;
+    while (normalized > Math.PI) normalized -= Math.PI * 2;
+    while (normalized < -Math.PI) normalized += Math.PI * 2;
+    return normalized;
+  };
+  const forwardError = normalizeAngle(desired - rig.heading);
+  const reverseError = normalizeAngle(desired - (rig.heading + Math.PI));
+  const reversing =
+    distance < 12 && Math.abs(reverseError) + 0.35 < Math.abs(forwardError);
+  const travelError = reversing ? reverseError : forwardError;
+  const headingError = Math.abs(travelError);
+  let desiredSpeed =
+    distance > 18 ? 4.5 : distance > 9 ? 3 : distance > 5 ? 1.6 : 0.8;
+  if (headingError > 0.9) desiredSpeed = Math.min(desiredSpeed, 0.8);
+  if (reversing) desiredSpeed = -Math.min(desiredSpeed, 1.6);
+  const speedError = desiredSpeed - rig.speed;
+  const driveAction =
+    speedError > 0.18 ? "accelerate" : speedError < -0.18 ? "brake" : null;
+  const turnRight = reversing ? travelError < -0.06 : travelError > 0.06;
+  const turnLeft = reversing ? travelError > 0.06 : travelError < -0.06;
+  const steerAction = turnLeft ? "steerLeft" : turnRight ? "steerRight" : null;
+  return {
+    distance,
+    travelError,
+    headingError,
+    driveAction,
+    steerAction,
+  };
+}
+
 async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   let minimumDistance = Infinity;
   let maximumY = 0;
@@ -243,6 +279,134 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   );
 }
 
+async function dispatchTouchHold(page, cdp, actions, durationMs) {
+  const points = [];
+  for (const [index, action] of actions.entries()) {
+    const bounds = await page.evaluate((holdAction) => {
+      const element = document.querySelector(
+        `[data-hold-action="${holdAction}"]`,
+      );
+      if (!(element instanceof HTMLElement)) return null;
+      const rect = element.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return null;
+      return {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      };
+    }, action);
+    assert(bounds !== null, `Touch control ${action} has no visible bounds`);
+    points.push({
+      x: Math.round(bounds.x + bounds.width / 2),
+      y: Math.round(bounds.y + bounds.height / 2),
+      radiusX: 4,
+      radiusY: 4,
+      force: 1,
+      id: index + 1,
+    });
+  }
+  if (points.length === 0) {
+    await page.waitForTimeout(durationMs);
+    return;
+  }
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: points,
+  });
+  await page.waitForTimeout(durationMs);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+}
+
+async function driveToWithTouch(
+  page,
+  cdp,
+  target,
+  stoppingRadius,
+  maxSteps = 220,
+  terminalFirstRungStage = null,
+  terminalLessonIncludes = null,
+) {
+  let nearestDistance = Number.POSITIVE_INFINITY;
+  let finalRig = null;
+  let finalHeadingError = null;
+  let finalDiagnostic = null;
+  for (let step = 0; step < maxSteps; step += 1) {
+    const current = await state(page);
+    const rig = current.activeRig;
+    if (
+      terminalLessonIncludes !== null &&
+      (await page.evaluate(
+        (expected) =>
+          document
+            .querySelector("#control-lesson-title")
+            ?.textContent?.includes(expected) === true,
+        terminalLessonIncludes,
+      ))
+    ) {
+      return {
+        steps: step,
+        nearestDistance,
+        terminalLessonIncludes,
+      };
+    }
+    if (
+      terminalFirstRungStage !== null &&
+      current.progression.firstRung.stage === terminalFirstRungStage
+    ) {
+      return {
+        steps: step,
+        nearestDistance,
+        terminalFirstRungStage,
+      };
+    }
+    finalRig = rig;
+    finalDiagnostic = current.lastDiagnostic;
+    const pulse = planPlayerDrivePulse(rig, target);
+    nearestDistance = Math.min(nearestDistance, pulse.distance);
+    if (terminalLessonIncludes === null && pulse.distance <= stoppingRadius) {
+      return { steps: step, nearestDistance };
+    }
+    if (rig.condition <= 0) {
+      throw new Error(
+        `Touch driver disabled ${rig.id} before reaching ${JSON.stringify(target)}; nearest ${nearestDistance.toFixed(2)} m; final ${JSON.stringify({ rig, diagnostic: current.lastDiagnostic })}`,
+      );
+    }
+    finalHeadingError = pulse.travelError;
+    const actions = [pulse.driveAction, pulse.steerAction].filter(Boolean);
+    await dispatchTouchHold(
+      page,
+      cdp,
+      actions,
+      pulse.headingError > 1 ? 90 : 70,
+    );
+  }
+  throw new Error(
+    `Touch driver did not reach ${JSON.stringify(target)}; nearest ${nearestDistance.toFixed(2)} m; final ${JSON.stringify({ rig: finalRig, headingError: finalHeadingError, diagnostic: finalDiagnostic })}`,
+  );
+}
+
+async function stopWithTouch(page, cdp, maxSteps = 40) {
+  for (let step = 0; step < maxSteps; step += 1) {
+    const current = await state(page);
+    const speed = current.activeRig.speed;
+    if (Math.abs(speed) <= 0.2) return { steps: step, speed };
+    await dispatchTouchHold(
+      page,
+      cdp,
+      [speed > 0 ? "brake" : "accelerate"],
+      70,
+    );
+  }
+  const current = await state(page);
+  throw new Error(
+    `Touch stop did not settle ${current.activeRig.id}: ${JSON.stringify({ speed: current.activeRig.speed, diagnostic: current.lastDiagnostic })}`,
+  );
+}
+
 (async () => {
   fs.mkdirSync(artifactDirectory, { recursive: true });
   fs.mkdirSync(ru0110ArtifactDirectory, { recursive: true });
@@ -402,7 +566,30 @@ async function stopWithKeyboard(page, maxSteps = 40) {
     300,
   );
   const cacheStop = await stopWithKeyboard(firstRungPage);
+  const keyboardCacheReady = await state(firstRungPage);
+  assert(
+    keyboardCacheReady.progression.nearestSalvage?.id ===
+      "first-recovery-cache" &&
+      keyboardCacheReady.progression.nearestSalvage.distance <= 4.6,
+    `Keyboard route stopped outside the first cache action radius: ${JSON.stringify(
+      {
+        rig: keyboardCacheReady.activeRig,
+        nearestSalvage: keyboardCacheReady.progression.nearestSalvage,
+      },
+    )}`,
+  );
+  await firstRungPage.locator("#game-canvas").focus();
   await firstRungPage.keyboard.press("Space");
+  await firstRungPage.waitForTimeout(250);
+  const keyboardCollected = await state(firstRungPage);
+  assert(
+    keyboardCollected.progression.firstRung.stage === "return-home",
+    `Keyboard Space did not collect the ready first cache: ${JSON.stringify({
+      before: keyboardCacheReady.progression,
+      after: keyboardCollected.progression,
+      diagnostic: keyboardCollected.lastDiagnostic,
+    })}`,
+  );
   await firstRungPage.waitForFunction(
     () =>
       JSON.parse(window.render_game_to_text()).progression.firstRung.stage ===
@@ -430,6 +617,20 @@ async function stopWithKeyboard(page, maxSteps = 40) {
       JSON.parse(window.render_game_to_text()).progression.firstRung.stage ===
       "choose-part",
   );
+  await firstRungPage.waitForFunction(
+    () =>
+      document.querySelector("#control-lesson-title")?.textContent ===
+      "Fit a part at Home Silo",
+  );
+  assert(
+    (
+      (await firstRungPage.locator("#control-lesson-keyboard").textContent()) ??
+      ""
+    ).includes("1–6"),
+    "Keyboard return did not explain the newly relevant workshop controls.",
+  );
+  await firstRungPage.locator("#control-lesson-dismiss").click();
+  await firstRungPage.locator("#workshop-panel").waitFor({ state: "visible" });
   const recommendedButton = firstRungPage.locator(
     'button[data-module-id="lug-tires"]',
   );
@@ -458,10 +659,6 @@ async function stopWithKeyboard(page, maxSteps = 40) {
       visibleModules: fittedPerception.visibleModules,
     })}`,
   );
-  const controlLessonDismiss = firstRungPage.locator("#control-lesson-dismiss");
-  if (await controlLessonDismiss.isVisible()) {
-    await controlLessonDismiss.click();
-  }
   await firstRungPage.keyboard.press("c");
   await firstRungPage.keyboard.press("c");
   await firstRungPage.screenshot({
@@ -499,6 +696,175 @@ async function stopWithKeyboard(page, maxSteps = 40) {
     visibleModules: restoredPerception.visibleModules,
   };
   await firstRungContext.close();
+
+  const touchFirstRungContext = await firstRungBrowser.newContext({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true,
+  });
+  const touchFirstRungPage = await touchFirstRungContext.newPage();
+  touchFirstRungPage.setDefaultTimeout(90_000);
+  touchFirstRungPage.setDefaultNavigationTimeout(90_000);
+  await touchFirstRungPage.goto(TARGET_URL, {
+    waitUntil: "domcontentloaded",
+  });
+  await touchFirstRungPage.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
+  await touchFirstRungPage.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+  await touchFirstRungPage.reload({ waitUntil: "domcontentloaded" });
+  await touchFirstRungPage.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
+  await touchFirstRungPage.locator("#enter-world").tap();
+  await touchFirstRungPage.waitForFunction(
+    () => JSON.parse(window.render_game_to_text()).welcomeOpen === false,
+  );
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      document.querySelector("#control-lesson-title")?.textContent ===
+      "Drive the active rig",
+  );
+  assert(
+    (await touchFirstRungPage
+      .locator("#control-lesson-title")
+      .textContent()) === "Drive the active rig" &&
+      (
+        (await touchFirstRungPage
+          .locator("#control-lesson-touch")
+          .textContent()) ?? ""
+      ).includes("direction arrows"),
+    "Fresh touch entry did not explain the driving controls before movement",
+  );
+  await touchFirstRungPage.locator("#control-lesson-dismiss").tap();
+  const touchStart = await state(touchFirstRungPage);
+  assert(
+    touchStart.progression.firstRung.stage === "find-cache",
+    `Fresh touch first-rung guidance missing: ${JSON.stringify(touchStart.progression.firstRung)}`,
+  );
+  const touchCdp =
+    await touchFirstRungContext.newCDPSession(touchFirstRungPage);
+  const touchCacheApproach = await driveToWithTouch(
+    touchFirstRungPage,
+    touchCdp,
+    touchStart.progression.firstRung.target,
+    4.6,
+    300,
+    null,
+    "Collect the salvage",
+  );
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      document
+        .querySelector("#control-lesson-title")
+        ?.textContent?.includes("Collect the salvage") === true,
+  );
+  assert(
+    (
+      (await touchFirstRungPage
+        .locator("#control-lesson-touch")
+        .textContent()) ?? ""
+    ).includes("Act"),
+    "Touch collection became relevant without explaining the contextual Act control",
+  );
+  await touchFirstRungPage.locator("#control-lesson-dismiss").tap();
+  await touchFirstRungPage.locator('[data-tap-action="primary"]').tap();
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      JSON.parse(window.render_game_to_text()).progression.firstRung.stage ===
+      "return-home",
+  );
+  const touchCacheStop = await stopWithTouch(touchFirstRungPage, touchCdp);
+  const touchReturnTarget = (await state(touchFirstRungPage)).progression
+    .firstRung.target;
+  assert(
+    touchReturnTarget.x === 0 && touchReturnTarget.z === 12,
+    `Touch first-rung return target drifted from Home Silo: ${JSON.stringify(touchReturnTarget)}`,
+  );
+  const touchHomeApproach = await driveToWithTouch(
+    touchFirstRungPage,
+    touchCdp,
+    { x: -10, z: 8 },
+    4,
+    180,
+    "choose-part",
+  );
+  const touchHomeStop = await stopWithTouch(touchFirstRungPage, touchCdp);
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      JSON.parse(window.render_game_to_text()).progression.firstRung.stage ===
+      "choose-part",
+  );
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      document.querySelector("#control-lesson-title")?.textContent ===
+      "Fit a part at Home Silo",
+  );
+  assert(
+    (
+      (await touchFirstRungPage
+        .locator("#control-lesson-touch")
+        .textContent()) ?? ""
+    ).includes("choose a part"),
+    "Touch return did not explain the newly relevant workshop control",
+  );
+  await touchFirstRungPage.locator("#control-lesson-dismiss").tap();
+  const touchRecommendedButton = touchFirstRungPage.locator(
+    'button[data-module-id="lug-tires"]',
+  );
+  assert(
+    (await touchRecommendedButton.isEnabled()) &&
+      (
+        (await touchRecommendedButton.getAttribute("aria-label")) ?? ""
+      ).startsWith("Recommended."),
+    "Recommended first workshop choice was not touch-accessible and named",
+  );
+  await touchRecommendedButton.tap();
+  await touchFirstRungPage.waitForFunction(
+    () =>
+      JSON.parse(window.render_game_to_text()).progression.firstRung
+        .complete === true,
+  );
+  await touchFirstRungPage.waitForFunction(() => {
+    const raw = localStorage.getItem("rigs-unbound.save.v7");
+    if (!raw) return false;
+    const saved = JSON.parse(raw);
+    return (
+      saved?.state?.rigs?.["utility-tractor"]?.modules?.includes(
+        "lug-tires",
+      ) === true
+    );
+  });
+  await touchFirstRungPage.reload({ waitUntil: "domcontentloaded" });
+  await touchFirstRungPage.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
+  const touchRestored = await state(touchFirstRungPage);
+  const touchRestoredPerception = await touchFirstRungPage.evaluate(() =>
+    window.getRigPerceptionEvidence(),
+  );
+  assert(
+    touchRestored.progression.firstRung.complete === true &&
+      touchRestored.activeRig.modules.includes("lug-tires") &&
+      touchRestoredPerception.visibleModules.includes("lug-tires"),
+    "Touch-fitted first-rung module did not survive save/reload in state and presentation",
+  );
+  const touchFirstRungEvidence = {
+    cacheApproach: touchCacheApproach,
+    cacheStop: touchCacheStop,
+    homeApproach: touchHomeApproach,
+    homeStop: touchHomeStop,
+    start: touchStart.progression.firstRung,
+    restored: touchRestored.progression.firstRung,
+    fittedModules: touchRestored.activeRig.modules,
+    visibleModules: touchRestoredPerception.visibleModules,
+  };
+  await touchCdp.detach();
+  await touchFirstRungContext.close();
+
   context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
   });
@@ -1175,7 +1541,7 @@ async function stopWithKeyboard(page, maxSteps = 40) {
 
   await page.waitForFunction(
     () => {
-      const raw = localStorage.getItem("rigs-unbound.save.v6");
+      const raw = localStorage.getItem("rigs-unbound.save.v7");
       if (!raw) return false;
       try {
         const payload = JSON.parse(raw);
@@ -1195,7 +1561,7 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   );
   assert(saveMetrics.saveBytes > 0, "Periodic save size was not measured");
   const stored = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("rigs-unbound.save.v6")),
+    JSON.parse(localStorage.getItem("rigs-unbound.save.v7")),
   );
   assert(
     stored.state.cargoRelay.status === "complete",
@@ -1230,13 +1596,13 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   );
 
   await page.addInitScript(() => {
-    const payload = JSON.parse(localStorage.getItem("rigs-unbound.save.v6"));
+    const payload = JSON.parse(localStorage.getItem("rigs-unbound.save.v7"));
     if (!payload?.state?.rigs?.["utility-tractor"]) return;
     payload.state.activeRigId = "utility-tractor";
     payload.state.rigs["utility-tractor"].x = -126;
     payload.state.rigs["utility-tractor"].z = -130;
     payload.state.rigs["utility-tractor"].condition = 0;
-    localStorage.setItem("rigs-unbound.save.v6", JSON.stringify(payload));
+    localStorage.setItem("rigs-unbound.save.v7", JSON.stringify(payload));
   });
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.waitForFunction(
@@ -1268,7 +1634,7 @@ async function stopWithKeyboard(page, maxSteps = 40) {
     () => typeof window.render_game_to_text === "function",
   );
   const disabledPayload = await page.evaluate(() =>
-    localStorage.getItem("rigs-unbound.save.v6"),
+    localStorage.getItem("rigs-unbound.save.v7"),
   );
   await page.locator("#emergency-recover").click();
   const recoveredByMouse = await state(page);
@@ -1288,7 +1654,7 @@ async function stopWithKeyboard(page, maxSteps = 40) {
   });
   await touchContext.addInitScript(
     ({ payload }) => {
-      localStorage.setItem("rigs-unbound.save.v6", payload);
+      localStorage.setItem("rigs-unbound.save.v7", payload);
       sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
     },
     { payload: disabledPayload },
@@ -1401,6 +1767,7 @@ async function stopWithKeyboard(page, maxSteps = 40) {
         },
         freshAcquisition,
         firstRung: firstRungEvidence,
+        touchFirstRung: touchFirstRungEvidence,
         terrainFaces: terrainFaceEvidence,
         relay: restored.activity,
         rigDistances: {

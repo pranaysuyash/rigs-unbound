@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "4174", "--strictPort"],
       "port": 4174,
       "url": "http://localhost:4174"
+    },
+    {
+      "name": "rigs-unbound-fresh",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "4176", "--strictPort"],
+      "port": 4176,
+      "url": "http://localhost:4176"
     }
   ]
 }

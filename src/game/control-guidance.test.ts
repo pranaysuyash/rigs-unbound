@@ -62,6 +62,22 @@ describe("first-use control guidance", () => {
     });
   });
 
+  it("does not let optional lessons block the workshop after its lesson is learned", () => {
+    const lesson = resolveControlLesson(
+      {
+        ...BASE_CONTEXT,
+        hasDriven: true,
+        workshopRelevant: true,
+        bladeRelevant: true,
+        cameraRelevant: true,
+        mapRelevant: true,
+      },
+      new Set(["drive", "act", "workshop"]),
+    );
+
+    expect(lesson).toBeNull();
+  });
+
   it("does not repeat learned lessons and can advance to a contextual tool", () => {
     const lesson = resolveControlLesson(
       {

@@ -290,3 +290,17 @@ and authored landmarks deliberately specific.
     activity proof.
 - Evidence tier: Tier 1 static source inspection. No browser/test execution was
   run in this pass.
+
+## Addendum (2026-07-26) - the next activity proof is still the second use case, with tow-plus-repair as the strongest candidate
+
+- Re-checked the current activity seam against the live command/state spine.
+- The repo still has one proven activity boundary and no second materially
+  different activity in the runtime.
+- The strongest next candidate is a tow-plus-repair rescue flow because it can
+  reuse the current affordance matcher while introducing a different objective
+  shape, different failure mode, and different recovery story.
+- That does not justify a generic planner yet; it only sharpens the next
+  activity proof slice.
+- The generic `ActivityDefinition` registry should still wait until that second
+  activity exists and can prove the same command/result pattern.
+- Evidence depth: Tier 1 static source inspection.

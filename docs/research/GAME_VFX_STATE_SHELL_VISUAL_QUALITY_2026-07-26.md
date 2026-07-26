@@ -552,3 +552,21 @@ Quality: High (desktop/powerful mobile)
 - This note intentionally does not promote the shell into a separate gameplay
   system; it only keeps the dependency visible so future episode work can rely
   on the same readable rig-state language.
+
+## Addendum (2026-07-26) - the shell still needs one browser-proved profile owner
+
+- Re-checked the shell lane against the current browser-delivery and render
+  profile contracts.
+- The runtime pieces are already real:
+  - `renderer.ts` builds a dedicated state-shell mesh and shader envelope,
+  - `feedback.ts` computes integrity and impact data that drive that shell,
+  - the renderer pushes the shell uniforms from live rig feedback each frame.
+- The remaining gap is not another effect idea; it is one browser-proved shell
+  profile that owns the visible state language for the selected quality mode.
+- That shell profile should be explicitly tied to the current quality band and
+  a public approval boundary, so the presentation layer is promoted by proof
+  rather than by concept alone.
+- Until that exists, the shell remains a contract lane rather than a shipped
+  presentation profile.
+- Evidence depth: Tier 1 static source inspection. No new browser/device proof
+  was run in this update.

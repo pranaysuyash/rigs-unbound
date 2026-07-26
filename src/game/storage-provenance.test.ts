@@ -72,4 +72,30 @@ describe("storage provenance", () => {
       schemaVersion: state.schemaVersion,
     });
   });
+
+  it("preserves the prior canonical record when replacement storage fails", () => {
+    const storage = memoryStorage();
+    const prior = createInitialState("PRIOR-SAVE");
+    const next = createInitialState("NEXT-SAVE");
+    const priorRaw = JSON.stringify({
+      state: prior,
+      worldMemory: new GameWorld(prior.seed).snapshot(),
+    });
+    storage.setItem(SAVE_KEY, priorRaw);
+
+    const setItem = storage.setItem.bind(storage);
+    storage.setItem = (key, value) => {
+      if (key === SAVE_KEY) throw new Error("simulated write failure");
+      setItem(key, value);
+    };
+
+    const result = saveState(storage, next, new GameWorld(next.seed));
+
+    expect(result).toMatchObject({
+      saveKey: SAVE_KEY,
+      schemaVersion: next.schemaVersion,
+      error: "simulated write failure",
+    });
+    expect(storage.getItem(SAVE_KEY)).toBe(priorRaw);
+  });
 });

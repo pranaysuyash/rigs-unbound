@@ -344,6 +344,9 @@ explicit benchmark decision outside the adaptive fallback controller.
   tightly scoped to measured visibility pressure and the recovery window. It
   does not infer thermal, battery, CPU, or memory behavior from user-agent
   hints.
+- That means the visibility fallback itself now has a real owner and policy
+  shape: `RuntimeProfileController` governs the `standard` ↔ `mobile-safe`
+  switch and recovery window for the current renderer budget.
 - So the contract’s first proof is now stronger than “metrics exist”:
   the app has a real, explainable visual fallback with recovery.
 - The remaining gap is still the broader resource-governance envelope:

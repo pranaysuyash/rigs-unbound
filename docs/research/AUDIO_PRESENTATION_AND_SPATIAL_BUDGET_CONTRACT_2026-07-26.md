@@ -142,3 +142,38 @@ Yes: imported audio introduces both decode/resource behavior and provenance obli
 - This note intentionally keeps audio out of authority or story ownership; it
   only preserves the dependency so future episode work can rely on the current
   feedback surface.
+
+## Addendum (2026-07-26) - rig signature needs a listener-owned consumer before it becomes more than a fixture
+
+- Re-checked the current runtime against the audio contract and the new
+  deterministic rig-emission source.
+- `src/game/signature.ts` now derives bounded acoustic, illumination, and
+  thermal-proxy channels from rig state without mutating the rig.
+- That makes the signature source a real presentation fixture, but not yet a
+  complete audio contract:
+  - there is still no listener-owned source scheduler,
+  - no accessible player-facing consumer of the signature output,
+  - no browser proof that the signature improves comprehension rather than just
+    existing as a code-level signal.
+- The next proof should connect the source to one readable player-facing cue
+  before any broader audio scheduler is generalized.
+- Evidence depth: Tier 1 static source inspection.
+
+## Addendum (2026-07-26) - bursty event suppression is still only a contract seed
+
+- Re-checked `src/game/audio.ts` against the bursty-event lane.
+- The current audio implementation has discrete one-shot paths:
+  - `impact()` builds a disposable burst per hit,
+  - `chirp()` provides a short acknowledgement cue,
+  - the procedural machine voice is continuously updated rather than queued.
+- What is still missing is an explicit duplicate-event suppression or cooldown
+  contract for rapid impact / interaction streams:
+  - no named suppression window,
+  - no event-level coalescing rule,
+  - no browser proof that repeated bursts stay readable rather than stacking
+    into noise.
+- That means the contract line already exists in prose, but the runtime owner
+  for burst gating is still unresolved.
+- The next proof should name one suppression/cooldown rule before any second
+  bursty audio source arrives.
+- Evidence depth: Tier 1 static source inspection.

@@ -119,7 +119,8 @@ browser acceptance remain explicit open gates.
 - [ ] Sites save/deploy from that exact pushed source state.
 - [ ] Public production browser and HTTP acceptance.
 - [ ] Update deployment ledger, tracker item `.7`, and this report with final IDs.
-- [ ] Real-touch and external-player comprehension evidence.
+- [x] Real-touch first-rung evidence on the rebuilt `4174` surface.
+- [ ] External-player comprehension evidence.
 
 ## Anything else?
 
@@ -166,6 +167,34 @@ but the side camera is too close to the barn/tractor and simultaneous
 workshop/HUD layers crowd the frame. The narrow capture is unclipped but still
 overloaded. These are active visual-composition tasks, not failures of the
 functional first-rung contract.
+
+## Addendum (2026-07-26) — real-touch and clean-install release repair
+
+A mobile `390×844`, `hasTouch` Chrome context now completes the first rung
+through real UI events:
+
+- tap Enter;
+- read and dismiss the state-derived Drive lesson;
+- hold simultaneous on-screen accelerate/steer touch points;
+- stop inside the authored cache radius;
+- read the contextual Act lesson and tap Act;
+- drive back into the Home service area;
+- read and dismiss the newly relevant Workshop lesson;
+- tap the recommended Lug tyres button;
+- wait for the canonical save and verify visible fitted tread after reload.
+
+The final `4174` run passed this touch journey and the existing desktop/camera/
+cross-rig matrix with zero captured console/page problems. The touch driver
+reads rendered control bounds and dispatches Chrome touch events; it does not
+call gameplay mutation hooks.
+
+Sites version 8 exposed a separate clean-install release blocker before build:
+`vite-plugin-wasm@3.5.0` did not declare Vite 8 peer compatibility. The
+dependency and lockfile now use `vite-plugin-wasm@3.6.0`, whose peer range
+includes Vite 8. A clean `npm ci`, production build, 220 tests, 7 kernel tests,
+9 asset tests, asset preflight, formatting, diff hygiene, and the full rebuilt
+`4174` browser matrix passed after the repair. Version 8 remains a failed
+deployment record; the repaired commit must be saved as a new Sites version.
 
 ## Addendum (2026-07-26) — current 4180 full acceptance pass
 
@@ -217,6 +246,92 @@ layout assertion.
 records why real-key traversal runs in an isolated renderer process while
 retaining the public input and interaction contracts.
 
-This pass does not close the release matrix. Exact-final 4174 rebuilt preview,
-real touch, external-player comprehension, commit/push, Sites deployment, and
-public-production checks remain open.
+This pass did not close the release matrix. The rebuilt `4174` preview had
+already passed; the remaining gaps were the complete real-touch first-rung,
+external-player comprehension, commit/push, Sites deployment, and
+public-production checks.
+
+## Addendum (2026-07-26) — fresh rebuilt 4182 persistence proof
+
+A new `npm run build` passed main and deterministic-kernel typechecks, Vite
+client/server compilation, and the player asset-boundary check. The exact
+resulting build was then served at `http://127.0.0.1:4182/` and exercised with:
+
+```bash
+RIGS_UNBOUND_URL='http://127.0.0.1:4182/?acceptance=field-02' \
+RIGS_EXPECT_DEVELOPER_BRIDGES=0 \
+RIGS_PLAYWRIGHT_MODULE='/Users/pranay/Projects/skills/testing/playwright-skill/node_modules/playwright' \
+node tools/rig-lab-browser-acceptance.cjs
+```
+
+The first run exposed an acceptance-harness race: it waited for any non-empty
+periodic save and then immediately asserted that the just-completed relay was
+present. The production preview could satisfy the first condition with an
+earlier save. The harness now waits for the persisted v6 payload to contain
+`cargoRelay.status === "complete"` and non-zero save bytes. No gameplay
+shortcut or state grant was introduced.
+
+The corrected full run exited 0 with zero captured console/page problems. It
+reproved the real-key first rung, visible and persisted Lug tyres, cargo relay,
+all six camera policies, signed rear chase, structure/tree camera collision,
+three terrain-face refusals, ramp and deep-water hover, reduced motion,
+desktop and `390×844` layouts, touch emergency recovery, private bridge
+absence, and performance instrumentation.
+
+This adds Tier 3 production-like local integration evidence. The build still
+reports the tracked Three.js chunk advisory.
+
+### Full real-touch first-rung follow-up
+
+The harness now runs a second fresh first-rung profile in a `390×844`,
+`hasTouch` mobile context. Chrome touch events hold the public
+`data-hold-action` buttons, including simultaneous throttle and steering. The
+flow:
+
+1. enters the world through the touch button;
+2. observes and dismisses the state-derived driving lesson;
+3. drives to the authored cache with the visible touch controls;
+4. observes the newly relevant contextual Act lesson;
+5. collects through touch Act;
+6. returns to the canonical Home service area;
+7. observes the newly relevant workshop lesson;
+8. taps the accessible recommended Lug tyres control;
+9. waits for the fitted module in the persisted v6 payload;
+10. reloads and observes both canonical completion and visible tread.
+
+The full `4182` production-like matrix then exited 0 with zero captured
+console/page problems. Its evidence payload reports the touch cache approach,
+stop, Home approach, stop, restored first-rung state, fitted module, and visible
+module independently from the keyboard result. Touch emergency recovery also
+continues to pass.
+
+This closes the local full-touch implementation gate at Tier 3. External-player
+comprehension, a release-authorised commit/push, Sites deployment, and public
+production remain open.
+
+## Addendum (2026-07-26) — Sites version 9 public-production acceptance
+
+The release-authorised dependency repair was committed as
+`58968333c616cdd055b94ef11c29e69109df3a24`, pushed to `origin/main`, saved as
+Sites version
+`appgprj_6a64c10e5a2c8191ad80278ea124aa6b~appgver_8d8b9b737464819189a7663efc1dc29e`,
+and deployed successfully as
+`appgdep_6a66391c33ac8191905ac87775b1585e`.
+
+The default public URL and `?acceptance=field-02` returned HTTP 200. A full
+public browser run then exited 0 with zero captured console/page problems. Its
+fresh `390×844`, `hasTouch` profile:
+
+1. entered through the visible touch control;
+2. drove with rendered throttle/steering controls;
+3. stopped when guidance changed to `Collect the salvage`;
+4. collected through touch Act;
+5. returned to Home Silo;
+6. fitted Lug tyres through the accessible workshop control;
+7. reloaded and observed canonical `free-explore` completion and visible
+   `lug-tires`.
+
+This closes the public-production real-touch implementation gate at Tier 4.
+It does not close external fresh-player comprehension. Exact deployment
+provenance, checks, observations, gaps, rollback, and handoff are recorded in
+[Sites Version 9 Release](SITES_VERSION_9_RELEASE_2026-07-26.md).

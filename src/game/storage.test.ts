@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createInitialState } from "./state";
 import { GameWorld } from "./gameworld";
 import {
+  DRIFT_BERTH_SAVE_KEY,
   FIELD_CLOCK_SAVE_KEY,
   FIELD_02_SAVE_KEY,
   loadState,
@@ -29,7 +30,7 @@ function memoryStorage(): Storage {
 }
 
 describe("versioned local persistence", () => {
-  it("migrates a wrapped v3 state and restores its world memory into v6", () => {
+  it("migrates a wrapped v3 state and restores its world memory into v7", () => {
     const storage = memoryStorage();
     const source = createInitialState("FIELD-02-WORLD-MIGRATION");
     source.rigs["utility-tractor"].distanceTravelled = 212;
@@ -49,6 +50,7 @@ describe("versioned local persistence", () => {
         state: {
           ...source,
           schemaVersion: 3,
+          surveyRoute: undefined,
           rigs: {
             "utility-tractor": flattenGroundRig("utility-tractor"),
             "toy-buggy": flattenGroundRig("toy-buggy"),
@@ -67,7 +69,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.schemaVersion).toBe(7);
     expect(loaded.state.rigs["utility-tractor"].distanceTravelled).toBe(212);
     expect(loaded.state.rigs["marsh-skimmer"].mobility.kind).toBe("hover");
     expect(world.felledObstacles.has("tree-proof")).toBe(true);
@@ -82,9 +84,10 @@ describe("versioned local persistence", () => {
     const source = createInitialState("V5-SLOT");
     const prior = JSON.parse(JSON.stringify(source));
     prior.schemaVersion = 5;
+    delete prior.surveyRoute;
     prior.salvage = 17;
     storage.setItem(
-      PREVIOUS_SAVE_KEY,
+      DRIFT_BERTH_SAVE_KEY,
       JSON.stringify({
         state: prior,
         worldMemory: {
@@ -104,7 +107,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.schemaVersion).toBe(7);
     expect(loaded.state.salvage).toBe(17);
   });
 
@@ -120,6 +123,7 @@ describe("versioned local persistence", () => {
     legacy.elapsedMs = 24_000;
     delete legacy.worldTimeMinutes;
     delete legacy.recovery;
+    delete legacy.surveyRoute;
 
     storage.setItem(
       FIELD_CLOCK_SAVE_KEY,
@@ -138,12 +142,82 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.schemaVersion).toBe(7);
     expect(loaded.state.worldTimeMinutes).toBe(1135);
     expect(loaded.state.phase).toBe("gloam");
     expect(loaded.state.recovery).toEqual({
       emergencyCount: 0,
       lastEmergencyAtMs: null,
+    });
+  });
+
+  it("migrates the v6 slot into a fresh survey contract without overwriting it", () => {
+    const storage = memoryStorage();
+    const source = createInitialState("V6-SURVEY-MIGRATION");
+    const prior = JSON.parse(JSON.stringify(source));
+    prior.schemaVersion = 6;
+    delete prior.surveyRoute;
+    prior.salvage = 11;
+    storage.setItem(
+      PREVIOUS_SAVE_KEY,
+      JSON.stringify({
+        state: prior,
+        worldMemory: {
+          deformation: [],
+          felled: [],
+          collected: [],
+          surveyed: [],
+        },
+      }),
+    );
+
+    const loaded = loadState(storage, new GameWorld(source.seed));
+
+    expect(loaded).toMatchObject({
+      status: "migrated",
+      sourceKey: PREVIOUS_SAVE_KEY,
+      sourceSchemaVersion: 6,
+      state: {
+        schemaVersion: 7,
+        salvage: 11,
+        surveyRoute: {
+          id: "survey-route",
+          status: "ready",
+          startedAtMinutes: null,
+          sighted: [],
+          bestSightedCount: 0,
+        },
+      },
+    });
+    expect(storage.getItem(PREVIOUS_SAVE_KEY)).not.toBeNull();
+    expect(storage.getItem(SAVE_KEY)).toBeNull();
+  });
+
+  it("rejects a current v7 record that omits its required survey contract", () => {
+    const storage = memoryStorage();
+    const source = createInitialState("V7-MISSING-SURVEY");
+    const invalid = JSON.parse(JSON.stringify(source));
+    delete invalid.surveyRoute;
+    storage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        state: invalid,
+        worldMemory: {
+          deformation: [],
+          felled: [],
+          collected: [],
+          surveyed: [],
+        },
+      }),
+    );
+
+    const loaded = loadState(storage, new GameWorld(source.seed));
+
+    expect(loaded).toMatchObject({
+      status: "recovered",
+      sourceKey: SAVE_KEY,
+      sourceSchemaVersion: 7,
+      recoveryReason: "invalid-payload",
     });
   });
 

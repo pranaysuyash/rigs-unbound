@@ -77,7 +77,7 @@ const COLORS = {
 } as const;
 
 /** Terrain mesh sample spacing, in metres. */
-const TERRAIN_STEP = 2.6;
+const TERRAIN_STEP = 5.2;
 
 /** Span of the terrain mesh, in metres. Slightly wider than the world disc. */
 const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
@@ -231,7 +231,11 @@ export class GameRenderer {
 
   private treeTrunks!: THREE.InstancedMesh;
   private treeCrowns!: THREE.InstancedMesh;
+  private treeBillboards!: THREE.InstancedMesh;
+  private treeBillboardCount = 0;
   private rocks!: THREE.InstancedMesh;
+  private rockBillboards!: THREE.InstancedMesh;
+  private rockBillboardCount = 0;
   private felledTrunks!: THREE.InstancedMesh;
   private salvageNodes!: THREE.InstancedMesh;
   private furrowDecals!: THREE.InstancedMesh;
@@ -274,6 +278,14 @@ export class GameRenderer {
 
   /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
   terrainBuildMs = 0;
+
+  // Runtime quality degradation is NOT owned here. Do not add frame-history or
+  // quality-tier fields to the renderer: `RuntimeProfileController` measures the
+  // frame window and the first controllable frame, and drives this class through
+  // `setVisibilityProfile` (see `runtime-profile-policy.ts` and the call site in
+  // `main.ts`). A second degrade path in the renderer has twice been added here and
+  // twice been dead on arrival — never read, never written — which is worse than no
+  // path at all, because it reads as a capability the renderer does not have.
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -500,7 +512,7 @@ export class GameRenderer {
 
   private buildInstancedProps(): void {
     this.treeTrunks = new THREE.InstancedMesh(
-      new THREE.CylinderGeometry(0.24, 0.4, 1, 6),
+      new THREE.CylinderGeometry(0.24, 0.4, 1, 4),
       material(0x5f432f),
       MAX_TREE_INSTANCES,
     );
@@ -510,11 +522,10 @@ export class GameRenderer {
       MAX_TREE_INSTANCES,
     );
     this.rocks = new THREE.InstancedMesh(
-      new THREE.DodecahedronGeometry(1, 0),
+      new THREE.OctahedronGeometry(1, 0),
       material(0x7d746a),
       MAX_ROCK_INSTANCES,
     );
-
     this.felledTrunks = new THREE.InstancedMesh(
       new THREE.CylinderGeometry(0.3, 0.34, 1, 6),
       material(0x6a5038),
@@ -527,15 +538,18 @@ export class GameRenderer {
     );
 
     this.furrowDecals = new THREE.InstancedMesh(
-      new THREE.BoxGeometry(1.05, 0.07, 1.5),
+      new THREE.PlaneGeometry(1.05, 1.5),
       material(0x3a2c1e, 1),
       MAX_FURROWS,
     );
     this.furrowDecals.count = 0;
 
-    // These dynamic clouds are rebuilt around the active rig. Their geometry
-    // bounds do not describe instance transforms, so Three's default culling
-    // would hide valid scenery until a full post-rebuild bounds pass exists.
+    /*
+     * These dynamic clouds are rebuilt around the active rig. Geometry-only
+     * bounds do not include the per-instance transforms, so they can cull
+     * visible scenery. Keep culling disabled until refreshProps computes a
+     * truthful aggregate instance bound after each rebuild.
+     */
     for (const mesh of [
       this.treeTrunks,
       this.treeCrowns,
@@ -661,6 +675,27 @@ export class GameRenderer {
     this.dummy.scale.set(crownRadius, crownRadius * 1.3, crownRadius);
     this.dummy.updateMatrix();
     this.treeCrowns.setMatrixAt(index, this.dummy.matrix);
+
+    // Also place billboard for far-tier LOD
+    const tier = classifyVisibility(
+      Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
+      visibilityProfile(this.activeVisibilityProfileId),
+    );
+    if (tier === "far" && this.treeBillboardCount < MAX_TREE_INSTANCES) {
+      this.dummy.position.set(
+        obstacle.x,
+        treeCrownCenterY(obstacle),
+        obstacle.z,
+      );
+      this.dummy.rotation.set(-Math.PI / 2, 0, 0); // Face up
+      this.dummy.scale.set(crownRadius * 1.5, crownRadius * 1.5, 1);
+      this.dummy.updateMatrix();
+      this.treeBillboards.setMatrixAt(
+        this.treeBillboardCount,
+        this.dummy.matrix,
+      );
+      this.treeBillboardCount += 1;
+    }
   }
 
   private placeFelled(obstacle: Obstacle, index: number): void {
@@ -1572,7 +1607,7 @@ export class GameRenderer {
         this.world.terrain.height(mark.x, mark.z) + 0.05,
         mark.z,
       );
-      this.dummy.rotation.set(0, mark.heading, 0);
+      this.dummy.rotation.set(-Math.PI / 2, mark.heading, 0);
       this.dummy.scale.set(1, 1, 1);
       this.dummy.updateMatrix();
       this.furrowDecals.setMatrixAt(this.renderedFurrows, this.dummy.matrix);
@@ -1678,6 +1713,11 @@ export class GameRenderer {
     if (deformCount !== this.lastDeformCount) {
       this.lastDeformCount = deformCount;
       this.refreshTerrainRegion(activeRigState.x, activeRigState.z, 9);
+      // Event-driven prop invalidation: terrain deformation changes the
+      // ground beneath nearby props, so force a prop rebuild on the next
+      // frame rather than waiting for the rig to travel PROP_REBUILD_DISTANCE.
+      this.propAnchorX = Number.POSITIVE_INFINITY;
+      this.propAnchorZ = Number.POSITIVE_INFINITY;
     }
 
     if (

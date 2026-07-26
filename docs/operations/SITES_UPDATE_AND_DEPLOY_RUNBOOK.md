@@ -299,6 +299,8 @@ rows.
 | 2026-07-26 |             5 | `1e7992125824a850eb27a9f9d2bbdbc95b229e2b` | Public | Terminal success; three public routes returned HTTP 200                                   | Current verified baseline    |
 | 2026-07-26 |             6 | `f5a007d1e9866fea510fcef1cfba102a7ee85e13` | Public | Terminal success; fresh-profile browser contract and three routes passed                  | First-rung P0 baseline       |
 | 2026-07-26 |             7 | `a8869ad25f72929b62b6722cb262c91b2b6c7999` | Public | Terminal success; full production acceptance passed; zero console, page, or Worker errors | RU-0110 verified baseline    |
+| 2026-07-26 |             8 | `a340fbd369f5d4b53309abf0f77795b65beb196a` | Public | Failed during dependency install before build                                             | Preserve as failed evidence  |
+| 2026-07-26 |             9 | `58968333c616cdd055b94ef11c29e69109df3a24` | Public | Terminal success; HTTP 200; public real-touch/full browser matrix passed with zero errors | Current verified baseline    |
 
 Every handoff should include:
 
@@ -329,8 +331,10 @@ If production is broken:
 Do not force-push or rewrite Git history as a rollback mechanism. Do not delete
 the failed saved version; it is useful operational evidence.
 
-The primary rollback target is version 7
-(`a8869ad25f72929b62b6722cb262c91b2b6c7999`). Version 6
+The current release is version 9
+(`58968333c616cdd055b94ef11c29e69109df3a24`). Its primary rollback target is
+version 7 (`a8869ad25f72929b62b6722cb262c91b2b6c7999`). Version 8 failed before
+build and must not be used as a rollback target. Version 6
 (`f5a007d1e9866fea510fcef1cfba102a7ee85e13`) remains the prior first-rung-P0
 fallback. Resolve opaque version IDs through Sites at rollback time rather than
 copying or guessing IDs.

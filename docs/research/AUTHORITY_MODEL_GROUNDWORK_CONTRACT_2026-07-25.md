@@ -346,3 +346,15 @@ browser, or integration verification was run for this change.
   it now exposes enough local request/response structure to support the next
   proof without inventing multiplayer semantics too early.
 - Evidence depth: Tier 1 static source inspection.
+
+## Addendum (2026-07-26) - episode grammar depends on authority to make consequence durable
+
+- Re-checked the local-first authority boundary against the episode-grammar
+  direction.
+- Episode grammar can only keep consequence durable if authoritative outcomes
+  remain separate from speculative intent and local recovery.
+- That makes the authority model a prerequisite envelope beneath episode
+  grammar, not a replacement for it.
+- The shared-state/server-authoritative boundary remains future-gated; the
+  current local-first authority mode is still the live product reality.
+- Evidence tier: Tier 1 static inspection.

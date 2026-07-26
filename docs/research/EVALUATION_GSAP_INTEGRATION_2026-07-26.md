@@ -140,7 +140,13 @@ npm install gsap
 | **Performance Overhead**      | 9/10         | Highly optimized C-like JavaScript loops          |
 | **Architectural Safety**      | 9/10         | Safe when constrained to presentation/HUD layer   |
 
-### Final Recommendation:
+### Effective current status — 2026-07-26
 
-**Approved for Presentation, Cutscenes, and HUD Animations.**  
-Integrate GSAP as an opt-in presentation layer tool for camera choreography, UI transitions, and shader uniform pulses while keeping physics simulation 100% pure in `physics.ts` and `state.ts`.
+**Runtime-tested for bounded HUD and Rumor Map presentation.**
+
+GSAP is currently used in `src/game/hood-dashboard-ui.ts` and
+`src/game/rumor-map-ui.ts`. That evidence supports its bounded presentation
+role; it does not approve every proposed cutscene, camera, shader, gesture, or
+plugin use in this document. New uses remain candidates and must preserve the
+authoritative simulation boundary, reduced-motion behavior, bundle budgets,
+and current accessibility contracts.

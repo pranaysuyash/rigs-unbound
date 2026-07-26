@@ -20,8 +20,12 @@
  */
 
 import { ObstacleField } from "./collision";
-import { ExplorationField } from "./exploration";
-import { MAX_SURVEYED_CELLS } from "./exploration";
+import {
+  ExplorationField,
+  MAX_SURVEYED_CELLS,
+  SURVEY_MOVE_THRESHOLD,
+} from "./exploration";
+import type { RigId } from "./contracts";
 import {
   queryCameraObstruction,
   resolveRigStructureCollision,
@@ -32,6 +36,7 @@ import {
   type StructureCollisionOutcome,
 } from "./scene-query";
 import { TerrainField, type DeformationEntry } from "./terrain";
+import type { WorldSiteId } from "./world";
 
 /** Bound on felled obstacles retained, oldest dropped first. */
 export const MAX_FELLED = 1500;
@@ -62,6 +67,23 @@ export class GameWorld {
   readonly felledObstacles = new Set<string>();
   readonly collectedNodes = new Set<string>();
   readonly surveyedCells = new Set<number>();
+  /**
+   * Runtime-only observation cadence.
+   *
+   * This is deliberately not save data. A freshly constructed or restored world
+   * must run one observation sweep so derived horizon visibility is rebuilt from
+   * the active rig's current eye position. Keeping the cache on the world also
+   * avoids module-global object-identity state leaking across sessions.
+   */
+  private readonly surveyOrigins = new Map<RigId, { x: number; z: number }>();
+  /**
+   * Sites whose horizon signal the active rig can currently see.
+   *
+   * Derived world knowledge, not saved state: it is recomputed from position on the
+   * same movement threshold as the survey sweep, so a loaded run rebuilds it on the
+   * first step rather than carrying a stale set across sessions.
+   */
+  readonly visibleSignals = new Set<WorldSiteId>();
 
   constructor(readonly seed: string) {
     this.terrain = new TerrainField(seed);
@@ -86,6 +108,20 @@ export class GameWorld {
     trimSet(this.surveyedCells, MAX_SURVEYED_CELLS);
   }
 
+  /**
+   * Claim the next survey/visibility refresh for a rig after sufficient motion.
+   *
+   * The first call after construction or reset always succeeds.
+   */
+  claimSurveyRefresh(rigId: RigId, x: number, z: number): boolean {
+    const last = this.surveyOrigins.get(rigId);
+    if (last && Math.hypot(x - last.x, z - last.z) < SURVEY_MOVE_THRESHOLD) {
+      return false;
+    }
+    this.surveyOrigins.set(rigId, { x, z });
+    return true;
+  }
+
   cameraObstruction(
     from: ScenePoint,
     to: ScenePoint,
@@ -107,6 +143,8 @@ export class GameWorld {
     this.felledObstacles.clear();
     this.collectedNodes.clear();
     this.surveyedCells.clear();
+    this.visibleSignals.clear();
+    this.surveyOrigins.clear();
   }
 
   snapshot(): WorldMemoryRecord {

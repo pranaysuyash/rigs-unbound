@@ -1,3 +1,71 @@
+## 2026-07-26 — the horizon rail now reports sight, not range
+
+- Revised my own answer from earlier the same day. I had gated unsurveyed sites
+  behind invented distance tiers (close / near / far / distant at 60 / 140 / 260 m).
+  That was a UI convention layered on top of a game that already answers the
+  question properly: the survey system decides what the player knows by raymarching
+  terrain from the rig's eye. Inventing a second, weaker rule for the same question
+  is the parallel-truth defect in miniature.
+- The rail now has the three states a machine can actually be in:
+  - a place it has reached — name and verb, remembered without needing line of sight,
+  - a signal it can currently see — a cardinal bearing and a coarse range,
+  - a signal terrain is hiding — "No signal / out of sight", and nothing else.
+- Climbing a rise therefore reveals places for real, which is the claim the project
+  has been making about itself in prose since before it was true in the rail.
+- Extracted `ExplorationField.sightlineClear` and routed _both_ the survey sweep and
+  signal visibility through it. Two independent notions of "can this machine see
+  that" would drift, and the player would get a map and a HUD disagreeing about the
+  same hill. 10 samples at 0.6 m: a gameplay sightline, not an occlusion query.
+- `SITE_SIGNALS` is derived from the authored part carrying `discoverySignal`, using
+  the top of the lamp, so a landmark cannot be moved in `WORLD_STRUCTURE_PARTS`
+  while a second table keeps pointing at where it used to be.
+- Visibility lives on the world as `visibleSignals`, recomputed inside the same
+  movement-threshold block as the survey sweep — the sightline only changes when the
+  machine moves, and it is the same evidence from the same eye. It is derived, not
+  saved: a loaded run rebuilds it on the first step rather than trusting a stale set.
+- Published once through `publicState().worldMemory.visibleSignals` so the rail and
+  any future map overlay read one truth.
+- Styling carries the same three states as the words (dimmed row and outline, full
+  outline, filled and glowing), so the state never rests on colour alone.
+- Tests: `SITE_SIGNALS` derivation and placement; a single publication point that is
+  empty before the kernel looks and matches the world after it does; and — the one
+  that matters — that terrain genuinely occludes a signal at ground level and a
+  60 m vantage reveals it, while raising the eye can never lose a sightline it
+  already had. That asserts the mechanism rather than the wiring.
+- Two mistakes of mine worth recording:
+  - I first wrote the visibility test calling `advanceGame(state, world, input, dt)`.
+    The real signature is `(state, world, elapsedMs)`, so the third argument became
+    `NaN`, zero steps ran, and the test failed with an empty set. I read that as a
+    product bug for one probe cycle before the probe showed `surveyed: 0` — the
+    kernel had never stepped at all.
+  - I trusted the browser over the kernel. The long-running dev server was serving a
+    stale module (I had cleared `node_modules/.vite` underneath it earlier), so the
+    new field was absent from the page while present in source. Kernel-side
+    verification was both faster and stronger.
+- `fpsHistory` / `degraded` / `qualityTier` reappeared in the renderer during a
+  concurrent edit and were removed a second time. Replaced with a comment naming
+  `RuntimeProfileController` as the owner of runtime degradation, because a
+  delete-war is not a fix — the reason has to live where the mistake gets made.
+
+## 2026-07-26 — Sites clean-install repair and real-touch first rung
+
+- Sites version 8 failed before build because `vite-plugin-wasm@3.5.0` declared
+  Vite peer support only through 7 while the project uses Vite 8.1.5.
+- Upgraded the canonical package and lockfile to `vite-plugin-wasm@3.6.0`;
+  registry metadata and the installed lock entry both declare Vite 8 support.
+- Proved the release environment boundary with a clean `npm ci` (117 packages,
+  zero audit vulnerabilities), then passed typecheck, production build, player
+  asset isolation, 220 main tests, 7 kernel tests, 9 asset tests, preflight,
+  formatting, and diff hygiene.
+- Extended browser acceptance with a real-touch first rung. The mobile context
+  uses Chrome touch events against visible on-screen controls for entry,
+  simultaneous driving/steering, contextual Act, return, workshop fit, and
+  persistence. The rebuilt `4174` run passed with zero captured console/page
+  problems.
+- Corrected two harness assumptions found by the touch run: Drive precedes
+  Workshop in the canonical guidance priority, and touch braking needs a
+  tighter cache approach margin to remain inside the interaction radius.
+
 ## 2026-07-26 — finalized 4173/4174 first-rung and production-boundary evidence
 
 - Stabilized the real-keyboard first-rung browser path around the product
@@ -1154,6 +1222,16 @@ ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
     actually activate.
 - Evidence depth: Tier 1 static source inspection. No runtime or test pass was
   run in this step.
+
+## 2026-07-26 — modding creator packs bridged to episode grammar
+
+- Added an addendum to `docs/research/MODDING_AND_CREATOR_PACK_VALIDATION_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on pack validation to keep pack lifecycle
+  explicit and that local-only pack posture remains the live mode.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  modding and creator-pack lane now explicitly sits beneath episode grammar.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
 
 ## 2026-07-26 — minimap and navigator coordinate recheck
 
@@ -4917,6 +4995,9 @@ Field 02` in the current daemon snapshot.
   - no test proving fallback activates before overload,
   - no operator-visible summary naming the oversubscribed resource,
   - no summary field naming the subsystem that caused the fallback.
+- The current visibility fallback itself is already owned by
+  `RuntimeProfileController`; the unresolved layer is the broader resource
+  governor beyond the renderer visibility lane.
 
 ## 2026-07-26 — authoring validation recheck
 
@@ -6333,3 +6414,235 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   composition, replay, and diagnostics.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — public smoke-test gate bridged to episode grammar
+
+- Added an addendum to `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on the public smoke-test gate to stay
+  readable publicly and that the bundled gate artifact remains the missing
+  delivery package.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  public promise row now explicitly sits beneath episode grammar.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — authority model bridged to episode grammar
+
+- Added an addendum to `docs/research/AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on the authority model to keep
+  consequence durable and that local-first authority remains the live mode.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  authority-model gate now explicitly sits beneath episode grammar.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — physics quality bridged to episode grammar
+
+- Added an addendum to `docs/research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md`
+  stating that episode grammar depends on the physics envelope to keep motion
+  readable and that the current first-playable motion model remains the live
+  mode.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  physics-quality lane now explicitly sits beneath episode grammar.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — session backlog provenance, arbitration, and fresh preview evidence
+
+- Added a canonical decision register, corrected unsupported decision
+  authority, and added a reusable recommendation-language audit.
+- Ran `wide-open-brainstorm` with internal subagents only. Preserved the
+  Champion/Executioner disagreement and proposed Unbound Passage before Signal
+  Break without converting it into operator approval or removing Farmfall.
+- Rebuilt the current project and ran the complete browser acceptance matrix
+  against the exact preview on port `4182`.
+- The first run found a stale-save race in the harness. The persistence gate
+  now waits for the completed relay record itself; the corrected full run
+  exited 0 with zero captured console/page problems.
+- Added a second fresh first-rung profile using a real `hasTouch` mobile context
+  and Chrome touch holds. It proved the driving, contextual Act, and workshop
+  lessons at first relevance; touch driving to the cache and Home; touch
+  collection and fitting; and visible/persisted Lug tyres after reload.
+- The subsequent exact-build `4182` full matrix exited 0 with zero captured
+  console/page problems. External-player comprehension and public release
+  evidence remain open.
+
+## 2026-07-26 — Farmfall source/listener and cultivation gate correction
+
+- Started RU-0202 from the current code rather than the stale Farmfall formula.
+- An adversarial review rejected the first draft because it read cached
+  telemetry as authority, coupled emission to Cargo Relay, combined channels
+  into a universal attraction score, owned listener falloff, and changed public
+  replay snapshots without a real consumer.
+- Reworked `signature.ts` into a source-only experimental fixture: named
+  acoustic/illumination/thermal-proxy channels, explicit generic operating
+  inputs, no activity import, no universal score/falloff, and no save/public
+  state mutation. Four focused tests pass.
+- Kept RU-0202 open until a real listener, operating-state semantics,
+  accessible feedback, replay, browser, and performance evidence land together.
+- Stopped RU-0203 implementation after proving that current deformation,
+  furrows, and authored `tilled` surfaces cannot distinguish cultivation cut
+  from fill/grading and that the plan's v5→v6 migration is stale.
+- Added proposed ADR-0026 for semantic soil-preparation provenance and schema-v7
+  ownership. Sequencing, harvest value, post-sow terrain behavior, and measured
+  capacity/timing require operator sign-off.
+- Removed an incomplete duplicate renderer auto-degrade path that broke
+  typecheck and contradicted the existing `RuntimeProfileController` authority.
+
+## 2026-07-26 — browser-delivery contract bridged to episode grammar
+
+- Added an addendum to `docs/research/3D_WEB_EXPERIENCE_LIVE_REPO_ANALYSIS_2026-07-26.md`
+  stating that episode grammar depends on browser delivery policy to keep the
+  public experience readable and that the browser-first surface remains the
+  live mode.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  public promise now explicitly sits beneath episode grammar and the browser-
+  delivery contract.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — accessibility profile visibility bridged to browser delivery
+
+- Added an addendum to `docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md`
+  stating that the remaining shell gap is a player-facing comfort/profile
+  indicator rather than another keyboard or input fix.
+- Mirrored that boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  public promise also carries visible profile state instead of leaving it
+  operator-only.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — map overlay focus boundary documented
+
+- Added an addendum to `docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md`
+  stating that the map overlay still lacks a true dialog/focus contract even
+  though it already acts as a mode switch.
+- Mirrored the same browser-accessibility boundary into `docs/exploration/EXPLORATION_MAP.md`
+  so the map overlay is tracked as a first-class focus-managed browser seam.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — state-shell visual language now needs a browser-proved profile owner
+
+- Added an addendum to `docs/research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md`
+  stating that the shell language still needs one browser-proved profile owner
+  tied to the selected quality mode.
+- Mirrored that presentation-layer boundary into `docs/exploration/EXPLORATION_MAP.md`
+  so the shell stays a contract lane rather than becoming an implicit product
+  promise.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — shell runtime substrate is real, but profile ownership is still unresolved
+
+- Rechecked `src/game/renderer.ts` and `src/game/feedback.ts` to confirm the
+  shell is already a real runtime substrate:
+  - the renderer owns a dedicated state-shell mesh and shader envelope,
+  - feedback computes integrity and impact values that feed the shell,
+  - the renderer pushes those uniforms from live rig feedback each frame.
+- Updated the shell-quality research note and exploration map so the remaining
+  gap is now specifically browser-proved shell profile ownership, not whether
+  the shell exists.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static source inspection plus documentation editing.
+
+## 2026-07-26 — command/event envelope wording corrected to shared-graph status
+
+- Rechecked the command/event research note and the exploration-map backlog
+  entry against the live repo state.
+- Corrected the exploration map so it now says the bounded event envelope is
+  reusable, while the shared fan-out graph is still missing.
+- This keeps the contract aligned with the current code: the run record is a
+  real audit spine, but the reusable shared graph remains the unresolved layer.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static documentation inspection and editing.
+
+## 2026-07-26 — second activity candidate narrowed for the planner boundary
+
+- Rechecked the activity-content and planner contracts against the live
+  command/state spine.
+- Confirmed the repo still has one proven activity seam and no second materially
+  different activity in runtime.
+- Documented the strongest next candidate as a tow-plus-repair rescue flow,
+  because it would reuse the matcher while forcing a distinct objective shape
+  and recovery story.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — audio mute persistence mirrored into the exploration map
+
+- Rechecked the audio presentation contract against the current browser shell.
+- Confirmed mute already works in-session but is not yet restored from durable
+  storage after reload.
+- Added the missing exploration-map mirror so the audio comfort seam is
+  discoverable alongside the research note and worklog entry.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — rig signature now needs a listener-owned consumer
+
+- Rechecked the audio presentation contract against the new deterministic
+  rig-emission source.
+- Confirmed the source is a real fixture, but still lacks a listener-owned
+  presentation path and accessible player-facing cue.
+- Extended the audio research note so the next proof slice is clear: one
+  readable player-facing cue before any broader scheduler is generalized.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — route-clearance contract continuation
+
+- Rechecked the live route-clearance lane with the `3d-games` skill and the
+  current terrain/state/contracts code.
+- Confirmed the runtime already owns authored grade-limited corridors and a
+  nearest-track recovery path, but not a general route-cost planner.
+- Added a dedicated research note so the next proof slice stays narrow:
+  candidate generation, capability-aware scoring, structured reasons,
+  diagnostics, and replayable evidence.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — Sites version 9 released and publicly touch-accepted
+
+- Preserved the validated first-rung release in guarded commit `a340fbd`.
+- Sites version 8 failed before build because `vite-plugin-wasm@3.5.0` did not
+  declare Vite 8 peer compatibility.
+- Upgraded the plugin to `3.6.0`, kept Vite 8.1.5, passed a clean install and
+  the full build/test/asset/format gates, then committed and pushed the scoped
+  repair as `5896833`.
+- Saved and deployed exact-source Sites version 9. Deployment
+  `appgdep_6a66391c33ac8191905ac87775b1585e` reached `succeeded`; the default
+  and Field 02 public URLs returned HTTP 200.
+- Ran the complete browser matrix against public production. A fresh
+  `390×844`, `hasTouch` profile drove with rendered touch controls, collected
+  five salvage, returned Home, fitted Lug tyres, reloaded, and observed the
+  completed state and visible module. The run exited 0 with zero captured
+  console/page problems.
+- Added the focused next-execution board and exact version-9 release handoff.
+  External-player comprehension, release-doc commit grouping, and admission of
+  the newer parallel gameplay tranche remain open.
+
+## 2026-07-26 — browser-proved shell profile owner documented
+
+- Applied the `Accessibility Auditor` and `3d-games` lenses to the shared
+  shell/profile boundary.
+- Confirmed the repo already has a real shell substrate, a runtime profile
+  policy, and operator diagnostics, but still lacks one browser-proved owner
+  for the public shell/profile signal.
+- Added a dedicated research note and mirrored it into the exploration map so
+  the state-shell lane and the accessibility/profile-visibility lane now point
+  at one shared contract boundary.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — audio burst suppression is still only a prose contract
+
+- Rechecked `src/game/audio.ts` against the bursty-event lane.
+- Confirmed the current audio implementation uses disposable one-shot impacts
+  and immediate acknowledgements, but no explicit duplicate-event suppression
+  or cooldown owner exists yet.
+- Added the missing addendum to the audio contract and mirrored it into the
+  exploration map so rapid impact / interaction streams remain a named
+  boundary instead of a hidden future bug.
+- No test, build, browser run, or git action was performed; evidence remains
+  Tier 1 static inspection and documentation editing.

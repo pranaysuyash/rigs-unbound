@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deriveSoilDisplacement, soilCellOf } from "./world-memory";
-import { createInitialState } from "./state";
+import { GameWorld } from "./gameworld";
+import { advanceGame, createInitialState, publicState } from "./state";
 
 describe("World Memory Soil Displacement System", () => {
   it("converts world coordinates to soil cell coordinates", () => {
@@ -23,5 +24,47 @@ describe("World Memory Soil Displacement System", () => {
     expect(cell).toBeDefined();
     expect(cell?.depth).toBeGreaterThan(0.12);
     expect(cell?.surfaceOverride).toBe("tilled");
+  });
+});
+
+describe("horizon signal visibility is published once", () => {
+  /**
+   * The rail and the map must not each decide for themselves what the machine can
+   * see, or a player ends up with two overlays disagreeing about the same hill. This
+   * locks the single publication point, and locks that it is *derived* — a fresh
+   * world publishes nothing until the kernel has stepped and looked.
+   */
+  it("publishes what the kernel measured, and nothing before it looks", () => {
+    const world = new GameWorld("UNBOUND-260725");
+    const state = createInitialState(world.seed);
+
+    const before = publicState(state, world) as {
+      worldMemory: { visibleSignals: string[] };
+    };
+    expect(before.worldMemory.visibleSignals).toEqual([]);
+
+    advanceGame(state, world, 1000);
+
+    const after = publicState(state, world) as {
+      worldMemory: { visibleSignals: string[] };
+    };
+    expect(after.worldMemory.visibleSignals).toEqual([...world.visibleSignals]);
+    // Standing at the Home Silo, its own signal is overhead and unmissable.
+    expect(after.worldMemory.visibleSignals).toContain("home-silo");
+  });
+
+  it("keeps survey cadence runtime-only and rebuilds derived visibility after reset", () => {
+    const world = new GameWorld("SURVEY-CADENCE");
+
+    expect(world.claimSurveyRefresh("utility-tractor", 0, 0)).toBe(true);
+    expect(world.claimSurveyRefresh("utility-tractor", 0, 0)).toBe(false);
+    expect(world.claimSurveyRefresh("utility-tractor", 2, 0)).toBe(false);
+    expect(world.claimSurveyRefresh("utility-tractor", 3, 0)).toBe(true);
+
+    world.visibleSignals.add("home-silo");
+    world.reset();
+
+    expect(world.visibleSignals.size).toBe(0);
+    expect(world.claimSurveyRefresh("utility-tractor", 3, 0)).toBe(true);
   });
 });

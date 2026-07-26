@@ -158,3 +158,22 @@ crop bounds, save version, mastery balance, or presentation into accepted
 architecture before implementation evidence exists. Each phase remains subject
 to the current code, decision register, tests, browser evidence, and
 first-principles review.
+
+## Addendum — 2026-07-26 current-code correction
+
+Do not implement Phase A literally from the older text above:
+
+- the runtime is already save schema v6, so crops cannot “migrate v5→v6”;
+- deformation and legacy furrows do not carry cut/fill/verb provenance;
+- cached rig telemetry is not gameplay authority;
+- an emitter cannot own universal listener weights or falloff;
+- Reclamation, Unbound Passage, and this plan currently propose different
+  sequencing and require operator arbitration.
+
+[ADR-0025](../decisions/ADR-0025-emission-source-listener-separation.md)
+records the proposed source/listener boundary and the source-only evidence
+fixture.
+[ADR-0026](../decisions/ADR-0026-cultivation-provenance-and-schema-v7.md)
+records the proposed cultivation ledger, schema-v7 ownership, and remaining
+product choices. RU-0202 and RU-0203 remain open until those gates close; a
+passing pure-function test is not ecology or crop-loop completion.

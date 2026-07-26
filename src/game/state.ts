@@ -44,7 +44,9 @@ import {
   type RigCapability,
   type RigId,
   type RigState,
+  DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
+  type SurveyRouteState,
   type WorldPhase,
   WORLD_CLOCK_START_MINUTES,
   WORLD_DAY_MINUTES,
@@ -54,10 +56,18 @@ import {
 } from "./contracts";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
+  SURVEY_CONTRACT_AFFORDANCE,
   resolveAffordance,
   type AffordanceResolution,
 } from "./affordances";
-import { SALVAGE_PICKUP_RADIUS, SURVEY_MOVE_THRESHOLD } from "./exploration";
+import {
+  activityDefinition,
+  createSurveyRouteState,
+  evaluateSurveyRoute,
+  surveyRouteMinutesRemaining,
+  surveyRouteTargets,
+} from "./activities";
+import { SALVAGE_PICKUP_RADIUS } from "./exploration";
 import { resolveFirstRung } from "./first-rung";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
@@ -68,6 +78,7 @@ import {
   isWithinSiteServiceArea,
   RESOLVED_ROUTES,
   RIG_HOME_BERTHS,
+  SITE_SIGNALS,
   WORLD_SITES,
 } from "./world";
 
@@ -234,6 +245,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
         delivered: false,
       },
     },
+    surveyRoute: createSurveyRouteState(),
     furrows: [],
     discoveries: [],
     salvage: 0,
@@ -307,6 +319,7 @@ export function workshopInReach(state: GameState) {
 export type PrimaryActionKind =
   | "release-cargo"
   | "attach-cargo"
+  | "take-survey-contract"
   | "collect-salvage"
   | "lower-plough"
   | "raise-plough"
@@ -406,6 +419,47 @@ export function resolvePrimaryAction(
       label: "Tow required",
       ariaLabel: "Relay cargo requires a tow capability",
       affordance: cargoAffordance,
+    };
+  }
+
+  /*
+   * The survey contract board, offered at the home site.
+   *
+   * Ranked below cargo because a machine already carrying a crate has a more
+   * specific intent, and above salvage because taking a contract is a deliberate
+   * act while salvage is ambient. It resolves through the same affordance contract
+   * as the crate, so a machine without `survey` gets the same explained refusal
+   * rather than a silently missing prompt.
+   */
+  const surveyAvailable =
+    state.surveyRoute.status === "ready" ||
+    state.surveyRoute.status === "failed";
+  const surveyAffordance = resolveAffordance(
+    SURVEY_CONTRACT_AFFORDANCE,
+    { capabilities: profile.capabilities },
+    {
+      available: surveyAvailable,
+      inRange: isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z),
+    },
+  );
+  if (surveyAffordance.outcome === "legal") {
+    return {
+      kind: "take-survey-contract",
+      label: "Take contract",
+      ariaLabel: "Take the survey contract",
+      affordance: surveyAffordance,
+    };
+  }
+  if (
+    surveyAffordance.reasonCode === "missing-capability" &&
+    surveyAvailable &&
+    isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z)
+  ) {
+    return {
+      kind: "none",
+      label: "Survey required",
+      ariaLabel: "The survey contract requires a survey capability",
+      affordance: surveyAffordance,
     };
   }
 
@@ -522,6 +576,20 @@ export function executePrimaryActionCommand(
       relay.startedAt = state.elapsedMs;
     }
     state.lastDiagnostic = `${profile.displayName} attached the relay crate. Haul it to Long Furrow.`;
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
+
+  if (resolution.kind === "take-survey-contract") {
+    const targets = surveyRouteTargets();
+    // A retaken contract starts clean rather than resuming a lapsed one: the
+    // sightings were paid for by a window that has already closed.
+    state.surveyRoute = {
+      ...createSurveyRouteState(),
+      status: "active",
+      startedAtMinutes: state.worldTimeMinutes,
+      bestSightedCount: state.surveyRoute.bestSightedCount,
+    };
+    state.lastDiagnostic = `Survey contract taken. Sight ${targets.length} signals before the light goes — you do not have to reach them.`;
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -948,9 +1016,6 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
   }
 }
 
-/** Distance the active rig has moved since the last survey sweep, per rig. */
-const lastSurveyPosition = new WeakMap<RigState, { x: number; z: number }>();
-
 export function stepGame(
   state: GameState,
   world: GameWorld,
@@ -1115,13 +1180,7 @@ export function stepGame(
     }
   }
 
-  const lastSurvey = lastSurveyPosition.get(rig);
-  const movedSinceSurvey =
-    lastSurvey === undefined
-      ? Infinity
-      : Math.hypot(rig.x - lastSurvey.x, rig.z - lastSurvey.z);
-  if (movedSinceSurvey >= SURVEY_MOVE_THRESHOLD) {
-    lastSurveyPosition.set(rig, { x: rig.x, z: rig.z });
+  if (world.claimSurveyRefresh(rig.id, rig.x, rig.z)) {
     const result = world.exploration.survey(
       rig.x,
       rig.y + profile.camera.focusHeight + 1.4,
@@ -1131,6 +1190,62 @@ export function stepGame(
     );
     if (result.revealed.length > 24) {
       state.lastDiagnostic = `Mapped ${result.revealed.length} new cells from this vantage.`;
+    }
+
+    // A horizon signal is on the horizon or it is not. Recomputing it from the same
+    // eye and the same sightline policy as the survey sweep is what makes climbing a
+    // rise reveal a place, rather than a range check pretending to be sight.
+    const eyeX = rig.x;
+    const eyeY = rig.y + profile.camera.focusHeight + 1.4;
+    const eyeZ = rig.z;
+    world.visibleSignals.clear();
+    for (const signal of SITE_SIGNALS) {
+      const targetY = world.terrain.height(signal.x, signal.z) + signal.localY;
+      if (
+        world.exploration.sightlineClear(
+          eyeX,
+          eyeY,
+          eyeZ,
+          signal.x,
+          targetY,
+          signal.z,
+        )
+      ) {
+        world.visibleSignals.add(signal.siteId);
+      }
+    }
+
+  }
+
+  /*
+   * Score from the same published sightline set the rail reads, but evaluate
+   * the clock every fixed step. Observation is motion-throttled; expiry is not.
+   * Otherwise an active contract can remain "active" at zero minutes forever
+   * while the rig is stationary.
+   */
+  if (state.surveyRoute.status === "active") {
+    const evaluation = evaluateSurveyRoute(
+      state.surveyRoute,
+      surveyRouteTargets(),
+      world.visibleSignals,
+      state.worldTimeMinutes,
+    );
+    state.surveyRoute = evaluation.state;
+    if (evaluation.completed) {
+      const reward = activityDefinition("survey-route").reward.salvage;
+      state.salvage += reward;
+      state.salvageCollected += reward;
+      state.lastDiagnostic = `Survey contract filed from sight alone. ${reward} salvage.`;
+    } else if (evaluation.failed) {
+      state.lastDiagnostic =
+        "Survey contract lapsed. The light went before every signal was sighted.";
+    } else if (evaluation.newlySighted.length > 0) {
+      const remaining =
+        surveyRouteTargets().length - evaluation.state.sighted.length;
+      state.lastDiagnostic =
+        remaining > 0
+          ? `Signal sighted. ${remaining} left on the contract.`
+          : "Signal sighted.";
     }
   }
 
@@ -1315,6 +1430,17 @@ export function publicState(state: GameState, world: GameWorld): object {
         4,
       ),
       discoveries: state.discoveries.map((item) => item.id),
+      visibleSignals: [...world.visibleSignals],
+    },
+    surveyRoute: {
+      status: state.surveyRoute.status,
+      targets: surveyRouteTargets(),
+      sighted: state.surveyRoute.sighted,
+      minutesRemaining: surveyRouteMinutesRemaining(
+        state.surveyRoute,
+        state.worldTimeMinutes,
+      ),
+      bestSightedCount: state.surveyRoute.bestSightedCount,
     },
     lastDiagnostic: state.lastDiagnostic,
   };
@@ -1572,9 +1698,75 @@ function legacyWorldTime(candidate: Record<string, unknown>): number {
   return base + Math.floor(elapsedMs / 2400);
 }
 
+/**
+ * Recover a survey contract, or report that the record is unusable.
+ *
+ * Returns a fresh contract when the field is absent, because a v6 record predates
+ * the activity and has nothing to lose. Anything present must be internally
+ * consistent: a running contract needs a start minute, an idle one must not have
+ * one, and a completed one must actually name every target it was paid for.
+ */
+function recoverSurveyRoute(
+  value: unknown,
+  allowMissing: boolean,
+): SurveyRouteState | null {
+  if (value === undefined || value === null) {
+    return allowMissing ? createSurveyRouteState() : null;
+  }
+  if (typeof value !== "object") return null;
+  const candidate = value as Record<string, unknown>;
+
+  if (
+    candidate.id !== "survey-route" ||
+    !["ready", "active", "complete", "failed"].includes(
+      String(candidate.status),
+    ) ||
+    (candidate.startedAtMinutes !== null &&
+      !isFiniteNumber(candidate.startedAtMinutes)) ||
+    !isFiniteNumber(candidate.bestSightedCount) ||
+    candidate.bestSightedCount < 0
+  ) {
+    return null;
+  }
+
+  const targets = surveyRouteTargets();
+  const validTargets = new Set<string>(targets);
+  const rawSighted = Array.isArray(candidate.sighted) ? candidate.sighted : [];
+  const sighted = rawSighted.filter(
+    (entry, index): entry is string =>
+      typeof entry === "string" &&
+      validTargets.has(entry) &&
+      rawSighted.indexOf(entry) === index,
+  );
+
+  const status = candidate.status as SurveyRouteState["status"];
+  const startedAtMinutes = candidate.startedAtMinutes as number | null;
+  const running = status === "active";
+  const consistent =
+    (status === "ready" && startedAtMinutes === null && sighted.length === 0) ||
+    (running && startedAtMinutes !== null) ||
+    (status === "failed" && startedAtMinutes !== null) ||
+    (status === "complete" &&
+      startedAtMinutes !== null &&
+      targets.every((target) => sighted.includes(target)));
+  if (!consistent) return null;
+
+  return {
+    id: "survey-route",
+    status,
+    startedAtMinutes,
+    sighted,
+    bestSightedCount: Math.max(
+      Math.floor(candidate.bestSightedCount as number),
+      sighted.length,
+    ),
+  };
+}
+
 function recoverShared(
   candidate: Record<string, unknown>,
   rigs: Record<RigId, RigState>,
+  allowMissingSurveyRoute = false,
 ): GameState | null {
   const relay = candidate.cargoRelay as Record<string, unknown> | undefined;
   const cargo = relay?.cargo as Record<string, unknown> | undefined;
@@ -1664,6 +1856,21 @@ function recoverShared(
       return { id: discovery.id, discoveredAt: discovery.discoveredAt };
     });
 
+  /*
+   * A survey contract is recovered rather than trusted.
+   *
+   * Absent (a v6 record) means a fresh contract, which is why adding it needed a
+   * schema bump but not a lossy migration. Present means every field is checked and
+   * the sighting list is filtered to sites that still exist, so a renamed anchor
+   * cannot restore a contract that can never be completed. An inconsistent
+   * combination is rejected outright for the same reason the relay rejects one.
+   */
+  const surveyRoute = recoverSurveyRoute(
+    candidate.surveyRoute,
+    allowMissingSurveyRoute,
+  );
+  if (!surveyRoute) return null;
+
   const cargoRadius = Math.hypot(cargo.x as number, cargo.z as number);
   const cargoScale = cargoRadius > WORLD_LIMIT ? WORLD_LIMIT / cargoRadius : 1;
   const worldTimeMinutes = isFiniteNumber(candidate.worldTimeMinutes)
@@ -1703,6 +1910,7 @@ function recoverShared(
         delivered: cargoDelivered,
       },
     },
+    surveyRoute,
     furrows,
     discoveries,
     salvage: isFiniteNumber(candidate.salvage)
@@ -1735,7 +1943,10 @@ function recoverShared(
   };
 }
 
-function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
+function recoverCurrent(
+  candidate: Record<string, unknown>,
+  allowMissingSurveyRoute = false,
+): GameState | null {
   const recovery =
     candidate.recovery && typeof candidate.recovery === "object"
       ? (candidate.recovery as Record<string, unknown>)
@@ -1764,11 +1975,15 @@ function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
   const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
   if (!tractor || !buggy || !skimmer) return null;
 
-  return recoverShared(candidate, {
-    "utility-tractor": tractor,
-    "toy-buggy": buggy,
-    "marsh-skimmer": skimmer,
-  });
+  return recoverShared(
+    candidate,
+    {
+      "utility-tractor": tractor,
+      "toy-buggy": buggy,
+      "marsh-skimmer": skimmer,
+    },
+    allowMissingSurveyRoute,
+  );
 }
 
 /**
@@ -1806,8 +2021,22 @@ function relocatePristineLegacyDrift(state: GameState): boolean {
 }
 
 /** Migrate v5 into the canonical three-rig Home berth contract. */
+/**
+ * Migrate a v6 record, which predates survey contracts.
+ *
+ * Purely additive: `recoverSurveyRoute` supplies a fresh contract when the field is
+ * absent, so nothing in a v6 save is reinterpreted or lost.
+ */
+function migrateV6(candidate: Record<string, unknown>): GameState | null {
+  const recovered = recoverCurrent(candidate, true);
+  if (!recovered) return null;
+  recovered.lastDiagnostic =
+    "Schema v6 record migrated. Survey contracts are available from the Home Silo.";
+  return recovered;
+}
+
 function migrateV5(candidate: Record<string, unknown>): GameState | null {
-  const recovered = recoverCurrent(candidate);
+  const recovered = recoverCurrent(candidate, true);
   if (!recovered) return null;
   if (relocatePristineLegacyDrift(recovered)) {
     recovered.lastDiagnostic =
@@ -1839,11 +2068,15 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
   const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
   if (!tractor || !buggy || !skimmer) return null;
 
-  const recovered = recoverShared(candidate, {
-    "utility-tractor": tractor,
-    "toy-buggy": buggy,
-    "marsh-skimmer": skimmer,
-  });
+  const recovered = recoverShared(
+    candidate,
+    {
+      "utility-tractor": tractor,
+      "toy-buggy": buggy,
+      "marsh-skimmer": skimmer,
+    },
+    true,
+  );
   if (recovered) {
     const relocated = relocatePristineLegacyDrift(recovered);
     recovered.lastDiagnostic = relocated
@@ -1890,11 +2123,15 @@ function migrateV3(candidate: Record<string, unknown>): GameState | null {
     driftBerth.z,
     driftBerth.heading,
   );
-  const recovered = recoverShared(candidate, {
-    "utility-tractor": tractor,
-    "toy-buggy": buggy,
-    "marsh-skimmer": skimmer,
-  });
+  const recovered = recoverShared(
+    candidate,
+    {
+      "utility-tractor": tractor,
+      "toy-buggy": buggy,
+      "marsh-skimmer": skimmer,
+    },
+    true,
+  );
   if (recovered) {
     recovered.lastDiagnostic =
       "Field 02 record migrated. Drift is berthed in the Home Silo proximity chain.";
@@ -1999,6 +2236,9 @@ export function recoverState(value: unknown): GameState | null {
     return recoverCurrent(candidate);
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
+    return migrateV6(candidate);
+  }
+  if (candidate.schemaVersion === DRIFT_BERTH_SAVE_SCHEMA_VERSION) {
     return migrateV5(candidate);
   }
   if (candidate.schemaVersion === FIELD_CLOCK_SAVE_SCHEMA_VERSION) {

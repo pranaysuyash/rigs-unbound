@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { RIG_PROFILES } from "./contracts";
 import {
   RESOLVED_ROUTES,
+  SITE_SIGNALS,
   WORLD_ROUTES,
   WORLD_SITES,
   WORLD_SITE_VERBS,
@@ -122,6 +123,30 @@ describe("authored site landmarks", () => {
     for (const part of WORLD_STRUCTURE_PARTS) {
       if (!part.discoverySignal) continue;
       expect(part.localY, `${part.id} height`).toBeGreaterThanOrEqual(10);
+    }
+  });
+});
+
+describe("site horizon signals", () => {
+  it("derives one signal per site from the authored part that carries it", () => {
+    expect(SITE_SIGNALS.map((signal) => signal.siteId).sort()).toEqual(
+      WORLD_SITES.map((site) => site.id).sort(),
+    );
+  });
+
+  it("places each signal at the world position of its authored part", () => {
+    for (const signal of SITE_SIGNALS) {
+      const site = WORLD_SITES.find((entry) => entry.id === signal.siteId);
+      const part = WORLD_STRUCTURE_PARTS.find(
+        (candidate) =>
+          candidate.siteId === signal.siteId &&
+          candidate.discoverySignal === true,
+      );
+      expect(part, `signal part for ${signal.siteId}`).toBeDefined();
+      expect(signal.x).toBe(site!.x + part!.localX);
+      expect(signal.z).toBe(site!.z + part!.localZ);
+      // Top of the lamp, because a signal clears a rise by its highest point.
+      expect(signal.localY).toBeGreaterThan(part!.localY);
     }
   });
 });

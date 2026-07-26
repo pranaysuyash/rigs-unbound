@@ -15,8 +15,9 @@ import type { GameState } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
-export const SAVE_KEY = "rigs-unbound.save.v6";
-export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v5";
+export const SAVE_KEY = "rigs-unbound.save.v7";
+export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v6";
+export const DRIFT_BERTH_SAVE_KEY = "rigs-unbound.save.v5";
 export const FIELD_CLOCK_SAVE_KEY = "rigs-unbound.save.v4";
 export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
 export const RIG_LAB_SAVE_KEY = "rigs-unbound.save.v2";
@@ -26,6 +27,7 @@ export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 const READ_KEYS = [
   SAVE_KEY,
   PREVIOUS_SAVE_KEY,
+  DRIFT_BERTH_SAVE_KEY,
   FIELD_CLOCK_SAVE_KEY,
   FIELD_02_SAVE_KEY,
   RIG_LAB_SAVE_KEY,
@@ -57,6 +59,8 @@ export interface SaveResult {
   bytes: number;
   saveKey: typeof SAVE_KEY;
   schemaVersion: GameState["schemaVersion"];
+  /** Non-null when the write failed (e.g. quota exceeded, storage unavailable). */
+  error?: string;
 }
 
 function now(): number {
@@ -257,10 +261,29 @@ export function saveState(
   const startedAt = now();
   const payload: SavePayload = { state, worldMemory: world.snapshot() };
   const serialized = JSON.stringify(payload);
-  storage.setItem(SAVE_KEY, serialized);
+  const bytes = new TextEncoder().encode(serialized).byteLength;
+
+  // Web Storage replaces one key atomically: if setItem throws, the prior value
+  // remains unchanged. Never remove the canonical record before this write; that
+  // creates a data-loss window and a temporary key that the load path cannot
+  // truthfully order against the canonical save.
+  try {
+    storage.setItem(SAVE_KEY, serialized);
+  } catch (err) {
+    // Quota exceeded or storage unavailable: the game continues but the player
+    // must know progress was not persisted. The prior save (if any) is intact.
+    return {
+      durationMs: now() - startedAt,
+      bytes,
+      saveKey: SAVE_KEY,
+      schemaVersion: state.schemaVersion,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+
   return {
     durationMs: now() - startedAt,
-    bytes: new TextEncoder().encode(serialized).byteLength,
+    bytes,
     saveKey: SAVE_KEY,
     schemaVersion: state.schemaVersion,
   };

@@ -352,17 +352,38 @@ select:focus-visible,
   border-top: 1px solid var(--hairline);
 }
 
+/*
+ * Three states, matching the three the machine can be in: terrain is hiding the
+ * signal (dimmed outline), the signal is in sight but unsurveyed (full outline), or
+ * the place has been reached (filled and glowing). The row opacity carries the same
+ * information as the words next to it, so the state never rests on colour alone.
+ */
 .opportunity-rail__signal {
   width: 0.42rem;
   height: 0.42rem;
   background: transparent;
   border: 1px solid var(--signal-cyan);
+  opacity: 0.32;
   transform: rotate(45deg);
+}
+
+.opportunity-rail li {
+  opacity: 0.55;
+}
+
+.opportunity-rail li.is-in-sight,
+.opportunity-rail li.is-discovered {
+  opacity: 1;
+}
+
+.opportunity-rail li.is-in-sight .opportunity-rail__signal {
+  opacity: 1;
 }
 
 .opportunity-rail li.is-discovered .opportunity-rail__signal {
   background: var(--signal-cyan);
   box-shadow: 0 0 0.8rem var(--signal-cyan);
+  opacity: 1;
 }
 
 .opportunity-rail strong,
@@ -545,6 +566,10 @@ kbd {
 
 .welcome-panel__status[data-state="loading"]::before {
   content: "Loading: ";
+}
+
+.welcome-panel__status[data-state="measuring"]::before {
+  content: "Measuring: ";
 }
 
 .welcome-panel__status[data-state="ready"]::before {
@@ -1055,7 +1080,6 @@ kbd {
 
   .field-kit {
     left: 0.7rem;
-    bottom: 11.35rem;
     width: min(20rem, calc(100vw - 1.4rem));
     padding: 0.8rem;
   }
@@ -1073,7 +1097,7 @@ kbd {
   .workshop {
     top: auto;
     right: 0.7rem;
-    bottom: 11.35rem;
+    bottom: 1.2rem;
     left: 0.7rem;
     width: auto;
     max-height: 40vh;
@@ -1128,6 +1152,22 @@ kbd {
   .control-lesson dd {
     font-size: 0.62rem;
   }
+}
+
+/*
+ * On-screen driving controls are gated on INPUT CAPABILITY, not viewport width.
+ *
+ * They used to ride along with the narrow-layout breakpoint, so a narrow desktop
+ * window with a mouse grew a set of thumb buttons that duplicated the keyboard
+ * and consumed 22% of the viewport. Width tells you how much room the layout has;
+ * it tells you nothing about whether the player has a finger or a mouse.
+ */
+@media (pointer: coarse) {
+  /* Raised only when there is actually a thumb pad below them to clear. */
+  .field-kit,
+  .workshop {
+    bottom: 11.35rem;
+  }
 
   .touch-controls {
     position: absolute;
@@ -1165,7 +1205,7 @@ kbd {
   }
 
   /* Five actions in two rows: a single row would collide with the steering pad
-     on a 390 px viewport. */
+   on a 390 px viewport. */
   .touch-actions {
     display: grid;
     grid-template-columns: repeat(3, auto);
@@ -1185,11 +1225,9 @@ kbd {
   .opportunity-rail small {
     display: none;
   }
+}
 
-  .field-kit {
-    bottom: 11.35rem;
-  }
-
+@media (pointer: coarse) and (max-width: 480px) {
   .touch-actions {
     grid-template-columns: repeat(2, auto);
   }

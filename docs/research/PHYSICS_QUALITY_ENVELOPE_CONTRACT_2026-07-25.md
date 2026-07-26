@@ -207,3 +207,14 @@ The physics layer is already stable enough to be a first-playable foundation. Th
 - The useful boundary is unchanged: the motion model is intentional and
   measurable, but it still needs a first-class stability envelope before future
   locomotion or hazard work starts layering on more feel changes.
+
+## Addendum (2026-07-26) - episode grammar depends on physics stability, not the other way around
+
+- Re-checked the physics-quality contract against the episode-grammar trail.
+- Episode grammar can only stay readable if the physics layer keeps its
+  stability states, fallback behavior, and operator-visible summaries explicit.
+- That makes the physics envelope a prerequisite dependency beneath episode
+  grammar, not a substitute for it.
+- The current first-playable motion model is still the live mode; the missing
+  layer is the explicit quality envelope and its surfaced summary.
+- Evidence tier: Tier 1 static inspection.

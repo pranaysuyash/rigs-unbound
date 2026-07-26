@@ -10,7 +10,10 @@
 
 Field Test 001 proved that a controllable vehicle, renderer-independent fixed-step state, local persistence, world memory, and browser delivery can work together. It did not prove the product architecture is portable. Its single `vehicle` state, tractor movement constants, `ploughLowered` field, and tractor-only renderer can silently turn a disposable scenario into the product model.
 
-The project owner accepted a broader hierarchy:
+The operator directly established that Rigs Unbound is an open game and should
+not be anchored to one rig, activity, view, or mechanic. The following exact
+hierarchy came from operator-supplied AI feedback; it is retained as an aligned
+synthesis, not attributed to the operator as authored wording:
 
 > Rigs Unbound is a vehicle-driven universe spanning many vehicle types, worlds, scales, perspectives and mechanics.
 
@@ -88,7 +91,11 @@ The v2 schema may migrate again; it must not be silently rewritten in place. A f
 
 ## Update log
 
-- 2026-07-25: Accepted after the project owner supplied the broad vehicle-universe hierarchy, portability test, and adjacent-capability sequence and asked implementation to continue.
+- 2026-07-25 historical wording, withdrawn as provenance: “Accepted after the
+  project owner supplied the broad vehicle-universe hierarchy, portability
+  test, and adjacent-capability sequence and asked implementation to continue.”
+  The exact hierarchy and sequence were AI feedback supplied for evaluation,
+  not operator-authored decision text.
 - 2026-07-26: Provenance scope corrected. The operator directly established
   the broad vehicle-universe and no-tractor-privilege principle. The exact
   buggy/towing/ramp fixture was supplied through ChatGPT background and selected

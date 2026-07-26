@@ -39,6 +39,9 @@ acceptance record owns its specific tier.
 | Public promise    | A link opens into an understandable, restartable experience with honest maturity and clear controls.                  |    Proposed | Public smoke-test checklist and external playtest.                                                  |
 | Name and identity | **Rigs Unbound** is the accepted project and repository identity.                                                     |    Accepted | Use consistently; complete trademark/domain clearance before commercial launch. See ADR-0005.       |
 
+The public smoke-test gate now sits beneath episode grammar: the gate binds camera, performance, and accessibility evidence into one reviewable public promise, while episode grammar remains the story-composition layer above it.
+The browser-delivery contract now sits beneath episode grammar too, so the public promise can tell future work what is essential, what can degrade, and what is optional without becoming the story layer itself.
+
 ## Core loops
 
 ### Moment-to-moment
@@ -61,7 +64,28 @@ The living loop contract is now captured in [Core Loop and Progression Contract]
 The next product-level seam after the core loop is not “more modes” but a
 compositional episode grammar that lets place, rig identity, pressure,
 discovery, and persistent consequence combine into a single authored episode.
-See [Compositional Episode Grammar and Storm Relay](../research/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+See [Compositional Episode Grammar and Storm Relay](COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+
+### Proposed next-tranche arbitration
+
+An internal-only wide-open brainstorm compared a cross-rig passage, a thin
+pressure/relay proof, Farmfall sequencing, and a later toy-scale interior
+experiment. The convergence favors one persistent cross-rig consequence as the
+next portability proof, but this is a sequencing proposal rather than operator
+acceptance. See
+[Wide-Open Next-Tranche Arbitration](WIDE_OPEN_NEXT_TRANCHE_ARBITRATION_2026-07-26.md).
+
+### Farmfall emission and cultivation boundary
+
+The current Farmfall plan predates save schema v6, blade fill, Reclamation, and
+the source/listener provenance audit. Emission is now split into named source
+channels and listener-owned sensitivity/falloff; the current source-only code
+is an evidence fixture, not an ecology system. Persistent cultivation requires
+semantic cut provenance and an explicit schema-v7 decision rather than
+inferring eligibility from height delta, furrow marks, or an authored `tilled`
+surface. See
+[ADR-0025](../decisions/ADR-0025-emission-source-listener-separation.md) and
+[ADR-0026](../decisions/ADR-0026-cultivation-provenance-and-schema-v7.md).
 
 ### Long arc
 
@@ -467,6 +491,8 @@ The immediate consequence is that the project should harden visibility, collisio
 - The command/event envelope now also carries the episode-grammar boundary, so replay and diagnostics remain inspectable without inventing a second history source.
 - The ECS threshold contract now lives in [ECS Threshold and Composition Readiness Contract](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md), which makes the actor-count and coupling threshold explicit and keeps composition migration proof-based.
 - The ECS threshold also sits beneath episode grammar, so story composition should continue to use the current machine-centric model until measured pressure proves a migration.
+- The physics quality envelope now also sits beneath episode grammar, so motion remains readable through explicit stability states instead of feel changes becoming a hidden second story system.
+- The modding and creator-pack lifecycle now also sits beneath episode grammar, so packs stay validated content envelopes rather than becoming a second story/runtime authority.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
   - validated contract migration for capability/activity definitions,
@@ -603,6 +629,36 @@ decision.
 ## Art, animation, audio, and asset pipeline
 
 See [DESIGN.md](../../DESIGN.md).
+
+## Addendum — 2026-07-26 rig signature remains a fixture until listener and accessible feedback exist
+
+- The new deterministic rig-emission source derives bounded acoustic,
+  illumination, and thermal-proxy channels from rig state without mutating the
+  rig.
+- It is a real evidence fixture, not a completed gameplay system, because there
+  is still no listener-owned presentation surface or accessible player feedback
+  mapping.
+- The next proof should connect the source to one readable player-facing cue
+  before any generic scheduler or broader effect system is promoted.
+
+## Addendum — 2026-07-26 audio mute is functional, but persistence is still missing
+
+- The audio lane already has a working in-session mute control, but the
+  preference is not yet restored from durable storage after reload.
+- That keeps mute as a comfort control, not yet a remembered player preference.
+- The next proof should persist the mute bit without letting audio become a
+  gameplay authority or a hidden mechanic channel.
+
+## Addendum — 2026-07-26 audio burst suppression is still only a prose contract
+
+- The audio presentation contract already names duplicate-event suppression and
+  cooldown behavior for bursty impact/interaction streams, but the runtime
+  still lacks a named owner for that policy.
+- `src/game/audio.ts` currently uses disposable one-shot bursts and immediate
+  acknowledgements, which is correct for a first slice but not yet a burst
+  gating system.
+- The next durable proof should name one suppression window or coalescing rule
+  before another bursty source is introduced.
 
 Research:
 
@@ -1132,6 +1188,7 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the performance/readability baseline now has a dedicated contract note, so the shared thresholds stay readable as one umbrella policy.
 - Addendum (2026-07-25): the second locomotion family now has a dedicated contract note, so the hover/ground boundary stays explicit across save/reload and rollback.
 - Addendum (2026-07-25): the authority-model gap now has a dedicated contract note, so shared-state and server-authoritative behavior remain future-only.
+- Addendum (2026-07-26): the authority-model gate also sits beneath episode grammar, so consequence stays durable through authoritative outcomes instead of speculative intent.
 - Addendum (2026-07-25): the engine-branch gap now has a dedicated contract note, so alternate backends remain bounded comparison branches instead of shadow products.
 - Addendum (2026-07-26): the engine-branch lane still lacks a measurable branch-opening trigger, so Three.js stays the canonical v1 path until a benchmark bundle justifies a bounded comparison branch.
 - Addendum (2026-07-26): the authority lane is still local-first, but the next proof should be one local authenticated mutation envelope (save, repair, or module install) rather than any multiplayer claim.
@@ -1236,6 +1293,16 @@ New exploration questions opened by this package:
 - When activity context recommends a camera or action, how is the suggestion
   made explainable, overridable, and replay-safe?
 
+## Addendum — 2026-07-26 route-clearance contract continuation
+
+- The live runtime already owns authored grade-limited corridors and a
+  nearest-track recovery return path, but not a general route-cost planner.
+- That means `terrain-face` reasons are still prose-first feedback, not a
+  structured route-cost event stream.
+- The new [Route Clearance and Capability Pathing Contract](../research/ROUTE_CLEARANCE_AND_CAPABILITY_PATHING_CONTRACT_2026-07-26.md)
+  keeps the next proof slice focused on candidate generation, capability-aware
+  scoring, structured reasons, diagnostics, and replayable evidence.
+
 ## Addendum — 2026-07-26 browser-delivery contract continuation
 
 - The `3d-web-experience` pass confirms the current runtime is still a working
@@ -1258,6 +1325,17 @@ New exploration questions opened by this package:
   the browser-delivery lane owns how those policies are surfaced to the player.
 - Next proof should be a visible profile indicator plus one truthful loading
   or fallback state that survives the live Field 02 browser surface.
+- That visible profile signal also belongs in the public promise, so comfort
+  and fallback state stay player-facing instead of operator-only.
+
+## Addendum — 2026-07-26 map overlay focus boundary
+
+- The map overlay still needs a true dialog/focus contract even though it is
+  already a working mode switch.
+- That makes the map boundary part of accessibility/input and browser
+  delivery, not a renderer concern.
+- Next proof should add or document the focus-managed overlay boundary so the
+  browser surface stays operable for keyboard and assistive-technology users.
 
 ## Addendum — 2026-07-26 observer gate keeps shared consequences narrow
 
@@ -1300,16 +1378,18 @@ New exploration questions opened by this package:
 - The first proof remains a small authored multi-candidate choice, not a
   generative or personalized runtime.
 
-## Addendum — 2026-07-26 command/event envelope still missing
+## Addendum — 2026-07-26 command/event envelope is reusable, but the shared graph still is not
 
 - The command and event contract lane confirms the app already has a useful
-  local history, but the reusable shared envelope is still not explicit.
+  local history and a reusable bounded envelope, but the shared fan-out graph
+  is still not explicit.
 - `run-record.ts` currently captures command/checkpoint/input/save entries, so
-  the staging surface is real; the missing boundary is the versioned event
-  envelope with origin-domain ownership and replayable/diagnostics-only
-  classification.
-- The next evidence should be a single command path that emits a reusable event
-  envelope and proves the same history can feed simulation, UI, replay, and
+  the staging surface is real; the missing boundary is the shared graph with
+  versioned emission points, domain ownership, and replayable/diagnostics-only
+  classification across consumers.
+- The next evidence should be a single command path that emits a reusable
+  envelope into a shared graph and proves the same history can feed simulation,
+  UI, replay, and diagnostics without parallel local truth sources.
   diagnostics without parallel local truth sources.
 
 ## Addendum — 2026-07-26 state-shell visual language still needs one browser-proof profile
@@ -1322,6 +1402,22 @@ New exploration questions opened by this package:
   approval boundary for that presentation layer.
 - Until then, the shell work remains a contract lane rather than a shipped
   visual system.
+- The browser-proved shell profile should be treated as a presentation-owner
+  contract, not as another gameplay or accessibility state.
+- The current runtime substrate is already visible in code: the renderer owns a
+  dedicated state-shell mesh and shader, and feedback drives integrity/impact
+  into it each frame.
+
+## Addendum — 2026-07-26 browser-proved shell profile owner remains the missing bridge
+
+- The state-shell lane and the accessibility/profile-visibility lane now share a
+  clearer cross-cutting gap: one browser-proved shell profile owner.
+- The public surface already has truthful shell state, runtime profile policy,
+  and hidden operator diagnostics, but it still lacks one named player-facing
+  owner for the visible shell/profile signal.
+- The new [Browser-Proved Shell Profile Owner Contract](../research/BROWSER_PROVED_SHELL_PROFILE_OWNER_CONTRACT_2026-07-26.md)
+  keeps that bridge explicit so the repo does not drift into two adjacent
+  unresolved questions.
 
 ## Addendum — 2026-07-26 resource budget is measurable, but fallback ownership is still implicit
 
@@ -1332,6 +1428,9 @@ New exploration questions opened by this package:
   summary that names both the oversubscribed resource and the subsystem that
   triggered the downgrade.
 - Until then, performance data remains observability, not policy.
+- The current visibility fallback is already owned by `RuntimeProfileController`;
+  what remains implicit is the broader CPU/GPU/memory governor beyond the
+  renderer visibility lane.
 
 ## Addendum — 2026-07-26 planner work should wait for multi-candidate choice
 
@@ -1342,6 +1441,9 @@ New exploration questions opened by this package:
   reasons.
 - A broad planner framework is premature until the app actually needs to rank
   competing valid actions rather than resolve one contextual action at a time.
+- The strongest second activity candidate is a tow-plus-repair rescue flow,
+  because it would reuse the matcher while forcing a distinct objective shape
+  and recovery story.
 
 ## Addendum — 2026-07-26 creator-pack lifecycle is still broader than the asset slice
 

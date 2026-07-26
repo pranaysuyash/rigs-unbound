@@ -27,6 +27,10 @@ import {
   type TapAction,
   worldMinuteOfDay,
 } from "./game/contracts";
+import {
+  surveyRouteMinutesRemaining,
+  surveyRouteTargets,
+} from "./game/activities";
 import { RigAudio } from "./game/audio";
 import {
   decodeLearnedControlLessons,
@@ -303,6 +307,10 @@ function boot(): void {
   const timeLabel = requiredElement<HTMLElement>("#time-label");
   const surfaceLabel = requiredElement<HTMLElement>("#surface-label");
   const biomeLabel = requiredElement<HTMLElement>("#biome-label");
+  const surveyContract = requiredElement<HTMLElement>("#survey-contract");
+  const surveyContractText = requiredElement<HTMLElement>(
+    "#survey-contract-text",
+  );
   const worldDesignation = requiredElement<HTMLElement>("#world-designation");
   const welcomeDesignation = requiredElement<HTMLElement>(
     "#welcome-designation",
@@ -401,10 +409,10 @@ function boot(): void {
   welcomePanel.setAttribute("aria-hidden", String(worldEntered));
   enterWorldButton.disabled = worldEntered;
   gameShell.setAttribute("aria-busy", "false");
-  bootstrapStatus.dataset.state = "ready";
+  bootstrapStatus.dataset.state = "measuring";
   bootstrapStatus.textContent = worldEntered
-    ? "Field systems ready. Restored session controls are active."
-    : "Field systems ready. Choose Enter the field to begin.";
+    ? "Measuring device performance…"
+    : "Measuring device performance… Choose Enter the field to begin.";
   if (!worldEntered) {
     requestAnimationFrame(() => enterWorldButton.focus());
   }
@@ -906,11 +914,13 @@ function boot(): void {
     );
     const controlLessonSuppressed =
       !worldEntered || state.paused || state.mapOpen;
+    let controlLessonVisible = false;
     if (!nextControlLesson || controlLessonSuppressed) {
       controlLesson.hidden = true;
       controlLesson.removeAttribute("data-lesson-id");
       visibleControlLessonId = null;
     } else {
+      controlLessonVisible = true;
       const changed = visibleControlLessonId !== nextControlLesson.id;
       visibleControlLessonId = nextControlLesson.id;
       controlLesson.dataset.lessonId = nextControlLesson.id;
@@ -1002,6 +1012,29 @@ function boot(): void {
     hoodDashboard.update(state);
     navigatorUI.update(state);
 
+    /*
+     * The contract readout is only shown while a contract is running.
+     *
+     * It reports sightings and the closing light, because those are the two things
+     * the player can act on: which signals are still owed, and how long the window
+     * is. A contract that is not running has nothing to say and takes no space.
+     */
+    const contract = state.surveyRoute;
+    surveyContract.hidden = contract.status !== "active";
+    if (contract.status === "active") {
+      const targets = surveyRouteTargets();
+      const remaining = surveyRouteMinutesRemaining(
+        contract,
+        state.worldTimeMinutes,
+      );
+      const left = targets.length - contract.sighted.length;
+      surveyContractText.textContent =
+        left > 0
+          ? `${left} signal${left === 1 ? "" : "s"} to sight · ${Math.round(remaining ?? 0)} min of light`
+          : "Contract filed";
+    }
+
+    const visibleSignals = world.visibleSignals;
     for (const landmark of LANDMARKS) {
       const item = landmarkList.querySelector<HTMLElement>(
         `[data-landmark-id="${landmark.id}"]`,
@@ -1017,28 +1050,66 @@ function boot(): void {
       const nameElement = item.querySelector<HTMLElement>("strong");
       const detailElement = item.querySelector<HTMLElement>("small");
       const distanceElement = item.querySelector<HTMLElement>("em");
+      // Three states, and they are the three states the machine can actually be in:
+      // a place it has been (remembered, named), a signal it can currently see
+      // (a bearing and a rough range), and a signal terrain is hiding (nothing).
+      const inSight = visibleSignals.has(landmark.id);
+      item.classList.toggle("is-in-sight", !discovered && inSight);
       if (nameElement) {
-        nameElement.textContent = discovered ? landmark.name : "Unsurveyed";
+        nameElement.textContent = discovered
+          ? landmark.name
+          : inSight
+            ? "Unsurveyed"
+            : "No signal";
       }
       if (detailElement) {
-        // Before you have been there, a machine can tell which way the signal lies
-        // and roughly how far. It cannot tell you what the place is for.
         detailElement.textContent = discovered
           ? landmark.verb
-          : `bearing ${headingLabel(
-              Math.atan2(landmark.x - rig.x, landmark.z - rig.z),
-            )}`;
+          : inSight
+            ? `bearing ${headingLabel(
+                Math.atan2(landmark.x - rig.x, landmark.z - rig.z),
+              )}`
+            : "out of sight";
       }
       if (distanceElement) {
         distanceElement.textContent = discovered
           ? "found"
-          : distanceBand(distance);
+          : inSight
+            ? distanceBand(distance)
+            : "--";
       }
     }
 
-    // Workshop panel appears only where it can be used.
-    workshopPanel.hidden = !workshop || state.mapOpen;
-    if (workshop) {
+    /*
+     * One owner for the major surfaces, so they can never stack.
+     *
+     * The map, a control lesson and the workshop each take a large share of the
+     * screen, and each used to decide its own visibility from its own condition. On
+     * first boot all three drew over each other and over the opportunity rail, so a
+     * player's first frame was a stack of instrument panels with a strip of world
+     * behind them. Priority runs by how much the player asked for it: an explicit
+     * map request beats a lesson the game volunteered, which beats an ambient panel
+     * that merely happens to be in range.
+     *
+     * "In range" is also not enough to earn the space. The workshop opens when there
+     * is something to actually do there — a module that is affordable, compatible and
+     * not already fitted, or the objective explicitly asking for a part. Otherwise a
+     * new player's first sight of the game is five rows reading "Need N more".
+     */
+    const workshopActionable =
+      workshop !== undefined &&
+      (firstRung.stage === "choose-part" ||
+        MODULE_IDS.some((moduleId) => {
+          const definition = MODULES[moduleId];
+          return (
+            state.salvage >= definition.cost &&
+            definition.fits.includes(rig.id) &&
+            !rig.modules.includes(moduleId)
+          );
+        }));
+    workshopPanel.hidden =
+      !workshopActionable || state.mapOpen || controlLessonVisible;
+    if (workshop && !workshopPanel.hidden) {
       workshopSalvage.textContent = `${state.salvage} salvage`;
       for (const moduleId of MODULE_IDS) {
         const button = moduleList.querySelector<HTMLButtonElement>(
@@ -1468,12 +1539,20 @@ function boot(): void {
   const persist = (): void => {
     const result = saveState(window.localStorage, state, world);
     performanceMonitor.recordSave(result.durationMs, result.bytes);
-    statusMessage = "Saved locally just now";
+    const saved = result.error === undefined;
+    statusMessage = saved
+      ? "Saved locally just now"
+      : "Save failed · prior local save kept";
+    if (!saved) {
+      state.lastDiagnostic = statusMessage;
+    }
     appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {
       bytes: result.bytes,
       durationMs: result.durationMs,
+      error: result.error ?? null,
       saveKey: result.saveKey,
       schemaVersion: result.schemaVersion,
+      saved,
       statusMessage,
     });
   };

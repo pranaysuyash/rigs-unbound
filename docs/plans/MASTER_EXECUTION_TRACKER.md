@@ -7,6 +7,8 @@
 - Quick lane index: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - Decision source of truth: [ADRs](../decisions/)
 - Evidence source of truth: [Worklog](../WORKLOG.md) and [reviews](../reviews/)
+- Focused current board:
+  [Next Execution Board](NEXT_EXECUTION_BOARD_2026-07-26.md)
 
 ## How to maintain this tracker
 
@@ -32,9 +34,9 @@ canonical scope and acceptance contracts.
 | ----: | :----: | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 |     1 | `[x]`  | RU-0106–RU-0109: first-session P0 repair                          | These defects blocked entry, reward, recovery, or coherent time                               | Unit/migration contracts, development browser, rebuilt production preview, persistence, input parity, and zero console errors |
 |     2 | `[x]`  | RU-0110: remaining P1/P2 playtest defects                         | Remove camera, spawn, lab/debug, affordance-label, and record confusion before adding ecology | Every B5–B12 item reproduced, dispositioned, tested, browser-reviewed, committed, pushed, and deployed                        |
-|     3 | `[-]`  | RU-0901–RU-0907: session synthesis, provenance, and authority     | Missing synthesis and invented decision authority can misroute every later workstream         | Canonical proposal captured; ADR statuses sourced; tracker deduplicated; lab/public authority explicitly decided              |
+|     3 | `[-]`  | RU-0901–RU-0909: session synthesis, provenance, and authority     | Missing synthesis and invented decision authority can misroute every later workstream         | Canonical proposal captured; ADR statuses sourced; tracker deduplicated; lab/public authority explicitly decided              |
 |     4 | `[-]`  | RU-0601 + RU-0406: guidance and first meaningful spend            | A reachable reward is not yet a complete first rung                                           | Fresh profile reaches, understands, earns, spends, and recognizes the rig change without project knowledge                    |
-|     5 | `[ ]`  | RU-0202 + RU-0203: signatures and crops                           | Establish the deterministic day-side ecology before threats depend on it                      | Bounded serializable kernel state, failure recovery, telemetry, and tests                                                     |
+|     5 | `[?]`  | RU-0202 + RU-0203: emissions and cultivation                      | Current plans conflict on sequencing, source/listener authority, and schema-v7 ownership      | Operator accepts sequencing and ADR-0025/0026 boundaries; then one real listener and one persistent crop vertical pass        |
 |     6 | `[ ]`  | RU-0204 + RU-0205: night threats and dawn consequence             | Complete the first consequence-bearing day→night→dawn loop                                    | Threat failure/retry paths, persisted dawn record, player/operator explanation                                                |
 |     7 | `[ ]`  | RU-0206 + RU-0405: mastery and schema v7                          | Progression must reward varied rig verbs without grind or save drift                          | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary                                         |
 |     8 | `[ ]`  | RU-0207 + RU-0208: presentation and fresh-eyes validation         | Kernel completion is not player comprehension or fun evidence                                 | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human                                          |
@@ -314,8 +316,17 @@ with permanent instructions.
     collision, reduced motion, desktop, and `390×844` coverage. The `4174`
     build also proved zero developer/private runtime asset bridges. Evidence:
     [first-rung acceptance addendum](../reviews/FIRST_RUNG_REWARD_AND_SPEND_ACCEPTANCE_2026-07-26.md#addendum-2026-07-26--finalized-4173-and-4174-acceptance).
-    Real touch, public-production, and external-player comprehension evidence
-    keep this item in progress.
+    A later fresh production build passed the same full matrix on `4182` and
+    strengthened the persistence wait to require the completed relay itself,
+    not merely an earlier non-empty save. A subsequent full run used a
+    `hasTouch` mobile context plus Chrome touch events to enter the world,
+    acknowledge state-derived control lessons, hold the real touch direction
+    buttons, collect through touch Act, return to Home, fit Lug tyres through
+    touch, and verify the visible module after reload. Public Sites version 9
+    then passed the complete real-touch and wider browser matrix with zero
+    captured console/page problems. External-player comprehension evidence
+    keeps this item in progress. Evidence:
+    [Sites version 9 release](../reviews/SITES_VERSION_9_RELEASE_2026-07-26.md).
 - [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
@@ -326,6 +337,11 @@ with permanent instructions.
     the deployment ledger and rollback target.
   - Closure: a fresh player can describe what they found, what they bought, and
     what became newly possible without reading project documentation.
+  - Release evidence (2026-07-26): repair commit `5896833` is on
+    `origin/main`; Sites version 9 deployed successfully; default and Field 02
+    URLs returned HTTP 200; public real-touch/browser acceptance exited 0 with
+    zero console/page problems. Release reconciliation and external-player
+    comprehension remain open, so this item stays In progress.
 
 #### Closed predecessor checklist — RU-0106 through RU-0109
 
@@ -452,12 +468,20 @@ with permanent instructions.
   - Depends on: RU-0106 through RU-0110.
   - Source: [Farmfall plan](FARMFALL_SLICE_01_2026-07-25.md).
   - Closure: all Phase 0 gates green before new ecology state lands.
-- [ ] **RU-0202 — Signature system.**
-  - Gate: deterministic noise/light/heat-style channels from kernel state;
-    distance falloff, telemetry, tests, and accessible presentation.
-- [ ] **RU-0203 — Crop loop.**
-  - Gate: plough→sow→grow→harvest uses persistent terrain and bounded,
-    serializable crop state; invalid/corrupt entries recover visibly.
+- [~] **RU-0202 — Emission/listener system.**
+  - Current evidence: `signature.ts` implements a source-only experimental
+    fixture with named acoustic/illumination/thermal-proxy channels, explicit
+    generic operating context, no cached-telemetry/activity coupling, no
+    universal score/falloff, and four passing focused tests.
+  - Gate: operator accepts ADR-0025; one real listener owns sensitivity,
+    falloff/occlusion/thresholds; active/inactive operating semantics,
+    fixed-step behavior, replay, accessible feedback, and browser evidence pass.
+- [?] **RU-0203 — Cultivation/crop loop.**
+  - Finding: current v6 cannot be silently extended; deformation, furrows, and
+    authored `tilled` surfaces cannot prove cultivation-cut provenance.
+  - Gate: operator accepts ADR-0026 sequencing, schema-v7 owner, harvest value,
+    post-sow terrain policy, and measured bounds; then
+    plough→raise→sow→grow→harvest persists and invalid entries recover visibly.
 - [ ] **RU-0204 — Night threat ecology.**
   - Gate: bounded threats respond to explicit signature channels, damage rigs
     or crops, can be repelled through vehicle/world verbs, and dissolve at dawn.
@@ -499,9 +523,12 @@ with permanent instructions.
     operator sign-off on ADR-0023.
   - Gate: one rescue/construction/recovery job exercises attachment ownership,
     breakage, load, capture/recovery, feedback, and candidate comparison.
-- [ ] **RU-0306 — Camera-obstruction query port.**
-  - Gate: terrain and props feed one solver-independent scene-query result;
-    chase/hood/side policies recover without clipping or disorientation.
+- [x] **RU-0306 — Camera-obstruction query port.**
+  - Closure: fulfilled by RU-0110.3/0110.5 rather than implemented again.
+    `scene-query.ts` composes terrain, procedural obstacles, felled world
+    memory, and authored structures into one solver-independent nearest-hit
+    result. Chase/side/hood acceptance proves signed rear framing,
+    structure/tree pull-in, felled-tree recovery, and no self-intersection.
 - [ ] **RU-0307 — Next genuinely different motion family.**
   - Candidates: bicycle balance, tracks, buoyancy/hover, flight, 6-DOF, or
     articulation.
@@ -730,14 +757,19 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     preserved the documented direct sign-off behind ADR-0018, and bounded
     Farmfall/Time Trial plan authority without removing them from the active
     work queue.
-- [-] **RU-0904 — Tracker and authority deduplication.**
+- [x] **RU-0904 — Tracker and authority deduplication.**
   - Scope: reconcile RU-0110.3 versus RU-0306, local technical acceptance versus
     product acceptance, and overlapping research/live-implementation entries.
   - Closure: every active item has one owner, one status, one dependency chain,
     and one evidence ceiling.
-  - Partial closure (2026-07-26): preserved both decisions while resolving the
+  - Closure evidence (2026-07-26): preserved both decisions while resolving the
     duplicate `ADR-0023` identifier; solver-neutral dynamics remains ADR-0023
-    and the newer browser-harness lifecycle decision is now ADR-0024.
+    and the browser-harness lifecycle decision is ADR-0024. Marked RU-0306
+    fulfilled by the already verified RU-0110.3/0110.5 scene-query work instead
+    of scheduling a duplicate implementation. The decision register separates
+    local implementation evidence from product acceptance; joint packages
+    RU-0601/0406 and RU-0206/0405 retain one dependency order rather than
+    parallel truth sources.
 - [x] **RU-0905 — Canonical motto-v4 stale-reference correction.**
   - Finding: project `motto_v4.md` declares v4 canonical but its multi-pass
     section still says to revalidate against motto-v3.
@@ -754,15 +786,18 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     and confirmed no stale v3 startup, clause, source, bridge, or uppercase
     context-path references remain in the live stack. Project `motto_v2.md` and
     `motto_v3.md` are absent.
-- [-] **RU-0906 — Research recommendation status-inflation audit.**
+- [x] **RU-0906 — Research recommendation status-inflation audit.**
   - Scope: reconcile “Adopt,” “Approved,” “Used,” and implementation-authority
     labels across library, engine, UI, asset, and tooling evaluations.
   - Closure: every label is backed by current code/evidence and sign-off or is
     relabelled Candidate/Proposed/Experimental/Rejected/Deferred.
-  - Current progress (2026-07-26): the decision register now defines the
-    canonical recommendation vocabulary; the high-impact physics/library
-    evaluation carries a current-status correction; repository-wide detection
-    and correction of remaining recommendation verbs is the next active pass.
+  - Closure evidence (2026-07-26): the decision register defines the canonical
+    recommendation vocabulary; a tested reusable audit reports 44
+    context-sensitive review candidates; every candidate class is dispositioned
+    in the provenance audit; high-impact physics/library/GSAP claims carry
+    current status tables; and surviving false operator-authorship wording in
+    ADR-0006/0012 is withdrawn at the point of use. The audit remains a
+    continuing review tool, not a zero-warning lint gate.
 - [?] **RU-0907 — Evidence-lab production-surface decision.**
   - Scope: decide whether Physics Lab and Box3D Probe remain direct production
     routes, become developer-only build entries, or move to a separate evidence
@@ -776,6 +811,17 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
     runtime, docs, and external evidence.
   - Closure: no item is called Done from intent, documentation, or narrow tests;
     unresolved work remains visibly active with a concrete closure path.
+- [x] **RU-0909 — Internal wide-open next-tranche arbitration.**
+  - Scope: revisit the next product proof from first principles with internal
+    Champion, Strategist, Future Self, Methodologist, Cartographer, Archivist,
+    Data Steward, Skeptic, Trickster, Executioner, and Outsider roles; use no
+    external models.
+  - Closure: preserve disagreement, convergence, kill criteria, sequencing
+    proposal, and the operator-sign-off boundary in one durable artifact.
+  - Evidence:
+    [Wide-Open Next-Tranche Arbitration](../exploration/WIDE_OPEN_NEXT_TRANCHE_ARBITRATION_2026-07-26.md).
+    The document proposes Unbound Passage before Signal Break while preserving
+    Farmfall; it does not silently change the accepted roadmap.
 
 ## 10. Recurring acceptance gates
 

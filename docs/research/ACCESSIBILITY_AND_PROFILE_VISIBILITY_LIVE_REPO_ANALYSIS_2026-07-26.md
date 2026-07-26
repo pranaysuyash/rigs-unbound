@@ -241,3 +241,36 @@ That keeps the work aligned with the accessibility skill guidance:
   durable non-visual save/recovery announcement path.
 - Evidence depth: Tier 1 static source inspection. No browser or screen-reader
   walkthrough was run in this pass.
+
+## Addendum (2026-07-26) - the active comfort/profile state still needs a player-facing signal
+
+- Re-checked `src/main.ts`, `src/game/renderer.ts`, and the browser-delivery
+  trail in the current worktree.
+- The public shell already supports real focus, keyboard/touch operability,
+  reduced-motion awareness, and visible bootstrap/save/fallback messaging.
+- The remaining gap is not another input fix; it is a player-facing comfort or
+  profile indicator that says what profile is active without requiring
+  developer diagnostics.
+- That makes the browser-delivery contract the policy owner for when the
+  profile must be visible, while accessibility owns the visible shape and
+  announcement path.
+- Evidence depth: Tier 1 static source inspection. No runtime or browser
+  walkthrough was run in this pass.
+
+## Addendum (2026-07-26) - the map overlay is the next missing focus-managed browser boundary
+
+- Re-checked `index.html`, `src/main.ts`, and `src/styles.css` against the map
+  overlay interaction in the current worktree.
+- The map overlay is already a meaningful mode switch:
+  - `state.mapOpen` suppresses some input affordances,
+  - `mapOverlay.hidden` toggles the full-screen overlay,
+  - `Escape` closes the map before pause.
+- The remaining gap is the explicit dialog/focus contract:
+  - `#map-overlay` is still only a labeled section in markup,
+  - it does not declare `role="dialog"` or `aria-modal="true"`,
+  - focus does not move into the overlay when it opens,
+  - focus does not restore to the opener when it closes.
+- This means the browser surface is operable, but the map mode is still not a
+  first-class accessible dialog boundary.
+- Evidence depth: Tier 1 static source inspection. No runtime assistive-tech
+  walkthrough was run in this pass.
