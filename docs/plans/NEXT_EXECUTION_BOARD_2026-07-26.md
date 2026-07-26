@@ -160,7 +160,7 @@ Done only when its stated closure evidence exists.
   - Gate: fresh first-rung replay status is honest and unsupported commands are
     visible rather than misrepresented.
 
-- [ ] **B7 — Run the full integrated admission matrix.**
+- [x] **B7 — Run the full integrated admission matrix.**
   - Format and diff hygiene.
   - Main and deterministic-kernel typechecks.
   - Full root, kernel, asset, preflight, storage, passage, signature, world,
@@ -171,6 +171,16 @@ Done only when its stated closure evidence exists.
     save/reload, player/developer surfaces, and zero console/page errors.
   - Three motto-v4 passes and missed-anything sweep.
   - Gate: no failing or Tier 1-only gameplay claim is called complete.
+  - Evidence:
+    [Integrated admission matrix](../reviews/INTEGRATED_ADMISSION_MATRIX_2026-07-26.md).
+    The frozen production build passed 267 root tests, seven kernel tests,
+    typecheck, build, nine asset tests, asset preflight, formatting, whitespace,
+    and the full keyboard/touch browser harness with zero captured console/page
+    problems.
+  - Environment note: a frozen static server on `4191` replaced the normal
+    mutable preview port for this pass because concurrent Vite rebuilds were
+    invalidating shared `dist` asset hashes. Public deployment and external
+    comprehension remain separate gates.
 
 - [ ] **B8 — Commit, push, and deploy admitted groups.**
   - Re-run preservation audit before each mutation.

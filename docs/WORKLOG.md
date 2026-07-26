@@ -6820,3 +6820,32 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   shader and a general material system.
 - No test, build, browser run, or git action was performed; evidence remains
   Tier 1 static inspection and documentation editing.
+
+## 2026-07-26 — integrated schema-v7 keyboard/touch matrix passed
+
+- Froze the corrected production build at
+  `/tmp/rigs-unbound-acceptance.c6sHjF` and served it on `4191`; this avoided
+  concurrent Vite rebuilds invalidating shared `dist` hashes during the browser
+  run.
+- Corrected the browser harness so narrow touch layout is inspected in its real
+  `hasTouch`/coarse-pointer context rather than a resized desktop context.
+- Corrected the main prompt so an executable in-range salvage action is not
+  hidden by ambient Home workshop copy. The semantic action resolver remains
+  the single owner for desktop, touch, ARIA, lesson, and mutation.
+- Full browser acceptance exited zero with no captured console/page problems.
+  It covered keyboard and real-touch first rung, six cameras, front/forward
+  alignment, authored collision, three-rig terrain-face refusal and downhill
+  escape, cargo relay, ramp, reduced motion, recovery, save/reload, and
+  `390×844` layout.
+- Verification:
+  - `npm test`: 31 files / 267 tests plus 7/7 kernel tests passed;
+  - `npm run typecheck`: passed;
+  - `npm run build`: passed, with the known Three.js chunk advisory;
+  - `npm run test:assets`: 9/9 passed;
+  - `npm run assets:preflight`: zero findings;
+  - `npm run format:check`: passed after scoped formatting;
+  - `git diff --check`: passed.
+- Added
+  `docs/reviews/INTEGRATED_ADMISSION_MATRIX_2026-07-26.md` and linked B7 to it.
+  External-player comprehension, representative-device performance, replay
+  truth, operator decisions, commit/push, and public deployment remain open.

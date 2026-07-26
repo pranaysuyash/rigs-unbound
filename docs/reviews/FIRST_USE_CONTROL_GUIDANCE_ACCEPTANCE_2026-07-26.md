@@ -124,3 +124,20 @@ Yes. A first-use lesson should answer “why now?” as well as “which button?
 That relevance threshold is the part human playtests should tune; adding more
 cards without evidence would recreate the front-loaded tutorial this system is
 intended to avoid.
+
+## Addendum — 2026-07-26 integrated rerun
+
+The current schema-v7 production build was frozen and served at
+`http://127.0.0.1:4191/?acceptance=field-02` to prevent concurrent `dist`
+rebuilds from invalidating asset hashes during the long browser matrix.
+
+The rerun found that the first salvage cache's executable `collect-salvage`
+action could be hidden by Home workshop headline copy. The large prompt now
+matches the canonical contextual action before ambient workshop copy. The
+fresh keyboard and real-touch first-rung flows both introduced the contextual
+lesson, collected the cache, fitted a part, and restored it after reload.
+
+The narrow-layout assertion was also corrected to inspect the real
+coarse-pointer touch context rather than a resized desktop context. The full
+result is recorded in
+[Integrated admission matrix](INTEGRATED_ADMISSION_MATRIX_2026-07-26.md).
