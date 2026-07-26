@@ -116,6 +116,26 @@ The lab acceptance review now provides one browser-visible fixture candidate tha
 This harness is the evidence layer above the specialized contracts.
 It keeps future confidence changes reproducible and easy to audit.
 
+## Addendum (2026-07-25) - The evidence surface exists, but the canonical bundle is still not named
+
+- The live runtime already exposes the core proof hooks this harness needs:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.getRunRecordVerification()`
+- The browser daemon is still healthy on the live field surface, so the evidence
+  layer remains runnable rather than hypothetical.
+- The worktree also now carries fresh review-image assets that can serve as
+  capture candidates, but they are not yet organized into a single canonical
+  verification bundle.
+- That means the contract is still correctly staged as an evidence organizer:
+  - the proof surface is real,
+  - the bundle format is still missing,
+  - the explicit confidence transition rule is still missing,
+  - the tiered summary still needs a canonical home.
+- The right reading is unchanged: this lane does not need more proof sources;
+  it needs a reproducible evidence package that names which proof artifacts are
+  canonical and how they raise confidence over time.
+
 ## Addendum (2026-07-25) - Live evidence is present, but the bundle is not canonical yet
 
 - Live browser evidence currently exposes the proof surface the harness needs:

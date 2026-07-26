@@ -120,3 +120,29 @@ The right long-term goal is to keep the machine-centric composition model explic
 - The current useful standard is still machine-centric composition with explicit
   adapters and versioned persistence, revisited only when measured pressure
   proves the threshold has been crossed.
+
+## Addendum (2026-07-26) - composition remains explicit, and the ECS threshold is still not crossed
+
+- Re-checked the live browser daemon and the current composition source.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The codebase still expresses composition directly rather than through ECS:
+  - `src/game/contracts.ts` composes installed modules onto immutable rig
+    blueprints,
+  - `src/game/state.ts` keeps rigs, modules, and world state explicit,
+  - `src/game/gameworld.ts` keeps world memory as bounded sets and snapshots.
+- The live scale remains compact, so there is still no measured pressure that
+  justifies an ECS migration threshold:
+  - only a few rigs are active,
+  - world memory is bounded and replayable,
+  - the current adapter model remains readable and testable.
+- The missing layer remains the same threshold contract:
+  - no quantified actor-count or coupling trigger,
+  - no canonical multi-capability composition schema beyond the current rig
+    model,
+  - no migration proof that preserves identity through a component-model
+    change,
+  - no explicit statement that ECS should serve the machine-centric model
+    rather than replace it.
+- So ECS is still correctly treated as a future migration threshold, not a
+  current architecture requirement.

@@ -125,3 +125,20 @@ Do not treat this as an art-only ADR; treat it as a systems contract that protec
   reduced-motion and feedback portions for implementation. ADR-0012 now derives
   shared motion expression from authoritative rig telemetry; full quality
   profiles, budgets, and player-facing comfort controls remain proposed here.
+
+## Addendum (2026-07-26): player and developer evidence surfaces separated
+
+The default public/player surface now hides Physics Lab navigation and live
+fps/draw-call/heap tuning metrics. Those remain available on the explicit
+`?surface=developer` surface and the guarded `?acceptance=field-02` evidence
+surface. The direct lab URLs remain bootable; navigation visibility is not route
+deletion.
+
+Persistence status remains visible to players, but now uses literal state such
+as new field, local restore/migration, or saved locally. Runtime diagnostics
+have their own developer-only element and aria label instead of sharing the
+save line. Contextual touch controls expose the current semantic verb and
+capability availability through text and aria labels, not colour alone.
+
+This closes the public debug-leak portion of the accessibility contract. Full
+quality-profile selection and representative-device budgets remain open.

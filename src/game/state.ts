@@ -20,6 +20,7 @@ import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
   effectiveProfile,
+  FIELD_CLOCK_SAVE_SCHEMA_VERSION,
   FIELD_02_SAVE_SCHEMA_VERSION,
   FIXED_STEP_SECONDS,
   GLOAM_START_MINUTE,
@@ -54,7 +55,13 @@ import { SALVAGE_PICKUP_RADIUS, SURVEY_MOVE_THRESHOLD } from "./exploration";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
 import { rigIsStable, settleRig, stepRigMotion } from "./physics";
-import { findSite, HOME_SITE, RESOLVED_ROUTES, WORLD_SITES } from "./world";
+import {
+  findSite,
+  HOME_SITE,
+  RESOLVED_ROUTES,
+  RIG_HOME_BERTHS,
+  WORLD_SITES,
+} from "./world";
 
 const FURROW_SPACING = 1.1;
 const CARGO_HITCH_DISTANCE = 2.8;
@@ -132,13 +139,18 @@ function createMobility(id: RigId): RigState["mobility"] {
   };
 }
 
-function createRig(id: RigId, x: number, z: number): RigState {
+function createRig(
+  id: RigId,
+  x: number,
+  z: number,
+  heading = Math.PI,
+): RigState {
   return {
     id,
     x,
     y: 0,
     z,
-    heading: Math.PI,
+    heading,
     pitch: 0,
     roll: 0,
     speed: 0,
@@ -168,12 +180,6 @@ function createRig(id: RigId, x: number, z: number): RigState {
 }
 
 export function createInitialState(seed = "UNBOUND-260725"): GameState {
-  const marsh = findSite("sunken-flats");
-  if (!marsh) {
-    throw new Error(
-      "World contract is missing the Sunken Flats skimmer berth.",
-    );
-  }
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
     seed,
@@ -187,11 +193,22 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     rigs: {
       "utility-tractor": createRig(
         "utility-tractor",
-        HOME_SITE.x + 4,
-        HOME_SITE.z - 6,
+        RIG_HOME_BERTHS["utility-tractor"].x,
+        RIG_HOME_BERTHS["utility-tractor"].z,
+        RIG_HOME_BERTHS["utility-tractor"].heading,
       ),
-      "toy-buggy": createRig("toy-buggy", HOME_SITE.x - 5, HOME_SITE.z - 3),
-      "marsh-skimmer": createRig("marsh-skimmer", marsh.x + 8, marsh.z + 5),
+      "toy-buggy": createRig(
+        "toy-buggy",
+        RIG_HOME_BERTHS["toy-buggy"].x,
+        RIG_HOME_BERTHS["toy-buggy"].z,
+        RIG_HOME_BERTHS["toy-buggy"].heading,
+      ),
+      "marsh-skimmer": createRig(
+        "marsh-skimmer",
+        RIG_HOME_BERTHS["marsh-skimmer"].x,
+        RIG_HOME_BERTHS["marsh-skimmer"].z,
+        RIG_HOME_BERTHS["marsh-skimmer"].heading,
+      ),
     },
     cargoRelay: {
       id: "cargo-relay",
@@ -279,6 +296,92 @@ export function workshopInReach(state: GameState) {
 // Player actions
 // -----------------------------------------------------------------------------
 
+export type PrimaryActionKind =
+  | "release-cargo"
+  | "attach-cargo"
+  | "collect-salvage"
+  | "lower-plough"
+  | "raise-plough"
+  | "none";
+
+export interface PrimaryActionResolution {
+  kind: PrimaryActionKind;
+  label: string;
+  ariaLabel: string;
+}
+
+/**
+ * Resolve the exact action before mutating anything.
+ *
+ * This is the shared truth for UI labels, accessibility text, browser
+ * acceptance, and the mutation path below. It deliberately returns a semantic
+ * kind rather than a callback so replay/authority layers can record intent.
+ */
+export function resolvePrimaryAction(
+  state: GameState,
+  world: GameWorld,
+): PrimaryActionResolution {
+  const rig = activeRig(state);
+  const profile = effectiveProfile(rig.id, rig.modules);
+  const cargo = state.cargoRelay.cargo;
+
+  if (cargo.attachedRigId === rig.id) {
+    return {
+      kind: "release-cargo",
+      label: "Release",
+      ariaLabel: "Release relay cargo",
+    };
+  }
+
+  if (
+    !cargo.delivered &&
+    cargo.attachedRigId === null &&
+    Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius &&
+    profile.capabilities.includes("tow")
+  ) {
+    return {
+      kind: "attach-cargo",
+      label: "Attach",
+      ariaLabel: "Attach relay cargo",
+    };
+  }
+
+  const node = world.exploration.nearestNode(
+    rig.x,
+    rig.z,
+    SALVAGE_PICKUP_RADIUS,
+    world.collectedNodes,
+  );
+  if (node) {
+    return {
+      kind: "collect-salvage",
+      label: `Collect ${node.value}`,
+      ariaLabel: `Collect ${node.value} salvage`,
+    };
+  }
+
+  const plough = attachment(rig, "field-plough");
+  if (plough && profile.capabilities.includes("plough")) {
+    return plough.engaged
+      ? {
+          kind: "raise-plough",
+          label: "Raise blade",
+          ariaLabel: "Raise field plough",
+        }
+      : {
+          kind: "lower-plough",
+          label: "Lower blade",
+          ariaLabel: "Lower field plough",
+        };
+  }
+
+  return {
+    kind: "none",
+    label: "Explore",
+    ariaLabel: "No contextual action in reach",
+  };
+}
+
 /**
  * The single context action.
  *
@@ -292,8 +395,9 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
   const profile = effectiveProfile(rig.id, rig.modules);
   const relay = state.cargoRelay;
   const cargo = relay.cargo;
+  const resolution = resolvePrimaryAction(state, world);
 
-  if (cargo.attachedRigId === rig.id) {
+  if (resolution.kind === "release-cargo") {
     cargo.attachedRigId = null;
     const forwardX = Math.sin(rig.heading);
     const forwardZ = Math.cos(rig.heading);
@@ -305,13 +409,7 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     return;
   }
 
-  const distanceToCargo = Math.hypot(rig.x - cargo.x, rig.z - cargo.z);
-  if (
-    !cargo.delivered &&
-    cargo.attachedRigId === null &&
-    distanceToCargo <= CARGO_PICKUP.radius &&
-    profile.capabilities.includes("tow")
-  ) {
+  if (resolution.kind === "attach-cargo") {
     cargo.attachedRigId = rig.id;
     attachment(rig, "tow-hook")!.engaged = true;
     if (relay.status === "ready") {
@@ -322,13 +420,18 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     return;
   }
 
-  const node = world.exploration.nearestNode(
-    rig.x,
-    rig.z,
-    SALVAGE_PICKUP_RADIUS,
-    world.collectedNodes,
-  );
-  if (node) {
+  if (resolution.kind === "collect-salvage") {
+    const node = world.exploration.nearestNode(
+      rig.x,
+      rig.z,
+      SALVAGE_PICKUP_RADIUS,
+      world.collectedNodes,
+    );
+    if (!node) {
+      state.lastDiagnostic =
+        "The salvage signal moved out of reach. Reposition and try again.";
+      return;
+    }
     world.collect(node.id);
     state.salvage += node.value;
     state.salvageCollected += node.value;
@@ -336,8 +439,15 @@ export function performPrimaryAction(state: GameState, world: GameWorld): void {
     return;
   }
 
-  const plough = attachment(rig, "field-plough");
-  if (plough && profile.capabilities.includes("plough")) {
+  if (
+    resolution.kind === "lower-plough" ||
+    resolution.kind === "raise-plough"
+  ) {
+    const plough = attachment(rig, "field-plough");
+    if (!plough) {
+      state.lastDiagnostic = "The field plough is no longer available.";
+      return;
+    }
     plough.engaged = !plough.engaged;
     state.lastDiagnostic = plough.engaged
       ? "Field plough lowered. Soft ground will hold the cut."
@@ -371,8 +481,10 @@ export function winchRecover(state: GameState, world: GameWorld): void {
       attachment(rig, "tow-hook")!.engaged = false;
     }
 
-    rig.x = HOME_SITE.x + 4;
-    rig.z = HOME_SITE.z - 6;
+    const berth = RIG_HOME_BERTHS[rig.id];
+    rig.x = berth.x;
+    rig.z = berth.z;
+    rig.heading = berth.heading;
     rig.speed = 0;
     rig.steering = 0;
     rig.strain = 0;
@@ -725,6 +837,9 @@ export function stepGame(
 
   if (motion.boundarySpeed > 0) {
     state.lastDiagnostic = "The boundary ridge turns the rig back.";
+  } else if (motion.traversalBlockReason === "terrain-face") {
+    state.lastDiagnostic =
+      "A near-vertical terrain face blocks this rig. Reverse or turn downhill to escape.";
   }
 
   // ---------------------------------------------------------------------------
@@ -1392,7 +1507,55 @@ function recoverCurrent(candidate: Record<string, unknown>): GameState | null {
   });
 }
 
-/** Migrate the previous v4 field record into explicit world-clock/recovery state. */
+/**
+ * Move only the untouched legacy Drift berth into the canonical Home chain.
+ *
+ * Position alone is not enough: an active, moved, damaged, strained, upgraded,
+ * towing, or tool-engaged rig is player history and must remain exactly where
+ * the earlier build recorded it.
+ */
+function relocatePristineLegacyDrift(state: GameState): boolean {
+  const marsh = findSite("sunken-flats");
+  if (!marsh) return false;
+  const drift = state.rigs["marsh-skimmer"];
+  const oldX = marsh.x + 8;
+  const oldZ = marsh.z + 5;
+  const untouched =
+    state.activeRigId !== drift.id &&
+    state.cargoRelay.cargo.attachedRigId !== drift.id &&
+    Math.hypot(drift.x - oldX, drift.z - oldZ) <= 0.25 &&
+    Math.abs(drift.speed) <= 0.01 &&
+    drift.distanceTravelled <= 0.001 &&
+    drift.condition >= 99.999 &&
+    drift.strain <= 0.001 &&
+    drift.modules.length === 0 &&
+    drift.attachments.every((attachment) => !attachment.engaged);
+  if (!untouched) return false;
+
+  const berth = RIG_HOME_BERTHS[drift.id];
+  drift.x = berth.x;
+  drift.z = berth.z;
+  drift.heading = berth.heading;
+  drift.speed = 0;
+  drift.steering = 0;
+  return true;
+}
+
+/** Migrate v5 into the canonical three-rig Home berth contract. */
+function migrateV5(candidate: Record<string, unknown>): GameState | null {
+  const recovered = recoverCurrent(candidate);
+  if (!recovered) return null;
+  if (relocatePristineLegacyDrift(recovered)) {
+    recovered.lastDiagnostic =
+      "Schema v5 record migrated. Untouched Drift is now berthed at Home Silo; player-positioned rigs were preserved.";
+  } else {
+    recovered.lastDiagnostic =
+      "Schema v5 record migrated with existing rig positions preserved.";
+  }
+  return recovered;
+}
+
+/** Migrate the v4 field record into explicit world-clock/recovery state. */
 function migrateV4(candidate: Record<string, unknown>): GameState | null {
   if (
     typeof candidate.seed !== "string" ||
@@ -1418,8 +1581,10 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
     "marsh-skimmer": skimmer,
   });
   if (recovered) {
-    recovered.lastDiagnostic =
-      "Schema v4 record migrated to the monotonic field clock and recovery log.";
+    const relocated = relocatePristineLegacyDrift(recovered);
+    recovered.lastDiagnostic = relocated
+      ? "Schema v4 record migrated to the monotonic field clock, recovery log, and canonical Home berths."
+      : "Schema v4 record migrated to the monotonic field clock and recovery log; player rig positions were preserved.";
   }
   return recovered;
 }
@@ -1454,9 +1619,13 @@ function migrateV3(candidate: Record<string, unknown>): GameState | null {
   const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy", true);
   if (!tractor || !buggy) return null;
 
-  const marsh = findSite("sunken-flats");
-  if (!marsh) return null;
-  const skimmer = createRig("marsh-skimmer", marsh.x + 8, marsh.z + 5);
+  const driftBerth = RIG_HOME_BERTHS["marsh-skimmer"];
+  const skimmer = createRig(
+    "marsh-skimmer",
+    driftBerth.x,
+    driftBerth.z,
+    driftBerth.heading,
+  );
   const recovered = recoverShared(candidate, {
     "utility-tractor": tractor,
     "toy-buggy": buggy,
@@ -1464,7 +1633,7 @@ function migrateV3(candidate: Record<string, unknown>): GameState | null {
   });
   if (recovered) {
     recovered.lastDiagnostic =
-      "Field 02 record migrated. Drift is berthed at the Sunken Flats.";
+      "Field 02 record migrated. Drift is berthed in the Home Silo proximity chain.";
   }
   return recovered;
 }
@@ -1566,6 +1735,9 @@ export function recoverState(value: unknown): GameState | null {
     return recoverCurrent(candidate);
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
+    return migrateV5(candidate);
+  }
+  if (candidate.schemaVersion === FIELD_CLOCK_SAVE_SCHEMA_VERSION) {
     return migrateV4(candidate);
   }
   if (candidate.schemaVersion === FIELD_02_SAVE_SCHEMA_VERSION) {

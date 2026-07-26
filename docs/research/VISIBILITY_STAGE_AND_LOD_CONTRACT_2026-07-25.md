@@ -126,3 +126,25 @@ The renderer already behaves like a deliberate first-pass visibility budget. Thi
   treat it as an implicit renderer policy until those named counters/tests exist.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26) - the visibility budget stays deliberate, but the tier contract is still not named
+
+- Re-checked the live browser daemon and current renderer source.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The current renderer still behaves like a deliberate first-pass visibility
+  budget:
+  - terrain remains a single mesh derived from the height field,
+  - trees, rocks, felled trunks, salvage, and furrows remain instanced,
+  - prop rebuilds are still radius-bounded around the rig,
+  - presentation pieces such as the sky and dust still opt out of default
+    frustum culling when stability matters more than a formal visibility graph,
+  - performance hooks still expose draw calls, triangles, and frame timing.
+- That means the first-pass visibility budget is still real and useful.
+- The missing layer is still the named policy surface:
+  - no visible/local-radius/distant-sim tier matrix,
+  - no counters for missed-cull pressure or residency churn,
+  - no regression test proving a downgrade tier stays readable rather than
+    disappearing into undefined behavior.
+- So the renderer remains intentionally compact and legible, but visibility/LOD
+  is still an implicit policy rather than a first-class contract artifact.

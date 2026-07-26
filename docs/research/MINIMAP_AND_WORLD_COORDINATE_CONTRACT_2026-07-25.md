@@ -142,3 +142,24 @@ Yes. A minimap is not merely a UI widget. It is a compact audit of whether the
 world, simulation, exploration, streaming, persistence, and player navigation
 agree about where things are. If those systems cannot share this contract, a
 larger open world will amplify the disagreement.
+
+## Addendum (2026-07-25) - The field map is already a real coordinate audit, but the transform contract is still partial
+
+- `src/game/minimap.ts` already proves the map is not decorative:
+  - it samples canonical terrain once into a base image,
+  - it reveals only surveyed cells from `GameWorld.surveyedCells`,
+  - it places sites, salvage, cargo, and the active rig with world-space
+    `x/z` coordinates,
+  - it derives all map placement from the project’s own world constants rather
+    than from Three.js geometry or physics handles.
+- `src/main.ts` already exposes the map as a live player-facing panel and keeps
+  the surveyed percentage visible in the HUD, so the coordinate layer is part of
+  the current gameplay loop, not just a debug view.
+- What remains missing is the explicit contract boundary the note names:
+  - no round-trip transform test from world position to map pixel and back,
+  - no `WorldFrame` / origin-revision record in the runtime,
+  - no chunk-residency or origin-rebase proof on the map surface,
+  - no diagnostic overlay for route cost, clearance, or capability-aware pathing.
+- The right reading is that the map already acts as a coordinate audit for the
+  current single-origin world, but the broader multi-frame / streaming / portal
+  contract is still a next-step boundary.

@@ -29,6 +29,7 @@ import {
   publicState,
   recoverState,
   repairRig,
+  resolvePrimaryAction,
   selectCamera,
   settleWorld,
   stepGame,
@@ -37,7 +38,7 @@ import {
   toggleBladeMode,
   winchRecover,
 } from "./state";
-import { HOME_SITE, SURFACES, findSite } from "./world";
+import { HOME_SITE, RIG_HOME_BERTHS, SURFACES, findSite } from "./world";
 
 const ACCELERATE = {
   accelerate: true,
@@ -70,6 +71,64 @@ function driveFlat(state: GameState, world: GameWorld, steps: number): void {
 }
 
 describe("rig gameplay kernel", () => {
+  it("resolves the same truthful primary action before and after mutation", () => {
+    const { state, world } = scenario("PRIMARY-ACTION");
+    const rig = activeRig(state);
+    const node = world.exploration.nearestNode(
+      rig.x,
+      rig.z,
+      70,
+      world.collectedNodes,
+    );
+    if (!node) throw new Error("missing salvage fixture");
+
+    rig.x = node.x;
+    rig.z = node.z;
+    settleWorld(state, world);
+    expect(resolvePrimaryAction(state, world)).toMatchObject({
+      kind: "collect-salvage",
+      label: `Collect ${node.value}`,
+    });
+    performPrimaryAction(state, world);
+    expect(resolvePrimaryAction(state, world)).toMatchObject({
+      kind: "lower-plough",
+      label: "Lower blade",
+    });
+    performPrimaryAction(state, world);
+    expect(resolvePrimaryAction(state, world)).toMatchObject({
+      kind: "raise-plough",
+      label: "Raise blade",
+    });
+  });
+
+  it("starts every rig in a dry, stable, non-overlapping Home berth within switching range", () => {
+    const { state, world } = scenario("HOME-BERTHS");
+    const rigs = Object.values(state.rigs);
+
+    for (const rig of rigs) {
+      const berth = RIG_HOME_BERTHS[rig.id];
+      expect(rig.x).toBe(berth.x);
+      expect(rig.z).toBe(berth.z);
+      expect(rig.heading).toBe(berth.heading);
+      expect(world.terrain.sample(rig.x, rig.z).waterDepth).toBe(0);
+      expect(world.terrain.sample(rig.x, rig.z).slope).toBeLessThan(0.18);
+    }
+
+    for (let left = 0; left < rigs.length; left += 1) {
+      for (let right = left + 1; right < rigs.length; right += 1) {
+        const a = rigs[left]!;
+        const b = rigs[right]!;
+        expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeGreaterThan(5);
+        expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeLessThan(34);
+      }
+    }
+
+    selectActiveRig(state, "toy-buggy");
+    expect(state.activeRigId).toBe("toy-buggy");
+    selectActiveRig(state, "marsh-skimmer");
+    expect(state.activeRigId).toBe("marsh-skimmer");
+  });
+
   it("settles both rigs onto the terrain instead of the old zero plane", () => {
     const { state, world } = scenario("SETTLE");
     for (const id of ["utility-tractor", "toy-buggy"] as const) {
@@ -966,6 +1025,35 @@ describe("save recovery and migration", () => {
     expect(recoverState(saved)?.cameraMode).toBe("top-down");
   });
 
+  it("moves only pristine inactive v5 Drift state into the Home berth", () => {
+    const marsh = findSite("sunken-flats");
+    if (!marsh) throw new Error("missing Sunken Flats fixture");
+
+    const pristine = JSON.parse(
+      JSON.stringify(createInitialState("V5-PRISTINE-DRIFT")),
+    ) as Record<string, unknown> & {
+      rigs: Record<RigId, { x: number; z: number; distanceTravelled: number }>;
+    };
+    pristine.schemaVersion = 5;
+    pristine.rigs["marsh-skimmer"].x = marsh.x + 8;
+    pristine.rigs["marsh-skimmer"].z = marsh.z + 5;
+    const migrated = recoverState(pristine);
+    expect(migrated?.rigs["marsh-skimmer"].x).toBe(
+      RIG_HOME_BERTHS["marsh-skimmer"].x,
+    );
+    expect(migrated?.rigs["marsh-skimmer"].z).toBe(
+      RIG_HOME_BERTHS["marsh-skimmer"].z,
+    );
+    expect(migrated?.lastDiagnostic).toContain("Untouched Drift");
+
+    const used = JSON.parse(JSON.stringify(pristine)) as typeof pristine;
+    used.rigs["marsh-skimmer"].distanceTravelled = 1;
+    const preserved = recoverState(used);
+    expect(preserved?.rigs["marsh-skimmer"].x).toBeCloseTo(marsh.x + 8, 6);
+    expect(preserved?.rigs["marsh-skimmer"].z).toBeCloseTo(marsh.z + 5, 6);
+    expect(preserved?.lastDiagnostic).toContain("positions preserved");
+  });
+
   it("migrates a Field Test 001 (v1) record without discarding its trail", () => {
     const recovered = recoverState({
       schemaVersion: 1,
@@ -989,7 +1077,7 @@ describe("save recovery and migration", () => {
       lastDiagnostic: null,
     });
 
-    expect(recovered?.schemaVersion).toBe(5);
+    expect(recovered?.schemaVersion).toBe(6);
     expect(recovered?.rigs["utility-tractor"].x).toBe(12);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
       true,
@@ -1022,7 +1110,7 @@ describe("save recovery and migration", () => {
 
     const recovered = recoverState(JSON.parse(JSON.stringify(v3)) as unknown);
 
-    expect(recovered?.schemaVersion).toBe(5);
+    expect(recovered?.schemaVersion).toBe(6);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].distanceTravelled).toBe(143);
     expect(recovered?.rigs["utility-tractor"].mobility.kind).toBe("ground");
@@ -1099,7 +1187,7 @@ describe("save recovery and migration", () => {
     };
 
     const recovered = recoverState(v2);
-    expect(recovered?.schemaVersion).toBe(5);
+    expect(recovered?.schemaVersion).toBe(6);
     expect(recovered?.activeRigId).toBe("toy-buggy");
     expect(recovered?.rigs["utility-tractor"].condition).toBe(71);
     expect(recovered?.rigs["utility-tractor"].attachments[0]?.engaged).toBe(
@@ -1268,7 +1356,10 @@ describe("blade mode", () => {
 describe("rig switching is a place, not a menu", () => {
   it("refuses to switch to a rig that is too far away, and says how far", () => {
     const { state } = scenario("SWITCH-FAR");
-    // The skimmer berths at the Sunken Flats, ~180 m from the home pad.
+    // First-session berths are intentionally near. This exercises the same
+    // spatial rule after the player has actually parked Drift far away.
+    state.rigs["marsh-skimmer"].x = -118;
+    state.rigs["marsh-skimmer"].z = -123;
     selectActiveRig(state, "marsh-skimmer");
     expect(state.activeRigId).toBe("utility-tractor");
     expect(state.lastDiagnostic).toMatch(/Drift is \d+ m away/);
@@ -1286,7 +1377,7 @@ describe("rig switching is a place, not a menu", () => {
     expect(state.activeRigId).toBe("marsh-skimmer");
   });
 
-  it("still lets the two home-pad rigs swap at spawn", () => {
+  it("lets the canonical Home berth chain cycle at spawn", () => {
     // Onboarding must not open with a refusal.
     const { state } = scenario("SWITCH-SPAWN");
     switchActiveRig(state);

@@ -113,3 +113,31 @@ It turns the canonical fixture baseline into subsystem-specific comparison guida
 - The protocol is therefore still a selection rule, not the artifact itself.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - the selection table matches the live runtime, and the capture candidates are already on disk
+
+- The current worktree now contains fresh review-image assets that fit the
+  existing selection table without requiring a new capture category:
+  - `docs/reviews/assets/field-02-front-forward.png`
+  - `docs/reviews/assets/field-02-top-down.png`
+  - `docs/reviews/assets/rig-lab-01-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-narrow.png`
+- That means the protocol can already be used to choose candidates for:
+  - near-field dense scenes,
+  - occluded / hidden scenes,
+  - distance-gradient scenes,
+  - pressure scenes,
+  - reduced-motion comparison scenes.
+- The live browser surface still matches the protocol’s intended runtime:
+  - healthy `Rigs Unbound — Field 02` session,
+  - zero console logs,
+  - observable performance and camera hooks.
+- What is still missing is the reusable comparison bundle itself:
+  - fixture id,
+  - metrics capture,
+  - screenshot or frame capture,
+  - operator note,
+  - threshold state.
+- The correct reading is that the protocol already knows how to choose among
+  captures, but the repo still needs the promoted bundle that makes those
+  choices durable over time.

@@ -124,3 +124,27 @@ It is a boundary note that keeps local growth measurable until the product genui
   - pack activation rollback,
   - future shared-state readiness.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code inspection.
+
+## Addendum (2026-07-26) - world memory is bounded and replayable, but not chunked residency
+
+- Re-checked the live browser daemon and the current world-memory source.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- `src/game/gameworld.ts` still models world growth as bounded memory sets plus
+  terrain deformation, not as chunk residency:
+  - `felledObstacles`
+  - `collectedNodes`
+  - `surveyedCells`
+  - terrain deformation entries
+- `snapshot()` and `restore()` keep that memory replayable and recoverable
+  through the save system.
+- That means the repo already has the right bounded-memory substrate for local
+  growth and migration.
+- What is still missing is the actual scalability envelope the contract names:
+  - no chunk or region lifecycle policy,
+  - no load/unload radius rules,
+  - no growth-pressure observability,
+  - no pack activation rollback policy,
+  - no future shared-state readiness boundary beyond documentation.
+- So the world is intentionally compact and durable today, but it is still not
+  a streamed or residencied world system.

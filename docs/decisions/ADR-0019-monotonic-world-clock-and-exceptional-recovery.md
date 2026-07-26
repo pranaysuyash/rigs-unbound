@@ -99,3 +99,22 @@ Yes. Browser automation proves reachability and contract behavior, not whether
 the 25% limp-home recovery feels fair or whether the first-cache instruction is
 memorable. Those remain explicit questions for the next fresh-eyes and human
 playtests.
+
+## Addendum (2026-07-26): schema v6 owns canonical Home berths
+
+Schema v6 is now assigned to the first-session rig-acquisition correction.
+Dependency-free canonical rig IDs are shared by gameplay contracts and authored
+world data. `RIG_HOME_BERTHS` places Torque, Spark, and Drift in distinct dry,
+stable, non-overlapping Home Silo service berths inside the proximity-switch
+range. Fresh state and exceptional recovery read the same records.
+
+The v5→v6 migration relocates only Drift state that is demonstrably pristine:
+inactive, still at the exact legacy Sunken Flats berth, unmoved, undamaged,
+unstrained, unmodified, unattached, and with no engaged tool. Any sign of player
+use preserves the recorded position. Older migration paths introduce Drift at
+the new canonical berth while preserving real legacy rig history.
+
+Rollback remains versioned: v6 writes `rigs-unbound.save.v6`, reads v5 before
+v4→v1, and never overwrites an older slot in place. Focused migration tests
+cover selective relocation, used-rig preservation, read precedence, world
+memory, and round-trip recovery.

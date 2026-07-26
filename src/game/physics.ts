@@ -44,6 +44,10 @@ import {
 } from "./contracts";
 import { clamp } from "./noise";
 import type { TerrainField } from "./terrain";
+import {
+  resolveTerrainTraversal,
+  type TerrainTraversalBlockReason,
+} from "./terrain-traversal";
 import { WATER_LEVEL } from "./world";
 
 /**
@@ -86,6 +90,8 @@ export interface MotionOutcome {
   grade: number;
   /** Effective grip available to this rig on this surface. */
   grip: number;
+  /** Semantic shared-substrate refusal; null when the requested path is valid. */
+  traversalBlockReason: TerrainTraversalBlockReason | null;
 }
 
 const WHEEL_LOCAL: readonly (readonly [number, number])[] = [
@@ -412,8 +418,19 @@ function stepGroundMotion(
   // ---------------------------------------------------------------------------
   // 7. Integrate position, then bound the world as a disc.
   // ---------------------------------------------------------------------------
-  rig.x += Math.sin(rig.heading) * rig.speed * dt;
-  rig.z += Math.cos(rig.heading) * rig.speed * dt;
+  const proposedX = rig.x + Math.sin(rig.heading) * rig.speed * dt;
+  const proposedZ = rig.z + Math.cos(rig.heading) * rig.speed * dt;
+  const traversal = resolveTerrainTraversal(
+    terrain,
+    profile,
+    previousX,
+    previousZ,
+    proposedX,
+    proposedZ,
+  );
+  rig.x = traversal.x;
+  rig.z = traversal.z;
+  if (traversal.blocked) rig.speed = 0;
 
   let boundarySpeed = 0;
   const radius = Math.hypot(rig.x, rig.z);
@@ -474,6 +491,7 @@ function stepGroundMotion(
     surfaceId: ground.surface.id,
     grade,
     grip,
+    traversalBlockReason: traversal.reason,
   };
 }
 
@@ -535,12 +553,8 @@ function stepHoverMotion(
     (1 - Math.exp(-profile.suspensionDamping * 0.55 * dt));
 
   const grade = terrain.gradeAlong(rig.x, rig.z, forwardX, forwardZ);
-  const slopePenalty = clamp(1 - Math.abs(grade) * 1.45, 0.18, 1);
-  const cushionAuthority = clamp(
-    mobility.cushionPressure * slopePenalty,
-    0.08,
-    1,
-  );
+  const slopePenalty = clamp(1 - Math.abs(grade) * 1.45, 0, 1);
+  const cushionAuthority = clamp(mobility.cushionPressure * slopePenalty, 0, 1);
 
   if (input.accelerate) {
     rig.speed += profile.enginePower * cushionAuthority * dt;
@@ -596,8 +610,19 @@ function stepHoverMotion(
   rig.pitch += (pitchTarget - rig.pitch) * attitudeBlend;
   rig.roll += (rollTarget - rig.roll) * attitudeBlend;
 
-  rig.x += Math.sin(rig.heading) * rig.speed * dt;
-  rig.z += Math.cos(rig.heading) * rig.speed * dt;
+  const proposedX = rig.x + Math.sin(rig.heading) * rig.speed * dt;
+  const proposedZ = rig.z + Math.cos(rig.heading) * rig.speed * dt;
+  const traversal = resolveTerrainTraversal(
+    terrain,
+    profile,
+    previousX,
+    previousZ,
+    proposedX,
+    proposedZ,
+  );
+  rig.x = traversal.x;
+  rig.z = traversal.z;
+  if (traversal.blocked) rig.speed = 0;
 
   let boundarySpeed = 0;
   const radius = Math.hypot(rig.x, rig.z);
@@ -645,6 +670,7 @@ function stepHoverMotion(
     surfaceId: waterDepth > 0 ? "water" : ground.surface.id,
     grade,
     grip: cushionAuthority,
+    traversalBlockReason: traversal.reason,
   };
 }
 

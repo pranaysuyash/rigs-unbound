@@ -64,3 +64,56 @@ policy before the policy vocabulary is claimed to be portable.
 - 2026-07-25: Accepted and implemented with typed direct selection, an
   accessible selector, browser observability, state recovery coverage, and a
   captured top-down acceptance artifact.
+
+## Addendum (2026-07-26): rig sockets and canonical scene obstruction
+
+### Decision
+
+The shared camera-policy vocabulary remains canonical, but a rig now owns only
+its physical hood/cockpit socket. The renderer resolves chase and side views
+through one solver-independent scene query that composes:
+
+- authored structures from typed world data shared with rendering;
+- procedural standing obstacles from the canonical obstacle field;
+- felled-tree state from world memory;
+- terrain from the canonical terrain field.
+
+Camera resolution uses immediate inward avoidance, slower outward recovery, a
+near-plane safety margin, and a second query after smoothing. Large teleports or
+camera-mode changes cut to a safe pose instead of interpolating through the rig.
+Tactical, top-down, and survey retain terrain-only resolution because a full
+local-prop query does not improve their high framing enough to justify its cost.
+
+### Why this path
+
+Three.js meshes and any later physics solver are presentation/implementation
+details, not gameplay truth. A shared typed query preserves the same camera
+semantics across the deterministic kernel, Box3D/Rapier experiments, later GLB
+assets, tests, and operator evidence. Per-rig sockets keep silhouette knowledge
+with the rig without duplicating camera policy.
+
+### Options considered
+
+- Raycast renderer meshes: rejected because it would make camera behavior depend
+  on render LOD, asset loading, and Three.js scene state.
+- Terrain-only pull-in: superseded because authored Home structures and standing
+  trees demonstrably obscure the player.
+- Per-rig camera implementations: rejected because they would fork policy and
+  make new locomotion families harder to validate.
+
+### Risks, validation, and revisit triggers
+
+The authored proxy bounds are intentionally conservative and must be updated
+when structure assets materially change. Future GLBs should map named nodes to
+the existing socket records rather than create a second camera truth source.
+Revisit query acceleration when measured prop-query cost exceeds the frame
+budget, or when transparent/non-solid structures require semantic occluder
+metadata beyond the current typed bounds.
+
+Validation is Tier 2 through focused camera/query tests and Tier 4 through
+browser acceptance on the live Field 02 surface: the nearest authored Home
+structure (`home-barn-roof` at the canonical v6 berth) resolves clear, a real
+standing procedural tree pulls the boom inward, felling the same tree restores
+it, and all three hood sockets report clear non-intersecting poses. The
+acceptance mutation hooks are guarded by
+`?acceptance=field-02`; they are not exposed through player controls.

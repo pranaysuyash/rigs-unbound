@@ -142,3 +142,22 @@ machines can ask the same question and get the same answer.
 - It is not yet enough to prove a shared affordance resolver exists, because the
   outcome is still encoded as prose on the current action path rather than a
   reusable resolution record with legal / deferred / impossible outcome codes.
+
+## Addendum (2026-07-26) - world offers are explicit, but resolution is still not a first-class record
+
+- Re-checked the live source in `src/game/world.ts` and `src/game/state.ts`
+  against the current browser daemon snapshot.
+- The world surface is still genuinely affordance-shaped:
+  - authored sites carry a `verb`,
+  - workshop/service areas imply place-based offers,
+  - capability checks in the state layer still decide whether the current rig
+    can actually perform the action.
+- The live browser surface remains healthy and still reports the same direct
+  denial style when a rig/capability mismatch occurs.
+- The important gap is unchanged:
+  - no shared resolver record,
+  - no explicit legal / deferred / impossible code path,
+  - no telemetry field naming which side caused the mismatch in a structured
+    way.
+- So the world is already asking meaningful questions, but the answer is still
+  emitted as action prose instead of a reusable affordance-resolution envelope.

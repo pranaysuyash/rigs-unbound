@@ -171,3 +171,53 @@ It exists to make the render policy measurable under realistic profile condition
   production-like comparison evidence the contract describes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - the metrics are surfaced, but the operator bundle is still implicit
+
+- `src/game/performance.ts` already makes the KPI surface concrete with a
+  single snapshot object that includes:
+  - frame timing,
+  - draw calls,
+  - triangle count,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - first-input-ready time,
+  - save size,
+  - terrain build time.
+- `src/main.ts` already forwards that snapshot into the live browser surface
+  and HUD summary, so the metrics are not hidden from operators or maintainers.
+- The browser daemon remains healthy on the live field surface, which means the
+  KPI lane is still grounded in the current runtime rather than in a stale note.
+- What is still missing is the packaged comparison artifact the contract
+  describes:
+  - no repeatable profile comparison bundle,
+  - no per-profile operator summary tied to a fixture id,
+  - no named fallback/degrade summary as a reusable evidence object.
+- The correct reading is unchanged: the KPI vocabulary is present and visible,
+  but it still needs a canonical operational bundle before it can serve as the
+  reviewable comparison layer for the broader performance/readability policy.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same KPI packaging gap
+
+- Re-checked the current browser daemon while continuing the KPI lane.
+- The live browser surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The runtime hook set is still the same live evidence surface:
+  - `PerformanceMonitor.snapshot()` emits frame timing, FPS, draw calls,
+    triangles, heap use, load duration, first-controllable time,
+    first-input-ready time, save size, and terrain build time.
+  - `window.getPerformanceSnapshot()` exposes that snapshot to browser tooling.
+  - `window.render_game_to_text()` and the HUD continue to keep operator
+    visibility intact during play.
+- The metric vocabulary is therefore not hypothetical. It is live and readable.
+- What still does not exist is the packaged operator bundle the note asks for:
+  - one repeatable profile comparison artifact,
+  - one readable operator summary per profile/fixture pair,
+  - one named fallback/degrade summary tied to the fixture,
+  - one explicit screenshot/frame capture that binds the metrics to the run.
+- So the KPI lane remains useful as an observability surface, but it is still
+  short of the canonical comparison artifact that would make it a durable review
+  bundle.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

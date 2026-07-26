@@ -1,7 +1,9 @@
 import { WORLD_SITES } from "./world";
+import type { RigId } from "./rig-ids";
 
-export const SAVE_SCHEMA_VERSION = 5 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 4 as const;
+export const SAVE_SCHEMA_VERSION = 6 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 5 as const;
+export const FIELD_CLOCK_SAVE_SCHEMA_VERSION = 4 as const;
 export const FIELD_02_SAVE_SCHEMA_VERSION = 3 as const;
 export const RIG_LAB_SAVE_SCHEMA_VERSION = 2 as const;
 export const LEGACY_SAVE_SCHEMA_VERSION = 1 as const;
@@ -55,7 +57,7 @@ export const CAMERA_LABELS: Readonly<Record<CameraMode, string>> = {
   "top-down": "Top-down",
   survey: "Survey",
 };
-export type RigId = "utility-tractor" | "toy-buggy" | "marsh-skimmer";
+export { RIG_IDS, type RigId } from "./rig-ids";
 export type MobilityAdapter = "ground" | "hover";
 export type RigCapability =
   "plough" | "tow" | "jump" | "winch" | "survey" | "ford" | "hover";
@@ -168,12 +170,6 @@ export interface RigProfile {
     focusHeight: number;
   };
 }
-
-export const RIG_IDS: readonly RigId[] = [
-  "utility-tractor",
-  "toy-buggy",
-  "marsh-skimmer",
-] as const;
 
 export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
   "utility-tractor": {

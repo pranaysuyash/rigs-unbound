@@ -157,3 +157,51 @@ changes can be validated without collapsing speculative input into truth.
   - a visible shared-state/server-authoritative boundary artifact.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - local-first authority is the current mode, not the whole contract
+
+- The live runtime still shows the same local-first shape:
+  - commands are captured in `src/main.ts`,
+  - the deterministic kernel in `src/game/state.ts` owns canonical mutation,
+  - local persistence in `src/game/storage.ts` can recover or replace bad
+    records without treating them as truth.
+- That means the repo already has a functioning current authority mode:
+  - local input is authoritative for a single player,
+  - recovery is deterministic,
+  - no remote authority is required for the present slice.
+- The missing contract layer remains the same:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata as policy,
+  - telemetry for authoritative outcomes,
+  - a clear shared-state/server-authoritative boundary artifact.
+- The right reading is therefore: the local-first mode is not a placeholder;
+  it is the current product reality, and the future authority layer still needs a
+  separate named envelope before multiplayer or shared-state claims become
+  credible.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same local-first authority boundary
+
+- Re-checked the authority contract against the current browser daemon and live
+  Field 02 runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The runtime still supports the local-first authority posture:
+  - commands are captured explicitly in `src/main.ts`,
+  - the deterministic kernel in `src/game/state.ts` owns canonical mutation,
+  - local persistence in `src/game/storage.ts` restores or replaces invalid
+    records without treating them as truth.
+- That means the current authority mode is real and working:
+  - local input is authoritative for a single-player session,
+  - recovery is deterministic,
+  - no remote authority is required for the present slice.
+- The missing contract layer remains unchanged:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata as policy,
+  - telemetry for authoritative outcomes,
+  - a visible shared-state/server-authoritative boundary artifact.
+- So the repo should keep the current local-first mode as product reality while
+  still treating shared-state authority as future-gated and not implied by the
+  current deterministic simulation.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

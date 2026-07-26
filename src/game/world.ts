@@ -13,6 +13,8 @@
  * cliff. Terrain tests assert their invariants rather than trusting them.
  */
 
+import type { RigId } from "./rig-ids";
+
 /** Half-width of the simulated world, in metres. The world is a disc, not a box. */
 export const WORLD_RADIUS = 250;
 
@@ -328,6 +330,184 @@ export function findSite(id: string): WorldSite | undefined {
 
 /** A site id that is guaranteed to exist, for spawn and workshop lookups. */
 export const HOME_SITE = WORLD_SITES[0]!;
+
+/**
+ * Authored structure geometry shared by rendering and spatial queries.
+ *
+ * Camera collision previously tried to infer the world from terrain alone while
+ * the Home Silo buildings existed only as private renderer coordinates. Keeping
+ * the visual dimensions and query proxy on the same record prevents those two
+ * views of the world from drifting apart. Coordinates are local to the owning
+ * site's terrain-grounded group.
+ */
+export type WorldStructureShape =
+  | {
+      kind: "box";
+      width: number;
+      height: number;
+      depth: number;
+    }
+  | {
+      kind: "cylinder";
+      radius: number;
+      height: number;
+      radialSegments: number;
+    }
+  | {
+      kind: "cone";
+      radius: number;
+      height: number;
+      radialSegments: number;
+      scaleZ?: number;
+    };
+
+export interface WorldStructurePart {
+  id: string;
+  siteId: string;
+  localX: number;
+  localY: number;
+  localZ: number;
+  shape: WorldStructureShape;
+  color: number;
+  roughness?: number;
+  rotationY?: number;
+  /** Low pads do not need to shorten a camera boom. */
+  cameraOccluder: boolean;
+}
+
+export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
+  {
+    id: "home-barn",
+    siteId: "home-silo",
+    localX: -9,
+    localY: 2.75,
+    localZ: 3,
+    shape: { kind: "box", width: 9, height: 5.5, depth: 7.5 },
+    color: 0x7d352a,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-barn-roof",
+    siteId: "home-silo",
+    localX: -9,
+    localY: 6.6,
+    localZ: 3,
+    shape: {
+      kind: "cone",
+      radius: 6.6,
+      height: 2.6,
+      radialSegments: 4,
+      scaleZ: 0.8,
+    },
+    color: 0x3b3935,
+    roughness: 0.95,
+    rotationY: Math.PI / 4,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-silo-body",
+    siteId: "home-silo",
+    localX: 6,
+    localY: 5.5,
+    localZ: -2,
+    shape: { kind: "cylinder", radius: 2.6, height: 11, radialSegments: 12 },
+    color: 0xb6a88e,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-silo-roof",
+    siteId: "home-silo",
+    localX: 6,
+    localY: 12.2,
+    localZ: -2,
+    shape: { kind: "cone", radius: 2.9, height: 2.4, radialSegments: 12 },
+    color: 0x6c5d4c,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-workshop-pad",
+    siteId: "home-silo",
+    localX: 0,
+    localY: 0.11,
+    localZ: 0,
+    shape: { kind: "cylinder", radius: 9, height: 0.22, radialSegments: 28 },
+    color: 0x53504a,
+    roughness: 0.9,
+    cameraOccluder: false,
+  },
+  {
+    id: "home-gantry-left",
+    siteId: "home-silo",
+    localX: -4.4,
+    localY: 2.75,
+    localZ: 0,
+    shape: { kind: "box", width: 0.5, height: 5.5, depth: 0.5 },
+    color: 0x8a8378,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-gantry-right",
+    siteId: "home-silo",
+    localX: 4.4,
+    localY: 2.75,
+    localZ: 0,
+    shape: { kind: "box", width: 0.5, height: 5.5, depth: 0.5 },
+    color: 0x8a8378,
+    cameraOccluder: true,
+  },
+  {
+    id: "home-gantry-top",
+    siteId: "home-silo",
+    localX: 0,
+    localY: 5.6,
+    localZ: 0,
+    shape: { kind: "box", width: 9.5, height: 0.5, depth: 0.6 },
+    color: 0x8a8378,
+    cameraOccluder: true,
+  },
+] as const;
+
+export interface RigHomeBerth {
+  rigId: RigId;
+  /** World-space berth centre. */
+  x: number;
+  z: number;
+  heading: number;
+  label: string;
+}
+
+/**
+ * Canonical first-session and emergency-recovery berths.
+ *
+ * All three sit on the south side of the Home Silo service pad, clear of the
+ * barn, silo, and gantry. Their spacing is wider than the rigs' collision
+ * envelopes while keeping every machine inside the proximity-switch range.
+ */
+export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
+  "utility-tractor": {
+    rigId: "utility-tractor",
+    x: HOME_SITE.x,
+    z: HOME_SITE.z - 9,
+    // Facing south keeps the first chase view looking back through the authored
+    // Home structures, which continuously exercises obstruction resolution.
+    heading: Math.PI,
+    label: "Torque service berth",
+  },
+  "toy-buggy": {
+    rigId: "toy-buggy",
+    x: HOME_SITE.x - 7,
+    z: HOME_SITE.z - 8,
+    heading: 0,
+    label: "Spark service berth",
+  },
+  "marsh-skimmer": {
+    rigId: "marsh-skimmer",
+    x: HOME_SITE.x - 13,
+    z: HOME_SITE.z - 7,
+    heading: 0,
+    label: "Drift service berth",
+  },
+} as const;
 
 export interface RouteSegment {
   from: string;

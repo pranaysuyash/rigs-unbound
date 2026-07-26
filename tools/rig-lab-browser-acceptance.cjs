@@ -9,6 +9,7 @@ const { chromium } = require(playwrightModule);
 const TARGET_URL =
   process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4173/?acceptance=field-02";
 const artifactDirectory = path.resolve(__dirname, "../docs/reviews/assets");
+const ru0110ArtifactDirectory = path.join(artifactDirectory, "ru-0110");
 let browser;
 
 function assert(condition, message) {
@@ -97,15 +98,21 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
 
 (async () => {
   fs.mkdirSync(artifactDirectory, { recursive: true });
+  fs.mkdirSync(ru0110ArtifactDirectory, { recursive: true });
   browser = await chromium.launch({
     channel: "chrome",
-    headless: false,
+    // Deterministic automation should not depend on an interactive Chrome
+    // window staying alive. Set RIGS_BROWSER_HEADLESS=0 only for supervised
+    // visual debugging; screenshots are captured in either mode.
+    headless: process.env.RIGS_BROWSER_HEADLESS !== "0",
     slowMo: 18,
   });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(90_000);
+  page.setDefaultNavigationTimeout(90_000);
   const consoleProblems = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") {
@@ -116,16 +123,54 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     consoleProblems.push(`pageerror: ${error.message}`),
   );
 
-  await page.goto(TARGET_URL, { waitUntil: "networkidle" });
+  await page.goto(TARGET_URL, { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   await page.evaluate(() => {
     localStorage.clear();
     sessionStorage.clear();
   });
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   assert(
     (await page.title()) === "Rigs Unbound — Field 02",
     "Unexpected page title",
   );
+  assert(
+    await page.locator("#physics-lab-link").isVisible(),
+    "Acceptance/developer surface should expose Physics Lab navigation",
+  );
+  assert(
+    await page.locator("#runtime-diagnostics").isVisible(),
+    "Acceptance/developer surface should expose runtime diagnostics",
+  );
+  const publicContext = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+  });
+  const publicPage = await publicContext.newPage();
+  publicPage.setDefaultTimeout(90_000);
+  publicPage.setDefaultNavigationTimeout(90_000);
+  await publicPage.goto(new URL(TARGET_URL).origin, {
+    waitUntil: "domcontentloaded",
+  });
+  await publicPage.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
+  assert(
+    !(await publicPage.locator("#physics-lab-link").isVisible()) &&
+      !(await publicPage.locator("#runtime-diagnostics").isVisible()),
+    "Default player surface leaked developer navigation or diagnostics",
+  );
+  assert(
+    !/fps|calls|heap/i.test(
+      (await publicPage.locator("#save-status").textContent()) ?? "",
+    ),
+    "Default player persistence status leaked runtime tuning metrics",
+  );
+  await publicContext.close();
   assert(
     await page.locator("#welcome-panel").isVisible(),
     "Field 02 welcome plate should be visible",
@@ -165,7 +210,200 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   await page.keyboard.press("Space");
 
   const initial = await state(page);
-  assert(initial.schemaVersion === 5, "Expected v5 save contract");
+  const freshAcquisition = await page.evaluate(() => {
+    const snapshots = [];
+    for (const rigId of ["toy-buggy", "marsh-skimmer", "utility-tractor"]) {
+      window.selectRig(rigId);
+      const current = JSON.parse(window.render_game_to_text());
+      snapshots.push({
+        requested: rigId,
+        active: current.activeRigId,
+        x: current.activeRig.x,
+        z: current.activeRig.z,
+        diagnostic: current.lastDiagnostic,
+      });
+    }
+    return snapshots;
+  });
+  assert(
+    freshAcquisition.every((entry) => entry.requested === entry.active),
+    `Fresh Home berth chain is not reachable without teleportation: ${JSON.stringify(freshAcquisition)}`,
+  );
+  await page.waitForTimeout(120);
+  const spawnCamera = await page.evaluate(() =>
+    window.getCameraResolutionEvidence(),
+  );
+  assert(
+    spawnCamera.mode === "chase" &&
+      spawnCamera.obstructionSource === "structure" &&
+      spawnCamera.obstructionId?.startsWith("home-") &&
+      spawnCamera.resolvedDistance >= 2.8 &&
+      spawnCamera.pathClear === true &&
+      spawnCamera.selfIntersecting === false,
+    `Fresh chase camera did not resolve the Home Silo obstruction: ${JSON.stringify(spawnCamera)}`,
+  );
+
+  // Prove the procedural obstacle query against a real standing tree, then
+  // mutate the same canonical world-memory record to its felled state. The
+  // fixture hooks exist only on ?acceptance=field-02 and are not player UI.
+  const cameraTreeFixture = await page.evaluate(async () => {
+    const fixtures = window.getCameraTreeFixtures();
+    const offsets = [
+      { dx: 0, dz: 6, heading: 0 },
+      { dx: 0, dz: -6, heading: Math.PI },
+      { dx: 6, dz: 0, heading: -Math.PI / 2 },
+      { dx: -6, dz: 0, heading: Math.PI / 2 },
+    ];
+    window.selectRig("utility-tractor");
+    window.selectCamera("chase");
+    for (const fixture of fixtures) {
+      for (const offset of offsets) {
+        window.placeRig(
+          fixture.x + offset.dx,
+          fixture.z + offset.dz,
+          offset.heading,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 70));
+        const standing = window.getCameraResolutionEvidence();
+        if (
+          standing.obstructionSource === "obstacle" &&
+          standing.obstructionId === fixture.id &&
+          standing.resolvedDistance < standing.idealDistance - 0.5 &&
+          standing.pathClear
+        ) {
+          window.fellObstacleForAcceptance(fixture.id);
+          await new Promise((resolve) => setTimeout(resolve, 900));
+          const felled = window.getCameraResolutionEvidence();
+          return { fixture, standing, felled };
+        }
+      }
+    }
+    return null;
+  });
+  assert(
+    cameraTreeFixture &&
+      cameraTreeFixture.standing.obstructionSource === "obstacle" &&
+      cameraTreeFixture.felled.obstructionId !== cameraTreeFixture.fixture.id &&
+      cameraTreeFixture.felled.pathClear === true &&
+      cameraTreeFixture.felled.resolvedDistance >
+        cameraTreeFixture.standing.resolvedDistance + 0.5,
+    `Standing→felled tree camera contract failed: ${JSON.stringify(cameraTreeFixture)}`,
+  );
+  await page.evaluate(() => window.placeRig(4, 6, Math.PI));
+
+  const terrainFaceEvidence = [];
+  await page.evaluate(() => window.setAcceptanceManualStepping(true));
+  for (const rigId of ["utility-tractor", "toy-buggy", "marsh-skimmer"]) {
+    await switchToRig(page, rigId);
+    const fixture = await page.evaluate(
+      (id) => window.getTerrainFaceFixture(id),
+      rigId,
+    );
+    await page.evaluate(
+      ({ x, z, heading }) => window.placeTerrainRigForAcceptance(x, z, heading),
+      fixture,
+    );
+    const atRestStart = await state(page);
+    await page.evaluate(() => window.applyRigInput({ accelerate: true }, 500));
+    const atRestBlocked = await state(page);
+    const atRestAdvance =
+      (atRestBlocked.activeRig.x - atRestStart.activeRig.x) * fixture.outwardX +
+      (atRestBlocked.activeRig.z - atRestStart.activeRig.z) * fixture.outwardZ;
+    assert(
+      atRestAdvance < 0.3 &&
+        atRestBlocked.activeRig.mobility.grounded !== false,
+      `${rigId} penetrated the terrain face from rest: ${JSON.stringify({
+        fixture,
+        atRestAdvance,
+        rig: atRestBlocked.activeRig,
+        diagnostic: atRestBlocked.lastDiagnostic,
+      })}`,
+    );
+
+    const runUpDistance = 1.5;
+    await page.evaluate(
+      ({ x, z, heading, outwardX, outwardZ, runUpDistance }) =>
+        window.placeTerrainRigForAcceptance(
+          x - outwardX * runUpDistance,
+          z - outwardZ * runUpDistance,
+          heading,
+          10,
+        ),
+      { ...fixture, runUpDistance },
+    );
+    const runUpStart = await state(page);
+    let runUpBlocked = runUpStart;
+    let runUpAdvance = 0;
+    let faceOvershoot = -Infinity;
+    let sawFaceBlock = false;
+    for (let step = 0; step < 24; step += 1) {
+      await page.evaluate(() => window.applyRigInput({ accelerate: true }, 16));
+      const current = await state(page);
+      const advance =
+        (current.activeRig.x - runUpStart.activeRig.x) * fixture.outwardX +
+        (current.activeRig.z - runUpStart.activeRig.z) * fixture.outwardZ;
+      const overshoot =
+        (current.activeRig.x - fixture.x) * fixture.outwardX +
+        (current.activeRig.z - fixture.z) * fixture.outwardZ;
+      runUpAdvance = Math.max(runUpAdvance, advance);
+      faceOvershoot = Math.max(faceOvershoot, overshoot);
+      runUpBlocked = current;
+      if (current.lastDiagnostic?.includes("near-vertical terrain face")) {
+        sawFaceBlock = true;
+        break;
+      }
+    }
+    assert(
+      Math.abs(runUpStart.activeRig.speed) >= 8 &&
+        faceOvershoot <= 0.5 &&
+        sawFaceBlock,
+      `${rigId} did not reach and stop at the swept terrain face: ${JSON.stringify(
+        {
+          fixture,
+          runUpStart: runUpStart.activeRig,
+          runUpAdvance,
+          faceOvershoot,
+          sawFaceBlock,
+          rig: runUpBlocked.activeRig,
+          diagnostic: runUpBlocked.lastDiagnostic,
+        },
+      )}`,
+    );
+
+    await page.evaluate(
+      ({ x, z, heading }) =>
+        window.placeTerrainRigForAcceptance(x, z, heading + Math.PI),
+      fixture,
+    );
+    const escapeStart = await state(page);
+    await page.evaluate(() => window.applyRigInput({ accelerate: true }, 900));
+    const escaped = await state(page);
+    const inwardAdvance = -(
+      (escaped.activeRig.x - escapeStart.activeRig.x) * fixture.outwardX +
+      (escaped.activeRig.z - escapeStart.activeRig.z) * fixture.outwardZ
+    );
+    assert(
+      inwardAdvance > 0.2,
+      `${rigId} could not escape downhill from the face: ${JSON.stringify({
+        fixture,
+        inwardAdvance,
+        rig: escaped.activeRig,
+      })}`,
+    );
+    terrainFaceEvidence.push({
+      rigId,
+      fixture,
+      atRestAdvance,
+      runUpAdvance,
+      faceOvershoot,
+      inwardAdvance,
+    });
+    await page.evaluate(() => window.restoreActiveRigForAcceptance());
+  }
+  await switchToRig(page, "utility-tractor");
+  await page.evaluate(() => window.placeRig(4, 6, Math.PI));
+
+  assert(initial.schemaVersion === 6, "Expected v6 save contract");
   assert(
     initial.progression.nearestSalvage?.id === "first-recovery-cache" &&
       initial.progression.nearestSalvage.distance < 30,
@@ -195,6 +433,15 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     ),
     "First salvage prompt did not teach the canonical action",
   );
+  assert(
+    (await page.locator("#touch-primary-action").textContent()).includes(
+      "Collect",
+    ) &&
+      (
+        await page.locator("#touch-primary-action").getAttribute("aria-label")
+      )?.includes("Collect"),
+    "Touch action label did not resolve the salvage action",
+  );
   await page.keyboard.press("Space");
   const firstReward = await state(page);
   assert(
@@ -219,6 +466,14 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
       `Rendered ${rigId} faces opposite simulated travel: ${JSON.stringify(orientation)}`,
     );
   }
+
+  const hoodEvidence = [];
+  const hoodCaptureNames = {
+    "utility-tractor": "b5-utility-tractor-hood-after.png",
+    "toy-buggy": "b5-toy-buggy-hood-after.png",
+    "marsh-skimmer": "b5-marsh-skimmer-hood-after.png",
+  };
+
   await page.evaluate(() => window.applyRigInput({ accelerate: true }, 900));
   await page.waitForTimeout(500);
   await page.screenshot({
@@ -394,6 +649,41 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     () => document.querySelector("#mobility-label")?.textContent === "Cushion",
   );
 
+  // Capture each hood only after the traversal assertions. The proximity-aware
+  // helper intentionally moves the current rig to the next one; doing this
+  // earlier would rewrite the ramp/water fixture positions the same run still
+  // needs to exercise.
+  for (const rigId of ["utility-tractor", "toy-buggy", "marsh-skimmer"]) {
+    await switchToRig(page, rigId);
+    await page.evaluate(() => window.placeRig(18, -46, 0));
+    const selected = JSON.parse(
+      await page.evaluate(() => window.selectCamera("hood")),
+    );
+    assert(
+      selected.activeRigId === rigId && selected.cameraMode === "hood",
+      `Hood capture did not assert active rig ${rigId}: ${JSON.stringify(selected)}`,
+    );
+    await page.waitForTimeout(120);
+    const evidence = await page.evaluate(() =>
+      window.getCameraResolutionEvidence(),
+    );
+    assert(
+      evidence.rigId === rigId &&
+        evidence.mode === "hood" &&
+        evidence.pathClear === true &&
+        Math.abs(evidence.resolvedDistance - evidence.idealDistance) < 0.08 &&
+        evidence.selfIntersecting === false,
+      `Hood socket intersects ${rigId}: ${JSON.stringify(evidence)}`,
+    );
+    hoodEvidence.push(evidence);
+    await page.screenshot({
+      path: path.join(ru0110ArtifactDirectory, hoodCaptureNames[rigId]),
+      fullPage: true,
+    });
+  }
+  await page.evaluate(() => window.selectCamera("chase"));
+  await page.evaluate(() => window.setAcceptanceManualStepping(false));
+
   const desktopMetrics = await page.evaluate(() =>
     window.getPerformanceSnapshot(),
   );
@@ -408,13 +698,16 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   );
   assert(saveMetrics.saveBytes > 0, "Periodic save size was not measured");
   const stored = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("rigs-unbound.save.v5")),
+    JSON.parse(localStorage.getItem("rigs-unbound.save.v6")),
   );
   assert(
     stored.state.cargoRelay.status === "complete",
     "Completed relay was not saved",
   );
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   const restored = await state(page);
   const restoredMetrics = await page.evaluate(() =>
     window.getPerformanceSnapshot(),
@@ -440,15 +733,18 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   );
 
   await page.addInitScript(() => {
-    const payload = JSON.parse(localStorage.getItem("rigs-unbound.save.v5"));
+    const payload = JSON.parse(localStorage.getItem("rigs-unbound.save.v6"));
     if (!payload?.state?.rigs?.["utility-tractor"]) return;
     payload.state.activeRigId = "utility-tractor";
     payload.state.rigs["utility-tractor"].x = -126;
     payload.state.rigs["utility-tractor"].z = -130;
     payload.state.rigs["utility-tractor"].condition = 0;
-    localStorage.setItem("rigs-unbound.save.v5", JSON.stringify(payload));
+    localStorage.setItem("rigs-unbound.save.v6", JSON.stringify(payload));
   });
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   const disabled = await state(page);
   await page.keyboard.press("KeyX");
   const recoveredByKeyboard = await state(page);
@@ -470,9 +766,12 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
     })}`,
   );
 
-  await page.reload({ waitUntil: "networkidle" });
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   const disabledPayload = await page.evaluate(() =>
-    localStorage.getItem("rigs-unbound.save.v5"),
+    localStorage.getItem("rigs-unbound.save.v6"),
   );
   await page.locator("#emergency-recover").click();
   const recoveredByMouse = await state(page);
@@ -492,13 +791,18 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
   });
   await touchContext.addInitScript(
     ({ payload }) => {
-      localStorage.setItem("rigs-unbound.save.v5", payload);
+      localStorage.setItem("rigs-unbound.save.v6", payload);
       sessionStorage.setItem("rigs-unbound.welcome-seen", "true");
     },
     { payload: disabledPayload },
   );
   const touchPage = await touchContext.newPage();
-  await touchPage.goto(TARGET_URL, { waitUntil: "networkidle" });
+  touchPage.setDefaultTimeout(90_000);
+  touchPage.setDefaultNavigationTimeout(90_000);
+  await touchPage.goto(TARGET_URL, { waitUntil: "domcontentloaded" });
+  await touchPage.waitForFunction(
+    () => typeof window.render_game_to_text === "function",
+  );
   await touchPage.locator('[data-tap-action="recover"]').tap();
   const recoveredByTouch = await state(touchPage);
   assert(
@@ -593,6 +897,13 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
           expressed: expressedPerception,
           reduced: reducedPerception,
         },
+        camera: {
+          spawn: spawnCamera,
+          standingToFelledTree: cameraTreeFixture,
+          hoods: hoodEvidence,
+        },
+        freshAcquisition,
+        terrainFaces: terrainFaceEvidence,
         relay: restored.activity,
         rigDistances: {
           tractor: restored.rigs["utility-tractor"].distanceTravelled,
@@ -618,10 +929,19 @@ async function driveTo(page, target, stoppingRadius, maxSteps = 220) {
       2,
     ),
   );
+  await context.close();
   await browser.close();
   browser = null;
 })().catch(async (error) => {
   console.error(error);
-  if (browser) await browser.close();
-  process.exitCode = 1;
+  if (browser) {
+    await Promise.race([
+      browser.close(),
+      new Promise((resolve) => setTimeout(resolve, 5000)),
+    ]);
+  }
+  // A failed acceptance run must not become an unbounded monitoring process.
+  // Exiting this harness closes its Playwright transport; it does not touch the
+  // development server or any independently owned browser daemon.
+  process.exit(1);
 });

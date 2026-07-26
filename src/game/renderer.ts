@@ -25,6 +25,7 @@ import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
   BUGGY_RAMP,
+  type CameraMode,
   effectiveProfile,
   type GameState,
   MAX_FURROWS,
@@ -32,11 +33,27 @@ import {
   type RigId,
   type WorldPhase,
 } from "./contracts";
-import type { Obstacle } from "./collision";
+import {
+  felledTrunkLength,
+  rockVisualHalfHeight,
+  treeCrownCenterY,
+  treeCrownRadius,
+  treeTrunkHeight,
+  type Obstacle,
+} from "./collision";
+import { RIG_HOOD_CAMERA_MOUNTS } from "./camera";
 import type { SalvageNode } from "./exploration";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
-import { SURFACES, WATER_LEVEL, WORLD_RADIUS, WORLD_SITES } from "./world";
+import type { CameraObstructionHit } from "./scene-query";
+import {
+  SURFACES,
+  WATER_LEVEL,
+  WORLD_RADIUS,
+  WORLD_SITES,
+  WORLD_STRUCTURE_PARTS,
+  type WorldStructurePart,
+} from "./world";
 
 const COLORS = {
   rust: 0xb94f32,
@@ -67,6 +84,8 @@ const MAX_DUST = 260;
 
 interface RigParts {
   root: THREE.Group;
+  /** Named local-space mount authored on the rendered rig silhouette. */
+  hoodCameraSocket: THREE.Object3D;
   /** Wheel spin pivots in physics order: front-left, front-right, rear-L, rear-R. */
   wheels: THREE.Group[];
   /** Steering pivots in the same order. Hover rigs expose an empty list. */
@@ -97,6 +116,18 @@ export interface RigPerceptionEvidence {
   cameraFocusOffset: number | null;
   expectedFocusOffset: number;
   cameraFocusContractMet: boolean;
+}
+
+export interface CameraResolutionEvidence {
+  rigId: RigId;
+  mode: CameraMode;
+  obstructionSource: CameraObstructionHit["source"] | null;
+  obstructionId: string | null;
+  idealDistance: number;
+  resolvedDistance: number;
+  pathClear: boolean;
+  selfIntersecting: boolean;
+  selfIntersectionPart: string | null;
 }
 
 function material(
@@ -130,6 +161,14 @@ function cylinder(
     new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments),
     material(color),
   );
+}
+
+function hoodCameraSocket(rigId: RigId): THREE.Object3D {
+  const mount = RIG_HOOD_CAMERA_MOUNTS[rigId];
+  const socket = new THREE.Object3D();
+  socket.name = `camera:hood:${rigId}`;
+  socket.position.set(mount.localX, mount.localY, mount.localZ);
+  return socket;
 }
 
 export class GameRenderer {
@@ -177,6 +216,9 @@ export class GameRenderer {
   private shake = 0;
   private cameraInitialised = false;
   private cameraRigId: RigId | null = null;
+  private lastCameraMode: CameraMode | null = null;
+  private lastCameraFocus: THREE.Vector3 | null = null;
+  private cameraResolution: CameraResolutionEvidence | null = null;
   private readonly reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   );
@@ -517,7 +559,7 @@ export class GameRenderer {
   }
 
   private placeTree(obstacle: Obstacle, index: number): void {
-    const trunkHeight = obstacle.height * 0.55;
+    const trunkHeight = treeTrunkHeight(obstacle);
     this.dummy.position.set(
       obstacle.x,
       obstacle.groundY + trunkHeight * 0.5,
@@ -532,12 +574,8 @@ export class GameRenderer {
     this.dummy.updateMatrix();
     this.treeTrunks.setMatrixAt(index, this.dummy.matrix);
 
-    const crownRadius = 1.25 + obstacle.variation * 0.85;
-    this.dummy.position.set(
-      obstacle.x,
-      obstacle.groundY + obstacle.height * 0.78,
-      obstacle.z,
-    );
+    const crownRadius = treeCrownRadius(obstacle);
+    this.dummy.position.set(obstacle.x, treeCrownCenterY(obstacle), obstacle.z);
     this.dummy.rotation.set(0, obstacle.variation * 4.1, 0);
     this.dummy.scale.set(crownRadius, crownRadius * 1.3, crownRadius);
     this.dummy.updateMatrix();
@@ -545,7 +583,7 @@ export class GameRenderer {
   }
 
   private placeFelled(obstacle: Obstacle, index: number): void {
-    const length = obstacle.height * 0.8;
+    const length = felledTrunkLength(obstacle);
     this.dummy.position.set(
       obstacle.x,
       obstacle.groundY + obstacle.radius * 0.9,
@@ -571,7 +609,7 @@ export class GameRenderer {
     );
     this.dummy.scale.set(
       obstacle.radius,
-      obstacle.radius * (0.6 + obstacle.variation * 0.5),
+      rockVisualHalfHeight(obstacle),
       obstacle.radius * (0.85 + obstacle.variation * 0.3),
     );
     this.dummy.updateMatrix();
@@ -676,6 +714,44 @@ export class GameRenderer {
     group.position.set(x, this.world.terrain.height(x, z), z);
   }
 
+  private createStructurePart(part: WorldStructurePart): THREE.Object3D {
+    let object: THREE.Mesh;
+    if (part.shape.kind === "box") {
+      object = box(
+        part.shape.width,
+        part.shape.height,
+        part.shape.depth,
+        part.color,
+      );
+    } else if (part.shape.kind === "cylinder") {
+      object = cylinder(
+        part.shape.radius,
+        part.shape.radius,
+        part.shape.height,
+        part.shape.radialSegments,
+        part.color,
+      );
+    } else {
+      object = new THREE.Mesh(
+        new THREE.ConeGeometry(
+          part.shape.radius,
+          part.shape.height,
+          part.shape.radialSegments,
+        ),
+        material(part.color, part.roughness),
+      );
+      object.scale.z = part.shape.scaleZ ?? 1;
+    }
+    object.name = `structure:${part.id}`;
+    object.position.set(part.localX, part.localY, part.localZ);
+    object.rotation.y = part.rotationY ?? 0;
+    if (part.roughness !== undefined && part.shape.kind !== "cone") {
+      (object.material as THREE.MeshStandardMaterial).roughness =
+        part.roughness;
+    }
+    return object;
+  }
+
   private buildSites(): void {
     for (const site of WORLD_SITES) {
       const group = new THREE.Group();
@@ -699,38 +775,11 @@ export class GameRenderer {
       group.userData.mast = mast;
 
       if (site.id === "home-silo") {
-        const barn = box(9, 5.5, 7.5, 0x7d352a);
-        barn.position.set(-9, 2.75, 3);
-        const roof = new THREE.Mesh(
-          new THREE.ConeGeometry(6.6, 2.6, 4),
-          material(0x3b3935, 0.95),
-        );
-        roof.rotation.y = Math.PI / 4;
-        roof.scale.z = 0.8;
-        roof.position.set(-9, 6.6, 3);
-        const silo = cylinder(2.6, 2.6, 11, 12, 0xb6a88e);
-        silo.position.set(6, 5.5, -2);
-        const siloRoof = new THREE.Mesh(
-          new THREE.ConeGeometry(2.9, 2.4, 12),
-          material(0x6c5d4c),
-        );
-        siloRoof.position.set(6, 12.2, -2);
-        group.add(barn, roof, silo, siloRoof);
-
-        // The workshop pad: a visible, standable place that means "you can fit
-        // modules here". Progression needs an address.
-        const pad = new THREE.Mesh(
-          new THREE.CylinderGeometry(9, 9, 0.22, 28),
-          material(0x53504a, 0.9),
-        );
-        pad.position.set(0, 0.11, 0);
-        const gantryLeft = box(0.5, 5.5, 0.5, 0x8a8378);
-        const gantryRight = gantryLeft.clone();
-        const gantryTop = box(9.5, 0.5, 0.6, 0x8a8378);
-        gantryLeft.position.set(-4.4, 2.75, 0);
-        gantryRight.position.set(4.4, 2.75, 0);
-        gantryTop.position.set(0, 5.6, 0);
-        group.add(pad, gantryLeft, gantryRight, gantryTop);
+        for (const part of WORLD_STRUCTURE_PARTS) {
+          if (part.siteId === site.id) {
+            group.add(this.createStructurePart(part));
+          }
+        }
       }
 
       if (site.id === "launch-ridge") {
@@ -929,6 +978,7 @@ export class GameRenderer {
     const root = new THREE.Group();
     root.name = "persistent-rig";
     root.rotation.order = "YXZ";
+    const cameraSocket = hoodCameraSocket("utility-tractor");
 
     const shadow = this.blobShadow(2.6, 0.3);
     shadow.position.set(0, 0.04, -0.2);
@@ -1023,9 +1073,11 @@ export class GameRenderer {
       exhaust,
       ploughPivot,
       headlights,
+      cameraSocket,
     );
     return {
       root,
+      hoodCameraSocket: cameraSocket,
       wheels,
       steeringPivots,
       wheelRestY,
@@ -1041,6 +1093,7 @@ export class GameRenderer {
     const root = new THREE.Group();
     root.name = "toy-buggy";
     root.rotation.order = "YXZ";
+    const cameraSocket = hoodCameraSocket("toy-buggy");
 
     const shadow = this.blobShadow(2.1, 0.26);
     shadow.position.y = 0.04;
@@ -1106,9 +1159,19 @@ export class GameRenderer {
     headlights.target.position.set(0, 0, 20);
     root.add(headlights.target);
 
-    root.add(shadow, chassis, nose, cockpit, rollBar, towHook, headlights);
+    root.add(
+      shadow,
+      chassis,
+      nose,
+      cockpit,
+      rollBar,
+      towHook,
+      headlights,
+      cameraSocket,
+    );
     return {
       root,
+      hoodCameraSocket: cameraSocket,
       wheels,
       steeringPivots,
       wheelRestY,
@@ -1130,6 +1193,7 @@ export class GameRenderer {
     const root = new THREE.Group();
     root.name = "marsh-skimmer";
     root.rotation.order = "YXZ";
+    const cameraSocket = hoodCameraSocket("marsh-skimmer");
 
     const shadow = this.blobShadow(2.6, 0.22);
     shadow.position.y = -0.72;
@@ -1215,9 +1279,11 @@ export class GameRenderer {
       roof,
       towHook,
       headlights,
+      cameraSocket,
     );
     return {
       root,
+      hoodCameraSocket: cameraSocket,
       wheels: [],
       steeringPivots: [],
       wheelRestY: [],
@@ -1511,6 +1577,11 @@ export class GameRenderer {
     profile: ReturnType<typeof effectiveProfile>,
   ): void {
     const rig = state.rigs[state.activeRigId];
+    const parts = this.rigs.get(rig.id);
+    if (!parts) {
+      throw new Error(`Missing rendered rig for camera: ${rig.id}`);
+    }
+    parts.root.updateWorldMatrix(true, true);
     const feedback = deriveRigFeedback(
       rig,
       profile,
@@ -1561,14 +1632,13 @@ export class GameRenderer {
         .addScaledVector(right, feedback.cameraLateralLook);
       if (narrow) target.y -= 2.2;
     } else if (state.cameraMode === "hood") {
-      // A rig-height driving view. The profile supplies only the machine-scale
-      // offset; the policy itself remains shared by every present and future rig.
-      desired = focus
-        .clone()
-        .addScaledVector(forward, 0.75)
-        .add(new THREE.Vector3(0, 0.42, 0));
-      target = desired.clone().addScaledVector(forward, 16);
-      target.y -= 0.25;
+      // The silhouette owns a named socket. A shared focus-relative offset put
+      // Torque's camera inside its hood and could never describe the much lower
+      // buggy or forward-cab skimmer honestly.
+      const mount = RIG_HOOD_CAMERA_MOUNTS[rig.id];
+      desired = parts.hoodCameraSocket.getWorldPosition(new THREE.Vector3());
+      target = desired.clone().addScaledVector(forward, mount.lookDistance);
+      target.y -= mount.lookDrop;
     } else if (state.cameraMode === "side") {
       // A readable inspection/action view that exposes suspension, attachments,
       // and towing without encoding any particular vehicle class.
@@ -1602,37 +1672,94 @@ export class GameRenderer {
       target = focus;
     }
 
-    // Occlusion: never let terrain get between the camera and the rig.
-    const clear = this.world.terrain.raymarchBlocked(
-      focus.x,
-      focus.y,
-      focus.z,
-      desired.x,
-      desired.y,
-      desired.z,
-      12,
-      0.9,
-    );
-    if (clear < 1) {
-      const pulled = focus.clone().lerp(desired, Math.max(0.28, clear));
-      // Also lift clear of the ground so the pulled-in camera does not end up
-      // inside the hill it was avoiding.
-      pulled.y = Math.max(
-        pulled.y,
-        this.world.terrain.height(pulled.x, pulled.z) + 2.4,
-      );
-      desired.copy(pulled);
-    } else {
+    const idealDesired = desired.clone();
+    const fullSceneQuery =
+      state.cameraMode === "chase" || state.cameraMode === "side";
+    let obstruction: CameraObstructionHit | null = null;
+    let finalPathHit: CameraObstructionHit | null = null;
+
+    if (state.cameraMode !== "hood") {
+      const queryOptions = {
+        includeObstacles: fullSceneQuery,
+        includeStructures: fullSceneQuery,
+      };
+      const queryCandidate = (candidate: THREE.Vector3) =>
+        this.world.cameraObstruction(focus, candidate, 0.45, queryOptions);
+      const pullBeforeHit = (
+        candidate: THREE.Vector3,
+        hit: CameraObstructionHit,
+      ) => {
+        const length = Math.max(0.001, focus.distanceTo(candidate));
+        return focus
+          .clone()
+          .lerp(candidate, Math.max(0, hit.fraction - 0.55 / length));
+      };
+
+      obstruction = queryCandidate(desired);
+      if (obstruction) {
+        desired = pullBeforeHit(desired, obstruction);
+        if (focus.distanceTo(desired) < 2.8) {
+          // When the rig starts almost against a wall there is no usable boom
+          // between focus and obstruction. Choose a deterministic shoulder/high
+          // fallback rather than placing the near plane inside the rig.
+          const sideDistance = Math.max(5, profile.track * 2);
+          const fallbackCandidates = [
+            focus
+              .clone()
+              .addScaledVector(right, sideDistance)
+              .addScaledVector(forward, 0.8)
+              .add(new THREE.Vector3(0, 3.2, 0)),
+            focus
+              .clone()
+              .addScaledVector(right, -sideDistance)
+              .addScaledVector(forward, 0.8)
+              .add(new THREE.Vector3(0, 3.2, 0)),
+            focus
+              .clone()
+              .addScaledVector(forward, -1.5)
+              .add(new THREE.Vector3(0, 6.5, 0)),
+          ];
+          for (const candidate of fallbackCandidates) {
+            candidate.y = Math.max(
+              candidate.y,
+              this.world.terrain.height(candidate.x, candidate.z) + 2.4,
+            );
+            if (!queryCandidate(candidate)) {
+              desired = candidate;
+              break;
+            }
+          }
+        }
+      }
+
+      // Also lift clear of the ground so a pulled-in camera does not end up
+      // inside the same hill it was avoiding.
       desired.y = Math.max(
         desired.y,
-        this.world.terrain.height(desired.x, desired.z) + 2,
+        this.world.terrain.height(desired.x, desired.z) +
+          (obstruction ? 2.4 : 2),
       );
     }
 
+    const cameraModeChanged =
+      this.lastCameraMode !== null && this.lastCameraMode !== state.cameraMode;
+    const focusTeleported =
+      this.lastCameraFocus !== null &&
+      this.lastCameraFocus.distanceTo(focus) > 8;
     const cameraDiscontinuity =
       this.cameraRigId !== rig.id ||
+      cameraModeChanged ||
+      focusTeleported ||
       this.camera.position.distanceTo(desired) > 70;
-    if (!this.cameraInitialised || cameraDiscontinuity) {
+    const desiredDistance = focus.distanceTo(desired);
+    const currentDistance = focus.distanceTo(this.camera.position);
+    const needsImmediatePullIn =
+      obstruction !== null && currentDistance > desiredDistance + 0.08;
+    if (
+      !this.cameraInitialised ||
+      cameraDiscontinuity ||
+      needsImmediatePullIn
+    ) {
       this.camera.position.copy(desired);
       this.cameraInitialised = true;
     } else {
@@ -1642,7 +1769,43 @@ export class GameRenderer {
           : 1 - Math.exp(-3.5 * delta);
       this.camera.position.lerp(desired, blend);
     }
+
+    // A smoothed camera can still sweep through a nearer prop even when its
+    // endpoint is valid. Re-query the actual candidate and pull inward
+    // immediately; outward recovery remains smoothed above.
+    if (state.cameraMode !== "hood") {
+      const smoothedHit = this.world.cameraObstruction(
+        focus,
+        this.camera.position,
+        0.45,
+        {
+          includeObstacles: fullSceneQuery,
+          includeStructures: fullSceneQuery,
+        },
+      );
+      if (smoothedHit) {
+        const length = Math.max(0.001, focus.distanceTo(this.camera.position));
+        const safeFraction = Math.max(0, smoothedHit.fraction - 0.55 / length);
+        this.camera.position.lerpVectors(
+          focus,
+          this.camera.position,
+          safeFraction,
+        );
+        obstruction = obstruction ?? smoothedHit;
+      }
+      finalPathHit = this.world.cameraObstruction(
+        focus,
+        this.camera.position,
+        0.45,
+        {
+          includeObstacles: fullSceneQuery,
+          includeStructures: fullSceneQuery,
+        },
+      );
+    }
     this.cameraRigId = rig.id;
+    this.lastCameraMode = state.cameraMode;
+    this.lastCameraFocus = focus.clone();
 
     if (this.shake > 0.001) {
       this.shake = Math.max(0, this.shake - delta * 2.6);
@@ -1677,6 +1840,67 @@ export class GameRenderer {
     }
     this.camera.lookAt(target);
     this.sky.position.copy(this.camera.position);
+
+    const selfIntersectionPart = this.rigIntersectionPart(
+      parts,
+      this.camera.position,
+    );
+    this.cameraResolution = {
+      rigId: rig.id,
+      mode: state.cameraMode,
+      obstructionSource: obstruction?.source ?? null,
+      obstructionId: obstruction?.id ?? null,
+      idealDistance: Number(focus.distanceTo(idealDesired).toFixed(3)),
+      resolvedDistance: Number(
+        focus.distanceTo(this.camera.position).toFixed(3),
+      ),
+      pathClear: finalPathHit === null,
+      selfIntersecting: selfIntersectionPart !== null,
+      selfIntersectionPart,
+    };
+  }
+
+  private rigIntersectionPart(
+    parts: RigParts,
+    worldPoint: THREE.Vector3,
+  ): string | null {
+    let intersectionPart: string | null = null;
+    parts.root.traverse((object) => {
+      if (
+        intersectionPart ||
+        !(object instanceof THREE.Mesh) ||
+        !object.visible
+      ) {
+        return;
+      }
+      const geometry = object.geometry;
+      if (!geometry.boundingBox) geometry.computeBoundingBox();
+      if (!geometry.boundingBox) return;
+      const localPoint = object.worldToLocal(worldPoint.clone());
+      if (
+        geometry.boundingBox
+          .clone()
+          // The camera point can be outside a mesh while the 0.25 m near plane
+          // still slices it into a screen-filling black polygon. Reserve a
+          // little more than the near distance as the usable-view contract.
+          .expandByScalar(0.35)
+          .containsPoint(localPoint)
+      ) {
+        intersectionPart =
+          object.name ||
+          `${object.geometry.type}@${object.position.x.toFixed(2)},${object.position.y.toFixed(2)},${object.position.z.toFixed(2)}`;
+      }
+    });
+    return intersectionPart;
+  }
+
+  cameraEvidence(): CameraResolutionEvidence {
+    if (!this.cameraResolution) {
+      throw new Error(
+        "Camera evidence is unavailable before the first render.",
+      );
+    }
+    return { ...this.cameraResolution };
   }
 
   metrics(): { drawCalls: number; triangles: number; terrainBuildMs: number } {

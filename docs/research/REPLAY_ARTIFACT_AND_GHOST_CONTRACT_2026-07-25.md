@@ -154,3 +154,75 @@ The bounded recorder is already real. This contract makes it explicit what still
   - the record is still an audit log rather than a ghost/replay product.
 - The contract therefore remains correctly staged: bounded record first,
   replay artifact and ghost compatibility later.
+
+## Addendum (2026-07-25) - fresh runtime recheck, same record-only boundary
+
+- Re-checked the replay lane against the current browser daemon snapshot and
+  live repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still exposes the bounded record surface through
+  `window.getRunRecord()` and `window.getRunRecordVerification()`, and the code
+  path still records commands, inputs, checkpoints, and saves through the
+  versioned record.
+- The current code path still verifies the record shape and checkpoint hashes,
+  which keeps the recorder useful as an internal audit log.
+- What is still missing is the first-class replay artifact surface:
+  - no exposed playback path in the browser,
+  - no ghost share/compatibility envelope,
+  - no divergence report produced from replay execution,
+  - no trust-classification split between diagnostics-only and replay-safe
+    data.
+- So the record remains real, but it is still a record rather than a shareable
+  replay/ghost artifact.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 runtime recheck, same boundary
+
+- Re-checked the replay lane against the current browser daemon and live Field
+  02 runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The live runtime still exposes the bounded record surface:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+  - versioned seed-backed run record capture through `createRunRecord()` and
+    `appendRunRecordEntry()`
+- The recorder is therefore real and usable as an internal audit log.
+- The first-class replay artifact surface is still absent:
+  - no exposed playback path in the browser,
+  - no ghost share/compatibility envelope,
+  - no divergence report produced from replay execution,
+  - no trust-classification split between diagnostics-only and replay-safe
+    data.
+- That means the replay lane is still correctly staged: record and verify are
+  real today, while playback and ghost compatibility remain future-gated.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## Addendum (2026-07-26) - replay verification remains healthy, but the artifact is still record-only
+
+- Re-checked the live browser daemon and the run-record source path.
+- The browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The bounded record spine is still concrete:
+  - `schemaVersion`
+  - `seed`
+  - `startedAtMs`
+  - `droppedEntries`
+  - ordered command, input, checkpoint, and save entries
+  - checkpoint entries include a stable tick hash
+- `verifyRunRecord()` is still doing the right structural checks:
+  - schema version,
+  - seed,
+  - timestamps / elapsed monotonicity,
+  - checkpoint tick hashes.
+- Live verification remains `ok: true` with no issues, which keeps the record
+  useful for debug and internal validation.
+- What is still missing is the first-class replay artifact surface:
+  - no exposed playback path in the browser,
+  - no ghost/share compatibility envelope,
+  - no divergence report from a replay execution,
+  - no diagnostics-vs-replay-safe trust split.
+- So the lane remains correctly staged: record and verify are real; playback
+  and ghost compatibility are still future-gated.

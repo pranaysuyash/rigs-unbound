@@ -189,3 +189,32 @@ Those contracts tell us how the world should behave. This note tells us how to s
   the reusable comparison set that turns those ideas into reviewable evidence.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same comparison-bundle gap
+
+- Re-checked the rendering-economy note against the current browser daemon and
+  live renderer state.
+- The live browser surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The current runtime still exposes the frame-budget economics the note names:
+  - Three.js is the canonical renderer path,
+  - repeated world items are instanced,
+  - prop drawing is radius-bounded around the rig,
+  - `PerformanceMonitor` and `window.getPerformanceSnapshot()` expose draw-call
+    pressure, triangle pressure, frame timing, memory use, and terrain build
+    time,
+  - the HUD also keeps fps and save health visible.
+- The spend order described in the note still matches the current runtime
+  posture:
+  - camera response and nearby readability are protected first,
+  - terrain/obstacle fidelity remains the active foreground workload,
+  - distant props and decorative density are bounded by the current policy.
+- What is still missing is the durable comparison bundle:
+  - one repeatable capture bundle,
+  - one operator note for what changed under pressure,
+  - one screenshot/frame capture tied to the metrics,
+  - one baseline promotion path for explanatory captures.
+- So the budget economy is live and readable, but still short of the reusable
+  review artifact that would make the frame-budget policy durable over time.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

@@ -1089,3 +1089,37 @@ finishing the first coherent game.
 - This is a research cue, not a defect claim; it keeps the browser delivery
   lane honest about what is intentionally minimal versus what still needs a
   bounded public-entry affordance.
+
+## Addendum — 2026-07-26 B5–B12 closure discoveries
+
+The latest playtest-defect package produced four reusable product/architecture
+rules rather than rig-specific patches:
+
+1. **Physical presentation belongs to rigs; spatial truth does not.** Named
+   hood sockets are rig-owned, while camera obstruction is one
+   solver-independent query over typed terrain, obstacles, felled memory, and
+   authored structures.
+2. **Advertised starting content must be discoverable through gameplay.**
+   Canonical Home berths make every current rig reachable through the real
+   proximity rule. Future locked rigs still need an explicit claim/unlock
+   mission rather than distant pre-placement or menu teleportation.
+3. **Every locomotion family shares substrate refusal before it specializes.**
+   Ground and hover retain different feel, but both obey one swept terrain-face
+   invariant with semantic refusal and downhill escape.
+4. **Player and evidence surfaces are different products.** Public play keeps
+   persistence truth and contextual actions while hiding labs/tuning metrics;
+   developer and acceptance surfaces expose those through explicit modes.
+
+New exploration questions opened by this package:
+
+- Should future rig acquisition use repair/claim/tow-home contracts, and how
+  does ownership remain distinct from physical proximity?
+- Which structure records need semantic transparency or non-occluder metadata
+  when real GLBs replace proxies?
+- How should `terrain-face` reasons become structured replay events and
+  capability-aware route costs rather than prose only?
+- Should developer/evidence mode become a signed build/profile capability
+  before public sharing, so query parameters cannot expose privileged mutation
+  tools in production?
+- When activity context recommends a camera or action, how is the suggestion
+  made explainable, overridable, and replay-safe?

@@ -141,3 +141,27 @@ implicit behavior glued onto the main loop.
   and downgrade policy are still implicit rather than contract-bound.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same governance gap
+
+- Re-checked the simulation-layers contract against the current browser daemon
+  and live Field 02 runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The current runtime still proves the layered-simulation premise:
+  - `src/game/state.ts` runs a deterministic gameplay kernel with ordered
+    mutation,
+  - `src/game/gameworld.ts` keeps world memory bounded and serializable,
+  - `src/game/terrain.ts` and collision/physics stay separate from rendering,
+  - `src/game/performance.ts` and `src/main.ts` expose runtime pressure
+    measurements,
+  - presentation still consumes snapshots rather than owning world truth.
+- That means the repo already behaves like a layered sim in practice.
+- The missing layer is still the named governance contract:
+  - no owned domain-order table for non-render layers,
+  - no explicit CPU/GPU/active-actor/residency/save budget ledger,
+  - no fallback-policy table naming which layer downgrades first,
+  - no recorded downgrade reason surfaced as policy.
+- So the simulation stack is real, but the budget/governance envelope is still
+  implicit rather than a first-class contract.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

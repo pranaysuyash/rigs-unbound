@@ -15,8 +15,9 @@ import type { GameState } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
-export const SAVE_KEY = "rigs-unbound.save.v5";
-export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v4";
+export const SAVE_KEY = "rigs-unbound.save.v6";
+export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v5";
+export const FIELD_CLOCK_SAVE_KEY = "rigs-unbound.save.v4";
 export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
 export const RIG_LAB_SAVE_KEY = "rigs-unbound.save.v2";
 export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
@@ -25,6 +26,7 @@ export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 const READ_KEYS = [
   SAVE_KEY,
   PREVIOUS_SAVE_KEY,
+  FIELD_CLOCK_SAVE_KEY,
   FIELD_02_SAVE_KEY,
   RIG_LAB_SAVE_KEY,
   LEGACY_SAVE_KEY,
@@ -78,7 +80,7 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
     return {
       state,
       status: "fresh",
-      message: "New field record. Home Valley surveyed.",
+      message: "New field ready · progress saves locally",
       loadDurationMs: now() - startedAt,
     };
   }
@@ -105,8 +107,8 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
         state: recovered,
         status: migrated ? "migrated" : "restored",
         message: migrated
-          ? "Earlier record migrated onto the terrain world."
-          : "Field record restored.",
+          ? "Earlier local save migrated"
+          : "Local save restored",
         loadDurationMs: now() - startedAt,
       };
     }

@@ -136,3 +136,29 @@ layer instead of turning into a silent second world model.
   second world model.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same single-residency boundary
+
+- Re-checked the streaming-world contract against the current browser daemon
+  and live Field 02 runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The current world substrate still behaves like a single canonical residency:
+  - one `GameWorld`,
+  - one `TerrainField`,
+  - one obstacle field,
+  - one exploration field,
+  - one snapshot/save boundary.
+- `src/game/world.ts` still defines authored world data and anchors, not a
+  chunk/region manifest graph.
+- `src/game/storage.ts` still restores and saves the world as one payload rather
+  than streaming region manifests into and out of runtime residency.
+- That means the streaming contract is still correctly staged as a future
+  boundary:
+  - no `WorldChunkManifest` yet,
+  - no residency states,
+  - no activate/unload/rollback lifecycle,
+  - no residency churn observability.
+- The repo therefore still has a stable single-residency world, but not yet the
+  chunked residency layer the contract names.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

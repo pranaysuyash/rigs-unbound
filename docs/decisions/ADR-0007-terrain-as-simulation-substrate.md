@@ -173,3 +173,30 @@ Three cross-cutting items the per-item analysis missed:
 - 2026-07-25: Accepted and implemented in the same pass; see
   `docs/plans/OPEN_WORLD_TRAVERSAL_2026-07-25.md` for the gated commit order and
   acceptance contract.
+
+## Addendum (2026-07-26): shared terrain-face traversability boundary
+
+The reduced-DOF adapters retain ownership of ordinary power, grip, suspension,
+hover pressure, grade, and water behavior. A new solver-independent boundary
+now owns one narrower invariant for every adapter: a rig may not tunnel through
+or be lifted onto a discontinuous terrain face.
+
+The boundary sweeps the motion-direction leading support edge, samples centre
+and lateral footprint points, and compares local support rise with
+adapter-shaped wheel/contact or hover-skirt envelopes. It also checks the
+leading-to-trailing footprint rise so a start-from-rest attempt cannot place
+the front support on an upper shelf. Direction comes from requested
+displacement, not rig heading, so downhill movement and reverse escape remain
+valid. A refusal returns semantic reason `terrain-face`; the gameplay layer
+turns that into player/operator guidance.
+
+This is deliberately not a new climb stat. Smooth grades still resolve through
+traction, gearing, gravity, and cushion authority. Hover authority may reach
+zero on an extreme grade; the former artificial minimum is removed.
+
+Validation is Tier 2 through five focused boundary tests, the complete root
+suite, and deterministic-kernel tests; Tier 3/4 browser acceptance searches the
+real seeded terrain for an obstacle-free face and exercises Torque, Spark, and
+Drift under deterministic manual stepping. Revisit envelope values when a
+tracked, articulated, flying, or climbing adapter proves a distinct support
+geometry, not merely when a rig needs different tuning.

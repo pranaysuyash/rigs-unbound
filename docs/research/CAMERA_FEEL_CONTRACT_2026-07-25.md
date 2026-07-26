@@ -129,3 +129,58 @@ The camera is already doing important gameplay work. This contract keeps that wo
   camera policy contract that names transitions, comfort, and observability.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-26): the obstruction and mount contract is explicit
+
+The camera policy now separates reusable meaning from physical and spatial
+facts:
+
+1. `CAMERA_MODES` and shared renderer policy own what each view means.
+2. `RIG_HOOD_CAMERA_MOUNTS` owns only each rig's physical forward-view socket.
+3. `queryCameraObstruction` owns the nearest-hit contract across terrain,
+   procedural obstacles, felled world memory, and authored structures.
+4. `CameraResolutionEvidence` reports ideal/resolved distance, source/object ID,
+   post-resolution clearance, and rig self-intersection.
+
+Transition rules now cut on mode changes and large focus teleports, resolve
+inward immediately, recover outward gradually, and revalidate the smoothed
+candidate. High overview policies keep the cheaper terrain-only query.
+Reduced-motion continues to suppress optional camera expression without
+changing spatial safety.
+
+Acceptance evidence now includes:
+
+- nearest authored Home-structure obstruction at fresh spawn, resolved to a
+  clear shorter boom (`home-barn-roof` at the canonical v6 berth);
+- a deterministic real standing tree that shortens the chase boom and the same
+  tree's felled state that restores it;
+- all three named rig sockets with clear, non-self-intersecting hood poses;
+- a bounded browser harness that closes with exit code 0 and no captured
+  console/page errors.
+
+Remaining camera-policy work is product-facing recommendation/transition
+reasoning, not obstruction or mount correctness. Any future automatic camera
+recommendation must remain advisory, explainable, and overridable by the
+player.
+
+## Addendum (2026-07-26) - camera policy is live, but still not surfaced as a named contract artifact
+
+- Re-checked the live browser daemon and the current camera wiring.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The camera system is still intentionally rich:
+  - named modes remain exposed in `src/game/contracts.ts`,
+  - `src/main.ts` routes mode selection through commands and checkpoints,
+  - `src/game/renderer.ts` resolves obstruction pull-in and speed FOV,
+  - reduced-motion clamping remains active in the feedback path,
+  - `getCameraResolutionEvidence()` exposes active camera-resolution evidence.
+- The live UI already keeps the world readable when the camera changes, and the
+  playable canvas remains the keyboard landing target.
+- What is still missing is the named policy surface the contract asks for:
+  - no camera-policy schema,
+  - no explicit transition reason table,
+  - no operator-visible camera-policy summary field,
+  - no separate persistent camera-policy artifact beyond the save-state camera
+    mode.
+- So the camera layer is real, legible, and already doing gameplay work, but
+  its policy is still implicit in code rather than first-class contract data.

@@ -112,3 +112,30 @@ The smallest durable proof for this contract is:
 This baseline should not replace the fine-grained contracts.
 It should make their thresholds readable as one policy so the game can be
 measured and explained as a whole.
+
+## Addendum (2026-07-25) - The pieces are real, but the umbrella policy is still not first-class
+
+- The live runtime already proves the baseline’s component contracts are not
+  theoretical:
+  - culling and LOD are named and observable,
+  - camera modes and reduced-motion behavior are real,
+  - collision semantics are explicit,
+  - lighting, shader/material, physics, and performance lanes each have live
+    evidence behind them.
+- `src/main.ts` and `src/game/renderer.ts` already expose the pressure signals
+  this umbrella policy would read:
+  - `window.getPerformanceSnapshot()`,
+  - `window.selectCamera()`,
+  - `window.render_game_to_text()`,
+  - camera resolution evidence,
+  - HUD-visible state for controls, phase, and performance.
+- The browser daemon remains healthy on the live field surface, so the baseline
+  is still grounded in real runtime behavior rather than paper policy.
+- What is still missing is the shared policy surface the contract describes:
+  - no visible budget table for within-budget / degraded / fail-soft states,
+  - no single fail-soft summary that says which threshold was exceeded,
+  - no umbrella note that maps the thresholds back to the specialized
+    contracts as one operational artifact.
+- The correct reading is that the baseline already exists as a set of working
+  contracts, but not yet as one maintainable policy surface for operators and
+  maintainers.

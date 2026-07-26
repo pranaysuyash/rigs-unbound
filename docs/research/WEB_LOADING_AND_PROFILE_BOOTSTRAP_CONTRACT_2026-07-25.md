@@ -146,3 +146,21 @@ It gives the browser layer a durable rule: progress and fallback must be visible
   fully named loading/profile policy.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - current Field 02 snapshot and remaining bootstrap gap
+
+- Re-checked the live browser daemon after the earlier shell audit.
+- The current runtime surface is `Rigs Unbound — Field 02`, and the daemon still
+  reports zero console logs.
+- The implementation status is unchanged in the important ways:
+  - `welcome-panel` is still the real startup shell,
+  - `saveStatus` still gives the player a live textual boot state,
+  - the canvas handoff still happens when entering the world,
+  - there is still no separate progress meter, startup percentage, or runtime
+    profile selector visible to the player.
+- So the app is not at risk of looking dead, but the bootstrap contract is still
+  only partially explicit. The remaining work is to decide whether a visible
+  loading/progress affordance should be promoted from “implicit enough” into a
+  first-class browser state.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

@@ -89,6 +89,233 @@
 - Evidence depth: Tier 4 runtime/manual observation on
   `http://127.0.0.1:4173/?p0-repro=welcome`.
 
+## 2026-07-25 — web asset ingest snapshot correction
+
+- Re-checked the browser daemon while continuing the asset ingest / provenance
+  lane.
+- Corrected the current runtime surface in the asset-ingest contract from
+  `Rigs Unbound — Physics Lab 01` to `Rigs Unbound — Field 02`; the daemon
+  still reports zero console logs.
+- The correction does not change the architectural conclusion:
+  - the live runtime remains asset-light and procedurally authored,
+  - `src/game/renderer.ts` still documents zero texture assets for the current
+    terrain pass,
+  - no imported runtime GLB/FBX/texture manifest is active in the playable
+    path yet.
+- The missing durable milestone is still a versioned manifest that the runtime
+  actually consumes before browser asset activation becomes a live gate.
+
+## 2026-07-25 — web loading bootstrap snapshot continuation
+
+- Re-checked the live browser daemon while continuing the browser delivery lane.
+- The current runtime surface remains `Rigs Unbound — Field 02`, with zero
+  console logs in the daemon snapshot.
+- The browser still has the right shell behavior:
+  - `welcome-panel` is the real startup shell,
+  - `saveStatus` gives a live text boot state,
+  - entering the world dismisses the shell and focuses the canvas.
+- The remaining open question is still explicit bootstrap visibility:
+  - no separate progress meter,
+  - no startup percentage,
+  - no runtime profile selector visible to the player.
+- That means the runtime is past the dead-black-box risk, but the loading /
+  profile policy is still implicit rather than fully first-class in the UI.
+
+## 2026-07-25 — threshold capture selection recheck
+
+- Re-checked the threshold capture selection protocol against the live Field 02
+  runtime.
+- The protocol still matches the current app shape and the fresh review images
+  already on disk:
+  - `docs/reviews/assets/field-02-front-forward.png`
+  - `docs/reviews/assets/field-02-top-down.png`
+  - `docs/reviews/assets/rig-lab-01-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-narrow.png`
+- The right comparison categories remain unchanged:
+  - near-field dense scene,
+  - occluded / hidden scene,
+  - distance-gradient scene,
+  - pressure scene,
+  - reduced-motion comparison scene.
+- What is still missing is the packaged comparison bundle itself: fixture id,
+  metrics capture, screenshot/frame capture, operator note, and threshold state.
+
+## 2026-07-25 — asset-production review continuation
+
+- Re-checked the asset-production review against the live Field 02 runtime and
+  the current `assets/asset-manifest.json` posture.
+- The manifest remains the canonical registry and still contains:
+  - two reference/concept tractor records,
+  - one proposed Kenney static-prop fixture record,
+  - `runtimePath: null` for all current entries.
+- Slice A is therefore the right boundary:
+  - provenance/rights metadata is formalized,
+  - but no imported GLB/texture/audio asset is active in the playable path yet.
+- The next durable asset milestone remains a runtime-import proof, not a broad
+  import of art assets into the renderer.
+
+## 2026-07-25 — runtime instrumentation KPI recheck
+
+- Re-checked the runtime instrumentation note against the live browser daemon.
+- The current runtime surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the snapshot.
+- The KPI surface is live and observable:
+  - `PerformanceMonitor.snapshot()`
+  - `window.getPerformanceSnapshot()`
+  - `window.render_game_to_text()`
+  - HUD save / fps / draw-call / heap readouts
+- The remaining gap is still packaging:
+  - no repeatable profile comparison artifact,
+  - no per-profile operator summary tied to a fixture,
+  - no reusable fallback/degrade summary artifact,
+  - no canonical screenshot/frame bundle binding the metrics together.
+
+## 2026-07-25 — renderer/accessibility gate recheck
+
+- Re-checked the renderer/performance/accessibility gate against the live Field
+  02 runtime.
+- The runtime still exposes the gate hooks:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - `window.getCameraResolutionEvidence()`
+- The runtime still carries the right minimum gate shape:
+  - `standard` and `mobile-safe` behavior are present,
+  - reduced-motion clamping is present,
+  - HUD text and semantic fallback paths are present,
+  - the playable canvas remains the focus target after the intro is dismissed.
+- The remaining gap is still the same packaged artifact gap:
+  - no bundled capture set,
+  - no canonical pass/fail summary for fallback events,
+  - no operator-ready public smoke-test package.
+
+## 2026-07-25 — culling/LOD spike-test recheck
+
+- Re-checked the culling/LOD spike-test note against the live Field 02 runtime.
+- The runtime is still healthy and the browser daemon still reports zero
+  console logs.
+- The current renderer posture still looks like a deliberate visibility budget:
+  - repeated props are instanced,
+  - prop rebuilds are radius-bounded,
+  - some meshes disable automatic frustum culling for stable presentation,
+  - draw calls and triangles remain compact enough for the scene.
+- The formal gap remains unchanged:
+  - no deterministic near-field fixture bundle,
+  - no occluded/hidden fixture bundle,
+  - no distance-gradient fixture bundle,
+  - no pressure fixture bundle,
+  - no reusable metrics/capture bundle promoted for comparison over time.
+
+## 2026-07-25 — rendering-economy recheck
+
+- Re-checked the rendering-economy note against the live Field 02 runtime.
+- The browser daemon is still healthy and reports zero console logs.
+- The runtime still exposes the frame-budget economy the note names:
+  - Three.js canonical path,
+  - instanced repeated world items,
+  - radius-bounded prop drawing,
+  - `PerformanceMonitor` / `window.getPerformanceSnapshot()` for draw-call,
+    triangle, frame-time, memory, and terrain-build metrics,
+  - HUD fps and save-health readouts.
+- The remaining gap is still packaging:
+  - no repeatable capture bundle,
+  - no operator note for budget changes under pressure,
+  - no screenshot/frame capture tied to the metrics,
+  - no baseline promotion path for explanatory captures.
+
+## 2026-07-25 — platform long-term audit recheck
+
+- Re-checked the 3D platform long-term audit against the current Field 02
+  runtime and browser daemon.
+- The current runtime still matches the audit’s core premise:
+  - bounded playable loop,
+  - deterministic local simulation,
+  - accessible shell and focus handoff,
+  - observable render/performance metrics,
+  - reference-first asset provenance,
+  - intentionally bounded visibility/culling behavior.
+- The highest-risk gaps remain future-gated:
+  - no shipped-mesh authority layer,
+  - no packaged comparison bundle for visibility/performance/accessibility,
+  - no runtime-imported asset manifest in the playable path,
+  - no formal replay transport or authority intent pipeline,
+  - no chunk manifest / streaming lifecycle proving out-of-view work stays out
+    of the frame budget.
+- That keeps the backlog honest: the long-term platform shape is still right,
+  but the risky lanes remain documented as future work rather than assumed
+  delivered behavior.
+
+## 2026-07-25 — replay artifact and ghost contract recheck
+
+- Re-checked the replay/ghost contract against the live Field 02 runtime.
+- The daemon is still healthy and reports zero console logs.
+- The current runtime still exposes the bounded record surface:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+  - seed-backed bounded run records with commands, inputs, checkpoints, and
+    saves
+- The recorder is therefore real and useful as an internal audit log.
+- The missing layer remains the first-class replay artifact surface:
+  - no exposed playback path in the browser,
+  - no ghost share/compatibility envelope,
+  - no divergence report from replay execution,
+  - no diagnostics-only vs replay-safe trust split.
+- So the contract remains correctly staged: record/verify now, replay/ghost
+  artifact later.
+
+## 2026-07-25 — streaming-world residency recheck
+
+- Re-checked the streaming-world contract against the live Field 02 runtime.
+- The browser daemon is still healthy and reports zero console logs.
+- The world substrate still behaves like a single canonical residency:
+  - one `GameWorld`,
+  - one `TerrainField`,
+  - one obstacle field,
+  - one exploration field,
+  - one snapshot/save boundary.
+- `src/game/world.ts` remains authored world data and anchors, not a chunk
+  residency graph.
+- `src/game/storage.ts` still saves/restores the world as one payload.
+- The missing layer remains the chunk-streaming contract:
+  - no `WorldChunkManifest`,
+  - no residency states,
+  - no activate/unload/rollback lifecycle,
+  - no residency churn observability.
+
+## 2026-07-25 — authority model groundwork recheck
+
+- Re-checked the authority contract against the live Field 02 runtime.
+- The browser daemon is still healthy and reports zero console logs.
+- The runtime still supports the local-first authority posture:
+  - commands are captured explicitly,
+  - the deterministic kernel owns canonical mutation,
+  - local persistence restores or replaces invalid records without treating
+    them as truth.
+- That means local input remains authoritative for the current slice, and no
+  remote authority is required yet.
+- The missing layer remains the shared-state envelope:
+  - authenticated mutation request/response shapes,
+  - explicit reject-path state separation,
+  - durable-value recovery metadata as policy,
+  - telemetry for authoritative outcomes,
+  - a visible shared-state/server-authoritative boundary artifact.
+
+## 2026-07-25 — simulation layers and resource governance recheck
+
+- Re-checked the simulation-layers contract against the live Field 02 runtime.
+- The browser daemon is still healthy and reports zero console logs.
+- The runtime still proves the layered-simulation premise:
+  - deterministic gameplay kernel with ordered mutation,
+  - bounded, serializable world memory,
+  - terrain/physics/collision separated from rendering,
+  - runtime pressure measurements exposed through performance hooks,
+  - presentation consuming snapshots rather than owning world truth.
+- The missing layer remains the named governance envelope:
+  - no owned domain-order table for non-render layers,
+  - no explicit CPU/GPU/active-actor/residency/save budget ledger,
+  - no fallback-policy table naming which layer downgrades first,
+  - no recorded downgrade reason surfaced as policy.
+
 ## 2026-07-25 — accessibility auditor live recheck
 
 - Re-read the `Accessibility Auditor` skill and rechecked the live Field 02
@@ -2574,3 +2801,781 @@ audio, and human-fun evidence remain open.
   - no pack lifecycle that would treat packs as shared public evidence.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## 2026-07-25 — public evidence/share-route recheck
+
+- Re-read ADR-0004 against the current browser daemon snapshot and live repo
+  state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- A source search of `src/` did not reveal any live share/public object route
+  family, so the proposed URL shapes remain decision-level only.
+- The runtime is still treating public evidence as future-facing:
+  - no publication workflow,
+  - no moderation queue,
+  - no canonical share route family in the playable path.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  repo search inspection.
+
+## 2026-07-25 — replay artifact and ghost contract recheck
+
+- Re-read the replay contract against the current browser daemon snapshot and
+  live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still exposes the bounded record surface:
+  - `window.getRunRecord()`
+  - `window.getRunRecordVerification()`
+  - command, input, checkpoint, and save entries in the versioned record
+- The missing layer is still the replay artifact surface:
+  - no exposed playback path in the browser,
+  - no ghost share/compatibility envelope,
+  - no divergence report from replay execution,
+  - no trust-classification split between diagnostics-only and replay-safe
+    data.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — event graph and deterministic handlers recheck
+
+- Re-read the event-graph contract against the current browser daemon snapshot
+  and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already emits meaningful outcomes:
+  - commands with names and payloads,
+  - checkpoints with stable state hashes,
+  - saves with schema/version metadata,
+  - user-facing toasts/status surfaces,
+  - input transitions in the bounded run record.
+- The missing layer is still the named event graph:
+  - no explicit versioned event envelope,
+  - no origin-domain ownership field in a shared event contract,
+  - no replayable vs diagnostics-only split,
+  - no deduplication/ordering policy as a first-class boundary.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — kernel ordering and mutable subsystem gates recheck
+
+- Re-read the kernel-ordering contract against the current browser daemon
+  snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime still proves the core kernel boundary:
+  - `src/game/state.ts` owns the fixed-step orchestration and canonical mutation
+    order,
+  - `src/game/renderer.ts` remains presentation-only,
+  - `src/main.ts` captures commands and routes user intent into the kernel,
+  - replay-sensitive state remains visible through the bounded run-record lane.
+- The missing layer is still the named gate table:
+  - no explicit subsystem read/write authority matrix,
+  - no replay-safe event emission point per mutable subsystem,
+  - no kernel-stage telemetry field,
+  - no documented renderer-only versus kernel-only enforcement surface.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — collision category and mask contract recheck
+
+- Re-read the collision-category contract against the current browser daemon
+  snapshot and live repo state.
+- Confirmed the live browser surface is still healthy and named
+  `Rigs Unbound — Field 02`, with zero console logs in the current daemon
+  snapshot.
+- Confirmed the runtime already has a real deterministic collision path:
+  - `src/game/collision.ts` resolves obstacle contact with role-aware tree vs
+    rock behavior,
+  - `src/game/state.ts` consumes that outcome after motion and applies the
+    consequences,
+  - the current obstacle model already distinguishes blocking, fellable, and
+    sliding responses.
+- The missing layer is still the explicit interaction matrix:
+  - no first-class category/mask table for ground, obstacle, hazard, trigger,
+    projectile, sensor, and decorative roles,
+  - no dedicated trigger/sensor contact semantics,
+  - no telemetry for unexpected or incompatible pairs,
+  - no documented fallback for unknown roles.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## 2026-07-25 — resource budget and fallback envelope recheck
+
+- Re-read the resource-budget contract against the current browser daemon
+  snapshot and live repo state.
+- Confirmed the live app is still `Rigs Unbound — Field 02`, and the browser
+  daemon is healthy with zero console logs in the current status snapshot.
+- Confirmed the runtime already exposes the measurement fields through
+  `PerformanceMonitor.snapshot()` and `window.getPerformanceSnapshot()`:
+  - frame timing,
+  - draw calls,
+  - triangle count,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - save size.
+- The missing layer is still the explicit fallback policy:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no test proving fallback before overload,
+  - no operator-visible summary naming the oversubscribed resource.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## 2026-07-25 — save and migration observability continuation
+
+- Continued the 3D-game analysis lane using the `3d-games` skill and re-read
+  the live persistence path before documenting anything new.
+- Confirmed the save spine is already durable:
+  - `src/game/storage.ts` uses versioned save keys and recovery branches.
+  - `src/main.ts` records save activity into the run record and exposes
+    `window.getRunRecordVerification()`.
+  - `src/game/run-record.ts` keeps checkpoint hashes and monotonic timing
+    checks.
+- Appended a new addendum to
+  `docs/research/SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md`
+  clarifying that the persistence lane is observable but still missing a named
+  reason-code / source-version envelope.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — capability contract formalization continuation
+
+- Extended the same 3D-game analysis pass into the capability-contract lane
+  from the execution roadmap.
+- Confirmed the runtime already composes capability claims from rig profiles and
+  fitted modules:
+  - `src/game/contracts.ts` holds the capability vocabulary and profile
+    composition.
+  - `src/game/state.ts` gates actions through `hasCapability(...)` and
+    `effectiveProfile(...)`.
+- Appended a new addendum to
+  `docs/research/CAPABILITY_CONTRACT_AND_ADAPTER_GUARDRAILS_2026-07-25.md`
+  clarifying that composition is live while adapter governance remains implicit.
+- Evidence depth: Tier 1 static inspection.
+- Runtime state during this note: browser daemon still healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — second locomotion continuity continuation
+
+- Continued the same analysis run into the second-locomotion-family contract.
+- Confirmed the runtime already has a real hover family:
+  - `src/game/contracts.ts` defines `marsh-skimmer` with `mobilityAdapter:
+    "hover"`.
+  - `src/game/state.ts` and `src/main.ts` route that family through the same
+    world, camera, save, and recovery spine.
+- Appended a new addendum to
+  `docs/research/SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md`
+  clarifying that the family is live while the explicit continuity proof remains
+  partial.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — authority model groundwork continuation
+
+- Continued the analysis run into the authority-model lane from the roadmap.
+- Rechecked the current runtime posture against the contract:
+  - `src/main.ts` still captures commands explicitly,
+  - `src/game/state.ts` still owns deterministic canonical mutation,
+  - `src/game/storage.ts` still recovers or replaces invalid local records
+    without treating them as truth.
+- Appended a new addendum to
+  `docs/research/AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md`
+  clarifying that local-first authority is the current mode, while the
+  shared-state/server-authoritative envelope remains future-gated.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — event graph / deterministic handlers continuation
+
+- Continued the analysis run into the event-graph lane from the roadmap.
+- Confirmed the runtime already records a meaningful history surface:
+  - `src/main.ts` records commands and checkpoints into the bounded run record,
+  - `src/game/run-record.ts` verifies monotonic timing and checkpoint hashes,
+  - the browser surface exposes both `window.getRunRecord()` and
+    `window.getRunRecordVerification()`.
+- Appended a new addendum to
+  `docs/research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md`
+  clarifying that command/checkpoint/save history is real while the event
+  envelope remains implicit.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — minimap and world-coordinate continuation
+
+- Continued the same analysis run into the minimap/world-coordinate lane.
+- Confirmed the current field map already acts as a real coordinate audit:
+  - `src/game/minimap.ts` samples canonical terrain once and reuses it for
+    surveyed reveal,
+  - the map uses `GameWorld.surveyedCells` plus world `x/z` coordinates for
+    sites, salvage, cargo, and the active rig,
+  - `src/main.ts` keeps the surveyed percentage visible in the HUD.
+- Appended a new addendum to
+  `docs/research/MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md`
+  clarifying that the map is already meaningful while the explicit
+  round-trip/world-frame contract remains partial.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — physics quality envelope continuation
+
+- Continued the 3D-game analysis run into the physics-quality lane from the
+  roadmap.
+- Rechecked the runtime and confirmed the physics layer is already observable
+  rather than opaque:
+  - `src/main.ts` renders condition, grip, slope/grade, stall, water-depth, and
+    mobility-family readouts in the HUD.
+  - `src/game/performance.ts` and `window.getPerformanceSnapshot()` expose the
+    measurement surface for frame timing, draw calls, triangles, heap use, load
+    duration, and first-controllable timing.
+- Appended a new addendum to
+  `docs/research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md`
+  clarifying that the physics signals are live while the formal stability
+  envelope remains implicit.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — shader and material strategy continuation
+
+- Continued the 3D-game analysis run into the shader/material lane from the
+  roadmap.
+- Rechecked the renderer and world data paths against the contract:
+  - `src/game/renderer.ts` already uses standard materials, vertex-color
+    terrain, phase-based fog/sky changes, and readability cues such as dust and
+    rust,
+  - `src/game/world.ts` and `src/game/terrain.ts` already supply the data-driven
+    surface identity that the renderer consumes.
+- Appended a new addendum to
+  `docs/research/SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md`
+  clarifying that the visual language is already real while the layered
+  material envelope remains implicit.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — lighting and atmosphere strategy continuation
+
+- Continued the same analysis run into the lighting/atmosphere lane from the
+  roadmap.
+- Rechecked the renderer and HUD against the contract:
+  - `src/game/renderer.ts` already stages a directional sun, hemisphere light,
+    phase-based fog/sky shifts, blob-shadows, and headlights for gloam/night,
+  - `src/main.ts` already exposes world phase in the HUD, so the lighting
+    posture is visible to the player.
+- Appended a new addendum to
+  `docs/research/LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md`
+  clarifying that the lighting strategy is live but still implicit rather than
+  contract-shaped.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — verification harness and confidence gates continuation
+
+- Continued the 3D-game analysis run into the verification-harness lane.
+- Rechecked the live proof surface against the contract:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.getRunRecordVerification()`
+  - the browser daemon is still healthy on the live field surface
+- Noted that fresh review-image assets already exist in the worktree, so the
+  harness now has real capture candidates rather than just policy text.
+- Appended a new addendum to
+  `docs/research/VERIFICATION_HARNESS_AND_CONFIDENCE_GATES_CONTRACT_2026-07-25.md`
+  clarifying that the proof surface is real while the canonical bundle and
+  confidence transition rule remain unnamed.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — renderer performance and accessibility smoke-test continuation
+
+- Continued the same analysis run into the renderer/performance/accessibility
+  smoke-test lane.
+- Rechecked the live evidence surface against the contract:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - `window.getCameraResolutionEvidence()`
+- Confirmed the browser entry point still keeps the accessibility shell intact
+  after intro dismissal and that the current daemon snapshot remains healthy on
+  `Rigs Unbound — Field 02`.
+- Appended a new addendum to
+  `docs/research/RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md`
+  clarifying that the smoke-test gate is observable while the packaged public
+  bundle is still missing.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — performance and readability baseline continuation
+
+- Continued the 3D-game analysis run into the umbrella performance/readability
+  baseline lane.
+- Rechecked the live runtime evidence behind the umbrella policy:
+  - culling and LOD are named and observable,
+  - camera modes and reduced-motion behavior are real,
+  - collision, lighting, shader/material, physics, and performance lanes already
+    have live evidence behind them,
+  - `window.getPerformanceSnapshot()`, `window.selectCamera()`, and
+    `window.render_game_to_text()` expose the pressure signals the baseline
+    would read.
+- Appended a new addendum to
+  `docs/research/PERFORMANCE_AND_READABILITY_BASELINE_CONTRACT_2026-07-25.md`
+  clarifying that the component contracts are real while the single umbrella
+  budget surface is still missing.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — runtime instrumentation KPI continuation
+
+- Continued the 3D-game analysis run into the runtime-instrumentation KPI lane.
+- Rechecked the live metrics surface behind the contract:
+  - `src/game/performance.ts` already exposes frame timing, draw calls,
+    triangle count, heap use, load duration, first-controllable time,
+    first-input-ready time, save size, and terrain build time,
+  - `src/main.ts` already forwards that snapshot into the live browser surface
+    and HUD summary.
+- Appended a new addendum to
+  `docs/research/RUNTIME_INSTRUMENTATION_KPIS_2026-07-25.md`
+  clarifying that the metrics are surfaced while the canonical comparison
+  bundle remains implicit.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — threshold fixture and capture-selection continuation
+
+- Continued the 3D-game analysis run into the threshold-fixture / capture-
+  selection lanes.
+- Rechecked the live runtime and the on-disk capture candidates against the
+  contract:
+  - `docs/reviews/assets/field-02-front-forward.png`
+  - `docs/reviews/assets/field-02-top-down.png`
+  - `docs/reviews/assets/rig-lab-01-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-narrow.png`
+- Appended new addenda to both
+  `docs/research/THRESHOLD_FIXTURE_BASELINE_2026-07-25.md` and
+  `docs/research/THRESHOLD_CAPTURE_SELECTION_PROTOCOL_2026-07-25.md`
+  clarifying that the fixture categories and selection table already match the
+  runtime, while the promoted comparison bundle is still missing.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+## 2026-07-25 — culling and LOD spike-test continuation
+
+- Continued the 3D-game analysis run into the culling/LOD spike-test lane.
+- Rechecked the live renderer evidence behind the contract:
+  - repeated props are instanced,
+  - prop rebuilds remain bounded to a local radius,
+  - some meshes intentionally disable automatic frustum culling for stable
+    presentation,
+  - `src/game/renderer.ts` and `src/main.ts` already expose draw-call,
+    triangle, and timing metrics plus text and performance snapshots.
+- Appended a new addendum to
+  `docs/research/CULLING_LOD_SPIKE_TESTS_2026-07-25.md`
+  clarifying that the visibility budget is real while the formal spike harness
+  and reusable proof bundle are still missing.
+- Evidence depth: Tier 1 static inspection plus live browser status check.
+- Runtime state during this note: browser daemon healthy, current title
+  `Rigs Unbound — Field 02`, console logs `0`.
+
+---WORKLOG APPEND---
+## 2026-07-25 — accessibility loading explicitness recheck
+
+- Re-checked the live Field 02 runtime with the accessibility-auditor lane.
+- The original keyboard/focus gap remains closed:
+  - `#game-canvas` is keyboard focusable,
+  - the skip link is present,
+  - dismissing the intro now lands focus on `canvas#game-canvas`,
+  - semantic landmarks are still present in the shell.
+- The remaining accessibility-adjacent question is startup explicitness:
+  - no explicit progress element,
+  - no visible `aria-busy` indicator in the current DOM snapshot,
+  - no public loading/profile percentage in the shell.
+- That makes the next improvement a loader/boot affordance question, not a basic keyboard-accessibility repair.
+
+## 2026-07-25 — asset-production import-proof recheck
+
+- Re-checked the live Field 02 runtime with the `3d-asset-production` lane.
+- The browser daemon still reports zero console logs and the active surface is
+  still `Rigs Unbound — Field 02`.
+- The manifest/preflight boundary is still the correct long-term asset gate:
+  - `assets/asset-manifest.json` remains the canonical registry,
+  - the runtime still separates source/provenance from runtime derivative,
+  - provenance and rights metadata remain part of the asset story.
+- The current runtime still does not consume an imported asset package in the
+  playable path:
+  - no GLB/texture/audio derivative is active yet,
+  - no runtime activation record exists for a validated asset key,
+  - the procedural terrain/prop path is still the live browser truth.
+- The next durable asset milestone remains a browser import and activation
+  proof, not a broader art import.
+
+## 2026-07-26 — capability-composition recheck
+
+- Re-checked the current source contract lane with the `3d-games` skill.
+- `src/game/contracts.ts` still shows the runtime is composition-first:
+  - `RigCapability` is a real domain type,
+  - `RIG_PROFILES` carries explicit capability arrays,
+  - `marsh-skimmer` remains a distinct hover-family profile.
+- The current gameplay boundary is still implicit governance, not a formal
+  adapter registry:
+  - capability admission is handled at runtime,
+  - failed actions still surface prose diagnostics,
+  - the next durable step is structured capability definitions plus explicit
+    reason codes.
+
+## 2026-07-26 — physics and collision policy recheck
+
+- Re-checked the live motion stack with the `3d-games` skill.
+- `src/game/terrain-traversal.ts` now makes the shared terrain-face refusal
+  explicit in code:
+  - swept support-edge probes reject discontinuous faces,
+  - the refusal returns `terrain-face`,
+  - ground and hover adapters use the same boundary with different support
+    thresholds.
+- `src/game/physics.ts` consumes that boundary as a real motion outcome field,
+  so the runtime already knows when a move was refused for terrain-face
+  reasons.
+- `src/game/collision.ts` still only needs the narrow obstacle roles the live
+  game uses today:
+  - trees can be felled,
+  - rocks block and slide,
+  - the field remains deterministic and role-aware.
+- The remaining gap is still policy surface, not raw behavior:
+  - no named physics envelope state,
+  - no first-class collision category/mask table,
+  - no trigger/sensor/projectile/hazard policy layer yet.
+
+## 2026-07-26 — lighting and atmosphere policy recheck
+
+- Re-checked the live renderer and HUD against the `3d-games` skill.
+- `src/game/renderer.ts` already drives lighting by world phase:
+  - directional sun and hemisphere light for the base model,
+  - day/gloam/night switching for sky colour, fog, and headlight intensity,
+  - blob shadows as the low-cost fallback posture.
+- `src/main.ts` already exposes the active world phase in the HUD, so lighting
+  context is visible to the player rather than only buried in renderer code.
+- The remaining gap is policy naming, not behavior:
+  - no tier matrix surfaced as contract data,
+  - no explicit operator/debug field naming the active lighting strategy,
+  - no formal rule for when atmosphere should simplify before readability is
+    at risk.
+
+## 2026-07-26 — world affordance resolution recheck
+
+- Re-checked the live world/capability surface with the `3d-games` skill.
+- `src/game/world.ts` still exposes real authored offers through site verbs and
+  workshop/service areas.
+- `src/game/state.ts` still resolves those offers through capability checks, so
+  the world/capability mismatch is not hypothetical.
+- The live runtime still emits a direct denial string rather than a structured
+  resolver record.
+- The remaining gap is the same one named in the contract:
+  - no legal / deferred / impossible outcome envelope,
+  - no structured mismatch telemetry,
+  - no shared resolver entry point for behavior and activities.
+
+## 2026-07-26 — replay artifact recheck
+
+- Re-checked the live replay lane with the `3d-games` skill and browser daemon.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The bounded record spine remains concrete:
+  - `schemaVersion`, `seed`, `startedAtMs`, `droppedEntries`,
+  - ordered command / input / checkpoint / save entries,
+  - checkpoint entries with stable tick hashes.
+- `verifyRunRecord()` still passes in the live snapshot, so the record is
+  useful as an internal audit and validation log.
+- The remaining gap is unchanged:
+  - no exposed playback path,
+  - no ghost/share compatibility envelope,
+  - no divergence report,
+  - no diagnostics-vs-replay-safe trust split.
+
+## 2026-07-26 — event graph recheck
+
+- Re-checked the current command/checkpoint/toast/save flow with the
+  `3d-games` skill.
+- `src/main.ts` still routes outcomes through local command and toast/status
+  paths, while `src/game/run-record.ts` keeps the bounded history verifiable.
+- That makes the current flow useful for observability and internal validation,
+  but still not a first-class shared event graph.
+- The remaining gap is unchanged:
+  - no versioned shared event envelope,
+  - no origin-domain ownership field,
+  - no replayable vs diagnostics-only split on the event surface,
+  - no explicit deduplication / ordering policy as a contract.
+
+## 2026-07-26 — kernel ordering recheck
+
+- Re-checked the live orchestration boundary with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The kernel boundary is still the real source of truth:
+  - `src/game/state.ts` owns the fixed-step orchestration and canonical
+    mutation order,
+  - `src/game/renderer.ts` remains presentation-only,
+  - `src/main.ts` captures commands and routes intent into the kernel,
+  - run-record capture keeps replay-sensitive history visible.
+- The remaining gap is policy naming, not kernel behavior:
+  - no ordered subsystem authority table,
+  - no explicit replay-safe event emission point per mutable subsystem,
+  - no kernel-stage telemetry field exposed as a first-class boundary,
+  - no documented enforcement surface for renderer-only versus kernel-only
+    responsibilities.
+
+## 2026-07-26 — save and migration observability recheck
+
+- Re-checked the live persistence lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- `src/main.ts` now keeps the HUD save status truthful across fresh/restored/
+  migrated/recovered paths, and the persist path still records saves into the
+  bounded run record.
+- `src/game/storage.ts` still owns the actual load/save branching:
+  - versioned keys,
+  - migration from older save records,
+  - clean replacement for incompatible payloads.
+- The remaining gap is still the same contract layer:
+  - no structured save/load reason-code field,
+  - no versioned persistence-event schema,
+  - no source-version metadata as a first-class event field,
+  - no operator summary separate from the status string and toast.
+
+## 2026-07-26 — RU-0110 B5–B12 implementation and acceptance
+
+### Scope completed
+
+- Replaced hardcoded hood framing with named Torque/Spark/Drift camera sockets.
+- Added one solver-independent camera scene query across terrain, procedural
+  obstacles, felled memory, and typed authored Home structures.
+- Added immediate camera pull-in, slower recovery, post-smoothing revalidation,
+  fallback framing, and mesh-envelope self-intersection evidence.
+- Added canonical three-rig Home berths and schema-v6 persistence.
+- Added selective v5 migration: only pristine inactive legacy Drift state moves;
+  any moved/used/attached player state is preserved.
+- Added one swept terrain-face boundary shared by ground and hover adapters,
+  including at-rest footprint refusal, high-speed sweep, semantic reason, and
+  downhill/reverse escape.
+- Removed artificial minimum hover authority on extreme grades.
+- Added a pure semantic primary-action resolver consumed by mutation, desktop
+  labels, touch labels, aria labels, and browser automation.
+- Split public/player persistence status from developer fps/draw-call/heap
+  diagnostics; hid Physics Lab navigation on the default player surface while
+  retaining explicit developer/evidence surfaces and direct routes.
+- Hardened the browser harness with query-gated fixtures, deterministic manual
+  stepping, readiness-function navigation, bounded failure cleanup, and
+  active-rig assertions before captures.
+
+### Verification evidence
+
+- `npm run format:check` — passed.
+- `npm test` — 12 files / 125 root tests passed.
+- `npm run test:kernel-probe` — seven tests passed.
+- `npm run build` — passed after typecheck; known advisory remains for the
+  minified Three.js chunk above 500 kB.
+- Field 02 browser acceptance on `4173` — exit code 0, zero captured
+  console/page errors.
+- Rebuilt production-preview acceptance on `4174` — exit code 0, zero captured
+  console/page errors.
+- Both browser runs covered player/developer surface boundaries, fresh
+  Torque→Spark→Drift proximity acquisition, Home/tree/hood camera resolution,
+  three real-terrain face fixtures plus downhill escape, first salvage, cargo
+  relay, ramp, deep-water hover, save/reload, keyboard/mouse/touch recovery,
+  reduced motion, six views, and `390×844` layout.
+- Detailed evidence and caveats:
+  `docs/reviews/RU_0110_ACCEPTANCE_2026-07-26.md`.
+
+### Three-pass review
+
+1. **Immediate correctness/completeness:** every B5–B12 finding has a current
+   disposition, code path, automated check, and browser evidence. Contradicted
+   earlier hood captures remain preserved; validated replacements assert active
+   rig identity.
+2. **Architecture/long-term viability:** rig identity is dependency-free;
+   authored berths/structures have one world-data source; camera and terrain
+   queries are solver-independent; ground/hover feel remains adapter-owned;
+   action semantics are resolved once rather than copied into UI.
+3. **Rule compliance/supervision readiness:** docs, ADRs, exploration map,
+   tracker, review artifact, tests, browser evidence, and acceptance caveats are
+   synchronized. No duplicate route, renderer-owned world truth, hidden failure,
+   or AI co-author attribution was introduced.
+
+### Value delivered
+
+- **Player value:** every advertised rig is reachable immediately; cameras stay
+  readable around structures/trees and inside each rig; impossible faces behave
+  consistently; controls say what they will do; public HUD is less confusing.
+- **Team/project value:** later rigs, GLBs, solvers, activities, and public builds
+  reuse typed ports instead of accumulating rig-name patches.
+- **Operational value:** migrations preserve player history, acceptance evidence
+  identifies exact sources/reasons, developer diagnostics stay available without
+  leaking into player presentation, and browser runs terminate predictably.
+
+### Remaining non-blocking hardening
+
+- Clean representative-device performance capture without concurrent
+  trailer/browser-daemon GPU load.
+- Structured event/reason schemas for action, traversal, and persistence before
+  replay/network authority.
+- Product decision on compiling acceptance mutation hooks out of public
+  production bundles.
+- New uncontaminated external-player session for comprehension and feel.
+
+## 2026-07-26 — resource budget and fallback recheck
+
+- Re-checked the live performance lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- `src/game/performance.ts` still exposes a rich measurement envelope:
+  - frame timing,
+  - p95 / average frame times,
+  - FPS,
+  - draw calls,
+  - triangles,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - save bytes and last save duration.
+- `src/main.ts` continues to surface those metrics through the developer/evidence
+  readout and `window.getPerformanceSnapshot()`.
+- The remaining gap is still policy, not measurement:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no test proving fallback activates before overload,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that caused the fallback.
+
+## 2026-07-26 — authoring validation recheck
+
+- Re-checked the live content-admission lane with the `3d-asset-production`
+  skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The repo already has a real asset-specific validation spine:
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, path safety, and
+    missing dependencies,
+  - all candidate runtime paths remain out of the playable path until proof
+    exists.
+- The remaining gap is the general authoring envelope:
+  - no versioned content-manifest schema for activities or world modules,
+  - no reproducible validation-result artifact for broader authored content,
+  - no clean validation-only/runtime-ready/deprecated status signal across the
+    general content surface,
+  - no reusable authoring contract covering imported, edited, or generated
+    content beyond the asset slice.
+
+## 2026-07-26 — world scalability recheck
+
+- Re-checked the live world-memory lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- `src/game/gameworld.ts` still models growth as bounded memory sets plus
+  terrain deformation:
+  - `felledObstacles`
+  - `collectedNodes`
+  - `surveyedCells`
+  - terrain deformation entries
+- `snapshot()` and `restore()` keep that memory replayable and recoverable
+  through the save system.
+- The remaining gap is still the scalability envelope, not the local memory
+  substrate:
+  - no chunk or region lifecycle policy,
+  - no load/unload radius rules,
+  - no growth-pressure observability,
+  - no pack activation rollback policy,
+  - no future shared-state readiness boundary beyond documentation.
+
+## 2026-07-26 — ECS readiness recheck
+
+- Re-checked the live composition lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The codebase still expresses composition directly rather than through ECS:
+  - `src/game/contracts.ts` composes installed modules onto immutable rig
+    blueprints,
+  - `src/game/state.ts` keeps rigs, modules, and world state explicit,
+  - `src/game/gameworld.ts` keeps world memory as bounded sets and snapshots.
+- The live scale remains compact, so there is still no measured pressure that
+  justifies an ECS migration threshold.
+- The remaining gap is still the threshold contract:
+  - no quantified actor-count or coupling trigger,
+  - no canonical multi-capability composition schema beyond the current rig
+    model,
+  - no migration proof that preserves identity through a component-model
+    change,
+  - no explicit statement that ECS should serve the machine-centric model
+    rather than replace it.
+
+## 2026-07-26 — camera policy recheck
+
+- Re-checked the live camera lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The camera system is still doing real gameplay work:
+  - named modes remain exposed in `src/game/contracts.ts`,
+  - `src/main.ts` routes mode selection through commands and checkpoints,
+  - `src/game/renderer.ts` resolves obstruction pull-in and speed FOV,
+  - reduced-motion clamping remains active in the feedback path,
+  - `getCameraResolutionEvidence()` exposes active camera-resolution evidence.
+- The remaining gap is still the named policy layer:
+  - no camera-policy schema,
+  - no explicit transition reason table,
+  - no operator-visible camera-policy summary field,
+  - no separate persistent camera-policy artifact beyond the save-state camera
+    mode.
+
+## 2026-07-26 — visibility and LOD recheck
+
+- Re-checked the live visibility lane with the `3d-games` skill.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The current renderer still behaves like a deliberate first-pass visibility
+  budget:
+  - terrain remains a single mesh derived from the height field,
+  - trees, rocks, felled trunks, salvage, and furrows remain instanced,
+  - prop rebuilds are still radius-bounded around the rig,
+  - presentation pieces such as the sky and dust still opt out of default
+    frustum culling when stability matters more than a formal visibility graph,
+  - performance hooks still expose draw calls, triangles, and frame timing.
+- The remaining gap is still the named policy surface:
+  - no visible/local-radius/distant-sim tier matrix,
+  - no counters for missed-cull pressure or residency churn,
+  - no regression test proving a downgrade tier stays readable rather than
+    disappearing into undefined behavior.
+
+## 2026-07-26 — shader/material strategy recheck
+
+- Re-checked the live shader/material lane with the `3d-games` skill and a live
+  browser snapshot.
+- The runtime is still healthy on `Rigs Unbound — Field 02`, with zero console
+  logs in the current daemon snapshot.
+- The active material path is still deliberately simple and readable:
+  - `src/game/renderer.ts` uses `THREE.MeshStandardMaterial`,
+  - terrain uses vertex colors instead of a bespoke layered shader stack,
+  - repeated terrain props remain instanced,
+  - `src/game/world.ts` and `src/game/terrain.ts` still supply the visual
+    vocabulary through data-driven surface, biome, and site definitions.
+- The current browser snapshot confirms the field is legible, but the contract
+  is still implicit:
+  - no layered material schema,
+  - no modifier versioning for weather/wear/hazard cues,
+  - no operator-visible material-strategy flag.
+- The next exploration question is whether the first formal material contract
+  should start from terrain transitions, weather feedback, or surface wear.

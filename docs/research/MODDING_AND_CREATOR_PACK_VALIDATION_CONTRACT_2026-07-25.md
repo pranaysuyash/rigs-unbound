@@ -153,3 +153,27 @@ shadow runtime.
   surface instead of collapsing local creator growth into a live public channel.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same local-only pack boundary
+
+- Re-checked the modding contract against the current browser daemon and live
+  Field 02 runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The current runtime still supports the data-driven posture this contract
+  depends on:
+  - rig capability definitions live in `src/game/contracts.ts`,
+  - authored world anchors and sites live in `src/game/world.ts`,
+  - save/load validation and migration keep local content recoverable.
+- That means the runtime already has the right substrate for creator packs.
+- What is still missing is the pack lifecycle itself:
+  - no versioned pack manifest in the playable path,
+  - no explicit dependency graph for packs,
+  - no staged publication or moderation workflow,
+  - no public creator-discovery surface,
+  - no live runtime boundary that would let packs become a second authority
+    surface.
+- So the modding lane is still correctly future-gated: local data-first content
+  is real now, but public creator packs remain a separate envelope rather than
+  an active runtime feature.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

@@ -170,3 +170,27 @@ It answers the open comparison questions in the KPI and rendering-economy notes 
   - no reusable operator note set tied to the threshold states.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - the fixture set is still right, and the worktree now has real capture candidates
+
+- The current worktree contains fresh review-image assets that can serve as
+  capture candidates for the baseline bundle, including:
+  - `docs/reviews/assets/field-02-front-forward.png`
+  - `docs/reviews/assets/field-02-top-down.png`
+  - `docs/reviews/assets/rig-lab-01-desktop.png`
+  - `docs/reviews/assets/rig-lab-01-narrow.png`
+- Those assets make the baseline more concrete, but they still are not a
+  canonical promoted bundle by themselves.
+- The fixture categories still match the live runtime shape:
+  - near-field dense scene for readable play,
+  - occluded / hidden scene for culling checks,
+  - distance-gradient scene for LOD checks,
+  - pressure scene for fallback order,
+  - reduced-motion comparison scene for accessibility parity.
+- What is still missing is the packaged long-term capture bundle:
+  - one promoted representative capture per fixture,
+  - one metrics capture tied to each promoted frame,
+  - one reusable operator note / threshold-state summary per capture.
+- So the baseline is now backed by real on-disk captures, but it still needs the
+  promotion step before it becomes the long-term comparison library the note
+  describes.

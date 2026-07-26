@@ -131,3 +131,58 @@ The engine can already tell us when it is getting expensive. This contract makes
   officially choose a fallback path from a budget contract.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - budgets are measured, fallback policy is still implicit
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live app is still `Rigs Unbound — Field 02`, and the browser daemon is
+  healthy with zero console logs in the current status snapshot.
+- The runtime already exposes the relevant measurement fields through
+  `PerformanceMonitor.snapshot()` and `window.getPerformanceSnapshot()`:
+  - frame timing,
+  - draw calls,
+  - triangle count,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - save size.
+- `src/main.ts` wires those metrics into the browser surface, so resource
+  pressure is visible today.
+- What is still missing is the actual envelope policy:
+  - one cross-system budget ledger,
+  - one explicit low-budget fallback profile,
+  - one test proving fallback happens before overload,
+  - one operator-visible summary naming the oversubscribed resource,
+  - one summary field naming the subsystem that triggered fallback.
+- In other words: the project can already observe expense, but it still cannot
+  officially choose a fallback path from a budget contract.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.
+
+## Addendum (2026-07-26) - live metrics are rich, but fallback is still only a policy gap
+
+- Re-checked the live browser daemon and the current performance wiring.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- `src/game/performance.ts` still exposes a solid measurement envelope:
+  - frame timing,
+  - p95 / average frame times,
+  - FPS,
+  - draw calls,
+  - triangles,
+  - heap use,
+  - load duration,
+  - first-controllable time,
+  - save bytes and last save duration.
+- `src/main.ts` continues to surface those metrics through the developer/evidence
+  readout and the public `window.getPerformanceSnapshot()` hook.
+- That means the budget pressure is measurable and visible today.
+- The missing layer is still the same contract boundary:
+  - no cross-system budget ledger,
+  - no explicit low-budget fallback profile,
+  - no test proving fallback activates before overload,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that caused the fallback.
+- So the runtime can already tell us when it is getting expensive, but it still
+  cannot name the fallback path as a first-class policy envelope.

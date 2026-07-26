@@ -106,3 +106,47 @@ The smallest durable proof for this contract is:
 
 The kernel is already the game’s source of truth. This contract makes that rule
 explicit so future mutable systems stay auditable and replay-safe.
+
+## Addendum (2026-07-25) - the kernel order is real, but the gate table is still implicit
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime still proves the core kernel boundary:
+  - `src/game/state.ts` owns the fixed-step orchestration and canonical mutation
+    order,
+  - `src/game/renderer.ts` remains presentation-only,
+  - `src/main.ts` captures commands and routes user intent into the kernel,
+  - replay-sensitive state remains visible through the bounded run-record lane.
+- That means the game already has a real source-of-truth kernel.
+- What is still missing is the named gate table the contract calls for:
+  - no explicit subsystem read/write authority matrix,
+  - no replay-safe event emission point per mutable subsystem,
+  - no kernel-stage telemetry field exposed as a first-class boundary,
+  - no documented renderer-only versus kernel-only enforcement surface.
+- So the kernel is deterministic today, but the ordering contract is still
+  mostly embodied in code shape and comments rather than an explicit gate table.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-26) - kernel ordering remains authoritative, but the gate surface is still not a named policy
+
+- Re-checked the live browser daemon and the current orchestration code.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The kernel boundary is still the real source of truth:
+  - `src/game/state.ts` owns the fixed-step orchestration and canonical mutation
+    order,
+  - `src/game/renderer.ts` remains presentation-only,
+  - `src/main.ts` captures commands and routes intent into the kernel,
+  - run-record capture keeps replay-sensitive history visible.
+- That makes the kernel order strong and explicit in the codebase.
+- What is still missing is the policy layer named by the contract:
+  - no ordered subsystem authority table,
+  - no explicit replay-safe event emission point per mutable subsystem,
+  - no kernel-stage telemetry field exposed as a first-class boundary,
+  - no documented enforcement surface for renderer-only versus kernel-only
+    responsibilities.
+- So the current state remains the right one for a first-playable game, but the
+  gate surface itself is still implicit rather than a named contract artifact.

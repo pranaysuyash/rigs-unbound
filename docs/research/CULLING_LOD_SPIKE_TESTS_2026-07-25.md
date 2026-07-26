@@ -143,3 +143,56 @@ It is intentionally narrow: it exists so the culling/LOD proof can be added with
   - one repeatable metrics/capture bundle tied to those scenes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - the visibility budget is real, and the fixture set still needs a promoted bundle
+
+- The live runtime already proves the culling/LOD lane is not hypothetical:
+  - repeated props are instanced,
+  - prop rebuilds stay bounded to a local radius,
+  - some meshes intentionally disable automatic frustum culling for stable
+    presentation,
+  - current browser metrics remain compact enough to support the scene.
+- `src/game/renderer.ts` and `src/main.ts` already expose the render-path
+  evidence the spike tests would read:
+  - draw calls,
+  - triangles,
+  - first-controllable timing,
+  - first-input-ready timing,
+  - `window.render_game_to_text()`,
+  - `window.getPerformanceSnapshot()`.
+- The browser daemon remains healthy on the live field surface, so the spike
+  lane is grounded in the current runtime rather than in a stale note.
+- The gap is still the same one, even with fresh capture candidates existing in
+  the worktree:
+  - no formal culling/LOD spike harness,
+  - no reusable proof set promoted for the near-field, occluded, distance-
+    gradient, and pressure scenes,
+  - no repeatable metrics/capture bundle tied to those scenes as the canonical
+    comparison artifact.
+- So the contract remains correctly staged as a formalization target: the
+  renderer has a real visibility budget now, but the reusable proof package is
+  still the missing layer.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same formal spike-harness gap
+
+- Re-checked the culling/LOD spike-test note against the current browser daemon.
+- The live browser surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The current renderer posture still matches the note’s premise:
+  - repeated props are instanced,
+  - prop rebuilds are bounded to a local radius,
+  - some meshes deliberately disable automatic frustum culling for stable
+    presentation,
+  - draw-call and triangle counts remain compact enough for the current scene.
+- That means the current runtime already proves a real visibility budget exists,
+  but it still does not provide the formal proof package the spike tests ask for.
+- The missing layer remains the same:
+  - one deterministic near-field scene,
+  - one occluded/hidden scene,
+  - one distance-gradient scene,
+  - one pressure scene,
+  - one repeatable metrics/capture bundle bound to those scenes.
+- So the culling/LOD lane is still a formalization target, not a finished spike
+  harness.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

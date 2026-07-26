@@ -211,3 +211,23 @@ Before public persistence or payment:
   boundary, not a live pack-publication service.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-25) - fresh route check, no live share/public object family yet
+
+- Re-checked the decision against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- A live source search of the codebase did not reveal any `src/` share/public
+  object route family that would make the proposed URL shapes live today.
+- That means the four canonical public object types remain decision-level
+  objects, not runtime routes:
+  - vehicle blueprint/version,
+  - world recipe/version/seed,
+  - challenge/version,
+  - replay/run record.
+- The repo is still correctly treating public evidence as future-facing: no
+  publication workflow, no moderation queue, and no canonical share route family
+  are active in the playable path yet.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  repo search inspection.

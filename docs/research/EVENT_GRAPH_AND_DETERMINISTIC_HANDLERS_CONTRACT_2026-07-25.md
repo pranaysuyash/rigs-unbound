@@ -116,3 +116,64 @@ The game already has meaningful outcomes and records. This contract makes those 
 - The current command/checkpoint/save flow should therefore be treated as the
   staging surface for a future event graph, not as proof that the event graph
   contract already exists.
+
+## Addendum (2026-07-25) - existing outcomes are real, but the event graph is still implicit
+
+- Re-checked the contract against the current browser daemon snapshot and live
+  repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already emits meaningful outcomes through existing command and UI
+  paths:
+  - commands are recorded with names and payloads,
+  - checkpoints capture stable state hashes,
+  - saves carry schema/version metadata,
+  - user-facing toasts/status surfaces report outcomes,
+  - input transitions are preserved in the bounded run record.
+- That proves the app is observable and replay-adjacent.
+- What is still missing is the named event graph itself:
+  - no explicit versioned event envelope,
+  - no origin-domain ownership field in a shared event contract,
+  - no explicit replayable vs diagnostics-only split for events,
+  - no deduplication/ordering policy exposed as a first-class boundary.
+- So the contract remains correctly staged: observed outcomes first, explicit
+  event graph later.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-25) - command/checkpoint/save history is real, but the envelope is still not first-class
+
+- `src/main.ts` still records commands and checkpoints into the bounded run
+  record.
+- `src/game/run-record.ts` still keeps the record verifiable with monotonic
+  timing and checkpoint hashes.
+- The live browser surface still exposes the run-record verifier and
+  performance snapshot, which means the app already has a measurable event-like
+  history.
+- What remains missing is the explicit shared event envelope the contract calls
+  for:
+  - version,
+  - kind,
+  - origin-domain ownership,
+  - replayable vs diagnostics-only classification,
+  - ordering/deduplication policy as a named contract.
+- So the existing record flow should continue to be treated as the proof base
+  for a future event graph, not as a substitute for one.
+
+## Addendum (2026-07-26) - the observed flow is still command-local, not a shared event graph
+
+- Re-checked the live browser daemon and the current source wiring.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- `src/main.ts` still routes outcomes through local command and toast/status
+  paths, while `src/game/run-record.ts` keeps the bounded history verifiable.
+- That makes the current flow strong enough for observability and internal
+  validation, but still not a first-class shared event graph.
+- What is still missing is unchanged:
+  - no versioned shared event envelope,
+  - no origin-domain ownership field,
+  - no replayable/diagnostics-only split on the event surface,
+  - no explicit deduplication / ordering policy exposed as a contract.
+- So the correct reading remains: the app already has meaningful outcomes and
+  records, but the event graph is still implicit in local command flow rather
+  than formalized as a reusable handler boundary.

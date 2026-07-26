@@ -104,3 +104,56 @@ The current visuals are already readable enough to support a first playable.
 This contract makes the next layer explicit so richer weather, wear, and hazard
 language can be added without collapsing readability or spawning ad hoc shader
 special cases.
+
+## Addendum (2026-07-25) - The renderer already has a visual language, but not a named material envelope
+
+- `src/game/renderer.ts` already shows a real material strategy in the live
+  runtime:
+  - standard materials and vertex-color terrain carry the core look,
+  - fog, sun color, and sky state change by phase,
+  - dust, rust, wetness, and visibility cues are already represented through
+    existing rendering code,
+  - the terrain mesh and props are readable without a custom shader stack.
+- `src/game/world.ts` and `src/game/terrain.ts` already provide the data basis
+  for that look:
+  - terrain surfaces vary by biome,
+  - surface identity and color are data-driven,
+  - ground state and terrain transitions already affect what the scene reads
+    like.
+- The live browser surface and current play session therefore prove the render
+  lane is usable today, but the contract is still implicit rather than formal:
+  - no layered material schema,
+  - no versioned modifier vocabulary,
+  - no explicit fallback marker for when a richer shader path is unavailable,
+  - no operator-visible strategy flag naming the active material mode.
+- The correct reading is that the renderer already has a strong, first-playable
+  visual language; this contract exists to prevent future weather/wear/hazard
+  richness from splintering that language into one-off forks.
+
+## Addendum (2026-07-26) - The material path is still standard-material based, but the visual contract is real
+
+- Re-checked the live browser surface on `Rigs Unbound — Field 02`; the
+  browser daemon is healthy and the current console buffer is still empty.
+- `src/game/renderer.ts` confirms the active material path is still a simple,
+  readable baseline:
+  - `material()` returns `THREE.MeshStandardMaterial`,
+  - the terrain mesh uses vertex colors rather than a layered shader stack,
+  - repeated world pieces are still instanced rather than individually shaded,
+  - the renderer keeps its attention on readability and cost control instead of
+    bespoke per-surface shader forks.
+- `src/game/world.ts` and `src/game/terrain.ts` still supply the actual visual
+  vocabulary:
+  - surfaces are authored as data,
+  - surface grip, drag, deformability, and color already differ by terrain
+    family,
+  - biome and site data already steer what the scene looks like.
+- The live `render_game_to_text()` snapshot shows the same thing in runtime
+  terms:
+  - the field is readable,
+  - the terrain language is encoded through data and lighting,
+  - the current path has no explicit layered-material schema, no modifier
+    versioning, and no operator-visible strategy flag.
+- That means the correct next step is not “add more shaders everywhere.”
+  The correct step is to formalize the current baseline into a named
+  material/modifier contract so weather, wear, and hazard cues can grow without
+  splitting the renderer into special-case branches.

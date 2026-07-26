@@ -60,24 +60,27 @@ documentation must all agree.
   - Evidence: both development ports returned HTTP 200; seven parallel
     research/worklog files and four review captures were classified as
     uncommitted project work and left untouched.
-- [-] **RU-0110.2 — Reproduce and disposition B5–B12 with trustworthy
+- [x] **RU-0110.2 — Reproduce and disposition B5–B12 with trustworthy
   evidence.**
-  - B5 and B9 are reproduced: the hood pose intersects Torque geometry and the
-    fresh chase boom crosses the Home Silo gantry.
+  - B5 and B9 were reproduced: the old hood pose intersected Torque geometry
+    and the fresh chase boom crossed the Home Silo structure. The old spawn's
+    exact nearest hit was `home-silo-body`, correcting the earlier gantry-only
+    attribution; the canonical v6 Home berth now resolves
+    `home-barn-roof`.
   - B6 is reproduced as two gaps: first-session Drift acquisition is hidden
     logistics, while extreme terrain-face penetration affects all mobility
     adapters.
   - B7's prior stuck-lab symptom is not currently reproduced; direct lab boot
     works. The player/developer navigation defect remains.
   - B8, B11, and B12 are reproduced from the public HUD.
-  - Evidence correction: the current Toy Buggy and Marsh Skimmer hood captures
-    do not show their named active rigs. Supersede them only after asserting the
-    switch result; retain the contradicted captures as flagged audit evidence
-    until their artifact disposition is approved.
+  - Evidence correction: the earlier Toy Buggy and Marsh Skimmer hood captures
+    do not show their named active rigs. They remain preserved as contradicted
+    audit evidence; the `ru-0110/*-hood-after.png` replacements assert the
+    active rig before capture.
   - Closure: one baseline matrix records reproduced, not-reproduced, or
     superseded status for every B5–B12 item, with valid captures where a visual
     claim matters.
-- [ ] **RU-0110.3 — Introduce one canonical scene/camera obstruction query.**
+- [x] **RU-0110.3 — Introduce one canonical scene/camera obstruction query.**
   - Add a solver-independent swept camera query with typed nearest-hit evidence
     (`terrain`, procedural obstacle, or authored structure plus object ID and
     hit fraction).
@@ -88,7 +91,10 @@ documentation must all agree.
   - Closure: focused tests cover clear segments, terrain, tree crowns, felled
     trees, authored gantry, tangent clearance, nearest-hit selection, and
     deterministic output.
-- [ ] **RU-0110.4 — Replace B5's hardcoded hood pose with rig-owned camera
+  - Evidence: `scene-query.ts` composes terrain, procedural obstacles, felled
+    world memory, and typed authored structures without importing Three.js;
+    seven focused tests plus the full 116-test root suite pass.
+- [x] **RU-0110.4 — Replace B5's hardcoded hood pose with rig-owned camera
   sockets.**
   - Author a named hood/cockpit socket for Torque, Spark, and Drift on each
     rendered rig; keep the contract compatible with later GLB node mounts.
@@ -97,15 +103,25 @@ documentation must all agree.
   - Closure: all three sockets resolve outside their visual envelopes;
     per-rig browser checks report no self-intersection on desktop and narrow
     viewports.
-- [ ] **RU-0110.5 — Resolve B9/B10 chase-camera obstruction without spawn
+  - Evidence: typed Torque/Spark/Drift mounts feed named renderer sockets;
+    browser evidence reports clear paths and no self-intersection for all three
+    rigs, with validated replacement captures under `docs/reviews/assets/ru-0110/`.
+- [x] **RU-0110.5 — Resolve B9/B10 chase-camera obstruction without spawn
   hacks.**
   - Use the canonical query for immediate inward avoidance, slower outward
     recovery, a near-plane-safe margin, and post-smoothing revalidation.
   - Keep top-down/tactical cost bounded where full prop queries add no value.
-  - Closure: fresh spawn clears the Home Silo gantry; a deterministic standing
+  - Closure: fresh spawn clears the Home Silo structure; a deterministic standing
     tree shortens the boom; felling/clearing it restores the boom without
     oscillation or console errors.
-- [ ] **RU-0110.6 — Create canonical, non-overlapping starting-rig berths.**
+  - Evidence: canonical v6 fresh spawn reports nearest hit
+    `home-barn-roof`, resolves from 12.996 m to 5.484 m, then revalidates
+    clear. The acceptance-only
+    `?acceptance=field-02` fixture finds a real isolated procedural tree,
+    observes obstacle pull-in, records the canonical felled-world mutation,
+    and observes clear outward recovery. Port 4173 completed with exit code 0
+    and zero captured console/page errors.
+- [x] **RU-0110.6 — Create canonical, non-overlapping starting-rig berths.**
   - Keep spatial switching. Until an explicit claim/unlock mission exists,
     place every advertised starting rig at distinct Home Silo service berths
     that form a real proximity chain.
@@ -116,7 +132,11 @@ documentation must all agree.
   - Closure: a fresh player acquires Torque→Spark→Drift without test
     teleportation; berths are dry, stable, non-overlapping, and recovery-safe;
     migration and round-trip tests pass.
-- [ ] **RU-0110.7 — Add one shared swept terrain traversability boundary.**
+  - Evidence: dependency-free rig IDs feed typed world berth records reused by
+    fresh state and emergency recovery. Schema v6 reads v5 first, relocates
+    only pristine inactive legacy Drift state, and preserves moved/used/attached
+    rigs. Focused state/storage tests and fresh browser acquisition pass.
+- [x] **RU-0110.7 — Add one shared swept terrain traversability boundary.**
   - Treat the observed cliff penetration as a shared substrate defect, not a
     Drift speed tweak. Add deterministic support-rise/face checks with
     adapter-owned wheel-contact and hover-skirt envelopes.
@@ -125,14 +145,26 @@ documentation must all agree.
   - Closure: Torque, Spark, and Drift cannot penetrate or launch up the seeded
     extreme face at rest or run-up speed; normal grades, water traversal,
     towing, deformation, and deterministic replay remain valid.
-- [ ] **RU-0110.8 — Establish an explicit player/developer surface boundary.**
+  - Evidence: one solver-independent leading-edge/footprint sweep is consumed
+    by ground and hover adapters; five focused tests cover all rigs, high-speed
+    tunnelling, normal grades, and downhill escape. The final 125-test root suite and
+    seven kernel tests pass. A deterministic real-terrain browser fixture
+    reaches the semantic `terrain-face` refusal for each adapter under
+    acceptance-only manual stepping; final all-flow capture is tracked in
+    RU-0110.10.
+- [x] **RU-0110.8 — Establish an explicit player/developer surface boundary.**
   - Default player mode hides Physics Lab navigation and runtime
     fps/draw-call/heap diagnostics while keeping direct lab routes available.
   - One explicit developer/evidence surface reveals diagnostics and lab
     navigation for agents and operators.
   - Closure: query/mode behavior is tested; player and developer screenshots
     agree with the contract; direct lab routes still boot with zero errors.
-- [ ] **RU-0110.9 — Make actions and persistence language contextual.**
+  - Evidence: default player mode hides Physics Lab and runtime metrics;
+    `?surface=developer` and `?acceptance=field-02` expose both. The player save
+    line reports literal new/restored/migrated/saved-local state. Both 4173 and
+    rebuilt 4174 browser runs passed default/developer assertions with zero
+    console/page errors.
+- [x] **RU-0110.9 — Make actions and persistence language contextual.**
   - Introduce one pure primary-action resolver used by both mutation and UI so
     desktop, touch, prompts, and automation cannot drift.
   - Label the current rig's action, blade availability, recovery, and world
@@ -143,7 +175,13 @@ documentation must all agree.
     best-time system.
   - Closure: keyboard, pointer, real-touch, aria-label, narrow-layout, and save
     messaging tests pass.
-- [ ] **RU-0110.10 — Run the complete risk-matched acceptance matrix.**
+  - Evidence: a pure semantic primary-action resolver drives mutation,
+    desktop text, touch text, and aria labels; blade and recovery labels expose
+    capability/state instead of generic verbs. Focused tests plus both full
+    browser runs cover keyboard, mouse, real touch, save/reload, and the
+    `390×844` layout; visible labels include `Lower blade`, `Blade: cut`, and
+    `No winch`.
+- [x] **RU-0110.10 — Run the complete risk-matched acceptance matrix.**
   - Unit: scene query, camera mounts, terrain traversal, action resolver, save
     migration, and recovery.
   - Integration: typecheck, complete root suite, deterministic kernel suite,
@@ -151,11 +189,19 @@ documentation must all agree.
   - Browser: ports 4173 and rebuilt 4174; desktop and 390×844; fresh profile,
     real proximity acquisition, every hood camera, spawn/prop obstruction,
     developer boundary, persistence, and zero console/page errors.
-  - Harness lifecycle: a completed acceptance report must close its browser and
-    terminate with exit code 0 inside a bounded deadline. The 2026-07-26
-    pre-commit recheck produced complete reports but left three Node harness
-    processes running; fix and regression-test that shutdown path before this
-    gate closes.
+  - Harness lifecycle: deterministic runs default headless, close their context,
+    and previously exited code 0 on both ports. Acceptance-only manual stepping
+    now prevents wall-clock frames racing scripted terrain fixtures. The latest
+    complete-flow rerun reached all gameplay gates but one screenshot timed out
+    while a separate long-running trailer capture and browser daemon were using
+    Chrome/GPU resources; that gate remained open until a bounded clean rerun
+    passed.
+  - Final result: after replacing HMR-sensitive `networkidle` waits with
+    readiness-function gates and bounding error cleanup, the expanded harness
+    exited code 0 on 4173 and rebuilt 4174 with zero console/page errors.
+    `format:check`, 125 root tests, seven kernel tests, typecheck, and production
+    build then passed from the formatted source; only the documented Vite
+    >500 kB Three.js advisory remains.
   - Closure: exact commands and outcomes are recorded with evidence tiers; no
     failing touched-area check is described as green.
 - [ ] **RU-0110.11 — Close documentation, review, git, and release gates.**

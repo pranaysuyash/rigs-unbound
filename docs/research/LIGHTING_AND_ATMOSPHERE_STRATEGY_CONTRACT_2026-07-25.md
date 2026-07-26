@@ -108,3 +108,52 @@ The smallest durable proof for this contract is:
 Lighting is part of the player’s ability to read the world, not just a visual
 polish layer. This contract makes the fallback path intentional so reduced
 budgets still preserve clarity, mood, and terrain legibility.
+
+## Addendum (2026-07-25) - Lighting is already staged, but the active strategy is still implicit
+
+- `src/game/renderer.ts` already proves the lighting lane is real:
+  - a directional sun and hemisphere light provide the base day model,
+  - phase-specific fog and sky color changes already carry day/gloam/night
+    readability,
+  - blob shadows are the current low-cost fallback posture instead of shadow
+    maps,
+  - rig headlights are promoted at gloam/night so the world remains legible.
+- `src/main.ts` already surfaces the world phase in the HUD, so the lighting
+  stance is visible to the player as part of the current game state rather than
+  just a renderer detail.
+- The current browser session remains healthy and the active play surface is the
+  same live field, which is enough to say the current lighting posture is not
+  speculative.
+- What is still missing is the named policy layer the contract describes:
+  - no tiered lighting matrix exposed as contract data,
+  - no explicit operator/debug field naming the active lighting strategy,
+  - no formal fallback rule that says exactly when simpler shadows or stronger
+    ambient fill should take over,
+  - no low-cost atmosphere cue registry separate from the renderer code.
+- So the right reading is that lighting is already intentional and readable, but
+  it is still an implicit renderer policy rather than a first-class lighting
+  envelope.
+
+## Addendum (2026-07-26) - phase-driven lighting is live, but the tier matrix is still not a named policy surface
+
+- Re-checked the current renderer and browser shell against the live Field 02
+  runtime.
+- `src/game/renderer.ts` already applies lighting by world phase:
+  - a directional sun and hemisphere light form the baseline,
+  - day/gloam/night switch sky colour, fog, and headlight intensity,
+  - the world remains legible through the existing blob-shadow posture.
+- `src/main.ts` already surfaces the world phase in the HUD, so the player can
+  see the active lighting context rather than infer it only from the renderer.
+- The runtime therefore already has the right ingredients for a lighting
+  envelope:
+  - readability first,
+  - phase-specific mood,
+  - low-cost fallback shadows,
+  - explicit phase visibility.
+- What is still missing is the named policy layer:
+  - no contract data for the tier matrix,
+  - no explicit operator/debug field naming the lighting strategy,
+  - no formal fallback rule that says exactly when atmosphere should simplify
+    before clarity is endangered.
+- So lighting is still a real and readable system, but it is not yet a
+  first-class policy envelope that operators can query by name.

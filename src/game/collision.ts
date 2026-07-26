@@ -46,6 +46,28 @@ export interface Obstacle {
   variation: number;
 }
 
+/** Shared visual dimensions used by both instancing and camera obstruction. */
+export function treeTrunkHeight(obstacle: Obstacle): number {
+  return obstacle.height * 0.55;
+}
+
+/** Horizontal crown radius before the renderer's 1.3× vertical stretch. */
+export function treeCrownRadius(obstacle: Obstacle): number {
+  return 1.25 + obstacle.variation * 0.85;
+}
+
+export function treeCrownCenterY(obstacle: Obstacle): number {
+  return obstacle.groundY + obstacle.height * 0.78;
+}
+
+export function felledTrunkLength(obstacle: Obstacle): number {
+  return obstacle.height * 0.8;
+}
+
+export function rockVisualHalfHeight(obstacle: Obstacle): number {
+  return obstacle.radius * (0.6 + obstacle.variation * 0.5);
+}
+
 /**
  * Obstacle density per biome, as a probability per cell slot.
  *

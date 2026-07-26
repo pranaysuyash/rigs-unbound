@@ -124,3 +124,46 @@ documented fail-closed response. The current Box3D probe's wheel-contact value
 is only an AABB proximity estimate because the young wrapper exposes event
 arrays but not a persistent contact query. It must not be presented as a
 general collision-semantic proof.
+
+## Addendum (2026-07-25) - live collision behavior exists, but the matrix is still implicit
+
+- Re-checked the collision contract against the current browser daemon snapshot
+  and live repo state.
+- The live browser surface is still healthy and named `Rigs Unbound — Field 02`,
+  with zero console logs in the current daemon snapshot.
+- The runtime already has a real deterministic collision path:
+  - `src/game/collision.ts` resolves obstacle contact with role-aware tree vs
+    rock behavior,
+  - `src/game/state.ts` consumes that outcome after motion and applies the
+    consequences,
+  - the current obstacle model already distinguishes blocking, fellable, and
+    sliding responses.
+- That means the game already has a meaningful collision foundation.
+- What is still missing is the explicit matrix the contract calls for:
+  - no first-class category/mask table for ground, obstacle, hazard, trigger,
+    projectile, sensor, and decorative roles,
+  - no dedicated trigger/sensor contact semantics,
+  - no telemetry for unexpected or incompatible category/mask pairs,
+  - no documented fallback for unknown roles.
+- So the collision boundary is still implicit in the obstacle resolver, not yet
+  a named interaction matrix that other systems can rely on.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.
+
+## Addendum (2026-07-26) - obstacle roles are still narrow, and no new collision classes have surfaced in the live runtime
+
+- Re-checked the current obstacle/collision source against the live browser
+  snapshot.
+- The live runtime still only needs the narrow blocking/felling/slide behavior
+  that `src/game/collision.ts` already implements:
+  - trees can be felled by heavy enough motion,
+  - rocks block and slide,
+  - the generated field stays deterministic and role-aware.
+- The source still does **not** expose a first-class category/mask table:
+  - no trigger class,
+  - no sensor class,
+  - no projectile class,
+  - no hazard routing separate from generic obstacle response.
+- That means the contract remains exactly where it should be for now:
+  the game has a real collision foundation, but the next extension still needs a
+  policy layer before broader interaction types can be added safely.

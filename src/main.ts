@@ -44,6 +44,7 @@ import {
 } from "./game/run-record";
 import { GameRenderer } from "./game/renderer";
 import type {
+  CameraResolutionEvidence,
   RigOrientationEvidence,
   RigPerceptionEvidence,
 } from "./game/renderer";
@@ -57,6 +58,7 @@ import {
   performPrimaryAction,
   publicState,
   repairRig,
+  resolvePrimaryAction,
   selectCamera,
   selectActiveRig,
   settleWorld,
@@ -70,6 +72,8 @@ import {
 } from "./game/state";
 import { clearState, loadState, saveState } from "./game/storage";
 import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
+import type { Obstacle } from "./game/collision";
+import { resolveTerrainTraversal } from "./game/terrain-traversal";
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
@@ -88,6 +92,28 @@ declare global {
     getPerformanceSnapshot: () => PerformanceSnapshot;
     getRigOrientationEvidence: (rigId?: RigId) => RigOrientationEvidence;
     getRigPerceptionEvidence: (rigId?: RigId) => RigPerceptionEvidence;
+    getCameraResolutionEvidence: () => CameraResolutionEvidence;
+    /**
+     * Acceptance-only fixture inventory. The query parameter guard keeps world
+     * mutation and procedural internals out of the public player surface.
+     */
+    getCameraTreeFixtures: () => Obstacle[];
+    fellObstacleForAcceptance: (obstacleId: string) => string;
+    getTerrainFaceFixture: (rigId: RigId) => {
+      x: number;
+      z: number;
+      heading: number;
+      outwardX: number;
+      outwardZ: number;
+    };
+    restoreActiveRigForAcceptance: () => string;
+    placeTerrainRigForAcceptance: (
+      x: number,
+      z: number,
+      heading: number,
+      speed?: number,
+    ) => string;
+    setAcceptanceManualStepping: (enabled: boolean) => string;
     installRigModule: (moduleId: ModuleId) => string;
     winchRecoverRig: () => string;
     toggleBlade: () => string;
@@ -164,6 +190,12 @@ function boot(): void {
     loadResult.loadDurationMs,
   );
   const runRecord = createRunRecord(state.seed, BOOT_STARTED_AT);
+  const surfaceParameters = new URLSearchParams(window.location.search);
+  const acceptanceSurface = surfaceParameters.get("acceptance") === "field-02";
+  const developerSurface =
+    acceptanceSurface || surfaceParameters.get("surface") === "developer";
+  let acceptanceManualStepping = false;
+  document.body.dataset.surface = developerSurface ? "developer" : "player";
   const markInputReady = (): void => performanceMonitor.markInputReady();
 
   const recordCommand = (
@@ -213,6 +245,27 @@ function boot(): void {
   const emergencyRecover =
     requiredElement<HTMLButtonElement>("#emergency-recover");
   const saveStatus = requiredElement<HTMLElement>("#save-status");
+  const runtimeDiagnostics = requiredElement<HTMLElement>(
+    "#runtime-diagnostics",
+  );
+  const physicsLabLink =
+    requiredElement<HTMLAnchorElement>("#physics-lab-link");
+  const primaryActionLabel = requiredElement<HTMLElement>(
+    "#primary-action-label",
+  );
+  const bladeActionLabel = requiredElement<HTMLElement>("#blade-action-label");
+  const recoveryActionLabel = requiredElement<HTMLElement>(
+    "#recovery-action-label",
+  );
+  const touchPrimaryAction = requiredElement<HTMLButtonElement>(
+    "#touch-primary-action",
+  );
+  const touchBladeAction = requiredElement<HTMLButtonElement>(
+    "#touch-blade-action",
+  );
+  const touchRecoveryAction = requiredElement<HTMLButtonElement>(
+    "#touch-recovery-action",
+  );
   const landmarkList = requiredElement<HTMLOListElement>("#landmark-list");
   const toast = requiredElement<HTMLElement>("#toast");
   const pauseOverlay = requiredElement<HTMLElement>("#pause-overlay");
@@ -238,6 +291,8 @@ function boot(): void {
 
   let statusMessage = loadResult.message;
   saveStatus.textContent = statusMessage;
+  runtimeDiagnostics.hidden = !developerSurface;
+  physicsLabLink.hidden = !developerSurface;
 
   for (const landmark of LANDMARKS) {
     const item = document.createElement("li");
@@ -537,6 +592,7 @@ function boot(): void {
     const plough = rig.attachments.find((item) => item.id === "field-plough");
     const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
     const telemetry = rig.telemetry;
+    const primaryAction = resolvePrimaryAction(state, world);
 
     phaseLabel.textContent = state.phase;
     timeLabel.textContent = phaseTime(state);
@@ -566,6 +622,46 @@ function boot(): void {
     );
     surveyValue.textContent = `${Math.round(surveyed * 100)}%`;
     cameraSelect.value = state.cameraMode;
+    primaryActionLabel.textContent = primaryAction.label.toLowerCase();
+    touchPrimaryAction.textContent = primaryAction.label;
+    touchPrimaryAction.setAttribute("aria-label", primaryAction.ariaLabel);
+    if (plough) {
+      const bladeLabel = `blade: ${plough.mode}`;
+      bladeActionLabel.textContent = bladeLabel;
+      touchBladeAction.textContent = `Blade: ${plough.mode}`;
+      touchBladeAction.setAttribute(
+        "aria-label",
+        `Switch blade from ${plough.mode} to ${plough.mode === "cut" ? "fill" : "cut"}`,
+      );
+    } else {
+      bladeActionLabel.textContent = "no blade";
+      touchBladeAction.textContent = "No blade";
+      touchBladeAction.setAttribute(
+        "aria-label",
+        `Blade unavailable on ${profile.fieldName}`,
+      );
+    }
+    const recoveryLabel =
+      rig.condition <= 0
+        ? "recover rig"
+        : profile.capabilities.includes("winch")
+          ? "winch"
+          : "no winch";
+    recoveryActionLabel.textContent = recoveryLabel;
+    touchRecoveryAction.textContent =
+      rig.condition <= 0
+        ? "Recover"
+        : profile.capabilities.includes("winch")
+          ? "Winch"
+          : "No winch";
+    touchRecoveryAction.setAttribute(
+      "aria-label",
+      rig.condition <= 0
+        ? "Emergency field recovery to Home Silo"
+        : profile.capabilities.includes("winch")
+          ? "Winch rig to a graded track"
+          : `Recovery winch not fitted to ${profile.fieldName}`,
+    );
 
     const gripRatio = Math.min(1, telemetry.grip / 1.2);
     const hovering = rig.mobility.kind === "hover";
@@ -680,9 +776,12 @@ function boot(): void {
     }
 
     const metrics = performanceMonitor.snapshot(renderer.metrics());
-    const heap =
-      metrics.heapUsedMb === null ? "heap n/a" : `${metrics.heapUsedMb} MB`;
-    saveStatus.textContent = `${statusMessage} · ${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${heap}`;
+    saveStatus.textContent = statusMessage;
+    if (developerSurface) {
+      const heap =
+        metrics.heapUsedMb === null ? "heap n/a" : `${metrics.heapUsedMb} MB`;
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${heap}`;
+    }
 
     if (state.mapOpen && now - lastMapUpdate > 260) {
       lastMapUpdate = now;
@@ -756,6 +855,163 @@ function boot(): void {
     }
     renderer.render(state);
     return renderer.perceptionEvidence(state, rigId);
+  };
+  window.getCameraResolutionEvidence = () => renderer.cameraEvidence();
+  window.getCameraTreeFixtures = () => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Camera tree fixtures are available only on the field-02 acceptance surface.",
+      );
+    }
+    const candidates = world.obstacles
+      .near(0, 0, 190)
+      .filter(
+        (obstacle) =>
+          obstacle.kind === "tree" &&
+          !world.felledObstacles.has(obstacle.id) &&
+          world.obstacles.near(obstacle.x, obstacle.z, 18).length === 1,
+      )
+      .sort((left, right) => left.id.localeCompare(right.id));
+    return candidates.slice(0, 40);
+  };
+  window.fellObstacleForAcceptance = (obstacleId: string) => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Obstacle mutation is available only on the field-02 acceptance surface.",
+      );
+    }
+    const candidate = window
+      .getCameraTreeFixtures()
+      .find((obstacle) => obstacle.id === obstacleId);
+    if (!candidate) {
+      throw new Error(`Unknown standing acceptance tree: ${obstacleId}`);
+    }
+    recordCommand("fellObstacleForAcceptance", { obstacleId });
+    world.fell(obstacleId);
+    renderer.invalidate(state);
+    return settleAndReport();
+  };
+  window.getTerrainFaceFixture = (rigId: RigId) => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Terrain fixtures are available only on the field-02 acceptance surface.",
+      );
+    }
+    if (!RIG_IDS.includes(rigId)) {
+      throw new Error(`Unknown rig id: ${String(rigId)}`);
+    }
+    const profile = effectiveProfile(rigId, state.rigs[rigId].modules);
+    for (let angleIndex = 0; angleIndex < 64; angleIndex += 1) {
+      for (let radius = 188; radius <= 232; radius += 0.25) {
+        const angle = (angleIndex / 64) * Math.PI * 2;
+        const outwardX = Math.sin(angle);
+        const outwardZ = Math.cos(angle);
+        const x = outwardX * radius;
+        const z = outwardZ * radius;
+        if (
+          world.obstacles.near(x, z, 6).length > 0 ||
+          world.obstacles.near(x - outwardX * 2, z - outwardZ * 2, 5).length > 0
+        ) {
+          continue;
+        }
+        const stableApproach = resolveTerrainTraversal(
+          world.terrain,
+          profile,
+          x,
+          z,
+          x + outwardX * 0.001,
+          z + outwardZ * 0.001,
+        );
+        const result = resolveTerrainTraversal(
+          world.terrain,
+          profile,
+          x,
+          z,
+          x + outwardX * 0.4,
+          z + outwardZ * 0.4,
+        );
+        if (!stableApproach.blocked && result.blocked) {
+          return {
+            x,
+            z,
+            heading: angle,
+            outwardX,
+            outwardZ,
+          };
+        }
+      }
+    }
+    throw new Error(
+      `No deterministic terrain-face fixture found for ${rigId}.`,
+    );
+  };
+  window.restoreActiveRigForAcceptance = () => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Rig restoration is available only on the field-02 acceptance surface.",
+      );
+    }
+    const rig = activeRig(state);
+    rig.condition = 100;
+    rig.strain = 0;
+    rig.speed = 0;
+    rig.steering = 0;
+    settleWorld(state, world);
+    renderer.invalidate(state);
+    recordCommand("restoreActiveRigForAcceptance", { rigId: rig.id });
+    return settleAndReport();
+  };
+  window.placeTerrainRigForAcceptance = (
+    x: number,
+    z: number,
+    heading: number,
+    speed = 0,
+  ) => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Terrain placement is available only on the field-02 acceptance surface.",
+      );
+    }
+    if (
+      !Number.isFinite(x) ||
+      !Number.isFinite(z) ||
+      !Number.isFinite(heading) ||
+      !Number.isFinite(speed)
+    ) {
+      throw new Error("Terrain placement requires finite values.");
+    }
+    const rig = activeRig(state);
+    const profile = effectiveProfile(rig.id, rig.modules);
+    rig.x = x;
+    rig.z = z;
+    rig.heading = heading;
+    rig.speed = Math.max(
+      profile.reverseLimit,
+      Math.min(profile.topSpeed, speed),
+    );
+    rig.steering = 0;
+    settleWorld(state, world);
+    renderer.invalidate(state);
+    recordCommand("placeTerrainRigForAcceptance", {
+      rigId: rig.id,
+      x,
+      z,
+      heading,
+      speed: rig.speed,
+    });
+    return settleAndReport();
+  };
+  window.setAcceptanceManualStepping = (enabled: boolean) => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Manual stepping is available only on the field-02 acceptance surface.",
+      );
+    }
+    acceptanceManualStepping = enabled === true;
+    recordCommand("setAcceptanceManualStepping", {
+      enabled: acceptanceManualStepping,
+    });
+    return settleAndReport();
   };
   window.performRigAction = () => {
     recordCommand("performRigAction", {});
@@ -856,7 +1112,7 @@ function boot(): void {
   const persist = (): void => {
     const result = saveState(window.localStorage, state, world);
     performanceMonitor.recordSave(result.durationMs, result.bytes);
-    statusMessage = "Local field record";
+    statusMessage = "Saved locally just now";
     appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {
       bytes: result.bytes,
       durationMs: result.durationMs,
@@ -870,7 +1126,7 @@ function boot(): void {
     const frameDurationMs = now - previousTime;
     const deltaSeconds = Math.min(frameDurationMs / 1000, 0.1);
     previousTime = now;
-    if (worldEntered) {
+    if (worldEntered && !acceptanceManualStepping) {
       accumulator += deltaSeconds;
       saveAccumulator += deltaSeconds;
     } else {
@@ -878,7 +1134,11 @@ function boot(): void {
     }
     performanceMonitor.recordFrame(frameDurationMs);
 
-    while (worldEntered && accumulator >= FIXED_STEP_SECONDS) {
+    while (
+      worldEntered &&
+      !acceptanceManualStepping &&
+      accumulator >= FIXED_STEP_SECONDS
+    ) {
       const sampledInput = input.sample();
       if (
         sampledInput.accelerate !== lastRecordedInput.accelerate ||

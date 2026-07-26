@@ -132,3 +132,41 @@ branching logic.
 - That means the capability contract is correctly identified as a next-step
   contract: the runtime already knows how to reject, but it does not yet
   standardize the rejection envelope for downstream planners or telemetry.
+
+## Addendum (2026-07-25) - Capability composition is live; adapter governance is still implicit
+
+- `src/game/contracts.ts` already composes profile capabilities from base rig
+  profiles and fitted modules, so the runtime is not using a brittle
+  inheritance-only model.
+- `src/game/state.ts` already consumes that composed profile through
+  `hasCapability(...)`, `effectiveProfile(...)`, and the action gates that check
+  `plough`, `tow`, `jump`, and `winch` availability.
+- The live runtime therefore proves the *composition* half of the contract, but
+  the adapter-governance half is still implicit:
+  - there is no versioned capability-definition registry,
+  - there is no structured adapter registration envelope,
+  - and the player-facing denial path still only emits prose diagnostics.
+- This keeps the lane in the right category:
+  - capability contracts are real,
+  - capability governance is still a named gap,
+  - and the next durable step is to formalize the adapter registry and explicit
+    denial envelope without flattening the current profile/module composition
+    model.
+
+## Addendum (2026-07-26) - fresh source recheck, composition still leads and governance still needs structure
+
+- Re-checked the live source in `src/game/contracts.ts` against the current
+  capability lane.
+- The current rig model still clearly remains composition-first:
+  - `RigCapability` is a real domain type,
+  - `RIG_PROFILES` carries explicit capability arrays,
+  - `marsh-skimmer` is still a distinct hover-family profile rather than a
+    hardcoded exception.
+- The player-facing boundary is still the same:
+  - capability admission happens through runtime checks,
+  - denied actions still surface prose diagnostics instead of a structured
+    reason envelope,
+  - adapter governance is still implicit rather than registry-driven.
+- So the contract is still pointing at the right next step:
+  formalize capability definitions, adapter registration, and denial reason
+  codes without throwing away the already-working composition model.

@@ -125,3 +125,51 @@ The physics layer is already stable enough to be a first-playable foundation. Th
 - That means the physics layer is still best treated as an intentional
   first-playable foundation, not yet a named quality envelope with explicit
   fallback semantics.
+
+## Addendum (2026-07-25) - The runtime exposes the physics signals, but the envelope is still implicit
+
+- `src/main.ts` already renders the physics readout into the HUD:
+  - condition,
+  - grip,
+  - slope/grade,
+  - stall / water-depth / slipping state,
+  - mobility-family labeling for ground versus hover.
+- `src/game/performance.ts` and `window.getPerformanceSnapshot()` already expose
+  the measurement side of the lane:
+  - frame timing,
+  - draw calls,
+  - triangles,
+  - heap use,
+  - load duration,
+  - first-controllable timing.
+- The live browser status remains healthy and the current runtime stays in the
+  first-playable category, which matches the contract’s current evidence base.
+- What is still missing is the explicit policy layer the contract names:
+  - named stability states,
+  - formal terrain/obstacle invariants,
+  - a declared fallback envelope for slope/water simplification,
+  - operator-visible summaries that say when the physics layer has simplified
+    behavior rather than merely exposing the raw factors.
+- So the correct interpretation is unchanged: the physics layer is intentional
+  and measurable, but still not policyized into a first-class quality envelope.
+
+## Addendum (2026-07-26) - terrain-face refusal is now explicit in code, but still not surfaced as a named envelope
+
+- Re-checked the current motion stack against the live runtime and source.
+- `src/game/terrain-traversal.ts` now makes the shared terrain-face boundary
+  explicit in code:
+  - a swept support-edge probe rejects discontinuous faces,
+  - the refusal returns the semantic reason `terrain-face`,
+  - ground and hover adapters use the same shared boundary with different
+    support-rise thresholds.
+- `src/game/physics.ts` consumes that boundary as a real `traversalBlockReason`
+  inside the motion outcome, so the game already knows when a move was refused
+  for a terrain-face reason.
+- The runtime still does not expose this as a named physics envelope state:
+  - the player can experience the refusal,
+  - operators can read the underlying signals,
+  - but the policy language for the fallback remains implicit rather than a
+    surfaced stability class.
+- So the contract’s next useful step is still the same: keep the shared
+  terrain-face guard and add an explicit envelope/state summary on top of it
+  instead of burying the rule inside motion math.

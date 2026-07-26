@@ -122,3 +122,64 @@ auditable.
   - no replay-safe persistence event envelope yet.
 - That keeps the save path in the correct category: durable and observable, but
   still a next contract rather than a completed architecture layer.
+
+## Addendum (2026-07-25) - Storage and run-record hooks prove the lane, but not the envelope
+
+- `src/game/storage.ts` now shows the core persistence spine clearly:
+  - versioned read keys (`rigs-unbound.save.v5` down through legacy slots),
+  - save/load/recovery branching,
+  - world-memory restore when the payload is structurally valid,
+  - clean-field replacement when recovery fails.
+- `src/main.ts` records save activity into the run record and exposes the
+  verification hook, so the runtime can already say that persistence happened.
+- `src/game/run-record.ts` keeps those records auditable with monotonic elapsed
+  time and checkpoint hashes.
+- What is still missing is the named persistence envelope the contract asks for:
+  - no explicit save/migration reason codes,
+  - no source-version field on the emitted persistence event,
+  - no operator-facing summary that distinguishes fresh, restored, migrated,
+    and recovered paths as separate persistence facts.
+- The lane is therefore not "build persistence from scratch"; it is "upgrade
+  the existing spine into a first-class observability contract without losing
+  the current fallback behavior."
+
+## Addendum (2026-07-26): schema v6 and truthful player-facing status
+
+- Current storage writes `rigs-unbound.save.v6`, then reads v5 through v1 in
+  descending order without overwriting old slots.
+- v6 owns canonical Home berths and selectively relocates only pristine legacy
+  Drift state; moved/used/attached state is preserved.
+- The player HUD now distinguishes:
+  - new field ready and locally saved,
+  - local save restored,
+  - earlier local save migrated,
+  - incompatible local record recovered.
+- fps, draw calls, and heap are no longer concatenated into the persistence
+  sentence. They live on an explicit developer/evidence surface.
+
+This improves product truth but does not complete the structured observability
+envelope: source-version/reason codes are still prose in the migration
+diagnostic and run record rather than a versioned persistence-event schema.
+
+## Addendum (2026-07-26) - current save status is truthful, but still not a structured persistence event
+
+- Re-checked the live browser daemon and the current storage wiring.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The current HUD/save flow is now deliberately truthful:
+  - `saveStatus` is updated by `src/main.ts`,
+  - the live status message distinguishes fresh, restored, migrated, and
+    recovered states,
+  - the persist path records the save into the bounded run record.
+- `src/game/storage.ts` still owns the actual load/save branching:
+  - versioned keys,
+  - migration from older save records,
+  - clean replacement for incompatible payloads.
+- That means the player-facing truth is good, but the observability envelope is
+  still only partly formalized:
+  - no structured reason-code field on save/load/migration paths,
+  - no versioned persistence-event schema,
+  - no source-version metadata surfaced as a first-class event field,
+  - no explicit operator summary separate from the status string and toast.
+- So the lane is still in the right place: persistent state is resilient and
+  visible, while the named observability contract remains the next step.

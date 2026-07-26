@@ -140,3 +140,46 @@ remains the behavioral source of truth.
 - Khronos glTF Validator: https://github.com/KhronosGroup/glTF-Validator
 - Existing project provenance register: [`ASSET_PROVENANCE_REGISTER.md`](ASSET_PROVENANCE_REGISTER.md)
 - Existing project asset exploration: [`EXPLORATION_MAP.md`](../exploration/EXPLORATION_MAP.md)
+
+## Addendum (2026-07-25) - current Slice A boundary and manifest posture
+
+- Re-checked the current browser daemon and repo state while continuing the
+  asset-production lane.
+- The live browser surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The current manifest posture still matches the review:
+  - `assets/asset-manifest.json` is the canonical registry,
+  - it currently contains two reference/concept tractor records and one
+    proposed Kenney static-prop fixture record,
+  - all three records remain `runtimePath: null`.
+- That means Slice A really is the right milestone boundary:
+  - source/provenance/rights metadata is being formalized,
+  - the browser runtime still has no imported GLB/texture/audio asset in the
+    playable path,
+  - and the next durable step remains a runtime-import proof rather than a
+    broader art import.
+- The important implementation note is unchanged: this is still a pre-runtime
+  asset pipeline, not an approved shipped-asset integration.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code,
+  manifest, and doc inspection.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, asset-import proof still pending
+
+- Re-checked the live browser daemon while continuing the asset-production
+  analysis lane.
+- The current runtime surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The repo still has the right asset-production substrate:
+  - `assets/asset-manifest.json` remains the canonical registry,
+  - the manifest still carries provenance/rights-aware records,
+  - source/provenance and runtime derivative remain intentionally separate.
+- The browser runtime still does **not** consume an imported runtime asset
+  package yet:
+  - no GLB/texture/audio derivative is active in the playable path,
+  - no browser import proof has replaced the procedural terrain/prop path,
+  - no runtime activation record exists for a validated asset key.
+- So the asset-production lane is still correctly staged at manifest and
+  preflight, with the next durable proof remaining a real browser import and
+  activation path.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  and manifest inspection.

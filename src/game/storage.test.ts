@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createInitialState } from "./state";
 import { GameWorld } from "./gameworld";
 import {
+  FIELD_CLOCK_SAVE_KEY,
   FIELD_02_SAVE_KEY,
   loadState,
   PREVIOUS_SAVE_KEY,
@@ -27,7 +28,7 @@ function memoryStorage(): Storage {
 }
 
 describe("versioned local persistence", () => {
-  it("migrates a wrapped v3 state and restores its world memory into v5", () => {
+  it("migrates a wrapped v3 state and restores its world memory into v6", () => {
     const storage = memoryStorage();
     const source = createInitialState("FIELD-02-WORLD-MIGRATION");
     source.rigs["utility-tractor"].distanceTravelled = 212;
@@ -65,7 +66,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(5);
+    expect(loaded.state.schemaVersion).toBe(6);
     expect(loaded.state.rigs["utility-tractor"].distanceTravelled).toBe(212);
     expect(loaded.state.rigs["marsh-skimmer"].mobility.kind).toBe("hover");
     expect(world.felledObstacles.has("tree-proof")).toBe(true);
@@ -73,6 +74,37 @@ describe("versioned local persistence", () => {
     expect(world.surveyedCells.has(1234)).toBe(true);
     expect(world.terrain.deformationCount()).toBe(1);
     expect(storage.getItem(SAVE_KEY)).toBeNull();
+  });
+
+  it("reads the prior v5 slot before older records", () => {
+    const storage = memoryStorage();
+    const source = createInitialState("V5-SLOT");
+    const prior = JSON.parse(JSON.stringify(source));
+    prior.schemaVersion = 5;
+    prior.salvage = 17;
+    storage.setItem(
+      PREVIOUS_SAVE_KEY,
+      JSON.stringify({
+        state: prior,
+        worldMemory: {
+          deformation: [],
+          felled: [],
+          collected: [],
+          surveyed: [],
+        },
+      }),
+    );
+    storage.setItem(
+      FIELD_CLOCK_SAVE_KEY,
+      JSON.stringify({ state: { schemaVersion: 99 }, worldMemory: {} }),
+    );
+
+    const world = new GameWorld(source.seed);
+    const loaded = loadState(storage, world);
+
+    expect(loaded.status).toBe("migrated");
+    expect(loaded.state.schemaVersion).toBe(6);
+    expect(loaded.state.salvage).toBe(17);
   });
 
   it("migrates a v4 field record into the monotonic clock and recovery log", () => {
@@ -89,7 +121,7 @@ describe("versioned local persistence", () => {
     delete legacy.recovery;
 
     storage.setItem(
-      PREVIOUS_SAVE_KEY,
+      FIELD_CLOCK_SAVE_KEY,
       JSON.stringify({
         state: legacy,
         worldMemory: {
@@ -105,7 +137,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(5);
+    expect(loaded.state.schemaVersion).toBe(6);
     expect(loaded.state.worldTimeMinutes).toBe(1135);
     expect(loaded.state.phase).toBe("gloam");
     expect(loaded.state.recovery).toEqual({

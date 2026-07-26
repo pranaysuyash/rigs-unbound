@@ -247,6 +247,15 @@ select:focus-visible,
     monospace;
 }
 
+.runtime-diagnostics {
+  margin: 0.32rem 0 0;
+  color: rgba(226, 180, 76, 0.78);
+  font:
+    500 0.55rem/1.25 "SFMono-Regular",
+    Consolas,
+    monospace;
+}
+
 .opportunity-rail {
   position: absolute;
   z-index: 4;

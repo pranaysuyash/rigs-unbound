@@ -123,3 +123,22 @@ This means the original keyboard/skip-link accessibility gap is closed in the
 live runtime. The next accessibility-adjacent question is not basic shell
 accessibility anymore; it is whether the remaining loading/fallback chrome is
 explicit enough for slower public entry paths.
+
+## Addendum (2026-07-25) - focus is fixed; loading explicitness is the remaining accessibility-adjacent gap
+
+A fresh live recheck on the current `Field 02` runtime keeps the original keyboard handoff resolved:
+
+- `#game-canvas` is present and keyboard focusable,
+- the skip link is present and visible in the focusable set,
+- dismissing the intro now lands focus on `canvas#game-canvas`,
+- the semantic shell still exposes the main, header, aside, section, status, and alert landmarks.
+
+What the live surface still does **not** expose is a separate startup progress affordance:
+
+- no explicit `progress` element,
+- no visible `aria-busy` state in the current DOM snapshot,
+- no public profile/loading percentage in the shell.
+
+So the remaining issue is no longer basic accessibility entry. It is whether the loader is explicit enough for slower or public-facing entry paths to understand that the experience is still starting versus stalled.
+
+Evidence depth: Tier 4 runtime/manual observation.

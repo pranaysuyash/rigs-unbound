@@ -22,6 +22,12 @@
 import { ObstacleField } from "./collision";
 import { ExplorationField } from "./exploration";
 import { MAX_SURVEYED_CELLS } from "./exploration";
+import {
+  queryCameraObstruction,
+  type CameraObstructionHit,
+  type CameraObstructionOptions,
+  type ScenePoint,
+} from "./scene-query";
 import { TerrainField, type DeformationEntry } from "./terrain";
 
 /** Bound on felled obstacles retained, oldest dropped first. */
@@ -75,6 +81,15 @@ export class GameWorld {
       this.surveyedCells.add(key);
     }
     trimSet(this.surveyedCells, MAX_SURVEYED_CELLS);
+  }
+
+  cameraObstruction(
+    from: ScenePoint,
+    to: ScenePoint,
+    cameraRadius = 0.45,
+    options?: CameraObstructionOptions,
+  ): CameraObstructionHit | null {
+    return queryCameraObstruction(this, from, to, cameraRadius, options);
   }
 
   reset(): void {

@@ -135,3 +135,27 @@ validated content without guessing where it came from.
   content-manifest layer is still future-facing rather than first-class.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-26) - asset validation is real, but the general authoring manifest is still broader than the current pipeline
+
+- Re-checked the current browser daemon and the local asset pipeline.
+- The runtime is still healthy and named `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The repo already has a real asset-specific validation spine:
+  - `assets/asset-manifest.json` carries stable ids, source paths, runtime
+    paths, status, and rights metadata,
+  - `tools/asset-preflight.mjs` validates GLB structure, path safety, and
+    missing dependencies,
+  - the asset manifest currently keeps all candidate runtime paths out of the
+    playable path until proof exists.
+- That means validator-first asset admission is already real for the asset lane.
+- The gap the authoring contract names is broader than that:
+  - no versioned content-manifest schema for activities or world modules,
+  - no reproducible validation-result artifact for the general content path,
+  - no status signal that cleanly separates validation-only, runtime-ready, and
+    deprecated across the broader authored content surface,
+  - no reusable authoring envelope that applies the same contracts to imported,
+    edited, or generated content beyond the asset slice.
+- So the current state is strong on asset admission, but the contract still
+  needs the general authoring envelope to make the whole content lifecycle
+  reproducible.

@@ -6,7 +6,17 @@
 history, but now exercises the current Field 02 Vite build as a player-facing
 browser workflow:
 
-- starts from a clean v4 browser save;
+- starts from a clean schema-v6 browser state and verifies v6 persistence;
+- proves the default player surface hides labs/tuning metrics while the
+  developer/acceptance surface exposes them;
+- acquires Torque, Spark, and Drift through the real Home-berth proximity rule;
+- verifies Home-structure, standing/felled-tree, and per-rig hood camera
+  resolution with typed evidence;
+- finds obstacle-free extreme faces in the real seeded terrain, then proves all
+  three rigs refuse at-rest/high-speed penetration and retain downhill escape;
+- uses acceptance-only manual stepping while deterministic terrain fixtures run
+  so wall-clock animation frames cannot race scripted input;
+- checks contextual primary/blade/recovery labels and aria text;
 - drives the tractor to relay cargo through semantic input;
 - attaches the cargo, aligns a short final approach through the explicit test
   hook, then tows through the real delivery gate;
@@ -17,6 +27,11 @@ browser workflow:
 - checks desktop and narrow layouts;
 - captures local runtime metrics and browser console/page errors;
 - writes reviewed screenshots to `docs/reviews/assets/`.
+
+Acceptance mutation/query hooks exist only when the URL contains
+`?acceptance=field-02`; they are not reachable from player controls. The
+default run is headless and must close its browser with exit code 0. Use
+`RIGS_BROWSER_HEADLESS=0` only for supervised visual debugging.
 
 Start the game on the canonical Vite port (`4173`), then run:
 

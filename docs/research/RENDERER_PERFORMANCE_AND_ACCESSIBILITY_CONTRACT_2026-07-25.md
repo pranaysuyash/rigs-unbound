@@ -155,3 +155,57 @@ Together they define the public-smoke-test contract without widening the product
   - no reusable pass/fail summary artifact for fallback events.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-25) - the smoke-test gate is observable, and the runtime exposes the needed hooks
+
+- The live browser daemon is still healthy on `Rigs Unbound — Field 02`, with
+  zero console logs in the current snapshot.
+- The runtime exposes the evidence surface the contract needs:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - `window.getCameraResolutionEvidence()`
+- The browser entry point already keeps the accessibility shell intact after
+  intro dismissal, so the gate is not just a renderer concern:
+  - the playable canvas remains the focus target,
+  - the DOM shell carries the fallback semantics,
+  - reduced-motion and mobile-safe behavior remain part of the current runtime
+    posture.
+- Fresh review-image assets are present in the worktree, which means the gate
+  has real capture candidates on disk even though the canonical bundle is still
+  not packaged.
+- The remaining gap is still the policy packaging layer:
+  - no single capture bundle binding profile matrix, checklist, and KPI evidence,
+  - no canonical pass/fail summary for fallback events,
+  - no named smoke-test artifact that a maintainer can treat as the official
+    public-gate package.
+- So the contract remains correctly staged between implementation and release:
+  observable in the live app, but still short of the fully packaged gate.
+
+## Addendum (2026-07-25) - fresh Field 02 recheck, same packaged-gate gap
+
+- Re-checked the live browser daemon while continuing the renderer /
+  performance / accessibility lane.
+- The current runtime surface is still `Rigs Unbound — Field 02`, with zero
+  console logs in the current daemon snapshot.
+- The gate remains visibly supported by the runtime:
+  - `window.render_game_to_text()`
+  - `window.getPerformanceSnapshot()`
+  - `window.selectCamera()`
+  - `window.getCameraResolutionEvidence()`
+  - a semantic DOM shell with the playable canvas as the post-intro focus
+    target
+- The current implementation still matches the intended minimum gate shape:
+  - `standard` and `mobile-safe` behavior remain present,
+  - reduced-motion clamping remains present,
+  - HUD text and semantic fallback paths remain present,
+  - the KPI surface is readable in-browser.
+- What is still missing is the reusable public-gate artifact:
+  - no bundled capture set binding profile matrix, checklist, and KPI evidence,
+  - no canonical pass/fail summary for fallback events,
+  - no operator-ready artifact that a maintainer can carry forward as the first
+    smoke-test package.
+- So the runtime is ready to be measured, but the review package still needs to
+  be promoted before the gate becomes a durable delivery artifact.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  inspection.

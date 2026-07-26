@@ -163,3 +163,21 @@ This contract keeps browser delivery honest: if an asset cannot be named, hashed
     actually consumes.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-25) - browser snapshot correction and current surface
+
+- Re-checked the current browser daemon after the previous ingest note.
+- The active surface today is `Rigs Unbound — Field 02`, not Physics Lab 01,
+  and the daemon still reports zero console logs.
+- That correction does not change the contract boundary:
+  - the runtime is still asset-light and procedurally authored,
+  - `src/game/renderer.ts` still documents zero texture assets for the current
+    terrain pass,
+  - no imported runtime GLB/FBX/texture manifest is active in the playable
+    path yet.
+- The operational takeaway stays the same: the repo already has the right
+  ingest shape, but the browser still has not crossed into imported-asset
+  activation. The first live proof still needs a versioned manifest that the
+  runtime actually consumes.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
+  doc inspection.

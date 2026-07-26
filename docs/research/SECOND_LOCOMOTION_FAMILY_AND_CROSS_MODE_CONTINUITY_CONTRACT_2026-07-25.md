@@ -106,3 +106,22 @@ The smallest durable proof for this contract is:
 The point of this contract is not to multiply rigs.
 It is to prove that the capability stack can carry a different motion grammar
 without collapsing shared controls or recovery behavior.
+
+## Addendum (2026-07-25) - The second family is live, but the continuity proof is still partial
+
+- `src/game/contracts.ts` already defines a real second locomotion family in the
+  `marsh-skimmer` profile:
+  - `mobilityAdapter: "hover"`
+  - explicit `hover` capability
+  - distinct mobility-state shape from the ground rigs
+- `src/game/state.ts` and `src/main.ts` already route this family through the
+  same shared world, camera, save, and recovery spine instead of treating it as
+  a separate game mode.
+- The browser-visible runtime therefore proves that the second family exists and
+  is playable, but the named contract boundary is still incomplete:
+  - no explicit shared-action continuity test yet,
+  - no rollback/failure envelope for adapter activation yet,
+  - no standalone proof note for save/reload behavior on the hover family yet.
+- This makes the contract a true architecture seam now, not a speculative
+  design note. The remaining work is to make its recovery and continuity
+  guarantees explicit and testable.

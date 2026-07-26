@@ -147,3 +147,22 @@ This does not preclude later ECS or broader authority layers; it defines the con
   envelope that planners or future authority layers can consume directly.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code and
   doc inspection.
+
+## Addendum (2026-07-26): first semantic action resolver implemented
+
+The primary-action path now has an explicit command-resolution boundary:
+`resolvePrimaryAction(state, world)` returns a semantic kind plus player and
+accessibility labels without mutating state. `performPrimaryAction` consumes
+that same kind for cargo release/attach, salvage collection, plough raise/lower,
+or a visible no-action result.
+
+The desktop control strip, touch button, aria label, browser automation, and
+mutation path therefore cannot independently guess the current verb. Blade and
+recovery controls also expose capability/state (`cut`/`fill`, available winch,
+emergency recovery, or unavailable) rather than generic labels.
+
+This is the first accepted slice of the ADR's command→validation→transition
+direction, not completion of the full event/authority envelope. It still lacks
+versioned command IDs, structured rejection reason codes, and emitted domain
+events. Those remain required before network authority or creator-authored
+interaction packs.

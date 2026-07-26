@@ -211,3 +211,29 @@ Lane D: **World stream manifest + deterministic chunks**
 
 Lane E: **Authority envelope**
 - prove: local-only mode remains deterministic when mutation passes through command validation; multiplayer can be swapped in later with same interface.
+
+## 10) Addendum (2026-07-25) - fresh Field 02 runtime recheck, same backlog shape
+
+- Re-checked the platform audit against the current browser daemon and the live
+  `Field 02` runtime.
+- The daemon still reports a healthy browser surface with zero console logs.
+- The current runtime still supports the platform backlog’s core premise:
+  - bounded playable loop,
+  - deterministic local simulation,
+  - accessible shell and focus handoff,
+  - observable render/performance metrics,
+  - asset provenance formalized as reference-first, not runtime-imported,
+  - visibility/culling behavior intentionally bounded but not yet harnessed as a
+    reusable spike test.
+- The main high-level gaps are still the same and remain correctly future-gated:
+  - no shipped-mesh authority layer,
+  - no packaged comparison bundle for visibility/performance/accessibility,
+  - no runtime-imported asset manifest in the playable path,
+  - no formal replay transport or authority intent pipeline,
+  - no chunk manifest / streaming lifecycle proving out-of-view work stays out
+    of the frame budget.
+- This means the long-term backlog is still the right backlog, but the repo now
+  has enough live evidence to keep the risky lanes sequenced rather than
+  hand-wavy.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
+  and doc inspection.
