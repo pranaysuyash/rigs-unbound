@@ -1,3 +1,27 @@
+## 2026-07-27 — dynamics direction exploration note parked in the physics trail
+
+- Added `docs/research/DYNAMICS_DIRECTION_FIRST_PRINCIPLES_2026-07-27.md` as a
+  first-principles exploration note for the solver/authored/hybrid question.
+- Cross-linked the note from the exploration map's physics provenance section
+  so it stays adjacent to ADR-0023 and the existing Rapier/Box3D evidence
+  trail.
+- The note is exploration only; it does not change the accepted solver
+  disposition or promote a new backend.
+
+## 2026-07-27 — runtime first-rung/save-diagnostics tranche parked as one slice
+
+- The live tree now shows a coupled runtime maintenance tranche in
+  `src/game/first-rung.ts`, `src/game/storage.test.ts`, `src/main.ts`, and
+  `src/styles.css`.
+- The changes are coherent: first-rung guidance gains a missing-plough fallback
+  stage, storage tests capture save error propagation, the entrypoint surfaces a
+  clearer save-failure message, and the first-rung styling tightens the stage
+  transition timing.
+- This tranche remains parallel-owned until it is validated and admitted as one
+  batch; the repository now has a durable note so the next pass can treat it as
+  a single first-rung/save-diagnostics maintenance unit rather than four
+  unrelated edits.
+
 ## 2026-07-27 — game-systems analysis canon-vs-recommendation boundary corrected
 
 - Corrected the overclaim in
@@ -7296,3 +7320,42 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   runtime evidence.
 - The canonical simulation/persistence boundary remains unchanged while the
   live runtime lane grows.
+
+## 2026-07-27 — realignment session: decisions ratified, canon repaired, three lanes opened
+
+- Realigned after two days of parallel work; verified ground truth: typecheck
+  green, 342 root tests across 56 files green, including the uncommitted
+  parallel runtime batch. Retired the superseded Phase 0 subagent (its scope
+  landed as RU-0106–RU-0110 by parallel work).
+- Operator decisions recorded: **ADR-0025 Accepted** (emission source/listener
+  separation), **ADR-0026 Accepted** (cultivation provenance; cultivation
+  admitted first on schema-v7 ownership, Survey Route rebases or defers);
+  both ADRs carry update-log entries; tracker rows RU-0202/RU-0203 updated.
+- ADR-0023: operator asked for a long-term first-principles exploration
+  instead of sign-off; pause on solver/backend work remains in force.
+  Produced `docs/research/DYNAMICS_DIRECTION_FIRST_PRINCIPLES_2026-07-27.md`:
+  the question reframed (which physical consequences should mean something),
+  positions A/B/C with discriminators, and the insight that two *design*
+  decisions (rollover-as-fail-state, articulated-recovery-as-requirement)
+  precede any solver benchmark.
+- Canon reconciliation audit run against the new long-term horizon doc:
+  found and repaired a provenance leak in
+  `GAME_SYSTEMS_ANALYSIS_AND_DIRECTION_2026-07-25.md` (a 2026-07-27 addendum
+  had promoted the horizon doc to "canonical" without an operator decision;
+  original preserved, dated correction appended per ADR-0023 rule).
+  Remaining reconciliation actions queued: vision ADR for the north star,
+  ADR-0018 mastery-proofs revisit note, Parts/Favor economy spec, horizon-doc
+  cross-references to ADR-0002/RU-0204, "provisional invariant"→"hypothesis".
+- Lane 1 launched: three fresh-eyes simulated playtests (SIM2, casual/
+  achiever/explorer) against the repaired build to measure whether the
+  first-rung fixes worked; reports land in `docs/reviews/PLAYTEST_SIM2_*`.
+- Lane 2 (W1/D1 renderer evidence) queued behind the playtests; lane 3
+  (reconciliation actions) partially executed above.
+
+### Anything else?
+
+Yes. The same provenance failure shape this session repaired (generated text
+acquiring "canonical" authority by cross-declaration) is the exact pattern
+ADR-0023 was written to catch — the correction rule works when someone runs
+the audit; the durable fix is the queued vision ADR and the tracker row for
+the horizon doc's six open operator questions.

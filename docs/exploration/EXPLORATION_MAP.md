@@ -1502,6 +1502,11 @@ New exploration questions opened by this package:
 - A broader pattern audit remains open for other load-bearing ADRs whose
   “Accepted” status may have been inferred from supplied AI material rather than
   explicit operator acceptance.
+- The newer [Dynamics Direction from First Principles](../research/DYNAMICS_DIRECTION_FIRST_PRINCIPLES_2026-07-27.md)
+  note keeps the same boundary honest: it recommends authored-first by default,
+  treats rollover and articulated recovery as design decisions, and keeps
+  solver admission behind ADR-0023 rather than promoting a solver verdict by
+  prose.
 
 ## Addendum — 2026-07-26 compositional episode grammar and Storm Relay
 
