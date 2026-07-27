@@ -6959,11 +6959,12 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 ## 2026-07-27 — route-opening proof hardened against live terrain variance
 
 - Reworked `src/game/route-opening.test.ts` so the proof searches the live
-  terrain for any mud cell that actually converts to tilled after three cuts,
+  terrain for any mud cell that still becomes tilled under a two-pass probe,
   instead of relying on a narrow height band and a longer water-edge corridor.
 - The traversal comparison now measures the same patch before and after local
-  deformation, which matches the actual terrain contract more closely and keeps
-  the proof seed-stable.
+  deformation, with the live scenario using three cuts on the chosen patch,
+  which matches the actual terrain contract more closely and keeps the proof
+  seed-stable.
 - Verification:
   - `npm run typecheck`: passed;
   - `npx vitest run src/game/route-opening.test.ts src/game/unbound-passage.test.ts`: passed.

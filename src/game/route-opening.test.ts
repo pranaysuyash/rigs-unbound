@@ -42,7 +42,8 @@ function findMudLocation(world: GameWorld): { x: number; z: number } {
 
       // Verify the surface actually shifts to tilled after deformation.
       // Two passes of −0.13 = −0.26, which crosses the tilled threshold
-      // (−0.252). Three passes risk FIFO eviction from the boot gully.
+      // (−0.252). Empirically, a third pass oscillates the surface back
+      // to mud at some locations, so exactly two keeps the proof stable.
       const probe = new GameWorld(world.seed);
       for (let i = 0; i < 2; i += 1) {
         probe.terrain.deform(x, z, -0.13, 1);
