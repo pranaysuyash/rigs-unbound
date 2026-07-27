@@ -221,3 +221,11 @@ This document provides a comprehensive, deeply researched analysis of game UI pa
 4. **Garage as an Organism:** Make vehicle customization tactile. Instead of drop-down menus, allow clicking directly on the rig's chassis to swap out patched-together parts.
 
 _End of Document_
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this UI reference analysis. This document still
+owns the field-kit and diegetic interface frame; the new note carries the
+wider machine-keeper thesis and long-range product direction.

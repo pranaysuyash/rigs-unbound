@@ -348,3 +348,10 @@ The first cross-mode board now exists in the project as
 It shows one tractor identity across farming day, night utility, mid-tier zombie
 defense, and deep-dark escalation. That board is a reference artifact, not a
 runtime asset.
+
+The paired comparison follow-up now lives in
+[`Same Vehicle Comparison Boards`](SAME_VEHICLE_COMPARISON_BOARDS_2026-07-27.md)
+and extends the same identity test into farming versus racing, survival versus
+construction, and urban versus absurd boards. Those comparison boards are
+tracked in the [Asset Provenance Register](../research/ASSET_PROVENANCE_REGISTER.md)
+as project-owned exploration reference art.

@@ -149,3 +149,11 @@ Only after Tier 3+ closure on each lane should we publish public-claim scope wid
   - or should a bounded loading/fallback affordance be added before broader
     mobile/public expansion?
 - Evidence tier: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this audit. This document still owns the browser
+delivery, accessibility, and deliverability frame; the new note carries the
+wider machine-keeper thesis and long-range product direction.

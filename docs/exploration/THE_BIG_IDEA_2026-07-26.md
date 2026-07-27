@@ -237,3 +237,13 @@ Three things.
    passable, and the land remembers"** refuses almost everything — including most
    of what is currently on the roadmap. That is not a downside. That is the entire
    reason to adopt it.
+
+## Addendum (2026-07-27): the first-principles exploration note gives this pitch a longer horizon
+
+- The new [Long-Term Game Design from First Principles](LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md)
+  note is the broader strategic counterpart to this pitch.
+- This pitch argues for the smallest proving slice: compaction, terrain memory,
+  and a world that remembers driving.
+- The first-principles note expands that into the longer machine-keeper
+  odyssey, so future exploration should treat the two together rather than as
+  competing theses.

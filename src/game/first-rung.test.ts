@@ -296,12 +296,10 @@ describe("first progression rung", () => {
     // Long Furrow is at (18, -46). Place rig ~55 m away — within sight radius
     // (66 m = discoverRadius 22 * 3) but outside attempt radius (36 m).
     rig.x = 50;
-    rig.z = -20;
+    rig.z = -20;    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
 
-    const result = resolveFirstRung(state, new Set());
-
-    expect(result).toMatchObject({
-      stage: "sight-destination",
+  expect(result).toMatchObject({
+    stage: "sight-destination",
       target: { x: 18, z: -46 },
       recommendedModuleId: "lug-tires",
       affordable: true,
@@ -315,12 +313,10 @@ describe("first progression rung", () => {
     const rig = state.rigs[state.activeRigId];
     // Place within 36 m of Long Furrow (18, -46).
     rig.x = 25;
-    rig.z = -30;
+    rig.z = -30;    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
 
-    const result = resolveFirstRung(state, new Set());
-
-    expect(result).toMatchObject({
-      stage: "attempt-route",
+  expect(result).toMatchObject({
+    stage: "attempt-route",
       target: { x: 0, z: 12 },
       recommendedModuleId: "lug-tires",
       affordable: true,
@@ -342,6 +338,18 @@ describe("first progression rung", () => {
     // Should NOT be sight-destination or attempt-route.
     expect(result.stage).not.toBe("sight-destination");
     expect(result.stage).not.toBe("attempt-route");
+  });
+
+  it("returns free-explore when two modules are fitted", () => {
+    const state = createInitialState();
+    state.rigs["utility-tractor"].modules = ["lug-tires", "winch"];
+    const collected = new Set([FIRST_SALVAGE_NODE.id]);
+
+    const resolution = resolveFirstRung(state, collected);
+    expect(resolution.stage).toBe("free-explore");
+    expect(resolution.objective).toBe("Use your fitted parts");
+    expect(resolution.complete).toBe(true);
+    expect(resolution.target).toBeNull();
   });
 
   it("is deterministic and does not mutate restored state or world memory", () => {

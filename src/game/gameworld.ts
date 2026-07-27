@@ -107,8 +107,8 @@ export class GameWorld {
     // Placed perpendicular to the Home→Long Furrow route, offset ~10 m
     // outside the 7 m half-width corridor so the surface is deformable
     // (grass/mud, not hardpan track).
-    const gullyX = -1;
-    const gullyZ = -20;
+    const gullyX = -5;
+    const gullyZ = -15;
     const gullyApplied = this.terrain.deform(gullyX, gullyZ, -0.38, 3);
     this.terrain.deform(gullyX + 4, gullyZ + 2, -0.22, 2);
     this.terrain.deform(gullyX - 3, gullyZ - 2, -0.18, 2);

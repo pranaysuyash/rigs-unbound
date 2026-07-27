@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createInitialState } from "./state";
 import { GameWorld } from "./gameworld";
+import { createUnboundPassageState } from "./unbound-passage";
 import {
   DRIFT_BERTH_SAVE_KEY,
   FIELD_CLOCK_SAVE_KEY,
@@ -9,6 +10,7 @@ import {
   peekSavedSeed,
   PREVIOUS_SAVE_KEY,
   SAVE_KEY,
+  saveState,
 } from "./storage";
 
 function memoryStorage(): Storage {
@@ -219,6 +221,57 @@ describe("versioned local persistence", () => {
       sourceSchemaVersion: 7,
       recoveryReason: "invalid-payload",
     });
+  });
+
+  it("persists the unbound passage contract through save and load", () => {
+    const storage = memoryStorage();
+    const source = createInitialState("UNBOUND-PASSAGE-STORAGE");
+    source.unboundPassage = {
+      ...createUnboundPassageState(),
+      status: "open",
+      revision: 3,
+      openedByRigId: "utility-tractor",
+      openedByLaneId: "jump-and-scout",
+      failureCount: 1,
+      recoveryLaneId: null,
+      recoveryReason: null,
+    };
+
+    const saveResult = saveState(storage, source, new GameWorld(source.seed));
+    expect(saveResult.error).toBeUndefined();
+
+    const loaded = loadState(storage, new GameWorld(source.seed));
+    expect(loaded.status).toBe("restored");
+    expect(loaded.state.unboundPassage).toEqual(source.unboundPassage);
+  });
+
+  it("restores a fresh unbound passage contract when a current record lacks one", () => {
+    const storage = memoryStorage();
+    const source = JSON.parse(
+      JSON.stringify(createInitialState("UNBOUND-PASSAGE-MISSING")),
+    ) as Record<string, unknown>;
+    delete source.unboundPassage;
+    storage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        state: source,
+        worldMemory: {
+          deformation: [],
+          felled: [],
+          collected: [],
+          surveyed: [],
+        },
+      }),
+    );
+
+    const loaded = loadState(
+      storage,
+      new GameWorld(String(source.seed)),
+    );
+    expect(loaded.status).toBe("restored");
+    expect(loaded.state.unboundPassage).toEqual(
+      createUnboundPassageState(),
+    );
   });
 
   it("admits a custom seed only after the full saved state is accepted", () => {

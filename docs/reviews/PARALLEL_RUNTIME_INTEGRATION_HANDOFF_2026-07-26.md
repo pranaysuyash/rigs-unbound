@@ -35,7 +35,7 @@ The live status showed active edits in:
 - `src/styles.css`
 - `tools/rig-lab-browser-acceptance.cjs`
 - staged world, exploration, first-rung, and gameworld files
-- untracked signature, passage, ADR, and showcase-tool files
+- untracked signature, passage, ADR, showcase-tool, and `src/game/animation.ts` files
 
 These files may contain valuable work from other agents. They must be treated
 as canonical in their current form, but not edited by this tranche.
@@ -120,6 +120,54 @@ For Unbound Passage, the skill creates these non-negotiable constraints:
   assets are active parallel surfaces. Unit and kernel evidence do not prove
   player comprehension, mobile behavior, or save/reload browser behavior.
 
+## Addendum (2026-07-27) — animation file classified as parallel runtime work
+
+`src/game/animation.ts` is present as a new untracked file and appears to be a
+parallel runtime-owned animation system rather than part of the passage or
+state/store tranche. It is intentionally left untouched in this handoff so the
+owning agent can either complete or discard it without this tranche absorbing a
+second authority model.
+
+The file is now present as a compile-safe skeleton so it no longer blocks
+typecheck, but its runtime integration still belongs to the parallel runtime
+surface and remains outside the passage/state tranche.
+
+## Addendum (2026-07-27) — interaction file is a separate runtime-owned boundary
+
+The live tree now exposes a new untracked implementation-flow artifact at
+`docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md` rather
+than a present `src/game/interaction.ts` source file. It is still runtime-owned
+renderer/interaction evidence, not part of the passage/state tranche.
+
+The current renderer already references the animation system and initializes an
+interaction system, so the runtime additions should be treated as a coherent
+presentation/interaction lane even while the passage/state tranche remains the
+canonical simulation/persistence lane.
+
+## Addendum (2026-07-27) — same-vehicle comparison boards are separate exploration work
+
+`docs/exploration/SAME_VEHICLE_COMPARISON_BOARDS_2026-07-27.md` and its asset
+folder are separate exploration/design evidence, not passage admission or
+runtime wiring. They can inform later trailer, image, or prompt work, but they
+should not be merged into the passage/state tranche or treated as runtime
+authority.
+
+## Addendum (2026-07-27) — passage is now wired into canonical state and save/load
+
+The isolated proof has moved one layer deeper without touching the active
+runtime/browser tranche:
+
+- `src/game/contracts.ts` now includes `unboundPassage` in `GameState`.
+- `src/game/state.ts` seeds the passage, restores it with the reducer's own
+  validator, and exposes the read model in `publicState`.
+- `src/game/storage.test.ts` and `src/game/state.test.ts` now prove the
+  round-trip and snapshot integration.
+
+The runtime/browser seam remains intentionally open because `src/main.ts` and
+the renderer-facing integration are still live parallel surfaces. The next safe
+step is to attach player interaction and live presentation to the canonical
+state, then re-run browser evidence.
+
 ## Decision
 
 Continue with independent contract proofs, research, and handoff artifacts while
@@ -128,3 +176,12 @@ complete until the ordered integration and browser evidence above are complete.
 This preserves the long-term first-principles architecture: one authoritative
 simulation state, one persistence owner, explicit capability contracts, and a
 replaceable Three.js presentation layer.
+
+## Addendum (2026-07-27) — newer runtime tranche broadens the live lane
+
+The live tree now also carries `src/game/landslide-hazard.ts`,
+`src/game/procedural-missions.ts`, `src/game/radial-ui.ts`, and
+`src/game/vehicle-maintenance.ts` as new untracked runtime modules with matching
+tests. They are still parallel-owned implementation evidence, not passage/state
+tranche material, and they widen the live runtime lane without changing the
+canonical simulation/persistence boundary.

@@ -71,6 +71,11 @@ import { SALVAGE_PICKUP_RADIUS } from "./exploration";
 import { resolveFirstRung } from "./first-rung";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
+import {
+  createUnboundPassageState,
+  readUnboundPassage,
+  restoreUnboundPassage,
+} from "./unbound-passage";
 import { rigIsStable, settleRig, stepRigMotion } from "./physics";
 import {
   findSite,
@@ -246,6 +251,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
       },
     },
     surveyRoute: createSurveyRouteState(),
+    unboundPassage: createUnboundPassageState(),
     furrows: [],
     discoveries: [],
     salvage: 0,
@@ -1370,6 +1376,7 @@ export function publicState(state: GameState, world: GameWorld): object {
       salvage: state.salvage,
       salvageCollected: state.salvageCollected,
       firstRung,
+      unboundPassage: readUnboundPassage(state.unboundPassage, currentRig.id),
       workshopInReach: workshopInReach(state)?.id ?? null,
       nearestSalvage:
         nearestSalvage === null
@@ -1881,6 +1888,7 @@ function recoverShared(
     allowMissingSurveyRoute,
   );
   if (!surveyRoute) return null;
+  const unboundPassage = restoreUnboundPassage(candidate.unboundPassage);
 
   const cargoRadius = Math.hypot(cargo.x as number, cargo.z as number);
   const cargoScale = cargoRadius > WORLD_LIMIT ? WORLD_LIMIT / cargoRadius : 1;
@@ -1922,6 +1930,7 @@ function recoverShared(
       },
     },
     surveyRoute,
+    unboundPassage,
     furrows,
     discoveries,
     salvage: isFiniteNumber(candidate.salvage)

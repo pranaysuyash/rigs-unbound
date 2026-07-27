@@ -644,7 +644,6 @@ export class GameRenderer {
       foamColor: { value: new THREE.Color(0xffffff) },
       deepColor: { value: new THREE.Color(0x0a1f2e) },
       shallowColor: { value: new THREE.Color(0x2a6b8a) },
-      cameraPosition: { value: new THREE.Vector3() },
       waveScale: { value: 1.0 },
       waveSpeed: { value: 0.8 },
       foamThreshold: { value: 0.65 },

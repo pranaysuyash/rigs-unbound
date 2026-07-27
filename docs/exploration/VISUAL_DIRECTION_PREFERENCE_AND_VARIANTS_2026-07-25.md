@@ -223,3 +223,11 @@ This keeps art investment proportional to gameplay evidence.
 ## Anything else?
 
 The direction should remain charming under flat debug lighting and at thumbnail size. If it only works through cinematic depth-of-field, sunset grading, and a detailed hero render, the underlying game readability has not yet been proven.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md` is the broader
+horizon for this art-direction work. This document remains the visual
+preference and camera-readability reference; the new note carries the wider
+machine-keeper thesis and product-direction expansion.

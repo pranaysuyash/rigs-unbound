@@ -125,9 +125,18 @@ These remain the most useful concrete proofs for future implementation work:
 - [3D Game Optimization Gaps + Long-Term Expansion Synthesis](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
 - [3D Game Optimization Gaps - Full Continuation Audit](./3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D Game Optimization and More - Execution Roadmap](./3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+- [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 
 ## Anything else?
 
 The most valuable thing this repo already has is not a single feature; it is a
 clear architecture path with growing evidence. The right next move is to keep
 turning that path into durable contracts and verified proofs.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this synthesis. This document still owns the
+research map and durable decision frame; the new note carries the wider
+machine-keeper thesis and long-range product direction.

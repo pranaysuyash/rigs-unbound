@@ -14,6 +14,7 @@ evidence registers that keep the analysis grounded.
 - [3D Game Optimization Gaps - Second Pass](3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D Game Optimization and More - Execution Roadmap](3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
 - [3D Game Skill-to-Repository Execution Ledger](3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md)
+- [Additional ChatGPT Research Ingestion](ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 
 ## Living evidence and continuity
 
@@ -106,7 +107,6 @@ evidence registers that keep the analysis grounded.
 - [Second Locomotion Family and Cross-Mode Continuity Contract](SECOND_LOCOMOTION_FAMILY_AND_CROSS_MODE_CONTINUITY_CONTRACT_2026-07-25.md)
 - [Runtime Boot and Public-State Safety Note](RUNTIME_BOOT_AND_PUBLIC_STATE_SAFETY_NOTE_2026-07-25.md)
 
-- [Additional ChatGPT Research Ingestion](ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 - [Technology and Engine Options](TECHNOLOGY_AND_ENGINE_OPTIONS_2026-07-25.md)
 - [Asset Production Skill Review](ASSET_PRODUCTION_SKILL_REVIEW_2026-07-25.md)
 - [Minimap and World-Coordinate Contract](MINIMAP_AND_WORLD_COORDINATE_CONTRACT_2026-07-25.md)

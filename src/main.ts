@@ -744,14 +744,28 @@ function boot(): void {
     markControlLessonLearned("workshop", "performed");
     const after = resolveFirstRung(state, world.collectedNodes);
     const fittedNow = !before.complete && after.complete;
+    const enteringFirstCut =
+      before.stage === "choose-part" && after.stage === "first-cut";
+    const enteringFreeExplore =
+      before.stage === "second-fit" && after.stage === "free-explore";
     if (state.lastDiagnostic?.includes("fitted")) audio.chirp(880);
     announce();
-    if (fittedNow) {
+    if (fittedNow && enteringFreeExplore) {
+      const definition = MODULES[moduleId];
+      firstRungCompletionMessage =
+        `${definition.name} fitted · all upgrades installed · explore freely`;
+      firstRungCompletionUntil = performance.now() + 4200;
+      showToast(firstRungCompletionMessage);
+    } else if (fittedNow) {
       const definition = MODULES[moduleId];
       firstRungCompletionMessage =
         moduleId === "lug-tires"
           ? `${definition.name} fitted · test the new grip in the mud toward Long Furrow`
           : `${definition.name} fitted · ${definition.promise}`;
+    } else if (enteringFirstCut) {
+      const definition = MODULES[moduleId];
+      firstRungCompletionMessage =
+        `${definition.name} fitted · Lower the blade to begin terrain transformation`;
       firstRungCompletionUntil = performance.now() + 4200;
       showToast(firstRungCompletionMessage);
     }
@@ -1224,9 +1238,11 @@ function boot(): void {
       prompt.textContent =
         firstRung.stage === "choose-part"
           ? `${firstRung.objective} · ${state.salvage} salvage ready`
-          : firstRung.complete && rig.modules.includes("lug-tires")
-            ? "Lug tyres fitted · grip upgraded · take the mud line toward Long Furrow"
-            : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
+          : firstRung.stage === "second-fit"
+            ? `${firstRung.objective} · ${state.salvage} salvage ready`
+            : firstRung.complete && rig.modules.includes("lug-tires")
+              ? "Lug tyres fitted · grip upgraded · take the mud line toward Long Furrow"
+              : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
     } else if (relay.cargo.attachedRigId === rig.id) {
       const distance = Math.round(
         Math.hypot(rig.x - LANDMARKS[1]!.x, rig.z - LANDMARKS[1]!.z),
@@ -1416,6 +1432,7 @@ function boot(): void {
     }
 
     let metrics = performanceMonitor.snapshot(renderer.metrics());
+    const previousSubmitted = metrics.visibility?.submitted ?? 0;
     runtimeProfileSelection = runtimeProfileController.evaluate(metrics);
     if (
       metrics.visibility?.profile !== runtimeProfileSelection.profile &&
@@ -1424,8 +1441,19 @@ function boot(): void {
       metrics = performanceMonitor.snapshot(renderer.metrics());
       const fallbackActive = runtimeProfileSelection.profile === "mobile-safe";
       const reasonText = runtimeProfileSelection.reasonText;
+      const currentSubmitted = metrics.visibility?.submitted ?? 0;
+      const propReductionPct =
+        previousSubmitted > 0 && fallbackActive
+          ? Math.round(
+              ((previousSubmitted - currentSubmitted) / previousSubmitted) * 100,
+            )
+          : 0;
+      const propNote =
+        fallbackActive && propReductionPct > 0
+          ? ` ${propReductionPct}% fewer scenery objects shown.`
+          : "";
       statusMessage = fallbackActive
-        ? `Performance safeguard active: reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
+        ? `Performance safeguard active: reduced scenery detail.${propNote}${reasonText ? ` ${reasonText}` : ""}`
         : "Performance safeguard cleared: standard scenery detail restored.";
       if (worldEntered) {
         showToast(statusMessage);

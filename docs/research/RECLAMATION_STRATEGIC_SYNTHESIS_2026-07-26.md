@@ -252,3 +252,11 @@ Per motto_v4 §0.4 and §0.12.2, the following decisions must be explicit before
 ## Update log
 
 - 2026-07-26: Initial synthesis from two independent analyses (Buffy repo audit + ChatGPT structural critique). Proposed status; operator decision required.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this strategic synthesis. This document still owns
+the Reclamation decision frame; the new note carries the wider machine-keeper
+thesis and long-range product direction.

@@ -259,4 +259,36 @@ Confidence is high in the workbook inventory and formula integrity, medium in th
 
 ## Anything else?
 
+## Addendum (2026-07-27): reread of the "3D Game Optimization Gaps" thread
+
+The reread does not replace the existing synthesis. It sharpens the long-term
+ordering and confirms that the repo already points at the right architectural
+lanes.
+
+What this conversation reinforces:
+
+- Keep the deterministic kernel and the simulation/render split as the base
+  contract.
+- Treat culling, LOD, shader strategy, camera feel, collision layers, and
+  authority scaling as engine-level contracts, not ad-hoc optimizations.
+- Prefer capability contracts, world affordances, storage migration,
+  observability, and command/event separation before broad streaming or
+  multiplayer expansion.
+- Model new gameplay as capability composition across machines rather than a
+  deep inheritance tree of vehicle subclasses.
+- Treat streaming, replay, and procedural direction as later gates that should
+  open only after measurement shows pressure.
+
+Repository pointers for the durable synthesis:
+
+- [3D Game Master Synthesis](./3D_GAME_MASTER_SYNTHESIS_2026-07-25.md)
+- [3D Game Optimization Gaps + Long-Term Expansion Synthesis](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
+- [3D Game Optimization and More - Execution Roadmap](./3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+
+Open follow-up:
+
+- If a future slice touches renderer density, visibility policy, or runtime
+  entity counts, add measured culling/LOD acceptance data before widening the
+  scope.
+
 The workbook is unusually valuable because it is structured enough to become future test data. Its next best use is not another summary: selected rows should later become versioned schemas, fixtures, validator cases, and experiment manifests only after their owning ADR is accepted.

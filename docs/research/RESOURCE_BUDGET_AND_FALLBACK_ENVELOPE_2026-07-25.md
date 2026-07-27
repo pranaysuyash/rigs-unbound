@@ -383,3 +383,15 @@ explicit benchmark decision outside the adaptive fallback controller.
 - That keeps the split clean: the resource envelope owns fallback and pressure
   policy, while the episode grammar owns how that policy shapes a playable
   episode.
+
+## Addendum (2026-07-27): the new runtime tranche is a resource signal, but not a policy owner yet
+
+- The new parallel-owned runtime tranche includes power, economy, debris, and
+  atmospheric systems.
+- Those systems are strong evidence that the resource envelope will eventually
+  need non-render budget owners, but they do not yet justify inventing a cross-
+  system ledger in the live product path.
+- The correct current boundary remains: renderer fallback is implemented,
+  resource observability exists, and broader budget governance stays future
+  work until a measured trigger proves one of these non-render domains needs its
+  own degradation policy.

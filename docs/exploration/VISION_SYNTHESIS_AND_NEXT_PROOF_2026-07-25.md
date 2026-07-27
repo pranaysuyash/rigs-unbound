@@ -887,3 +887,11 @@ fidelity will only make the proving ground prettier.
 The most important near-term design rule is therefore:
 
 > **Do not add a system unless the next dawn can remember it.**
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md` is the broader
+horizon for this proof ladder. This document remains the active sequencing and
+acceptance rationale for Farmfall; the new note carries the wider
+machine-keeper thesis and long-range design expansion.

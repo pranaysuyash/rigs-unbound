@@ -2275,3 +2275,23 @@ so the proof harness lane now points at a named boundary instead of only a
 general evidence discussion.
 
 - Addendum (2026-07-25): the Physics Lab browser-experience gap now has a dedicated contract note, so the separate lab route and acceptance runner are tracked as an evidence fixture instead of an implicit side page.
+
+## Addendum (2026-07-27): reread bridge for the optimization-gaps thread
+
+- The reread of the "3D Game Optimization Gaps" thread is archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- This addendum does not change the backlog shape; it confirms the same
+  first-principles ordering from the newer reread:
+  simulation/kernel first, then render visibility and budgets, then capability
+  contracts and world affordances, then migration/observability, then
+  streaming and authority gates.
+- The analysis remains Tier 1/Tier 4 hybrid evidence and does not claim new
+  runtime proof beyond the existing recheck.
+
+## Addendum (2026-07-27): first-principles horizon for the long-term analysis
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this analysis. This document still owns the broad
+game-analysis frame; the new note carries the wider machine-keeper thesis and
+long-range design direction.

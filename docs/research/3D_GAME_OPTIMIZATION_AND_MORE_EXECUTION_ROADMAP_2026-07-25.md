@@ -565,3 +565,22 @@ Linked decision artifact for this architecture phase:
 - This addendum keeps the umbrella roadmap aligned with the newer exploration
   notes so later work can find the dependency without re-deriving it from
   scratch.
+
+## Addendum (2026-07-27): reread bridge for the optimization-gaps thread
+
+- The reread of the "3D Game Optimization Gaps" thread is archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- The roadmap sequence stays the same, but the new reread sharpens the order:
+  kernel/simulation first, then visibility and budgets, then capability and
+  affordance contracts, then migration/observability, then streaming and
+  authority gates.
+- This note is navigation-only; it does not change the lane inventory or the
+  existing ADR sequencing.
+
+## Addendum (2026-07-27): first-principles horizon for the execution roadmap
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this roadmap. This document still owns the execution
+ordering and delivery path; the new note carries the wider machine-keeper
+thesis and long-range product direction.

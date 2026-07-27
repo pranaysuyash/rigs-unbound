@@ -266,6 +266,85 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 - Human review: preserved same-machine identity across all four panels while escalating lighting, defenses, and threat pressure
 - Rights/terms status: generated in the project workspace; still review before any public reuse outside project documentation
 
+## `farming-vs-racing-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/farming-vs-racing-board-2026-07-27.png`
+- SHA-256: `13f746618c4c72c3ed5757c3c44550a248608784c7c84916e6b0dfa7272c948e`
+- Dimensions: 1774 × 887 RGB PNG
+- Date generated: 2026-07-27
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Input/reference: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/tractor-evolution-lineup.png`; used as identity anchor, not edit target
+- Intended use: paired comparison board showing same-machine identity across farming and racing contracts
+- Production status: reference only
+- Human review: kept the cab, wheel family, and repair history stable while changing camera, dust, route, and tuning
+- Rights/terms status: generated in the project workspace; still review before any public reuse outside project documentation
+
+## `survival-vs-construction-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/survival-vs-construction-board-2026-07-27.png`
+- SHA-256: `0763c9658b8b9857fa023e8520be0b0839db7b7367fd85eea011774e74430d20`
+- Dimensions: 1774 × 887 RGB PNG
+- Date generated: 2026-07-27
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Input/reference: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/tractor-evolution-lineup.png`; used as identity anchor, not edit target
+- Intended use: paired comparison board showing the same tractor as shelter and site tool
+- Production status: reference only
+- Human review: kept the machine readable while adding armor, cargo, booms, clamps, and work lights
+- Rights/terms status: generated in the project workspace; still review before any public reuse outside project documentation
+
+## `urban-vs-absurd-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/urban-vs-absurd-board-2026-07-27.png`
+- SHA-256: `adc38b8d69a0335ad5c92b2bedcaaab53af592273aa52b84a03323c12acbd539`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-27
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Input/reference: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/tractor-evolution-lineup.png`; used as identity anchor, not edit target
+- Intended use: paired comparison board showing civic oddity versus mythic absurdity while preserving recognizability
+- Production status: reference only
+- Human review: preserved silhouette and repair grammar while letting the world contract become strange
+- Rights/terms status: generated in the project workspace; still review before any public reuse outside project documentation
+
+## `same-vehicle-comparison-boards-2026-07-27` reference set
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/`
+- Status: **project-owned exploration reference set; not runtime assets**
+- Date generated: 2026-07-27
+- Tool: built in the project workspace as comparison-board reference art
+- Intended use: paired identity-comparison evidence for same tractor across
+  farming, racing, survival, construction, urban, and absurd contracts
+- Production status: reference only
+- Linked docs:
+  - [Same Vehicle Comparison Boards](../exploration/SAME_VEHICLE_COMPARISON_BOARDS_2026-07-27.md)
+  - [Same Vehicle, Many Games](../exploration/SAME_VEHICLE_MULTI_MODE_ATLAS_2026-07-26.md)
+  - [Same Vehicle Mode Matrix](../exploration/SAME_VEHICLE_MODE_MATRIX_2026-07-26.md)
+  - [Same Vehicle Prompt Sheets](../exploration/SAME_VEHICLE_PROMPT_SHEETS_2026-07-26.md)
+  - [Same Vehicle Mode Atlas README](../exploration/assets/same-vehicle-mode-atlas-2026-07-27/README.md)
+
+### `farming-vs-racing-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/farming-vs-racing-board-2026-07-27.png`
+- SHA-256: `13f746618c4c72c3ed5757c3c44550a248608784c7c84916e6b0dfa7272c948e`
+- Dimensions: 1774 × 887 RGB PNG
+- Date generated: 2026-07-27
+- Production status: reference only
+
+### `survival-vs-construction-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/survival-vs-construction-board-2026-07-27.png`
+- SHA-256: `0763c9658b8b9857fa023e8520be0b0839db7b7367fd85eea011774e74430d20`
+- Dimensions: 1774 × 887 RGB PNG
+- Date generated: 2026-07-27
+- Production status: reference only
+
+### `urban-vs-absurd-board-2026-07-27.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-27/urban-vs-absurd-board-2026-07-27.png`
+- SHA-256: `adc38b8d69a0335ad5c92b2bedcaaab53af592273aa52b84a03323c12acbd539`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-27
+- Production status: reference only
+
 ## Project-Local In-Tree Reference Asset Registration (2026-07-27)
 
 All vehicle catalog documentation, reference image assets, and downstream procedural 3D reconstructed Three.js meshes are stored within the project tree (`docs/` and `assets/`).

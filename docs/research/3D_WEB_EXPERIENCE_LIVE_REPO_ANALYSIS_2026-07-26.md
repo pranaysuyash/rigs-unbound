@@ -168,3 +168,11 @@ That keeps the work aligned with the skill guidance:
 - The current browser-first surface remains the live mode; the missing layer is
   the named delivery policy and its public promise boundary.
 - Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this live repo analysis. This document still owns
+the current browser-experience readout; the new note carries the wider
+machine-keeper thesis and long-range product direction.

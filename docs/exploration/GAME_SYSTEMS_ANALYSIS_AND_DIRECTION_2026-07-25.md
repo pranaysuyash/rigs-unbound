@@ -324,3 +324,13 @@ Yes. Two cross-cutting notes the per-section analysis did not say plainly:
   systems also prune), or future agents will navigate by fossils. This is a
   process decision, not a criticism: the docs-first discipline is why this
   analysis could be written from evidence.
+
+## Addendum (2026-07-27): long-term first-principles note is the stronger exploration synthesis
+
+- The new [Long-Term Game Design from First Principles](LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md)
+  note is now the canonical exploration synthesis for the game-fantasy layer.
+- It does not replace this document; it sharpens the same direction by naming
+  the machine-keeper odyssey, the living fractured world, and the player’s
+  attachment/mastery/legacy arc in a more durable form.
+- Future exploration work should treat that note as the higher-level synthesis
+  and this document as the broader systems-analysis companion.

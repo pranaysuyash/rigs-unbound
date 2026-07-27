@@ -118,7 +118,22 @@ These are reusable attachments and state changes that can be combined with the s
 - If the same machine needs one new tool to adapt, keep it in the same family.
 - If lighting alone changes the read, it is a mode.
 - If the camera alone changes the feel, it is a presentation variant.
+
+## Paired boards
+
+These paired boards now act as visual proof for the matrix:
+
+- farming versus racing;
+- survival versus construction;
+- urban versus absurd.
+
+They reinforce the rule that the machine can stay stable while the contract,
+camera, lighting, and loadout change.
 - If the ecology changes, it is a mode contract.
+
+The paired boards are also tracked in the
+[Asset Provenance Register](../research/ASSET_PROVENANCE_REGISTER.md) as
+project-owned exploration reference art.
 
 ## Discussion note
 
@@ -126,4 +141,3 @@ The mode matrix is intended to keep the machine identity stable while allowing
 genre-switching to feel dramatic. A tractor should not become a different
 tractor every time the game changes. The world can become stranger; the machine
 should remain the same character.
-

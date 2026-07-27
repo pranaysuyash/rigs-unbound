@@ -158,6 +158,27 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 | W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane  | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
 | W1-c | Auto-backend rollout gate for `?renderer=auto`                                             | policy/correctness | policy + acceptance criteria before production default expansion                        |
 
+### W1 rollout matrix to collect
+
+This is the first evidence pass for the renderer policy lane. The goal is to
+make `rendererPolicy`, request mode, and device class comparable before any
+default shift.
+
+| Surface | Request | Policy | Device class | Expected outcome | Acceptance gate |
+| --- | --- | --- | --- | --- | --- |
+| developer | `webgl` | `stable` | desktop reference | WebGL direct boot | No fallback; checkpoint names the direct backend |
+| developer | `auto` | `stable` | desktop reference | WebGL unless the stable gate explicitly allows WebGPU | Checkpoint records policy reason and resolved backend |
+| developer | `auto` | `canary` | desktop reference | WebGPU attempt with explicit fallback telemetry if needed | Fallback rate and reason are visible in checkpoint and snapshot |
+| developer | `webgpu` | `stable` | desktop reference | WebGPU request path or explicit fallback to WebGL | Recovery/fallback is named, not silent |
+| production-like | `auto` | `off` | low-capability or unknown | Conservative WebGL direct boot | Default remains stable until D1 proves expansion is safe |
+
+Collection rules:
+
+1. Record the resolved backend and reason from `renderer.metrics()` and the `rendererBackendPolicy` checkpoint together.
+2. Keep the same world seed/session shape across rows so backend policy is the only intended variable.
+3. Classify device class by observed capability or deployment surface, not guessed model identity.
+4. Treat any silent fallback, missing checkpoint field, or missing recovery reason as a failed matrix row.
+
 ## 3.1 Executed slice since this document
 
 - P1-a is now implemented in the live entrypoint:
@@ -229,3 +250,11 @@ findings that remain are mostly _honesty_ findings (a misnamed metric, an
 unrecorded caching posture, an unmeasured boot stall) rather than engineering
 debt. That is the cheap kind of problem: a few commit-units of measurement
 and naming, and the perf lane stops being anecdote.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this WebGPU/performance analysis. This document
+still owns the performance and fallback posture frame; the new note carries
+the wider machine-keeper thesis and long-range product direction.

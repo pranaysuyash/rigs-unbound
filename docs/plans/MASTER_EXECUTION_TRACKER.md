@@ -848,3 +848,11 @@ the game inside an impressive systems playground. The dependency order is:
 `publish current evidence → repair the first rung → complete Farmfall →
 repeat external playtests → expand physics/world/social breadth only when the
 game loop asks a sharper question`.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this tracker. This tracker still owns the current
+execution order and acceptance gates; the new note carries the wider
+machine-keeper thesis and long-range product direction.

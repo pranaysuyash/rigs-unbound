@@ -7,6 +7,7 @@ const playwrightModule =
 const { chromium } = require(playwrightModule);
 
 const { armWatchdog } = require("./browser-watchdog.cjs");
+const { switchToRig } = require("./acceptance-helpers.cjs");
 
 armWatchdog({ minutes: 15, label: "prop-count evidence" });
 
@@ -14,10 +15,6 @@ const TARGET_URL =
   process.env.RIGS_UNBOUND_URL || "http://127.0.0.1:4173/?acceptance=field-02";
 const artifactDirectory = path.resolve(__dirname, "../docs/reviews/assets");
 let browser;
-
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
-}
 
 async function flushRenderFrames(page, count = 4) {
   // Force multiple render frames so the prop rebuild completes.
@@ -32,22 +29,6 @@ async function captureVisibility(page) {
     const snap = window.getPerformanceSnapshot();
     return snap.visibility || null;
   });
-}
-
-async function switchToRig(page, rigId) {
-  await page.evaluate((id) => {
-    const before = JSON.parse(window.render_game_to_text());
-    const target = before.rigs[id];
-    if (!target) throw new Error(`Unknown rig id: ${id}`);
-    window.placeRig(target.x, target.z);
-    window.selectRig(id);
-    const after = JSON.parse(window.render_game_to_text());
-    if (after.activeRigId !== id) {
-      throw new Error(
-        `Rig switch to ${id} was refused: ${after.lastDiagnostic}`,
-      );
-    }
-  }, rigId);
 }
 
 (async () => {
@@ -97,7 +78,8 @@ async function switchToRig(page, rigId) {
 
   const rigIds = ["utility-tractor", "toy-buggy", "marsh-skimmer"];
   const tiers = [
-    { id: "standard", label: "Balanced (168m)", profile: "standard" },
+    { id: "full", label: "Full (168m)", profile: "full" },
+    { id: "standard", label: "Standard (168m)", profile: "standard" },
     { id: "mobile-safe", label: "Conservative (132m)", profile: "mobile-safe" },
   ];
   const results = [];
@@ -158,84 +140,112 @@ async function switchToRig(page, rigId) {
     }
   }
 
-  // Summary comparison
-  console.log("\n\n=== PROP COUNT COMPARISON: BALANCED vs CONSERVATIVE ===\n");
+  // Summary comparison: three tiers
+  console.log("\n\n=== PROP COUNT COMPARISON: FULL vs STANDARD vs CONSERVATIVE ===\n");
   console.log(
     "Rig".padEnd(20) +
-      "Balanced".padEnd(12) +
+      "Full".padEnd(10) +
+      "Standard".padEnd(12) +
       "Conservative".padEnd(14) +
-      "Reduction".padEnd(12) +
-      "Reduction%".padEnd(12) +
-      "BalCulled".padEnd(12) +
-      "ConCulled",
+      "F→S Δ".padEnd(10) +
+      "S→C Δ".padEnd(10) +
+      "Full%".padEnd(8) +
+      "Std%".padEnd(8) +
+      "Con%",
   );
-  console.log("-".repeat(92));
+  console.log("-".repeat(100));
 
   for (const rigId of rigIds) {
+    const full = results.find(
+      (r) => r.rigId === rigId && r.tier === "full",
+    );
     const balanced = results.find(
       (r) => r.rigId === rigId && r.tier === "standard",
     );
     const conservative = results.find(
       (r) => r.rigId === rigId && r.tier === "mobile-safe",
     );
-    if (!balanced || !conservative) continue;
+    if (!full || !balanced || !conservative) continue;
 
-    const reduction = balanced.submitted - conservative.submitted;
-    const reductionPct =
-      balanced.submitted > 0
-        ? ((reduction / balanced.submitted) * 100).toFixed(1)
-        : "0.0";
+    const fullToStd = full.submitted - balanced.submitted;
+    const stdToCon = balanced.submitted - conservative.submitted;
+    const fullPct = full.submitted > 0 ? ((fullToStd / full.submitted) * 100).toFixed(1) : "0.0";
+    const stdPct = balanced.submitted > 0 ? ((stdToCon / balanced.submitted) * 100).toFixed(1) : "0.0";
+    const conPct = full.submitted > 0 ? (((full.submitted - conservative.submitted) / full.submitted) * 100).toFixed(1) : "0.0";
 
     console.log(
       rigId.padEnd(20) +
+        String(full.submitted).padEnd(10) +
         String(balanced.submitted).padEnd(12) +
         String(conservative.submitted).padEnd(14) +
-        String(reduction).padEnd(12) +
-        `${reductionPct}%`.padEnd(12) +
-        String(balanced.culled).padEnd(12) +
-        conservative.culled,
+        String(fullToStd).padEnd(10) +
+        String(stdToCon).padEnd(10) +
+        `${fullPct}%`.padEnd(8) +
+        `${stdPct}%`.padEnd(8) +
+        `${conPct}%`,
     );
   }
 
   // Totals
+  const totalFull = results
+    .filter((r) => r.tier === "full")
+    .reduce((s, r) => s + r.submitted, 0);
   const totalBalanced = results
     .filter((r) => r.tier === "standard")
     .reduce((s, r) => s + r.submitted, 0);
   const totalConservative = results
     .filter((r) => r.tier === "mobile-safe")
     .reduce((s, r) => s + r.submitted, 0);
-  const totalReduction = totalBalanced - totalConservative;
-  const totalReductionPct =
-    totalBalanced > 0
-      ? ((totalReduction / totalBalanced) * 100).toFixed(1)
-      : "0.0";
+  const totalFullToStd = totalFull - totalBalanced;
+  const totalStdToCon = totalBalanced - totalConservative;
+  const totalFullPct = totalFull > 0 ? ((totalFullToStd / totalFull) * 100).toFixed(1) : "0.0";
+  const totalStdPct = totalBalanced > 0 ? ((totalStdToCon / totalBalanced) * 100).toFixed(1) : "0.0";
+  const totalConPct = totalFull > 0 ? (((totalFull - totalConservative) / totalFull) * 100).toFixed(1) : "0.0";
 
-  console.log("-".repeat(92));
+  console.log("-".repeat(100));
   console.log(
     "TOTAL".padEnd(20) +
+      String(totalFull).padEnd(10) +
       String(totalBalanced).padEnd(12) +
       String(totalConservative).padEnd(14) +
-      String(totalReduction).padEnd(12) +
-      `${totalReductionPct}%`,
+      String(totalFullToStd).padEnd(10) +
+      String(totalStdToCon).padEnd(10) +
+      `${totalFullPct}%`.padEnd(8) +
+      `${totalStdPct}%`.padEnd(8) +
+      `${totalConPct}%`,
   );
 
-  // Draw call comparison
+  // Draw call comparison: all three tiers
   console.log("\n\n=== RENDER COST COMPARISON ===\n");
+  console.log(
+    "Rig".padEnd(20) +
+      "Full DrawCalls".padEnd(16) +
+      "Std DrawCalls".padEnd(16) +
+      "Con DrawCalls".padEnd(16) +
+      "Full Tris".padEnd(12) +
+      "Std Tris".padEnd(12) +
+      "Con Tris",
+  );
+  console.log("-".repeat(100));
   for (const rigId of rigIds) {
+    const full = results.find(
+      (r) => r.rigId === rigId && r.tier === "full",
+    );
     const balanced = results.find(
       (r) => r.rigId === rigId && r.tier === "standard",
     );
     const conservative = results.find(
       (r) => r.rigId === rigId && r.tier === "mobile-safe",
     );
-    if (!balanced || !conservative) continue;
+    if (!full || !balanced || !conservative) continue;
     console.log(
-      `${rigId}: ` +
-        `drawCalls ${balanced.drawCalls}→${conservative.drawCalls} ` +
-        `(${conservative.drawCalls - balanced.drawCalls}), ` +
-        `triangles ${balanced.triangles}→${conservative.triangles} ` +
-        `(${conservative.triangles - balanced.triangles}), ` +
-        `geometries ${balanced.geometries}→${conservative.geometries}`,
+      rigId.padEnd(20) +
+        String(full.drawCalls).padEnd(16) +
+        String(balanced.drawCalls).padEnd(16) +
+        String(conservative.drawCalls).padEnd(16) +
+        String(full.triangles).padEnd(12) +
+        String(balanced.triangles).padEnd(12) +
+        conservative.triangles,
     );
   }
 
@@ -248,15 +258,18 @@ async function switchToRig(page, rigId) {
         timestamp: new Date().toISOString(),
         url: TARGET_URL,
         profiles: {
+          full: { farMeters: 168, midMeters: 132, nearMeters: 72 },
           standard: { farMeters: 168, midMeters: 120, nearMeters: 64 },
           "mobile-safe": { farMeters: 132, midMeters: 96, nearMeters: 48 },
         },
         results,
         comparison: {
+          totalFull,
           totalBalanced,
           totalConservative,
-          totalReduction,
-          totalReductionPct: `${totalReductionPct}%`,
+          totalFullToStd: `${totalFullPct}%`,
+          totalStdToCon: `${totalStdPct}%`,
+          totalFullToCon: `${totalConPct}%`,
         },
       },
       null,

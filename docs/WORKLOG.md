@@ -6968,3 +6968,296 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 - Verification:
   - `npm run typecheck`: passed;
   - `npx vitest run src/game/route-opening.test.ts src/game/unbound-passage.test.ts`: passed.
+
+## 2026-07-27 — unbound passage made first-class in state and persistence
+
+- Added `unboundPassage` to the canonical `GameState`, seeded it in
+  `createInitialState`, restored it through the reducer's own validation helper,
+  and exposed the read model in `publicState` under progression.
+- The player-facing snapshot now reports whether the currently active rig can
+  inherit the route opened by another rig, which makes the passage benefit
+  visible without a second truth source.
+- Current saves missing `unboundPassage` restore to a fresh contract rather
+  than failing or inventing a second owner, so the field remains additive for
+  older local records.
+- Added coverage for the new state contract and save/load round-trip.
+- Verification:
+  - `npm run typecheck`: passed;
+  - `npx vitest run src/game/state.test.ts src/game/storage.test.ts src/game/unbound-passage.test.ts`: passed.
+
+## 2026-07-27 — same-vehicle comparison boards cross-linked into exploration docs
+
+- Added the new farming-versus-racing, survival-versus-construction, and
+  urban-versus-absurd comparison boards to the exploration map, atlas, and
+  prompt-sheet evidence trail.
+- These boards are now treated as exploration evidence for identity continuity,
+  not as runtime assets or passage admission surfaces.
+- Registered the same-vehicle comparison board set in the asset provenance
+  register with hashes, dimensions, and linked documentation.
+
+## 2026-07-27 — 3D optimization gap reread ingested into research trail
+
+- Appended a dated addendum to
+  `docs/research/ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md` to
+  capture the new reread of the "3D Game Optimization Gaps" thread.
+- The addendum keeps the repo-local ordering clear: deterministic kernel and
+  simulation/render split first, then capability contracts, command/event
+  separation, storage/migration, observability, and only later streaming or
+  multiplayer expansion.
+- No runtime files were touched in this research-only pass.
+
+## 2026-07-27 — research landing pages now point at the reread addendum
+
+- Added the ingestion note to the top-level research landing pages so the new
+  2026-07-27 reread is discoverable from the main research entry points.
+- The master synthesis and the research README now both point at
+  `docs/research/ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md`.
+
+## 2026-07-27 — legacy 3D audits bridged to the reread addendum
+
+- Added explicit 2026-07-27 addenda to the older long-term analysis/audit docs
+  so the updated ordering is discoverable from those legacy entry points too.
+- The platform audit, second-pass audit, and broad long-term analysis now all
+  point readers back to the reread archive in
+  `docs/research/ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md`.
+- The execution roadmap now carries the same bridge so the implementation lane
+  and the analysis lane stay aligned.
+
+## 2026-07-27 — parallel review and skill ledger now bridge to the reread
+
+- Added the same 2026-07-27 reread bridge to the parallel review addendum and
+  the skill-to-repo execution ledger so the remaining canonical research paths
+  point back to the addendum instead of leaving the update isolated.
+
+## 2026-07-27 — Three.js animation implementation flow left parallel-owned
+
+- A new untracked implementation-flow doc surfaced in the live tree at
+  `docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md`.
+- It is runtime implementation evidence from the parallel lane, not part of the
+  canonical research bridge work, so it remains untouched in this pass.
+- Keeping that boundary explicit preserves the long-term research trail without
+  colliding with the live implementation tranche.
+
+## 2026-07-27 — canonical research sweep for the reread addendum is clean
+
+- Re-swept the canonical research docs for remaining `3D Game Optimization
+  Gaps` references that lacked the reread bridge.
+- No additional canonical research doc needed a bridge after the earlier
+  updates; the remaining live outlier is the parallel-owned implementation-flow
+  note, which stays isolated.
+
+## 2026-07-27 — additional runtime tranche surfaced and remains parallel-owned
+
+- New untracked runtime modules appeared in the live tree:
+  `src/game/barometric-engine.ts`, `src/game/debris-physics.ts`,
+  `src/game/electrical-grid.ts`, and `src/game/expedition-economy.ts`.
+- A second set of untracked runtime modules also surfaced:
+  `src/game/fuel-efficiency.ts`, `src/game/salvage-crafting.ts`,
+  `src/game/surface-moisture.ts`, and `src/game/winch-pulley.ts`.
+- Matching untracked tests surfaced for both groups of modules.
+- These look like a parallel implementation tranche, not canonical research
+  material, so they remain untouched in this pass and are recorded here only as
+  boundary evidence.
+
+## 2026-07-27 — current untracked artifacts are now classified by lane
+
+- Exploration evidence: the same-vehicle comparison boards remain project-owned
+  exploration reference art and stay tied to the provenance register.
+- Exploration evidence: the new
+  `docs/exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+  note is canonical exploration guidance and is already linked from the
+  exploration map.
+- Research evidence: the Three.js animation implementation flow remains
+  parallel-owned implementation evidence and stays outside the canonical
+  research bridge.
+- Runtime evidence: the new barometric, debris, electrical-grid, and
+  expedition-economy modules plus tests remain parallel-owned implementation
+  tranche work and are left untouched.
+
+## 2026-07-27 — parallel runtime tranche now maps to simulation and budget contracts
+
+- The new runtime tranche is now tied back to the existing simulation-layer and
+  resource-envelope contracts as future-facing evidence.
+- This keeps the architecture trail current without promoting the untracked
+  implementation files into canonical repo truth.
+
+## 2026-07-27 — parallel review addendum now names the broader runtime tranche
+
+- The canonical parallel review addendum now classifies the atmospheric,
+  debris, electrical-grid, expedition-economy, fuel-efficiency,
+  salvage-crafting, surface-moisture, and winch-pulley modules as parallel-owned
+  implementation evidence.
+- The research canon stays clean; the runtime lane stays independent.
+
+## 2026-07-27 — first-principles exploration note is canonical exploration guidance
+
+- The new `docs/exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+  note is already linked from the exploration map, so it belongs in the
+  canonical exploration lane rather than the runtime implementation lane.
+- It broadens the design thesis while remaining a recommendation, not an
+  accepted ADR.
+
+## 2026-07-27 — exploration syntheses bridged to the first-principles note
+
+- Added dated addenda to the systems-analysis and big-idea exploration docs so
+  they explicitly point readers at the new long-term first-principles synthesis.
+- The original documents remain intact; the new note is treated as the broader
+  exploration horizon rather than a replacement.
+
+## 2026-07-27 — next-tranche arbitration now points at the first-principles horizon
+
+- Added a dated addendum to the next-tranche arbitration so it explicitly uses
+  the long-term first-principles note as the broader strategic horizon.
+- The arbitration still owns the near-term portability test and sequencing gate.
+
+## 2026-07-27 — wide-open brainstorm now points at the first-principles horizon
+
+- Added a dated addendum to the broad brainstorm so it explicitly points at
+  the new long-term first-principles exploration synthesis.
+- The brainstorm remains the diagnostic and critique surface; the new note
+  carries the broader machine-keeper horizon.
+
+## 2026-07-27 — vision synthesis now points at the first-principles horizon
+
+- Added a dated addendum to the next-proof vision synthesis so it explicitly
+  uses the long-term first-principles note as the broader horizon for the
+  Farmfall proof ladder.
+- The vision doc still owns the sequencing and acceptance rationale; the new
+  note carries the broader machine-keeper thesis.
+
+## 2026-07-27 — open-world brainstorm now points at the first-principles horizon
+
+- Added a dated addendum to the open-world vehicle brainstorm so it explicitly
+  uses the long-term first-principles note as the broader horizon.
+- The brainstorm still owns the generative idea surface; the new note carries
+  the wider machine-keeper platform direction.
+
+## 2026-07-27 — visual direction now points at the first-principles horizon
+
+- Added a dated addendum to the visual-direction preference doc so it
+  explicitly uses the long-term first-principles note as the broader horizon
+  for art direction and camera readability.
+- The visual-direction doc still owns the preferred signals and runtime camera
+  hypotheses; the new note carries the broader machine-keeper thesis.
+
+## 2026-07-27 — execution board now points at the first-principles horizon
+
+- Added a dated addendum to the next execution board so it explicitly uses the
+  long-term first-principles note as the broader horizon for sequencing and
+  long-term direction.
+- The execution board still owns the current gating and sequencing decisions;
+  the new note carries the wider machine-keeper thesis.
+
+## 2026-07-27 — top-level research syntheses now point at the first-principles horizon
+
+- Added dated addenda to the master 3D synthesis and the long-term potential
+  analysis so they explicitly use the long-term first-principles note as the
+  broader horizon.
+- Those docs still own the research map and broad analysis frame; the new note
+  carries the wider machine-keeper thesis and long-range product direction.
+
+## 2026-07-27 — platform audit and execution roadmap now point at the first-principles horizon
+
+- Added dated addenda to the platform long-term audit and execution roadmap so
+  they explicitly use the long-term first-principles note as the broader
+  horizon.
+- Those docs still own the platform-risk frame and delivery order; the new note
+  carries the wider machine-keeper thesis and long-range product direction.
+
+## 2026-07-27 — top-level tracker and strategic synthesis docs now point at the first-principles horizon
+
+- Added dated addenda to the master execution tracker, long-term optimization
+  synthesis, reclamation strategic synthesis, and multi-skill possibility audit
+  so they explicitly use the long-term first-principles note as the broader
+  horizon.
+- Those docs still own their current execution, synthesis, and decision frames;
+  the new note carries the wider machine-keeper thesis and long-range product
+  direction.
+
+## 2026-07-27 — current-state audit and execution ledger now point at the first-principles horizon
+
+- Added dated addenda to the current-state execution audit and skill-to-repo
+  execution ledger so they explicitly use the long-term first-principles note
+  as the broader horizon.
+- Those docs still own the current runtime and skill guidance frames; the new
+  note carries the wider machine-keeper thesis and long-range product direction.
+
+## 2026-07-27 — UI master synthesis now points at the first-principles horizon
+
+- Added a dated addendum to the UI master synthesis so it explicitly uses the
+  long-term first-principles note as the broader horizon for UI architecture
+  and control contracts.
+- The UI synthesis still owns the information-display and interaction frame;
+  the new note carries the wider machine-keeper thesis and long-range product
+  direction.
+
+## 2026-07-27 — rendering-economy and command/event envelope notes now point at the first-principles horizon
+
+- Added dated addenda to the rendering-economy note and the command/event
+  envelope analysis so they explicitly use the long-term first-principles note
+  as the broader horizon.
+- Those docs still own the frame-budget and replayability-envelope frames; the
+  new note carries the wider machine-keeper thesis and long-range product
+  direction.
+
+## 2026-07-27 — asset-pipeline and WebGPU/performance analyses now point at the first-principles horizon
+
+- Added dated addenda to the asset-pipeline analysis and WebGPU/performance
+  analysis so they explicitly use the long-term first-principles note as the
+  broader horizon.
+- Those docs still own the asset-provenance and performance/fallback frames;
+  the new note carries the wider machine-keeper thesis and long-range product
+  direction.
+
+## 2026-07-27 — UI reference and Kenney asset audit now point at the first-principles horizon
+
+- Added dated addenda to the UI reference analysis and Kenney asset audit so
+  they explicitly use the long-term first-principles note as the broader
+  horizon.
+- Those docs still own the field-kit/diegetic-interface and asset provenance /
+  public-approval frames; the new note carries the wider machine-keeper thesis
+  and long-range product direction.
+
+## 2026-07-27 — runtime handoff now names the interaction boundary separately
+
+- Added a dated addendum to the parallel runtime handoff so `src/game/interaction.ts`
+  is explicitly classified as a separate runtime-owned boundary alongside the
+  animation file.
+- The runtime lane remains outside the passage/state tranche; the handoff now
+  keeps the ownership split readable for the next agent.
+
+## 2026-07-27 — renderer integration confirms the animation/interaction runtime lane
+
+- Re-checked `src/game/renderer.ts` and confirmed it already imports
+  `src/game/animation.ts` and initializes the interaction system.
+- That keeps animation and interaction together as a coherent
+  presentation/interaction lane, separate from the canonical passage/state
+  tranche.
+
+## 2026-07-27 — parallel review addendum now names the interaction boundary too
+
+- Added a dated addendum to the parallel review addendum so the new
+  `docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md`
+  artifact is explicitly classified alongside `src/game/animation.ts` as
+  runtime-owned evidence.
+- The canonical research trail now matches the handoff note on the ownership
+  split, keeping the research canon and live lane consistent even though the
+  earlier `src/game/interaction.ts` source file is no longer present in the
+  current tree.
+
+## 2026-07-27 — same-vehicle comparison boards now point at the first-principles horizon
+
+- Added a dated addendum to the same-vehicle comparison boards so they
+  explicitly use the long-term first-principles note as the broader horizon.
+- The boards still own the paired-mode identity evidence; the new note carries
+  the wider machine-keeper thesis and long-range product direction.
+
+## 2026-07-27 — runtime tranche now includes hazard, missions, UI, and maintenance modules
+
+- Added dated addenda to the parallel runtime handoff and parallel review
+  addendum so the newly surfaced `src/game/landslide-hazard.ts`,
+  `src/game/procedural-missions.ts`, `src/game/radial-ui.ts`, and
+  `src/game/vehicle-maintenance.ts` modules are classified as parallel-owned
+  runtime evidence.
+- The canonical simulation/persistence boundary remains unchanged while the
+  live runtime lane grows.

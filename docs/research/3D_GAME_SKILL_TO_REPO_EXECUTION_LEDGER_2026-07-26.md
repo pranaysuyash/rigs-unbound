@@ -582,3 +582,22 @@ addendum makes no new browser-performance claim.
 - [ ] Add evidence and remaining gaps to [`EXPLORATION_MAP.md`](/Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/EXPLORATION_MAP.md).
 - [ ] Select Phase 1 only after Phase 0 establishes policy and measurable pressure.
 - [ ] Keep this ledger active until every non-claim is either proved, deliberately deferred with a trigger, or removed from product direction.
+
+## Addendum (2026-07-27): reread bridge for the optimization-gaps thread
+
+- The reread of the "3D Game Optimization Gaps" thread is archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- The ledger already turns the conversation into repo-specific execution
+  guidance; this addendum simply makes the updated ordering easy to reach from
+  the same canonical trail.
+- The durable sequence remains: kernel/simulation invariants first, then
+  capability and affordance contracts, then migration/observability, then
+  streaming and authority only after measurable pressure.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this execution ledger. This document still owns the
+skill-to-repo guidance and sequencing frame; the new note carries the wider
+machine-keeper thesis and long-range product direction.

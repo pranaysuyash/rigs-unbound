@@ -17,6 +17,7 @@ import {
 import { GameWorld } from "./gameworld";
 import { driveForce, effectiveGrip } from "./physics";
 import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
+import { createUnboundPassageState } from "./unbound-passage";
 import {
   activeRig,
   advanceGame,
@@ -951,6 +952,49 @@ describe("exploration and progression", () => {
     const recovered = recoverState(JSON.parse(JSON.stringify(state)));
     expect(recovered?.worldTimeMinutes).toBeCloseTo(state.worldTimeMinutes, 5);
     expect(recovered?.phase).toBe("gloam");
+  });
+
+  it("publishes and recovers the unbound passage contract", () => {
+    const { state, world } = scenario("UNBOUND-PASSAGE-STATE");
+    expect(state.unboundPassage).toEqual(createUnboundPassageState());
+
+    state.unboundPassage = {
+      ...state.unboundPassage,
+      status: "open",
+      revision: 2,
+      openedByRigId: "utility-tractor",
+      openedByLaneId: "grade-and-brace",
+    };
+    selectActiveRig(state, "toy-buggy");
+
+    const exposed = publicState(state, world) as {
+      progression: {
+        unboundPassage: {
+          status: string;
+          inheritedBenefitAvailable: boolean;
+          openedByRigId: string | null;
+          openedByLaneId: string | null;
+          explanation: string;
+        };
+      };
+    };
+
+    expect(exposed.progression.unboundPassage.status).toBe("open");
+    expect(exposed.progression.unboundPassage.inheritedBenefitAvailable).toBe(
+      true,
+    );
+    expect(exposed.progression.unboundPassage.openedByRigId).toBe(
+      "utility-tractor",
+    );
+    expect(exposed.progression.unboundPassage.openedByLaneId).toBe(
+      "grade-and-brace",
+    );
+    expect(exposed.progression.unboundPassage.explanation).toContain(
+      "inherited route",
+    );
+
+    const recovered = recoverState(JSON.parse(JSON.stringify(state)));
+    expect(recovered?.unboundPassage).toEqual(state.unboundPassage);
   });
 });
 

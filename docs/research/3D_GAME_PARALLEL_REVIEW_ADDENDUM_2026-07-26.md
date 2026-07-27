@@ -91,3 +91,58 @@ The next implementation owner should take the smallest vertical proof in this or
   before it becomes active scope.
 - Evidence tier: Tier 1 static inspection plus earlier recorded runtime notes
   in the worklog.
+
+## Addendum (2026-07-27): reread bridge for the optimization-gaps thread
+
+- The reread of the "3D Game Optimization Gaps" thread is archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- This addendum does not alter the parallel review verdict; it only makes the
+  updated ordering easy to reach from this review surface.
+- The same long-term sequence still applies: kernel and renderer split first,
+  then capability/affordance contracts, then migration and observability, then
+  streaming or authority only when evidence demands it.
+
+## Addendum (2026-07-27): parallel-owned animation implementation evidence remains outside the canonical trail
+
+- A new implementation-flow artifact exists at
+  `docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md`.
+- It is runtime implementation evidence from the parallel lane, not canonical
+  research or roadmap content, so it remains intentionally outside this review
+  addendum and the canonical research bridge.
+- The boundary is documented in the worklog so the repository can preserve the
+  distinction without folding parallel implementation proof into the research
+  path.
+
+## Addendum (2026-07-27): interaction boundary is separate runtime-owned evidence too
+
+- The live tree now exposes `docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md`
+  as the current interaction evidence, rather than a present `src/game/interaction.ts`
+  source file.
+- It belongs with the animation lane as presentation/interaction evidence, not
+  with the passage/state tranche or the canonical research trail.
+- The ownership split is now reflected in the worklog and the parallel runtime
+  handoff so the live lane stays coherent without becoming the active research
+  authority.
+
+## Addendum (2026-07-27): the newer runtime tranche stays parallel-owned too
+
+- A broader untracked runtime tranche surfaced with atmospheric, debris,
+  electrical-grid, expedition-economy, fuel-efficiency, salvage-crafting,
+  surface-moisture, and winch-pulley modules plus their tests.
+- These files are implementation evidence from the parallel lane, not canonical
+  research or roadmap content, so they remain outside the research canon and
+  outside this addendum's active trail.
+- The correct role for this note is classification only: it preserves the
+  boundary so the repo can keep the research canon clean while the runtime lane
+  continues independently.
+
+## Addendum (2026-07-27): the runtime tranche now includes hazard, missions, UI, and maintenance too
+
+- The live tree now also carries `src/game/landslide-hazard.ts`,
+  `src/game/procedural-missions.ts`, `src/game/radial-ui.ts`, and
+  `src/game/vehicle-maintenance.ts` with matching tests.
+- These remain parallel-owned implementation evidence, not canonical research
+  or roadmap content, so they belong with the runtime lane and outside the
+  research canon.
+- This keeps the research boundary honest as the live lane grows beyond the
+  earlier atmospheric and economy modules.

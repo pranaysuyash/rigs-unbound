@@ -556,3 +556,13 @@ Three things the per-role view missed.
    that is a more valuable and more honest post than any screenshot — and this
    repository is an unusually clean specimen of it, reaching the terminal state of
    the old failure mode in a single afternoon.
+
+## Addendum (2026-07-27): the first-principles exploration note is the broader horizon for this brainstorm
+
+- The new [Long-Term Game Design from First Principles](LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md)
+  note is the broader strategic synthesis that this brainstorm now points
+  toward.
+- This brainstorm remains the diagnostic, critique-heavy surface; the new note
+  carries the longer machine-keeper thesis and the exploration horizon.
+- Future exploration should treat the two together: this file for the failure
+  modes and evidence pressure, the new note for the broader design direction.

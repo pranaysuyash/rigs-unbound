@@ -46,6 +46,76 @@ function atHomeWorkshop(state: GameState): boolean {
   return isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
 }
 
+const SIGHT_RADIUS_MULTIPLIER = 3;
+const ATTEMPT_ROUTE_RADIUS = 36;
+
+/**
+ * Before fitting the blade, guide the player to scout Long Furrow and
+ * discover the terrain blockage. Only fires when salvage is affordable,
+ * no modules are fitted, the rig is compatible, and the player is not
+ * at the Home workshop.
+ */
+function resolvePreBladeJourney(
+  state: GameState,
+): FirstRungResolution | null {
+  const affordable = state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost;
+  if (!affordable) return null;
+  if (state.rigs[state.activeRigId].modules.length > 0) return null;
+  const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(state.activeRigId);
+  if (!compatible) return null;
+  if (atHomeWorkshop(state)) return null;
+
+  const rig = state.rigs[state.activeRigId];
+  const longFurrow = findSite("long-furrow");
+  if (!longFurrow) return null;
+
+  // Only activate when the player is near enough to actually scout Long
+  // Furrow.  If they are far away the normal find-cache / return-home flow
+  // should guide them to fit the blade first.
+  const distToLongFurrow = Math.hypot(
+    rig.x - longFurrow.x,
+    rig.z - longFurrow.z,
+  );
+  const sightRadius = longFurrow.discoverRadius * SIGHT_RADIUS_MULTIPLIER;
+  if (distToLongFurrow > sightRadius) return null;
+
+  if (distToLongFurrow <= ATTEMPT_ROUTE_RADIUS) {
+    return {
+      stage: "attempt-route",
+      objective: "The terrain blocks the way. Return for lug tyres.",
+      shortLabel: "Need lug tyres",
+      ariaLabel:
+        "A steep terrain face blocks the direct route to Long Furrow. Return to Home Silo and fit lug tyres for better grip, then plough through.",
+      reason:
+        "The direct route to Long Furrow is blocked by a terrain face that the plough can clear with better grip.",
+      target: { x: HOME_SITE.x, z: HOME_SITE.z },
+      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
+      recommendedRigId: null,
+      affordable: true,
+      complete: false,
+    };
+  }
+
+  if (distToLongFurrow <= sightRadius) {
+    return {
+      stage: "sight-destination",
+      objective: "Head toward Long Furrow",
+      shortLabel: "Sight Long Furrow",
+      ariaLabel:
+        "Long Furrow is visible ahead. Drive toward it to scout the terrain.",
+      reason:
+        "Long Furrow is visible and should be scouted before fitting the blade.",
+      target: { x: longFurrow.x, z: longFurrow.z },
+      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
+      recommendedRigId: null,
+      affordable: true,
+      complete: false,
+    };
+  }
+
+  return null;
+}
+
 function firstCompatibleRig(
   state: GameState,
   moduleId: ModuleId,
@@ -327,6 +397,13 @@ export function resolveFirstRung(
   const recommendedRigId = firstCompatibleRig(state, recommendedModuleId);
   const affordable = state.salvage >= recommendedModule.cost;
 
+  // The pre-blade journey only activates after the player has collected the
+  // first cache.  Before that, the normal find-cache → return-home flow
+  // should guide them to fit the blade first.
+  const firstCacheCollected = collectedNodes.has(FIRST_SALVAGE_NODE.id);
+  const preBladeJourney = firstCacheCollected ? resolvePreBladeJourney(state) : null;
+  if (preBladeJourney) return preBladeJourney;
+
   if (affordable) {
     const activeRigCanFit = recommendedRigId === state.activeRigId;
     if (!activeRigCanFit && recommendedRigId !== null) {
@@ -387,7 +464,6 @@ export function resolveFirstRung(
     };
   }
 
-  const firstCacheCollected = collectedNodes.has(FIRST_SALVAGE_NODE.id);
   if (firstCacheCollected) {
     const missing = recommendedModule.cost - state.salvage;
     return {

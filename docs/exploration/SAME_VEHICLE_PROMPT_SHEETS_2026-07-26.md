@@ -119,3 +119,29 @@ Constraints: absurd is allowed, identity drift is not
 - a new threat ladder adds a reusable escalation pattern;
 - a new scene contract becomes a core product possibility.
 
+## Comparison-board prompt seeds
+
+These seeds match the new paired boards and can be reused for later image or
+`img2threejs` passes.
+
+The corresponding project-owned comparison-board evidence lives in
+[Same Vehicle Comparison Boards](SAME_VEHICLE_COMPARISON_BOARDS_2026-07-27.md)
+and is registered in the [Asset Provenance Register](../research/ASSET_PROVENANCE_REGISTER.md).
+
+### Farming versus racing
+
+```text
+Show the same tractor in a single comparison board with one farming panel and one racing panel; keep the cab, wheel family, and repair history identical while shifting only the loadout, camera, dust, and route contract.
+```
+
+### Survival versus construction
+
+```text
+Show the same tractor as a survival shelter rig beside the same tractor as a construction and salvage tool; keep the same machine identity while adding armor, cargo, booms, clamps, and work lighting.
+```
+
+### Urban versus absurd
+
+```text
+Show the same tractor as a civic oddity beside a mythic or absurd version; preserve the silhouette and repair grammar so the identity survives even when the world contract becomes strange.
+```

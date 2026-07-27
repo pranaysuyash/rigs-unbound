@@ -149,3 +149,12 @@ Next proof steps (in order):
 
 - This pass is **Tier 1 (static inspection)** plus live path tracing from the cited files.
 - Tier 2/3 runtime verification for new hardening items remains pending by design and requires explicit run records.
+
+## Addendum (2026-07-27): reread bridge for the updated ordering
+
+- The reread of the "3D Game Optimization Gaps" thread is now archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- The updated ordering is the same long-term direction, just sharper:
+  visibility/culling and budgets first, then collision and streaming,
+  then replay transport, then authority gating.
+- This note is navigation-only and does not add new runtime claims.

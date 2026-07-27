@@ -180,3 +180,14 @@ the durable contract notes now carry the implementation runway forward.
 - Abstract only after the second proven use case.
 - Keep long-lived engine invariants (tick order, mutation rules, intent->state boundary) stable.
 - Data that changes often stays in validated content; gameplay invariants remain in code/contracts.
+- The 2026-07-27 reread of the "3D Game Optimization Gaps" thread is archived in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md);
+  use that addendum as the canonical durable note for the updated ordering.
+
+## Addendum (2026-07-27): first-principles horizon for the long-term synthesis
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this synthesis. This document still owns the
+long-term synthesis frame and ordering guidance; the new note carries the
+wider machine-keeper thesis and long-range product direction.

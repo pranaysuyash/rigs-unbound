@@ -85,6 +85,13 @@ The companion mode matrix, prompt sheets, and first escalation board live in
 [Same Vehicle Mode Matrix](SAME_VEHICLE_MODE_MATRIX_2026-07-26.md),
 [Same Vehicle Prompt Sheets](SAME_VEHICLE_PROMPT_SHEETS_2026-07-26.md), and
 [tractor-mode-escalation-board-2026-07-26.png](assets/same-vehicle-mode-atlas-2026-07-26/tractor-mode-escalation-board-2026-07-26.png).
+The newer paired comparison boards add farming versus racing, survival versus
+construction, and urban versus absurd as concrete evidence for the same
+identity under stronger genre pressure:
+[Same Vehicle Comparison Boards](SAME_VEHICLE_COMPARISON_BOARDS_2026-07-27.md).
+Those boards are also tracked in the
+[Asset Provenance Register](../research/ASSET_PROVENANCE_REGISTER.md) as
+project-owned exploration reference art.
 
 ### Farmfall emission and cultivation boundary
 
@@ -101,6 +108,16 @@ surface. See
 ### Long arc
 
 `acquire machines → learn their personalities → earn capabilities and relationships → connect regions/scales → build a strange fleet → change the world`
+
+The first-principles whole-game exploration now recommends a **Living Atlas
+Odyssey**: an intimate persistent home grows into a wandering workshop and
+small relational fleet, while dense regions, inhabitants, and rare scale
+transformations supply purpose beyond the rig catalog. The recommendation,
+competing whole-game forms, campaign arc, world premise, long-term loops,
+progression, social/creator possibilities, design-question roadmap, and
+proceed/prototype/pause/kill conditions are documented in
+[Long-Term Game Design from First Principles](LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md).
+This is a proposed synthesis, not an accepted ADR.
 
 ### Proposed composition grammar
 

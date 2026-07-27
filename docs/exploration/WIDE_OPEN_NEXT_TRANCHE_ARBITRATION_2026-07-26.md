@@ -279,3 +279,13 @@ Yes. Cross-rig inheritance is a stronger portability test than merely allowing
 several rigs to complete the same activity. That distinction should be carried
 into Farmfall, rescue, construction, and future world design even if the
 operator chooses a different immediate sequence.
+
+## Addendum (2026-07-27): the first-principles exploration note is the broader horizon for this arbitration
+
+- The new [Long-Term Game Design from First Principles](LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md)
+  note gives this arbitration its broader strategic horizon.
+- This arbitration still owns the near-term portability test: cross-rig
+  inheritance, next-tranche sequencing, and the smallest proof that one rig's
+  consequence can matter to another rig.
+- Future sequence decisions should treat the new first-principles note as the
+  higher-level synthesis, while this document remains the next-tranche gate.

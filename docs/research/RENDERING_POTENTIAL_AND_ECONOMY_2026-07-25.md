@@ -218,3 +218,11 @@ Those contracts tell us how the world should behave. This note tells us how to s
   review artifact that would make the frame-budget policy durable over time.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this rendering-economy note. This document still
+owns the frame-budget and camera/readability frame; the new note carries the
+wider machine-keeper thesis and long-range product direction.

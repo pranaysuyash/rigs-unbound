@@ -134,3 +134,11 @@ Next decision required from you:
 
 1. the renderer/performance/accessibility contract bundle is now documented as the immediate documentation-and-validation track,
 2. the next branch point remains whether to prioritize a second locomotion family or a renderer hardening lane first.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this audit. This document still owns the multi-skill
+possibility frame; the new note carries the wider machine-keeper thesis and
+long-range product direction.

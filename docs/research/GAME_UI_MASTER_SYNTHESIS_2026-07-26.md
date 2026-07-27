@@ -244,3 +244,11 @@ One player drives (WASD/gamepad), another manages the map/scanner/radio on their
 - **Accessibility gap:** The current research on accessibility-first controls (switch access, one-handed schemes, dignity-preserving assists) reveals that the project's input contract should formalize these as first-class options, not afterthoughts. The `ACCESSIBILITY_AND_INPUT_CONTRACT` already names this gap but doesn't specify the concrete assist options.
 - **Audio as UI is entirely absent** from the current runtime. This is the highest-signal single addition the project could make — engine sound alone would transform game feel.
 - **No research was found on a direct competitor** doing vehicle-as-character in the browser with this depth of UI consideration. This is genuinely novel territory.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this UI synthesis. This document still owns the UI
+architecture, information-display, and control-contract frame; the new note
+carries the wider machine-keeper thesis and long-range product direction.

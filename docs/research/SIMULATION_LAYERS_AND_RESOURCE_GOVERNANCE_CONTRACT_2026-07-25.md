@@ -261,3 +261,17 @@ measurement, or cross-layer policy was introduced by this addendum.
 - This note intentionally does not promote the governance ledger into a story
   system; it only keeps the dependency visible so future episode work can rely
   on the same domain-order policy.
+
+## Addendum (2026-07-27): parallel-owned runtime tranche now points at these simulation families
+
+- A new parallel-owned runtime tranche surfaced with atmospheric, debris,
+  electrical-grid, and expedition-economy modules.
+- Those modules fit the existing simulation-layer families in this contract:
+  weather/atmosphere, terrain/mobility interaction, power/resource flow, and
+  regional economy.
+- The tranche is implementation evidence, not canonical adoption. It widens the
+  proof surface for these domains, but it does not yet add a governance ledger
+  or a new budget owner for them.
+- The long-term implication is unchanged: if these systems become canonical,
+  they should inherit the same ordered, downgradeable, evidence-first treatment
+  as the existing simulation layers.

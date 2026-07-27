@@ -274,3 +274,11 @@ That keeps the work aligned with the accessibility skill guidance:
   first-class accessible dialog boundary.
 - Evidence depth: Tier 1 static source inspection. No runtime assistive-tech
   walkthrough was run in this pass.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this accessibility/profile analysis. This document
+still owns the accessible-profile and focus-boundary frame; the new note
+carries the wider machine-keeper thesis and long-range product direction.

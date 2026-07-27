@@ -157,3 +157,20 @@ Unbound Passage runtime wiring, inherited-route browser proof, and external
 fresh-player comprehension remain open. See
 `SITES_VERSION_10_RELEASE_2026-07-26.md` for exact provenance, evidence tiers,
 visual findings, and the production acceptance record.
+
+## Addendum (2026-07-27) — passage state is now canonical in save/load and progression
+
+The prior “pure proof only” boundary is now partially superseded by the live
+state/store wiring in this checkout:
+
+- `src/game/contracts.ts` now carries `unboundPassage` on `GameState`.
+- `src/game/state.ts` seeds `unboundPassage`, restores it through
+  `restoreUnboundPassage`, and publishes the read model in `progression`.
+- `src/game/storage.test.ts` and `src/game/state.test.ts` now prove the
+  save/load round-trip and the public snapshot.
+
+What remains open is the browser/runtime admission:
+
+- connect the actual player interaction to the passage reducer;
+- show the inherited-route benefit in the live UI/runtime;
+- re-run browser evidence once the active `main.ts`/renderer surface is stable.

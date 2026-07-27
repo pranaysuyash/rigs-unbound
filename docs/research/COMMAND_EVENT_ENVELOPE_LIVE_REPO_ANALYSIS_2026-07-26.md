@@ -138,3 +138,11 @@ That keeps the work aligned with the roadmap:
 - The next durable step is still the shared event graph, but the envelope is
   the prerequisite boundary beneath it.
 - Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this command/event analysis. This document still
+owns the shared envelope and replayability frame; the new note carries the
+wider machine-keeper thesis and long-range product direction.

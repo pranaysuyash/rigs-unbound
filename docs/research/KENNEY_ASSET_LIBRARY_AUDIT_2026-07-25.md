@@ -225,3 +225,11 @@ matching hashes, and runtime-tested developer-surface behavior. They remain
 gate, not an unresolved-license claim. The production packager must exclude
 their bytes until an entry-specific approval record closes art fit, resource
 budget, LOD/profile intent, and player-surface browser acceptance.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this asset audit. This document still owns the
+asset provenance, private/public boundary, and approval frame; the new note
+carries the wider machine-keeper thesis and long-range product direction.

@@ -523,3 +523,11 @@ player build continues to exclude them.
 - Remaining policy item: runtime bridge candidates require an explicit
   provenance/release decision before any public approval; passing the build
   boundary intentionally does not make that decision for the product owner.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this current-state audit. This document still owns
+the current runtime and acceptance frame; the new note carries the wider
+machine-keeper thesis and long-range product direction.

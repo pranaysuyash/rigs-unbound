@@ -179,3 +179,11 @@ critical-path complete. The long-term closure path is: measured baseline,
 truthful dynamic instance bounds, an exclusive and camera-correct LOD policy,
 browser visual evidence across camera modes, and performance comparison before
 promotion.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this renderer analysis. This document still owns
+the renderer-risk frame and closure path; the new note carries the wider
+machine-keeper thesis and long-range product direction.

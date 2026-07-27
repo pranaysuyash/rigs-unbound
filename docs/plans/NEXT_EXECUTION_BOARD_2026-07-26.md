@@ -111,15 +111,18 @@ Done only when its stated closure evidence exists.
   - Keep guidance derived from canonical state; add no shadow quest ledger.
   - Evidence: resolver/tests restored; browser matrix rerun remains part of B7.
 
-- [-] **B3 — Admit or reject Unbound Passage groundwork.**
+- [x] **B3 — Admit or reject Unbound Passage groundwork.**
   - Related: RU-0909.
   - Current evidence: pure reducer now preserves failed-lane provenance,
-    rejects invalid ticks, and passes seven focused tests plus typecheck.
+    rejects invalid ticks, and passes seven focused tests plus typecheck; the
+    canonical `GameState`/save path now carries `unboundPassage`, and the public
+    progression snapshot publishes the inherited-route read model.
   - Keep the reducer downstream of locomotion; no direct storage, renderer, or
     generic quest ownership.
   - Verify author provenance, inherited benefit, recoverable failure,
     malformed-record recovery, and schema ownership.
   - Gate: tests pass and the admission review has no stale blocker claims.
+  - Browser/runtime admission remains in C2.
 
 - [?] **B3a — Admit or reject Survey Route 01 and its schema-v7 claim.**
   - Current evidence: a second activity binding (`survey`) uses the shared
@@ -329,8 +332,9 @@ The integrated and replay matrices now pass locally. The next ordered work is:
 1. run external fresh-player comprehension for A6;
 2. reconcile Survey Route's schema ownership with cultivation and obtain the
    remaining B3/B3a/B4/C1 operator decisions;
-3. close the current renderer/performance admission evidence and begin the
-   representative-device D1 envelope;
+3. close the current renderer/performance admission evidence by publishing the
+   W1 rollout matrix in `docs/research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md`
+   and then begin the representative-device D1 envelope;
 4. perform a fresh preservation audit, exact-source deployment, and public
    rerun for the post-version-10 tranche;
 5. then wire the chosen player-facing vertical without turning a validation
@@ -372,3 +376,11 @@ cross-rig direction.
 - Parallel work has a preservation/admission phase.
 - Git, Sites, test, browser, documentation, and operator-decision gates exist.
 - Open questions remain visible rather than becoming false Done claims.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this execution board. This board still owns the
+current gating and sequencing decisions; the new note carries the wider
+machine-keeper thesis and long-range direction.

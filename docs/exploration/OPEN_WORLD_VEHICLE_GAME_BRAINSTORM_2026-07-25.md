@@ -316,3 +316,11 @@ Remove or postpone:
 ## Anything else?
 
 The project has permission to be delightfully strange. Its discipline is that every strange thing must either deepen the machine, change the remembered world, or open a new kind of play.
+
+## Addendum (2026-07-27)
+
+The long-term first-principles exploration note at
+`LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md` is the broader
+horizon for this brainstorm. This document remains the generative idea surface;
+the new note carries the wider machine-keeper thesis and long-range platform
+direction.

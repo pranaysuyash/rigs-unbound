@@ -250,3 +250,22 @@ Lane E: **Authority envelope**
   hand-wavy.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   and doc inspection.
+
+## Addendum (2026-07-27): reread of the updated 3D optimization gaps ordering
+
+- The 2026-07-27 reread of the "3D Game Optimization Gaps" thread is now
+  captured in
+  [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md).
+- The durable order remains unchanged but is now sharper: kernel/render split
+  first, then capability contracts, command/event separation, storage and
+  migration, observability, and only later streaming or authority expansion.
+- No new runtime evidence was required for this addendum; it is a navigation
+  and ordering update only.
+
+## Addendum (2026-07-27): first-principles horizon for the platform audit
+
+The long-term first-principles exploration note at
+`../exploration/LONG_TERM_GAME_DESIGN_FROM_FIRST_PRINCIPLES_2026-07-27.md`
+is the broader horizon for this platform audit. This document still owns the
+platform-risk frame and sequencing of proof obligations; the new note carries
+the wider machine-keeper thesis and long-range product direction.
