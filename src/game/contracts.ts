@@ -567,6 +567,8 @@ export interface FurrowMark {
   heading: number;
   createdAt: number;
   rigId: RigId;
+  /** Blade direction at time of creation. Unfolds from the plough attachment. */
+  mode: BladeMode;
 }
 
 export interface DiscoveryState {

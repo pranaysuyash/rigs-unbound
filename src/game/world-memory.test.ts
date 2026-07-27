@@ -13,8 +13,8 @@ describe("World Memory Soil Displacement System", () => {
   it("derives displacement map from furrow marks in state", () => {
     const state = createInitialState("test-seed");
     state.furrows.push(
-      { x: 10, z: 20, heading: 0, createdAt: 100, rigId: "utility-tractor" },
-      { x: 10, z: 20, heading: 0, createdAt: 101, rigId: "utility-tractor" },
+      { x: 10, z: 20, heading: 0, createdAt: 100, rigId: "utility-tractor", mode: "cut" as const },
+      { x: 10, z: 20, heading: 0, createdAt: 101, rigId: "utility-tractor", mode: "cut" as const },
     );
 
     const map = deriveSoilDisplacement(state);

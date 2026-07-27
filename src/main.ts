@@ -68,6 +68,9 @@ import type {
   RigOrientationEvidence,
   RigPerceptionEvidence,
   RuntimeAssetBridgeEvidence,
+  RendererBackendPolicyConfig,
+  RendererBackendRequest,
+  RendererPolicy,
 } from "./game/renderer";
 import { runtimeBridgeSpecs } from "./game/runtime-assets";
 import {
@@ -200,6 +203,90 @@ function distanceBand(metres: number): string {
   return "distant";
 }
 
+type RendererPolicyGateReason = string;
+
+function parseRendererRequest(raw: string | null): RendererBackendRequest {
+  return raw === "webgl" || raw === "webgpu" || raw === "auto"
+    ? raw
+    : "auto";
+}
+
+function parseRendererPolicy(raw: string | null): RendererPolicy {
+  return raw === "canary" || raw === "off" || raw === "stable"
+    ? raw
+    : "stable";
+}
+
+function isIosClassBrowser(): boolean {
+  const ua = navigator.userAgent.toLowerCase();
+  const looksLikeIos = /iphone|ipad|ipod/.test(ua);
+  const looksLikeMacIOS = /macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+  return looksLikeIos || looksLikeMacIOS;
+}
+
+function resolveRendererPolicy({
+  request,
+  policy,
+}: {
+  request: RendererBackendRequest;
+  policy: RendererPolicy;
+}): {
+  policyAllowsAutoWebGPU: boolean;
+  reason: RendererPolicyGateReason;
+} {
+  if (request !== "auto") {
+    return {
+      policyAllowsAutoWebGPU: true,
+      reason: "non-auto request bypasses policy gate",
+    };
+  }
+
+  if (policy === "canary") {
+    return {
+      policyAllowsAutoWebGPU: true,
+      reason: "rendererPolicy=canary",
+    };
+  }
+
+  if (policy === "off") {
+    return {
+      policyAllowsAutoWebGPU: false,
+      reason: "rendererPolicy=off",
+    };
+  }
+
+  const reasons: string[] = [];
+
+  if (typeof navigator === "undefined" || !navigator.gpu) {
+    reasons.push("no navigator.gpu");
+  }
+  if (!window.isSecureContext && window.location.protocol !== "file:") {
+    reasons.push("requires secure context");
+  }
+
+  const { deviceMemory } = navigator as Navigator & { deviceMemory?: number };
+  if (typeof deviceMemory === "number" && deviceMemory <= 4) {
+    reasons.push(`deviceMemory=${deviceMemory}`);
+  }
+  if (
+    typeof navigator.hardwareConcurrency === "number" &&
+    navigator.hardwareConcurrency < 4
+  ) {
+    reasons.push(`hardwareConcurrency=${navigator.hardwareConcurrency}`);
+  }
+  if (isIosClassBrowser()) {
+    reasons.push("iOS-class platform");
+  }
+
+  return {
+    policyAllowsAutoWebGPU: reasons.length === 0,
+    reason:
+      reasons.length === 0
+        ? "rendererPolicy=stable passed"
+        : `rendererPolicy=stable blocked: ${reasons.join("; ")}`,
+  };
+}
+
 /**
  * Describe a grade in words as well as a bar.
  *
@@ -237,10 +324,31 @@ function boot(): void {
   const developerSurface =
     acceptanceSurface || surfaceParameters.get("surface") === "developer";
   const runtimeBridgeMode = developerSurface ? "developer" : "player";
+  const requestedRendererBackend = parseRendererRequest(
+    surfaceParameters.get("renderer"),
+  );
+  const requestedRendererPolicy = parseRendererPolicy(
+    surfaceParameters.get("rendererPolicy"),
+  );
+  const rendererBackendPolicy = resolveRendererPolicy({
+    request: requestedRendererBackend,
+    policy: requestedRendererPolicy,
+  });
+  const rendererBackendConfig: RendererBackendPolicyConfig = {
+    request: requestedRendererBackend,
+    policy: requestedRendererPolicy,
+    policyAllowsAutoWebGPU: rendererBackendPolicy.policyAllowsAutoWebGPU,
+    policyReason: rendererBackendPolicy.reason,
+  };
   let statusMessage = loadResult.message;
 
   const createRenderer = (): GameRenderer =>
-    new GameRenderer(canvas, world, runtimeBridgeSpecs(runtimeBridgeMode));
+    new GameRenderer(
+      canvas,
+      world,
+      runtimeBridgeSpecs(runtimeBridgeMode),
+      rendererBackendConfig,
+    );
   let renderer = createRenderer();
   const rendererRecoveryState = {
     lost: false,
@@ -280,6 +388,7 @@ function boot(): void {
     try {
       renderer = createRenderer();
       renderer.invalidate(state);
+      emitRendererBackendPolicyCheckpoint();
       runtimeProfileSelection = selectRuntimeProfile(
         performanceMonitor.snapshot(renderer.metrics()),
       );
@@ -413,6 +522,23 @@ function boot(): void {
       ...payload,
     });
   };
+
+  const emitRendererBackendPolicyCheckpoint = (): void => {
+    const snapshot = performanceMonitor.snapshot(renderer.metrics());
+    recordCheckpoint("rendererBackendPolicy", {
+      requested: rendererBackendConfig.request,
+      policy: rendererBackendConfig.policy,
+      policyAllowsAutoWebGPU:
+        rendererBackendConfig.policyAllowsAutoWebGPU,
+      policyReason: rendererBackendConfig.policyReason,
+      effective: snapshot.rendererBackend,
+      requestedBackend: snapshot.rendererRequestedBackend,
+      fallback: snapshot.rendererBackendFallback,
+      backendReason: snapshot.rendererBackendReason,
+    });
+  };
+
+  emitRendererBackendPolicyCheckpoint();
 
   const phaseLabel = requiredElement<HTMLElement>("#phase-label");
   const timeLabel = requiredElement<HTMLElement>("#time-label");
@@ -1296,8 +1422,9 @@ function boot(): void {
     ) {
       metrics = performanceMonitor.snapshot(renderer.metrics());
       const fallbackActive = runtimeProfileSelection.profile === "mobile-safe";
+      const reasonText = runtimeProfileSelection.reasonText;
       statusMessage = fallbackActive
-        ? "Performance safeguard active: reduced scenery detail."
+        ? `Performance safeguard active: reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
         : "Performance safeguard cleared: standard scenery detail restored.";
       if (worldEntered) {
         showToast(statusMessage);
@@ -1310,11 +1437,11 @@ function boot(): void {
         // window is wide enough for a meaningful profile decision.
         bootstrapStatus.dataset.state = "ready";
         bootstrapStatus.textContent = fallbackActive
-          ? "Field systems ready with reduced scenery detail."
+          ? `Field systems ready with reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
           : "Field systems ready with standard scenery detail.";
       } else if (bootstrapStatus.dataset.state === "ready") {
         bootstrapStatus.textContent = fallbackActive
-          ? "Field systems ready with reduced scenery detail."
+          ? `Field systems ready with reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
           : "Field systems ready with standard scenery detail.";
       }
       recordCheckpoint(
@@ -1335,12 +1462,13 @@ function boot(): void {
       ).length;
       const bridgeSummary = `bridges:${loadedBridges}/${bridgeStates.length}`;
       const rendererMemorySummary = `geo:${metrics.geometries} tex:${metrics.textures}`;
+      const backendSummary = `backend:${metrics.rendererBackend}/${metrics.rendererRequestedBackend} (${metrics.rendererBackendFallback ? "fallback" : "direct"})`;
       const visibility = metrics.visibility;
       const visibilitySummary = visibility
         ? `props:${visibility.submitted}/${visibility.candidates} n${visibility.near}/m${visibility.mid}/f${visibility.far} c${visibility.culled} cap${visibility.capacityLimited}`
         : "props:n/a";
       const profileSummary = `profile:${visibility?.profile ?? "n/a"} ${runtimeProfileSelection.state}${runtimeProfileSelection.reasons.length > 0 ? ` (${runtimeProfileSelection.reasons.join(",")})` : ""}`;
-      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${backendSummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
     }
 
     if (state.mapOpen && now - lastMapUpdate > 260) {

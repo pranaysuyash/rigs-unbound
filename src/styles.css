@@ -243,6 +243,17 @@ select:focus-visible,
   color: var(--tractor-rust);
 }
 
+/* The second-fit stage marks the transition from terrain transformation to
+   self-recovery capability. A distinct border and label colour separate it from
+   both the pre-fit gold guidance and the first-cut rust guidance. */
+.first-rung-objective[data-stage="second-fit"] {
+  border-left-color: var(--workshop-bone);
+}
+
+.first-rung-objective[data-stage="second-fit"] > span {
+  color: var(--workshop-bone);
+}
+
 @keyframes first-fit-confirm {
   from {
     transform: translateX(-0.5rem);

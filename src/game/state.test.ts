@@ -1205,7 +1205,7 @@ describe("save recovery and migration", () => {
       furrows: [{ x: 1, z: 2, heading: 0.3, createdAt: 100 }],
       discoveries: [{ id: "home-silo", discoveredAt: 200 }],
       lastDiagnostic: null,
-    });
+    } as unknown);
 
     expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(recovered?.rigs["utility-tractor"].x).toBe(12);

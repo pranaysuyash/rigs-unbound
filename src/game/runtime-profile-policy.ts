@@ -50,10 +50,48 @@ export type RuntimeProfileFallbackReason =
   | "first-controllable-budget"
   | "recovery-window";
 
+/**
+ * Player-facing text for each fallback reason.
+ *
+ * These replace the opaque code names in the bootstrap shell and status toast
+ * so a non-technical player understands *why* scenery was reduced.
+ */
+export const FALLBACK_REASON_TEXT: Readonly<
+  Record<RuntimeProfileFallbackReason, string>
+> = {
+  "insufficient-frame-samples":
+    "Still measuring frame performance.",
+  "average-frame-budget":
+    "Average frame time exceeded the comfort target.",
+  "p95-frame-budget":
+    "Stutter spikes exceeded the comfort target.",
+  "first-controllable-budget":
+    "Initial load time was slower than expected.",
+  "recovery-window":
+    "Waiting for steady frames before restoring detail.",
+};
+
+/**
+ * Combine one or more fallback reasons into a single readable sentence.
+ *
+ * When multiple reasons are active the first is most important; the rest are
+ * appended so the player sees the full picture without drowning in text.
+ */
+export function formatFallbackReasons(
+  reasons: readonly RuntimeProfileFallbackReason[],
+): string {
+  if (reasons.length === 0) return "";
+  return reasons
+    .map((reason) => FALLBACK_REASON_TEXT[reason])
+    .join(" ");
+}
+
 export interface RuntimeProfileSelection {
   profile: Extract<VisibilityProfileId, "standard" | "mobile-safe">;
   state: RuntimeProfileSelectionState;
   reasons: RuntimeProfileFallbackReason[];
+  /** Player-facing text summarising the fallback reason(s). */
+  reasonText: string;
 }
 
 export function selectRuntimeProfile(
@@ -70,18 +108,22 @@ export function selectRuntimeProfile(
     snapshot.firstControllableMs !== null &&
     snapshot.firstControllableMs > budget.maximumFirstControllableMs
   ) {
+    const reasons: RuntimeProfileFallbackReason[] = ["first-controllable-budget"];
     return {
       profile: "mobile-safe",
       state: "fallback",
-      reasons: ["first-controllable-budget"],
+      reasons,
+      reasonText: formatFallbackReasons(reasons),
     };
   }
 
   if (snapshot.frameSampleCount < budget.minimumFrameSamples) {
+    const reasons: RuntimeProfileFallbackReason[] = ["insufficient-frame-samples"];
     return {
       profile: "standard",
       state: "awaiting-evidence",
-      reasons: ["insufficient-frame-samples"],
+      reasons,
+      reasonText: formatFallbackReasons(reasons),
     };
   }
 
@@ -93,10 +135,10 @@ export function selectRuntimeProfile(
     reasons.push("p95-frame-budget");
   }
   if (reasons.length > 0) {
-    return { profile: "mobile-safe", state: "fallback", reasons };
+    return { profile: "mobile-safe", state: "fallback", reasons, reasonText: formatFallbackReasons(reasons) };
   }
 
-  return { profile: "standard", state: "within-budget", reasons };
+  return { profile: "standard", state: "within-budget", reasons, reasonText: "" };
 }
 
 /**
@@ -156,10 +198,12 @@ export class RuntimeProfileController {
     const healthyFrames =
       snapshot.totalFrameSampleCount - fallbackStartedAtSample;
     if (healthyFrames < this.recovery.minimumHealthyFrames) {
+      const reasons: RuntimeProfileFallbackReason[] = [...this.fallbackReasons, "recovery-window"];
       return {
         profile: "mobile-safe",
         state: "fallback",
-        reasons: [...this.fallbackReasons, "recovery-window"],
+        reasons,
+        reasonText: formatFallbackReasons(reasons),
       };
     }
 

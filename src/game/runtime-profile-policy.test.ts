@@ -29,6 +29,10 @@ function snapshot(
     terrainBuildMs: null,
     visibility: null,
     gpuMemoryMb: null,
+    rendererBackend: "webgl",
+    rendererRequestedBackend: "auto",
+    rendererBackendFallback: false,
+    rendererBackendReason: "requested-webgl",
     largestContentfulPaintMs: null,
     inputDelayMs: null,
     cumulativeLayoutShift: 0,
@@ -53,6 +57,13 @@ function snapshot(
     totalFrameSampleCount:
       overrides.totalFrameSampleCount ?? baseSnapshot.totalFrameSampleCount,
     framesPerSecond: overrides.framesPerSecond ?? baseSnapshot.framesPerSecond,
+    rendererBackend: overrides.rendererBackend ?? "webgl",
+    rendererRequestedBackend:
+      overrides.rendererRequestedBackend ?? "auto",
+    rendererBackendFallback:
+      overrides.rendererBackendFallback ?? false,
+    rendererBackendReason:
+      overrides.rendererBackendReason ?? "requested-webgl",
     drawCalls: overrides.drawCalls ?? baseSnapshot.drawCalls,
     triangles: overrides.triangles ?? baseSnapshot.triangles,
     geometries: overrides.geometries ?? baseSnapshot.geometries,
@@ -83,6 +94,7 @@ describe("runtime profile policy", () => {
       profile: "standard",
       state: "awaiting-evidence",
       reasons: ["insufficient-frame-samples"],
+      reasonText: "Still measuring frame performance.",
     });
   });
 
@@ -91,6 +103,7 @@ describe("runtime profile policy", () => {
       profile: "standard",
       state: "within-budget",
       reasons: [],
+      reasonText: "",
     });
   });
 
@@ -106,6 +119,7 @@ describe("runtime profile policy", () => {
       profile: "mobile-safe",
       state: "fallback",
       reasons: ["average-frame-budget", "p95-frame-budget"],
+      reasonText: "Average frame time exceeded the comfort target. Stutter spikes exceeded the comfort target.",
     });
   });
 
@@ -131,15 +145,13 @@ describe("runtime profile policy", () => {
     ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
     expect(
       controller.evaluate(
-        snapshot({
-          frameSampleCount: 3,
-          totalFrameSampleCount: 7,
-        }),
+        snapshot({ frameSampleCount: 3, totalFrameSampleCount: 7 }),
       ),
     ).toEqual({
       profile: "mobile-safe",
       state: "fallback",
       reasons: ["average-frame-budget", "recovery-window"],
+      reasonText: "Average frame time exceeded the comfort target. Waiting for steady frames before restoring detail.",
     });
     expect(
       controller.evaluate(
@@ -148,7 +160,7 @@ describe("runtime profile policy", () => {
           totalFrameSampleCount: 8,
         }),
       ),
-    ).toEqual({ profile: "standard", state: "within-budget", reasons: [] });
+    ).toEqual({ profile: "standard", state: "within-budget", reasons: [], reasonText: "" });
   });
 
   it("restarts the healthy recovery window after renewed renderer pressure", () => {
@@ -172,9 +184,7 @@ describe("runtime profile policy", () => {
       ),
     ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
     expect(
-      controller.evaluate(
-        snapshot({ frameSampleCount: 3, totalFrameSampleCount: 6 }),
-      ),
+      controller.evaluate(snapshot({ frameSampleCount: 3, totalFrameSampleCount: 6 })),
     ).toMatchObject({ profile: "mobile-safe", state: "fallback" });
     expect(
       controller.evaluate(
@@ -193,15 +203,16 @@ describe("runtime profile policy", () => {
       profile: "mobile-safe",
       state: "fallback",
       reasons: ["average-frame-budget", "recovery-window"],
+      reasonText: "Average frame time exceeded the comfort target. Waiting for steady frames before restoring detail.",
     });
     expect(
       controller.evaluate(
         snapshot({ frameSampleCount: 3, totalFrameSampleCount: 12 }),
       ),
-    ).toEqual({ profile: "standard", state: "within-budget", reasons: [] });
+    ).toEqual({ profile: "standard", state: "within-budget", reasons: [], reasonText: "" });
   });
 
-  it("resets fallback hysteresis when controllable frame evidence is discarded", () => {
+  it("restarts the healthy recovery window after renewed renderer pressure", () => {
     const controller = new RuntimeProfileController(
       {
         minimumFrameSamples: 3,
@@ -236,6 +247,7 @@ describe("runtime profile policy", () => {
       profile: "standard",
       state: "awaiting-evidence",
       reasons: ["insufficient-frame-samples"],
+      reasonText: "Still measuring frame performance.",
     });
   });
 });
@@ -277,6 +289,10 @@ describe("first controllable frame budget", () => {
       triangles: 12,
       geometries: 1,
       textures: 0,
+      rendererBackend: "webgl" as const,
+      rendererRequestedBackend: "auto" as const,
+      rendererBackendFallback: false,
+      rendererBackendReason: "test",
     };
 
     monitor.beginControllableMeasurement(120_000);

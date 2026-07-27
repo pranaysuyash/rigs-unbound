@@ -57,11 +57,13 @@ rewrite. This directly de-risks the ADR-0010 "enhancement-only" path.
    `import * as THREE from "three"` wholesale (`renderer.ts:23`) means both
    entries would pull whichever build is aliased.
 
-**R3 — WebGL recovery gap is now closed.**
+**R3 — WebGPU parity for device-loss handling is now complete.**
 `main.ts` now has `webglcontextlost`/`webglcontextrestored` recovery and
-restart observability (`recovery` checkpoints + diagnostics state). The remaining
-gap is WebGPU parity (`device.lost` handling and branch parity checks when WebGPU
-shipping is enabled). That is now tracked in **W1**.
+`webgpu` device-loss recovery through a renderer-level callback bridge.
+`graphicsContextLost` checkpoints now include backend-specific details (`webgpu`
+`reason`/`message`), and both backends now emit parity-shaped `graphicsContext*`
+checkpoints with backend identity and recoverability metadata so incident triage
+is comparable.
 
 **R4 — GPU compute candidates are real but not yet justified.**
 Ranked by measured/structural cost: (1) terrain height-field sampling —
@@ -75,12 +77,29 @@ compute is the same device-matrix data that gates WebGPU baseline.** Moving
 physics sampling to GPU would also break the deterministic-kernel contract —
 do not confuse "GPU-able" with "GPU-bound".
 
-**R5 — WebGPU work stays queued, by policy and by evidence.**
-ADR-0010's enhancement-only posture stands. When opened, the shape is:
-`WebGPURenderer({ forceWebGL: false })` + `await renderer.init()` +
-`backend.isWebGPUBackend` recorded in the performance snapshot, identical
-scene/contracts, under the engine-branch gating contract. Not before
-Farmfall; not before device-matrix data.
+**R5 — WebGPU work is now on a deterministic W1 probe path, not feature-first.**
+`GameRenderer` now supports a backend request (`auto|webgl|webgpu`) and the entrypoint
+plumbs `?renderer=` for operator control. The constructor resolves the active backend
+through policy and selected request, then reports:
+1. effective backend and requested backend,
+2. whether a fallback occurred,
+3. the fallback reason (`webgpu` init failure, policy block, or explicit reason),
+4. and that telemetry in `getPerformanceSnapshot()` and the boot checkpoint.
+Current behavior:
+1. default `auto` follows `rendererPolicy` gating and request intent,
+2. `webgpu`/`auto` attempts `WebGPURenderer({ forceWebGL: false })`,
+3. failures can fall back to `WebGLRenderer` with explicit backend reason.
+
+This makes the risk-reduction and measurement pieces concrete before any production rollout:
+
+- **Use-case U1:** deterministic rollout control during QA (`?renderer=webgl|webgpu|auto`).
+- **Use-case U2:** backend-specific incident triage in production via snapshot telemetry.
+- **Use-case U3:** low-risk shipping path that preserves canonical contract and scene ownership.
+
+**R6 — W1 improvements now staged as an explicit lane**
+- `W1-a` parity for recovery and device-loss handling under active WebGPU.
+- `W1-b` comparative acceptance runbook for `webgpu` vs `webgl` acceptance snapshots.
+- `W1-c` device-matrix policy + operator runbook gate before any automatic default shift.
 
 ## 2. Web performance findings
 
@@ -137,6 +156,7 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 | P3-b | Caching contract paragraph in deploy runbook                                               | docs           | trivial                                                                      |
 | P3-c | PWA/offline                                                                                | product        | deferred with ADR-0013 revisit                                               |
 | W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane  | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
+| W1-c | Auto-backend rollout gate for `?renderer=auto`                                             | policy/correctness | policy + acceptance criteria before production default expansion                        |
 
 ## 3.1 Executed slice since this document
 
@@ -145,6 +165,11 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
   - recovery/recreate and restart guidance paths (`recreateRenderer`, `rendererDisposeFailed`, `graphicsContextRestoreFailed`),
   - context state in run snapshots and diagnostics (`graphicsContext`),
   - explicit status messaging when restore is unavailable.
+- WebGPU parity for device-loss handling is also implemented:
+  - `GameRenderer` now exposes `setWebGPUDeviceLostHandler` and main reuses the same recovery state machine (`setRecoveryState`, `disposeRenderer`, `recreateRenderer`),
+  - `graphicsContextLost` checkpoints now include backend + parity payload for loss metadata (`statusMessage` for WebGL, `reason`/`message` for WebGPU),
+  - `graphicsContextRestored` now records which backend re-established rendering, and restore failure paths return to lost-state explicitly,
+  - recovery attempts are immediate on `device.lost` with controlled failover messaging when recreation fails.
 - P2-a action readiness + Web Vitals/LCP/CLS/INP/longtask observability is now added:
   - `firstActionReadyMs` and checkpoint in `performance.ts` (`markActionReady`,
     `snapshot`, `actionReady` checkpoint),
@@ -157,15 +182,20 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
   are first, not feature-first.
 
 Evidence anchors:
-  - recovery attach/detach and checkpoint emission in `src/main.ts` (`241-352`, `308-312`, `273-290`, `323-325`, `500`, `1785`),
-  - context state in diagnostics snapshot in `src/main.ts:1350` and `src/main.ts:1330`.
+- recovery attach/detach and checkpoint emission in `src/main.ts` (`241-352`, `308-312`, `273-290`, `323-325`, `500`, `1785`),
+- context state in diagnostics snapshot in `src/main.ts:1350` and `src/main.ts:1330`.
+- WebGPU device-loss recovery callback wiring in `src/game/renderer.ts` and
+  `src/main.ts` recovery bridge (`setWebGPUDeviceLostHandler`, `handleWebGPUDeviceLost`).
+- auto-mode rollout gate now emits `rendererBackendPolicy` in `src/main.ts` and
+  switches `?renderer=auto` to conservative WebGL by default unless policy gates pass.
 
 ### Lane status after the executed slice
 
 | Lane | Status | Evidence in-repo |
 |---|---|---|
 | W1 reliability (`P1-a`) | ✅ completed | `src/main.ts` |
-| W1 probe (`W1`) | 🔴 pending | no `WebGPURenderer` branch yet |
+| W1 probe (`W1`) | ✅ completed | `src/game/renderer.ts`, `src/main.ts` |
+| W1-c auto-gate policy | ✅ completed | `src/main.ts`, `docs/decisions/ADR-0028-renderer-auto-backend-governance-and-rollout-gate.md` |
 | P1-b chunked boot | 🔴 pending | `src/main.ts` boot path still synchronous |
 | P2-a input/longtask metrics | ✅ completed | `src/game/performance.ts` |
 | P2-b hot-path allocation | 🔴 pending | unchanged allocation pass |

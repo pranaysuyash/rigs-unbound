@@ -1161,6 +1161,7 @@ export function stepGame(
           heading: rig.heading,
           createdAt: state.elapsedMs,
           rigId: rig.id,
+          mode: plough.mode === "fill" ? "fill" : "cut",
         } satisfies FurrowMark);
         if (state.furrows.length > MAX_FURROWS) {
           state.furrows.splice(0, state.furrows.length - MAX_FURROWS);
@@ -1838,6 +1839,14 @@ function recoverShared(
         isRigId(item.rigId)
       );
     })
+    .map((mark) => ({
+      x: mark.x,
+      z: mark.z,
+      heading: mark.heading,
+      createdAt: mark.createdAt,
+      rigId: mark.rigId,
+      mode: mark.mode === "fill" ? ("fill" as const) : ("cut" as const),
+    }))
     .slice(-MAX_FURROWS);
 
   const validLandmarkIds = new Set(LANDMARKS.map((item) => item.id));

@@ -1,4 +1,5 @@
 import {
+  effectiveProfile,
   MODULES,
   RIG_IDS,
   RIG_PROFILES,
@@ -8,18 +9,23 @@ import {
   type RigId,
 } from "./contracts";
 import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
-import { HOME_SITE, isWithinSiteServiceArea } from "./world";
+import { HOME_SITE, findSite, isWithinSiteServiceArea } from "./world";
 
 export const FIRST_RUNG_RECOMMENDED_MODULE: ModuleId = "lug-tires";
+export const SECOND_RUNG_RECOMMENDED_MODULE: ModuleId = "winch";
 
 export type FirstRungStage =
   | "find-cache"
   | "collect-cache"
+  | "sight-destination"
+  | "attempt-route"
   | "earn-more"
   | "return-home"
   | "reach-rig"
   | "switch-rig"
   | "choose-part"
+  | "first-cut"
+  | "second-fit"
   | "free-explore";
 
 export interface FirstRungResolution {
@@ -38,6 +44,91 @@ export interface FirstRungResolution {
 function atHomeWorkshop(state: GameState): boolean {
   const rig = state.rigs[state.activeRigId];
   return isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
+}
+
+/**
+ * Distance threshold for considering the player within sight of a site.
+ * Three times the discover radius — far enough to see the landmark signal
+ * but not close enough to trigger a formal discovery.
+ */
+const SIGHT_RADIUS_MULTIPLIER = 3;
+
+/**
+ * Distance threshold for "attempting" a route — close enough to the blocked
+ * area that the player can clearly see the terrain face.
+ */
+const ATTEMPT_ROUTE_RADIUS = 36;
+
+/**
+ * Before fitting the blade, guide the player to sight Long Furrow and then
+ * attempt the direct route. This creates the "I see it, I try, I fail, I
+ * understand why I need the blade" moment that is the core of the Reclamation
+ * journey.
+ *
+ * Only active when the player has collected the first cache (has salvage)
+ * but has not yet fitted any modules.
+ */
+function resolvePreBladeJourney(
+  state: GameState,
+): FirstRungResolution | null {
+  // Only fire when the player has salvage and the active rig can fit the
+  // recommended module. Incompatible rigs should be routed to reach-rig/switch-rig
+  // by the existing affordable logic below, not by this pre-blade scout.
+  const affordable = state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost;
+  if (!affordable) return null;
+  if (state.rigs[state.activeRigId].modules.length > 0) return null;
+  const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(state.activeRigId);
+  if (!compatible) return null;
+
+  const rig = state.rigs[state.activeRigId];
+  const longFurrow = findSite("long-furrow");
+  if (!longFurrow) return null;
+
+  const distanceToFurrow = Math.hypot(
+    rig.x - longFurrow.x,
+    rig.z - longFurrow.z,
+  );
+  const sightRadius = longFurrow.discoverRadius * SIGHT_RADIUS_MULTIPLIER;
+
+  // If the player is on the graded route corridor, they can reach Long Furrow
+  // via the guaranteed drivable path. Only guide the scouting journey when the
+  // player is off-corridor — that is when the terrain face is a real obstacle.
+  if (distanceToFurrow <= ATTEMPT_ROUTE_RADIUS) {
+    return {
+      stage: "attempt-route",
+      objective: "The terrain blocks the way. Return for lug tyres.",
+      shortLabel: "Need lug tyres",
+      ariaLabel:
+        "A steep terrain face blocks the direct route to Long Furrow. Return to Home Silo and fit lug tyres for better grip, then plough through.",
+      reason:
+        "The direct route to Long Furrow is blocked by a terrain face that the plough can clear with better grip.",
+      target: { x: HOME_SITE.x, z: HOME_SITE.z },
+      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
+      recommendedRigId: null,
+      affordable: state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost,
+      complete: false,
+    };
+  }
+
+  // Within sight radius but not yet at the blockage — scout the destination.
+  if (distanceToFurrow <= sightRadius) {
+    return {
+      stage: "sight-destination",
+      objective: "Head toward Long Furrow",
+      shortLabel: "Sight Long Furrow",
+      ariaLabel:
+        "Long Furrow is visible ahead. Drive toward it to scout the terrain.",
+      reason:
+        "Long Furrow is visible and should be scouted before fitting the blade.",
+      target: { x: longFurrow.x, z: longFurrow.z },
+      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
+      recommendedRigId: null,
+      affordable: state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost,
+      complete: false,
+    };
+  }
+
+  return null;
 }
 
 function firstCompatibleRig(
@@ -65,6 +156,220 @@ function hasFittedPart(state: GameState): boolean {
   return RIG_IDS.some((rigId) => state.rigs[rigId].modules.length > 0);
 }
 
+/** Count how many modules are fitted across all rigs. */
+function totalFittedModules(state: GameState): number {
+  return RIG_IDS.reduce(
+    (sum, rigId) => sum + state.rigs[rigId].modules.length,
+    0,
+  );
+}
+
+/**
+ * After the first module is fitted and the terrain transformation is complete,
+ * guide the player to fit a second module before releasing to free-explore.
+ *
+ * The second module (winch) introduces a different traversal capability: self-
+ * recovery on steep terrain. This creates a two-module introduction loop where
+ * the player learns both terrain modification (blade) and self-recovery (winch)
+ * before being set free.
+ */
+export function resolveSecondFit(state: GameState): FirstRungResolution {
+  const recommendedModuleId = SECOND_RUNG_RECOMMENDED_MODULE;
+  const recommendedModule = MODULES[recommendedModuleId];
+  const recommendedRigId = firstCompatibleRig(state, recommendedModuleId);
+  const affordable = state.salvage >= recommendedModule.cost;
+
+  // If the active rig can't fit the winch, guide to switch first.
+  if (recommendedRigId !== null && recommendedRigId !== state.activeRigId) {
+    const active = state.rigs[state.activeRigId];
+    const compatible = state.rigs[recommendedRigId];
+    const compatibleName = RIG_PROFILES[recommendedRigId].fieldName;
+    const compatibleDistance = Math.hypot(
+      compatible.x - active.x,
+      compatible.z - active.z,
+    );
+    const compatibleInReach = compatibleDistance <= RIG_SWITCH_RANGE;
+    return {
+      stage: "second-fit",
+      objective: compatibleInReach
+        ? `Switch to ${compatibleName}`
+        : `Reach ${compatibleName}`,
+      shortLabel: compatibleInReach ? "Switch rig" : "Reach compatible rig",
+      ariaLabel: compatibleInReach
+        ? `Switch to the nearby ${compatibleName}, then return to Home Silo and fit ${recommendedModule.name}.`
+        : `Drive to the ${compatibleName}, ${Math.ceil(compatibleDistance)} metres away, so you can switch rigs and fit ${recommendedModule.name}.`,
+      reason: compatibleInReach
+        ? "The second recommended part requires a different rig."
+        : "The compatible rig must be reached before control can switch.",
+      target: { x: compatible.x, z: compatible.z },
+      recommendedModuleId,
+      recommendedRigId,
+      affordable,
+      complete: false,
+    };
+  }
+
+  // If already affordable and at Home, guide to fit it.
+  if (affordable && atHomeWorkshop(state)) {
+    // The player has just completed the terrain transformation and reached
+    // Long Furrow. Before fitting the second module, acknowledge the
+    // cross-rig benefit: the route they opened is now passable for other rigs.
+    const hasFurrows = state.furrows.length > 0;
+    const crossRigNote = hasFurrows
+      ? " The route you opened to Long Furrow is now passable for other rigs too."
+      : "";
+    return {
+      stage: "second-fit",
+      objective: `Fit ${recommendedModule.name}`,
+      shortLabel: "Fit second part",
+      ariaLabel: `Return to Home Silo and fit ${recommendedModule.name} for ${recommendedModule.cost} salvage. ${recommendedModule.promise}${crossRigNote}`,
+      reason: "The second recommended part is affordable at the workshop.",
+      target: { x: HOME_SITE.x, z: HOME_SITE.z },
+      recommendedModuleId,
+      recommendedRigId,
+      affordable,
+      complete: false,
+    };
+  }
+
+  // If affordable but away from Home, guide back.
+  if (affordable) {
+    return {
+      stage: "second-fit",
+      objective: "Return to Home Silo",
+      shortLabel: "Return home",
+      ariaLabel: `Return to Home Silo and fit ${recommendedModule.name} for ${recommendedModule.cost} salvage.`,
+      reason: "The second recommended part is affordable away from Home.",
+      target: { x: HOME_SITE.x, z: HOME_SITE.z },
+      recommendedModuleId,
+      recommendedRigId,
+      affordable,
+      complete: false,
+    };
+  }
+
+  // Not yet affordable — guide to earn more salvage.
+  const missing = recommendedModule.cost - state.salvage;
+  return {
+    stage: "second-fit",
+    objective: `Find ${missing} more salvage`,
+    shortLabel: `Find ${missing} more`,
+    ariaLabel: `Find ${missing} more salvage to afford ${recommendedModule.name}.`,
+    reason: "The second recommended part is not yet affordable.",
+    target: null,
+    recommendedModuleId,
+    recommendedRigId,
+    affordable,
+    complete: false,
+  };
+}
+
+/**
+ * After the first module is fitted, guide the player through terrain
+ * transformation before releasing to free-explore. The progression:
+ * 1. If the active rig has no blade → switch to a rig with plough
+ * 2. If the blade is not engaged → "Lower the blade"
+ * 3. If the blade is engaged but no furrows → "Drive forward"
+ * 4. If furrows exist but not near Long Furrow → "Drive toward Long Furrow"
+ * 5. If near Long Furrow with furrows → transition to second-fit
+ */
+function resolvePostFitRung(state: GameState): FirstRungResolution {
+  const rig = state.rigs[state.activeRigId];
+
+  // Check if this rig has plough capability.
+  const hasBlade = effectiveProfile(rig.id, rig.modules).capabilities.includes("plough");
+  if (!hasBlade) {
+    // Guide to a rig that can plough.
+    const ploughRigs = RIG_IDS.filter((id) =>
+      effectiveProfile(id, state.rigs[id].modules).capabilities.includes("plough"),
+    );
+    const targetRigId = ploughRigs[0];
+    if (targetRigId) {
+      const target = state.rigs[targetRigId];
+      const name = RIG_PROFILES[targetRigId].fieldName;
+      const distance = Math.hypot(rig.x - target.x, rig.z - target.z);
+      const inReach = distance <= RIG_SWITCH_RANGE;
+      return {
+        stage: "first-cut",
+        objective: inReach ? `Switch to ${name}` : `Reach ${name}`,
+        shortLabel: "Get a rig with a blade",
+        ariaLabel: `Switch to the ${name} which has a plough blade for terrain transformation.`,
+        reason: "The active rig cannot transform terrain.",
+        target: { x: target.x, z: target.z },
+        recommendedModuleId: null,
+        recommendedRigId: targetRigId,
+        affordable: false,
+        complete: false,
+      };
+    }
+  }
+
+  // Check if blade is engaged.
+  const plough = rig.attachments.find((a) => a.id === "field-plough");
+  if (plough && !plough.engaged) {
+    return {
+      stage: "first-cut",
+      objective: "Lower the blade",
+      shortLabel: "Lower blade",
+      ariaLabel: "Press B to lower the plough blade and begin terrain transformation.",
+      reason: "The blade is fitted but not engaged.",
+      target: null,
+      recommendedModuleId: null,
+      recommendedRigId: null,
+      affordable: false,
+      complete: false,
+    };
+  }
+
+  // Blade engaged but no furrows yet — drive to create them.
+  if (state.furrows.length === 0) {
+    return {
+      stage: "first-cut",
+      objective: "Drive forward",
+      shortLabel: "Create furrows",
+      ariaLabel: "Drive forward with the blade lowered to transform the terrain.",
+      reason: "The blade is engaged but no terrain has been transformed yet.",
+      target: null,
+      recommendedModuleId: null,
+      recommendedRigId: null,
+      affordable: false,
+      complete: false,
+    };
+  }
+
+  // Furrows exist — check if near Long Furrow.
+  const longFurrow = findSite("long-furrow");
+  if (longFurrow) {
+    const distance = Math.hypot(rig.x - longFurrow.x, rig.z - longFurrow.z);
+    if (distance <= longFurrow.discoverRadius) {
+      // Near Long Furrow with furrows — the route is open. Transition to
+      // the second-fit stage. The cross-rig benefit note is added by
+      // resolveSecondFit when furrows exist.
+      return resolveSecondFit(state);
+    }
+  }
+
+  // Furrows exist but not near Long Furrow — plough toward it.
+  const target = longFurrow ? { x: longFurrow.x, z: longFurrow.z } : null;
+  const furrowCount = state.furrows.length;
+  return {
+    stage: "first-cut",
+    objective: furrowCount > 0
+      ? `Plough toward Long Furrow (${furrowCount} furrow${furrowCount === 1 ? "" : "s"} carved)`
+      : "Plough toward Long Furrow",
+    shortLabel: "Plough toward Long Furrow",
+    ariaLabel: furrowCount > 0
+      ? `Keep ploughing toward Long Furrow. You have carved ${furrowCount} furrow${furrowCount === 1 ? "" : "s"} so far. The terrain is transforming under your blade.`
+      : "Drive toward Long Furrow with the blade lowered to transform the terrain.",
+    reason: "Terrain has been transformed but the route is not yet complete.",
+    target,
+    recommendedModuleId: null,
+    recommendedRigId: null,
+    affordable: false,
+    complete: false,
+  };
+}
+
 /**
  * Resolve the first progression rung from canonical state only.
  *
@@ -78,13 +383,22 @@ export function resolveFirstRung(
   collectedNodes: ReadonlySet<string>,
 ): FirstRungResolution {
   if (hasFittedPart(state)) {
+    const fittedCount = totalFittedModules(state);
+
+    // After the first module is fitted, guide the player through terrain
+    // transformation (first-cut) before releasing to free-explore.
+    if (fittedCount === 1) {
+      return resolvePostFitRung(state);
+    }
+
+    // Two or more modules fitted — free-explore.
     return {
       stage: "free-explore",
-      objective: "Use your fitted part",
-      shortLabel: "Try the upgrade",
+      objective: "Use your fitted parts",
+      shortLabel: "Try your upgrades",
       ariaLabel:
-        "First upgrade fitted. Explore and use the new traversal capability.",
-      reason: "At least one rig has a fitted module.",
+        "Upgrades fitted. Explore and use your new traversal capabilities.",
+      reason: "At least two modules have been fitted.",
       target: null,
       recommendedModuleId: null,
       recommendedRigId: null,
@@ -97,6 +411,14 @@ export function resolveFirstRung(
   const recommendedModule = MODULES[recommendedModuleId];
   const recommendedRigId = firstCompatibleRig(state, recommendedModuleId);
   const affordable = state.salvage >= recommendedModule.cost;
+
+  // ---------------------------------------------------------------------
+  // Pre-blade Reclamation journey: sight Long Furrow, attempt the route,
+  // learn that the blade is needed. Only when the player has salvage but
+  // has not yet fitted any modules.
+  // ---------------------------------------------------------------------
+  const preBladeJourney = resolvePreBladeJourney(state);
+  if (preBladeJourney) return preBladeJourney;
 
   if (affordable) {
     const activeRigCanFit = recommendedRigId === state.activeRigId;

@@ -1,3 +1,10 @@
+## 2026-07-27 — Master Vehicle Catalog & Visual Asset Pipeline
+
+- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (`v1` Found, `v2` Restored, `v3` Overcharged).
+- Defined silhouette specifications, locomotion classes, hardpoints, material tokens, and upgrade arcs for every rig family (Farm Utility, Service/Recovery, Toy/Micro, Rescue/Defense, Extreme/Aspirational, Fantasy/Cosmic).
+- Generated a concept art reference sheet (`master_rig_catalog_lineup`) adhering to single-subject/lineup isolation rules on neutral backdrops for downstream `img2threejs` 3D reconstruction.
+- Verified system status and documented provenance linkage for future engine reconstruction.
+
 ## 2026-07-26 — active tranche contradictions converted into tested boundaries
 
 - Preserved the released rig-neutral first rung: the reward→return→fit loop
@@ -4474,7 +4481,16 @@ Field 02` in the current daemon snapshot.
 - Re-read the resource-budget contract against the current browser daemon
   snapshot and live repo state.
 - Confirmed the live app is still `Rigs Unbound — Field 02`, and the browser
-  daemon is healthy with zero console logs in the current status snapshot.
+  daemon is healthy with zero console logs in the 
+
+## Master Vehicle Catalog & Image Generation Infrastructure — 2026-07-27
+
+- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (`v1` Found, `v2` Restored, `v3` Overcharged).
+- Defined silhouette specifications, locomotion classes, hardpoints, material tokens, and upgrade arcs for every rig family (Farm Utility, Service/Recovery, Toy/Micro, Rescue/Defense, Extreme/Aspirational, Fantasy/Cosmic).
+- Generated a concept art reference sheet (`master_rig_catalog_lineup`) adhering to single-subject/lineup isolation rules on neutral backdrops for downstream `img2threejs` 3D reconstruction.
+- Verified system status and documented provenance linkage for future engine reconstruction.
+
+## Current status snapshot.
 - Confirmed the runtime already exposes the measurement fields through
   `PerformanceMonitor.snapshot()` and `window.getPerformanceSnapshot()`:
   - frame timing,

@@ -22,6 +22,11 @@
 
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
@@ -164,6 +169,25 @@ export interface RuntimeAssetBridgeEvidence {
   errorMessage: string | null;
 }
 
+export type RendererBackend = "webgl" | "webgpu";
+export type RendererBackendRequest = "auto" | "webgl" | "webgpu";
+export type RendererPolicy = "stable" | "canary" | "off";
+
+export interface RendererBackendPolicyConfig {
+  request: RendererBackendRequest;
+  policy: RendererPolicy;
+  policyAllowsAutoWebGPU: boolean;
+  policyReason: string;
+}
+
+type FXAAUniforms = {
+  resolution: {
+    value: {
+      set: (x: number, y: number) => void;
+    };
+  };
+};
+
 function material(
   color: number,
   roughness = 0.76,
@@ -220,73 +244,84 @@ export class GameRenderer {
   private readonly camera = new THREE.PerspectiveCamera(52, 1, 0.25, 900);
   private readonly gltfLoader = new GLTFLoader();
   private readonly sun = new THREE.DirectionalLight(0xffdeb0, 2.4);
-  private readonly hemisphere = new THREE.HemisphereLight(
-    0xb8ddff,
-    0x5d422d,
-    1.6,
-  );
+    private readonly hemisphere = new THREE.HemisphereLight(
+      0xb8ddff,
+      0x5d422d,
+      1.6,
+    );
 
-  private readonly rigs = new Map<RigId, RigParts>();
-  private readonly cargo: THREE.Group;
-  private readonly hitchLine: THREE.Line;
+    private readonly rigs = new Map<RigId, RigParts>();
+    private readonly cargo: THREE.Group;
+    private readonly hitchLine: THREE.Line;
 
-  private terrainMesh!: THREE.Mesh;
-  private terrainHeights!: Float32Array;
-  private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
-  private readonly terrainOrigin = -TERRAIN_SPAN / 2;
+    private terrainMesh!: THREE.Mesh;
+    private terrainHeights!: Float32Array;
+    private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
+    private readonly terrainOrigin = -TERRAIN_SPAN / 2;
 
-  private treeTrunks!: THREE.InstancedMesh;
-  private treeCrowns!: THREE.InstancedMesh;
-  private treeBillboards!: THREE.InstancedMesh;
-  private treeBillboardCount = 0;
-  private rocks!: THREE.InstancedMesh;
-  private rockBillboards!: THREE.InstancedMesh;
-  private rockBillboardCount = 0;
-  private felledTrunks!: THREE.InstancedMesh;
-  private salvageNodes!: THREE.InstancedMesh;
-  private furrowDecals!: THREE.InstancedMesh;
-  private water!: THREE.Mesh;
-  private waterMaterial!: THREE.ShaderMaterial;
-  private sky!: THREE.Mesh;
+    private treeTrunks!: THREE.InstancedMesh;
+    private treeCrowns!: THREE.InstancedMesh;
+    private treeBillboards!: THREE.InstancedMesh;
+    private treeBillboardCount = 0;
+    private rocks!: THREE.InstancedMesh;
+    private rockBillboards!: THREE.InstancedMesh;
+    private rockBillboardCount = 0;
+    private felledTrunks!: THREE.InstancedMesh;
+    private salvageNodes!: THREE.InstancedMesh;
+    private furrowDecals!: THREE.InstancedMesh;
+    private water!: THREE.Mesh;
+    private waterMaterial!: THREE.ShaderMaterial;
+    private sky!: THREE.Mesh;
 
-  private dust!: THREE.Points;
-  private readonly dustPositions = new Float32Array(MAX_DUST * 3);
-  private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
-  private readonly dustLife = new Float32Array(MAX_DUST);
-  private dustCursor = 0;
+    private dust!: THREE.Points;
+    private readonly dustPositions = new Float32Array(MAX_DUST * 3);
+    private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
+    private readonly dustLife = new Float32Array(MAX_DUST);
+    private dustCursor = 0;
 
-  private readonly dummy = new THREE.Object3D();
+    private readonly dummy = new THREE.Object3D();
   private propAnchorX = Number.POSITIVE_INFINITY;
   private propAnchorZ = Number.POSITIVE_INFINITY;
   private renderedFurrows = 0;
   private lastDeformCount = 0;
-  private currentPhase: WorldPhase | null = null;
-  private lastFrameTime = performance.now();
-  private shake = 0;
-  private cameraInitialised = false;
-  private cameraRigId: RigId | null = null;
-  private lastCameraMode: CameraMode | null = null;
-  private lastCameraFocus: THREE.Vector3 | null = null;
-  private cameraResolution: CameraResolutionEvidence | null = null;
-  private readonly runtimeBridgeEvidence = new Map<
-    string,
-    RuntimeAssetBridgeEvidence
-  >();
-  private activeVisibilityProfileId: VisibilityProfileId =
-    DEFAULT_VISIBILITY_PROFILE;
-  private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
-  private readonly reducedMotionQuery = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  );
-  private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
-  /** One-frame presentation pulses sourced from authoritative condition loss. */
-  private readonly pendingConditionImpacts = new Set<RigId>();
-  private lastCameraFocusY: number | null = null;
+  private readonly furrowCutColor = new THREE.Color(0x3a2c1e);
+  private readonly furrowFillColor = new THREE.Color(0x8a7a5a);
+  private readonly tempColor = new THREE.Color();
+    private currentPhase: WorldPhase | null = null;
+    private lastFrameTime = performance.now();
+    private shake = 0;
+    private cameraInitialised = false;
+    private cameraRigId: RigId | null = null;
+    private lastCameraMode: CameraMode | null = null;
+    private lastCameraFocus: THREE.Vector3 | null = null;
+    private cameraResolution: CameraResolutionEvidence | null = null;
+    private readonly runtimeBridgeEvidence = new Map<
+      string,
+      RuntimeAssetBridgeEvidence
+    >();
+    private activeVisibilityProfileId: VisibilityProfileId =
+      DEFAULT_VISIBILITY_PROFILE;
+    private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
+    private readonly reducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
+    private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
+    /** One-frame presentation pulses sourced from authoritative condition loss. */
+    private readonly pendingConditionImpacts = new Set<RigId>();
+    private lastCameraFocusY: number | null = null;
 
-  /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
-  terrainBuildMs = 0;
+    /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
+    terrainBuildMs = 0;
 
-  // Runtime quality degradation is NOT owned here. Do not add frame-history or
+  private readonly backendPolicy: RendererBackendPolicyConfig;
+  private readonly rendererRequestedBackend: RendererBackendRequest;
+  private rendererBackend: RendererBackend = "webgl";
+  private rendererBackendFallback = false;
+  private rendererBackendReason = "WebGL fallback/default policy";
+
+    private composer!: EffectComposer;
+    private bloomPass!: UnrealBloomPass;
+    private fxaaPass!: ShaderPass;
   // quality-tier fields to the renderer: `RuntimeProfileController` measures the
   // frame window and the first controllable frame, and drives this class through
   // `setVisibilityProfile` (see `runtime-profile-policy.ts` and the call site in
@@ -298,12 +333,22 @@ export class GameRenderer {
     private readonly canvas: HTMLCanvasElement,
     private readonly world: GameWorld,
     private readonly runtimeBridgeSpecs: readonly RuntimeBridgeSpec[] = [],
+    backendPolicy: RendererBackendPolicyConfig = {
+      request: "auto",
+      policy: "stable",
+      policyAllowsAutoWebGPU: false,
+      policyReason: "rendererPolicy=stable passed",
+    },
   ) {
-    this.renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
+    this.backendPolicy = backendPolicy;
+    this.rendererRequestedBackend = this.backendPolicy.request;
+
+    const selectedBackend = this.createRendererBackend();
+    this.renderer = selectedBackend.renderer;
+    this.rendererBackend = selectedBackend.backend;
+    this.rendererBackendFallback = selectedBackend.fallback;
+    this.rendererBackendReason = selectedBackend.reason;
+
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
     // Blob shadows rather than shadow maps: a shadow-map allocation warning was
     // observed in Chrome during lifecycle testing, and this is also the cheaper
@@ -312,6 +357,29 @@ export class GameRenderer {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.06;
+
+    // Initialize post-processing composer
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    
+    // Bloom pass for emissive materials and bright highlights
+    this.bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.5,   // strength
+      0.4,   // radius
+      0.85   // threshold
+    );
+    this.composer.addPass(this.bloomPass);
+
+    // FXAA anti-aliasing (cheaper than MSAA, works with WebGPU)
+    const fxaaPass = new ShaderPass(FXAAShader);
+    const fxaaUniforms = fxaaPass.material.uniforms as FXAAUniforms;
+    fxaaUniforms.resolution.value.set(
+      1 / (window.innerWidth * this.renderer.getPixelRatio()),
+      1 / (window.innerHeight * this.renderer.getPixelRatio()),
+    );
+    this.composer.addPass(fxaaPass);
+    this.fxaaPass = fxaaPass;
 
     this.sun.position.set(-120, 190, -70);
     this.scene.add(this.sun, this.hemisphere);
@@ -348,12 +416,81 @@ export class GameRenderer {
     this.resize();
   }
 
+  private createRendererBackend(): {
+    backend: RendererBackend;
+    renderer: THREE.WebGLRenderer;
+    reason: string;
+    fallback: boolean;
+  } {
+    const request = this.backendPolicy.request;
+    if (request === "webgl") {
+      return {
+        backend: "webgl",
+        renderer: this.createWebGLRenderer("renderer request=webgl"),
+        reason: "renderer request=webgl",
+        fallback: false,
+      };
+    }
+
+    if (request === "webgpu") {
+      return {
+        backend: "webgl",
+        renderer: this.createWebGLRenderer(
+          "renderer request=webgpu is not available in this build",
+        ),
+        reason: "renderer request=webgpu unavailable; using webgl",
+        fallback: true,
+      };
+    }
+
+    const policyAllowsAutoWebGPU =
+      this.backendPolicy.policy === "canary" ||
+      (this.backendPolicy.policy === "stable" &&
+        this.backendPolicy.policyAllowsAutoWebGPU);
+
+    return {
+      backend: "webgl",
+      renderer: this.createWebGLRenderer(
+        policyAllowsAutoWebGPU
+          ? "renderer auto policy kept webgl for composer compatibility"
+          : "policy gate block",
+      ),
+      reason: policyAllowsAutoWebGPU
+        ? `renderer=auto retained webgl for composer compatibility (${this.backendPolicy.policy})`
+        : `rendererPolicy=${this.backendPolicy.policy} blocked auto webgpu (${this.backendPolicy.policyReason})`,
+      fallback: this.backendPolicy.request === "auto" && !policyAllowsAutoWebGPU,
+    };
+  }
+
+  private createWebGLRenderer(reasonLabel: string): THREE.WebGLRenderer {
+    const renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+
+    if (this.rendererBackendReason === "WebGL fallback/default policy") {
+      this.rendererBackendReason = reasonLabel;
+    }
+    return renderer;
+  }
+
   private readonly resize = (): void => {
     const width = Math.max(1, this.canvas.clientWidth);
     const height = Math.max(1, this.canvas.clientHeight);
     this.renderer.setSize(width, height, false);
+    this.composer.setSize(width, height);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+
+    // Update FXAA resolution
+    if (this.fxaaPass) {
+      const fxaaUniforms = this.fxaaPass.material.uniforms as FXAAUniforms;
+      fxaaUniforms.resolution.value.set(
+        1 / (width * this.renderer.getPixelRatio()),
+        1 / (height * this.renderer.getPixelRatio()),
+      );
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -746,10 +883,19 @@ export class GameRenderer {
 
     this.furrowDecals = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(1.05, 1.5),
-      material(0x3a2c1e, 1),
+      material(0xffffff, 1),
       MAX_FURROWS,
     );
     this.furrowDecals.count = 0;
+    // Pre-fill all instances with the cut-furrow colour so the initial state
+    // looks correct before any mode-specific calls happen.
+    this.furrowCutColor.set(0x3a2c1e);
+    this.furrowFillColor.set(0x8a7a5a);
+    for (let i = 0; i < MAX_FURROWS; i++) {
+      this.furrowDecals.setColorAt(i, this.furrowCutColor);
+    }
+    if (this.furrowDecals.instanceColor)
+      this.furrowDecals.instanceColor.needsUpdate = true;
 
     /*
      * These dynamic clouds are rebuilt around the active rig. Geometry-only
@@ -880,9 +1026,12 @@ export class GameRenderer {
 
   private placeTree(obstacle: Obstacle, index: number): void {
     const trunkHeight = treeTrunkHeight(obstacle);
+    // Re-ground on the live height field rather than the cached groundY so trees
+    // stay correctly positioned after plough deformation changes the terrain.
+    const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
     this.dummy.position.set(
       obstacle.x,
-      obstacle.groundY + trunkHeight * 0.5,
+      groundY + trunkHeight * 0.5,
       obstacle.z,
     );
     this.dummy.rotation.set(0, obstacle.variation * Math.PI, 0);
@@ -942,9 +1091,12 @@ export class GameRenderer {
   }
 
   private placeRock(obstacle: Obstacle, index: number): void {
+    // Re-ground on the live height field so rocks track the surface after
+    // plough deformation changes the terrain height.
+    const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
     this.dummy.position.set(
       obstacle.x,
-      obstacle.groundY + obstacle.radius * 0.35,
+      groundY + obstacle.radius * 0.35,
       obstacle.z,
     );
     this.dummy.rotation.set(
@@ -1852,8 +2004,26 @@ export class GameRenderer {
 
   private updateFurrows(state: GameState): void {
     if (state.furrows.length < this.renderedFurrows) {
-      // A reset or a save restore shortened the list; rebuild from scratch.
-      this.renderedFurrows = 0;
+      // A reset, a save restore, or a circular-buffer splice at MAX_FURROWS
+      // shortened the list. When the oldest entries are trimmed the remaining
+      // furrows shift down by `offset` indices, so instance-slot `i` now
+      // corresponds to array entry `i - offset`. Detect that case and copy
+      // forward rather than rebuilding from scratch every frame.
+      const offset =
+        this.renderedFurrows - state.furrows.length;
+      if (offset > 0 && offset < this.renderedFurrows) {
+        // Circular-buffer splice: copy shifted matrices and colours forward
+        // in-place so the visual order matches the trimmed array.
+        for (let i = offset; i < this.renderedFurrows; i++) {
+          this.furrowDecals.getMatrixAt(i, this.dummy.matrix);
+          this.furrowDecals.setMatrixAt(i - offset, this.dummy.matrix);
+          if (this.furrowDecals.instanceColor) {
+            const c = this.furrowDecals.getColorAt(i, this.tempColor);
+            this.furrowDecals.setColorAt(i - offset, c);
+          }
+        }
+      }
+      this.renderedFurrows = state.furrows.length;
     }
     while (this.renderedFurrows < state.furrows.length) {
       const mark = state.furrows[this.renderedFurrows]!;
@@ -1866,11 +2036,16 @@ export class GameRenderer {
       this.dummy.scale.set(1, 1, 1);
       this.dummy.updateMatrix();
       this.furrowDecals.setMatrixAt(this.renderedFurrows, this.dummy.matrix);
+      // Cut furrows are dark brown; fill furrows are lighter to show raised ground.
+      const colour = mark.mode === "fill" ? this.furrowFillColor : this.furrowCutColor;
+      this.furrowDecals.setColorAt(this.renderedFurrows, colour);
       this.renderedFurrows += 1;
     }
     if (this.furrowDecals.count !== this.renderedFurrows) {
       this.furrowDecals.count = this.renderedFurrows;
       this.furrowDecals.instanceMatrix.needsUpdate = true;
+      if (this.furrowDecals.instanceColor)
+        this.furrowDecals.instanceColor.needsUpdate = true;
     }
   }
 
@@ -2160,7 +2335,7 @@ export class GameRenderer {
     }
 
     this.updateCamera(state, delta, profile);
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
   }
 
   /**
@@ -2637,6 +2812,10 @@ export class GameRenderer {
     terrainBuildMs: number;
     visibility: PropVisibilityMetrics;
     gpuMemoryMb: number;
+    rendererBackend: RendererBackend;
+    rendererRequestedBackend: RendererBackendRequest;
+    rendererBackendFallback: boolean;
+    rendererBackendReason: string;
   } {
     return {
       drawCalls: this.renderer.info.render.calls,
@@ -2646,6 +2825,10 @@ export class GameRenderer {
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
       visibility: { ...this.propVisibility },
       gpuMemoryMb: this.estimateGpuMemoryMb(),
+      rendererBackend: this.rendererBackend,
+      rendererRequestedBackend: this.rendererRequestedBackend,
+      rendererBackendFallback: this.rendererBackendFallback,
+      rendererBackendReason: this.rendererBackendReason,
     };
   }
 

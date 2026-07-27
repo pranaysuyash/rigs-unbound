@@ -75,6 +75,17 @@ next portability proof, but this is a sequencing proposal rather than operator
 acceptance. See
 [Wide-Open Next-Tranche Arbitration](WIDE_OPEN_NEXT_TRANCHE_ARBITRATION_2026-07-26.md).
 
+### Same vehicle, many games
+
+The same canonical machine can be explored across farming, racing, survival,
+zombie defense, urban service, construction, aquatic, aerial, and absurd
+future modes without forking identity. See
+[Same Vehicle, Many Games](SAME_VEHICLE_MULTI_MODE_ATLAS_2026-07-26.md).
+The companion mode matrix, prompt sheets, and first escalation board live in
+[Same Vehicle Mode Matrix](SAME_VEHICLE_MODE_MATRIX_2026-07-26.md),
+[Same Vehicle Prompt Sheets](SAME_VEHICLE_PROMPT_SHEETS_2026-07-26.md), and
+[tractor-mode-escalation-board-2026-07-26.png](assets/same-vehicle-mode-atlas-2026-07-26/tractor-mode-escalation-board-2026-07-26.png).
+
 ### Farmfall emission and cultivation boundary
 
 The current Farmfall plan predates save schema v6, blade fill, Reclamation, and
@@ -685,6 +696,7 @@ production art, individually budgeted, or LOD-ready. See the
 [Kenney asset library audit](../research/KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md).
 
 Direct project-owner preference now strengthens the tactile repaired-vehicle/diorama/near-isometric direction. New model-sheet, camera, and comparative art boards propose a hierarchy rather than a blended style: Patchwork Atlas as the persistent base, Signal Noir as a danger/information-state transformation, and Salvage Opera as a rare aspiration/event crescendo. Next evidence is an orthographic tractor turnaround, grayscale/mobile silhouette tests, a non-generic enemy ecology, and an actual camera graybox. See [Visual Direction Preference and Variants](VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md).
+The new [Vehicle Reference Atlas](VEHICLE_REFERENCE_ATLAS_2026-07-26.md) now extends that exploration into a broader family of original rigs so later `img2threejs` passes have multiple silhouettes, scale regimes, and hardpoint grammars to choose from rather than only tractor derivatives.
 
 External premium generation currently lacks local Tripo/Gemini/ElevenLabs credentials; this does not block hand-authored, open-asset, procedural, or built-in image-generation exploration.
 

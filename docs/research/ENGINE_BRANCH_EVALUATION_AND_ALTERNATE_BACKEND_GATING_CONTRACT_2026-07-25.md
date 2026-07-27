@@ -125,3 +125,41 @@ disposable.
   allowed to exist at all.
 - Evidence depth: Tier 1 static contract inspection, with the existing live
   runtime/posture evidence unchanged.
+
+## Addendum (2026-07-26) - W1 probe moved into the canonical contract lane
+
+- A bounded WebGPU probe is now implemented as the first branch-opening event under
+  this contract in `src/game/renderer.ts` and `src/main.ts`:
+  - deterministic backend selection (`auto|webgl|webgpu`),
+  - explicit `navigator.gpu` gating in auto mode,
+  - `WebGPURenderer` init/fallback sequencing,
+  - explicit backend metadata in performance snapshots.
+- This is not a production migration. It is a measurement and rollback slice.
+  The branch remains non-authoritative by contract until the W1-a/b/c completion
+  checks in `docs/research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md`
+  are satisfied.
+- Use-cases captured by this proof lane:
+  - deterministic QA rollout control via `?renderer=webgl|webgpu|auto`,
+  - backend-specific incident triage from one snapshot source,
+  - low-risk operator control while preserving the Three.js canonical contract.
+- Open points now narrowed:
+  - what pressure metric opens full alternate-branch work (to be defined in W1-c),
+  - what pass/fail bar ends this lane (to be defined in the acceptance plan),
+  - the current lane still keeps rollback and gate timing under W1-c.
+- The trigger condition is now: **measurement plus explicit recovery parity required,
+  not “feature readiness” or “developer preference.”**
+
+## Addendum (2026-07-26) - W1-c policy gate is now in the entrypoint
+
+- `?renderer=auto` now routes through an explicit policy resolver in
+  `src/main.ts`, rather than being a direct capability test:
+  - default `rendererPolicy=stable` applies conservative launch gating,
+  - `rendererPolicy=canary` keeps the previous canary behavior,
+  - `rendererPolicy=off` forces WebGL via auto path.
+- The stable gate currently blocks low-confidence startup paths based on API, secure
+  context, device-memory, CPU-concurrency, and iOS-class platform heuristics.
+- The resolver emits a `rendererBackendPolicy` checkpoint on boot with request mode,
+  gate result, and policy reason, so branch policy can be audited with the same
+  run-record evidence channel as context-loss and profile decisions.
+- The contract is therefore no longer only a technical capability check: it is a
+  staged rollout decision with an observable policy envelope.

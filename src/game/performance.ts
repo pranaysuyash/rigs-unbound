@@ -1,5 +1,8 @@
 import type { PropVisibilityMetrics } from "./visibility";
 
+type RendererBackend = "webgl" | "webgpu";
+type RendererBackendRequest = "auto" | "webgl" | "webgpu";
+
 export interface RendererMetrics {
   drawCalls: number;
   triangles: number;
@@ -13,6 +16,11 @@ export interface RendererMetrics {
   visibility?: PropVisibilityMetrics;
   /** Estimated GPU memory usage in MB (geometries + textures). */
   gpuMemoryMb?: number;
+  rendererBackend?: "webgl" | "webgpu";
+  rendererRequestedBackend?: "auto" | "webgl" | "webgpu";
+  rendererBackendFallback?: boolean;
+  rendererBackendReason?: string;
+
 }
 
 export interface PerformanceSnapshot {
@@ -35,6 +43,10 @@ export interface PerformanceSnapshot {
   visibility: PropVisibilityMetrics | null;
   /** Estimated GPU memory usage in MB. */
   gpuMemoryMb: number | null;
+  rendererBackend: RendererBackend;
+  rendererRequestedBackend: RendererBackendRequest;
+  rendererBackendFallback: boolean;
+  rendererBackendReason: string;
   largestContentfulPaintMs: number | null;
   inputDelayMs: number | null;
   cumulativeLayoutShift: number;
@@ -279,6 +291,11 @@ export class PerformanceMonitor {
       geometries: renderer.geometries,
       textures: renderer.textures,
       terrainBuildMs: renderer.terrainBuildMs ?? null,
+      rendererBackend: renderer.rendererBackend ?? "webgl",
+      rendererRequestedBackend: renderer.rendererRequestedBackend ?? "auto",
+      rendererBackendFallback: renderer.rendererBackendFallback ?? false,
+      rendererBackendReason: renderer.rendererBackendReason ?? "default WebGL renderer",
+
       visibility: renderer.visibility ? { ...renderer.visibility } : null,
       heapUsedMb: memory.memory
         ? Number((memory.memory.usedJSHeapSize / 1_048_576).toFixed(1))

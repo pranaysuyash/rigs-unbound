@@ -324,13 +324,30 @@ Deferred, or Superseded with evidence.
 
 ## Immediate next call
 
-Do not add another mechanic yet. Finish the active admission matrix:
+The integrated and replay matrices now pass locally. The next ordered work is:
 
-1. finish the fresh full-suite/build/browser evidence;
-2. reconcile Survey Route's schema ownership with cultivation;
-3. close or explicitly defer renderer/replay gaps;
-4. request the remaining sequencing/admission decisions;
-5. only then wire another player-facing vertical.
+1. run external fresh-player comprehension for A6;
+2. reconcile Survey Route's schema ownership with cultivation and obtain the
+   remaining B3/B3a/B4/C1 operator decisions;
+3. close the current renderer/performance admission evidence and begin the
+   representative-device D1 envelope;
+4. perform a fresh preservation audit, exact-source deployment, and public
+   rerun for the post-version-10 tranche;
+5. then wire the chosen player-facing vertical without turning a validation
+fixture into product identity.
+
+### Renderer policy lane (motto_v4 long-term continuation)
+
+1. Close W1 renderer evidence before any new load-bearing vertical decision:
+   - publish measured startup failure/fallback rates by policy/request (`auto|webgl|webgpu`)
+     and device class,
+   - verify checkpoint observability (`rendererBackendPolicy`, `graphicsContextLost`,
+     `graphicsContextRestored`) remains consistent after `recreateRenderer`,
+   - decide whether `rendererPolicy=stable` can shift from conservative `off` on production surfaces.
+2. Keep `rendererPolicy=off` on conservative production until D1 representative-device data demonstrates
+   non-regressive stability under default paths.
+3. Reopen `B3a` and `B4` once this lane has stable telemetry, because unresolved game schema decisions
+   and render reliability decisions are coupled at first release surfaces.
 
 This protects the playable public baseline while preserving the ambitious
 cross-rig direction.

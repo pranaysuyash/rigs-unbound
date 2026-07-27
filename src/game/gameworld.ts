@@ -89,6 +89,29 @@ export class GameWorld {
     this.terrain = new TerrainField(seed);
     this.obstacles = new ObstacleField(seed, this.terrain);
     this.exploration = new ExplorationField(seed, this.terrain);
+
+    // -----------------------------------------------------------------------
+    // Authored terrain bottleneck: a deliberate gully between Home Silo and
+    // Long Furrow that blocks the direct overland path. The player encounters
+    // this during the first-session Reclamation journey: they see Long Furrow,
+    // attempt the direct route, hit the face, learn they need the blade, and
+    // then plough through it. This gully is *insurance* — procedural terrain
+    // may already create steep faces, but this guarantees the blockage exists
+    // on every seed so the journey is always discoverable.
+    //
+    // Placed on the direct line between the two sites, offset slightly off the
+    // authored track corridor so it never interferes with the graded route.
+    // The surface at this location must be deformable (grass/mud, not rock or
+    // track) for the plough to work.
+    // -----------------------------------------------------------------------
+    // Placed perpendicular to the Home→Long Furrow route, offset ~10 m
+    // outside the 7 m half-width corridor so the surface is deformable
+    // (grass/mud, not hardpan track).
+    const gullyX = -1;
+    const gullyZ = -20;
+    this.terrain.deform(gullyX, gullyZ, -0.38, 3);
+    this.terrain.deform(gullyX + 4, gullyZ + 2, -0.22, 2);
+    this.terrain.deform(gullyX - 3, gullyZ - 2, -0.18, 2);
   }
 
   fell(id: string): void {

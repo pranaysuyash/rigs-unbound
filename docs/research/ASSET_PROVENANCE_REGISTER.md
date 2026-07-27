@@ -136,6 +136,157 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 
 > Use case: stylized-concept. Asset type: exploratory game art-direction concept sheet for a browser-based vehicle adventure. Create one coherent wide triptych showing the same original fictional patchwork tractor vehicle as a lovable playable character across three connected moments: warm tactile diorama farm at late afternoon, tense moonlit top-down defense through crop shadows, and a surprising distant glimpse of the larger universe with toy-scale roads, a city, and an original small rocket implied on the horizon. The tractor's installed wide plow and repaired panels must remain visibly identical across all three panels so it feels like one persistent character, not three vehicles. Authored stylized 3D game concept art; low-poly but materially rich; hand-built diorama; visible repair seams and stickers; grounded painted metal, wood, soil, crops; restrained cinematic lighting. Three equal vertical scenes connected by terrain and light; panel 1 chase/isometric, panel 2 elevated tactical top-down, panel 3 expansive adventure vista; strong readable silhouettes at gameplay distance. Wonder and mechanical warmth shifting into readable night danger and then optimistic cosmic possibility. Ochre soil, sage crops, faded red and cream tractor, cyan moonlight used sparingly, deep navy shadows, warm amber work lights. Original fictional vehicle design, no logos, no brand marks, no text, no UI, no humans, no watermark; interaction and threat silhouettes must be readable; art serves gameplay; same tractor and attachments in every panel. Avoid photorealism, generic neon sci-fi, purple gradient, excessive bloom, clutter, tiny detail noise, grimdark gore, cute mobile-game gloss, and copying any named game or artist.
 
+## `vehicle-reference-atlas` lineup sheets
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/`
+- Production status: **reference only; not approved as shipped runtime art**
+- Intended use: broad vehicle and rig reference bank for later isolated `img2threejs` reconstruction inputs and production model planning
+- Rights/terms status: generated in the project workspace; still review before any public distribution or reuse outside project documentation
+
+### `farm-field-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/farm-field-lineup.png`
+- SHA-256: `dcc2ff46349f602c5816194072c6916a1edbc724ce93daaa62afb7f70304d7fb`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six farm and field rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains restored tractor, workhorse tractor, seed runner, harvest tug, orchard crawler, and marsh skimmer
+
+### `utility-service-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/utility-service-lineup.png`
+- SHA-256: `ce66171d2c7fa16bfef164b8db9c31fcc913b91b3884a9a7ee7c7b876901b74e`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six utility and service rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains mechanic van, tow truck, crane rig, delivery sprinter, garage carrier, and road-winch rig
+
+### `toy-scale-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/toy-scale-lineup.png`
+- SHA-256: `6b414f5d57033c24274c92a8a64cd7b0f057b67bb87df5a02ee8ff1d6b1801a9`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six toy-scale and small-world rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains desk buggy, mini crawler, courier skiff, pocket forklift, micro rescue rover, and bookshelf hauler
+
+### `rescue-response-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/rescue-response-lineup.png`
+- SHA-256: `6cd97e3d192554657d51fdca7cfeaf46756c48117a5f82bc7c801f9a001bed96`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six rescue and response rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains rescue bus, field ambulance, light-guard rig, riot-scrub rig, flood response rig, and recovery shuttle
+
+### `extreme-aspiration-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/extreme-aspiration-lineup.png`
+- SHA-256: `d2939551a1f3b27ebb83359b7e0bdcf5171636eeb19c12dbcfd01f72e64302ef`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six extreme and aspiration rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains snow crawler, dune hauler, launch tender, sky barge, orbital tug, and vertical-lift rig
+
+### `tractor-evolution-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/tractor-evolution-lineup.png`
+- SHA-256: `23b0a4c41c204ea58a67fcb5f2bf68e58044421f5012dd94e4ad0ab447f9dd23`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six progressive tractor states for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains found, stabilized, working, specialized, hybridized, and storied tractor states
+
+### `construction-salvage-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/construction-salvage-lineup.png`
+- SHA-256: `602ec78d0ba637ec714295f795d7e28041f44b12464d3658f87dab704e0c442e`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six construction and salvage rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains compact excavator, heavy salvage loader, bridge-builder truck, site hauler, drilling carrier, and demolition crane
+
+### `aquatic-amphibious-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/aquatic-amphibious-lineup.png`
+- SHA-256: `b4810b31ce35489c1275c9d6e300c3d42bcd51ada394266d04b580fabe2e4351`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six aquatic and amphibious rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains marsh skimmer, rescue hoverboat, river tug, amphibious hauler, canal maintenance rig, and deep-water salvage skiff
+
+### `aerial-orbital-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/aerial-orbital-lineup.png`
+- SHA-256: `8b17905e7eb319266405e48b5164eab51b30d9ce940b9b8ecfa8c2688d68810e`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six aerial and orbital support rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains sky barge, launch tender, orbital tug, vertical-lift rig, maintenance drone carrier, and reentry cradle transport
+
+### `urban-civic-lineup.png`
+
+- Project path: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/urban-civic-lineup.png`
+- SHA-256: `55bc059c474afd6e036ea2c17c7dda97645e75ee99dde567dd5c188984a9e101`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Intended use: six urban and civic support rigs for later cropping, comparison, and reconstruction planning
+- Production status: reference only
+- Notes: lineup sheet contains city bus, street sweeper, utility tram support rig, garbage compactor truck, postal route van, and parking enforcement rig
+
+## `tractor-mode-escalation-board-2026-07-26.png`
+
+- Project path: `docs/exploration/assets/same-vehicle-mode-atlas-2026-07-26/tractor-mode-escalation-board-2026-07-26.png`
+- SHA-256: `285372b34af03df487bb4ea0be9e03261948d06cfe48fd0698df3ec0c118d23f`
+- Dimensions: 1254 × 1254 RGB PNG
+- Date generated: 2026-07-26
+- Tool: built-in OpenAI image generation in the Codex workspace
+- Input/reference: `docs/exploration/assets/vehicle-reference-atlas-2026-07-26/tractor-evolution-lineup.png`; used as identity anchor, not edit target
+- Intended use: first cross-mode board showing the same tractor across farming day, night utility, zombie-defense mid-tier, and deep-dark escalation
+- Production status: reference only
+- Human review: preserved same-machine identity across all four panels while escalating lighting, defenses, and threat pressure
+- Rights/terms status: generated in the project workspace; still review before any public reuse outside project documentation
+
+## Project-Local In-Tree Reference Asset Registration (2026-07-27)
+
+All vehicle catalog documentation, reference image assets, and downstream procedural 3D reconstructed Three.js meshes are stored within the project tree (`docs/` and `assets/`).
+
+### Project-Local Asset Locations:
+- **Master Vehicle Catalog:** [`docs/exploration/MASTER_VEHICLE_CATALOG.md`](file:///Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/MASTER_VEHICLE_CATALOG.md) (144 Vehicles / 432 Upgrade Tiers)
+- **Concept Reference Images:** [`docs/exploration/assets/vehicle_references/`](file:///Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/assets/vehicle_references/)
+  - `master_rig_catalog_lineup_1785090848982.jpg` (Lineup Sheet)
+  - `gyro_sphere_monowheel_1785090927007.jpg` (Gyro-Sphere Monowheel Rover)
+  - `bathtub_speedster_hotrod_1785090990228.jpg` (Bathtub-Speedster Hot Rod)
+  - `polygon_glitcher_wireframe_1785091001537.jpg` (Polygon-Glitcher 404 Wireframe)
+  - `pizza_cutter_speedster_1785091576222.jpg` (Pizza-Cutter Speedster)
+  - `golem_titan_chariot_1785091591503.jpg` (Golem-Titan Chariot)
+  - `chrono_locomotive_1885_1785091650714.jpg` (Chrono-Locomotive 1885)
+  - `carousel_horse_striker_1785091666649.jpg` (Carousel-Horse Striker)
+  - `pipe_organ_fortress_1785091761042.jpg` (Pipe-Organ Fortress)
+  - `monster_truck_crusher_1785091778582.jpg` (Monster-Truck Crusher)
+- **Downstream Three.js Reconstructed Meshes:** [`assets/runtime/threejs_rigs/`](file:///Users/pranay/Projects/Game_dev/rigs-unbound/assets/runtime/threejs_rigs/)
+
+---
+
 ## Required fields for future assets
 
 - project path and stable ID;
