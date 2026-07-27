@@ -334,3 +334,18 @@ Yes. Two cross-cutting notes the per-section analysis did not say plainly:
   attachment/mastery/legacy arc in a more durable form.
 - Future exploration work should treat that note as the higher-level synthesis
   and this document as the broader systems-analysis companion.
+
+## Correction (2026-07-27): status of the elevation above
+
+The 2026-07-27 addendum above overclaims. The long-term note describes itself
+as "**recommendation, not an accepted ADR**" with open operator decisions (its
+§19); no operator decision has elevated it to "canonical." Corrected reading:
+
+- The long-term note is the **current strongest exploration synthesis** for
+  the game-fantasy layer, **pending operator decision** on its §19 questions.
+- The accepted canon remains: north star per README/DESIGN ("every vehicle is
+  a different verb"), progression per ADR-0018, slice direction per ADR-0002
+  and the Farmfall plan/tracker rows RU-0202–0208.
+- Elevating the note's thesis to canon requires an operator decision (a
+  vision ADR), not a cross-document declaration. Flagged under the
+  ADR-0023 provenance rule.

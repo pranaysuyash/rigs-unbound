@@ -30,6 +30,8 @@ logs/
 .tmp/
 tmp/
 temp/
+artifacts/*-profile/
+artifacts/**/.profile/
 
 # JavaScript and browser build output
 node_modules/

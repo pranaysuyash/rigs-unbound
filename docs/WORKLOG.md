@@ -1,3 +1,14 @@
+## 2026-07-27 — game-systems analysis canon-vs-recommendation boundary corrected
+
+- Corrected the overclaim in
+  `docs/exploration/GAME_SYSTEMS_ANALYSIS_AND_DIRECTION_2026-07-25.md` so the
+  long-term synthesis remains a recommendation rather than an accepted canon.
+- The correction preserves the operator-sign-off boundary and keeps the long
+  game-systems note aligned with the rest of the decision-provenance trail.
+- Added a browser-profile cache ignore rule in `.gitignore` so local playtest
+  profile bundles stop polluting status while the reusable driver/evidence
+  files remain visible.
+
 ## 2026-07-27 — playtest2 artifact bundle classified
 
 - New local evidence surfaced in `artifacts/playtest2-achiever.cjs`,
