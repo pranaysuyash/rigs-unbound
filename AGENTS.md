@@ -28,6 +28,21 @@ maintainable:
   `src/game/` unless the user explicitly clears the collision.
 - Documentation, plans, ADRs, reviews, and exploration notes are safe to edit.
 
+## Canonical local dev surface
+
+- Local development uses **exactly one** canonical Vite dev server on port
+  **4173** (`server.port: 4173`, `strictPort: true` in `vite.config.ts`).
+- Launch it with `node tools/start-canonical-dev-server.cjs`, which is
+  idempotent: it reuses the existing 4173 server if one exists, starts one if
+  not, and exits once the port responds.
+- Do **not** opportunistically fall back to other ports (4174, 4180, etc.) for
+  browser tests, screenshots, or playtest evidence. Multiple ports create
+  runtime contradictions and invalid evidence.
+- If 4173 is blocked, diagnose and free it (`lsof -i :4173`) or stop the
+  conflicting process. Do not paper over the conflict by starting another port.
+- Update current guidance, not historical evidence, when the canonical port
+  changes.
+
 ## Verification before completion claims
 
 - Run `npm run typecheck && npx vitest run` before claiming implementation work

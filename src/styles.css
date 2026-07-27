@@ -234,9 +234,46 @@ select:focus-visible,
   color: var(--signal-cyan);
 }
 
-/* The first-cut stage marks the transition from scavenging to terrain
-   transformation. A distinct border and label colour separate it from the
-   pre-fit gold guidance so the player sees progress. */
+/* --------------------------------------------------------------------------
+   First-rung stage icons
+
+   Each stage gets a distinct colour and inline SVG icon so the player sees
+   progress through the journey at a glance. Colours follow the existing palette:
+   - sight-destination / attempt-route / find-cache / choose-part: harvest-gold (guidance)
+   - first-cut: tractor-rust (terrain transformation)
+   - second-fit: workshop-bone (recovery / workshop)
+   - free-explore: signal-cyan (unlocked / open)
+   -------------------------------------------------------------------------- */
+
+/* sight-destination: the player has spotted Long Furrow. Eye icon. */
+.first-rung-objective[data-stage="sight-destination"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 9' width='14' height='9'%3E%3Cpath d='M1 4.5C3 1.5 5.5 0.5 7 0.5S11 1.5 13 4.5C11 7.5 8.5 8.5 7 8.5S3 7.5 1 4.5Z' fill='none' stroke='%23d9aa52' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='7' cy='4.5' r='1.5' fill='none' stroke='%23d9aa52' stroke-width='1.2'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
+}
+
+/* attempt-route: the gully blocks the way. Barrier / road icon. */
+.first-rung-objective[data-stage="attempt-route"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10' width='12' height='10'%3E%3Cpath d='M1 8L6 2L11 8' fill='none' stroke='%23d9aa52' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cline x1='6' y1='8' x2='6' y2='5.5' stroke='%23d9aa52' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
+}
+
+/* find-cache: scavenge for salvage. Diamond / gem icon. */
+.first-rung-objective[data-stage="find-cache"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' width='10' height='10'%3E%3Cpath d='M5 1L9 5L5 9L1 5Z' fill='none' stroke='%23d9aa52' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
+}
+
+/* choose-part: pick a module at the workshop. Wrench icon. */
+.first-rung-objective[data-stage="choose-part"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10' width='12' height='10'%3E%3Cpath d='M8.5 1.5C7 0 4.5 0 3 1.5L1 3.5L8.5 10L10.5 8Z' fill='none' stroke='%23d9aa52' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='5.5' cy='4.5' r='1' fill='none' stroke='%23d9aa52' stroke-width='1'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
+}
+
+/* first-cut: terrain transformation begins. Plough blade icon (horizontal bar + chevron). */
 .first-rung-objective[data-stage="first-cut"] {
   border-left-color: var(--tractor-rust);
 }
@@ -246,19 +283,39 @@ select:focus-visible,
 }
 
 .first-rung-objective[data-stage="first-cut"] > span::before {
-  content: "⛏ ";
-  font-size: 0.85em;
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10' width='12' height='10'%3E%3Cpath d='M1 1h10M3 1l3 5 3-5' fill='none' stroke='%23b94f32' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
 }
 
-/* The second-fit stage marks the transition from terrain transformation to
-   self-recovery capability. A distinct border and label colour separate it from
-   both the pre-fit gold guidance and the first-cut rust guidance. */
+/* second-fit: recovery module at workshop. Wrench + plus icon. */
 .first-rung-objective[data-stage="second-fit"] {
   border-left-color: var(--workshop-bone);
 }
 
 .first-rung-objective[data-stage="second-fit"] > span {
   color: var(--workshop-bone);
+}
+
+.first-rung-objective[data-stage="second-fit"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10' width='12' height='10'%3E%3Cpath d='M2 5H10M5 2V8' fill='none' stroke='%23ead8b8' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
+}
+
+/* free-explore: all upgrades fitted, open world. Unlock / open padlock icon. */
+.first-rung-objective[data-stage="free-explore"] {
+  border-left-color: var(--signal-cyan);
+}
+
+.first-rung-objective[data-stage="free-explore"] > span {
+  color: var(--signal-cyan);
+}
+
+.first-rung-objective[data-stage="free-explore"] > span::before {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' width='10' height='10'%3E%3Crect x='2' y='5' width='6' height='4' rx='0.5' fill='none' stroke='%236bc9c4' stroke-width='1.2'/%3E%3Cpath d='M3.5 5V3.5C3.5 2.1 4.3 1 5 1S6.5 2.1 6.5 3.5V4' fill='none' stroke='%236bc9c4' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E")
+    " ";
+  vertical-align: -0.1em;
 }
 
 @keyframes first-fit-confirm {
@@ -516,7 +573,7 @@ kbd {
 
 .welcome-panel {
   position: absolute;
-  z-index: 8;
+  z-index: 110;
   inset: 0;
   display: grid;
   place-items: center;
@@ -721,22 +778,156 @@ kbd {
   opacity: 1;
 }
 
-.pause-overlay {
+/* --------------------------------------------------------------------------
+   Unified overlay shell
+
+   One modal regime for map, pause, workshop, and control lessons.
+   -------------------------------------------------------------------------- */
+
+.overlay-backdrop {
   position: absolute;
-  z-index: 6;
+  z-index: 100;
   inset: 0;
+  display: grid;
   place-items: center;
-  color: var(--workshop-bone);
-  background: rgba(9, 13, 11, 0.58);
-  font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif;
-  font-size: clamp(3rem, 10vw, 8rem);
-  font-weight: 800;
+  padding: 1rem;
+  background: rgba(9, 13, 11, 0.72);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.overlay-backdrop:not([hidden]) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overlay-plate {
+  position: relative;
+  width: min(44rem, 100%);
+  max-height: calc(100vh - 2rem);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+  transform: translateY(0.6rem);
+  transition: transform 220ms ease;
+}
+
+.overlay-backdrop:not([hidden]) .overlay-plate {
+  transform: translateY(0);
+}
+
+.overlay-plate__index {
+  color: var(--harvest-gold);
+  font:
+    800 0.6rem/1 "SFMono-Regular",
+    Consolas,
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.overlay-plate h2 {
+  margin: 0;
+  font-size: 1.4rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.pause-overlay:not([hidden]) {
+.pause-overlay {
+  position: absolute;
+  z-index: 100;
+  inset: 0;
   display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(9, 13, 11, 0.72);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
+}
+
+.pause-overlay:not([hidden]) {
+  opacity: 1;
+  visibility: visible;
+}
+
+.pause-overlay__plate {
+  position: relative;
+  width: min(28rem, 100%);
+  max-height: calc(100vh - 2rem);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+  text-align: center;
+  transform: translateY(0.6rem);
+  transition: transform 220ms ease;
+}
+
+.pause-overlay:not([hidden]) .pause-overlay__plate {
+  transform: translateY(0);
+}
+
+.pause-overlay__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.pause-action {
+  padding: 0.75rem 1rem;
+  color: var(--workshop-bone);
+  background: rgba(234, 216, 184, 0.08);
+  border: 1px solid var(--hairline);
+  cursor: pointer;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease;
+}
+
+.pause-action:hover:not(:disabled) {
+  background: rgba(234, 216, 184, 0.16);
+  border-color: var(--harvest-gold);
+}
+
+.pause-action--primary {
+  background: var(--harvest-gold);
+  color: var(--soil-ink);
+  border-color: var(--harvest-gold);
+}
+
+.pause-action--primary:hover:not(:disabled) {
+  background: #e8b86a;
+}
+
+.pause-action--danger {
+  color: #e8a6a6;
+  border-color: rgba(232, 120, 120, 0.45);
+}
+
+.pause-action--danger:hover:not(:disabled) {
+  background: rgba(232, 120, 120, 0.12);
+}
+
+.pause-overlay__save-status {
+  margin: 0;
+  font-size: 0.62rem;
+  color: rgba(234, 216, 184, 0.55);
 }
 
 .error-panel {
@@ -976,39 +1167,139 @@ kbd {
 
 .map-overlay {
   position: absolute;
-  z-index: 8;
+  z-index: 100;
   inset: 0;
   display: grid;
   place-items: center;
   padding: 1rem;
   background: rgba(10, 15, 13, 0.78);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 220ms ease,
+    visibility 220ms ease;
 }
 
-.map-overlay[hidden] {
-  display: none;
+.map-overlay:not([hidden]) {
+  opacity: 1;
+  visibility: visible;
 }
 
 .map-overlay__plate {
   display: grid;
   gap: 0.7rem;
-  width: min(44rem, 100%);
-  max-height: 100%;
-  padding: 1rem;
-  background: var(--panel);
-  border: 1px solid var(--hairline);
+  width: min(54rem, 100%);
+  max-height: calc(100vh - 2rem);
+  padding: 1.25rem;
+  background: rgba(15, 23, 20, 0.94);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.75), 0 0 20px rgba(45, 212, 191, 0.12);
+  transform: translateY(0.6rem);
+  transition: transform 220ms ease;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 1.5rem) 0,
+    100% 1.5rem,
+    100% 100%,
+    1.5rem 100%,
+    0 calc(100% - 1.5rem)
+  );
+}
+
+.map-overlay:not([hidden]) .map-overlay__plate {
+  transform: translateY(0);
 }
 
 .map-overlay__plate header {
   display: flex;
   gap: 0.75rem;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(45, 212, 191, 0.25);
+  padding-bottom: 0.5rem;
 }
 
 .map-overlay__plate header strong {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.map-overlay__layer-toggle {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  border-radius: 0.25rem;
+}
+
+.map-layer-button {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.65rem;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: rgba(234, 216, 184, 0.75);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.map-layer-button.is-active {
+  color: #0f172a;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+}
+
+.map-overlay__viewport {
+  position: relative;
+  min-height: 0;
+  background: #0e1412;
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.85), 0 0 15px rgba(45, 212, 191, 0.1);
+}
+
+#map-canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 58vh;
+  margin-inline: auto;
+  background: #141a17;
+}
+
+.rumor-map-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.rumor-map-host .rumor-map-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  padding: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.rumor-map-host .rumor-map-frame {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 #map-progress {
@@ -1025,16 +1316,6 @@ kbd {
   color: var(--workshop-bone);
   background: transparent;
   border: 1px solid var(--hairline);
-}
-
-#map-canvas {
-  width: 100%;
-  aspect-ratio: 1;
-  max-height: 58vh;
-  margin-inline: auto;
-  background: #141a17;
-  border: 1px solid var(--hairline);
-  image-rendering: auto;
 }
 
 .map-legend {
@@ -1180,6 +1461,35 @@ kbd {
 
   .control-lesson dd {
     font-size: 0.62rem;
+  }
+
+  .map-overlay,
+  .pause-overlay {
+    padding: 0.5rem;
+  }
+
+  .map-overlay__plate {
+    width: 100%;
+    max-height: calc(100vh - 1rem);
+    padding: 0.75rem;
+  }
+
+  .map-overlay__plate header strong {
+    font-size: 0.8rem;
+  }
+
+  .pause-overlay__plate {
+    width: 100%;
+    padding: 0.9rem;
+  }
+
+  .pause-overlay__plate h2 {
+    font-size: 1.1rem;
+  }
+
+  .pause-action {
+    padding: 0.65rem 0.8rem;
+    font-size: 0.7rem;
   }
 }
 
@@ -1603,7 +1913,7 @@ kbd {
   position: fixed;
   top: 4.5rem;
   right: 1rem;
-  z-index: 500;
+  z-index: 40;
   width: 180px;
   background: rgba(17, 25, 34, 0.88);
   border: 1px solid rgba(107, 201, 196, 0.4);
@@ -1612,6 +1922,10 @@ kbd {
   backdrop-filter: blur(8px);
   padding: 0.6rem;
   font-family: monospace;
+}
+
+.navigator-panel[hidden] {
+  display: none;
 }
 
 .nav-header {

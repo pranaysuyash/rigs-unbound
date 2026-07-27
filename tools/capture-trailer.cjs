@@ -3,7 +3,7 @@
  *
  * Usage:
  *   node tools/capture-trailer.cjs
- *   RIGS_UNBOUND_URL=http://127.0.0.1:4174/ node tools/capture-trailer.cjs
+ *   RIGS_UNBOUND_URL=http://127.0.0.1:4173/ node tools/capture-trailer.cjs
  *   RIGS_TRAILER_HEADLESS=1 node tools/capture-trailer.cjs
  *
  * Output (in docs/comms/assets/):

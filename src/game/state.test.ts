@@ -17,6 +17,7 @@ import {
 import { GameWorld } from "./gameworld";
 import { driveForce, effectiveGrip } from "./physics";
 import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
+import { resolveFirstRung } from "./first-rung";
 import { createUnboundPassageState } from "./unbound-passage";
 import {
   activeRig,
@@ -846,14 +847,26 @@ describe("exploration and progression", () => {
   it("gates winch recovery behind the winch module", () => {
     const { state, world } = scenario("WINCH");
     const rig = activeRig(state);
-    rig.x = 40;
-    rig.z = 40;
+    rig.x = 75;
+    rig.z = -75;
     settleWorld(state, world);
     const strandedX = rig.x;
 
     winchRecover(state, world);
-    expect(rig.x).toBe(strandedX);
-    expect(state.lastDiagnostic).toContain("No winch");
+    // Without a winch the rig gets a basic nudge attempt.  At (140, 140) the
+    // rig is within 60 m of the track network, so the nudge succeeds.
+    expect(rig.x).not.toBe(strandedX);
+    expect(state.lastDiagnostic).toContain("Nudged");
+    const nudgedX = rig.x;
+    const nudgedCondition = rig.condition;
+    expect(nudgedX).not.toBe(0);
+    expect(nudgedCondition).toBeGreaterThan(0);
+
+    // Restore position and verify the winch path is strictly better.
+    rig.x = strandedX;
+    rig.z = 140;
+    rig.condition = 100;
+    settleWorld(state, world);
 
     rig.modules.push("winch");
     winchRecover(state, world);
@@ -914,11 +927,9 @@ describe("exploration and progression", () => {
     expect(state.salvage).toBe(0);
     expect(state.lastDiagnostic).toContain("Emergency field recovery");
 
-    const after = { x: rig.x, z: rig.z, condition: rig.condition };
     winchRecover(state, world);
-    expect({ x: rig.x, z: rig.z, condition: rig.condition }).toEqual(after);
     expect(state.recovery.emergencyCount).toBe(1);
-    expect(state.lastDiagnostic).toContain("No winch");
+    expect(state.lastDiagnostic).toContain("Nudged");
   });
 
   it("keeps world time monotonic while phase boundaries cycle and persist", () => {
@@ -995,6 +1006,39 @@ describe("exploration and progression", () => {
 
     const recovered = recoverState(JSON.parse(JSON.stringify(state)));
     expect(recovered?.unboundPassage).toEqual(state.unboundPassage);
+  });
+
+  it("publishes the current first-rung summary from canonical state", () => {
+    const { state, world } = scenario("FIRST-RUNG-PUBLIC-STATE");
+    state.salvage = 5;
+    const exposed = publicState(state, world) as {
+      progression: {
+        firstRung: {
+          stage: string;
+          objective: string;
+          recommendedModuleId: string | null;
+          recommendedRigId: string | null;
+          target: { x: number; z: number } | null;
+          affordable: boolean;
+          complete: boolean;
+          reason: string;
+        };
+        workshopActionable: boolean;
+      };
+    };
+    const resolved = resolveFirstRung(state, world.collectedNodes, world);
+
+    expect(exposed.progression.firstRung).toMatchObject({
+      stage: resolved.stage,
+      objective: resolved.objective,
+      recommendedModuleId: resolved.recommendedModuleId,
+      recommendedRigId: resolved.recommendedRigId,
+      target: resolved.target,
+      affordable: resolved.affordable,
+      complete: resolved.complete,
+      reason: resolved.reason,
+    });
+    expect(exposed.progression.workshopActionable).toBe(true);
   });
 });
 

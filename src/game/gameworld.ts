@@ -104,14 +104,23 @@ export class GameWorld {
     // The surface at this location must be deformable (grass/mud, not rock or
     // track) for the plough to work.
     // -----------------------------------------------------------------------
-    // Placed perpendicular to the Home→Long Furrow route, offset ~10 m
-    // outside the 7 m half-width corridor so the surface is deformable
-    // (grass/mud, not hardpan track).
-    const gullyX = -5;
-    const gullyZ = -15;
-    const gullyApplied = this.terrain.deform(gullyX, gullyZ, -0.38, 3);
-    this.terrain.deform(gullyX + 4, gullyZ + 2, -0.22, 2);
-    this.terrain.deform(gullyX - 3, gullyZ - 2, -0.18, 2);
+    // Authored terrain bottleneck: a deliberate gully between Home Silo and
+    // Long Furrow that creates a visible mud depression on the direct overland
+    // path. DEFORM_MIN clamps each cell to −0.42 m, so the gully cannot
+    // hard-block the tractor (which needs ~4 m rise across its wheelbase).
+    // Instead it provides a visible mud surface that slows traversal — the
+    // player returns for the blade, ploughs through, and the R2 proof shows
+    // tilled ground is faster than mud. Secondary deforms widen the depression
+    // so an off-centre approach still encounters mud.
+    //
+    // ATTEMPT_ROUTE_RADIUS in first-rung.ts must stay ≥ the distance from
+    // Long Furrow to this gully centre so the guidance prompt fires BEFORE
+    // the player reaches the depression.
+    const gullyX = -2;
+    const gullyZ = -12;
+    const gullyApplied = this.terrain.deform(gullyX, gullyZ, -0.42, 3);
+    this.terrain.deform(gullyX + 4, gullyZ + 1, -0.3, 2);
+    this.terrain.deform(gullyX - 3, gullyZ - 2, -0.2, 2);
     if (!gullyApplied) {
       console.warn(
         "Reclamation gully: primary deform rejected at",

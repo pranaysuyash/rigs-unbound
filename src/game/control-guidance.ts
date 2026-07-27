@@ -24,7 +24,7 @@ export interface ControlLesson {
 export interface ControlGuidanceContext {
   hasDriven: boolean;
   primaryActionKind: PrimaryActionKind;
-  workshopRelevant: boolean;
+  workshopLessonRelevant: boolean;
   bladeRelevant: boolean;
   cameraRelevant: boolean;
   mapRelevant: boolean;
@@ -56,7 +56,7 @@ const STATIC_LESSONS: Readonly<
     title: "Shape soft ground",
     description:
       "Lower the blade to cut or fill terrain; raise it before ordinary travel.",
-    keyboard: "Space / E · B mode",
+    keyboard: "Space / E raise/lower · B switches cut/fill",
     touch: "Act · Blade",
   },
   camera: {
@@ -133,12 +133,12 @@ export function resolveControlLesson(
   if (urgentLesson) return urgentLesson;
 
   /*
-   * A workflow-critical surface owns its teaching moment. Once the workshop
-   * lesson is learned, do not cascade immediately into camera/map lessons while
-   * the player is still trying to fit the requested part; those optional
-   * controls become relevant again after this spatial workflow ends.
+   * The workshop lesson owns its teaching moment. Once learned, do not
+   * cascade immediately into camera/map lessons while the player is still
+   * trying to fit the requested part; those optional controls become relevant
+   * again after this spatial workflow ends.
    */
-  if (context.workshopRelevant) {
+  if (context.workshopLessonRelevant) {
     return learned.has("workshop") ? null : STATIC_LESSONS.workshop;
   }
 

@@ -377,6 +377,11 @@ deploy, and verification rather than treating them as one opaque action. This
 pass also found and corrected a stale `4173` default in the README and browser
 runner; the canonical `4174` command then passed the full local browser flow.
 
+> Port consolidation update (2026-07-27): the canonical local dev surface is now
+> **4173** only. See `tools/start-canonical-dev-server.cjs` and `AGENTS.md`.
+> Historical references to 4174 in older evidence remain intact but must not be
+> copied into current procedures.
+
 ### Pass 2 — architecture and long-term viability
 
 Kept ADR-0013 as the hosting decision and made this file the single operations

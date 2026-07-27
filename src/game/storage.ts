@@ -15,8 +15,9 @@ import type { GameState } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
-export const SAVE_KEY = "rigs-unbound.save.v7";
-export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v6";
+export const SAVE_KEY = "rigs-unbound.save.v8";
+export const PREVIOUS_SAVE_KEY = "rigs-unbound.save.v7";
+export const V6_SAVE_KEY = "rigs-unbound.save.v6";
 export const DRIFT_BERTH_SAVE_KEY = "rigs-unbound.save.v5";
 export const FIELD_CLOCK_SAVE_KEY = "rigs-unbound.save.v4";
 export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
@@ -27,6 +28,7 @@ export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 const READ_KEYS = [
   SAVE_KEY,
   PREVIOUS_SAVE_KEY,
+  V6_SAVE_KEY,
   DRIFT_BERTH_SAVE_KEY,
   FIELD_CLOCK_SAVE_KEY,
   FIELD_02_SAVE_KEY,

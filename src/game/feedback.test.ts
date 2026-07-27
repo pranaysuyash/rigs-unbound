@@ -21,7 +21,7 @@ describe("rig perception contract", () => {
     expect(feedback.tractionLoss).toBe(0.4);
     expect(feedback.driveLoad).toBeGreaterThan(0.7);
     expect(feedback.lateralLoad).toBeGreaterThan(0);
-    expect(feedback.steeringAngle).toBeLessThan(-0.2);
+    expect(feedback.steeringAngle).toBeGreaterThan(0.2);
     expect(feedback.bodyRollOffset).toBeLessThan(0);
     expect(feedback.bodyPitchOffset).toBeLessThan(0);
     expect(feedback.cameraForwardLook).toBeGreaterThan(0);

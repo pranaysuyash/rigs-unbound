@@ -139,11 +139,14 @@ async function applyDrivingInput(
 /**
  * Tear down browser context with a timeout guard.
  */
-async function teardown(context, browserInstance) {
+async function teardown(browserOrContext, maybeBrowser) {
+  // Accept either teardown(browser) or teardown(context, browser).
+  const browser = maybeBrowser ?? browserOrContext;
+  const context = maybeBrowser ? browserOrContext : null;
   await Promise.race([
     (async () => {
-      await context.close();
-      await browserInstance.close();
+      if (context) await context.close();
+      if (browser) await browser.close();
     })(),
     new Promise((resolve) =>
       setTimeout(() => {

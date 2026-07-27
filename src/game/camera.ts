@@ -87,3 +87,89 @@ export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
     lookDrop: 0.12,
   },
 } as const;
+
+export type CameraPresetId =
+  | "home-spawn"
+  | "workshop-approach"
+  | "steep-incline"
+  | "shallow-water"
+  | "terrain-editing"
+  | "rig-switch"
+  | "narrow-screen"
+  | "night-completion";
+
+export interface CameraPreset {
+  id: CameraPresetId;
+  label: string;
+  cameraMode: "chase" | "hood" | "tactical" | "top-down" | "survey";
+  distanceMultiplier: number;
+  heightMultiplier: number;
+  sideOffset: number;
+}
+
+export const CAMERA_PRESETS: Readonly<Record<CameraPresetId, CameraPreset>> = {
+  "home-spawn": {
+    id: "home-spawn",
+    label: "Home Spawn",
+    cameraMode: "chase",
+    distanceMultiplier: 1.0,
+    heightMultiplier: 1.0,
+    sideOffset: 0,
+  },
+  "workshop-approach": {
+    id: "workshop-approach",
+    label: "Workshop Approach",
+    cameraMode: "chase",
+    distanceMultiplier: 0.85,
+    heightMultiplier: 0.9,
+    sideOffset: 1.2,
+  },
+  "steep-incline": {
+    id: "steep-incline",
+    label: "Steep Incline",
+    cameraMode: "tactical",
+    distanceMultiplier: 1.2,
+    heightMultiplier: 1.4,
+    sideOffset: 0,
+  },
+  "shallow-water": {
+    id: "shallow-water",
+    label: "Shallow Water",
+    cameraMode: "chase",
+    distanceMultiplier: 1.1,
+    heightMultiplier: 0.85,
+    sideOffset: 0,
+  },
+  "terrain-editing": {
+    id: "terrain-editing",
+    label: "Terrain Editing",
+    cameraMode: "top-down",
+    distanceMultiplier: 1.3,
+    heightMultiplier: 1.8,
+    sideOffset: 0,
+  },
+  "rig-switch": {
+    id: "rig-switch",
+    label: "Rig Switch",
+    cameraMode: "tactical",
+    distanceMultiplier: 1.5,
+    heightMultiplier: 1.2,
+    sideOffset: 2.0,
+  },
+  "narrow-screen": {
+    id: "narrow-screen",
+    label: "Narrow Screen Viewport",
+    cameraMode: "chase",
+    distanceMultiplier: 2.2,
+    heightMultiplier: 1.5,
+    sideOffset: 0,
+  },
+  "night-completion": {
+    id: "night-completion",
+    label: "Night Completion View",
+    cameraMode: "survey",
+    distanceMultiplier: 1.4,
+    heightMultiplier: 1.3,
+    sideOffset: 0,
+  },
+};

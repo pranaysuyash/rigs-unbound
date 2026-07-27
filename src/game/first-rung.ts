@@ -1,6 +1,7 @@
 import {
   effectiveProfile,
   MODULES,
+  MODULE_IDS,
   RIG_IDS,
   RIG_PROFILES,
   RIG_SWITCH_RANGE,
@@ -9,7 +10,9 @@ import {
   type RigId,
 } from "./contracts";
 import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
+import { resolveTerrainTraversal } from "./terrain-traversal";
 import { HOME_SITE, findSite, isWithinSiteServiceArea } from "./world";
+import type { GameWorld } from "./gameworld";
 
 export const FIRST_RUNG_RECOMMENDED_MODULE: ModuleId = "lug-tires";
 export const SECOND_RUNG_RECOMMENDED_MODULE: ModuleId = "winch";
@@ -41,21 +44,168 @@ export interface FirstRungResolution {
   complete: boolean;
 }
 
+/**
+ * The workshop is actionable when the first-rung loop says the player can
+ * actually spend on progression and is not already done with the rung.
+ *
+ * This keeps workshop visibility tied to the same canonical progression state
+ * the HUD and snapshot already consume.
+ */
+export function workshopLessonRelevant(
+  firstRung: Pick<FirstRungResolution, "stage" | "affordable" | "complete">,
+): boolean {
+  return (
+    !firstRung.complete &&
+    firstRung.affordable &&
+    ["return-home", "reach-rig", "switch-rig", "choose-part"].includes(
+      firstRung.stage,
+    )
+  );
+}
+
+/**
+ * Workshop actionability is broader than the lesson cue: the workshop can be
+ * shown when there is either a spend-ready first-rung moment or a valid
+ * affordable fitting choice for the active rig.
+ */
+export function workshopActionable(
+  workshopAvailable: boolean,
+  state: GameState,
+  firstRung: Pick<FirstRungResolution, "stage" | "affordable" | "complete">,
+): boolean {
+  if (!workshopAvailable) return false;
+
+  const rig = state.rigs[state.activeRigId];
+  return (
+    workshopLessonRelevant(firstRung) ||
+    MODULE_IDS.some((moduleId) => {
+      const definition = MODULES[moduleId];
+      return (
+        state.salvage >= definition.cost &&
+        definition.fits.includes(rig.id) &&
+        !rig.modules.includes(moduleId)
+      );
+    })
+  );
+}
+
 function atHomeWorkshop(state: GameState): boolean {
   const rig = state.rigs[state.activeRigId];
   return isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
+}
+
+/**
+ * Number of probe points along the Home→Long Furrow corridor.
+ * Too few misses the gully; too many makes the check unnecessarily expensive.
+ */
+const CORRIDOR_PROBE_COUNT = 8;
+
+/**
+ * Verify the corridor between Home and Long Furrow is actually passable.
+ *
+ * Probes several points along the direct route using the production
+ * terrain traversal resolver. This replaces the old "furrows exist
+ * near Long Furrow" check that ChatGPT correctly identified as a quest
+ * counter masquerading as terrain authorship.
+ */
+export interface CorridorQuality {
+  passable: boolean;
+  minWidth: number;
+  maxSlope: number;
+  waterClearance: number;
+  blockedPointCount: number;
+}
+
+export function evaluateCorridorQuality(
+  state: GameState,
+  world: GameWorld,
+): CorridorQuality {
+  const rig = state.rigs[state.activeRigId];
+  const profile = effectiveProfile(rig.id, rig.modules);
+  const longFurrow = findSite("long-furrow");
+  if (!longFurrow) {
+    return {
+      passable: false,
+      minWidth: 0,
+      maxSlope: Number.POSITIVE_INFINITY,
+      waterClearance: Number.NEGATIVE_INFINITY,
+      blockedPointCount: CORRIDOR_PROBE_COUNT,
+    };
+  }
+
+  const startX = HOME_SITE.x;
+  const startZ = HOME_SITE.z;
+  const endX = longFurrow.x;
+  const endZ = longFurrow.z;
+  const totalDx = endX - startX;
+  const totalDz = endZ - startZ;
+  const totalDist = Math.hypot(totalDx, totalDz);
+  if (totalDist <= 0) {
+    return {
+      passable: false,
+      minWidth: 0,
+      maxSlope: Number.POSITIVE_INFINITY,
+      waterClearance: Number.NEGATIVE_INFINITY,
+      blockedPointCount: CORRIDOR_PROBE_COUNT,
+    };
+  }
+
+  const dirX = totalDx / totalDist;
+  const dirZ = totalDz / totalDist;
+
+  let blockedCount = 0;
+  let maxSlope = 0;
+  let minWaterClearance = Number.POSITIVE_INFINITY;
+
+  for (let i = 1; i < CORRIDOR_PROBE_COUNT; i++) {
+    const t = i / CORRIDOR_PROBE_COUNT;
+    const cx = startX + totalDx * t;
+    const cz = startZ + totalDz * t;
+
+    const aheadX = cx + dirX * profile.wheelbase;
+    const aheadZ = cz + dirZ * profile.wheelbase;
+
+    const sample = world.terrain.sample(cx, cz);
+    maxSlope = Math.max(maxSlope, sample.slope);
+    minWaterClearance = Math.min(minWaterClearance, sample.height - 0.25);
+
+    const result = resolveTerrainTraversal(
+      world.terrain,
+      profile,
+      cx,
+      cz,
+      aheadX,
+      aheadZ,
+    );
+    if (result.blocked) {
+      blockedCount++;
+    }
+  }
+
+  const passable = blockedCount === 0 && maxSlope <= 0.48;
+  return {
+    passable,
+    minWidth: profile.track * 1.5,
+    maxSlope,
+    waterClearance: minWaterClearance,
+    blockedPointCount: blockedCount,
+  };
+}
+
+function isCorridorPassable(state: GameState, world: GameWorld): boolean {
+  return evaluateCorridorQuality(state, world).passable;
 }
 
 const SIGHT_RADIUS_MULTIPLIER = 3;
 /**
  * Radius (metres from Long Furrow) at which the attempt-route stage fires.
  *
- * The authored gully sits ~38.6 m from Long Furrow (gully at (-5, -15),
- * Long Furrow at (18, -46)). The old value of 36 m fired *after* the player
- * crossed the gully. 42 m fires ~3.4 m before the gully face, giving the
- * player just enough warning to read the blockage prompt and turn back.
+ * The authored gully sits at (3, -10) — roughly 39 m from Long Furrow
+ * (18, -46). The radius must be ≥ this distance so the guidance prompt fires
+ * BEFORE the player reaches the blocking face. See the gully creation block
+ * in `gameworld.ts` for the deformation depth and cross-reference comment.
  */
-const ATTEMPT_ROUTE_RADIUS = 42;
+const ATTEMPT_ROUTE_RADIUS = 44;
 
 /**
  * Before fitting the blade, guide the player to scout Long Furrow and
@@ -266,7 +416,7 @@ export function resolveSecondFit(state: GameState): FirstRungResolution {
  * 4. If furrows exist but not near Long Furrow → "Drive toward Long Furrow"
  * 5. If near Long Furrow with furrows → transition to second-fit
  */
-function resolvePostFitRung(state: GameState): FirstRungResolution {
+function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolution {
   const rig = state.rigs[state.activeRigId];
 
   // Check if this rig has plough capability.
@@ -319,7 +469,7 @@ function resolvePostFitRung(state: GameState): FirstRungResolution {
       stage: "first-cut",
       objective: "Lower the blade",
       shortLabel: "Lower blade",
-      ariaLabel: "Press B to lower the plough blade and begin terrain transformation.",
+      ariaLabel: "Press Space or E to lower the plough blade and begin terrain transformation.",
       reason: "The blade is fitted but not engaged.",
       target: null,
       recommendedModuleId: null,
@@ -345,19 +495,28 @@ function resolvePostFitRung(state: GameState): FirstRungResolution {
     };
   }
 
-  // Furrows exist — check if near Long Furrow.
+  // Furrows exist — check if the corridor between Home and Long Furrow is
+  // actually passable for the active rig.  ChatGPT's review flagged that the
+  // previous check ("furrows exist near Long Furrow") was a quest counter
+  // masquerading as terrain authorship.  Now we probe the route to verify
+  // the terrain face has actually been cleared.
   const longFurrow = findSite("long-furrow");
   if (longFurrow) {
     const distance = Math.hypot(rig.x - longFurrow.x, rig.z - longFurrow.z);
     if (distance <= longFurrow.discoverRadius) {
-      // Near Long Furrow with furrows — the route is open. Transition to
-      // the second-fit stage. The cross-rig benefit note is added by
-      // resolveSecondFit when furrows exist.
-      return resolveSecondFit(state);
+      // Near Long Furrow with furrows — but only if the rig can actually
+      // traverse the corridor.  Probe several points along the direct route
+      // from Home to Long Furrow using the terrain traversal resolver.
+      const corridorClear = isCorridorPassable(state, world);
+      if (corridorClear) {
+        return resolveSecondFit(state);
+      }
+      // The rig is near Long Furrow but the corridor is still blocked.
+      // Keep guiding the player to plough.
     }
   }
 
-  // Furrows exist but not near Long Furrow — plough toward it.
+  // Furrows exist but corridor not yet clear — plough toward Long Furrow.
   const target = longFurrow ? { x: longFurrow.x, z: longFurrow.z } : null;
   const furrowCount = state.furrows.length;
   return {
@@ -389,6 +548,7 @@ function resolvePostFitRung(state: GameState): FirstRungResolution {
 export function resolveFirstRung(
   state: GameState,
   collectedNodes: ReadonlySet<string>,
+  world: GameWorld,
 ): FirstRungResolution {
   if (hasFittedPart(state)) {
     const fittedCount = totalFittedModules(state);
@@ -396,7 +556,7 @@ export function resolveFirstRung(
     // After the first module is fitted, guide the player through terrain
     // transformation (first-cut) before releasing to free-explore.
     if (fittedCount === 1) {
-      return resolvePostFitRung(state);
+      return resolvePostFitRung(state, world);
     }
 
     // Two or more modules fitted — free-explore.

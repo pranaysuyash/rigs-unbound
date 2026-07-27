@@ -144,7 +144,7 @@ export function deriveRigFeedback(
     lateralLoad,
     steeringAngle:
       rig.mobility.kind === "ground"
-        ? -rig.steering * expression.maximumSteeringAngle
+        ? rig.steering * expression.maximumSteeringAngle
         : 0,
     bodyRollOffset: -lateralLoad * expression.bodyRollRadians * motionScale,
     bodyPitchOffset: -driveLoad * expression.drivePitchRadians * motionScale,

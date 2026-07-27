@@ -18,6 +18,7 @@ import {
   MODULE_IDS,
   MODULES,
   RIG_IDS,
+  RIG_PROFILES,
   type ContinuousAction,
   type CameraMode,
   type GameState,
@@ -39,7 +40,11 @@ import {
   type ControlLessonId,
 } from "./game/control-guidance";
 import { SALVAGE_PICKUP_RADIUS } from "./game/exploration";
-import { resolveFirstRung } from "./game/first-rung";
+import {
+  resolveFirstRung,
+  workshopActionable,
+  workshopLessonRelevant,
+} from "./game/first-rung";
 import { GameWorld } from "./game/gameworld";
 import { InputController } from "./game/input";
 import { FieldMap } from "./game/minimap";
@@ -206,15 +211,11 @@ function distanceBand(metres: number): string {
 type RendererPolicyGateReason = string;
 
 function parseRendererRequest(raw: string | null): RendererBackendRequest {
-  return raw === "webgl" || raw === "webgpu" || raw === "auto"
-    ? raw
-    : "auto";
+  return raw === "webgl" || raw === "webgpu" || raw === "auto" ? raw : "auto";
 }
 
 function parseRendererPolicy(raw: string | null): RendererPolicy {
-  return raw === "canary" || raw === "off" || raw === "stable"
-    ? raw
-    : "stable";
+  return raw === "canary" || raw === "off" || raw === "stable" ? raw : "stable";
 }
 
 function isIosClassBrowser(): boolean {
@@ -528,8 +529,7 @@ function boot(): void {
     recordCheckpoint("rendererBackendPolicy", {
       requested: rendererBackendConfig.request,
       policy: rendererBackendConfig.policy,
-      policyAllowsAutoWebGPU:
-        rendererBackendConfig.policyAllowsAutoWebGPU,
+      policyAllowsAutoWebGPU: rendererBackendConfig.policyAllowsAutoWebGPU,
       policyReason: rendererBackendConfig.policyReason,
       effective: snapshot.rendererBackend,
       requestedBackend: snapshot.rendererRequestedBackend,
@@ -602,6 +602,14 @@ function boot(): void {
   const landmarkList = requiredElement<HTMLOListElement>("#landmark-list");
   const toast = requiredElement<HTMLElement>("#toast");
   const pauseOverlay = requiredElement<HTMLElement>("#pause-overlay");
+  const pauseResume = requiredElement<HTMLButtonElement>("#pause-resume");
+  const pauseMute = requiredElement<HTMLButtonElement>("#pause-mute");
+  const pauseFullscreen =
+    requiredElement<HTMLButtonElement>("#pause-fullscreen");
+  const pauseNavigator = requiredElement<HTMLButtonElement>("#pause-navigator");
+  const pauseWelcome = requiredElement<HTMLButtonElement>("#pause-welcome");
+  const pauseReset = requiredElement<HTMLButtonElement>("#pause-reset");
+  const pauseSaveStatus = requiredElement<HTMLElement>("#pause-save-status");
   const welcomePanel = requiredElement<HTMLElement>("#welcome-panel");
   const bootstrapStatus = requiredElement<HTMLElement>("#bootstrap-status");
   const controlLesson = requiredElement<HTMLElement>("#control-lesson");
@@ -632,16 +640,126 @@ function boot(): void {
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
+  const mapLayerField = requiredElement<HTMLButtonElement>("#map-layer-field");
+  const mapLayerRumor = requiredElement<HTMLButtonElement>("#map-layer-rumor");
+  const rumorMapHost = requiredElement<HTMLElement>("#rumor-map-host");
+  const mapLegend = requiredElement<HTMLElement>("#map-legend");
   saveStatus = requiredElement<HTMLElement>("#save-status");
   attachContextRecovery();
   const rumorMap = createRumorMapUI(document.body, () => {
-    if (state.mapOpen) toggleMap(state);
+    closeOverlay();
   });
+  // Move the rumor map into the unified map host so it shares the map overlay.
+  rumorMapHost.appendChild(rumorMap.element);
   const hoodDashboard = createHoodDashboardUI(document.body);
   const navigatorUI = createNavigatorUI(document.body);
 
+  // ---------------------------------------------------------------------------
+  // Unified overlay shell
+  // ---------------------------------------------------------------------------
+
+  type OverlayKind = "none" | "map" | "pause" | "workshop" | "lesson";
+  let activeOverlay: OverlayKind = "none";
+  let mapLayer: "field" | "rumor" = "field";
+  let navigatorVisible =
+    window.localStorage.getItem("rigs-unbound.navigator-visible") === "true";
+
+  const updateNavigatorVisibility = (): void => {
+    navigatorUI.element.hidden = !navigatorVisible;
+    navigatorUI.element.setAttribute("aria-hidden", String(!navigatorVisible));
+  };
+  updateNavigatorVisibility();
+
+  const toggleNavigator = (): void => {
+    navigatorVisible = !navigatorVisible;
+    window.localStorage.setItem(
+      "rigs-unbound.navigator-visible",
+      String(navigatorVisible),
+    );
+    updateNavigatorVisibility();
+    updatePauseNavigatorButton();
+    showToast(navigatorVisible ? "Tactical radar on." : "Tactical radar off.");
+    recordCheckpoint("toggleNavigator", { visible: navigatorVisible });
+  };
+
+  const updateMapLayerUI = (): void => {
+    const isField = mapLayer === "field";
+    mapLayerField.classList.toggle("is-active", isField);
+    mapLayerField.setAttribute("aria-pressed", String(isField));
+    mapLayerRumor.classList.toggle("is-active", !isField);
+    mapLayerRumor.setAttribute("aria-pressed", String(!isField));
+    mapCanvas.hidden = !isField;
+    rumorMapHost.hidden = isField;
+    mapLegend.hidden = !isField;
+    if (isField) {
+      fieldMap.draw(state);
+    } else {
+      rumorMap.open(state);
+      rumorMap.update(state);
+    }
+  };
+
+  const setMapLayer = (layer: "field" | "rumor"): void => {
+    if (mapLayer === layer) return;
+    mapLayer = layer;
+    window.localStorage.setItem("rigs-unbound.map-layer", layer);
+    updateMapLayerUI();
+  };
+
+  const openOverlay = (kind: Exclude<OverlayKind, "none">): void => {
+    if (activeOverlay === kind) return;
+    // Close current overlay before opening the new one.
+    closeOverlay();
+    activeOverlay = kind;
+    if (kind === "map") {
+      toggleMap(state);
+      mapOverlay.hidden = false;
+      mapOverlay.setAttribute("aria-hidden", "false");
+      updateMapLayerUI();
+      mapClose.focus();
+    } else if (kind === "pause") {
+      togglePause(state);
+      pauseOverlay.hidden = false;
+      pauseOverlay.setAttribute("aria-hidden", "false");
+      updatePauseSaveStatus();
+      requiredElement<HTMLButtonElement>("#pause-resume").focus();
+    } else if (kind === "workshop") {
+      workshopPanel.hidden = false;
+    } else if (kind === "lesson") {
+      controlLesson.hidden = false;
+    }
+  };
+
+  const closeOverlay = (): void => {
+    if (activeOverlay === "none") return;
+    const previousOverlay = activeOverlay;
+    activeOverlay = "none";
+    if (previousOverlay === "map") {
+      toggleMap(state);
+      mapOverlay.hidden = true;
+      mapOverlay.setAttribute("aria-hidden", "true");
+      rumorMap.close();
+    } else if (previousOverlay === "pause") {
+      togglePause(state);
+      pauseOverlay.hidden = true;
+      pauseOverlay.setAttribute("aria-hidden", "true");
+    } else if (previousOverlay === "workshop") {
+      workshopPanel.hidden = true;
+    } else if (previousOverlay === "lesson") {
+      controlLesson.hidden = true;
+    }
+  };
+
+  const restoreSavedPreferences = (): void => {
+    const savedLayer = window.localStorage.getItem("rigs-unbound.map-layer");
+    if (savedLayer === "rumor") mapLayer = "rumor";
+  };
+  restoreSavedPreferences();
+
   let worldEntered =
-    window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true";
+    window.sessionStorage.getItem("rigs-unbound.welcome-seen") === "true" ||
+    loadResult.status === "restored" ||
+    loadResult.status === "migrated";
 
   input.setEnabled(worldEntered);
   welcomePanel.hidden = worldEntered;
@@ -702,13 +820,16 @@ function boot(): void {
 
   for (const moduleId of MODULE_IDS) {
     const definition = MODULES[moduleId];
+    const fitsNames = definition.fits
+      .map((id) => RIG_PROFILES[id].fieldName)
+      .join(", ");
     const item = document.createElement("li");
     item.innerHTML = `
       <button type="button" data-module-id="${moduleId}">
         <kbd aria-hidden="true">${MODULE_IDS.indexOf(moduleId) + 1}</kbd>
         <span class="module-copy">
-        <strong>${definition.name}</strong>
-        <small>${definition.promise}</small>
+          <strong>${definition.name}</strong>
+          <small>${definition.promise} <span class="module-fits">(Fits: ${fitsNames})</span></small>
         </span>
         <span class="module-state">${definition.cost} salvage</span>
       </button>
@@ -738,11 +859,11 @@ function boot(): void {
     source: "keyboard" | "workshop-panel" | "acceptance",
   ): string => {
     markActionReady();
-    const before = resolveFirstRung(state, world.collectedNodes);
+    const before = resolveFirstRung(state, world.collectedNodes, world);
     recordCommand("installModule", { moduleId, source });
     installModule(state, world, moduleId);
     markControlLessonLearned("workshop", "performed");
-    const after = resolveFirstRung(state, world.collectedNodes);
+    const after = resolveFirstRung(state, world.collectedNodes, world);
     const fittedNow = !before.complete && after.complete;
     const enteringFirstCut =
       before.stage === "choose-part" && after.stage === "first-cut";
@@ -752,8 +873,7 @@ function boot(): void {
     announce();
     if (fittedNow && enteringFreeExplore) {
       const definition = MODULES[moduleId];
-      firstRungCompletionMessage =
-        `${definition.name} fitted · all upgrades installed · explore freely`;
+      firstRungCompletionMessage = `${definition.name} fitted · all upgrades installed · explore freely`;
       firstRungCompletionUntil = performance.now() + 4200;
       showToast(firstRungCompletionMessage);
     } else if (fittedNow) {
@@ -764,8 +884,7 @@ function boot(): void {
           : `${definition.name} fitted · ${definition.promise}`;
     } else if (enteringFirstCut) {
       const definition = MODULES[moduleId];
-      firstRungCompletionMessage =
-        `${definition.name} fitted · Lower the blade to begin terrain transformation`;
+      firstRungCompletionMessage = `${definition.name} fitted · Lower the blade to begin terrain transformation`;
       firstRungCompletionUntil = performance.now() + 4200;
       showToast(firstRungCompletionMessage);
     }
@@ -844,13 +963,10 @@ function boot(): void {
       );
     } else if (action === "map") {
       recordCommand("tap", { action });
-      toggleMap(state);
-      mapOverlay.hidden = !state.mapOpen;
-      if (state.mapOpen) {
-        fieldMap.draw(state);
-        rumorMap.open(state);
+      if (activeOverlay === "map") {
+        closeOverlay();
       } else {
-        rumorMap.close();
+        openOverlay("map");
       }
     } else if (action === "blade") {
       recordCommand("tap", { action });
@@ -862,8 +978,11 @@ function boot(): void {
       announce();
     } else {
       recordCommand("tap", { action });
-      togglePause(state);
-      pauseOverlay.hidden = !state.paused;
+      if (activeOverlay === "pause") {
+        closeOverlay();
+      } else {
+        openOverlay("pause");
+      }
     }
     recordCheckpoint("tap", { action });
   };
@@ -905,6 +1024,8 @@ function boot(): void {
       tap("phase");
     } else if (event.code === "KeyM") {
       tap("map");
+    } else if (event.code === "KeyV") {
+      toggleNavigator();
     } else if (event.code === "KeyB") {
       tap("blade");
     } else if (event.code === "KeyX") {
@@ -922,11 +1043,11 @@ function boot(): void {
     } else if (event.code === "KeyP") {
       tap("pause");
     } else if (event.code === "Escape") {
-      // Escape closes the map first, so it never traps the player behind a panel.
-      if (state.mapOpen) {
-        tap("map");
-      } else {
+      // Escape closes the active overlay, or opens pause if none is open.
+      if (activeOverlay === "none") {
         tap("pause");
+      } else {
+        closeOverlay();
       }
     }
   });
@@ -960,6 +1081,25 @@ function boot(): void {
     );
   }
 
+  const navigatorTouchButton = document.querySelector<HTMLButtonElement>(
+    'button[data-tap-action="navigator"]',
+  );
+  if (navigatorTouchButton) {
+    navigatorTouchButton.addEventListener("click", () => {
+      markInputReady();
+      toggleNavigator();
+    });
+  }
+
+  mapLayerField.addEventListener("click", () => {
+    markInputReady();
+    setMapLayer("field");
+  });
+  mapLayerRumor.addEventListener("click", () => {
+    markInputReady();
+    setMapLayer("rumor");
+  });
+
   moduleList.addEventListener("click", (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
       "button[data-module-id]",
@@ -979,6 +1119,7 @@ function boot(): void {
     if (visibleControlLessonId) {
       markControlLessonLearned(visibleControlLessonId, "dismissed");
     }
+    if (activeOverlay === "lesson") closeOverlay();
     canvas.focus();
   });
   emergencyRecover.addEventListener("click", () => {
@@ -986,31 +1127,127 @@ function boot(): void {
     tap("recover");
   });
 
-  muteButton.addEventListener("click", () => {
-    markInputReady();
+  const updateMuteButtons = (): void => {
+    const enabled = audio.isEnabled;
+    const label = enabled ? "Sound on" : "Sound off";
+    muteButton.textContent = label;
+    muteButton.setAttribute("aria-pressed", String(!enabled));
+    pauseMute.textContent = label;
+    pauseMute.setAttribute("aria-pressed", String(!enabled));
+  };
+
+  const toggleMute = (): void => {
     const next = !audio.isEnabled;
     audio.setEnabled(next);
-    muteButton.textContent = next ? "Sound on" : "Sound off";
-    muteButton.setAttribute("aria-pressed", next ? "false" : "true");
+    updateMuteButtons();
     if (next) void audio.unlock();
-  });
+  };
 
-  fullscreenButton.addEventListener("click", () => {
-    markInputReady();
+  const updateFullscreenButtons = (): void => {
+    const isFullscreen = Boolean(document.fullscreenElement);
+    fullscreenButton.textContent = isFullscreen
+      ? "Exit fullscreen"
+      : "Fullscreen";
+    pauseFullscreen.textContent = isFullscreen
+      ? "Exit fullscreen"
+      : "Fullscreen";
+  };
+
+  const toggleFullscreen = (): void => {
     if (document.fullscreenElement) {
       void document.exitFullscreen();
-      fullscreenButton.textContent = "Fullscreen";
     } else {
       void document.documentElement.requestFullscreen().catch(() => {
         showToast("This browser refused fullscreen.");
       });
-      fullscreenButton.textContent = "Exit fullscreen";
     }
+  };
+
+  document.addEventListener("fullscreenchange", updateFullscreenButtons);
+
+  const updatePauseNavigatorButton = (): void => {
+    pauseNavigator.textContent = navigatorVisible ? "Radar on" : "Radar off";
+    pauseNavigator.setAttribute("aria-pressed", String(navigatorVisible));
+  };
+
+  const updatePauseSaveStatus = (): void => {
+    pauseSaveStatus.textContent = saveStatus.textContent ?? "";
+  };
+
+  const resetField = (): void => {
+    recordCommand("reset", {});
+    clearState(window.localStorage);
+    world.reset();
+    state = createInitialState(state.seed);
+    settleWorld(state, world);
+    fieldMap.clear();
+    renderer.invalidate(state);
+    statusMessage = "Local field reset.";
+    saveStatus.textContent = statusMessage;
+    showToast("Field restored to its starting state.");
+    recordCheckpoint("reset", {});
+  };
+
+  const returnToWelcome = (): void => {
+    closeOverlay();
+    worldEntered = false;
+    input.setEnabled(false);
+    welcomePanel.hidden = false;
+    welcomePanel.classList.remove("welcome-panel--dismissed");
+    welcomePanel.setAttribute("aria-hidden", "false");
+    enterWorldButton.disabled = false;
+    window.sessionStorage.removeItem("rigs-unbound.welcome-seen");
+    requestAnimationFrame(() => enterWorldButton.focus());
+    recordCheckpoint("returnToWelcome", {});
+  };
+
+  muteButton.addEventListener("click", () => {
+    markInputReady();
+    toggleMute();
+  });
+  pauseMute.addEventListener("click", () => {
+    markInputReady();
+    toggleMute();
+  });
+
+  fullscreenButton.addEventListener("click", () => {
+    markInputReady();
+    toggleFullscreen();
+  });
+  pauseFullscreen.addEventListener("click", () => {
+    markInputReady();
+    toggleFullscreen();
+  });
+
+  pauseResume.addEventListener("click", () => {
+    markInputReady();
+    closeOverlay();
+    canvas.focus();
+  });
+
+  pauseNavigator.addEventListener("click", () => {
+    markInputReady();
+    toggleNavigator();
+  });
+
+  pauseWelcome.addEventListener("click", () => {
+    markInputReady();
+    returnToWelcome();
+  });
+
+  pauseReset.addEventListener("click", () => {
+    markInputReady();
+    closeOverlay();
+    const confirmed = window.confirm(
+      "Reset everything: both rigs, the relay, and all world progress?",
+    );
+    if (!confirmed) return;
+    resetField();
   });
 
   mapClose.addEventListener("click", () => {
     markInputReady();
-    tap("map");
+    closeOverlay();
   });
 
   cameraSelect.addEventListener("change", () => {
@@ -1028,20 +1265,10 @@ function boot(): void {
   resetButton.addEventListener("click", () => {
     markInputReady();
     const confirmed = window.confirm(
-      "Reset both rigs, the relay, and everything the world remembers?",
+      "Reset everything: both rigs, the relay, and all world progress?",
     );
     if (!confirmed) return;
-    recordCommand("reset", {});
-    clearState(window.localStorage);
-    world.reset();
-    state = createInitialState(state.seed);
-    settleWorld(state, world);
-    fieldMap.clear();
-    renderer.invalidate(state);
-    statusMessage = "Local field reset.";
-    saveStatus.textContent = statusMessage;
-    showToast("Field restored to its starting state.");
-    recordCheckpoint("reset", {});
+    resetField();
   });
 
   let lastDiagnostic: string | null = state.lastDiagnostic;
@@ -1149,7 +1376,7 @@ function boot(): void {
     // Prompt: the nearest thing worth doing, phrased as a verb and a consequence.
     const workshop = workshopInReach(state);
     const relay = state.cargoRelay;
-    const firstRung = resolveFirstRung(state, world.collectedNodes);
+    const firstRung = resolveFirstRung(state, world.collectedNodes, world);
     const anotherRigInRange = RIG_IDS.some((rigId) => {
       if (rigId === rig.id) return false;
       const parked = state.rigs[rigId];
@@ -1161,8 +1388,8 @@ function boot(): void {
           rig.distanceTravelled > 1 ||
           RIG_IDS.some((rigId) => state.rigs[rigId].distanceTravelled > 1),
         primaryActionKind: primaryAction.kind,
-        workshopRelevant:
-          workshop !== undefined && firstRung.stage === "choose-part",
+        workshopLessonRelevant:
+          workshop !== undefined && workshopLessonRelevant(firstRung),
         bladeRelevant:
           (primaryAction.kind === "lower-plough" ||
             primaryAction.kind === "raise-plough") &&
@@ -1177,14 +1404,13 @@ function boot(): void {
       learnedControlLessons,
     );
     const controlLessonSuppressed =
-      !worldEntered || state.paused || state.mapOpen;
-    let controlLessonVisible = false;
+      !worldEntered || activeOverlay === "map" || activeOverlay === "pause";
     if (!nextControlLesson || controlLessonSuppressed) {
+      if (activeOverlay === "lesson") closeOverlay();
       controlLesson.hidden = true;
       controlLesson.removeAttribute("data-lesson-id");
       visibleControlLessonId = null;
     } else {
-      controlLessonVisible = true;
       const changed = visibleControlLessonId !== nextControlLesson.id;
       visibleControlLessonId = nextControlLesson.id;
       controlLesson.dataset.lessonId = nextControlLesson.id;
@@ -1192,7 +1418,7 @@ function boot(): void {
       controlLessonDescription.textContent = nextControlLesson.description;
       controlLessonKeyboard.textContent = nextControlLesson.keyboard;
       controlLessonTouch.textContent = nextControlLesson.touch;
-      controlLesson.hidden = false;
+      if (activeOverlay !== "lesson") openOverlay("lesson");
       if (changed) {
         recordCheckpoint("controlLessonIntroduced", {
           lessonId: nextControlLesson.id,
@@ -1203,7 +1429,8 @@ function boot(): void {
     const showingFirstRungCompletion =
       firstRung.complete && now < firstRungCompletionUntil;
     firstRungObjective.hidden =
-      state.mapOpen || (firstRung.complete && !showingFirstRungCompletion);
+      activeOverlay === "map" ||
+      (firstRung.complete && !showingFirstRungCompletion);
     firstRungObjective.classList.toggle(
       "is-complete",
       showingFirstRungCompletion,
@@ -1371,20 +1598,17 @@ function boot(): void {
      * not already fitted, or the objective explicitly asking for a part. Otherwise a
      * new player's first sight of the game is five rows reading "Need N more".
      */
-    const workshopActionable =
-      workshop !== undefined &&
-      (firstRung.stage === "choose-part" ||
-        MODULE_IDS.some((moduleId) => {
-          const definition = MODULES[moduleId];
-          return (
-            state.salvage >= definition.cost &&
-            definition.fits.includes(rig.id) &&
-            !rig.modules.includes(moduleId)
-          );
-        }));
-    workshopPanel.hidden =
-      !workshopActionable || state.mapOpen || controlLessonVisible;
-    if (workshop && !workshopPanel.hidden) {
+    const workshopPanelActionable = workshopActionable(
+      workshop !== undefined,
+      state,
+      firstRung,
+    );
+    if (workshopPanelActionable && activeOverlay === "none") {
+      openOverlay("workshop");
+    } else if (activeOverlay === "workshop" && !workshopPanelActionable) {
+      closeOverlay();
+    }
+    if (workshop && activeOverlay === "workshop") {
       workshopSalvage.textContent = `${state.salvage} salvage`;
       for (const moduleId of MODULE_IDS) {
         const button = moduleList.querySelector<HTMLButtonElement>(
@@ -1445,7 +1669,8 @@ function boot(): void {
       const propReductionPct =
         previousSubmitted > 0 && fallbackActive
           ? Math.round(
-              ((previousSubmitted - currentSubmitted) / previousSubmitted) * 100,
+              ((previousSubmitted - currentSubmitted) / previousSubmitted) *
+                100,
             )
           : 0;
       const propNote =
@@ -1500,9 +1725,13 @@ function boot(): void {
       runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${backendSummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
     }
 
-    if (state.mapOpen && now - lastMapUpdate > 260) {
+    if (activeOverlay === "map" && now - lastMapUpdate > 260) {
       lastMapUpdate = now;
-      fieldMap.draw(state);
+      if (mapLayer === "field") {
+        fieldMap.draw(state);
+      } else {
+        rumorMap.update(state);
+      }
       mapProgress.textContent = `${Math.round(surveyed * 100)}% surveyed · ${Math.round(profile.surveyRange)} m sight`;
     }
   };
@@ -1511,10 +1740,21 @@ function boot(): void {
   // Observability contract
   // ---------------------------------------------------------------------------
 
-  const snapshot = (): string =>
-    JSON.stringify(
+  const snapshot = (): string => {
+    const resolvedFirstRung = resolveFirstRung(state, world.collectedNodes, world);
+    return JSON.stringify(
       {
         ...publicState(state, world),
+        firstRung: {
+          stage: resolvedFirstRung.stage,
+          objective: resolvedFirstRung.objective,
+          recommendedModuleId: resolvedFirstRung.recommendedModuleId,
+          recommendedRigId: resolvedFirstRung.recommendedRigId,
+          target: resolvedFirstRung.target,
+          affordable: resolvedFirstRung.affordable,
+          complete: resolvedFirstRung.complete,
+          reason: resolvedFirstRung.reason,
+        },
         welcomeOpen: !worldEntered,
         graphicsContext: graphicsContextState(),
         runtimeProfileSelection,
@@ -1529,6 +1769,7 @@ function boot(): void {
       null,
       2,
     );
+  };
 
   const settleAndReport = (): string => {
     updateInterface(performance.now() + 1000);
@@ -1803,9 +2044,11 @@ function boot(): void {
   window.toggleFieldMap = () => {
     markActionReady();
     recordCommand("tap", { action: "map", source: "acceptance" });
-    toggleMap(state);
-    mapOverlay.hidden = !state.mapOpen;
-    if (state.mapOpen) fieldMap.draw(state);
+    if (activeOverlay === "map") {
+      closeOverlay();
+    } else {
+      openOverlay("map");
+    }
     return settleAndReport();
   };
   window.placeRig = (x: number, z: number, heading?: number) => {

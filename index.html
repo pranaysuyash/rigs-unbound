@@ -152,6 +152,7 @@
           ><kbd>X</kbd> <span id="recovery-action-label">no winch</span></span
         >
         <span><kbd>N</kbd> light</span>
+        <span><kbd>V</kbd> radar</span>
         <span><kbd>P</kbd> pause</span>
         <label class="view-selector" for="camera-select">
           <span>View</span>
@@ -222,6 +223,7 @@
           <button type="button" data-tap-action="switchRig">Rig</button>
           <button type="button" data-tap-action="camera">Cam</button>
           <button type="button" data-tap-action="map">Map</button>
+          <button type="button" data-tap-action="navigator">Radar</button>
           <button id="touch-blade-action" type="button" data-tap-action="blade">
             Blade: cut
           </button>
@@ -255,19 +257,46 @@
       <section
         id="map-overlay"
         class="map-overlay"
+        role="dialog"
+        aria-modal="true"
         aria-label="Field map"
         hidden
       >
         <div class="map-overlay__plate">
           <header>
-            <strong>Field map</strong>
+            <strong id="map-overlay-title">Field map</strong>
+            <div
+              class="map-overlay__layer-toggle"
+              role="group"
+              aria-label="Map layer"
+            >
+              <button
+                id="map-layer-field"
+                type="button"
+                class="map-layer-button is-active"
+                aria-pressed="true"
+              >
+                Field
+              </button>
+              <button
+                id="map-layer-rumor"
+                type="button"
+                class="map-layer-button"
+                aria-pressed="false"
+              >
+                Rumor
+              </button>
+            </div>
             <span id="map-progress">0% surveyed</span>
             <button id="map-close" type="button" aria-label="Close map">
               Close
             </button>
           </header>
-          <canvas id="map-canvas" aria-label="Surveyed terrain"></canvas>
-          <ul class="map-legend">
+          <div class="map-overlay__viewport">
+            <canvas id="map-canvas" aria-label="Surveyed terrain"></canvas>
+            <div id="rumor-map-host" class="rumor-map-host" hidden></div>
+          </div>
+          <ul class="map-legend" id="map-legend">
             <li><span class="swatch swatch--unknown"></span> unsurveyed</li>
             <li><span class="swatch swatch--track"></span> graded track</li>
             <li><span class="swatch swatch--water"></span> water</li>
@@ -349,7 +378,52 @@
       </section>
 
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <div id="pause-overlay" class="pause-overlay" hidden>Paused</div>
+
+      <section
+        id="pause-overlay"
+        class="pause-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pause-title"
+        hidden
+      >
+        <div class="pause-overlay__plate">
+          <span class="pause-overlay__index">Field Kit</span>
+          <h2 id="pause-title">Paused</h2>
+          <div class="pause-overlay__actions">
+            <button
+              id="pause-resume"
+              type="button"
+              class="pause-action pause-action--primary"
+            >
+              Resume
+            </button>
+            <button id="pause-mute" type="button" class="pause-action">
+              Sound on
+            </button>
+            <button id="pause-fullscreen" type="button" class="pause-action">
+              Fullscreen
+            </button>
+            <button id="pause-navigator" type="button" class="pause-action">
+              Radar off
+            </button>
+            <button id="pause-welcome" type="button" class="pause-action">
+              Return to welcome
+            </button>
+            <button
+              id="pause-reset"
+              type="button"
+              class="pause-action pause-action--danger"
+            >
+              Reset field
+            </button>
+          </div>
+          <p id="pause-save-status" class="pause-overlay__save-status">
+            New field ready
+          </p>
+        </div>
+      </section>
+
       <section id="error-panel" class="error-panel" role="alert" hidden>
         <h2>The field could not open.</h2>
         <p id="error-message"></p>

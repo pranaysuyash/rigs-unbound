@@ -26,6 +26,7 @@ acceptance record owns its specific tier.
 - [Docs root landing page](../README.md)
 - [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
+- [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
 - [Worklog](../WORKLOG.md)
 
 ## North star and product identity
@@ -74,6 +75,14 @@ experiment. The convergence favors one persistent cross-rig consequence as the
 next portability proof, but this is a sequencing proposal rather than operator
 acceptance. See
 [Wide-Open Next-Tranche Arbitration](WIDE_OPEN_NEXT_TRANCHE_ARBITRATION_2026-07-26.md).
+
+### Integration-first priority
+
+The runtime now has a strong persistent substrate but still presents
+activities as disconnected minigames. The integration-first roadmap proposes
+unifying the world graph, contract ledger, episode runner, and UI shell so that
+every mode and activity reads as one game. See
+[Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md).
 
 ### Same vehicle, many games
 

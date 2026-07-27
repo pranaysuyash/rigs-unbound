@@ -2,9 +2,10 @@ import { WORLD_SITES } from "./world";
 import type { RigId } from "./rig-ids";
 import type { UnboundPassageState } from "./unbound-passage";
 
-export const SAVE_SCHEMA_VERSION = 7 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 6 as const;
-/** v5 predates the Drift berth relocation. */
+export const SAVE_SCHEMA_VERSION = 8 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 7 as const;
+export const V7_SAVE_SCHEMA_VERSION = 7 as const;
+export const V6_SAVE_SCHEMA_VERSION = 6 as const;
 export const DRIFT_BERTH_SAVE_SCHEMA_VERSION = 5 as const;
 export const FIELD_CLOCK_SAVE_SCHEMA_VERSION = 4 as const;
 export const FIELD_02_SAVE_SCHEMA_VERSION = 3 as const;
@@ -613,6 +614,28 @@ export interface SurveyRouteState {
   bestSightedCount: number;
 }
 
+export interface CutFillEditRecord {
+  mode: BladeMode;
+  authorRigId: RigId;
+  x: number;
+  z: number;
+  heading: number;
+  width: number;
+  depthDelta: number;
+  affectedCellCount: number;
+  createdAt: number;
+  routeId?: string;
+  visualCategory: "cut-tilled" | "fill-causeway" | "graded-pass";
+}
+
+export interface FleetInheritanceRecord {
+  authorRigId: RigId;
+  benefitingRigId: RigId;
+  routeId: string;
+  crossedAtMs: number;
+  persisted: boolean;
+}
+
 export interface GameState {
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   seed: string;
@@ -629,6 +652,8 @@ export interface GameState {
   surveyRoute: SurveyRouteState;
   unboundPassage: UnboundPassageState;
   furrows: FurrowMark[];
+  semanticEdits: CutFillEditRecord[];
+  fleetInheritance: FleetInheritanceRecord[];
   discoveries: DiscoveryState[];
   /** Spendable resource. One resource by design; see the exploration map. */
   salvage: number;
@@ -639,6 +664,7 @@ export interface GameState {
     emergencyCount: number;
     lastEmergencyAtMs: number | null;
   };
+  saveStatus?: "saved" | "pending" | "restored" | "migrated";
   lastDiagnostic: string | null;
 }
 

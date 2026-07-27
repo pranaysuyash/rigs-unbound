@@ -138,3 +138,111 @@ describe("R2: route opening — mud → tilled surface shift", () => {
     expect(world.terrain.surfaceIdAt(mud.x + 3, mud.z + 3)).not.toBe("tilled");
   });
 });
+
+describe("R3: cross-rig benefit — opened route helps other rigs too", () => {
+  it("buggy drives faster on tilled ground that the tractor opened", () => {
+    const seed = "R3-CROSS-RIG-BUGGY";
+    const mud = findMudLocation(new GameWorld(seed));
+
+    // --- Buggy on mud (no deformation) ---
+    const { state: mudState, world: mudWorld } = createScenario(
+      seed,
+      "toy-buggy",
+    );
+    expect(mudWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("mud");
+    placeRig(mudState, mud.x, mud.z);
+    const buggyMud = driveAndRecordDistance(mudState, mudWorld, 80);
+
+    // --- Buggy on tilled (tractor opened the route) ---
+    const { state: tilledState, world: tilledWorld } = createScenario(
+      seed,
+      "toy-buggy",
+    );
+    for (let i = 0; i < 2; i += 1) {
+      tilledWorld.terrain.deform(mud.x, mud.z, -0.13, 1);
+    }
+    expect(tilledWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+    placeRig(tilledState, mud.x, mud.z);
+    const buggyTilled = driveAndRecordDistance(tilledState, tilledWorld, 80);
+
+    expect(buggyTilled).toBeGreaterThan(buggyMud);
+  });
+
+  it("skimmer drives faster on tilled ground that the tractor opened", () => {
+    const seed = "R3-CROSS-RIG-SKIMMER";
+    const mud = findMudLocation(new GameWorld(seed));
+
+    // --- Skimmer on mud (no deformation) ---
+    const { state: mudState, world: mudWorld } = createScenario(
+      seed,
+      "marsh-skimmer",
+    );
+    expect(mudWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("mud");
+    placeRig(mudState, mud.x, mud.z);
+    const skimmerMud = driveAndRecordDistance(mudState, mudWorld, 80);
+
+    // --- Skimmer on tilled (tractor opened the route) ---
+    const { state: tilledState, world: tilledWorld } = createScenario(
+      seed,
+      "marsh-skimmer",
+    );
+    for (let i = 0; i < 2; i += 1) {
+      tilledWorld.terrain.deform(mud.x, mud.z, -0.13, 1);
+    }
+    expect(tilledWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+    placeRig(tilledState, mud.x, mud.z);
+    const skimmerTilled = driveAndRecordDistance(
+      tilledState,
+      tilledWorld,
+      80,
+    );
+
+    expect(skimmerTilled).toBeGreaterThan(skimmerMud);
+  });
+
+  it("terrain deformation persists across rig switches", () => {
+    const seed = "R3-PERSISTENCE";
+    const mud = findMudLocation(new GameWorld(seed));
+
+    // Deform as tractor, then switch to buggy — tilled surface persists.
+    const { state, world } = createScenario(seed, "utility-tractor");
+    for (let i = 0; i < 2; i += 1) {
+      world.terrain.deform(mud.x, mud.z, -0.13, 1);
+    }
+    expect(world.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+
+    // Switch rig — terrain deformation is on the world, not the rig.
+    state.activeRigId = "toy-buggy";
+    expect(world.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+  });
+
+  it("deform as tractor then drive as buggy in the same world — buggy benefits from opened route", () => {
+    const seed = "R3-SWITCH-WORKFLOW";
+    const mud = findMudLocation(new GameWorld(seed));
+
+    // --- Baseline: buggy on undeformed mud ---
+    const { state: baseline, world: baseWorld } = createScenario(
+      seed,
+      "toy-buggy",
+    );
+    expect(baseWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("mud");
+    placeRig(baseline, mud.x, mud.z);
+    const buggyMud = driveAndRecordDistance(baseline, baseWorld, 80);
+
+    // --- Switch workflow: tractor deforms, then buggy drives the same spot ---
+    const { state, world } = createScenario(seed, "utility-tractor");
+    for (let i = 0; i < 2; i += 1) {
+      world.terrain.deform(mud.x, mud.z, -0.13, 1);
+    }
+    expect(world.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+
+    // Switch to buggy within the same state/world.
+    state.activeRigId = "toy-buggy";
+    expect(world.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
+
+    placeRig(state, mud.x, mud.z);
+    const buggyAfterTractor = driveAndRecordDistance(state, world, 80);
+
+    expect(buggyAfterTractor).toBeGreaterThan(buggyMud);
+  });
+});

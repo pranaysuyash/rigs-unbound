@@ -96,7 +96,8 @@ const MAX_FELLED_INSTANCES = 220;
 const MAX_NODE_INSTANCES = 260;
 const MAX_DUST = 260;
 
-interface RigParts {
+export interface RigParts {
+
   root: THREE.Group;
   /** Named local-space mount authored on the rendered rig silhouette. */
   hoodCameraSocket: THREE.Object3D;

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SAVE_SCHEMA_VERSION } from "./contracts";
 import { createInitialState } from "./state";
 import { GameWorld } from "./gameworld";
 import { createUnboundPassageState } from "./unbound-passage";
@@ -10,6 +11,7 @@ import {
   peekSavedSeed,
   PREVIOUS_SAVE_KEY,
   SAVE_KEY,
+  V6_SAVE_KEY,
   saveState,
 } from "./storage";
 
@@ -71,7 +73,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(loaded.state.rigs["utility-tractor"].distanceTravelled).toBe(212);
     expect(loaded.state.rigs["marsh-skimmer"].mobility.kind).toBe("hover");
     expect(world.felledObstacles.has("tree-proof")).toBe(true);
@@ -109,7 +111,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(loaded.state.salvage).toBe(17);
   });
 
@@ -144,7 +146,7 @@ describe("versioned local persistence", () => {
     const loaded = loadState(storage, world);
 
     expect(loaded.status).toBe("migrated");
-    expect(loaded.state.schemaVersion).toBe(7);
+    expect(loaded.state.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(loaded.state.worldTimeMinutes).toBe(1135);
     expect(loaded.state.phase).toBe("gloam");
     expect(loaded.state.recovery).toEqual({
@@ -156,10 +158,53 @@ describe("versioned local persistence", () => {
   it("migrates the v6 slot into a fresh survey contract without overwriting it", () => {
     const storage = memoryStorage();
     const source = createInitialState("V6-SURVEY-MIGRATION");
+    const v6State = JSON.parse(JSON.stringify(source));
+    v6State.schemaVersion = 6;
+    delete v6State.surveyRoute;
+    v6State.salvage = 11;
+    storage.setItem(
+      V6_SAVE_KEY,
+      JSON.stringify({
+        state: v6State,
+        worldMemory: {
+          deformation: [],
+          felled: [],
+          collected: [],
+          surveyed: [],
+        },
+      }),
+    );
+
+    const loaded = loadState(storage, new GameWorld(source.seed));
+
+    expect(loaded).toMatchObject({
+      status: "migrated",
+      sourceKey: V6_SAVE_KEY,
+      sourceSchemaVersion: 6,
+      state: {
+        schemaVersion: SAVE_SCHEMA_VERSION,
+        salvage: 11,
+        surveyRoute: {
+          id: "survey-route",
+          status: "ready",
+          startedAtMinutes: null,
+          sighted: [],
+          bestSightedCount: 0,
+        },
+      },
+    });
+    expect(storage.getItem(V6_SAVE_KEY)).not.toBeNull();
+    expect(storage.getItem(SAVE_KEY)).toBeNull();
+  });
+
+  it("migrates the v7 slot into v8 with semantic edits and fleet route memory", () => {
+    const storage = memoryStorage();
+    const source = createInitialState("V7-MIGRATION");
     const prior = JSON.parse(JSON.stringify(source));
-    prior.schemaVersion = 6;
-    delete prior.surveyRoute;
-    prior.salvage = 11;
+    prior.schemaVersion = 7;
+    delete prior.semanticEdits;
+    delete prior.fleetInheritance;
+    prior.salvage = 19;
     storage.setItem(
       PREVIOUS_SAVE_KEY,
       JSON.stringify({
@@ -178,26 +223,21 @@ describe("versioned local persistence", () => {
     expect(loaded).toMatchObject({
       status: "migrated",
       sourceKey: PREVIOUS_SAVE_KEY,
-      sourceSchemaVersion: 6,
+      sourceSchemaVersion: 7,
       state: {
-        schemaVersion: 7,
-        salvage: 11,
-        surveyRoute: {
-          id: "survey-route",
-          status: "ready",
-          startedAtMinutes: null,
-          sighted: [],
-          bestSightedCount: 0,
-        },
+        schemaVersion: SAVE_SCHEMA_VERSION,
+        salvage: 19,
+        semanticEdits: [],
+        fleetInheritance: [],
       },
     });
     expect(storage.getItem(PREVIOUS_SAVE_KEY)).not.toBeNull();
     expect(storage.getItem(SAVE_KEY)).toBeNull();
   });
 
-  it("rejects a current v7 record that omits its required survey contract", () => {
+  it("rejects a current v8 record that omits its required survey contract", () => {
     const storage = memoryStorage();
-    const source = createInitialState("V7-MISSING-SURVEY");
+    const source = createInitialState("V8-MISSING-SURVEY");
     const invalid = JSON.parse(JSON.stringify(source));
     delete invalid.surveyRoute;
     storage.setItem(
@@ -218,7 +258,7 @@ describe("versioned local persistence", () => {
     expect(loaded).toMatchObject({
       status: "recovered",
       sourceKey: SAVE_KEY,
-      sourceSchemaVersion: 7,
+      sourceSchemaVersion: SAVE_SCHEMA_VERSION,
       recoveryReason: "invalid-payload",
     });
   });

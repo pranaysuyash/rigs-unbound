@@ -1,23 +1,9 @@
 /**
- * The field map: a canvas view of what the player has actually surveyed.
+ * The field map: a high-resolution topographical canvas view of surveyed territory.
  *
  * This is the payoff surface for the exploration mechanic. A cell is only drawn
  * once `ExplorationField` says the rig could see it, so the map fills in as a
- * record of where you have been and what you could see from there — which makes
- * climbing a hill a legible reward rather than an abstract one.
- *
- * ## Why three canvases
- *
- * - **base**: the whole world's terrain colour, sampled once at construction.
- *   Sampling 128×128 is ~16k terrain queries, which is affordable once and
- *   unaffordable per frame.
- * - **revealed**: starts blank and has regions punched in from `base` as cells are
- *   surveyed. Incremental, so the per-update cost is proportional to *newly*
- *   surveyed cells rather than to the size of the world.
- * - **visible**: the on-screen canvas, redrawn from `revealed` plus live markers.
- *
- * Without the middle layer, fog-of-war would mean up to ~770 `fillRect` masking
- * calls every update.
+ * record of where you have been and what you could see from there.
  */
 
 import type { GameState } from "./contracts";
@@ -25,8 +11,8 @@ import { SURVEY_CELL, unpackSurveyKey } from "./exploration";
 import type { GameWorld } from "./gameworld";
 import { WATER_LEVEL, WORLD_RADIUS, WORLD_SITES } from "./world";
 
-/** Resolution of the precomputed world image, in pixels per side. */
-const BASE_RESOLUTION = 144;
+/** Resolution of the precomputed world image (384x384 for sub-metre topographical detail). */
+const BASE_RESOLUTION = 384;
 
 /** World span the map covers, in metres. */
 const MAP_SPAN = WORLD_RADIUS * 2;
@@ -64,12 +50,6 @@ export class FieldMap {
 
   /**
    * Sample the world image on first use rather than at construction.
-   *
-   * Painting the base costs ~20k terrain queries, which was measured at 419 ms and
-   * was being spent during boot for a panel the player may never open. Deferring it
-   * to the first `M` press takes that entirely off the time-to-first-frame path;
-   * the cost then lands on a frame where the player has already stopped driving to
-   * read a map.
    */
   private ensureBase(): void {
     if (this.baseReady) return;
@@ -80,16 +60,17 @@ export class FieldMap {
   }
 
   /**
-   * Paint the whole world once.
-   *
-   * Elevation is shaded into the surface colour so the map reads as terrain rather
-   * than as a flat political map: you can see where the ridges and the basins are,
-   * which is what makes it usable for choosing a route.
+   * Paint the full world terrain with multi-tier biome colors, 3D hillshading, and topographic contour isolines.
    */
   private paintBase(): void {
     const context = this.base.getContext("2d");
     if (!context) return;
     const image = context.createImageData(BASE_RESOLUTION, BASE_RESOLUTION);
+
+    // Sun direction vector from North-West for 3D terrain hillshading
+    const sunX = -0.577;
+    const sunY = 0.577;
+    const sunZ = -0.577;
 
     for (let py = 0; py < BASE_RESOLUTION; py += 1) {
       const z = -WORLD_RADIUS + (py + 0.5) * METRES_PER_PIXEL;
@@ -97,37 +78,70 @@ export class FieldMap {
         const x = -WORLD_RADIUS + (px + 0.5) * METRES_PER_PIXEL;
         const height = this.world.terrain.height(x, z);
 
-        // Two neighbour samples serve double duty: relief shading, and the slope
-        // that `surfaceFor` would otherwise recompute with four more queries.
         const east = this.world.terrain.height(x + METRES_PER_PIXEL, z);
         const north = this.world.terrain.height(x, z + METRES_PER_PIXEL);
-        const slope = Math.hypot(
-          (east - height) / METRES_PER_PIXEL,
-          (north - height) / METRES_PER_PIXEL,
-        );
-        const surface = this.world.terrain.surfaceFor(x, z, height, slope);
+        
+        // Slope & surface normal components
+        const dzdx = (east - height) / METRES_PER_PIXEL;
+        const dzdz = (north - height) / METRES_PER_PIXEL;
+        const normLen = Math.hypot(dzdx, 1, dzdz);
+        const nx = -dzdx / normLen;
+        const ny = 1 / normLen;
+        const nz = -dzdz / normLen;
 
-        const relief = Math.max(-1, Math.min(1, (height - east) * 0.32));
-        const elevation = Math.max(0, Math.min(1, (height + 6) / 70));
-        const shade = 0.62 + elevation * 0.5 + relief * 0.22;
+        // Hillshade dot product (0.45 to 1.35)
+        const dot = nx * sunX + ny * sunY + nz * sunZ;
+        const hillshade = Math.max(0.45, Math.min(1.35, 0.75 + dot * 0.55));
 
-        const offset = (py * BASE_RESOLUTION + px) * 4;
-        image.data[offset] = Math.min(
-          255,
-          ((surface.color >> 16) & 0xff) * shade,
-        );
-        image.data[offset + 1] = Math.min(
-          255,
-          ((surface.color >> 8) & 0xff) * shade,
-        );
-        image.data[offset + 2] = Math.min(255, (surface.color & 0xff) * shade);
-        image.data[offset + 3] = 255;
+        let baseR = 34;
+        let baseG = 120;
+        let baseB = 60;
 
         if (height < WATER_LEVEL) {
-          image.data[offset] = 44;
-          image.data[offset + 1] = 82;
-          image.data[offset + 2] = 96;
+          // Aquatic gradient: shallow cyan to deep blue
+          const depth = Math.min(1, (WATER_LEVEL - height) / 12);
+          baseR = Math.round(14 * (1 - depth) + 12 * depth);
+          baseG = Math.round(116 * (1 - depth) + 54 * depth);
+          baseB = Math.round(180 * (1 - depth) + 110 * depth);
+        } else if (height < 10) {
+          // Lowland lush meadow
+          baseR = 40; baseG = 135; baseB = 65;
+        } else if (height < 22) {
+          // Upland plateau & graded soil
+          baseR = 125; baseG = 105; baseB = 55;
+        } else if (height < 36) {
+          // Mountain ridge rock
+          baseR = 85; baseG = 95; baseB = 105;
+        } else {
+          // High mountain peak
+          baseR = 175; baseG = 185; baseB = 195;
         }
+
+        // Apply 3D hillshading
+        let r = Math.min(255, baseR * hillshade);
+        let g = Math.min(255, baseG * hillshade);
+        let b = Math.min(255, baseB * hillshade);
+
+        // Contour lines (every 3 metres elevation)
+        if (height >= WATER_LEVEL) {
+          const interval = 3.0;
+          const currentC = Math.floor(height / interval);
+          const eastC = Math.floor(east / interval);
+          const northC = Math.floor(north / interval);
+
+          if (currentC !== eastC || currentC !== northC) {
+            // Crisp gold isoline accent
+            r = Math.min(255, r * 0.7 + 245 * 0.35);
+            g = Math.min(255, g * 0.7 + 158 * 0.35);
+            b = Math.min(255, b * 0.7 + 11 * 0.35);
+          }
+        }
+
+        const offset = (py * BASE_RESOLUTION + px) * 4;
+        image.data[offset] = r;
+        image.data[offset + 1] = g;
+        image.data[offset + 2] = b;
+        image.data[offset + 3] = 255;
       }
     }
     context.putImageData(image, 0, 0);
@@ -145,7 +159,6 @@ export class FieldMap {
       const [cx, cz] = unpackSurveyKey(key);
       const px = (cx * SURVEY_CELL + WORLD_RADIUS) / METRES_PER_PIXEL;
       const py = (cz * SURVEY_CELL + WORLD_RADIUS) / METRES_PER_PIXEL;
-      // Overdraw by a pixel so adjacent revealed cells do not leave seams.
       context.drawImage(
         this.base,
         px - 1,
@@ -179,10 +192,7 @@ export class FieldMap {
   }
 
   /**
-   * Redraw the visible map.
-   *
-   * Callers should throttle this — the map is information, not animation, and it
-   * carries no benefit from running at frame rate.
+   * Redraw the visible map with high-tech radar overlays, compass bearings, sightline wedges, and node markers.
    */
   draw(state: GameState): void {
     this.ensureBase();
@@ -204,47 +214,101 @@ export class FieldMap {
     context.scale(pixelRatio, pixelRatio);
     context.clearRect(0, 0, size, size);
 
-    // Unsurveyed ground.
-    context.fillStyle = "#141a17";
+    const center = size / 2;
+    const radius = (WORLD_RADIUS / MAP_SPAN) * size;
+
+    // Unsurveyed ground background
+    context.fillStyle = "#090d0c";
     context.fillRect(0, 0, size, size);
 
     context.imageSmoothingEnabled = true;
     context.drawImage(this.revealed, 0, 0, size, size);
 
-    // World boundary.
-    context.strokeStyle = "rgba(217, 170, 82, 0.42)";
-    context.lineWidth = 1.5;
+    // 1. Radar Grid & Concentric Range Rings
+    context.strokeStyle = "rgba(45, 212, 191, 0.22)";
+    context.lineWidth = 1;
+    [0.25, 0.5, 0.75].forEach((ratio) => {
+      context.beginPath();
+      context.arc(center, center, radius * ratio, 0, Math.PI * 2);
+      context.stroke();
+    });
+
+    // 2. Crosshair Grid Lines
     context.beginPath();
-    context.arc(
-      size / 2,
-      size / 2,
-      (WORLD_RADIUS / MAP_SPAN) * size,
-      0,
-      Math.PI * 2,
-    );
+    context.moveTo(center, center - radius);
+    context.lineTo(center, center + radius);
+    context.moveTo(center - radius, center);
+    context.lineTo(center + radius, center);
     context.stroke();
 
-    // Authored sites: only shown once discovered, so the map is earned.
-    context.font = `${Math.max(9, size * 0.026)}px ui-monospace, monospace`;
+    // 3. Outer World & Compass Bezel Ring
+    context.strokeStyle = "rgba(45, 212, 191, 0.55)";
+    context.lineWidth = 1.5;
+    context.beginPath();
+    context.arc(center, center, radius, 0, Math.PI * 2);
+    context.stroke();
+
+    // 4. Cardinal Compass Markers (N, E, S, W)
+    context.font = `bold ${Math.max(10, size * 0.028)}px ui-monospace, monospace`;
+    context.textAlign = "center";
     context.textBaseline = "middle";
+    context.fillStyle = "#2dd4bf";
+
+    context.fillText("N", center, center - radius + 12);
+    context.fillText("S", center, center + radius - 12);
+    context.fillText("E", center + radius - 12, center);
+    context.fillText("W", center - radius + 12, center);
+
+    // 5. Sightline Cone radiating from Active Rig Heading
+    const rig = state.rigs[state.activeRigId];
+    const [rx, ry] = this.toPixel(rig.x, rig.z, size);
+    const headingAngle = rig.heading + Math.PI;
+
+    context.save();
+    context.translate(rx, ry);
+    context.fillStyle = "rgba(45, 212, 191, 0.09)";
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.arc(
+      0,
+      0,
+      radius * 0.6,
+      headingAngle - Math.PI * 0.22,
+      headingAngle + Math.PI * 0.22,
+    );
+    context.closePath();
+    context.fill();
+    context.restore();
+
+    // 6. Authored Sites & Landmark Nodes
+    context.font = `${Math.max(9, size * 0.026)}px ui-monospace, monospace`;
+    context.textAlign = "left";
+    context.textBaseline = "middle";
+
     for (const site of WORLD_SITES) {
       const discovered = state.discoveries.some((item) => item.id === site.id);
       const [px, py] = this.toPixel(site.x, site.z, size);
+
       context.beginPath();
-      context.arc(px, py, discovered ? 4 : 3, 0, Math.PI * 2);
+      context.arc(px, py, discovered ? 5 : 3, 0, Math.PI * 2);
       context.fillStyle = discovered
-        ? "rgba(217, 170, 82, 0.95)"
-        : "rgba(107, 201, 196, 0.42)";
+        ? "rgba(245, 158, 11, 0.95)"
+        : "rgba(45, 212, 191, 0.45)";
       context.fill();
+
       if (discovered) {
-        context.fillStyle = "rgba(234, 216, 184, 0.92)";
-        context.fillText(site.name, px + 7, py);
+        context.strokeStyle = "rgba(245, 158, 11, 0.5)";
+        context.lineWidth = 1.2;
+        context.beginPath();
+        context.arc(px, py, 8, 0, Math.PI * 2);
+        context.stroke();
+
+        context.fillStyle = "rgba(253, 230, 138, 0.95)";
+        context.fillText(site.name, px + 10, py);
       }
     }
 
-    // Salvage the rig can currently see.
-    const rig = state.rigs[state.activeRigId];
-    context.fillStyle = "rgba(140, 236, 178, 0.9)";
+    // 7. Salvage Beacon Markers
     for (const node of this.world.exploration.nodesNear(
       rig.x,
       rig.z,
@@ -252,35 +316,49 @@ export class FieldMap {
       this.world.collectedNodes,
     )) {
       const [px, py] = this.toPixel(node.x, node.z, size);
-      context.fillRect(px - 1.5, py - 1.5, 3, 3);
+      context.save();
+      context.translate(px, py);
+      context.rotate(Math.PI / 4);
+      context.fillStyle = "rgba(34, 197, 94, 0.95)";
+      context.fillRect(-2.5, -2.5, 5, 5);
+      context.restore();
     }
 
-    // The relay objective.
+    // 8. Cargo Relay Objective
     const cargo = state.cargoRelay.cargo;
     if (!cargo.delivered) {
       const [cx, cy] = this.toPixel(cargo.x, cargo.z, size);
-      context.strokeStyle = "rgba(217, 170, 82, 0.95)";
-      context.lineWidth = 1.6;
+      context.strokeStyle = "rgba(245, 158, 11, 0.95)";
+      context.lineWidth = 1.8;
       context.beginPath();
-      context.arc(cx, cy, 5, 0, Math.PI * 2);
+      context.arc(cx, cy, 6, 0, Math.PI * 2);
       context.stroke();
     }
 
-    // The rig itself: a triangle, so heading is readable at a glance.
-    const [rx, ry] = this.toPixel(rig.x, rig.z, size);
+    // 9. Active Rig Indicator (Heading Arrowhead & Direction Vector)
     context.save();
     context.translate(rx, ry);
-    // Screen +y is world +z, and world heading 0 faces +z.
-    context.rotate(-rig.heading);
-    context.beginPath();
-    context.moveTo(0, -7);
-    context.lineTo(4.6, 5);
-    context.lineTo(-4.6, 5);
-    context.closePath();
-    context.fillStyle = "#f4e3c0";
-    context.fill();
-    context.strokeStyle = "#17201c";
+
+    context.strokeStyle = "rgba(245, 158, 11, 0.6)";
     context.lineWidth = 1.2;
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(
+      Math.sin(headingAngle) * 16,
+      -Math.cos(headingAngle) * 16,
+    );
+    context.stroke();
+
+    context.rotate(headingAngle);
+    context.beginPath();
+    context.moveTo(0, -8);
+    context.lineTo(5, 6);
+    context.lineTo(-5, 6);
+    context.closePath();
+    context.fillStyle = "#f59e0b";
+    context.fill();
+    context.strokeStyle = "#0f172a";
+    context.lineWidth = 1.4;
     context.stroke();
     context.restore();
 

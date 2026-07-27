@@ -9,7 +9,7 @@ import {
 const BASE_CONTEXT: ControlGuidanceContext = {
   hasDriven: false,
   primaryActionKind: "none",
-  workshopRelevant: false,
+  workshopLessonRelevant: false,
   bladeRelevant: false,
   cameraRelevant: false,
   mapRelevant: false,
@@ -45,12 +45,12 @@ describe("first-use control guidance", () => {
     expect(lesson?.description).toContain("Collect");
   });
 
-  it("introduces workshop input only when fitting a part is relevant", () => {
+  it("introduces workshop input only when the lesson is relevant", () => {
     const lesson = resolveControlLesson(
       {
         ...BASE_CONTEXT,
         hasDriven: true,
-        workshopRelevant: true,
+        workshopLessonRelevant: true,
       },
       new Set(["drive", "act"]),
     );
@@ -67,7 +67,7 @@ describe("first-use control guidance", () => {
       {
         ...BASE_CONTEXT,
         hasDriven: true,
-        workshopRelevant: true,
+        workshopLessonRelevant: true,
         bladeRelevant: true,
         cameraRelevant: true,
         mapRelevant: true,

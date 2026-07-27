@@ -327,6 +327,14 @@ with permanent instructions.
     captured console/page problems. External-player comprehension evidence
     keeps this item in progress. Evidence:
     [Sites version 9 release](../reviews/SITES_VERSION_9_RELEASE_2026-07-26.md).
+  - `render_game_to_text()` now includes a top-level first-rung summary with
+    derived stage, objective, recommended module/rig, target, affordability,
+    completion flag, and reason, while keeping `publicState(state, world)`
+    intact underneath.
+  - `publicState(state, world)` also now exposes `progression.workshopActionable`,
+    the same derived spend-ready flag shared by `src/game/first-rung.ts`,
+    the HUD, and the workshop panel; the lesson cue boundary now names
+    `workshopLessonRelevant` explicitly in `src/game/control-guidance.ts`.
 - [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
@@ -871,6 +879,16 @@ the game inside an impressive systems playground. The dependency order is:
 `publish current evidence → repair the first rung → complete Farmfall →
 repeat external playtests → expand physics/world/social breadth only when the
 game loop asks a sharper question`.
+
+## Addendum (2026-07-27) — integration-first roadmap pointer
+
+The project has a strong persistent substrate but still presents activities as
+separate minigames. The integration-first analysis and roadmap at
+`../exploration/INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md`
+captures the current integration gaps (dangling systems, UI seams, missing
+contract ledger and episode runner) and proposes concrete work that does not
+require editing the parallel-owned `src/game/` runtime. Agents should read it
+before proposing new modes, activities, or UI panels.
 
 ## Addendum (2026-07-27)
 

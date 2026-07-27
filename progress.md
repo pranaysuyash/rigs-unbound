@@ -9,7 +9,7 @@ Original prompt: Explore and document a public browser-based open-world game in 
   human playtest remain open
 - Playable build: **Field 02** — public at
   [rigs-unbound.suyashpranay.chatgpt.site](https://rigs-unbound.suyashpranay.chatgpt.site),
-  local at `http://127.0.0.1:4174/`
+  local at `http://127.0.0.1:4173/`
 - Engine decision: open. Three.js renders; the traversal model is project-owned
   (ADR-0007) and Rapier is now present behind the replaceable-dynamics boundary
   (ADR-0017) rather than as the vehicle model

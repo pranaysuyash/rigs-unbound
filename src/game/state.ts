@@ -24,6 +24,8 @@ import {
   FIELD_02_SAVE_SCHEMA_VERSION,
   FIXED_STEP_SECONDS,
   GLOAM_START_MINUTE,
+  type CutFillEditRecord,
+  type FleetInheritanceRecord,
   type FurrowMark,
   type GameState,
   type GroundMobilityState,
@@ -36,7 +38,6 @@ import {
   type ModuleId,
   NIGHT_START_MINUTE,
   phaseForWorldTime,
-  PREVIOUS_SAVE_SCHEMA_VERSION,
   RIG_IDS,
   RIG_SWITCH_RANGE,
   RIG_LAB_SAVE_SCHEMA_VERSION,
@@ -47,6 +48,8 @@ import {
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
   type SurveyRouteState,
+  V7_SAVE_SCHEMA_VERSION,
+  V6_SAVE_SCHEMA_VERSION,
   type WorldPhase,
   WORLD_CLOCK_START_MINUTES,
   WORLD_DAY_MINUTES,
@@ -68,7 +71,10 @@ import {
   surveyRouteTargets,
 } from "./activities";
 import { SALVAGE_PICKUP_RADIUS } from "./exploration";
-import { resolveFirstRung } from "./first-rung";
+import {
+  resolveFirstRung,
+  workshopActionable as firstRungWorkshopActionable,
+} from "./first-rung";
 import type { GameWorld } from "./gameworld";
 import { clamp } from "./noise";
 import {
@@ -253,6 +259,8 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     surveyRoute: createSurveyRouteState(),
     unboundPassage: createUnboundPassageState(),
     furrows: [],
+    semanticEdits: [],
+    fleetInheritance: [],
     discoveries: [],
     salvage: 0,
     salvageCollected: 0,
@@ -711,8 +719,49 @@ export function winchRecover(state: GameState, world: GameWorld): void {
   }
 
   if (!profile.capabilities.includes("winch")) {
-    state.lastDiagnostic =
-      "No winch fitted. A recovery winch is 8 salvage at the Home Silo workshop.";
+    // Basic always-available recovery: a weak, costly nudge back to the nearest
+    // track without needing a winch module.  This breaks the circular dependency
+    // ChatGPT flagged: need salvage → stuck → can't get salvage → can't recover.
+    // The winch is the superior version; this is the safety net.
+    let bestX: number = HOME_SITE.x;
+    let bestZ: number = HOME_SITE.z;
+    let bestDistance = Infinity;
+    for (const route of RESOLVED_ROUTES) {
+      const dx = route.bx - route.ax;
+      const dz = route.bz - route.az;
+      const lengthSquared = dx * dx + dz * dz;
+      const t =
+        lengthSquared <= 1e-6
+          ? 0
+          : clamp(
+              ((rig.x - route.ax) * dx + (rig.z - route.az) * dz) / lengthSquared,
+              0,
+              1,
+            );
+      const px = route.ax + dx * t;
+      const pz = route.az + dz * t;
+      const distance = Math.hypot(rig.x - px, rig.z - pz);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestX = px;
+        bestZ = pz;
+      }
+    }
+
+    if (bestDistance > 60) {
+      state.lastDiagnostic =
+        "Too far from any track for a basic nudge. Reverse or steer downhill.";
+      return;
+    }
+
+    rig.x = bestX;
+    rig.z = bestZ;
+    rig.speed = 0;
+    rig.steering = 0;
+    rig.strain = clamp(rig.strain + 0.4, 0, 1);
+    rig.condition = clamp(rig.condition - 8, 0, 100);
+    settleRig(rig, profile, world.terrain);
+    state.lastDiagnostic = `Nudged ${Math.round(bestDistance)} m back to the track. Condition ${Math.round(rig.condition)}%. A winch would cost less.`;
     return;
   }
 
@@ -1161,16 +1210,72 @@ export function stepGame(
     if (distanceFromLast >= FURROW_SPACING) {
       const bladeDelta = plough.mode === "fill" ? PLOUGH_FILL : PLOUGH_DEPTH;
       if (world.terrain.deform(markX, markZ, bladeDelta, 1)) {
+        const mode = plough.mode === "fill" ? "fill" : "cut";
         state.furrows.push({
           x: markX,
           z: markZ,
           heading: rig.heading,
           createdAt: state.elapsedMs,
           rigId: rig.id,
-          mode: plough.mode === "fill" ? "fill" : "cut",
+          mode,
         } satisfies FurrowMark);
         if (state.furrows.length > MAX_FURROWS) {
           state.furrows.splice(0, state.furrows.length - MAX_FURROWS);
+        }
+
+        state.semanticEdits.push({
+          mode,
+          authorRigId: rig.id,
+          x: markX,
+          z: markZ,
+          heading: rig.heading,
+          width: profile.track,
+          depthDelta: bladeDelta,
+          affectedCellCount: 1,
+          createdAt: state.elapsedMs,
+          routeId: "home-to-long-furrow",
+          visualCategory: mode === "fill" ? "fill-causeway" : "cut-tilled",
+        } satisfies CutFillEditRecord);
+        if (state.semanticEdits.length > MAX_FURROWS) {
+          state.semanticEdits.splice(0, state.semanticEdits.length - MAX_FURROWS);
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Fleet Inheritance: non-author rigs benefit from routes opened by others.
+  // ---------------------------------------------------------------------------
+  if (
+    state.unboundPassage.status === "open" &&
+    state.unboundPassage.openedByRigId !== null &&
+    state.unboundPassage.openedByRigId !== rig.id
+  ) {
+    const longFurrow = findSite("long-furrow");
+    if (longFurrow) {
+      const distToHome = Math.hypot(rig.x - HOME_SITE.x, rig.z - HOME_SITE.z);
+      const distToLF = Math.hypot(rig.x - longFurrow.x, rig.z - longFurrow.z);
+      const totalRouteLength = Math.hypot(
+        longFurrow.x - HOME_SITE.x,
+        longFurrow.z - HOME_SITE.z,
+      );
+      if (distToHome + distToLF <= totalRouteLength + 14) {
+        const alreadyRecorded = state.fleetInheritance.some(
+          (entry) =>
+            entry.benefitingRigId === rig.id &&
+            entry.routeId === "home-to-long-furrow",
+        );
+        if (!alreadyRecorded) {
+          const authorRigId = state.unboundPassage.openedByRigId;
+          state.fleetInheritance.push({
+            authorRigId,
+            benefitingRigId: rig.id,
+            routeId: "home-to-long-furrow",
+            crossedAtMs: state.elapsedMs,
+            persisted: true,
+          });
+          const authorName = RIG_PROFILES[authorRigId].fieldName;
+          state.lastDiagnostic = `${profile.fieldName} is benefiting from the route opened by ${authorName}!`;
         }
       }
     }
@@ -1355,7 +1460,13 @@ export function publicState(state: GameState, world: GameWorld): object {
     70,
     world.collectedNodes,
   );
-  const firstRung = resolveFirstRung(state, world.collectedNodes);
+  const firstRung = resolveFirstRung(state, world.collectedNodes, world);
+  const workshop = workshopInReach(state);
+  const workshopActionable = firstRungWorkshopActionable(
+    workshop !== undefined,
+    state,
+    firstRung,
+  );
 
   return {
     schemaVersion: state.schemaVersion,
@@ -1377,7 +1488,8 @@ export function publicState(state: GameState, world: GameWorld): object {
       salvageCollected: state.salvageCollected,
       firstRung,
       unboundPassage: readUnboundPassage(state.unboundPassage, currentRig.id),
-      workshopInReach: workshopInReach(state)?.id ?? null,
+      workshopInReach: workshop?.id ?? null,
+      workshopActionable,
       nearestSalvage:
         nearestSalvage === null
           ? null
@@ -1856,6 +1968,63 @@ function recoverShared(
     }))
     .slice(-MAX_FURROWS);
 
+  const semanticEdits = (
+    Array.isArray(candidate.semanticEdits) ? candidate.semanticEdits : []
+  )
+    .filter((item): item is CutFillEditRecord => {
+      if (!item || typeof item !== "object") return false;
+      const edit = item as Partial<CutFillEditRecord>;
+      return (
+        (edit.mode === "cut" || edit.mode === "fill") &&
+        isRigId(edit.authorRigId) &&
+        isFiniteNumber(edit.x) &&
+        isFiniteNumber(edit.z) &&
+        isFiniteNumber(edit.heading) &&
+        isFiniteNumber(edit.width) &&
+        isFiniteNumber(edit.depthDelta) &&
+        isFiniteNumber(edit.affectedCellCount) &&
+        isFiniteNumber(edit.createdAt)
+      );
+    })
+    .map((edit) => ({
+      mode: edit.mode,
+      authorRigId: edit.authorRigId,
+      x: edit.x,
+      z: edit.z,
+      heading: edit.heading,
+      width: edit.width,
+      depthDelta: edit.depthDelta,
+      affectedCellCount: edit.affectedCellCount,
+      createdAt: edit.createdAt,
+      routeId: typeof edit.routeId === "string" ? edit.routeId : undefined,
+      visualCategory: (edit.visualCategory === "fill-causeway" ||
+      edit.visualCategory === "graded-pass"
+        ? edit.visualCategory
+        : "cut-tilled") as CutFillEditRecord["visualCategory"],
+    }))
+    .slice(-MAX_FURROWS);
+
+  const fleetInheritance = (
+    Array.isArray(candidate.fleetInheritance) ? candidate.fleetInheritance : []
+  )
+    .filter((item): item is FleetInheritanceRecord => {
+      if (!item || typeof item !== "object") return false;
+      const record = item as Partial<FleetInheritanceRecord>;
+      return (
+        isRigId(record.authorRigId) &&
+        isRigId(record.benefitingRigId) &&
+        typeof record.routeId === "string" &&
+        isFiniteNumber(record.crossedAtMs)
+      );
+    })
+    .map((record) => ({
+      authorRigId: record.authorRigId,
+      benefitingRigId: record.benefitingRigId,
+      routeId: record.routeId,
+      crossedAtMs: record.crossedAtMs,
+      persisted: Boolean(record.persisted),
+    }));
+
   const validLandmarkIds = new Set(LANDMARKS.map((item) => item.id));
   const discoveries = (
     Array.isArray(candidate.discoveries) ? candidate.discoveries : []
@@ -1932,6 +2101,8 @@ function recoverShared(
     surveyRoute,
     unboundPassage,
     furrows,
+    semanticEdits,
+    fleetInheritance,
     discoveries,
     salvage: isFiniteNumber(candidate.salvage)
       ? clamp(Math.floor(candidate.salvage), 0, 99_999)
@@ -2249,13 +2420,24 @@ function migrateV2(candidate: Record<string, unknown>): GameState | null {
   return recovered;
 }
 
+function migrateV7(candidate: Record<string, unknown>): GameState | null {
+  const recovered = recoverCurrent(candidate, true);
+  if (!recovered) return null;
+  recovered.lastDiagnostic =
+    "Schema v7 record migrated. Semantic terrain edits and fleet route memory are enabled.";
+  return recovered;
+}
+
 export function recoverState(value: unknown): GameState | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Record<string, unknown>;
   if (candidate.schemaVersion === SAVE_SCHEMA_VERSION) {
     return recoverCurrent(candidate);
   }
-  if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
+  if (candidate.schemaVersion === V7_SAVE_SCHEMA_VERSION) {
+    return migrateV7(candidate);
+  }
+  if (candidate.schemaVersion === V6_SAVE_SCHEMA_VERSION) {
     return migrateV6(candidate);
   }
   if (candidate.schemaVersion === DRIFT_BERTH_SAVE_SCHEMA_VERSION) {
