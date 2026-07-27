@@ -736,7 +736,7 @@ function boot(): void {
   const fitModule = (
     moduleId: ModuleId,
     source: "keyboard" | "workshop-panel" | "acceptance",
-  ): void => {
+  ): string => {
     markActionReady();
     const before = resolveFirstRung(state, world.collectedNodes);
     recordCommand("installModule", { moduleId, source });
@@ -762,6 +762,7 @@ function boot(): void {
       firstRungAfter: after.stage,
       firstRungCompleted: fittedNow,
     });
+    return settleAndReport();
   };
 
   const enterWorld = (source: "welcome-panel" | "keyboard"): void => {
@@ -953,7 +954,7 @@ function boot(): void {
     markInputReady();
     markActionReady();
     void audio.unlock();
-    fitModule(button.dataset.moduleId as ModuleId, "workshop-panel");
+    void fitModule(button.dataset.moduleId as ModuleId, "workshop-panel");
   });
 
   enterWorldButton.addEventListener("click", () => {
@@ -1757,8 +1758,7 @@ function boot(): void {
     return settleAndReport();
   };
   window.installRigModule = (moduleId: ModuleId) => {
-    fitModule(moduleId, "acceptance");
-    return settleAndReport();
+    return fitModule(moduleId, "acceptance");
   };
   window.toggleBlade = () => {
     markActionReady();

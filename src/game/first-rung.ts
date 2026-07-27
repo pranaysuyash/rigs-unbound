@@ -46,95 +46,6 @@ function atHomeWorkshop(state: GameState): boolean {
   return isWithinSiteServiceArea(HOME_SITE, rig.x, rig.z);
 }
 
-/**
- * Distance threshold for considering the player within sight of a site.
- * Three times the discover radius — far enough to see the landmark signal
- * but not close enough to trigger a formal discovery.
- */
-const SIGHT_RADIUS_MULTIPLIER = 3;
-
-/**
- * Distance threshold for "attempting" a route — close enough to the blocked
- * area that the player can clearly see the terrain face.
- */
-const ATTEMPT_ROUTE_RADIUS = 36;
-
-/**
- * Before fitting the blade, guide the player to sight Long Furrow and then
- * attempt the direct route. This creates the "I see it, I try, I fail, I
- * understand why I need the blade" moment that is the core of the Reclamation
- * journey.
- *
- * Only active when the player has collected the first cache (has salvage)
- * but has not yet fitted any modules.
- */
-function resolvePreBladeJourney(
-  state: GameState,
-): FirstRungResolution | null {
-  // Only fire when the player has salvage and the active rig can fit the
-  // recommended module. Incompatible rigs should be routed to reach-rig/switch-rig
-  // by the existing affordable logic below, not by this pre-blade scout.
-  const affordable = state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost;
-  if (!affordable) return null;
-  if (state.rigs[state.activeRigId].modules.length > 0) return null;
-  const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(state.activeRigId);
-  if (!compatible) return null;
-
-  // Don't interrupt the workshop flow — if the player is at Home, let the
-  // existing choose-part logic guide them to fit the module first.
-  if (atHomeWorkshop(state)) return null;
-
-  const rig = state.rigs[state.activeRigId];
-  const longFurrow = findSite("long-furrow");
-  if (!longFurrow) return null;
-
-  const distanceToFurrow = Math.hypot(
-    rig.x - longFurrow.x,
-    rig.z - longFurrow.z,
-  );
-  const sightRadius = longFurrow.discoverRadius * SIGHT_RADIUS_MULTIPLIER;
-
-  // Within attempt radius — the terrain face blocks the direct overland path.
-  // The graded route corridor is guaranteed drivable, but the player must
-  // discover this by hitting the blockage first.
-  if (distanceToFurrow <= ATTEMPT_ROUTE_RADIUS) {
-    return {
-      stage: "attempt-route",
-      objective: "The terrain blocks the way. Return for lug tyres.",
-      shortLabel: "Need lug tyres",
-      ariaLabel:
-        "A steep terrain face blocks the direct route to Long Furrow. Return to Home Silo and fit lug tyres for better grip, then plough through.",
-      reason:
-        "The direct route to Long Furrow is blocked by a terrain face that the plough can clear with better grip.",
-      target: { x: HOME_SITE.x, z: HOME_SITE.z },
-      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
-      recommendedRigId: null,
-      affordable: state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost,
-      complete: false,
-    };
-  }
-
-  // Within sight radius but not yet at the blockage — scout the destination.
-  if (distanceToFurrow <= sightRadius) {
-    return {
-      stage: "sight-destination",
-      objective: "Head toward Long Furrow",
-      shortLabel: "Sight Long Furrow",
-      ariaLabel:
-        "Long Furrow is visible ahead. Drive toward it to scout the terrain.",
-      reason:
-        "Long Furrow is visible and should be scouted before fitting the blade.",
-      target: { x: longFurrow.x, z: longFurrow.z },
-      recommendedModuleId: FIRST_RUNG_RECOMMENDED_MODULE,
-      recommendedRigId: null,
-      affordable: state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost,
-      complete: false,
-    };
-  }
-
-  return null;
-}
-
 function firstCompatibleRig(
   state: GameState,
   moduleId: ModuleId,
@@ -415,14 +326,6 @@ export function resolveFirstRung(
   const recommendedModule = MODULES[recommendedModuleId];
   const recommendedRigId = firstCompatibleRig(state, recommendedModuleId);
   const affordable = state.salvage >= recommendedModule.cost;
-
-  // ---------------------------------------------------------------------
-  // Pre-blade Reclamation journey: sight Long Furrow, attempt the route,
-  // learn that the blade is needed. Only when the player has salvage but
-  // has not yet fitted any modules.
-  // ---------------------------------------------------------------------
-  const preBladeJourney = resolvePreBladeJourney(state);
-  if (preBladeJourney) return preBladeJourney;
 
   if (affordable) {
     const activeRigCanFit = recommendedRigId === state.activeRigId;

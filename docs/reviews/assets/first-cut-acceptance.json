@@ -35,18 +35,19 @@
     {
       "step": "drive-forward",
       "stage": "first-cut",
-      "objective": "Head toward Long Furrow",
+      "objective": "Plough toward Long Furrow (25 furrows carved)",
       "dataStage": "first-cut",
-      "furrows": 0,
-      "pass": false
+      "furrows": 25,
+      "pass": true
     }
   ],
   "consoleProblems": [
-    "error: THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: ShaderMaterial\n\nProgram Info Log: Fragment shader is not compiled.\n\u0000\n\nFRAGMENT\n\nERROR: 0:170: 'cameraPosition' : redefinition\nERROR: 0:241: 'halfVector' : redefinition\nERROR: 0:242: 'spec' : redefinition\n\u0000\n\n  165:         uniform vec3 sunDirection;\n  166:         uniform vec3 sunColor;\n  167:         uniform vec3 foamColor;\n  168:         uniform vec3 deepColor;\n  169:         uniform vec3 shallowColor;\n> 170:         uniform vec3 cameraPosition;\n  171:         uniform float foamThreshold;\n  172:         uniform float foamStrength;\n  173:         uniform float specularPower;\n  174:         uniform float specularIntensity;\n  175: \n  176:         // Fresnel-Schlick approximation",
+    "error: THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: ShaderMaterial\n\nProgram Info Log: Fragment shader is not compiled.\n\u0000\n\nFRAGMENT\n\nERROR: 0:70: 'cameraPosition' : redefinition\nERROR: 0:141: 'halfVector' : redefinition\nERROR: 0:142: 'spec' : redefinition\n\u0000\n\n  65:         uniform vec3 sunDirection;\n  66:         uniform vec3 sunColor;\n  67:         uniform vec3 foamColor;\n  68:         uniform vec3 deepColor;\n  69:         uniform vec3 shallowColor;\n> 70:         uniform vec3 cameraPosition;\n  71:         uniform float foamThreshold;\n  72:         uniform float foamStrength;\n  73:         uniform float specularPower;\n  74:         uniform float specularIntensity;\n  75: \n  76:         // Fresnel-Schlick approximation",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
-    "error: THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: ShaderMaterial\n\nProgram Info Log: Fragment shader is not compiled.\n\u0000\n\nFRAGMENT\n\nERROR: 0:170: 'cameraPosition' : redefinition\nERROR: 0:241: 'halfVector' : redefinition\nERROR: 0:242: 'spec' : redefinition\n\u0000\n\n  165:         uniform vec3 sunDirection;\n  166:         uniform vec3 sunColor;\n  167:         uniform vec3 foamColor;\n  168:         uniform vec3 deepColor;\n  169:         uniform vec3 shallowColor;\n> 170:         uniform vec3 cameraPosition;\n  171:         uniform float foamThreshold;\n  172:         uniform float foamStrength;\n  173:         uniform float specularPower;\n  174:         uniform float specularIntensity;\n  175: \n  176:         // Fresnel-Schlick approximation",
+    "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
+    "error: THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: ShaderMaterial\n\nProgram Info Log: Fragment shader is not compiled.\n\u0000\n\nFRAGMENT\n\nERROR: 0:70: 'cameraPosition' : redefinition\nERROR: 0:141: 'halfVector' : redefinition\nERROR: 0:142: 'spec' : redefinition\n\u0000\n\n  65:         uniform vec3 sunDirection;\n  66:         uniform vec3 sunColor;\n  67:         uniform vec3 foamColor;\n  68:         uniform vec3 deepColor;\n  69:         uniform vec3 shallowColor;\n> 70:         uniform vec3 cameraPosition;\n  71:         uniform float foamThreshold;\n  72:         uniform float foamStrength;\n  73:         uniform float specularPower;\n  74:         uniform float specularIntensity;\n  75: \n  76:         // Fresnel-Schlick approximation",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",
     "warning: WebGL: INVALID_OPERATION: useProgram: program not valid",

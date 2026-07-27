@@ -1,3 +1,16 @@
+## 2026-07-27 — first-cut evidence now follows the runtime contract
+
+- Removed the experimental pre-blade scouting branch that was hijacking the
+  canonical return-home / choose-part flow after salvage collection.
+- Made workshop fitting settle the HUD through the same path used by the
+  acceptance hook, so the visible first-rung stage stays in sync with the
+  simulation after module installation.
+- Updated the first-cut browser acceptance harness to read the canonical
+  `worldMemory.furrowCount` snapshot field instead of a non-existent top-level
+  `furrows` array.
+- Validation on the live tree now passes end to end: `npm run typecheck` and
+  `node tools/first-cut-browser-acceptance.cjs`.
+
 ## 2026-07-27 — first-rung gating now preserves the workshop flow
 
 - Narrowed the pre-blade scouting branch so it no longer hijacks the workshop

@@ -200,12 +200,13 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
     await page.waitForTimeout(500);
     await page.evaluate(() => window.applyRigInput({}, 200));
 
-    // Wait for furrows to appear (may take a few frames after simulation)
+    // Wait for furrows to appear (may take a few frames after simulation).
+    // The runtime snapshot exposes the canonical count through worldMemory.
     let furrowCount = 0;
     for (let retry = 0; retry < 10; retry += 1) {
       furrowCount = await page.evaluate(() => {
         const snap = JSON.parse(window.render_game_to_text());
-        return Array.isArray(snap.furrows) ? snap.furrows.length : 0;
+        return snap.worldMemory?.furrowCount ?? 0;
       });
       if (furrowCount > 0) break;
       await page.waitForTimeout(200);
