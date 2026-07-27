@@ -1,3 +1,16 @@
+## 2026-07-27 — playtest2 artifact bundle classified
+
+- New local evidence surfaced in `artifacts/playtest2-achiever.cjs`,
+  `artifacts/playtest2-casual.cjs`, `artifacts/playtest2-explorer.cjs`, and
+  `artifacts/playtest2-explorer/`.
+- The scripts are reusable local drivers; the explorer screenshots currently
+  show `ERR_CONNECTION_REFUSED` against `127.0.0.1:4174`, so they are launcher
+  diagnostics rather than gameplay proof.
+- Preserved the disposition in
+  `docs/reviews/PLAYTEST2_ARTIFACT_DISPOSITION_2026-07-27.md` so the next pass
+  can rerun or cite them without confusing a failed connection with a valid
+  playtest.
+
 ## 2026-07-27 — next vertical recommendation formalized without touching runtime
 
 - Captured the current sequencing recommendation in
