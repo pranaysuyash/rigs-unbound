@@ -667,6 +667,11 @@ code and linked to accepted, rejected, deferred, or implemented outcomes.
   - Coverage: game-development, game-director, wide-open brainstorm, indie/
     studio reference games, mechanics, UI flows, leveling, editors, and
     open-world coherence.
+  - 2026-07-27 progress: product vision synthesized into
+    [ADR-0029](../decisions/ADR-0029-product-vision-machine-keeper-odyssey.md)
+    as a proposed machine-keeper odyssey; long-term horizon doc cross-linked to
+    ADR-0002, ADR-0018, and RU-0204; Parts/Favor economy spec drafted in
+    [Parts and Favor Economy Spec](../exploration/PARTS_AND_FAVOR_ECONOMY_SPEC_2026-07-27.md).
   - Gate: source register + pattern synthesis + concrete probes, with copied
     inspiration rejected in favor of transferable principles.
 - [~] **RU-0802 — Three.js and browser-game systems.**
@@ -707,6 +712,12 @@ code and linked to accepted, rejected, deferred, or implemented outcomes.
   - Coverage: WebGPU skill, browser compatibility, worker/off-main-thread
     options, WASM/threading/COOP-COEP, culling/LOD/streaming, caching, PWA, and
     representative-device budgets.
+  - 2026-07-27 progress: corrected the WebGPU readiness analysis after a fresh
+    read of `src/game/renderer.ts`; documented that the current build is WebGL-only
+    in practice because of `EffectComposer`/`UnrealBloomPass`/FXAA and two inline
+    GLSL `ShaderMaterial`s (water, state-shell aura); published the revised W1
+    ladder and backend-policy evidence matrix in
+    [WebGPU and Web Performance Analysis](../research/WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md).
   - Gate: measured profile data selects the next experiment.
 - [x] **RU-0809 — Sites deployment workflow.**
   - Evidence: existing Sites project reused, source-provenance versions,

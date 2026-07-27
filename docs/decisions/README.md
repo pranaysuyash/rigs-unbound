@@ -80,7 +80,9 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0024 | Implemented and verified for the current acceptance harness  | Browser-process isolation is test infrastructure, not product policy.                                                                                  |
 | ADR-0025 | Proposed product contract; implemented source-only fixture   | Named emissions exist as bounded evidence; listener policy, operating state, accessibility, and gameplay admission remain open.                        |
 | ADR-0026 | Proposed — operator sign-off required                        | Cultivation provenance, schema-v7 ownership, sequencing, reward, and terrain-after-sow policy remain open.                                             |
-| ADR-0028 | Proposed — operator sign-off required                        | Auto/explicit renderer backend selection is policy-gated and checkpointed at startup and recovery.                                                     |
+| ADR-0027 | Proposed — operator sign-off required                        | Terrain transformation grammar (clear, grade, fill) supersedes ad-hoc cut/fill plough modes.                                                            |
+| ADR-0028 | Proposed — operator sign-off required                        | Auto/explicit renderer backend selection is policy-gated and checkpointed at startup and recovery.                                                      |
+| ADR-0029 | Proposed — operator sign-off required                        | Machine-keeper odyssey product vision; downstream slice evaluation filter.                                                                              |
 
 ## Recommendation labels outside ADRs
 

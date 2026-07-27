@@ -258,3 +258,110 @@ The long-term first-principles exploration note at
 is the broader horizon for this WebGPU/performance analysis. This document
 still owns the performance and fallback posture frame; the new note carries
 the wider machine-keeper thesis and long-range product direction.
+
+## Correction addendum (2026-07-27) — actual renderer surface after fresh read
+
+The executed-slice claims in §3.1 above were too optimistic. A re-read of
+`src/game/renderer.ts` and `src/main.ts` shows the WebGPU lane is *gated and
+instrumented*, but the runtime is still WebGL-only for all practical paths.
+This addendum corrects the record so future work is sized honestly.
+
+### C1 — Custom GLSL and post-processing *are* present
+
+The earlier claim "zero custom GLSL/ShaderMaterial, zero post-processing" is
+wrong. The renderer owns:
+
+1. `EffectComposer` + `UnrealBloomPass` + `ShaderPass(FXAAShader)`
+   (`renderer.ts:25-29`, `:362`, `:366`, `:375`). These are `three/examples/jsm/postprocessing`
+   classes that target the WebGL renderer pipeline.
+2. A `THREE.ShaderMaterial` water plane with inline Gerstner-wave GLSL vertex
+   and fragment shaders (`renderer.ts:655-…`).
+3. A `THREE.ShaderMaterial` rig state-shell aura with inline GLSL for fresnel,
+   hit ripples, and damage pulsing (`renderer.ts:1550-…`).
+
+Consequence: a `WebGPURenderer` swap is **not** an initialization-only change.
+The post-processing stack and the two custom materials must be rewritten or
+replaced before any WebGPU path can render parity pixels. This moves the swap
+from "low-risk" to "medium-risk, art-contract dependent."
+
+### C2 — The current `?renderer=webgpu` path never creates a WebGPU renderer
+
+`GameRenderer.createRendererBackend()` (`renderer.ts:419-463`) resolves as
+follows:
+
+| Request | Policy | Resolved backend | Reason logged |
+| --- | --- | --- | --- |
+| `webgl` | any | WebGL | `renderer request=webgl` |
+| `webgpu` | any | WebGL | `renderer request=webgpu is not available in this build` |
+| `auto` | `canary` | WebGL | `renderer=auto retained webgl for composer compatibility (canary)` |
+| `auto` | `stable` + gate passes | WebGL | `renderer=auto retained webgl for composer compatibility (stable)` |
+| `auto` | `stable` + gate fails | WebGL | `rendererPolicy=stable blocked auto webgpu (…)` |
+| `auto` | `off` | WebGL | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)` |
+
+So the policy gate, telemetry, and recovery plumbing are in place, but the
+actual `WebGPURenderer` constructor is **not** invoked anywhere in this build.
+The `fallback` flag is currently only meaningful for `auto` when the policy
+gate blocks; `webgpu` request reports fallback=true because the build lacks the
+backend implementation.
+
+### C3 — What "W1 completed" actually means
+
+The completed pieces are:
+
+- `rendererPolicy` parsing and stable/canary/off gating in `main.ts`.
+- Backend-policy checkpoint emission (`rendererBackendPolicy`).
+- WebGL context-loss/recovery state machine and WebGPU-shaped loss metadata
+  plumbing (the callback bridge exists even though the WebGPU path is not yet
+  active).
+- Action-readiness metrics and Web Vitals observers in `performance.ts`.
+
+The **not-yet-completed** pieces are:
+
+- A real `WebGPURenderer` construction attempt.
+- A WebGPU-compatible replacement for the post-processing composer (bloom + FXAA).
+- A WebGPU-compatible replacement for the water and state-shell materials.
+- A comparative acceptance matrix on representative devices.
+
+### C4 — Revised W1 ladder
+
+| Step | Work | Blocker/dependency |
+| --- | --- | --- |
+| W1-a | Reliability + telemetry plumbing | ✅ Done |
+| W1-b | Policy gate + operator controls | ✅ Done |
+| W1-c | Replace composer + custom materials with WebGPU-native equivalents | Engine-branch gating; art-director sign-off on bloom/FXAA/water/shell parity |
+| W1-d | First real `WebGPURenderer` construction under `renderer=webgpu` | After W1-c |
+| W1-e | Measured rollout matrix per ADR-0028 validation plan | After W1-d |
+| W1-f | Default-policy expansion (`stable` or `canary`) | After W1-e evidence |
+
+### C5 — W1-d decision sheet (backend policy matrix, updated)
+
+This is the evidence contract ADR-0028 demands before `rendererPolicy` can move
+from `Proposed` to `Implemented and verified`.
+
+| Surface | Request | Policy | Expected backend | Expected reason | Acceptance gate |
+| --- | --- | --- | --- | --- | --- |
+| developer | `webgl` | `stable` | WebGL | `renderer request=webgl` | No fallback; `rendererBackendPolicy` checkpoint names direct backend |
+| developer | `auto` | `stable` | WebGL | `renderer=auto retained webgl for composer compatibility (stable)` | Checkpoint records policy reason; no WebGPU attempt yet |
+| developer | `auto` | `canary` | WebGL | `renderer=auto retained webgl for composer compatibility (canary)` | Canary only signals intent; still WebGL until W1-c lands |
+| developer | `webgpu` | `stable` | WebGL | `renderer request=webgpu is not available in this build` | Honest fallback telemetry; no silent switch |
+| production-like | `auto` | `off` | WebGL | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)` | Conservative default is enforced |
+
+Collection rules:
+
+1. Run each row against the same world seed/session shape.
+2. Capture `rendererBackendPolicy` checkpoint and `renderer.metrics()` snapshot.
+3. Verify `rendererBackend`, `rendererRequestedBackend`, `rendererBackendFallback`,
+   and `rendererBackendReason` are all non-empty and consistent.
+4. Any silent fallback, missing checkpoint field, or mismatch between request and
+   reason is a failed row.
+
+This matrix can be collected **today** (WebGL-only) to prove the policy gate is
+observable; it should be re-collected after W1-c/d when a real WebGPU path
+exists.
+
+### C6 — Implications for ADR-0028 status
+
+ADR-0028 remains **Proposed** at the policy level, because its acceptance
+criteria require a representative matrix pass that includes a working WebGPU
+path. The runtime plumbing for the decision is implemented; the decision itself
+cannot be signed off until W1-c/d/e are complete.

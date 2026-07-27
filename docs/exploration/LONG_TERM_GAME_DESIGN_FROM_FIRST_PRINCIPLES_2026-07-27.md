@@ -4,6 +4,8 @@ Date: 2026-07-27
 Status: **whole-game exploration; recommendation, not an accepted ADR**  
 Evidence: Tier 1 synthesis of current project direction, design documents, reference research, accepted decisions, and four independent game-design critiques; no external-player validation yet
 
+Related: [ADR-0002](../decisions/ADR-0002-first-playable-farmfall-ecology.md) (first-playable day/night loop), [ADR-0018](../decisions/ADR-0018-progression-model-journey-verb-mastery-insight.md) (progression model), [RU-0204](../plans/MASTER_EXECUTION_TRACKER.md) (night threats and dawn consequence).
+
 ## Executive thesis
 
 Rigs Unbound should grow toward a **machine-keeper odyssey through a living,
@@ -80,7 +82,7 @@ undifferentiated audience could reject a distinctive game for not being generic.
 
 ### Who is the player?
 
-The provisional invariant is **direct machine embodiment**. During operation,
+The provisional hypothesis is **direct machine embodiment**. During operation,
 the player is one active rig; there is no default humanoid operator separating
 player from machine. Other fleet members retain character and agency rather
 than becoming equipment slots. Tactical coordination may later supplement, but
