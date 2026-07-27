@@ -1828,9 +1828,11 @@ function boot(): void {
     const saved = result.error === undefined;
     statusMessage = saved
       ? "Saved locally just now"
-      : "Save failed · prior local save kept";
+      : `Save failed · ${result.error ?? "storage unavailable"}`;
+    saveStatus.textContent = statusMessage;
     if (!saved) {
       state.lastDiagnostic = statusMessage;
+      showToast(statusMessage);
     }
     appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {
       bytes: result.bytes,

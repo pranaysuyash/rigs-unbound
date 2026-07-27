@@ -80,6 +80,10 @@ function resolvePreBladeJourney(
   const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(state.activeRigId);
   if (!compatible) return null;
 
+  // Don't interrupt the workshop flow — if the player is at Home, let the
+  // existing choose-part logic guide them to fit the module first.
+  if (atHomeWorkshop(state)) return null;
+
   const rig = state.rigs[state.activeRigId];
   const longFurrow = findSite("long-furrow");
   if (!longFurrow) return null;
@@ -90,9 +94,9 @@ function resolvePreBladeJourney(
   );
   const sightRadius = longFurrow.discoverRadius * SIGHT_RADIUS_MULTIPLIER;
 
-  // If the player is on the graded route corridor, they can reach Long Furrow
-  // via the guaranteed drivable path. Only guide the scouting journey when the
-  // player is off-corridor — that is when the terrain face is a real obstacle.
+  // Within attempt radius — the terrain face blocks the direct overland path.
+  // The graded route corridor is guaranteed drivable, but the player must
+  // discover this by hitting the blockage first.
   if (distanceToFurrow <= ATTEMPT_ROUTE_RADIUS) {
     return {
       stage: "attempt-route",

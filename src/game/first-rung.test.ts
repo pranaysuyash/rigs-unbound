@@ -68,8 +68,10 @@ describe("first progression rung", () => {
     const state = createInitialState();
     state.salvage = 5;
     const rig = state.rigs[state.activeRigId];
-    rig.x = 70;
-    rig.z = -45;
+    // Place far from Long Furrow (> sight radius of 66 m) so the pre-blade
+    // scout does not intercept the return-home flow.
+    rig.x = 130;
+    rig.z = 120;
 
     const result = resolveFirstRung(state, new Set());
 
@@ -285,6 +287,61 @@ describe("first progression rung", () => {
     // first-cut with switch-rig guidance. This is the correct behavior.
     expect(resolution.stage).toBe("first-cut");
     expect(resolution.objective).toMatch(/Switch|Reach/);
+  });
+
+  it("shows sight-destination when affordable rig is within sight radius of Long Furrow", () => {
+    const state = createInitialState();
+    state.salvage = 5;
+    const rig = state.rigs[state.activeRigId];
+    // Long Furrow is at (18, -46). Place rig ~55 m away — within sight radius
+    // (66 m = discoverRadius 22 * 3) but outside attempt radius (36 m).
+    rig.x = 50;
+    rig.z = -20;
+
+    const result = resolveFirstRung(state, new Set());
+
+    expect(result).toMatchObject({
+      stage: "sight-destination",
+      target: { x: 18, z: -46 },
+      recommendedModuleId: "lug-tires",
+      affordable: true,
+    });
+    expect(result.ariaLabel).toContain("scout");
+  });
+
+  it("shows attempt-route when affordable rig is within attempt radius of Long Furrow", () => {
+    const state = createInitialState();
+    state.salvage = 5;
+    const rig = state.rigs[state.activeRigId];
+    // Place within 36 m of Long Furrow (18, -46).
+    rig.x = 25;
+    rig.z = -30;
+
+    const result = resolveFirstRung(state, new Set());
+
+    expect(result).toMatchObject({
+      stage: "attempt-route",
+      target: { x: 0, z: 12 },
+      recommendedModuleId: "lug-tires",
+      affordable: true,
+    });
+    expect(result.ariaLabel).toContain("terrain face");
+  });
+
+  it("skips pre-blade journey when rig is incompatible with recommended module", () => {
+    const state = createInitialState();
+    state.salvage = 5;
+    state.activeRigId = "marsh-skimmer";
+    const rig = state.rigs[state.activeRigId];
+    // Place near Long Furrow — pre-blade journey should NOT fire.
+    rig.x = 25;
+    rig.z = -30;
+
+    const result = resolveFirstRung(state, new Set());
+
+    // Should NOT be sight-destination or attempt-route.
+    expect(result.stage).not.toBe("sight-destination");
+    expect(result.stage).not.toBe("attempt-route");
   });
 
   it("is deterministic and does not mutate restored state or world memory", () => {

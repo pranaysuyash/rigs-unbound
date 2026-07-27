@@ -1,3 +1,18 @@
+## 2026-07-27 — first-rung gating now preserves the workshop flow
+
+- Narrowed the pre-blade scouting branch so it no longer hijacks the workshop
+  return-home / fit flow when Torque is already at Home Silo.
+- Improved the save failure surface so the live status and toast now show the
+  actual storage error instead of a generic fallback message.
+- Kept the gully warning in `GameWorld` so the direct-route blockage remains
+  visible in logs if the authored deform ever fails on a seed.
+- Added regression coverage for the new sight-destination / attempt-route
+  thresholds and the "stay home first" branch.
+- Validation on the live tree: `npm run typecheck` passed, and targeted
+  `first-rung` / `world-memory` Vitest files passed.
+- Unbound Passage remains sequenced behind the recorded arbitration gate and
+  operator sign-off; no runtime integration started in this tranche.
+
 ## 2026-07-27 — Master Vehicle Catalog & Visual Asset Pipeline
 
 - Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (`v1` Found, `v2` Restored, `v3` Overcharged).
