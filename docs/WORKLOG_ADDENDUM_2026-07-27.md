@@ -1,3 +1,23 @@
+## 2026-07-27 — SIM2 achiever playtest completed; synthesis updated
+
+- Achiever persona completed. Report at
+  `docs/reviews/PLAYTEST_SIM2_ACHIEVER_2026-07-27.md`.
+- Key findings: strong earn→spend→unlock loop; Lug tyres persist across reloads;
+  211 furrows persist on field map; session ruined by field map auto-open loop;
+  "Lower the blade" rung never completes; workshop buy is blind; cargo hook-up
+  undiscoverable.
+- Updated `docs/reviews/PLAYTEST_SIM2_SYNTHESIS_2026-07-27.md` with combined
+  findings, the three-port problem (explorer: 4180, achiever: 4173, dev server:
+  4174), and contradictions that need a single-port rerun to resolve.
+
+## 2026-07-27 — AGENTS.md created for future agent guidance
+
+- Added `AGENTS.md` at project root with worklog addendum discipline, decision
+  register/tracker update rules, parallel runtime ownership boundary, and
+  verification-before-completion rules.
+- This is the mechanism that lets future agents keep using dated addendums
+  instead of inflating `docs/WORKLOG.md`.
+
 ## 2026-07-27 — SIM2 synthesis draft started
 
 - Created `docs/reviews/PLAYTEST_SIM2_SYNTHESIS_2026-07-27.md` with the explorer
