@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-26  
 **Scope:** Review of the current trailer recordings and the Claude-prepared public announcement copy.  
-**Decision:** Copy can be posted after the owner chooses the media treatment; the current trailer is usable as a silent visual teaser but is not yet the strongest evidence for the buggy comparison or persistent furrow claim.
+**Decision:** Copy can be posted after the owner chooses the media treatment; the current best default candidate is `trailer-final.mp4` with sound, while the silent `trailer.mp4` remains the fallback if a no-audio post is preferred.
 
 ## Evidence inspected
 
@@ -50,11 +50,12 @@ The main limitations are equally clear:
 
 ### Best current option
 
-Post the main `trailer.mp4` as a silent field-test teaser with the short X post below. Add a music bed only if it can be done without delaying the announcement or falsely implying authored sound design that is not in the attached clip.
+Post the main `trailer-final.mp4` as the field-test teaser with the short X post below. The full export preserves the strongest runtime rhythm and already includes the locally generated music bed. Keep `trailer.mp4` as the silent fallback and use the shorter ACE-Step cuts only if a platform constraint or post-length decision needs them.
 
 ### Do not use as the primary asset
 
 Do not use `trailer-cut1-noplough.mp4` as the main announcement attachment. It removes one of the clearest differentiators, the machine changing the ground, while retaining the same tractor-only story.
+Do not silently fall back to `trailer.mp4` as the default attachment unless the owner explicitly wants the no-audio variant.
 
 ### Hold for a second media pass
 
@@ -91,7 +92,7 @@ Do not use the last reply with the current trailer as if the video visibly prove
 ## Pre-flight checklist
 
 - [ ] Decide whether the current silent cut is intentional or add a music bed.
-- [ ] Attach the main `trailer.mp4`, not the no-plough cut.
+- [ ] Attach the main `trailer-final.mp4`, not the no-plough cut.
 - [ ] Open the live URL in the posting browser and confirm the intended entry screen.
 - [ ] If retaining “phone or laptop,” use the existing responsive acceptance evidence and do not imply universal device support.
 - [ ] Confirm the post still says there is no goal and that fun is unproven.
@@ -112,3 +113,9 @@ Do not use the last reply with the current trailer as if the video visibly prove
 The `3d-web-experience` skill was used for the browser-delivery claim review. It reinforced three boundaries: do not overclaim desktop/mobile support without device evidence, retain truthful loading/fallback expectations, and treat the trailer as a visual introduction rather than proof of the entire interactive experience.
 
 No external post was sent. This artifact is the approval surface before posting.
+
+## Addendum (2026-07-27): media choice tightened to the audio-enhanced cut
+
+After reviewing the current poster and contact sheets against the encoded candidates, the primary announcement asset is now `trailer-final.mp4`. That export is the honest long-form teaser because it preserves the full 37.4-second field-test rhythm and includes the locally generated music bed already described in the production log.
+
+The silent `trailer.mp4` is still preserved as a fallback. The tighter ACE-Step alternates remain valid if a shorter social cut is later preferred, but they are no longer the default recommendation for this post package.

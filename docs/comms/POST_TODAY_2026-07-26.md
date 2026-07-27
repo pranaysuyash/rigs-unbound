@@ -45,6 +45,8 @@ A terrain demo becomes a terrain-demo guy. This project is not a terrain demo.
       claim below is measurement. I cannot hear it.
 - [ ] Re-render the trailer if the ploughing beat still shows only a couple of
       furrows (see *Trailer state*).
+- [ ] Use `docs/comms/assets/trailer-final.mp4` as the default attachment; keep
+      `trailer.mp4` only as the silent fallback.
 
 ---
 

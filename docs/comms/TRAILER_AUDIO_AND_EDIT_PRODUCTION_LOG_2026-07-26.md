@@ -181,4 +181,8 @@ What is not established yet:
 
 Recommended listening order: take 2 first because its spectral energy leaves more space before a stronger closing rise; take 1 is the denser alternate. This is a recommendation, not a final artistic approval.
 
-Before posting, listen to both exports on the intended headphones/speakers, check the first title card and final button with the music, then choose one of the two candidates or retain `trailer-tight-cut.mp4` as the silent fallback. No external post has been made by this work.
+Before posting, listen to `trailer-final.mp4` on the intended headphones/speakers and check the first title card and final button with the music. Compare the tighter ACE-Step exports only if a shorter social cut or different balance is needed; the default announcement asset is `docs/comms/assets/trailer-final.mp4`, with `trailer-tight-cut.mp4` and `trailer.mp4` preserved as alternates and silent fallback. No external post has been made by this work.
+
+## Addendum (2026-07-27): default media choice now points at the audio-enhanced export
+
+After the current visual review, the repo's default announcement media is `docs/comms/assets/trailer-final.mp4`. The silent `docs/comms/assets/trailer.mp4` remains preserved as a fallback only, and the ACE-Step tight cuts stay alternates if a later social-length choice needs them.
