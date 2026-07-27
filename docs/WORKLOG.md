@@ -1,3 +1,13 @@
+## 2026-07-27 — water shader compile warning removed
+
+- Removed the duplicate `cameraPosition` declaration from the water fragment
+  shader and collapsed the duplicated Blinn-Phong variables into a single
+  specular path.
+- Switched the water specular highlight to the existing `specularPower` and
+  `specularIntensity` uniforms instead of hardcoded literals.
+- Re-ran the live acceptance proof: the first-cut flow still passes and the
+  browser console now reports zero shader errors.
+
 ## 2026-07-27 — first-cut evidence now follows the runtime contract
 
 - Removed the experimental pre-blade scouting branch that was hijacking the

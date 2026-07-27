@@ -728,7 +728,6 @@ export class GameRenderer {
         uniform vec3 foamColor;
         uniform vec3 deepColor;
         uniform vec3 shallowColor;
-        uniform vec3 cameraPosition;
         uniform float foamThreshold;
         uniform float foamStrength;
         uniform float specularPower;
@@ -782,11 +781,6 @@ export class GameRenderer {
           float cosTheta = dot(vNormal, viewDir);
           float fresnel = pow(1.0 - max(0.0, cosTheta), 4.0);
 
-          // Sun specular (Blinn-Phong)
-          vec3 halfVector = normalize(sunDirection + viewDir);
-          float spec = max(0.0, dot(vNormal, halfVector));
-          float specular = pow(max(spec, 0.0), 40.0) * 0.6;
-
           // Foam generation using noise
           float foamNoise = fbm(vUv * 20.0 + vec2(time * 0.1, time * 0.05), time);
           float foamEdge = smoothstep(0.6, 0.8, foamNoise);
@@ -800,8 +794,8 @@ export class GameRenderer {
 
           // Specular highlight from sun
           vec3 halfVector = normalize(sunDirection + viewDir);
-          float spec = max(0.0, dot(vNormal, normalize(sunDirection + viewDir)));
-          float sunSpec = pow(max(spec, 0.0), 40.0) * 0.6;
+          float spec = max(0.0, dot(vNormal, halfVector));
+          float sunSpec = pow(spec, specularPower) * specularIntensity;
 
           // Final color composition
           vec3 color = baseColor;
