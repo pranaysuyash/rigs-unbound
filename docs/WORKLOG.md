@@ -1,3 +1,15 @@
+## 2026-07-27 — parallel first-rung and gully edits parked untouched
+
+- The live tree currently contains uncommitted edits in `src/game/first-rung.ts`
+  and `src/game/gameworld.ts` that reintroduce the pre-blade scouting branch and
+  shift the authored gully placement.
+- Those edits are preserved as parallel work and were intentionally not folded
+  into the validated terrain / renderer checkpoints because the earlier browser
+  acceptance run showed the pre-blade branch breaks the canonical first-rung
+  flow after salvage collection.
+- This note records the separation so the next pass can either validate that
+  tranche on its own or keep it parked without rediscovering the same conflict.
+
 ## 2026-07-27 — terrain deformation now reclassifies soil on the live field
 
 - Implemented deformation-aware surface classification in `src/game/terrain.ts`
