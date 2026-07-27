@@ -139,10 +139,14 @@ The live tree now exposes a new untracked implementation-flow artifact at
 than a present `src/game/interaction.ts` source file. It is still runtime-owned
 renderer/interaction evidence, not part of the passage/state tranche.
 
-The current renderer already references the animation system and initializes an
-interaction system, so the runtime additions should be treated as a coherent
-presentation/interaction lane even while the passage/state tranche remains the
-canonical simulation/persistence lane.
+The current renderer no longer imports or calls `vehicleAnimationSystem`; it
+owns the live per-frame rig presentation updates directly. That means
+`src/game/animation.ts` is currently a parallel runtime artifact, not a
+canonical runtime dependency, until a deliberate migration or retirement plan
+is recorded. The runtime additions should therefore be treated as a coherent
+presentation/interaction lane only if and when they are actually wired into the
+renderer boundary, even while the passage/state tranche remains the canonical
+simulation/persistence lane.
 
 ## Addendum (2026-07-27) — same-vehicle comparison boards are separate exploration work
 

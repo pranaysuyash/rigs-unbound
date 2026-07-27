@@ -83,6 +83,7 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0027 | Proposed — operator sign-off required                        | Terrain transformation grammar (clear, grade, fill) supersedes ad-hoc cut/fill plough modes.                                                            |
 | ADR-0028 | Proposed — operator sign-off required                        | Auto/explicit renderer backend selection is policy-gated and checkpointed at startup and recovery.                                                      |
 | ADR-0029 | Proposed — operator sign-off required                        | Machine-keeper odyssey product vision; downstream slice evaluation filter.                                                                              |
+| ADR-0030 | Implemented and verified for the current runtime             | Renderer owns live per-frame rig presentation; standalone animation module stays deferred until a deliberate migration or retirement plan is recorded. |
 
 ## Recommendation labels outside ADRs
 

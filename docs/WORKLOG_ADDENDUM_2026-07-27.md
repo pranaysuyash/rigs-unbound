@@ -61,6 +61,18 @@
 - `publicState(state, world)` now also exposes `progression.workshopActionable`,
   derived from the same first-rung and workshop reach facts that drive the HUD.
 
+## 2026-07-27 — animation ownership clarified against the live renderer
+
+- `src/game/renderer.ts` owns the live per-frame rig presentation updates
+  directly; the renderer no longer imports or calls `vehicleAnimationSystem`.
+- `src/game/animation.ts` therefore remains a parallel runtime artifact until a
+  deliberate migration or retirement plan is recorded.
+- The dead import removal in `src/game/renderer.ts` was a correct cleanup of an
+  unused dependency, but the broader ownership question still needed this repo
+  note so the long-term boundary stays explicit.
+- The boundary is now also recorded as [ADR-0030](docs/decisions/ADR-0030-renderer-owned-live-rig-presentation-and-deferred-animation-module.md)
+  and mirrored in the decision register.
+
 ## 2026-07-27 — integration-first analysis and unification roadmap
 
 - Operator asked: the game should not feel like a new game per level/mode; it

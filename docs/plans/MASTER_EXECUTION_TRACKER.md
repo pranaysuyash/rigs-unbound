@@ -337,6 +337,9 @@ with permanent instructions.
     `workshopLessonRelevant` explicitly in `src/game/control-guidance.ts`.
   - The naming cleanup landed on `main` as commit `8de9a5e`; public Sites
     release and external-player comprehension remain the open gates.
+  - ADR-0030 now records the renderer-owned live rig presentation boundary;
+    `src/game/animation.ts` remains a deferred parallel runtime artifact until a
+    deliberate migration or retirement plan is recorded.
 - [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
