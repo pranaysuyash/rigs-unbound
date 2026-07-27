@@ -11,16 +11,10 @@
  */
 const path = require("path");
 
-const playwrightModule = process.env.RIGS_PLAYWRIGHT_MODULE
-  ? require(process.env.RIGS_PLAYWRIGHT_MODULE)
-  : (() => {
-      try {
-        return require("playwright");
-      } catch {
-        return require(path.resolve(__dirname, "../node_modules/playwright"));
-      }
-    })();
-const { chromium } = playwrightModule;
+const playwrightPath =
+  process.env.RIGS_PLAYWRIGHT_MODULE ||
+  "/Users/pranay/Projects/skills/testing/playwright-skill/node_modules/playwright";
+const { chromium } = require(playwrightPath);
 
 const {
   TARGET_URL,
@@ -63,42 +57,41 @@ async function main() {
 
     // ── 1. Verify gully deformation exists in terrain ──
     console.log("Step 1: Verify gully deformation in terrain...");
-    const terrainData = await page.evaluate(() => {
-      const s = JSON.parse(window.render_game_to_text());
-      // Sample terrain heights at gully center and nearby reference points
-      const samples = [];
-      const offsets = [
-        { label: "gully-center", dx: 0, dz: 0 },
-        { label: "gully-north", dx: 0, dz: -6 },
-        { label: "gully-south", dx: 0, dz: 6 },
-        { label: "gully-east", dx: 6, dz: 0 },
-        { label: "gully-west", dx: -6, dz: 0 },
-        { label: "home-reference", dx: 0 - GULLY_X, dz: 12 - GULLY_Z },
-        { label: "lf-reference", dx: 18 - GULLY_X, dz: -46 - GULLY_Z },
+    const terrainHeights = await page.evaluate(({ gx, gz }) => {
+      // Sample the terrain height grid around the gully via the public API.
+      // render_game_to_text doesn't expose raw heights, but we can sample
+      // by placing the rig at known coordinates and reading the y position.
+      const points = [
+        { label: "gully-center", x: gx, z: gz },
+        { label: "gully-north", x: gx, z: gz - 6 },
+        { label: "gully-south", x: gx, z: gz + 6 },
+        { label: "gully-east", x: gx + 6, z: gz },
+        { label: "gully-west", x: gx - 6, z: gz },
       ];
-      for (const o of offsets) {
-        samples.push({
-          label: o.label,
-          x: GULLY_X + o.dx,
-          z: GULLY_Z + o.dz,
-        });
-      }
-      return { samples, activeRig: s.activeRig, rigId: s.rigId };
-    });
-
-    // Get actual heights via terrain sampling
-    const heights = await page.evaluate((samples) => {
-      // Use render_game_to_text to get terrain info, or sample directly
       const results = [];
-      for (const s of samples) {
-        // Access terrain height through the game's public state
-        const snapshot = JSON.parse(window.render_game_to_text());
-        results.push({ label: s.label, x: s.x, z: s.z });
+      for (const p of points) {
+        window.placeRig(p.x, p.z);
+        const s = JSON.parse(window.render_game_to_text());
+        results.push({ label: p.label, x: p.x, z: p.z, y: s.y });
       }
       return results;
-    }, terrainData.samples);
+    }, { gx: GULLY_X, gz: GULLY_Z });
 
-    console.log("  Terrain sample points:", heights.map((h) => `${h.label}(${h.x},${h.z})`).join(", "));
+    console.log("  Terrain heights around gully:");
+    for (const h of terrainHeights) {
+      console.log(`    ${h.label} (${h.x},${h.z}): y=${h.y.toFixed(3)}`);
+    }
+    const gullyHeight = terrainHeights.find((h) => h.label === "gully-center").y;
+    const avgSurrounding = terrainHeights
+      .filter((h) => h.label !== "gully-center")
+      .reduce((sum, h) => sum + h.y, 0) / 4;
+    const deformDepth = avgSurrounding - gullyHeight;
+    console.log(`  Gully depth vs surrounding: ${deformDepth.toFixed(3)}m`);
+    assert(
+      deformDepth > 0.05,
+      `Gully at (${GULLY_X},${GULLY_Z}) should be deeper than surrounding terrain (depth=${deformDepth.toFixed(3)})`,
+    );
+    console.log("  ✓ Gully deformation confirmed — terrain is lower at gully center");
 
     // ── 2. Verify the gully deforms terrain by driving toward it ──
     console.log("\nStep 2: Place rig before gully and attempt to drive toward Long Furrow...");
@@ -169,15 +162,25 @@ async function main() {
     console.log(`  First-rung stage: ${attemptState.firstRung?.stage}`);
     console.log(`  First-rung objective: ${attemptState.firstRung?.objective}`);
 
-    if (attemptState.firstRung?.stage === "attempt-route") {
-      console.log("  ✓ attempt-route stage fires at ~42m from Long Furrow (before gully at ~38.6m)");
+    // Read the first-rung objective from the DOM since firstRung is not
+    // exposed on window — it's a local variable in the render loop.
+    const objectiveText = await page.evaluate(() => {
+      const el = document.querySelector("#first-rung-objective");
+      return el ? el.textContent.trim() : null;
+    });
+    console.log(`  First-rung objective text: "${objectiveText}"`);
+
+    const isAttemptRoute =
+      objectiveText && objectiveText.toLowerCase().includes("terrain");
+    if (isAttemptRoute) {
+      console.log("  ✓ attempt-route guidance fires at ~42m from Long Furrow (before gully at ~38.6m)");
     } else {
-      console.log(`  ✗ Expected attempt-route, got ${attemptState.firstRung?.stage}`);
+      console.log(`  ✗ Expected terrain blockage text, got: "${objectiveText}"`);
     }
 
     assert(
-      attemptState.firstRung?.stage === "attempt-route",
-      `Expected attempt-route stage at 42m from LF, got: ${attemptState.firstRung?.stage}`,
+      isAttemptRoute,
+      `Expected attempt-route objective mentioning terrain at 42m from LF, got: "${objectiveText}"`,
     );
 
     // ── 5. Verify rig CANNOT drive through gully to Long Furrow ──
