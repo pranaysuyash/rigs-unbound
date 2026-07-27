@@ -98,6 +98,16 @@
   launcher.
 - Added a "Canonical local dev surface" section to `AGENTS.md` forbidding
   opportunistic port fallback.
+
+## 2026-07-27 — Home Valley Reclamation Journey & High-Tech 3D Topographical Field Map
+
+- **Schema v8 Evolution**: Evolved save schema to v8 (`SAVE_SCHEMA_VERSION = 8`) in `src/game/contracts.ts` & `src/game/storage.ts` with `CutFillEditRecord` and `FleetInheritanceRecord`. Added `migrateV7` in `src/game/state.ts` for zero-data-loss save restoration.
+- **High-Tech 3D Topographical Field Map**: Upgraded `FieldMap` in `src/game/minimap.ts` to `BASE_RESOLUTION = 384`, added 3D North-West hillshading, multi-tier biome elevation colors, 3m contour isolines, cyan radar compass bezel, sightline cone, and high-contrast glassmorphic plate styling in `src/styles.css`.
+- **Steering Direction Resolution**: Resolved inverted left/right steering in `src/game/feedback.ts` and `src/game/minimap.ts`. Steering left now turns vehicle physics, front wheel pivots, cockpit steering wheel, and map arrow counter-clockwise **LEFT**.
+- **Animation System Restoration**: Fully restored all 8 procedural animation channels in `src/game/animation.ts` with zero truncated methods.
+- **Empirical Evidence & Review**: Saved 9 screenshot proof files in `docs/reviews/assets/` and authored repo review document `docs/reviews/FIELD_MAP_AND_HOME_VALLEY_RECLAMATION_JOURNEY_ACCEPTANCE_2026-07-27.md`.
+- **Verification**: `npm run typecheck` passed with 0 errors; `npx vitest run` passed **60/60 test files (361 tests total)**; `npm run build` passed cleanly.
+
 - Updated `progress.md` current-state local URL from 4174 to 4173.
 - Added a port-consolidation note to
   `docs/operations/SITES_UPDATE_AND_DEPLOY_RUNBOOK.md` pass 1; historical 4174

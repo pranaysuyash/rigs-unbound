@@ -335,6 +335,8 @@ with permanent instructions.
     the same derived spend-ready flag shared by `src/game/first-rung.ts`,
     the HUD, and the workshop panel; the lesson cue boundary now names
     `workshopLessonRelevant` explicitly in `src/game/control-guidance.ts`.
+  - The naming cleanup landed on `main` as commit `8de9a5e`; public Sites
+    release and external-player comprehension remain the open gates.
 - [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.

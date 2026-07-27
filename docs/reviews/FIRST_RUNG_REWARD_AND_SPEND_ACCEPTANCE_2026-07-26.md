@@ -278,6 +278,15 @@ three terrain-face refusals, ramp and deep-water hover, reduced motion,
 desktop and `390×844` layouts, touch emergency recovery, private bridge
 absence, and performance instrumentation.
 
+## Addendum (2026-07-27) — canonical naming cleanup committed on main
+
+The checkpointed first-rung package is now committed and pushed on `main` as
+`8de9a5e`. The runtime boundary now names the workshop lesson cue explicitly as
+`workshopLessonRelevant`, which keeps the lesson label aligned with the
+canonical spend-ready first-rung state instead of generic workshop availability.
+This addendum updates the historical checkpoint only; public deployment and
+external-player comprehension remain separate open gates.
+
 This adds Tier 3 production-like local integration evidence. The build still
 reports the tracked Three.js chunk advisory.
 

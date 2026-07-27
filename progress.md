@@ -28,8 +28,10 @@ Original prompt: Explore and document a public browser-based open-world game in 
   [Master Execution Tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 - Released baseline: schema v6 / RU-0110 production acceptance passed on
   `4173`, rebuilt production preview `4174`, and the public Sites URL.
-- Current local candidate: the first understandable reward-and-spend package is
-  implemented but remains uncommitted and undeployed pending its declared gates.
+- Current local candidate: the first understandable reward-and-spend package
+  is now committed on `main` as `8de9a5e` with the canonical
+  `workshopLessonRelevant` naming cleanup, but it remains undeployed pending
+  the next Sites release and the remaining comprehension gate.
 
 ## Blade fill, rig proximity, and a 63x step-time fix — 2026-07-26
 
