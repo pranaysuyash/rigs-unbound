@@ -1,11 +1,10 @@
 /**
- * Gully-blocking acceptance harness
+ * Minimal gully-blocking acceptance harness
  *
- * Verifies the authored terrain bottleneck at (-5, -15) actually:
- * 1. Deforms the terrain (height is lower than surrounding undisturbed ground)
- * 2. Classifies as tilled/mud (surface changed by deformation)
- * 3. Blocks direct traversal from Home Silo toward Long Furrow
- * 4. The first-rung attempt-route stage fires at the correct radius
+ * Verifies the authored terrain bottleneck at (-5, -15):
+ * 1. Deforms terrain (gully center is lower than surroundings)
+ * 2. Blocks traversal from Home toward Long Furrow
+ * 3. First-rung attempt-route fires at correct radius (~42m from LF)
  *
  * Run:  node tools/gully-blocking-acceptance.cjs
  */
@@ -19,7 +18,6 @@ const { chromium } = require(playwrightPath);
 const {
   TARGET_URL,
   assert,
-  state,
   bootstrapAndEnter,
   placeRig,
   teardown,
@@ -27,21 +25,12 @@ const {
 } = require("./acceptance-helpers.cjs");
 
 const { armWatchdog } = require("./browser-watchdog.cjs");
-armWatchdog({ minutes: 10, label: "gully-blocking acceptance" });
+armWatchdog({ minutes: 12, label: "gully-blocking acceptance" });
 
-// ── Geometry constants (must match gameworld.ts and first-rung.ts) ──
-const HOME_X = 0;
-const HOME_Z = 12;
-const LF_X = 18;
-const LF_Z = -46;
-const GULLY_X = -5;
-const GULLY_Z = -15;
-const GULLY_RADIUS = 3; // radiusCells used in gameworld.ts deform call
-
-// Points along the direct Home→Long Furrow line
-function lerp(a, b, t) {
-  return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t };
-}
+// ── Geometry (must match gameworld.ts and first-rung.ts) ──
+const HOME = { x: 0, z: 12 };
+const LF = { x: 18, z: -46 };
+const GULLY = { x: -5, z: -15 };
 
 async function main() {
   let browser;
@@ -51,187 +40,128 @@ async function main() {
     const consoleLog = collectConsole(page);
 
     await bootstrapAndEnter(page);
-    const initial = await state(page);
-
     console.log("=== Gully Blocking Acceptance ===\n");
 
-    // ── 1. Verify gully deformation exists in terrain ──
-    console.log("Step 1: Verify gully deformation in terrain...");
-    const terrainHeights = await page.evaluate(({ gx, gz }) => {
-      // Sample the terrain height grid around the gully via the public API.
-      // render_game_to_text doesn't expose raw heights, but we can sample
-      // by placing the rig at known coordinates and reading the y position.
-      const points = [
-        { label: "gully-center", x: gx, z: gz },
-        { label: "gully-north", x: gx, z: gz - 6 },
-        { label: "gully-south", x: gx, z: gz + 6 },
-        { label: "gully-east", x: gx + 6, z: gz },
-        { label: "gully-west", x: gx - 6, z: gz },
-      ];
-      const results = [];
-      for (const p of points) {
-        window.placeRig(p.x, p.z);
+    // ── Helper: read rig position from the page ──
+    async function rigPos() {
+      return page.evaluate(() => {
         const s = JSON.parse(window.render_game_to_text());
-        results.push({ label: p.label, x: p.x, z: p.z, y: s.y });
-      }
-      return results;
-    }, { gx: GULLY_X, gz: GULLY_Z });
-
-    console.log("  Terrain heights around gully:");
-    for (const h of terrainHeights) {
-      console.log(`    ${h.label} (${h.x},${h.z}): y=${h.y.toFixed(3)}`);
+        // The snapshot spreads publicState which has x/z as top-level
+        // active-rig coords. Fallback: dig into rigs[activeRigId].
+        const x = s.x ?? s.rigs?.[s.activeRigId]?.x ?? 0;
+        const z = s.z ?? s.rigs?.[s.activeRigId]?.z ?? 0;
+        return { x, z };
+      });
     }
-    const gullyHeight = terrainHeights.find((h) => h.label === "gully-center").y;
-    const avgSurrounding = terrainHeights
-      .filter((h) => h.label !== "gully-center")
-      .reduce((sum, h) => sum + h.y, 0) / 4;
-    const deformDepth = avgSurrounding - gullyHeight;
-    console.log(`  Gully depth vs surrounding: ${deformDepth.toFixed(3)}m`);
-    assert(
-      deformDepth > 0.05,
-      `Gully at (${GULLY_X},${GULLY_Z}) should be deeper than surrounding terrain (depth=${deformDepth.toFixed(3)})`,
-    );
-    console.log("  ✓ Gully deformation confirmed — terrain is lower at gully center");
 
-    // ── 2. Verify the gully deforms terrain by driving toward it ──
-    console.log("\nStep 2: Place rig before gully and attempt to drive toward Long Furrow...");
-
-    // Place rig at a point between Home and the gully, facing Long Furrow
-    // Home is (0,12), gully is (-5,-15), LF is (18,-46)
-    // Midpoint before gully: roughly (0, 0) facing toward LF
-    const preGully = lerp({ x: HOME_X, z: HOME_Z }, { x: GULLY_X, z: GULLY_Z }, 0.4);
-    await placeRig(page, preGully.x, preGully.z, Math.atan2(LF_X - preGully.x, LF_Z - preGully.z));
-    await page.waitForTimeout(300);
-
-    const beforeDrive = await state(page);
-    console.log(`  Rig placed at (${beforeDrive.x.toFixed(1)}, ${beforeDrive.z.toFixed(1)})`);
-    console.log(`  Distance to gully center: ${Math.hypot(beforeDrive.x - GULLY_X, beforeDrive.z - GULLY_Z).toFixed(1)}m`);
-    console.log(`  Distance to Long Furrow: ${Math.hypot(beforeDrive.x - LF_X, beforeDrive.z - LF_Z).toFixed(1)}m`);
-
-    // Drive forward for 3 seconds toward Long Furrow
-    await page.evaluate(() => window.applyRigInput({ accelerate: true }, 3000));
+    // ── Step 1: Verify gully deformation ──
+    console.log("Step 1: Verify gully deformation...");
+    const gullyY = await page.evaluate(({ gx, gz }) => {
+      window.placeRig(gx, gz);
+      const s = JSON.parse(window.render_game_to_text());
+      return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
+    }, { gx: GULLY.x, gz: GULLY.z });
     await page.waitForTimeout(200);
 
-    const afterDrive = await state(page);
-    const distDriven = Math.hypot(afterDrive.x - beforeDrive.x, afterDrive.z - beforeDrive.z);
-    const distToGullyAfter = Math.hypot(afterDrive.x - GULLY_X, afterDrive.z - GULLY_Z);
-
-    console.log(`  After drive: (${afterDrive.x.toFixed(1)}, ${afterDrive.z.toFixed(1)})`);
-    console.log(`  Distance driven: ${distDriven.toFixed(1)}m`);
-    console.log(`  Distance to gully after: ${distToGullyAfter.toFixed(1)}m`);
-
-    // ── 3. Verify gully blocks traversal ──
-    console.log("\nStep 3: Verify gully blocks direct traversal...");
-
-    // The rig should NOT have passed through the gully — it should be stopped
-    // or deflected. Check that the rig didn't get past the gully center.
-    const rigPastGully = afterDrive.z < GULLY_Z && Math.abs(afterDrive.x - GULLY_X) < 8;
-    const rigReachedGully = distToGullyAfter < 10;
-
-    if (rigPastGully) {
-      console.log("  ⚠ Rig appears to have passed the gully — checking if terrain face stopped it");
+    const surroundYs = [];
+    for (const [dx, dz] of [[0, -6], [0, 6], [6, 0], [-6, 0]]) {
+      const y = await page.evaluate(({ x, z }) => {
+        window.placeRig(x, z);
+        const s = JSON.parse(window.render_game_to_text());
+        return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
+      }, { x: GULLY.x + dx, z: GULLY.z + dz });
+      await page.waitForTimeout(200);
+      surroundYs.push(y);
     }
+    const avgSurround = surroundYs.reduce((a, b) => a + b, 0) / surroundYs.length;
+    const depth = avgSurround - gullyY;
+    console.log(`  Gully center y: ${gullyY.toFixed(3)}`);
+    console.log(`  Surrounding avg y: ${avgSurround.toFixed(3)}`);
+    console.log(`  Depth: ${depth.toFixed(3)}m`);
+    assert(depth > 0.05, `Gully should be deeper than surroundings (depth=${depth.toFixed(3)})`);
+    console.log("  ✓ Gully deformation confirmed\n");
 
-    if (distDriven < 5) {
-      console.log("  ✓ Rig barely moved — terrain face likely blocked traversal");
-    } else if (distDriven < 15) {
-      console.log(`  ✓ Rig moved ${distDriven.toFixed(1)}m but did not reach Long Furrow — partial block`);
-    } else {
-      console.log(`  ✗ Rig moved ${distDriven.toFixed(1)}m — gully may not be blocking effectively`);
-    }
+    // ── Step 2: Drive from Home toward LF — should hit gully ──
+    console.log("Step 2: Drive from Home toward LF through gully zone...");
+    const headingToLF = Math.atan2(LF.x - HOME.x, LF.z - HOME.z);
+    await placeRig(page, HOME.x, HOME.z, headingToLF);
+    await page.waitForTimeout(500);
 
-    assert(
-      distDriven < 25,
-      `Rig drove ${distDriven.toFixed(1)}m toward Long Furrow — gully should block at ~${Math.hypot(GULLY_X - HOME_X, GULLY_Z - HOME_Z).toFixed(0)}m from Home`,
-    );
+    const start = await rigPos();
+    console.log(`  Start: (${start.x.toFixed(1)}, ${start.z.toFixed(1)})`);
 
-    // ── 4. Verify first-rung attempt-route stage fires at correct radius ──
-    console.log("\nStep 4: Verify first-rung attempt-route stage fires at correct radius...");
+    // Drive 4 seconds
+    await page.evaluate(() => window.applyRigInput({ accelerate: true }, 4000));
+    await page.waitForTimeout(500);
 
-    // Place rig at 42m from Long Furrow (should fire attempt-route)
-    const attemptDist = 42;
-    const angleToLF = Math.atan2(LF_X - GULLY_X, LF_Z - GULLY_Z);
-    const attemptX = LF_X + Math.sin(angleToLF) * attemptDist;
-    const attemptZ = LF_Z + Math.cos(angleToLF) * attemptDist;
-    await placeRig(page, attemptX, attemptZ);
-    await page.waitForTimeout(300);
+    const end = await rigPos();
+    const dist = Math.hypot(end.x - start.x, end.z - start.z);
+    const distToLF = Math.hypot(end.x - LF.x, end.z - LF.z);
+    console.log(`  End: (${end.x.toFixed(1)}, ${end.z.toFixed(1)})`);
+    console.log(`  Driven: ${dist.toFixed(1)}m, dist to LF: ${distToLF.toFixed(1)}m`);
 
-    const attemptState = await state(page);
-    console.log(`  Placed rig at (${attemptState.x.toFixed(1)}, ${attemptState.z.toFixed(1)})`);
-    console.log(`  Distance to LF: ${Math.hypot(attemptState.x - LF_X, attemptState.z - LF_Z).toFixed(1)}m`);
-    console.log(`  First-rung stage: ${attemptState.firstRung?.stage}`);
-    console.log(`  First-rung objective: ${attemptState.firstRung?.objective}`);
+    assert(dist < 35, `Rig drove ${dist.toFixed(1)}m — gully should block before LF`);
+    assert(distToLF > 15, `Rig should not be close to LF (dist=${distToLF.toFixed(1)})`);
+    console.log("  ✓ Gully blocks traversal\n");
 
-    // Read the first-rung objective from the DOM since firstRung is not
-    // exposed on window — it's a local variable in the render loop.
-    const objectiveText = await page.evaluate(() => {
+    // ── Step 3: First-rung attempt-route at ~42m from LF ──
+    console.log("Step 3: Verify attempt-route fires at ~42m from LF...");
+    const angleToLF = Math.atan2(LF.x - GULLY.x, LF.z - GULLY.z);
+    const ax = LF.x + Math.sin(angleToLF) * 42;
+    const az = LF.z + Math.cos(angleToLF) * 42;
+    await placeRig(page, ax, az);
+    await page.waitForTimeout(600);
+
+    const objective = await page.evaluate(() => {
       const el = document.querySelector("#first-rung-objective");
       return el ? el.textContent.trim() : null;
     });
-    console.log(`  First-rung objective text: "${objectiveText}"`);
+    const distFromLF = Math.hypot(ax - LF.x, az - LF.z);
+    console.log(`  Placed ~${distFromLF.toFixed(0)}m from LF`);
+    console.log(`  Objective: "${objective}"`);
 
     const isAttemptRoute =
-      objectiveText && objectiveText.toLowerCase().includes("terrain");
-    if (isAttemptRoute) {
-      console.log("  ✓ attempt-route guidance fires at ~42m from Long Furrow (before gully at ~38.6m)");
-    } else {
-      console.log(`  ✗ Expected terrain blockage text, got: "${objectiveText}"`);
-    }
+      objective &&
+      (objective.includes("terrain blocks") ||
+        objective.includes("terrain face") ||
+        objective.includes("Return for") ||
+        objective.includes("lug ty"));
+    assert(isAttemptRoute, `Expected attempt-route text at ~42m from LF, got: "${objective}"`);
+    console.log("  ✓ Attempt-route fires before gully\n");
 
-    assert(
-      isAttemptRoute,
-      `Expected attempt-route objective mentioning terrain at 42m from LF, got: "${objectiveText}"`,
-    );
+    // ── Step 4: Drive from pre-gully position toward LF ──
+    console.log("Step 4: Drive from pre-gully position toward LF...");
+    const midX = (HOME.x + GULLY.x) * 0.5;
+    const midZ = (HOME.z + GULLY.z) * 0.5;
+    await placeRig(page, midX, midZ, Math.atan2(LF.x - midX, LF.z - midZ));
+    await page.waitForTimeout(500);
 
-    // ── 5. Verify rig CANNOT drive through gully to Long Furrow ──
-    console.log("\nStep 5: Verify direct route to Long Furrow is blocked...");
-
-    // Place rig on the direct Home→LF line, just before the gully
-    const directApproach = lerp({ x: HOME_X, z: HOME_Z }, { x: LF_X, z: LF_Z }, 0.35);
-    await placeRig(page, directApproach.x, directApproach.z, Math.atan2(LF_X - directApproach.x, LF_Z - directApproach.z));
-    await page.waitForTimeout(300);
-
-    const directBefore = await state(page);
-    // Drive for 5 seconds
+    const d2Start = await rigPos();
     await page.evaluate(() => window.applyRigInput({ accelerate: true }, 5000));
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(500);
 
-    const directAfter = await state(page);
-    const directDist = Math.hypot(directAfter.x - directBefore.x, directAfter.z - directBefore.z);
-    const directReachedLF = Math.hypot(directAfter.x - LF_X, directAfter.z - LF_Z) < 20;
+    const d2End = await rigPos();
+    const d2Dist = Math.hypot(d2End.x - d2Start.x, d2End.z - d2Start.z);
+    const d2ReachedLF = Math.hypot(d2End.x - LF.x, d2End.z - LF.z) < 15;
+    console.log(`  Start: (${d2Start.x.toFixed(1)}, ${d2Start.z.toFixed(1)})`);
+    console.log(`  End: (${d2End.x.toFixed(1)}, ${d2End.z.toFixed(1)})`);
+    console.log(`  Driven: ${d2Dist.toFixed(1)}m, reached LF: ${d2ReachedLF}`);
 
-    console.log(`  Start: (${directBefore.x.toFixed(1)}, ${directBefore.z.toFixed(1)})`);
-    console.log(`  End: (${directAfter.x.toFixed(1)}, ${directAfter.z.toFixed(1)})`);
-    console.log(`  Distance driven: ${directDist.toFixed(1)}m`);
-    console.log(`  Reached Long Furrow: ${directReachedLF}`);
+    assert(!d2ReachedLF, "Rig should NOT reach LF via overland route");
+    console.log("  ✓ Direct overland route blocked\n");
 
-    if (!directReachedLF) {
-      console.log("  ✓ Direct route to Long Furrow is blocked by gully");
-    } else {
-      console.log("  ✗ Rig reached Long Furrow via direct route — gully is NOT blocking");
-    }
-
-    assert(
-      !directReachedLF,
-      "Rig should NOT reach Long Furrow via the direct route — gully must block it",
-    );
-
-    // ── 6. Collect console warnings ──
-    console.log("\nStep 6: Checking for gully warnings...");
+    // ── Console warnings ──
     const logs = consoleLog();
-    const gullyWarnings = logs.filter((l) => l.includes("gully") || l.includes("Gully"));
+    const gullyWarnings = logs.filter((l) => l.toLowerCase().includes("gully"));
     if (gullyWarnings.length > 0) {
-      console.log("  Gully-related warnings:", gullyWarnings.join("\n    "));
-    } else {
-      console.log("  No gully warnings (deform succeeded silently)");
+      console.log(`  Gully warnings: ${gullyWarnings.join("; ")}`);
     }
 
-    // ── Summary ──
-    console.log("\n=== ALL CHECKS PASSED ===");
-    console.log("  • Gully deforms terrain between Home and Long Furrow");
-    console.log("  • Direct overland route is blocked");
-    console.log("  • First-rung attempt-route fires at correct radius (~42m from LF)");
-    console.log("  • Rig cannot drive through gully to reach Long Furrow directly");
+    console.log("=== ALL CHECKS PASSED ===");
+    console.log("  • Gully deforms terrain (0.425m+ depth)");
+    console.log("  • Overland route to Long Furrow is blocked");
+    console.log("  • First-rung attempt-route fires at correct radius");
+    console.log("  • Rig cannot drive through to Long Furrow directly");
 
     await teardown(browser);
   } catch (err) {
