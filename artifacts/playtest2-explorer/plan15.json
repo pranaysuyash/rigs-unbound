@@ -1,0 +1,16 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "click": [1115, 770], "after": 600 },
+    { "shot": "55-view-menu" },
+    { "shot": "55b" },
+    { "key": "KeyW", "ms": 2500 },
+    { "shot": "56-grab1" },
+    { "keys": ["KeyW", "KeyD"], "ms": 1200 },
+    { "key": "KeyW", "ms": 2500 },
+    { "shot": "57-grab2" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "58-grab3" }
+  ]
+}

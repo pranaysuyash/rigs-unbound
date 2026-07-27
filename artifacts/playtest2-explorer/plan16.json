@@ -1,0 +1,19 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "KeyR", "after": 500 },
+    { "key": "KeyW", "ms": 2500 },
+    { "tap": "Space", "after": 100 },
+    { "shot": "59-jump1" },
+    { "key": "KeyW", "ms": 1500 },
+    { "tap": "Space", "after": 100 },
+    { "shot": "60-jump2" },
+    { "key": "KeyW", "ms": 2000 },
+    { "tap": "KeyN", "after": 500 },
+    { "shot": "61-light" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1500 },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "62-buggy-roam" }
+  ]
+}

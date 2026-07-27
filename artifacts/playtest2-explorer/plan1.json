@@ -1,0 +1,7 @@
+{
+  "steps": [
+    { "shot": "01-first-load" },
+    { "wait": 2000 },
+    { "shot": "02-settled" }
+  ]
+}

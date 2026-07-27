@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "KeyR", "after": 400 },
+    { "tap": "KeyN", "after": 300 },
+    { "key": "KeyW", "ms": 3500 },
+    { "shot": "63-night-drive" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1200 },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "64-night-ring?" },
+    { "key": "KeyW", "ms": 3500 },
+    { "shot": "65-night-salvage?" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "66-night-final" }
+  ]
+}

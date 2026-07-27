@@ -1,0 +1,14 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "Space", "after": 400 },
+    { "keys": ["KeyW", "KeyA"], "ms": 2000 },
+    { "key": "KeyS", "ms": 2000 },
+    { "shot": "47-rocking" },
+    { "click": [1217, 770], "after": 1500 },
+    { "shot": "48-after-reset" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "49-post-reset-drive" }
+  ]
+}

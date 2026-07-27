@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "click": [851, 607], "after": 300 },
+    { "keys": ["KeyS", "KeyD"], "ms": 2500 },
+    { "key": "KeyS", "ms": 1500 },
+    { "shot": "33-unstuck" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1800 },
+    { "key": "KeyW", "ms": 5000 },
+    { "shot": "34-to-lake" },
+    { "key": "KeyW", "ms": 5000 },
+    { "shot": "35-lake-crossing" },
+    { "key": "KeyW", "ms": 5000 },
+    { "shot": "36-lake-far" }
+  ]
+}

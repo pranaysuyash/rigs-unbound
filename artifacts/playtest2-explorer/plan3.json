@@ -1,0 +1,22 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1500 },
+    { "click": [851, 607] },
+    { "wait": 500 },
+    { "tap": "KeyC", "after": 400 },
+    { "shot": "07-camera2" },
+    { "tap": "KeyC", "after": 400 },
+    { "shot": "08-camera3" },
+    { "tap": "KeyC", "after": 400 },
+    { "shot": "09-camera4" },
+    { "tap": "KeyC", "after": 400 },
+    { "tap": "KeyM", "after": 600 },
+    { "shot": "10-map" },
+    { "tap": "KeyM", "after": 400 },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "11-toward-salvage" },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "12-closer" }
+  ]
+}

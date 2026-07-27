@@ -1,0 +1,13 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 2000 },
+    { "shot": "03-entered-field" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "04-driving-fwd" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "05-driving-more" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1500 },
+    { "shot": "06-turning" }
+  ]
+}

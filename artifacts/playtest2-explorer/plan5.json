@@ -1,0 +1,15 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "keys": ["KeyW", "KeyD"], "ms": 2200 },
+    { "shot": "17-turning-home" },
+    { "keys": ["KeyW", "KeyD"], "ms": 1500 },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "18-heading-home" },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "19-home-approach" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "20-home" }
+  ]
+}

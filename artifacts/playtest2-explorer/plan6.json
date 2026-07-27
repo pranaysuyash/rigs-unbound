@@ -1,0 +1,16 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "click": [851, 607], "after": 300 },
+    { "key": "KeyS", "ms": 2500 },
+    { "shot": "21-reversed" },
+    { "keys": ["KeyS", "KeyA"], "ms": 1500 },
+    { "key": "KeyW", "ms": 2000 },
+    { "shot": "22-base-look" },
+    { "tap": "KeyR", "after": 800 },
+    { "shot": "23-rig-switch" },
+    { "tap": "KeyR", "after": 800 },
+    { "shot": "24-rig-switch2" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "KeyR", "after": 300 },
+    { "tap": "KeyR", "after": 300 },
+    { "keys": ["KeyW", "KeyA"], "ms": 2500 },
+    { "shot": "29-turn-back" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1500 },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "30-back-to-water" },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "31-water-approach" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "32-on-water" }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "key": "KeyS", "ms": 6000 },
+    { "shot": "37-reverse-out" },
+    { "key": "KeyS", "ms": 4000 },
+    { "shot": "38-out-of-water" },
+    { "tap": "KeyR", "after": 400 },
+    { "tap": "KeyR", "after": 400 },
+    { "shot": "39-drift-active" },
+    { "key": "KeyW", "ms": 5000 },
+    { "shot": "40-drift-into-water" },
+    { "key": "KeyW", "ms": 5000 },
+    { "shot": "41-drift-water-crossing" }
+  ]
+}

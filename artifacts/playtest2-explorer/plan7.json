@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "KeyR", "after": 300 },
+    { "tap": "KeyR", "after": 300 },
+    { "tap": "Space", "after": 1000 },
+    { "shot": "25-contract" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "26-skimmer-drive" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1200 },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "27-skimmer-drive2" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "28-skimmer-water?" }
+  ]
+}

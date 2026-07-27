@@ -1,0 +1,17 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "key": "KeyW", "ms": 1500 },
+    { "shot": "54-collect1" },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "54-collect2" },
+    { "keys": ["KeyW", "KeyA"], "ms": 1000 },
+    { "key": "KeyW", "ms": 3000 },
+    { "shot": "54-collect3" },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "54-collect4" },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "54-collect5" }
+  ]
+}

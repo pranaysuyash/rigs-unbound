@@ -1,0 +1,18 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "keys": ["KeyS", "KeyA"], "ms": 3000 },
+    { "keys": ["KeyS", "KeyD"], "ms": 3000 },
+    { "shot": "42-escape-try" },
+    { "tap": "Space", "after": 500 },
+    { "key": "KeyW", "ms": 4000 },
+    { "shot": "43-blade-push" },
+    { "key": "KeyS", "ms": 5000 },
+    { "shot": "44-last-ditch" },
+    { "wait": 6000 },
+    { "shot": "45-sinking" },
+    { "wait": 8000 },
+    { "shot": "46-dead?" }
+  ]
+}

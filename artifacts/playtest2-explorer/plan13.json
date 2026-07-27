@@ -1,0 +1,25 @@
+{
+  "steps": [
+    { "click": [500, 611] },
+    { "wait": 1200 },
+    { "tap": "Space", "after": 400 },
+    { "key": "KeyW", "ms": 3000 },
+    { "tap": "Space", "after": 400 },
+    { "key": "KeyW", "ms": 6000 },
+    { "tap": "Space", "after": 400 },
+    { "shot": "50-furrow-end-chase" },
+    { "tap": "KeyC", "after": 300 },
+    { "tap": "KeyC", "after": 300 },
+    { "tap": "KeyC", "after": 300 },
+    { "shot": "51-furrow-topdown" },
+    { "text": true },
+    { "reload": true },
+    { "click": [500, 611] },
+    { "wait": 1000 },
+    { "shot": "52-after-reload" },
+    { "tap": "KeyC", "after": 300 },
+    { "tap": "KeyC", "after": 300 },
+    { "tap": "KeyC", "after": 300 },
+    { "shot": "53-reloaded-topdown" }
+  ]
+}
