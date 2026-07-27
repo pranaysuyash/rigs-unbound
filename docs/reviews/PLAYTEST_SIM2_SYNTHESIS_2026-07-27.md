@@ -1,52 +1,90 @@
 # Playtest SIM2 Synthesis — 2026-07-27
 
-Status: **in progress** — explorer report complete; casual and achiever reports
+Status: **in progress** — explorer and achiever reports complete; casual report
 pending.
 
 | Persona | Status | Report | Screenshots |
 | --- | --- | --- | --- |
 | Explorer / systems tinkerer | ✅ complete | `docs/reviews/PLAYTEST_SIM2_EXPLORER_2026-07-27.md` | `artifacts/playtest2-explorer/` |
+| Achiever / optimizer | ✅ complete | `docs/reviews/PLAYTEST_SIM2_ACHIEVER_2026-07-27.md` | `artifacts/playtest2-achiever/` |
 | Casual / relaxed browser player | ⏳ running | — | — |
-| Achiever / optimizer | ⏳ running | — | — |
 
-## Meta-note
+## Meta-note: three different ports
 
-The explorer agent discovered the live build was serving on **port 4180**, not
-4174 as briefed. The casual and achiever agents may report the same. This
-suggests either the dev server shifted or a second Vite process is running.
-Whichever process produced the tested build, the SIM2 findings refer to that
-runtime.
+Each agent found a different live port:
 
-## Explorer headline
-
-**Score: 7/10.** Strong systemic spine — terrain genuinely gates machines, the
-gloaming is atmospheric, and the three-rig triangle feels distinct. Held back by
-persistence regressions, missing feedback on interactables, and a hood camera
-that hides the world.
-
-## What worked (explorer)
-
-| Finding | Evidence | Implication |
+| Agent | Port found | Brief said |
 | --- | --- | --- |
-| Terrain-decides thesis is real | Torque drowned in water Drift crossed at 32 km/h | Core promise is already playable |
-| Contextual HUD warnings mean it | "Water is over the axles. Get out…" | Good diegetic feedback |
-| Rig switching feels like carrying a garage | R swaps rigs, control bar rewrites per rig | Machine-family identity is working |
-| GLOAM phase is atmospheric peak | Rust sky, headlights matter, home windows lit | Day/night tone transition is effective |
-| Damage is positional and sticky | Condition drops from drowning survive reload | Consequence has weight |
+| Explorer | 4180 | 4174 |
+| Achiever | 4173 | 4174 |
+| Dev server task | 4174 | 4174 |
 
-## What failed / regressed (explorer)
+This means multiple Vite processes are running on the machine and the agents are
+connecting to whichever one responds. The SIM2 reports therefore describe
+**different runtime instances**, which may explain some of the contradictions
+below. The casual report will add a third data point.
 
-| Finding | Severity | Likely owner | Notes |
+## Headline scores
+
+- **Explorer: 7/10** — world-I-want-more-of; held back by persistence
+  regressions and missing feedback.
+- **Achiever: 6/10** — would-grind; held back by a session-dominating map-modal
+  loop, a stuck quest rung, and undiscoverable interactions.
+
+## What both personas confirm is working
+
+| Finding | Explorer | Achiever | Implication |
 | --- | --- | --- | --- |
-| Save rollback while "Saved locally just now" shows | P0 | save/persistence lane | 5 salvage + objective chain reverted to 0 |
-| Spawn into deep water on reload | P0 | save/recovery lane | Cost condition through no player action |
-| Spawn position inconsistent across loads | P1 | save/recovery lane | home / X+35 / X−49 / X−101 |
-| Ploughed furrow invisible before and after reload | P1 | terrain renderer / persistence | "Shape soft ground" tip promises visible change |
-| Hood camera ~80% occluded by cab geometry | P1 | camera/renderer lane | Makes first-person driving unusable |
-| Tutorial tips repeat every load; "Got it" doesn't stick | P1 | first-rung/guidance lane | Blocks lower-center view |
-| Objective distance ping-pongs | P2 | guidance HUD | Reads as noise |
-| "Take contract" / "explore" / jump produce no visible effect | P2 | verbs/feedback lane | Or feedback is invisible |
-| Teal ring / orange ramp / ringed crate look interactable but aren't | P2 | set-dressing / affordance | Creates false promise |
+| Terrain genuinely gates machines | Torque drowned, Drift crossed same water | Three rigs feel meaningfully different per job | Core promise is playable |
+| Rig switching works | R + context bar rewrite | R + distance pointer | Machine-family identity is coherent |
+| Day/night tone shift | GLOAM is atmospheric peak | Did not reach night | GLOAM is a real strength |
+| Earn→spend loop | Save rollback hid it | Lug tyres bought and persist | Loop is real when persistence works |
+
+## Contradictions that need investigation
+
+| Topic | Explorer | Achiever | Likely explanation |
+| --- | --- | --- | --- |
+| Save persistence | 5 salvage + objectives rolled back | Lug tyres persist across reloads | Different builds/ports or different save paths |
+| Furrow visibility | No visible furrow before/after reload | 211 furrows persist on field map | Different renderer branch or save state |
+| Port | 4180 | 4173 | Multiple running Vite processes |
+| Hood/chase camera | Hood ~80% occluded | Chase occluded by silo | Both camera issues, different modes |
+
+These contradictions mean we cannot treat SIM2 as a single validated run yet.
+The casual report and a clean single-port rerun are needed before routing fixes.
+
+## What failed / regressed (combined)
+
+| Finding | Severity | Owner | Notes |
+| --- | --- | --- | --- |
+| Field map auto-reopens ~1 s after closing | **P0** | input/map lane | Session-dominating for achiever |
+| "Lower the blade" rung never completes despite furrows | **P0** | first-rung lane | Blocks achiever progression; may relate to first-rung test regression |
+| Save rollback / inconsistent persistence | P0/P1 | save/persistence lane | Explorer hit rollback; achiever did not |
+| Spawn into deep water / inconsistent spawn | P1 | save/recovery lane | Explorer only |
+| Hood camera occluded by cab | P1 | camera/renderer lane | Explorer only |
+| Chase camera occluded by silo | P1 | camera/renderer lane | Achiever only |
+| Tutorial tips repeat; "Got it" doesn't stick | P1 | first-rung/guidance lane | Explorer |
+| Welcome panel perf probe never finishes | P1 | boot/metrics lane | Achiever |
+| Workshop buy is blind (no catalog/prices) | P1 | economy/UI lane | Achiever |
+| Cargo hook-up undiscoverable | P1 | verbs/feedback lane | Achiever |
+| Objective distance ping-pongs | P2 | guidance HUD | Explorer |
+| Map header "0% surveyed" vs HUD 42% | P2 | map/UI lane | Achiever |
+| "Take contract" / explore / jump no visible effect | P2 | verbs/feedback lane | Explorer |
+| Teal ring / orange ramp look interactable but aren't | P2 | set-dressing / affordance | Explorer |
+
+## First-rung test regression
+
+`src/game/first-rung.test.ts` now fails:
+
+```
+shows sight-destination when affordable rig is within sight radius of Long Furrow
+expected stage: "sight-destination"
+received stage: "attempt-route"
+```
+
+This sits in the parallel-owned `src/game/first-rung.ts` tranche and aligns with
+the achiever's observation that the blade rung does not complete. It should be
+addressed by the parallel owner, not by agents editing `src/game/` from other
+lanes.
 
 ## Comparison to SIM1 (placeholder)
 
@@ -56,31 +94,22 @@ SIM1 reports are at:
 - `docs/reviews/PLAYTEST_SIM_CASUAL_2026-07-25.md`
 - `docs/reviews/PLAYTEST_SIM_ACHIEVER_2026-07-25.md`
 
-This section will be filled after casual and achiever SIM2 reports land, with a
-focus on whether the first-rung/save-diagnostics tranche actually repaired the
-issues SIM1 surfaced.
+This section will be completed after the casual SIM2 report lands, focusing on
+whether the first-rung/save-diagnostics tranche repaired the issues SIM1
+surfaced.
 
-## Cross-persona risk register (pending)
+## Recommended next actions
 
-The synthesis will cluster findings by:
-
-1. **P0 — launch-blocking:** crashes, broken saves, unbeatable first rung.
-2. **P1 — experience-breaking:** unclear progression, unusable camera, persistent
-   world marks missing.
-3. **P2 — polish / confusion:** repeated tips, invisible verbs, set-dressing
-   affordance.
-4. **Opportunity:** systemic strengths to protect and extend.
-
-## Recommended next actions (pending full synthesis)
-
-1. Wait for casual and achiever reports.
-2. Compare SIM2 to SIM1 to measure whether the first-rung repair worked.
-3. Route P0 save/spawn regressions to the parallel-owned persistence lane.
-4. Route P1 furrow visibility and hood camera to the renderer lane.
-5. Present the complete synthesis to the operator before starting Farmfall Phase A.
+1. Wait for the casual SIM2 report.
+2. Re-run all three personas against a **single confirmed port** (the dev server
+   on 4174) to resolve the persistence/camera contradictions.
+3. Route the P0 map-modal loop and stuck blade rung to the parallel-owned
+   `src/game/first-rung.ts` lane.
+4. Present the complete synthesis before starting Farmfall Phase A.
 
 ## Anything else?
 
-Yes. The explorer found the build on port 4180, which means either the dev
-server shifted during the session or the agent launcher needs to be updated. The
-casual/achiever reports will confirm whether this is consistent.
+Yes. The port confusion is not a small QA footnote — it means the agents may
+have tested different builds with different save/render behavior. Any fix
+routing based on SIM2 should be conditional until a single-port validation run
+confirms which bugs reproduce on the canonical build.
