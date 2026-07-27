@@ -838,6 +838,13 @@ Discovery chain + Persistent consequence`), the pressure/modifier/
       update the exploration map, and route decisions to an append-only ADR before
       implementation.
 
+## Addendum (2026-07-27) — next vertical recommendation pointer
+
+The current recommendation for C1 is now cross-linked from
+`docs/reviews/NEXT_VERTICAL_RECOMMENDATION_UNBOUND_PASSAGE_2026-07-27.md`.
+That note records the same sequencing boundary in a durable review artifact
+without changing the runtime lane or erasing the Farmfall alternative.
+
 ## Anything else?
 
 Yes. The immediate product risk is no longer “can a browser render a vehicle

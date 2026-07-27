@@ -215,7 +215,8 @@ Done only when its stated closure evidence exists.
 - [?] **C1 — Operator chooses the next vertical.**
   - Current first-principles recommendation: **Unbound Passage 01 before
     Farmfall expansion**, because it tests whether one rig creates durable,
-    useful world change for another.
+    useful world change for another. See
+    [Next Vertical Recommendation: Unbound Passage 01](../reviews/NEXT_VERTICAL_RECOMMENDATION_UNBOUND_PASSAGE_2026-07-27.md).
   - Alternative: keep Farmfall first but require the same cross-rig inheritance
     invariant inside cultivation/harvest/recovery.
   - Gate: explicit project-owner choice recorded without erasing alternatives.

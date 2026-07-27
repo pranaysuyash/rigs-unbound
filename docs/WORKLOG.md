@@ -1,3 +1,14 @@
+## 2026-07-27 — next vertical recommendation formalized without touching runtime
+
+- Captured the current sequencing recommendation in
+  `docs/reviews/NEXT_VERTICAL_RECOMMENDATION_UNBOUND_PASSAGE_2026-07-27.md`.
+- The note keeps Unbound Passage 01 as the leading next-vertical candidate
+  while explicitly preserving the operator-sign-off gate and avoiding the live
+  renderer/style lane that another process is currently editing.
+- No runtime code was changed in this pass; this is a documentation-only
+  continuity step so future work can resume from the current synthesis without
+  rediscovering the same decision boundary.
+
 ## 2026-07-27 — parallel first-rung and gully edits parked untouched
 
 - The live tree currently contains uncommitted edits in `src/game/first-rung.ts`
