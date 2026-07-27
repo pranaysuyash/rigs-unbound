@@ -1,3 +1,13 @@
+## 2026-07-27 — terrain deformation now reclassifies soil on the live field
+
+- Implemented deformation-aware surface classification in `src/game/terrain.ts`
+  so deeply cut gentle ground becomes `tilled` while steep deformed ground
+  stays in its natural surface class.
+- Added direct terrain coverage for both the gentle-ground promotion and the
+  steep-slope gate, plus the existing deformation-count preservation update in
+  `src/game/state.test.ts`.
+- The terrain change is documented by [ADR-0022](docs/decisions/ADR-0022-terrain-transformation-surface-classification.md) and now has live test coverage on the current tree.
+
 ## 2026-07-27 — water shader compile warning removed
 
 - Removed the duplicate `cameraPosition` declaration from the water fragment

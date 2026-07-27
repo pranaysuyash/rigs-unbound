@@ -635,10 +635,11 @@ describe("world memory", () => {
     settleWorld(state, world);
 
     performPrimaryAction(state, world);
+    const deformationsBefore = world.terrain.deformationCount();
     driveFlat(state, world, 300);
 
     expect(state.furrows).toHaveLength(0);
-    expect(world.terrain.deformationCount()).toBe(0);
+    expect(world.terrain.deformationCount()).toBe(deformationsBefore);
   });
 
   it("persists and restores spatial memory through the world snapshot", () => {

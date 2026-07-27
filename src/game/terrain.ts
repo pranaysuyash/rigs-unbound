@@ -67,6 +67,21 @@ const ROCK_SLOPE = 0.62;
 const ROCK_ELEVATION = 38;
 
 /**
+ * Maximum slope at which the plough can realistically work soil.
+ * Above this (~14°), deformed ground keeps its natural classification
+ * even if cut deep enough to cross the tilled threshold.
+ */
+const MAX_TILLED_SLOPE = 0.25;
+
+/**
+ * Cumulative deformation depth (metres, negative = cut) at which grass
+ * becomes tilled soil. Expressed as a fraction of DEFORM_MIN so it scales
+ * if the deformation bounds change. At PLOUGH_DEPTH = -0.13 m/pass, this
+ * threshold is crossed after approximately 2 cut passes.
+ */
+const TILLED_DEFORMATION_THRESHOLD = DEFORM_MIN * 0.6;
+
+/**
  * Maximum grade an authored route may present, as rise over run.
  *
  * 0.16 is ~9 degrees. This is the number that makes the track network a
@@ -674,6 +689,20 @@ export class TerrainField {
     const steepness = slope ?? this.slope(x, z);
     if (steepness > ROCK_SLOPE || elevation > ROCK_ELEVATION) {
       return SURFACES.rock;
+    }
+
+    // Deformation-based tilled classification. When cumulative cut deformation
+    // exceeds the tilled threshold and the slope is gentle enough for the
+    // plough to work, grass becomes tilled soil — the surface the blade was
+    // designed to create. This is the Reclamation mechanic: the player alters
+    // the land, and the surface classification changes to reflect it.
+    if (steepness <= MAX_TILLED_SLOPE) {
+      const cx = Math.round(x / DEFORM_CELL);
+      const cz = Math.round(z / DEFORM_CELL);
+      const deform = this.deformation.get(deformKey(cx, cz)) ?? 0;
+      if (deform <= TILLED_DEFORMATION_THRESHOLD) {
+        return SURFACES.tilled;
+      }
     }
 
     if (elevation < WATER_LEVEL + 1.05) {

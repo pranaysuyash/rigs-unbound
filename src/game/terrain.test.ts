@@ -18,6 +18,22 @@ function field(seed = SEED): TerrainField {
   return new TerrainField(seed);
 }
 
+function findProbePoint(
+  predicate: (x: number, z: number) => boolean,
+): { x: number; z: number } | null {
+  for (let offset = 0; offset < 2; offset += 1) {
+    const shift = offset * 2;
+    for (let x = -180 + shift; x <= 180; x += 4) {
+      for (let z = -180 + shift; z <= 180; z += 4) {
+        if (predicate(x, z)) {
+          return { x, z };
+        }
+      }
+    }
+  }
+  return null;
+}
+
 describe("noise primitives", () => {
   it("is deterministic for a coordinate and seed", () => {
     const a = gradientNoise2(12.25, -88.5, 42);
@@ -322,6 +338,43 @@ describe("terrain deformation", () => {
     const after = terrain.height(site.x, site.z);
     expect(after).toBeLessThan(before);
     expect(before - after).toBeGreaterThan(0.05);
+  });
+
+  it("reclassifies deeply cut gentle ground as tilled soil", () => {
+    const terrain = field();
+    const point = findProbePoint((x, z) => {
+      return (
+        terrain.surfaceIdAt(x, z) === "grass" &&
+        terrain.slope(x, z) <= 0.25 &&
+        terrain.routeWeight(x, z) <= 0.5 &&
+        !terrain.isSubmerged(x, z)
+      );
+    });
+    expect(point).not.toBeNull();
+    const { x, z } = point!;
+
+    expect(terrain.surfaceIdAt(x, z)).toBe("grass");
+    terrain.deform(x, z, -0.2, 1);
+    terrain.deform(x, z, -0.2, 1);
+    expect(terrain.surfaceIdAt(x, z)).toBe("tilled");
+  });
+
+  it("keeps steep deformed ground in its natural classification", () => {
+    const terrain = field();
+    const point = findProbePoint((x, z) => {
+      return (
+        terrain.slope(x, z) > 0.25 &&
+        terrain.slope(x, z) < 0.62 &&
+        terrain.routeWeight(x, z) <= 0.5 &&
+        !terrain.isSubmerged(x, z)
+      );
+    });
+    expect(point).not.toBeNull();
+    const { x, z } = point!;
+
+    terrain.deform(x, z, -0.2, 1);
+    terrain.deform(x, z, -0.2, 1);
+    expect(terrain.surfaceIdAt(x, z)).not.toBe("tilled");
   });
 
   it("refuses to carve non-deformable ground", () => {
