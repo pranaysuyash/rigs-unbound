@@ -47,7 +47,15 @@ function atHomeWorkshop(state: GameState): boolean {
 }
 
 const SIGHT_RADIUS_MULTIPLIER = 3;
-const ATTEMPT_ROUTE_RADIUS = 36;
+/**
+ * Radius (metres from Long Furrow) at which the attempt-route stage fires.
+ *
+ * The authored gully sits ~38.6 m from Long Furrow (gully at (-5, -15),
+ * Long Furrow at (18, -46)). The old value of 36 m fired *after* the player
+ * crossed the gully. 42 m fires ~3.4 m before the gully face, giving the
+ * player just enough warning to read the blockage prompt and turn back.
+ */
+const ATTEMPT_ROUTE_RADIUS = 42;
 
 /**
  * Before fitting the blade, guide the player to scout Long Furrow and

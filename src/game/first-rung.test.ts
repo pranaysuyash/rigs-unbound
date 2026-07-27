@@ -293,10 +293,10 @@ describe("first progression rung", () => {
     const state = createInitialState();
     state.salvage = 5;
     const rig = state.rigs[state.activeRigId];
-    // Long Furrow is at (18, -46). Place rig ~55 m away — within sight radius
-    // (66 m = discoverRadius 22 * 3) but outside attempt radius (36 m).
-    rig.x = 50;
-    rig.z = -20;    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
+    // Long Furrow is at (18, -46). Place rig ~48 m away — within sight radius
+    // (66 m = discoverRadius 22 * 3) but outside attempt radius (42 m).
+    rig.x = 55;
+    rig.z = -15;    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
 
   expect(result).toMatchObject({
     stage: "sight-destination",
@@ -311,7 +311,7 @@ describe("first progression rung", () => {
     const state = createInitialState();
     state.salvage = 5;
     const rig = state.rigs[state.activeRigId];
-    // Place within 36 m of Long Furrow (18, -46).
+    // Place within 42 m of Long Furrow (18, -46).
     rig.x = 25;
     rig.z = -30;    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]));
 

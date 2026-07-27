@@ -377,6 +377,46 @@ describe("terrain deformation", () => {
     expect(terrain.surfaceIdAt(x, z)).not.toBe("tilled");
   });
 
+  it("keeps shallowly cut grass as grass — single pass is below the tilled threshold", () => {
+    const terrain = field();
+    const point = findProbePoint((x, z) => {
+      return (
+        terrain.surfaceIdAt(x, z) === "grass" &&
+        terrain.slope(x, z) <= 0.25 &&
+        terrain.routeWeight(x, z) <= 0.5 &&
+        !terrain.isSubmerged(x, z)
+      );
+    });
+    expect(point).not.toBeNull();
+    const { x, z } = point!;
+
+    expect(terrain.surfaceIdAt(x, z)).toBe("grass");
+    // One plough pass ≈ -0.13 m; the tilled threshold is DEFORM_MIN × 0.6
+    // ≈ -0.252 m. A single pass does not cross it.
+    terrain.deform(x, z, -0.13, 1);
+    expect(terrain.surfaceIdAt(x, z)).toBe("grass");
+  });
+
+  it("does not classify fill deformation as tilled — positive delta moves away from threshold", () => {
+    const terrain = field();
+    const point = findProbePoint((x, z) => {
+      return (
+        terrain.surfaceIdAt(x, z) === "grass" &&
+        terrain.slope(x, z) <= 0.25 &&
+        terrain.routeWeight(x, z) <= 0.5 &&
+        !terrain.isSubmerged(x, z)
+      );
+    });
+    expect(point).not.toBeNull();
+    const { x, z } = point!;
+
+    expect(terrain.surfaceIdAt(x, z)).toBe("grass");
+    // Fill deformation (positive delta) raises the cumulative value above
+    // the tilled threshold — it should never produce tilled soil.
+    terrain.deform(x, z, 0.15, 1);
+    expect(terrain.surfaceIdAt(x, z)).toBe("grass");
+  });
+
   it("refuses to carve non-deformable ground", () => {
     const terrain = field();
     const quarry = findSite("quarry-shelf")!;
