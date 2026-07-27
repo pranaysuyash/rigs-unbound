@@ -1,7 +1,7 @@
 # ADR-0025: Separate rig emission sources from listener policy
 
 - Date: 2026-07-26
-- Status: **Proposed product contract; implemented source-only evidence fixture**
+- Status: **Accepted** (operator sign-off 2026-07-27; originally proposed 2026-07-26 with implemented source-only evidence fixture)
 - Decision owner / next reviewer: project owner
 - Implementation evidence: `src/game/signature.ts`,
   `src/game/signature.test.ts`
@@ -97,3 +97,16 @@ concrete threat or sensor poses the question.
 
 Yes. “Signature system complete” is not an honest claim until the player can
 understand and intentionally manipulate what a real listener perceives.
+
+## Update log
+
+- 2026-07-27 — **Proposed → Accepted.** Operator signed off in the realignment
+  session: "Accept as proposed." The three-layer boundary (authoritative
+  operating inputs / rig emission source / listener policy) is now the
+  canonical contract; the first real listener (RU-0204 night-threat ecology)
+  may be built against it. The `src/game/signature.ts` fixture remains
+  source-only evidence until a listener consumes it.
+- 2026-07-27 — Cross-linked the current next-vertical recommendation in
+  `docs/reviews/NEXT_VERTICAL_RECOMMENDATION_UNBOUND_PASSAGE_2026-07-27.md`
+  so the decision trail and sequencing trail point at the same long-term
+  first-principles note.

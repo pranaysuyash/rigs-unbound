@@ -476,12 +476,17 @@ with permanent instructions.
   - Gate: operator accepts ADR-0025; one real listener owns sensitivity,
     falloff/occlusion/thresholds; active/inactive operating semantics,
     fixed-step behavior, replay, accessible feedback, and browser evidence pass.
-- [?] **RU-0203 — Cultivation/crop loop.**
+  - 2026-07-27: ADR-0025 **Accepted** by operator. Remaining gate: the first
+    real listener (RU-0204) with the evidence list above.
+- [ ] **RU-0203 — Cultivation/crop loop.**
   - Finding: current v6 cannot be silently extended; deformation, furrows, and
     authored `tilled` surfaces cannot prove cultivation-cut provenance.
   - Gate: operator accepts ADR-0026 sequencing, schema-v7 owner, harvest value,
     post-sow terrain policy, and measured bounds; then
     plough→raise→sow→grow→harvest persists and invalid entries recover visibly.
+  - 2026-07-27: ADR-0026 **Accepted** by operator; cultivation admitted first
+    on schema-v7 ownership (Survey Route rebases or defers). Remaining gate:
+    the vertical pass with harvest value, post-sow terrain policy, and bounds.
 - [ ] **RU-0204 — Night threat ecology.**
   - Gate: bounded threats respond to explicit signature channels, damage rigs
     or crops, can be repelled through vehicle/world verbs, and dissolve at dawn.

@@ -1,7 +1,7 @@
 # ADR-0026: Cultivation provenance and schema-v7 ownership
 
 - Date: 2026-07-26
-- Status: **Proposed — operator sign-off required before crop implementation**
+- Status: **Accepted** (operator sign-off 2026-07-27; originally proposed 2026-07-26 requiring sign-off before crop implementation)
 - Decision owner / next reviewer: project owner
 - Related: ADR-0007, ADR-0018, RU-0203, RU-0405, Reclamation proposal
 
@@ -120,3 +120,16 @@ Until the operator chooses the admission order:
 
 Cultivation provenance, harvest meaning, bounds, timing, and terrain-after-sow
 policy remain open regardless of the version number.
+
+## Update log
+
+- 2026-07-27 — **Proposed → Accepted.** Operator signed off in the realignment
+  session: "Accept as proposed." Consequences: (1) the crop vertical (RU-0203)
+  is unblocked under the one-ledger/one-crop-map contract; (2) cultivation is
+  admitted first on the schema-v7 ownership question, so Survey Route must
+  rebase onto the accepted v7 schema or defer, per the 2026-07-26 addendum;
+  (3) v6→v7 migration must preserve v6 world memory and keep the previous
+  versioned key as rollback evidence.
+- 2026-07-27 — Cross-linked the current next-vertical recommendation in
+  `docs/reviews/NEXT_VERTICAL_RECOMMENDATION_UNBOUND_PASSAGE_2026-07-27.md`
+  so the decision record and execution board share the same sequencing pointer.
