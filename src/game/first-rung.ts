@@ -291,6 +291,21 @@ function resolvePostFitRung(state: GameState): FirstRungResolution {
 
   // Check if blade is engaged.
   const plough = rig.attachments.find((a) => a.id === "field-plough");
+  if (hasBlade && !plough) {
+    return {
+      stage: "first-cut",
+      objective: "Plough attachment missing — re-fit at workshop",
+      shortLabel: "Re-fit plough",
+      ariaLabel:
+        "The plough blade was expected but not found. Return to the workshop to re-fit it.",
+      reason: "Blade capability reported but plough attachment not found on rig.",
+      target: { x: HOME_SITE.x, z: HOME_SITE.z },
+      recommendedModuleId: null,
+      recommendedRigId: null,
+      affordable: false,
+      complete: false,
+    };
+  }
   if (plough && !plough.engaged) {
     return {
       stage: "first-cut",

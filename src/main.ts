@@ -1854,12 +1854,18 @@ function boot(): void {
     const result = saveState(window.localStorage, state, world);
     performanceMonitor.recordSave(result.durationMs, result.bytes);
     const saved = result.error === undefined;
-    statusMessage = saved
-      ? "Saved locally just now"
-      : `Save failed · ${result.error ?? "storage unavailable"}`;
+    if (saved) {
+      statusMessage = "Saved locally just now";
+    } else {
+      const rawError = result.error ?? "storage unavailable";
+      const isQuota = /quota|exceeded|size/i.test(rawError);
+      statusMessage = isQuota
+        ? "Save failed · browser storage is full. Clear some site data or export your save key to back it up."
+        : "Save failed · storage unavailable. Your progress is still active this session. Try clearing browser data or exporting your save key.";
+      state.lastDiagnostic = `Save failed · ${rawError}`;
+    }
     saveStatus.textContent = statusMessage;
     if (!saved) {
-      state.lastDiagnostic = statusMessage;
       showToast(statusMessage);
     }
     appendRunRecordEntry(runRecord, "save", "persist", state.elapsedMs, {

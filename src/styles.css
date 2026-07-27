@@ -197,7 +197,7 @@ select:focus-visible,
   margin: 0.5rem 0 0;
   padding-left: 0.55rem;
   border-left: 2px solid var(--harvest-gold);
-  transition: border-left-color 420ms ease;
+  transition: border-left-color 200ms ease;
 }
 
 .first-rung-objective[hidden] {
@@ -213,7 +213,7 @@ select:focus-visible,
     monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: color 420ms ease;
+  transition: color 200ms ease;
 }
 
 .first-rung-objective > strong {

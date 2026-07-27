@@ -378,4 +378,29 @@ describe("versioned local persistence", () => {
     expect(loaded.state.seed).toBe(world.seed);
     expect(world.terrain.deformationCount()).toBe(0);
   });
+
+  it("propagates storage.setItem errors into the SaveResult.error field", () => {
+    const errorMessage = "Failed to execute 'setItem' on 'Storage': quota exceeded";
+    const failingStorage: Storage = {
+      get length() {
+        return 0;
+      },
+      clear: () => {},
+      getItem: () => null,
+      key: () => null,
+      removeItem: () => {},
+      setItem: () => {
+        throw new Error(errorMessage);
+      },
+    };
+
+    const state = createInitialState();
+    const world = new GameWorld(state.seed);
+    const result = saveState(failingStorage, state, world);
+
+    expect(result.error).toBeDefined();
+    expect(result.error).toContain("quota exceeded");
+    expect(result.bytes).toBeGreaterThan(0);
+    expect(result.durationMs).toBeGreaterThanOrEqual(0);
+  });
 });
