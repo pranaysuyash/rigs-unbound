@@ -588,3 +588,12 @@ Anything else? Yes. The remaining items from the external review — the
 wiring, the board/radial projection split, and the enforced `verify:head`
 pipeline — are **not** done. They are real and worth doing, but each is its own
 gate and this one closes the blocking correctness defect only.
+
+## 2026-07-28 — continuation audit after acceptance rerun
+
+- Ran `npm run audit:reachability:budget` and `npm run test:browser` on the live tracked surface.
+- Reachability remains classified at `29` unreachable modules, under the adopted budget, with the unchanged warning that many tested modules remain off-entry and need explicit wiring or archival.
+- Browser acceptance produced `fixtureReplayClassification: unsupported-entry` because the current fixture set still uses non-replayable `placeRig`; this is a known boundary that should be captured in the next wiring tranche rather than treated as a regression.
+- Accessibility pass (`npm run test:shell-accessibility`) remains clean (no console problems), and the live acceptance profile still shows camera/readability, save/reload parity, and replay probes passing on desktop and narrow snapshots.
+- The immediate next gate is unchanged from the execution board: A6 external fresh-player comprehension, then reconcile B3a/B4/C1 schema and ownership decisions before opening wider vertical choices.
+- No source code was edited for this cycle beyond tracked acceptance artifacts; this cycle preserves the boundary with `src/game/` while the remaining gates are decided.
