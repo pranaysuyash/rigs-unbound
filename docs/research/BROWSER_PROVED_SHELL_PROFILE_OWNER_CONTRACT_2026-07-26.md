@@ -19,12 +19,12 @@ What it does not yet have is one browser-proved owner that ties those pieces tog
 
 ## Current ownership split
 
-| Concern | Current owner | Canonical status |
-| --- | --- | --- |
-| Shell language / state-shell rendering | renderer and state-shell work | Real runtime substrate exists. |
-| Runtime profile choice | runtime profile policy | Canonical decision engine exists. |
-| Operator explanation | diagnostics and developer surface | Hidden from the public HUD. |
-| Player-readable shell status | public shell / HUD | Present in pieces, but not as one browser-proved owner. |
+| Concern                                | Current owner                     | Canonical status                                        |
+| -------------------------------------- | --------------------------------- | ------------------------------------------------------- |
+| Shell language / state-shell rendering | renderer and state-shell work     | Real runtime substrate exists.                          |
+| Runtime profile choice                 | runtime profile policy            | Canonical decision engine exists.                       |
+| Operator explanation                   | diagnostics and developer surface | Hidden from the public HUD.                             |
+| Player-readable shell status           | public shell / HUD                | Present in pieces, but not as one browser-proved owner. |
 
 ## What is already real
 

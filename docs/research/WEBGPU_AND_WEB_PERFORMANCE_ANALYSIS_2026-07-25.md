@@ -81,14 +81,15 @@ do not confuse "GPU-able" with "GPU-bound".
 `GameRenderer` now supports a backend request (`auto|webgl|webgpu`) and the entrypoint
 plumbs `?renderer=` for operator control. The constructor resolves the active backend
 through policy and selected request, then reports:
+
 1. effective backend and requested backend,
 2. whether a fallback occurred,
 3. the fallback reason (`webgpu` init failure, policy block, or explicit reason),
 4. and that telemetry in `getPerformanceSnapshot()` and the boot checkpoint.
-Current behavior:
-1. default `auto` follows `rendererPolicy` gating and request intent,
-2. `webgpu`/`auto` attempts `WebGPURenderer({ forceWebGL: false })`,
-3. failures can fall back to `WebGLRenderer` with explicit backend reason.
+   Current behavior:
+5. default `auto` follows `rendererPolicy` gating and request intent,
+6. `webgpu`/`auto` attempts `WebGPURenderer({ forceWebGL: false })`,
+7. failures can fall back to `WebGLRenderer` with explicit backend reason.
 
 This makes the risk-reduction and measurement pieces concrete before any production rollout:
 
@@ -97,6 +98,7 @@ This makes the risk-reduction and measurement pieces concrete before any product
 - **Use-case U3:** low-risk shipping path that preserves canonical contract and scene ownership.
 
 **R6 — W1 improvements now staged as an explicit lane**
+
 - `W1-a` parity for recovery and device-loss handling under active WebGPU.
 - `W1-b` comparative acceptance runbook for `webgpu` vs `webgl` acceptance snapshots.
 - `W1-c` device-matrix policy + operator runbook gate before any automatic default shift.
@@ -146,17 +148,17 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 
 ## 3. Consolidated work-item list (dependency order, commit-units)
 
-| #    | Item                                                                                       | Class          | Gate/dependency                                                              |
-| ---- | ------------------------------------------------------------------------------------------ | -------------- | ---------------------------------------------------------------------------- |
-| P1-a | WebGL context-loss handling + restore/error path                                           | resilience     | none — independent, small                                                    |
-| P1-b | Chunked/async terrain build + boot progress state                                          | perceived load | none — independent                                                           |
-| P2-a | Honest input-ready metric + LCP/INP/CLS/longtask observers in `performance.ts`             | measurement    | none; do before P2-b so fixes are measurable                                 |
-| P2-b | Hot-path allocation fixes (camera vectors, name scans, HUD sort)                           | runtime perf   | after P2-a (before/after evidence)                                           |
-| P3-a | Sourcemap policy decision (keep vs `hidden`)                                               | policy         | trivial, needs operator nod                                                  |
-| P3-b | Caching contract paragraph in deploy runbook                                               | docs           | trivial                                                                      |
-| P3-c | PWA/offline                                                                                | product        | deferred with ADR-0013 revisit                                               |
-| W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane  | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
-| W1-c | Auto-backend rollout gate for `?renderer=auto`                                             | policy/correctness | policy + acceptance criteria before production default expansion                        |
+| #    | Item                                                                                       | Class              | Gate/dependency                                                              |
+| ---- | ------------------------------------------------------------------------------------------ | ------------------ | ---------------------------------------------------------------------------- |
+| P1-a | WebGL context-loss handling + restore/error path                                           | resilience         | none — independent, small                                                    |
+| P1-b | Chunked/async terrain build + boot progress state                                          | perceived load     | none — independent                                                           |
+| P2-a | Honest input-ready metric + LCP/INP/CLS/longtask observers in `performance.ts`             | measurement        | none; do before P2-b so fixes are measurable                                 |
+| P2-b | Hot-path allocation fixes (camera vectors, name scans, HUD sort)                           | runtime perf       | after P2-a (before/after evidence)                                           |
+| P3-a | Sourcemap policy decision (keep vs `hidden`)                                               | policy             | trivial, needs operator nod                                                  |
+| P3-b | Caching contract paragraph in deploy runbook                                               | docs               | trivial                                                                      |
+| P3-c | PWA/offline                                                                                | product            | deferred with ADR-0013 revisit                                               |
+| W1   | WebGPU enhancement probe (`forceWebGL:false`, backend recorded, fog contract re-validated) | renderer lane      | device-matrix data + post-Farmfall; runs under engine-branch gating contract |
+| W1-c | Auto-backend rollout gate for `?renderer=auto`                                             | policy/correctness | policy + acceptance criteria before production default expansion             |
 
 ### W1 rollout matrix to collect
 
@@ -168,13 +170,13 @@ This is the first evidence pass for the renderer policy lane. The goal is to
 make `rendererPolicy`, request mode, and device class comparable before any
 default shift.
 
-| Surface | Request | Policy | Device class | Expected outcome | Acceptance gate |
-| --- | --- | --- | --- | --- | --- |
-| developer | `webgl` | `stable` | desktop reference | WebGL direct boot | No fallback; checkpoint names the direct backend |
-| developer | `auto` | `stable` | desktop reference | WebGL unless the stable gate explicitly allows WebGPU | Checkpoint records policy reason and resolved backend |
-| developer | `auto` | `canary` | desktop reference | WebGPU attempt with explicit fallback telemetry if needed | Fallback rate and reason are visible in checkpoint and snapshot |
-| developer | `webgpu` | `stable` | desktop reference | WebGPU request path or explicit fallback to WebGL | Recovery/fallback is named, not silent |
-| production-like | `auto` | `off` | low-capability or unknown | Conservative WebGL direct boot | Default remains stable until D1 proves expansion is safe |
+| Surface         | Request  | Policy   | Device class              | Expected outcome                                          | Acceptance gate                                                 |
+| --------------- | -------- | -------- | ------------------------- | --------------------------------------------------------- | --------------------------------------------------------------- |
+| developer       | `webgl`  | `stable` | desktop reference         | WebGL direct boot                                         | No fallback; checkpoint names the direct backend                |
+| developer       | `auto`   | `stable` | desktop reference         | WebGL unless the stable gate explicitly allows WebGPU     | Checkpoint records policy reason and resolved backend           |
+| developer       | `auto`   | `canary` | desktop reference         | WebGPU attempt with explicit fallback telemetry if needed | Fallback rate and reason are visible in checkpoint and snapshot |
+| developer       | `webgpu` | `stable` | desktop reference         | WebGPU request path or explicit fallback to WebGL         | Recovery/fallback is named, not silent                          |
+| production-like | `auto`   | `off`    | low-capability or unknown | Conservative WebGL direct boot                            | Default remains stable until D1 proves expansion is safe        |
 
 Collection rules:
 
@@ -207,6 +209,7 @@ Collection rules:
   are first, not feature-first.
 
 Evidence anchors:
+
 - recovery attach/detach and checkpoint emission in `src/main.ts` (`241-352`, `308-312`, `273-290`, `323-325`, `500`, `1785`),
 - context state in diagnostics snapshot in `src/main.ts:1350` and `src/main.ts:1330`.
 - WebGPU device-loss recovery callback wiring in `src/game/renderer.ts` and
@@ -216,15 +219,15 @@ Evidence anchors:
 
 ### Lane status after the executed slice
 
-| Lane | Status | Evidence in-repo |
-|---|---|---|
-| W1 reliability (`P1-a`) | ✅ completed | `src/main.ts` |
-| W1 probe (`W1`) | ✅ completed | `src/game/renderer.ts`, `src/main.ts` |
-| W1-c auto-gate policy | ✅ completed | `src/main.ts`, `docs/decisions/ADR-0028-renderer-auto-backend-governance-and-rollout-gate.md` |
-| P1-b chunked boot | 🔴 pending | `src/main.ts` boot path still synchronous |
-| P2-a input/longtask metrics | ✅ completed | `src/game/performance.ts` |
-| P2-b hot-path allocation | 🔴 pending | unchanged allocation pass |
-| P3-a/b/c policy | 🟡 pending | requires ops/protocol decisions |
+| Lane                        | Status       | Evidence in-repo                                                                              |
+| --------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
+| W1 reliability (`P1-a`)     | ✅ completed | `src/main.ts`                                                                                 |
+| W1 probe (`W1`)             | ✅ completed | `src/game/renderer.ts`, `src/main.ts`                                                         |
+| W1-c auto-gate policy       | ✅ completed | `src/main.ts`, `docs/decisions/ADR-0028-renderer-auto-backend-governance-and-rollout-gate.md` |
+| P1-b chunked boot           | 🔴 pending   | `src/main.ts` boot path still synchronous                                                     |
+| P2-a input/longtask metrics | ✅ completed | `src/game/performance.ts`                                                                     |
+| P2-b hot-path allocation    | 🔴 pending   | unchanged allocation pass                                                                     |
+| P3-a/b/c policy             | 🟡 pending   | requires ops/protocol decisions                                                               |
 
 **What this analysis deliberately does NOT recommend now:** a WebGPU swap,
 GPU compute for terrain/dust, bundle-splitting of the three.module chunk
@@ -266,11 +269,11 @@ the wider machine-keeper thesis and long-range product direction.
 ## Correction addendum (2026-07-27) — actual renderer surface after fresh read
 
 The executed-slice claims in §3.1 above were too optimistic. A re-read of
-`src/game/renderer.ts` and `src/main.ts` shows the WebGPU lane is *gated and
-instrumented*, but the runtime is still WebGL-only for all practical paths.
+`src/game/renderer.ts` and `src/main.ts` shows the WebGPU lane is _gated and
+instrumented_, but the runtime is still WebGL-only for all practical paths.
 This addendum corrects the record so future work is sized honestly.
 
-### C1 — Custom GLSL and post-processing *are* present
+### C1 — Custom GLSL and post-processing _are_ present
 
 The earlier claim "zero custom GLSL/ShaderMaterial, zero post-processing" is
 wrong. The renderer owns:
@@ -293,14 +296,14 @@ from "low-risk" to "medium-risk, art-contract dependent."
 `GameRenderer.createRendererBackend()` (`renderer.ts:419-463`) resolves as
 follows:
 
-| Request | Policy | Resolved backend | Reason logged |
-| --- | --- | --- | --- |
-| `webgl` | any | WebGL | `renderer request=webgl` |
-| `webgpu` | any | WebGL | `renderer request=webgpu is not available in this build` |
-| `auto` | `canary` | WebGL | `renderer=auto retained webgl for composer compatibility (canary)` |
-| `auto` | `stable` + gate passes | WebGL | `renderer=auto retained webgl for composer compatibility (stable)` |
-| `auto` | `stable` + gate fails | WebGL | `rendererPolicy=stable blocked auto webgpu (…)` |
-| `auto` | `off` | WebGL | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)` |
+| Request  | Policy                 | Resolved backend | Reason logged                                                      |
+| -------- | ---------------------- | ---------------- | ------------------------------------------------------------------ |
+| `webgl`  | any                    | WebGL            | `renderer request=webgl`                                           |
+| `webgpu` | any                    | WebGL            | `renderer request=webgpu is not available in this build`           |
+| `auto`   | `canary`               | WebGL            | `renderer=auto retained webgl for composer compatibility (canary)` |
+| `auto`   | `stable` + gate passes | WebGL            | `renderer=auto retained webgl for composer compatibility (stable)` |
+| `auto`   | `stable` + gate fails  | WebGL            | `rendererPolicy=stable blocked auto webgpu (…)`                    |
+| `auto`   | `off`                  | WebGL            | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)`      |
 
 So the policy gate, telemetry, and recovery plumbing are in place, but the
 actual `WebGPURenderer` constructor is **not** invoked anywhere in this build.
@@ -328,27 +331,27 @@ The **not-yet-completed** pieces are:
 
 ### C4 — Revised W1 ladder
 
-| Step | Work | Blocker/dependency |
-| --- | --- | --- |
-| W1-a | Reliability + telemetry plumbing | ✅ Done |
-| W1-b | Policy gate + operator controls | ✅ Done |
+| Step | Work                                                               | Blocker/dependency                                                           |
+| ---- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------- |
+| W1-a | Reliability + telemetry plumbing                                   | ✅ Done                                                                      |
+| W1-b | Policy gate + operator controls                                    | ✅ Done                                                                      |
 | W1-c | Replace composer + custom materials with WebGPU-native equivalents | Engine-branch gating; art-director sign-off on bloom/FXAA/water/shell parity |
-| W1-d | First real `WebGPURenderer` construction under `renderer=webgpu` | After W1-c |
-| W1-e | Measured rollout matrix per ADR-0028 validation plan | After W1-d |
-| W1-f | Default-policy expansion (`stable` or `canary`) | After W1-e evidence |
+| W1-d | First real `WebGPURenderer` construction under `renderer=webgpu`   | After W1-c                                                                   |
+| W1-e | Measured rollout matrix per ADR-0028 validation plan               | After W1-d                                                                   |
+| W1-f | Default-policy expansion (`stable` or `canary`)                    | After W1-e evidence                                                          |
 
 ### C5 — W1-d decision sheet (backend policy matrix, updated)
 
 This is the evidence contract ADR-0028 demands before `rendererPolicy` can move
 from `Proposed` to `Implemented and verified`.
 
-| Surface | Request | Policy | Expected backend | Expected reason | Acceptance gate |
-| --- | --- | --- | --- | --- | --- |
-| developer | `webgl` | `stable` | WebGL | `renderer request=webgl` | No fallback; `rendererBackendPolicy` checkpoint names direct backend |
-| developer | `auto` | `stable` | WebGL | `renderer=auto retained webgl for composer compatibility (stable)` | Checkpoint records policy reason; no WebGPU attempt yet |
-| developer | `auto` | `canary` | WebGL | `renderer=auto retained webgl for composer compatibility (canary)` | Canary only signals intent; still WebGL until W1-c lands |
-| developer | `webgpu` | `stable` | WebGL | `renderer request=webgpu is not available in this build` | Honest fallback telemetry; no silent switch |
-| production-like | `auto` | `off` | WebGL | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)` | Conservative default is enforced |
+| Surface         | Request  | Policy   | Expected backend | Expected reason                                                    | Acceptance gate                                                      |
+| --------------- | -------- | -------- | ---------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| developer       | `webgl`  | `stable` | WebGL            | `renderer request=webgl`                                           | No fallback; `rendererBackendPolicy` checkpoint names direct backend |
+| developer       | `auto`   | `stable` | WebGL            | `renderer=auto retained webgl for composer compatibility (stable)` | Checkpoint records policy reason; no WebGPU attempt yet              |
+| developer       | `auto`   | `canary` | WebGL            | `renderer=auto retained webgl for composer compatibility (canary)` | Canary only signals intent; still WebGL until W1-c lands             |
+| developer       | `webgpu` | `stable` | WebGL            | `renderer request=webgpu is not available in this build`           | Honest fallback telemetry; no silent switch                          |
+| production-like | `auto`   | `off`    | WebGL            | `rendererPolicy=off blocked auto webgpu (rendererPolicy=off)`      | Conservative default is enforced                                     |
 
 Collection rules:
 

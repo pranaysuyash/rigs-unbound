@@ -142,14 +142,14 @@ label rather than fabricate a new authority.
 
 ## Source mapping
 
-| Current source | Roster role |
-| -------------- | ----------- |
-| `publicState.activeRigId` | Active fleet focus and banner |
-| `publicState.activeRig` | Expanded active-machine summary |
-| `publicState.rigs` | All machine cards and comparison rows |
-| `publicState.progression.recovery` | Recovery / readiness note |
-| `publicState.sites` | Named place context when a rig can be anchored to a site |
-| `publicState.worldMemory` | Discovery context and long-term world impact |
+| Current source                     | Roster role                                              |
+| ---------------------------------- | -------------------------------------------------------- |
+| `publicState.activeRigId`          | Active fleet focus and banner                            |
+| `publicState.activeRig`            | Expanded active-machine summary                          |
+| `publicState.rigs`                 | All machine cards and comparison rows                    |
+| `publicState.progression.recovery` | Recovery / readiness note                                |
+| `publicState.sites`                | Named place context when a rig can be anchored to a site |
+| `publicState.worldMemory`          | Discovery context and long-term world impact             |
 
 ## Lifecycle
 
@@ -313,3 +313,30 @@ proof; the missing work is a usable overlay that explains the fleet without
 owning it.
 
 Evidence tier: Tier 1 static source inspection plus runtime-shape recheck.
+
+## Addendum (2026-07-28) - the garage/fleet roster is still spec-only in runtime
+
+- Source inspection of `src/` still finds no dedicated garage/fleet overlay or
+  `openGarage` runtime action.
+- The runtime does expose fleet memory and recovery state, but those are not
+  the same as a read-only roster surface:
+  - `publicState.activeRigId`,
+  - `publicState.activeRig`,
+  - `publicState.rigs`,
+  - `publicState.progression.recovery`,
+  - `publicState.worldMemory`.
+- That means the roster still exists as a projection contract, not as a live
+  overlay. The next proof is presentation plus focus behavior, not more state
+  plumbing.
+
+## Addendum (2026-07-28) - live browser proof confirms the roster is still absent from the shell
+
+- Re-checked the canonical browser surface at `http://localhost:4173/`.
+- The public DOM sweep found no garage overlay, fleet roster, or `openGarage`
+  entry in the visible shell.
+- The only current fleet-adjacent public state remains the read-only data
+  exposed through the simulation and progression model, which is enough for a
+  projection but not for a mounted roster.
+- That means the next proof slice is still a shell-mounted roster with focus
+  behavior, not more fleet data shape.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 source inspection.

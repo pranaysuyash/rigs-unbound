@@ -22,16 +22,16 @@ Adopt **canonical authority plus evidence-backed vertical admission gates** as t
 
 ### Canonical authority
 
-| Domain | Canonical owner | Non-owner rule |
-| --- | --- | --- |
-| Simulation state/transitions | Fixed-step state and world systems | Presentation and diagnostics do not mutate authority. |
-| World definition | Authored world schema, later validated normalized content definition | Renderer and activities do not duplicate spatial facts. |
-| Player-caused spatial deltas | `GameWorld` bounded memory | Save/replay compose it; they do not create a second world state. |
-| Rig capability compatibility | Effective rig profiles and affordance resolver | Activities/UI do not maintain rig-ID allowlists. |
-| Input/commands | Current active input contract plus versioned command slices | A future multi-producer migration selects one canonical serialized intent. |
-| Persistence/migration | Storage schema and owner-specific migrations | Consumers do not silently repair arbitrary stale payloads. |
-| Presentation | Renderer, audio, UI consume state/events | Presentation does not become a second simulation. |
-| Asset activation | Manifest/provenance/preflight plus renderer bridge fallback | Raw URLs and unreviewed generated assets do not enter runtime. |
+| Domain                       | Canonical owner                                                      | Non-owner rule                                                             |
+| ---------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Simulation state/transitions | Fixed-step state and world systems                                   | Presentation and diagnostics do not mutate authority.                      |
+| World definition             | Authored world schema, later validated normalized content definition | Renderer and activities do not duplicate spatial facts.                    |
+| Player-caused spatial deltas | `GameWorld` bounded memory                                           | Save/replay compose it; they do not create a second world state.           |
+| Rig capability compatibility | Effective rig profiles and affordance resolver                       | Activities/UI do not maintain rig-ID allowlists.                           |
+| Input/commands               | Current active input contract plus versioned command slices          | A future multi-producer migration selects one canonical serialized intent. |
+| Persistence/migration        | Storage schema and owner-specific migrations                         | Consumers do not silently repair arbitrary stale payloads.                 |
+| Presentation                 | Renderer, audio, UI consume state/events                             | Presentation does not become a second simulation.                          |
+| Asset activation             | Manifest/provenance/preflight plus renderer bridge fallback          | Raw URLs and unreviewed generated assets do not enter runtime.             |
 
 ### Admission rule
 
@@ -48,19 +48,19 @@ The first implementation must solve the named use case, retain a safe fallback, 
 
 ## Staged platform gates
 
-| Area | Active posture | Admission trigger |
-| --- | --- | --- |
-| Multi-offer affordances | One `tow` world-offer proof | Second real world offer sharing a demonstrated additional constraint. |
-| Event propagation | Explicit outcomes and diagnostic record entries | One semantic event required by multiple independent consumers. |
-| Input canonicalization | Playable `InputFrame` path and physics-lab `VehicleIntent` path are distinct | Second shared input producer or a decision to unify replay/controller semantics. |
-| Spatial audio | Local active-rig procedural voice | Second world audio source with lifecycle, accessibility, and budget proof. |
-| Lighting/shadows | Blob shadows and bounded renderer baseline | Target-device visual/performance proof for one bounded directional tier. |
-| World/content packs | Static typed authored schema | Second region/pack/editor/generated candidate requiring validated ingestion. |
-| Streaming/residency | Single seeded world plus bounded deltas | Measured world/asset pressure and lifecycle/recovery proof. |
-| Collision masks | Traversal and camera semantic queries | Third collision consumer such as triggers, hazards, projectiles, or AI sight. |
-| AI/director | No runtime planner/director | Real multi-candidate proposal that benefits from validated selection. |
-| Shared-world authority | Local commands/outcomes | Concrete shared-state conflict/ownership requirement. |
-| ECS | Existing data-oriented boundaries | Measured actor/composition churn that current contracts cannot handle. |
+| Area                    | Active posture                                                               | Admission trigger                                                                |
+| ----------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Multi-offer affordances | One `tow` world-offer proof                                                  | Second real world offer sharing a demonstrated additional constraint.            |
+| Event propagation       | Explicit outcomes and diagnostic record entries                              | One semantic event required by multiple independent consumers.                   |
+| Input canonicalization  | Playable `InputFrame` path and physics-lab `VehicleIntent` path are distinct | Second shared input producer or a decision to unify replay/controller semantics. |
+| Spatial audio           | Local active-rig procedural voice                                            | Second world audio source with lifecycle, accessibility, and budget proof.       |
+| Lighting/shadows        | Blob shadows and bounded renderer baseline                                   | Target-device visual/performance proof for one bounded directional tier.         |
+| World/content packs     | Static typed authored schema                                                 | Second region/pack/editor/generated candidate requiring validated ingestion.     |
+| Streaming/residency     | Single seeded world plus bounded deltas                                      | Measured world/asset pressure and lifecycle/recovery proof.                      |
+| Collision masks         | Traversal and camera semantic queries                                        | Third collision consumer such as triggers, hazards, projectiles, or AI sight.    |
+| AI/director             | No runtime planner/director                                                  | Real multi-candidate proposal that benefits from validated selection.            |
+| Shared-world authority  | Local commands/outcomes                                                      | Concrete shared-state conflict/ownership requirement.                            |
+| ECS                     | Existing data-oriented boundaries                                            | Measured actor/composition churn that current contracts cannot handle.           |
 
 ## Consequences
 
@@ -79,12 +79,12 @@ The first implementation must solve the named use case, retain a safe fallback, 
 
 ## Alternatives considered
 
-| Alternative | Rejected because |
-| --- | --- |
-| Build full platform infrastructure now | Creates architecture theatre and unvalidated abstractions. |
-| Allow local feature-specific implementations | Produces divergence in capability, world, replay, and presentation semantics. |
-| Treat all configuration as dynamic JSON | Removes compile-time safety without establishing an ingestion/validation pipeline. |
-| Wait to think about architecture until multiplayer/large-world scope | Makes later migration more expensive and less reliable. |
+| Alternative                                                          | Rejected because                                                                   |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Build full platform infrastructure now                               | Creates architecture theatre and unvalidated abstractions.                         |
+| Allow local feature-specific implementations                         | Produces divergence in capability, world, replay, and presentation semantics.      |
+| Treat all configuration as dynamic JSON                              | Removes compile-time safety without establishing an ingestion/validation pipeline. |
+| Wait to think about architecture until multiplayer/large-world scope | Makes later migration more expensive and less reliable.                            |
 
 ## Validation and review plan
 

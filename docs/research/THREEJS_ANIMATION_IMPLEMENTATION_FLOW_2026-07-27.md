@@ -43,11 +43,11 @@ Applied the `threejs-animation` skill to implement a vehicle animation system fo
 
 ### Files Modified
 
-| File | Changes |
-|------|---------|
-| `src/game/renderer.ts` | Exported `RigParts` interface; added interaction system imports |
-| `src/game/animation.ts` | **NEW** - Complete VehicleAnimationSystem module |
-| `src/game/renderer.ts` | Integrated VehicleAnimationSystem into GameRenderer |
+| File                    | Changes                                                         |
+| ----------------------- | --------------------------------------------------------------- |
+| `src/game/renderer.ts`  | Exported `RigParts` interface; added interaction system imports |
+| `src/game/animation.ts` | **NEW** - Complete VehicleAnimationSystem module                |
+| `src/game/renderer.ts`  | Integrated VehicleAnimationSystem into GameRenderer             |
 
 ---
 
@@ -81,6 +81,7 @@ Applied the `threejs-animation` skill to implement a vehicle animation system fo
 ## Key Components
 
 ### 1. VehicleAnimationState (per rig)
+
 ```typescript
 interface RigAnimationState {
   mixer: THREE.AnimationMixer | null;
@@ -97,11 +98,15 @@ interface RigAnimationState {
 ```
 
 ### 2. SpringDamper Integration (from feedback.ts)
+
 ```typescript
 class SpringDamper {
   value = 0;
   velocity = 0;
-  constructor(public stiffness = 120, public damping = 12) {}
+  constructor(
+    public stiffness = 120,
+    public damping = 12,
+  ) {}
   update(target: number, dt: number): number {
     const force = (target - this.value) * this.stiffness;
     const dampForce = -this.velocity * this.damping;
@@ -114,20 +119,21 @@ class SpringDamper {
 
 ### 3. Physics Integration Points
 
-| Animation | Physics Source | SpringDamper |
-|-----------|---------------|--------------|
-| Suspension | `wheelState.compression` (0-1) | 4 dampers (120, 12) |
-| Steering | `feedback.steeringAngle` (rad) | 1 damper (120, 12) |
-| Body Roll | `feedback.bodyRollOffset` | 1 damper (80, 10) |
-| Body Pitch | `feedback.bodyPitchOffset` | 1 damper (80, 10) |
-| Steering Wheel | `feedback.steeringAngle` | 1 damper (120, 12) |
-| Plough Angle | `plough.engaged` boolean | 1 damper (120, 12) |
+| Animation      | Physics Source                 | SpringDamper        |
+| -------------- | ------------------------------ | ------------------- |
+| Suspension     | `wheelState.compression` (0-1) | 4 dampers (120, 12) |
+| Steering       | `feedback.steeringAngle` (rad) | 1 damper (120, 12)  |
+| Body Roll      | `feedback.bodyRollOffset`      | 1 damper (80, 10)   |
+| Body Pitch     | `feedback.bodyPitchOffset`     | 1 damper (80, 10)   |
+| Steering Wheel | `feedback.steeringAngle`       | 1 damper (120, 12)  |
+| Plough Angle   | `plough.engaged` boolean       | 1 damper (120, 12)  |
 
 ---
 
 ## Implementation Details
 
 ### Wheel Rotation
+
 ```typescript
 private updateWheelRotation(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -137,11 +143,11 @@ private updateWheelRotation(rigId: string, delta: number): void {
 
   const speed = 5; // m/s placeholder - from rigState.speed
   const wheelRadius = radius[0] ?? 0.5;
-  
+
   if (speed > 0.01) {
     const angularVelocity = speed / radius[0];
     state.wheelRotation += angularVelocity * delta;
-    
+
     if (parts.wheels) {
       parts.wheels.forEach((wheelGroup: THREE.Group) => {
         wheelGroup.rotation.x = state.wheelRotation;
@@ -152,6 +158,7 @@ private updateWheelRotation(rigId: string, delta: number): void {
 ```
 
 ### Suspension Compression (Stubbed)
+
 ```typescript
 private updateSuspension(rigId: string, delta: number): void {
   // TODO: Integrate with physics wheelState.compression
@@ -160,6 +167,7 @@ private updateSuspension(rigId: string, delta: number): void {
 ```
 
 ### Steering (Front Wheels Only)
+
 ```typescript
 private updateSteering(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -168,7 +176,7 @@ private updateSteering(rigId: string, delta: number): void {
 
   const targetAngle = 0; // from feedback.steeringAngle
   state.steeringAngle.update(targetAngle, 1/60);
-  
+
   if (parts.steeringPivots) {
     const angle = state.steeringAngle.value;
     parts.steeringPivots.forEach((pivot, index) => {
@@ -181,6 +189,7 @@ private updateSteering(rigId: string, delta: number): void {
 ```
 
 ### Body Roll/Pitch
+
 ```typescript
 private updateBodyMotion(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -199,6 +208,7 @@ private updateBodyMotion(rigId: string, delta: number): void {
 ```
 
 ### Steering Wheel (Cabin)
+
 ```typescript
 private updateSteeringWheel(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -211,6 +221,7 @@ private updateSteeringWheel(rigId: string, delta: number): void {
 ```
 
 ### Module Visuals (Lug Tires, Plough)
+
 ```typescript
 private updateModuleVisuals(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -231,6 +242,7 @@ private updateModuleVisuals(rigId: string, delta: number): void {
 ```
 
 ### State Shell Pulse
+
 ```typescript
 private updateStateShell(rigId: string, delta: number): void {
   const state = this.rigAnimations.get(rigId);
@@ -248,6 +260,7 @@ private updateStateShell(rigId: string, delta: number): void {
 ## Integration Points
 
 ### 1. Rig Registration (renderer.ts)
+
 ```typescript
 // In constructor after rig creation:
 vehicleAnimationSystem.registerRig(
@@ -261,6 +274,7 @@ vehicleAnimationSystem.initializeMixer("utility-tractor", tractor.root);
 ```
 
 ### 2. Frame Update (render loop)
+
 ```typescript
 render(state: GameState): void {
   // ... existing code ...
@@ -276,6 +290,7 @@ render(state: GameState): void {
 ```
 
 ### 3. Camera Mode → Controls
+
 ```typescript
 setCameraMode(mode: CameraMode): void {
   // Disable all first
@@ -297,25 +312,25 @@ setCameraMode(mode: CameraMode): void {
 
 ## Testing & Verification
 
-| Check | Result |
-|-------|--------|
-| TypeScript | Not re-run in this session |
-| Unit Tests | Not re-run in this session |
+| Check            | Result                     |
+| ---------------- | -------------------------- |
+| TypeScript       | Not re-run in this session |
+| Unit Tests       | Not re-run in this session |
 | Production Build | Not re-run in this session |
-| Asset Boundary | Not re-run in this session |
+| Asset Boundary   | Not re-run in this session |
 
 ---
 
 ## Future Work (Stubs to Implement)
 
-| Method | Priority | Physics Source |
-|--------|----------|----------------|
-| `updateSuspension` | High | `wheelState.compression` (0-1) |
-| `updateSteering` | High | `feedback.steeringAngle` |
-| `updateBodyMotion` | High | `feedback.bodyRollOffset`/`bodyPitchOffset` |
-| `updateSteeringWheel` | Medium | `feedback.steeringAngle` |
-| `updateModuleVisuals` | Medium | Module installed state |
-| `updateStateShell` | Low | `integrityRatio`, `lastImpact` |
+| Method                | Priority | Physics Source                              |
+| --------------------- | -------- | ------------------------------------------- |
+| `updateSuspension`    | High     | `wheelState.compression` (0-1)              |
+| `updateSteering`      | High     | `feedback.steeringAngle`                    |
+| `updateBodyMotion`    | High     | `feedback.bodyRollOffset`/`bodyPitchOffset` |
+| `updateSteeringWheel` | Medium   | `feedback.steeringAngle`                    |
+| `updateModuleVisuals` | Medium   | Module installed state                      |
+| `updateStateShell`    | Low      | `integrityRatio`, `lastImpact`              |
 
 ---
 
@@ -333,7 +348,7 @@ setCameraMode(mode: CameraMode): void {
 ## Next Steps
 
 1. Implement `updateSuspension` using `wheelState.compression` from physics
-2. Implement `updateSteering` using `feedback.steeringAngle`  
+2. Implement `updateSteering` using `feedback.steeringAngle`
 3. Implement `updateBodyMotion` using `feedback.bodyRollOffset`/`bodyPitchOffset`
 4. Add steering wheel mesh animation
 5. Connect `updateModuleVisuals` to module install state
@@ -350,4 +365,4 @@ setCameraMode(mode: CameraMode): void {
 
 ---
 
-*Generated: 2026-07-27 | Skill: threejs-animation | Project: rigs-unbound*
+_Generated: 2026-07-27 | Skill: threejs-animation | Project: rigs-unbound_

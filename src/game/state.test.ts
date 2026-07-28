@@ -1249,7 +1249,10 @@ describe("save recovery and migration", () => {
   it("migrates predecessor schemas and filters unknown persisted capabilities", () => {
     const source = createInitialState("SCHEMA-PREDECESSOR");
     const makeLegacy = (schemaVersion: number) => {
-      const legacy = JSON.parse(JSON.stringify(source)) as Record<string, unknown>;
+      const legacy = JSON.parse(JSON.stringify(source)) as Record<
+        string,
+        unknown
+      >;
       legacy.schemaVersion = schemaVersion;
       legacy.progression = {
         journeys: source.progression.journeys,
@@ -1273,7 +1276,10 @@ describe("save recovery and migration", () => {
       return legacy;
     };
 
-    for (const schemaVersion of [V8_SAVE_SCHEMA_VERSION, PREVIOUS_SAVE_SCHEMA_VERSION]) {
+    for (const schemaVersion of [
+      V8_SAVE_SCHEMA_VERSION,
+      PREVIOUS_SAVE_SCHEMA_VERSION,
+    ]) {
       const recovered = recoverState(makeLegacy(schemaVersion));
       expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
       expect(recovered?.lastDiagnostic).toContain(`Schema v${schemaVersion}`);
@@ -1349,7 +1355,7 @@ describe("save recovery and migration", () => {
     expect(recovered?.rigs["utility-tractor"].modules).toEqual([]);
   });
 
-  it("migrates a Field 02 (v3) record without rewriting ground rigs as hover rigs", () => {
+  it("migrates a Field 02 legacy record without rewriting ground rigs as hover rigs", () => {
     const source = createInitialState("FIELD-02-MIGRATION");
     source.activeRigId = "toy-buggy";
     source.rigs["utility-tractor"].distanceTravelled = 143;
@@ -1361,7 +1367,7 @@ describe("save recovery and migration", () => {
       const { mobility, ...shared } = rig;
       return { ...shared, ...mobility };
     };
-    const v3 = {
+    const legacyField02 = {
       ...source,
       schemaVersion: 3,
       rigs: {
@@ -1370,7 +1376,9 @@ describe("save recovery and migration", () => {
       },
     };
 
-    const recovered = recoverState(JSON.parse(JSON.stringify(v3)) as unknown);
+    const recovered = recoverState(
+      JSON.parse(JSON.stringify(legacyField02)) as unknown,
+    );
 
     expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
     expect(recovered?.activeRigId).toBe("toy-buggy");

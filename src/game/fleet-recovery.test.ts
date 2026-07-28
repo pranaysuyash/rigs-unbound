@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createTandemTowConnection, updateTandemTowPhysics } from "./fleet-recovery";
+import {
+  createTandemTowConnection,
+  updateTandemTowPhysics,
+} from "./fleet-recovery";
 
 describe("multi-vehicle tandem fleet recovery engine", () => {
   it("calculates zero tow strap tension when distance is within rest length", () => {

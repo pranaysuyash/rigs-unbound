@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createInitialState } from "./state";
 import { deriveMissions } from "./mission-propositions";
-import {
-  createInitialProgressionState,
-  addInsight,
-} from "./progression";
+import { createInitialProgressionState, addInsight } from "./progression";
 
 describe("mission proposition derivation", () => {
   it("derives delivery propositions from discovered sites", () => {
@@ -30,10 +27,7 @@ describe("mission proposition derivation", () => {
   it("keeps expedition propositions gated behind progression", () => {
     const state = createInitialState("MISSION-TEST");
     state.discoveries = [];
-    const progression = addInsight(
-      createInitialProgressionState(),
-      8_000,
-    );
+    const progression = addInsight(createInitialProgressionState(), 8_000);
 
     const missions = deriveMissions(
       state,

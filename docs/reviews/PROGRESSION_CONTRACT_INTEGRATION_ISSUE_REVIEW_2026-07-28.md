@@ -1,72 +1,88 @@
 # Progression Contract Integration Issue Review
 
-Date: 2026-07-28  
-Status: Blocked pending parallel runtime-owner reconciliation  
-Severity: P1 integration blocker  
+Status: Reconciled architecture; runtime implementation gate closed for the progression-model question
+Severity: P1 design/integration issue, resolved at the contract level
 Scope: `src/game/progression.ts`, `src/game/state.ts`, progression/mission tests
 
 ## Finding
 
-The required integration gate currently fails during TypeScript compilation.
+The repository contains two progression models:
 
-Command:
-
-```text
-npm run typecheck && npx vitest run
-```
-
-Observed outcome: `npm run typecheck` exits with code 1 before Vitest runs.
-
-The active `state.ts` and new progression/mission tests expect a universal-XP contract including:
-
-- `advanceProgression`
-- `levelFromXp`
-- `restorationStageForXp`
-- `rungForLevel`
-- `totalAccountXp`
-- `ProgressionState.xp`
-- `ProgressionState.perRigRestorationXp`
-- XP-bearing mission rewards and `minRungIndex`
-
-The live `progression.ts` instead exposes a capability-shaped model based on rig journeys, verb mastery, insight, and milestones. It explicitly states that no universal XP or player level exists.
-
-## First-principles interpretation
-
-This is not a missing-export lint repair. It is a source-of-truth conflict between two progression models:
-
-1. capability-shaped progression: rig journey + mastery + insight;
+1. capability-shaped progression: rig Journey + per-verb Mastery + profile Insight;
 2. universal account XP progression: level/rung/restoration XP.
 
-Adding aliases or `any` fields would preserve two editable truths and make future save, mission, UI, and reward behavior ambiguous. The owner must choose whether universal XP is a deliberate product decision or whether the newer capability-shaped model supersedes the incoming tests and state consumers.
+They do not need to be collapsed into one model. The current runtime already uses the capability-shaped model consistently: `ProgressionState` contains journeys, mastery, insight, and milestones; mission rewards route into those tracks; save recovery validates that shape; and the active progression tests assert it.
 
-## Required reconciliation
+## Resolution
 
-The runtime owner must choose one canonical path and update the full dependency chain in one coherent slice:
+The capability-shaped model is canonical for the current games and engine foundation because it describes machine history, demonstrated capability, and player knowledge directly.
 
-- `ProgressionState` and initial state construction;
-- mission proposition and reward contracts;
-- state mutation and persistence/migration behavior;
-- progression tests and mission tests;
-- player-facing progression labels and operator evidence;
-- relevant ADR/tracker status.
+The XP model is retained as an optional game-specific policy. A future game may:
 
-If universal XP is retained, define its relationship to rig journey, mastery, and insight rather than silently replacing those concepts. If capability-shaped progression is retained, migrate `state.ts`, tests, and mission contracts to that model and preserve only explicit compatibility data needed for save migration.
+- use XP alone;
+- use capability progression and XP together;
+- use XP for account-level gates while capability tracks govern rig/verb eligibility;
+- add per-rig XP restoration where that game's restoration fantasy needs it.
 
-## Closure gate
+A hybrid must namespace the tracks and route rewards explicitly. It must not add ambiguous XP fields to the current `ProgressionState`, rename Insight or Mastery points to XP, or silently derive one track from the other.
 
-Do not advance `RU-0901–RU-0909`, `RU-0601 + RU-0406`, or claim implementation readiness until all of the following are true:
+The detailed boundary is documented in [Progression Model Coexistence and Composition](../exploration/PROGRESSION_MODEL_COEXISTENCE_AND_COMPOSITION_2026-07-28.md).
 
-- one canonical progression contract is recorded in an ADR or explicit contract document;
-- `src/game/` runtime owner reconciles the callers and tests;
-- `npm run typecheck` passes;
-- `npx vitest run` completes and its result is recorded;
-- save/reload and migration behavior is covered for the selected contract;
-- player and operator surfaces explain the resulting progression state.
+## Consequences
 
-## Ownership and constraint
+- Current games continue using capability-shaped progression without a universal level ladder.
+- Future games can opt into XP without forcing XP complexity into every save or mission contract.
+- Hybrid games can award both tracks from one activity through an explicit progression policy.
+- Cross-track conversion, if ever needed, requires a versioned migration/economy rule and must preserve capability state.
 
-`src/game/` contains uncommitted parallel-owned runtime work. This review does not edit it. Runtime changes require explicit collision clearance from the project owner or the owning agent. Documentation and tracker updates are safe and have been made to preserve the blocker and its closure path.
+## Remaining implementation boundary
 
-## Evidence tier
+This resolves the source-of-truth question. It does not claim that an XP policy or hybrid policy has already been implemented. When a concrete XP-consuming game exists, its policy state, reward routing, gates, migration, and UI must be implemented and tested as a separate slice.
 
-Tier 1 static/integration-gate evidence: the command was executed against the current workspace and TypeScript reported the contract mismatch. No browser or runtime evidence was collected because compilation did not reach the test or browser stages.
+The current mission-board/acceptance surface remains a product implementation gate, but it is no longer blocked on choosing between these two models.
+
+## Evidence
+
+- `src/game/progression.ts`: capability-shaped canonical kernel.
+- `src/game/state.ts`: durable `GameState.progression` integration.
+- `src/game/progression.test.ts`, `state-progression.test.ts`, and `mission-resolver.test.ts`: capability-shaped runtime coverage.
+- `npm run typecheck`: passed.
+- `npx vitest run`: 65 files, 382 tests passed.
+- `node tools/first-cut-browser-acceptance.cjs`: all 6 steps passed on
+  canonical port 4173 with zero console errors. The flow covered salvage
+  collection, `lug-tires` first meaningful spend, first-cut progression, blade
+  interaction, and furrow creation.
+
+The browser harness was aligned with the live `--tractor-rust` token after its
+first run reported `rgb(210, 150, 75)` as an active objective border absent from
+the historical allowlist. This was a test-contract correction, not a runtime
+behavior relaxation.
+
+## Addendum — first-rung onboarding contract drift
+
+The comprehensive `node tools/rig-lab-browser-acceptance.cjs` harness currently
+times out after fitting `lug-tires` while waiting for
+`progression.firstRung.complete === true`.
+
+This is a genuine contract drift, not a harness-only issue. The accepted
+product evidence in `FIRST_RUNG_AND_UNBOUND_PASSAGE_ADMISSION_2026-07-26.md`
+and `PARALLEL_WORK_PRESERVATION_AUDIT_2026-07-26.md` says:
+
+- the first meaningful module fit completes the mandatory first rung;
+- first-cut is optional immediate proof of benefit;
+- onboarding cannot require a plough-capable rig.
+
+The runtime reconciliation now restores the accepted semantics: after one
+meaningful module is fitted, the resolver reports `complete: true` while
+retaining `stage: "first-cut"` as optional contextual guidance. Focused tests
+were updated accordingly, and the first-cut browser smoke remains green.
+
+The comprehensive browser harness still has an open player-comprehension
+failure: it times out waiting for the `Fit a part at Home Silo` control lesson
+after reaching `choose-part`. The workshop lesson must be made observable in
+that real keyboard flow, or the harness must be corrected only if its setup is
+proven stale. Save/reload evidence remains open until this lesson gate passes.
+
+## Addendum (2026-07-28) - Current acceptance disposition
+
+The first-rung contract reconciliation is now integrated and accepted by automated evidence: first fit completes the mandatory rung, while first-cut remains optional contextual guidance. Root/deterministic typechecks pass, the full suite passes at 65 files / 383 tests, and the canonical 4173 browser acceptance passes across desktop and touch recovery/reload paths with zero console problems. The remaining progression work is not a campaign XP migration: it is a future mode-scoped XP prototype with explicit reward routing and idempotency, as described in the progression coexistence exploration.

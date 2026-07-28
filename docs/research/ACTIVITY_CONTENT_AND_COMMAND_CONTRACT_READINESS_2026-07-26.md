@@ -87,15 +87,15 @@ These are real future boundaries, not evidence of a hidden data-driven system.
 
 ## Ownership rules to preserve
 
-| Domain | Owns | Must not own |
-|---|---|---|
-| `GameWorld` | terrain, spatial affordances, durable world deltas | mission scoring or UI decisions |
-| capability contract | reusable machine action constraints | a particular activity's reward/pacing |
-| activity contract | objectives, requirements, state transition rules, rewards | terrain/physics implementation |
-| command boundary | player/AI/network intent and validation result | rendering behavior |
-| event boundary | immutable record of accepted transition | authoritative state mutation |
-| storage | serialization and migration | gameplay policy |
-| renderer, audio, UI | interpretation of snapshots and events | direct authoritative mutation |
+| Domain              | Owns                                                      | Must not own                          |
+| ------------------- | --------------------------------------------------------- | ------------------------------------- |
+| `GameWorld`         | terrain, spatial affordances, durable world deltas        | mission scoring or UI decisions       |
+| capability contract | reusable machine action constraints                       | a particular activity's reward/pacing |
+| activity contract   | objectives, requirements, state transition rules, rewards | terrain/physics implementation        |
+| command boundary    | player/AI/network intent and validation result            | rendering behavior                    |
+| event boundary      | immutable record of accepted transition                   | authoritative state mutation          |
+| storage             | serialization and migration                               | gameplay policy                       |
+| renderer, audio, UI | interpretation of snapshots and events                    | direct authoritative mutation         |
 
 ## Deliberately deferred implementation
 
@@ -259,6 +259,7 @@ and authored landmarks deliberately specific.
 ## Addendum (2026-07-26) - the primary-action path now proves a local command outcome, but still only for one proven activity seam
 
 - Re-checked `src/game/state.ts` and `src/main.ts` after the command executor
+
 ## Addendum (2026-07-26) - episode grammar composes above activity contracts, not instead of them
 
 - The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)

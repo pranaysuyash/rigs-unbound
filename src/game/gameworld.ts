@@ -126,8 +126,8 @@ export class GameWorld {
         "Reclamation gully: primary deform rejected at",
         gullyX,
         gullyZ,
-        "— surface may be non-deformable. The pre-blade journey will still"
-        + " fire but the terrain face may not block traversal.",
+        "— surface may be non-deformable. The pre-blade journey will still" +
+          " fire but the terrain face may not block traversal.",
       );
     }
   }

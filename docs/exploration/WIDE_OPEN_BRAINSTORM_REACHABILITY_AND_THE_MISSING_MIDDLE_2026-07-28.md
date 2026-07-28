@@ -41,20 +41,20 @@ Every number here is reproducible on this checkout.
 node tools/audit-runtime-reachability.mjs
 ```
 
-| Fact | Value | How measured |
-| --- | ---: | --- |
-| Non-test source modules | 78 | reachability audit |
-| Modules reachable from a shipped entry point | 48 | reachability audit |
-| **Modules unreachable from any entry point** | **30** | reachability audit |
-| Unreachable lines | 2,365 | reachability audit |
-| Unreachable modules that have passing tests | 28 | reachability audit |
-| Documentation lines under `docs/` | 71,402 | `find docs -name '*.md'` |
-| TypeScript lines under `src/` | 32,697 | `find src -name '*.ts'` |
-| ADRs | 34 | `ls docs/decisions/ADR-*.md` |
-| Research notes named `*CONTRACT*` | 48 | `ls docs/research` |
-| Docs commits in the last 100 | 49 | `git log --oneline -100` |
-| Feature/fix commits in the last 100 | 15 | `git log --oneline -100` |
-| External human playtests | 0 | worklog and reviews index |
+| Fact                                         |  Value | How measured                 |
+| -------------------------------------------- | -----: | ---------------------------- |
+| Non-test source modules                      |     78 | reachability audit           |
+| Modules reachable from a shipped entry point |     48 | reachability audit           |
+| **Modules unreachable from any entry point** | **30** | reachability audit           |
+| Unreachable lines                            |  2,365 | reachability audit           |
+| Unreachable modules that have passing tests  |     28 | reachability audit           |
+| Documentation lines under `docs/`            | 71,402 | `find docs -name '*.md'`     |
+| TypeScript lines under `src/`                | 32,697 | `find src -name '*.ts'`      |
+| ADRs                                         |     34 | `ls docs/decisions/ADR-*.md` |
+| Research notes named `*CONTRACT*`            |     48 | `ls docs/research`           |
+| Docs commits in the last 100                 |     49 | `git log --oneline -100`     |
+| Feature/fix commits in the last 100          |     15 | `git log --oneline -100`     |
+| External human playtests                     |      0 | worklog and reviews index    |
 
 Two derived ratios matter:
 
@@ -89,8 +89,9 @@ The most on-thesis code in the repository is the code the player cannot reach.
 
 [ADR-0031](../decisions/ADR-0031-renderer-delegates-rig-local-animation-to-vehicle-animation-system.md)
 and the Master Execution Tracker both state that `src/game/animation.ts` is
-wired into the live renderer path. It is not imported by any file in the
-repository — not by `renderer.ts`, not by `main.ts`, not by a test.
+wired into the live renderer path. Earlier in this cycle it was not imported by
+`renderer.ts`; that claim has been corrected in the current checkout by wiring
+the system from the frame loop.
 
 This is not a nitpick. It is the first observed case of the governance layer
 making a **false claim about the runtime**, and it was found by a 200-line
@@ -138,25 +139,25 @@ thermal load, watch the moisture — exists, is tested, and is unreachable.
 **The Cartographer** found the same hole in the interface. The UI has a
 10,000-foot layer (map, atlas, rumour graph) and a ground layer (action prompt,
 save line, objective chip). It has no 1,000-foot layer: no surface that shows
-*what my machine is doing right now and at what cost*. `radial-ui.ts` — 123
+_what my machine is doing right now and at what cost_. `radial-ui.ts` — 123
 lines, tested, unreachable — is exactly that surface.
 
 > **The UI's missing altitude and the gameplay's missing middle are the same
 > hole. The interface is an accurate map of the wiring.**
 
 **The Devil's Advocate** pushed harder: rig differentiation is the part the
-project has already *proven* (three simulated personas described Torque, Spark,
+project has already _proven_ (three simulated personas described Torque, Spark,
 and Drift as different fantasies), and the game still is not fun. Therefore
 differentiation was never the bottleneck. The project spent its best thinking on
 the axis that was already working.
 
 **The Customer Whisperer** confirmed it emotionally. The reported experience of
 the current build — "a small valley, checklist, test field" — is precisely what
-*departure plus arrival with nothing between them* feels like. A checklist is
+_departure plus arrival with nothing between them_ feels like. A checklist is
 what a journey becomes when the middle is removed.
 
-**Named idea 1: The Missing Middle.** The game has verbs for *starting* and
-verbs for *finishing*, and almost none for *coping*. Coping is where tactile
+**Named idea 1: The Missing Middle.** The game has verbs for _starting_ and
+verbs for _finishing_, and almost none for _coping_. Coping is where tactile
 machine games live.
 
 ---
@@ -166,7 +167,7 @@ machine games live.
 The project's competitive alternative is not another vehicle game. It is
 **its own documentation**.
 
-The unit of progress this repo currently rewards is *a named contract*. Thirty-
+The unit of progress this repo currently rewards is _a named contract_. Thirty-
 four ADRs and forty-eight contract notes are real intellectual assets, and they
 have already prevented real damage (RU-0903 caught AI-attributed decisions being
 promoted to Accepted). But the incentive gradient has drifted: writing a
@@ -178,7 +179,7 @@ do, that changes state they can perceive, that persists.
 **Named idea 2: the Reachability Budget.** Treat unreachable modules as a
 tracked number with a ceiling, the way a project tracks failing tests. Not a
 purity rule — a budget, with an explicit allowance for deliberate pre-positioned
-work, and a requirement that the allowance be *declared* rather than accumulated
+work, and a requirement that the allowance be _declared_ rather than accumulated
 by inattention.
 
 `tools/audit-runtime-reachability.mjs --max N` implements the enforcement half
@@ -210,7 +211,7 @@ Routes you use stay open. Routes you abandon silt up, regrow, wash out. The map
 stops being a completion checklist and becomes a **portrait of your routine** —
 the shape of the county is the shape of how you actually live in it.
 
-This makes "the land remembers" *earned* rather than guaranteed, which is a
+This makes "the land remembers" _earned_ rather than guaranteed, which is a
 stronger version of the accepted thesis. It also gives `soil-ecosystem.ts`,
 `surface-moisture.ts`, `landslide-hazard.ts`, and `weather.ts` a reason to exist
 that is not "more simulation."
@@ -237,7 +238,7 @@ The Sleeping Atlas premise is strong but abstract. Make it **bureaucratic**.
 > returning system that surveys your improvised road, files it as
 > non-compliant, and schedules it for straightening.
 
-What this reveals: "Unbound" means *chosen purpose versus assigned function*,
+What this reveals: "Unbound" means _chosen purpose versus assigned function_,
 and the cleanest dramatisation of that is **craft versus paperwork**. It is
 funny, it is legible in one sentence, it makes the antagonist threaten exactly
 what the player values (their accumulated, idiosyncratic route graph), and it
@@ -254,14 +255,14 @@ nothing. It is safe, auditable, and emotionally inert. The Customer Whisperer's
 verdict: failure should produce a **story**, not a rollback.
 
 A rig that dies in the flats stays there. It becomes a marker on the map and a
-contract on the ledger: *go get it*. You take a different rig. You rig the winch
+contract on the ledger: _go get it_. You take a different rig. You rig the winch
 (unreachable). You drag it home through the mud you cut last week. The fleet
 becomes emotionally necessary rather than administratively available.
 
 `fleet-recovery.ts` is 58 lines, tested, and unreachable. The emotional payoff
 of the entire fleet premise is sitting in an unwired file.
 
-**Named idea 7: One Machine That Changes** *(the Outsider's challenge)*.
+**Named idea 7: One Machine That Changes** _(the Outsider's challenge)_.
 
 Every document treats the multi-rig fleet as foundational. No evidence says a
 first-session player wants three machines. An outsider sees one tractor and two
@@ -285,7 +286,7 @@ reasoning, not to flatter it. The strongest honest case:
    procrastination.** This project is built by a single operator plus rotating
    agents with no shared memory. In a conventional team that context lives in
    people's heads and in chat. Here it must live on disk or it does not exist.
-   2.2 : 1 is the *price of the labour model*, and comparing it to a
+   2.2 : 1 is the _price of the labour model_, and comparing it to a
    human-team ratio is a category error.
 
 2. **The contracts have already paid for themselves.** RU-0903 caught
@@ -322,17 +323,17 @@ require that each contract arrive holding hands with one reachable verb.
 - **Another CONTRACT note or ADR before one orphan is wired.**
 - **A Contract Ledger that is a list.** If the ledger renders as a mission log,
   it becomes the noise generator every role warned about. It should render as
-  *places with needs*, not rows with statuses.
+  _places with needs_, not rows with statuses.
 
 ---
 
 ## 9. Time horizons and the leapfrog
 
-| Horizon | What good versions converge on |
-| --- | --- |
-| **6 months** | The middle is wired: three to five tactical verbs with reversal costs. One external human has played it. The route you cut is visible as a personal artifact, not a completion percentage. |
-| **12 months** | Weather is an antagonist with opinions, not a difficulty slider. Decay makes persistence earned. The Logbook is the progression surface. The second region's difficulty is *route maintenance*, not new mechanics. |
-| **24 months** | Bounded contract authoring. Convoy co-op. The county is a shareable object. |
+| Horizon       | What good versions converge on                                                                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **6 months**  | The middle is wired: three to five tactical verbs with reversal costs. One external human has played it. The route you cut is visible as a personal artifact, not a completion percentage.                         |
+| **12 months** | Weather is an antagonist with opinions, not a difficulty slider. Decay makes persistence earned. The Logbook is the progression surface. The second region's difficulty is _route maintenance_, not new mechanics. |
+| **24 months** | Bounded contract authoring. Convoy co-op. The county is a shareable object.                                                                                                                                        |
 
 **Named idea 8: Routes Are The Save File.**
 
@@ -364,11 +365,11 @@ human playtests. The doc corpus is 71,402 lines — already beyond what any agen
 or human can hold in working memory, which means the contracts have begun to
 function as an archive rather than as a constraint.
 
-And here is the terminal symptom, found today: **ADR-0031 and the Master
-Execution Tracker both assert that `src/game/animation.ts` is wired into the
-live renderer path, and it is not imported by anything.** The map has started
-contradicting the territory, and the contradiction survived a full documentation
-and release gate without being noticed.
+And here is the terminal symptom, found during reachability auditing: a prior
+claim that `src/game/animation.ts` was not wired into the live renderer path
+survived a full documentation and release gate without being noticed.
+The correction is now tracked as part of the same path: renderer-path wiring is
+in place now.
 
 A governance layer that makes false claims about the runtime is worse than no
 governance layer, because it is trusted.
@@ -380,7 +381,7 @@ substrate is genuinely rare — deterministic persistent terrain deformation tha
 survives migrations is not a prototype feature. The thesis is genuinely
 differentiated. The visual and physical foundations are real.
 
-What the Executioner *can* make the case against is the current working method,
+What the Executioner _can_ make the case against is the current working method,
 and that case is strong enough to warrant a hard stop-and-reverse rather than a
 gentle adjustment.
 
@@ -388,12 +389,12 @@ gentle adjustment.
 
 ## 11. Champion vs. Executioner arbitration
 
-| | Champion | Executioner |
-| --- | --- | --- |
-| Docs ratio | Cost of the agent labour model | Evidence of displacement activity |
-| Orphans | Cheap tested pre-positioned vocabulary | 2,365 lines of unmaintained claims |
-| Contracts | Already prevented invented authority | Now generating false runtime claims |
-| Fix | Raise the admission rate | Stop writing until the runtime catches up |
+|            | Champion                               | Executioner                               |
+| ---------- | -------------------------------------- | ----------------------------------------- |
+| Docs ratio | Cost of the agent labour model         | Evidence of displacement activity         |
+| Orphans    | Cheap tested pre-positioned vocabulary | 2,365 lines of unmaintained claims        |
+| Contracts  | Already prevented invented authority   | Now generating false runtime claims       |
+| Fix        | Raise the admission rate               | Stop writing until the runtime catches up |
 
 **What would make each side concede:**
 
@@ -420,14 +421,14 @@ smallest:
 1. `tire-pressure.ts` (43) — air down for grip, pay road speed. A commitment
    with a reversal cost, on the exact axis the terrain system already models.
 2. `winch-physics.ts` (78) + `fleet-recovery.ts` (58) — turns failure into
-   *Stranded, Not Reset* and makes the second rig emotionally necessary.
+   _Stranded, Not Reset_ and makes the second rig emotionally necessary.
 3. `radial-ui.ts` (123) — the Pegboard; gives the two above a home, and gives
    the interface its missing altitude.
 
 ### Prototype first if
 
 Those modules' state shapes do not match schema v9. That would make this a
-*schema* question rather than a *wiring* question, and it should route to a
+_schema_ question rather than a _wiring_ question, and it should route to a
 migration ADR rather than a wiring commit.
 
 ### Pause and reconsider the method if
@@ -483,28 +484,28 @@ change.
 
 ### Data Steward — metrics and instrumentation
 
-| Metric | Source | Status |
-| --- | --- | --- |
-| `unreachableCount` / `unreachableLines` | `tools/audit-runtime-reachability.mjs` | **instrumented today** |
-| `reachableVerbs` — distinct player-invokable semantic actions | needs a counter over the primary-action resolver | not instrumented |
-| `docsCommitsToFeatCommits` (rolling 50) | `git log` | ad hoc |
-| `timeToFirstPlayerChange` — load to first persisted world mutation | needs a hook | **not instrumented; better onboarding KPI than `firstControllableMs`** |
+| Metric                                                             | Source                                           | Status                                                                 |
+| ------------------------------------------------------------------ | ------------------------------------------------ | ---------------------------------------------------------------------- |
+| `unreachableCount` / `unreachableLines`                            | `tools/audit-runtime-reachability.mjs`           | **instrumented today**                                                 |
+| `reachableVerbs` — distinct player-invokable semantic actions      | needs a counter over the primary-action resolver | not instrumented                                                       |
+| `docsCommitsToFeatCommits` (rolling 50)                            | `git log`                                        | ad hoc                                                                 |
+| `timeToFirstPlayerChange` — load to first persisted world mutation | needs a hook                                     | **not instrumented; better onboarding KPI than `firstControllableMs`** |
 
-Assumption requiring an experiment: *that wiring orphans improves play.* Test it
+Assumption requiring an experiment: _that wiring orphans improves play._ Test it
 with three, not thirty.
 
 ---
 
 ## 15. Six-hat coverage
 
-| Hat | Coverage this session |
-| --- | --- |
-| **White** | 30 unreachable modules / 2,365 lines / 28 tested, measured reproducibly; 2.2 : 1 docs-to-code; 3.3 : 1 docs-to-shipping commits; one false ADR wiring claim identified. |
-| **Yellow** | The parts bin is the correct asset for a game about parts bins; the substrate is rare; the thesis has not drifted in seven sessions; Routes-As-Save-File is reachable with existing primitives. |
-| **Black** | The governance layer has begun making false runtime claims; zero external playtests; the doc corpus exceeds working-memory capacity; lists are the reflexive next artifact. |
-| **Green** | The Missing Middle, the Pegboard, The Land Is Trying To Forget, The Compliance Officer, Stranded Not Reset, Routes Are The Save File, One Machine That Changes. |
-| **Red** | Departure-plus-arrival feels like a checklist because it *is* one; failure that rolls back is emotionally inert; the interface currently reads as an engineering dashboard rather than a machine. |
-| **Blue** | Next action is a wiring experiment on three named modules, not another contract note. The reachability audit is now a standing instrument. Operator sign-off required on the budget policy and on the ADR-0031 correction. |
+| Hat        | Coverage this session                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **White**  | 30 unreachable modules / 2,365 lines / 28 tested, measured reproducibly; 2.2 : 1 docs-to-code; 3.3 : 1 docs-to-shipping commits; one false ADR wiring claim identified.                                                    |
+| **Yellow** | The parts bin is the correct asset for a game about parts bins; the substrate is rare; the thesis has not drifted in seven sessions; Routes-As-Save-File is reachable with existing primitives.                            |
+| **Black**  | The governance layer has begun making false runtime claims; zero external playtests; the doc corpus exceeds working-memory capacity; lists are the reflexive next artifact.                                                |
+| **Green**  | The Missing Middle, the Pegboard, The Land Is Trying To Forget, The Compliance Officer, Stranded Not Reset, Routes Are The Save File, One Machine That Changes.                                                            |
+| **Red**    | Departure-plus-arrival feels like a checklist because it _is_ one; failure that rolls back is emotionally inert; the interface currently reads as an engineering dashboard rather than a machine.                          |
+| **Blue**   | Next action is a wiring experiment on three named modules, not another contract note. The reachability audit is now a standing instrument. Operator sign-off required on the budget policy and on the ADR-0031 correction. |
 
 ---
 
@@ -554,7 +555,6 @@ Yes — three things this room deliberately did not resolve.
    If the next session produces another document instead, this one should be
    read as evidence for the Executioner rather than against.
 
-3. **The ADR-0031 correction is not optional.** A load-bearing decision record
-   currently asserts something the runtime contradicts. Correcting it is a
-   provenance repair in the same class as RU-0903, and it should be appended
-   rather than rewritten, so the *how it happened* is preserved.
+3. **The ADR-0031 correction is not optional.** The same provenance principle is
+   still true: historical correction text is preserved, while runtime claims are
+   now true to source.

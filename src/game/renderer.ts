@@ -50,6 +50,7 @@ import {
 } from "./collision";
 import { chaseViewportPolicy, RIG_HOOD_CAMERA_MOUNTS } from "./camera";
 import type { SalvageNode } from "./exploration";
+import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
 import type { RuntimeBridgeSpec } from "./runtime-assets";
@@ -97,7 +98,6 @@ const MAX_NODE_INSTANCES = 260;
 const MAX_DUST = 260;
 
 export interface RigParts {
-
   root: THREE.Group;
   /** Named local-space mount authored on the rendered rig silhouette. */
   hoodCameraSocket: THREE.Object3D;
@@ -167,6 +167,8 @@ export interface RuntimeAssetBridgeEvidence {
   status: "loading" | "loaded" | "fallback" | "error";
   fallbackActive: boolean;
   loadedNodeCount: number;
+  /** Authored clips bound from the imported asset and handed a live mixer. */
+  animationClipCount: number;
   errorMessage: string | null;
 }
 
@@ -245,42 +247,42 @@ export class GameRenderer {
   private readonly camera = new THREE.PerspectiveCamera(52, 1, 0.25, 900);
   private readonly gltfLoader = new GLTFLoader();
   private readonly sun = new THREE.DirectionalLight(0xffdeb0, 2.4);
-    private readonly hemisphere = new THREE.HemisphereLight(
-      0xb8ddff,
-      0x5d422d,
-      1.6,
-    );
+  private readonly hemisphere = new THREE.HemisphereLight(
+    0xb8ddff,
+    0x5d422d,
+    1.6,
+  );
 
-    private readonly rigs = new Map<RigId, RigParts>();
-    private readonly cargo: THREE.Group;
-    private readonly hitchLine: THREE.Line;
+  private readonly rigs = new Map<RigId, RigParts>();
+  private readonly cargo: THREE.Group;
+  private readonly hitchLine: THREE.Line;
 
-    private terrainMesh!: THREE.Mesh;
-    private terrainHeights!: Float32Array;
-    private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
-    private readonly terrainOrigin = -TERRAIN_SPAN / 2;
+  private terrainMesh!: THREE.Mesh;
+  private terrainHeights!: Float32Array;
+  private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
+  private readonly terrainOrigin = -TERRAIN_SPAN / 2;
 
-    private treeTrunks!: THREE.InstancedMesh;
-    private treeCrowns!: THREE.InstancedMesh;
-    private treeBillboards!: THREE.InstancedMesh;
-    private treeBillboardCount = 0;
-    private rocks!: THREE.InstancedMesh;
-    private rockBillboards!: THREE.InstancedMesh;
-    private rockBillboardCount = 0;
-    private felledTrunks!: THREE.InstancedMesh;
-    private salvageNodes!: THREE.InstancedMesh;
-    private furrowDecals!: THREE.InstancedMesh;
-    private water!: THREE.Mesh;
-    private waterMaterial!: THREE.ShaderMaterial;
-    private sky!: THREE.Mesh;
+  private treeTrunks!: THREE.InstancedMesh;
+  private treeCrowns!: THREE.InstancedMesh;
+  private treeBillboards!: THREE.InstancedMesh;
+  private treeBillboardCount = 0;
+  private rocks!: THREE.InstancedMesh;
+  private rockBillboards!: THREE.InstancedMesh;
+  private rockBillboardCount = 0;
+  private felledTrunks!: THREE.InstancedMesh;
+  private salvageNodes!: THREE.InstancedMesh;
+  private furrowDecals!: THREE.InstancedMesh;
+  private water!: THREE.Mesh;
+  private waterMaterial!: THREE.ShaderMaterial;
+  private sky!: THREE.Mesh;
 
-    private dust!: THREE.Points;
-    private readonly dustPositions = new Float32Array(MAX_DUST * 3);
-    private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
-    private readonly dustLife = new Float32Array(MAX_DUST);
-    private dustCursor = 0;
+  private dust!: THREE.Points;
+  private readonly dustPositions = new Float32Array(MAX_DUST * 3);
+  private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
+  private readonly dustLife = new Float32Array(MAX_DUST);
+  private dustCursor = 0;
 
-    private readonly dummy = new THREE.Object3D();
+  private readonly dummy = new THREE.Object3D();
   private propAnchorX = Number.POSITIVE_INFINITY;
   private propAnchorZ = Number.POSITIVE_INFINITY;
   private renderedFurrows = 0;
@@ -288,31 +290,31 @@ export class GameRenderer {
   private readonly furrowCutColor = new THREE.Color(0x3a2c1e);
   private readonly furrowFillColor = new THREE.Color(0x8a7a5a);
   private readonly tempColor = new THREE.Color();
-    private currentPhase: WorldPhase | null = null;
-    private lastFrameTime = performance.now();
-    private shake = 0;
-    private cameraInitialised = false;
-    private cameraRigId: RigId | null = null;
-    private lastCameraMode: CameraMode | null = null;
-    private lastCameraFocus: THREE.Vector3 | null = null;
-    private cameraResolution: CameraResolutionEvidence | null = null;
-    private readonly runtimeBridgeEvidence = new Map<
-      string,
-      RuntimeAssetBridgeEvidence
-    >();
-    private activeVisibilityProfileId: VisibilityProfileId =
-      DEFAULT_VISIBILITY_PROFILE;
-    private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
-    private readonly reducedMotionQuery = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
-    private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
-    /** One-frame presentation pulses sourced from authoritative condition loss. */
-    private readonly pendingConditionImpacts = new Set<RigId>();
-    private lastCameraFocusY: number | null = null;
+  private currentPhase: WorldPhase | null = null;
+  private lastFrameTime = performance.now();
+  private shake = 0;
+  private cameraInitialised = false;
+  private cameraRigId: RigId | null = null;
+  private lastCameraMode: CameraMode | null = null;
+  private lastCameraFocus: THREE.Vector3 | null = null;
+  private cameraResolution: CameraResolutionEvidence | null = null;
+  private readonly runtimeBridgeEvidence = new Map<
+    string,
+    RuntimeAssetBridgeEvidence
+  >();
+  private activeVisibilityProfileId: VisibilityProfileId =
+    DEFAULT_VISIBILITY_PROFILE;
+  private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
+  private readonly reducedMotionQuery = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  );
+  private readonly feedbackFrames = new Map<RigId, RigFeedbackFrame>();
+  /** One-frame presentation pulses sourced from authoritative condition loss. */
+  private readonly pendingConditionImpacts = new Set<RigId>();
+  private lastCameraFocusY: number | null = null;
 
-    /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
-    terrainBuildMs = 0;
+  /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
+  terrainBuildMs = 0;
 
   private readonly backendPolicy: RendererBackendPolicyConfig;
   private readonly rendererRequestedBackend: RendererBackendRequest;
@@ -320,9 +322,9 @@ export class GameRenderer {
   private rendererBackendFallback = false;
   private rendererBackendReason = "WebGL fallback/default policy";
 
-    private composer!: EffectComposer;
-    private bloomPass!: UnrealBloomPass;
-    private fxaaPass!: ShaderPass;
+  private composer!: EffectComposer;
+  private bloomPass!: UnrealBloomPass;
+  private fxaaPass!: ShaderPass;
   // quality-tier fields to the renderer: `RuntimeProfileController` measures the
   // frame window and the first controllable frame, and drives this class through
   // `setVisibilityProfile` (see `runtime-profile-policy.ts` and the call site in
@@ -362,13 +364,13 @@ export class GameRenderer {
     // Initialize post-processing composer
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    
+
     // Bloom pass for emissive materials and bright highlights
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.5,   // strength
-      0.4,   // radius
-      0.85   // threshold
+      0.5, // strength
+      0.4, // radius
+      0.85, // threshold
     );
     this.composer.addPass(this.bloomPass);
 
@@ -401,6 +403,13 @@ export class GameRenderer {
     this.rigs.set("toy-buggy", buggy);
     this.rigs.set("marsh-skimmer", skimmer);
     this.scene.add(tractor.root, buggy.root, skimmer.root);
+
+    // Rig-local presentation is owned by one subsystem (ADR-0034, superseding
+    // ADR-0031). The renderer keeps world placement, phase, terrain, camera,
+    // and post-processing; it no longer writes rig-local transforms directly.
+    for (const [rigId, parts] of this.rigs) {
+      vehicleAnimationSystem.registerRig(rigId, parts);
+    }
 
     this.cargo = this.createCargo();
     this.hitchLine = new THREE.Line(
@@ -459,7 +468,8 @@ export class GameRenderer {
       reason: policyAllowsAutoWebGPU
         ? `renderer=auto retained webgl for composer compatibility (${this.backendPolicy.policy})`
         : `rendererPolicy=${this.backendPolicy.policy} blocked auto webgpu (${this.backendPolicy.policyReason})`,
-      fallback: this.backendPolicy.request === "auto" && !policyAllowsAutoWebGPU,
+      fallback:
+        this.backendPolicy.request === "auto" && !policyAllowsAutoWebGPU,
     };
   }
 
@@ -1353,6 +1363,7 @@ export class GameRenderer {
         status: "loading",
         fallbackActive: true,
         loadedNodeCount: 0,
+        animationClipCount: 0,
         errorMessage: null,
       });
 
@@ -1383,12 +1394,26 @@ export class GameRenderer {
 
           bridge.clear();
           bridge.add(root);
+
+          // An imported asset may ship authored clips. Before this, nothing
+          // advanced them and the prop stood frozen; binding them to the
+          // animation system's mixer makes the imported animation real.
+          const boundClips = vehicleAnimationSystem.registerClips(
+            spec.assetId,
+            root,
+            gltf.animations ?? [],
+          );
+          if (boundClips > 0) {
+            vehicleAnimationSystem.playAllClips(spec.assetId);
+          }
+
           this.runtimeBridgeEvidence.set(spec.assetId, {
             assetId: spec.assetId,
             runtimePath: spec.runtimeUrl,
             status: "loaded",
             fallbackActive: false,
             loadedNodeCount: root.children.length,
+            animationClipCount: boundClips,
             errorMessage: null,
           });
         })
@@ -1399,6 +1424,7 @@ export class GameRenderer {
             status: "error",
             fallbackActive: true,
             loadedNodeCount: 0,
+            animationClipCount: 0,
             errorMessage:
               error instanceof Error
                 ? error.message
@@ -1474,6 +1500,76 @@ export class GameRenderer {
   // ---------------------------------------------------------------------------
   // Rigs
   // ---------------------------------------------------------------------------
+
+  /**
+   * Build a cockpit steering control mounted on a raked column.
+   *
+   * The returned group is the column. Inside it, the spinning part is named
+   * `steeringWheel` so `vehicleAnimationSystem` can resolve and turn it without
+   * the renderer having to expose another typed part. The rim lies in the XY
+   * plane, so the spin is a single rotation about local Z and the column's rake
+   * stays on the parent — that keeps the animation channel one axis regardless
+   * of how the rig is posed.
+   *
+   * This exists because the hood camera is a shipped feature that previously
+   * looked at nothing. A control that visibly answers the player's steering
+   * input is the rig telling the player what it is doing, which is the
+   * "rig is the interface" layer rather than another HUD readout.
+   */
+  private steeringControl(
+    radius: number,
+    rimColor: number,
+    rake: number,
+  ): THREE.Group {
+    const column = new THREE.Group();
+    column.rotation.x = rake;
+
+    const spin = new THREE.Group();
+    spin.name = "steeringWheel";
+
+    const rim = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, radius * 0.14, 6, 16),
+      material(rimColor, 0.7, 0.1),
+    );
+    spin.add(rim);
+
+    const hub = cylinder(
+      radius * 0.22,
+      radius * 0.22,
+      radius * 0.18,
+      8,
+      COLORS.gold,
+    );
+    hub.rotation.x = Math.PI / 2;
+    spin.add(hub);
+
+    // Three spokes read as a steering wheel from the hood view without the
+    // cost of a full rim mesh.
+    for (let index = 0; index < 3; index += 1) {
+      const angle = (index / 3) * Math.PI * 2;
+      const spoke = box(radius * 0.12, radius * 0.92, radius * 0.1, rimColor);
+      spoke.position.set(
+        (Math.sin(angle) * radius) / 2,
+        (Math.cos(angle) * radius) / 2,
+        0,
+      );
+      spoke.rotation.z = -angle;
+      spin.add(spoke);
+    }
+
+    const stalk = cylinder(
+      radius * 0.1,
+      radius * 0.1,
+      radius * 1.1,
+      6,
+      0x2d2d29,
+    );
+    stalk.rotation.x = Math.PI / 2;
+    stalk.position.z = -radius * 0.6;
+    column.add(spin, stalk);
+
+    return column;
+  }
 
   private blobShadow(radius: number, opacity: number): THREE.Mesh {
     const shadow = new THREE.Mesh(
@@ -1720,6 +1816,15 @@ export class GameRenderer {
       this.buildStateShell(3.2, 2.8, 5.2, 0xe89d43);
     stateShell.position.set(0, 1.8, -0.2);
 
+    // Inside the cab (centre z -1.05, depth 2.1), raked toward the seat, so it
+    // is physically where a driver would hold it and reads through the
+    // windscreen from the exterior cameras. The hood camera socket sits ahead
+    // of the windscreen at z 0.55, so this control is deliberately behind that
+    // view rather than pasted in front of it; an interior camera is what would
+    // make it a true cockpit instrument.
+    const steeringColumn = this.steeringControl(0.42, 0x30302c, -0.62);
+    steeringColumn.position.set(0, 2.72, -0.55);
+
     root.add(
       shadow,
       chassis,
@@ -1730,6 +1835,7 @@ export class GameRenderer {
       roof,
       beacon,
       exhaust,
+      steeringColumn,
       ploughPivot,
       headlights,
       cameraSocket,
@@ -1828,6 +1934,12 @@ export class GameRenderer {
       this.buildStateShell(2.4, 1.8, 4.2, 0xd9aa52);
     stateShell.position.set(0, 1.0, 0);
 
+    // In the open cockpit (centre z -0.55), smaller and more steeply raked than
+    // the tractor's, matching the buggy's go-kart posture. The buggy has no
+    // windscreen, so this one is directly visible from chase and side views.
+    const steeringColumn = this.steeringControl(0.3, 0x1f3b44, -0.78);
+    steeringColumn.position.set(0, 1.42, -0.3);
+
     root.add(
       shadow,
       chassis,
@@ -1838,6 +1950,7 @@ export class GameRenderer {
       headlights,
       cameraSocket,
       stateShell,
+      steeringColumn,
     );
     return {
       root,
@@ -2003,8 +2116,7 @@ export class GameRenderer {
       // furrows shift down by `offset` indices, so instance-slot `i` now
       // corresponds to array entry `i - offset`. Detect that case and copy
       // forward rather than rebuilding from scratch every frame.
-      const offset =
-        this.renderedFurrows - state.furrows.length;
+      const offset = this.renderedFurrows - state.furrows.length;
       if (offset > 0 && offset < this.renderedFurrows) {
         // Circular-buffer splice: copy shifted matrices and colours forward
         // in-place so the visual order matches the trimmed array.
@@ -2031,7 +2143,8 @@ export class GameRenderer {
       this.dummy.updateMatrix();
       this.furrowDecals.setMatrixAt(this.renderedFurrows, this.dummy.matrix);
       // Cut furrows are dark brown; fill furrows are lighter to show raised ground.
-      const colour = mark.mode === "fill" ? this.furrowFillColor : this.furrowCutColor;
+      const colour =
+        mark.mode === "fill" ? this.furrowFillColor : this.furrowCutColor;
       this.furrowDecals.setColorAt(this.renderedFurrows, colour);
       this.renderedFurrows += 1;
     }
@@ -2167,10 +2280,13 @@ export class GameRenderer {
       this.refreshProps(state);
     }
 
+    // Derive each rig's feedback exactly once, then hand the whole frame to the
+    // rig-local presentation owner. The renderer still owns feedback derivation
+    // because its evidence surface reports the same frames.
+    const presentationFrames = new Map<RigId, RigPresentationFrame>();
     for (const id of RIG_IDS) {
       const rigState = state.rigs[id];
-      const parts = this.rigs.get(id);
-      if (!parts) continue;
+      if (!this.rigs.has(id)) continue;
       const rigProfile = effectiveProfile(rigState.id, rigState.modules);
       const feedback = deriveRigFeedback(
         rigState,
@@ -2178,72 +2294,13 @@ export class GameRenderer {
         this.reducedMotionQuery.matches,
       );
       this.feedbackFrames.set(id, feedback);
-
-      parts.root.position.set(rigState.x, rigState.y, rigState.z);
-      parts.root.rotation.y = rigState.heading;
-      // Positive pitch is nose-up; a Y-then-X rotation drops +Z for positive X,
-      // so the sign is inverted here.
-      parts.root.rotation.x = -rigState.pitch + feedback.bodyPitchOffset;
-      parts.root.rotation.z = rigState.roll + feedback.bodyRollOffset;
-
-      for (const [moduleId, visuals] of Object.entries(parts.moduleVisuals)) {
-        const visible = rigState.modules.includes(moduleId as ModuleId);
-        for (const visual of visuals) visual.visible = visible;
-      }
-
-      if (parts.stateShellMaterial) {
-        const uniforms = parts.stateShellMaterial.uniforms;
-        if (uniforms["uTime"]) uniforms["uTime"].value = now / 1000;
-        if (uniforms["uIntegrity"])
-          uniforms["uIntegrity"].value = feedback.integrityRatio;
-        const impact = feedback.lastImpact;
-        const conditionImpact = this.pendingConditionImpacts.delete(id);
-        if (
-          (impact || conditionImpact) &&
-          uniforms["uHitPoint"] &&
-          uniforms["uHitTime"]
-        ) {
-          // Current collision outcomes identify severity but not a stable local
-          // hit coordinate. Use the shell centre for that authoritative damage
-          // pulse; a future collision event may supply `feedback.lastImpact`.
-          const point = impact ?? { x: 0, y: 0.6, z: 0, intensity: 1 };
-          (uniforms["uHitPoint"].value as THREE.Vector3).set(
-            point.x,
-            point.y,
-            point.z,
-          );
-          uniforms["uHitTime"].value = now / 1000;
-        }
-      }
-
-      if (rigState.mobility.kind === "ground") {
-        for (let index = 0; index < parts.wheels.length; index += 1) {
-          const wheel = parts.wheels[index]!;
-          const steeringPivot = parts.steeringPivots[index]!;
-          const rest = parts.wheelRestY[index]!;
-          const wheelState = rigState.mobility.wheels[index];
-          wheel.rotation.x = rigState.mobility.wheelRotation;
-          steeringPivot.rotation.y = index < 2 ? feedback.steeringAngle : 0;
-          if (wheelState) {
-            // Compression 0.5 is the resting position, so the wheel visibly
-            // rides up into the arch over a bump and drops away over a crest.
-            const travel = (wheelState.compression - 0.5) * 2 * 0.5;
-            steeringPivot.position.y = rest + travel * 0.6;
-          }
-        }
-      }
-
-      if (parts.ploughPivot) {
-        const plough = rigState.attachments.find(
-          (item) => item.id === "field-plough",
-        );
-        parts.ploughPivot.rotation.x = THREE.MathUtils.lerp(
-          parts.ploughPivot.rotation.x,
-          plough?.engaged ? 0.3 : -0.22,
-          1 - Math.exp(-8 * delta),
-        );
-      }
+      presentationFrames.set(id, {
+        rigState,
+        feedback,
+        conditionImpact: this.pendingConditionImpacts.delete(id),
+      });
     }
+    vehicleAnimationSystem.update(delta, now / 1000, presentationFrames);
 
     // Dust from the active rig's slipping wheels.
     const ground = this.world.terrain.sample(
@@ -2942,6 +2999,7 @@ export class GameRenderer {
 
   dispose(): void {
     window.removeEventListener("resize", this.resize);
+    vehicleAnimationSystem.dispose();
     // Dispose runtime bridge assets (GLTF models)
     this.runtimeBridgeEvidence.forEach((evidence) => {
       if (evidence.status === "loaded") {

@@ -317,3 +317,131 @@ The smallest proof that satisfies this spec is:
 Yes. The shell is only successful if it disappears into habit. Players should
 feel that the overlays are tools attached to the world, not menus that interrupt
 it.
+
+## Addendum (2026-07-28) — the Contract Board now needs an explicit choice contract
+
+The shell still owns overlay order, focus restoration, and accessibility.
+However, the board itself now has a separate interaction contract in
+[Mission Acceptance Surface Contract](./MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md).
+
+That note keeps the board readable and reachable without letting it become a
+second mission authority. In practice the shell should continue to guarantee:
+
+- visible heading and landmark structure,
+- keyboard and touch parity,
+- clear selected-row focus,
+- text-based status and reason output,
+- obvious close / back behavior.
+
+## Addendum (2026-07-28) — the board must also behave like an announced dialog boundary
+
+The board's accessible choice contract is now named in
+[Mission Acceptance Surface Contract](./MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md),
+and the live accessibility analysis notes the remaining browser contract more
+precisely:
+
+- the board should behave like a focus-managed dialog when opened,
+- the selected proposition should be announced with status and reason,
+- accept/dismiss should be explicit actions, not implied gestures,
+- focus should restore to the opener when the board closes.
+
+This is still shell territory, not runtime authority. It is the browser-facing
+announced boundary that makes the read-only board usable.
+
+## Addendum (2026-07-28) — `openContractBoard` is still a spec action, not a runtime action
+
+Source inspection of `src/` still finds no `openContractBoard` implementation
+or dedicated contract-board overlay. The runtime currently mounts the map,
+rumor map, hood dashboard, navigator, workshop, pause, and lesson surfaces,
+but not a separate board surface for the ledger contract.
+
+That means the input contract remains forward-looking:
+
+- `openContractBoard` is the canonical action name,
+- the overlay manager is the canonical shell host,
+- the actual board overlay still needs to be built and wired in before live
+  focus, row announcement, and compact-versus-expanded behavior can be
+  verified.
+
+The exact insertion point is the `OverlayKind` / `openOverlay` / `closeOverlay`
+cluster in `src/main.ts`: today it only knows about `map`, `pause`,
+`workshop`, and `lesson`, so the contract board has no runtime branch to
+enter yet.
+
+## Addendum (2026-07-28) — the row model now has its own contract
+
+The shell now has a dedicated row/announcement contract in
+[Mission Acceptance Row and Announcement Contract](./MISSION_ACCEPTANCE_ROW_AND_ANNOUNCEMENT_CONTRACT_2026-07-28.md).
+
+That keeps the shell responsibilities clear:
+
+- the shell manages the dialog boundary and focus restore,
+- the row contract manages selected vs actionable vs deferred semantics,
+- the acceptance surface contract keeps the board read-only and choice-shaped.
+
+## Addendum (2026-07-28) — the sectioned board layout now has its own contract
+
+The sectioning and compact-versus-expanded behavior now lives in
+[Mission Acceptance Section and Visibility Contract](./MISSION_ACCEPTANCE_SECTION_AND_VISIBILITY_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clean:
+
+- the shell owns overlays and focus,
+- the row contract owns announcement and selection,
+- the section contract owns compact/expanded presentation.
+
+## Addendum (2026-07-28) — the board header and summary now has its own contract
+
+The board title, summary line, and mode indicator now live in
+[Mission Acceptance Board Header and Summary Contract](./MISSION_ACCEPTANCE_BOARD_HEADER_AND_SUMMARY_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clear:
+
+- the shell owns dialog boundaries and focus restore,
+- the header contract owns orientation and summary,
+- the section contract owns compact/full layout,
+- the row contract owns selection and announcement.
+
+## Addendum (2026-07-28) — the history recap now has its own contract
+
+The board history section's retention and recap behavior now lives in
+[Mission Acceptance History and Recap Contract](./MISSION_ACCEPTANCE_HISTORY_RECAP_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clean:
+
+- the shell still owns the overlay boundary,
+- the history contract owns bounded recall,
+- the section contract owns where history sits in the board.
+
+## Addendum (2026-07-28) — the board transition and restore now have a contract
+
+The board's open, reconfigure, and close choreography now lives in
+[Mission Acceptance Transition and Restore Contract](./MISSION_ACCEPTANCE_TRANSITION_AND_RESTORE_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clear:
+
+- the shell owns the global overlay boundary,
+- the transition contract owns board reopen/restore behavior,
+- the row/section/header/history contracts own the board’s internal shape.
+
+## Addendum (2026-07-28) — the board empty state now has a contract
+
+The board's zero-row and fallback behavior now lives in
+[Mission Acceptance Empty State and Fallback Contract](./MISSION_ACCEPTANCE_EMPTY_STATE_AND_FALLBACK_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clear:
+
+- the shell still owns the overlay boundary,
+- the empty-state contract owns the no-rows explanation,
+- the board still keeps a readable way back to play.
+
+## Addendum (2026-07-28) — the board loading state now has a contract
+
+The board's loading and refresh behavior now lives in
+[Mission Acceptance Loading and Refresh Contract](./MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md).
+
+That keeps the shell contract clear:
+
+- the shell still owns the overlay boundary,
+- the loading contract owns the in-progress explanation,
+- the board still keeps a readable way back to play.

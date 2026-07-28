@@ -8,23 +8,23 @@
 
 ## Quick Reference by Category
 
-| Category | Skills Count | Primary Use |
-|----------|--------------|-------------|
-| Core Game Design | 1 | GDD, loops, progression, psychology |
-| Game Development Orchestrator | 1 | Platform/dimension routing |
-| 2D Games | 1 | Sprites, tilemaps, platformer patterns |
-| 3D Games | 1 | Rendering, shaders, physics, cameras, LOD |
-| Platform-Specific | 4 | Web, Mobile, PC/Console, VR/AR |
-| Multiplayer | 1 | Networking, sync, anti-cheat |
-| Art Pipeline | 1 | Style, assets, animation, organization |
-| Audio Systems | 1 | Categories, adaptive, 3D audio, mix |
-| Testing | 1 | Playwright, visual regression, WASM, perf |
-| Three.js Fundamentals | 1 | Scene, camera, renderer, math |
-| Three.js Animation | 1 | Keyframe, skeletal, morph, blending |
-| Three.js Interaction | 1 | Raycasting, controls, drag, hover |
-| Three.js Performance | 1 | Profiling, draw calls, instancing, auto-degrade |
-| R3F + Drei | 1 | Declarative 3D, hooks, instancing, post-proc |
-| Three.js Extras (geom, mat, light, load, post, shader, tex) | 8 | Specialized subsystems |
+| Category                                                    | Skills Count | Primary Use                                     |
+| ----------------------------------------------------------- | ------------ | ----------------------------------------------- |
+| Core Game Design                                            | 1            | GDD, loops, progression, psychology             |
+| Game Development Orchestrator                               | 1            | Platform/dimension routing                      |
+| 2D Games                                                    | 1            | Sprites, tilemaps, platformer patterns          |
+| 3D Games                                                    | 1            | Rendering, shaders, physics, cameras, LOD       |
+| Platform-Specific                                           | 4            | Web, Mobile, PC/Console, VR/AR                  |
+| Multiplayer                                                 | 1            | Networking, sync, anti-cheat                    |
+| Art Pipeline                                                | 1            | Style, assets, animation, organization          |
+| Audio Systems                                               | 1            | Categories, adaptive, 3D audio, mix             |
+| Testing                                                     | 1            | Playwright, visual regression, WASM, perf       |
+| Three.js Fundamentals                                       | 1            | Scene, camera, renderer, math                   |
+| Three.js Animation                                          | 1            | Keyframe, skeletal, morph, blending             |
+| Three.js Interaction                                        | 1            | Raycasting, controls, drag, hover               |
+| Three.js Performance                                        | 1            | Profiling, draw calls, instancing, auto-degrade |
+| R3F + Drei                                                  | 1            | Declarative 3D, hooks, instancing, post-proc    |
+| Three.js Extras (geom, mat, light, load, post, shader, tex) | 8            | Specialized subsystems                          |
 
 **Total: 26 directly relevant skills**
 
@@ -33,6 +33,7 @@
 ## Skill Paths (Load via `skill_view(name="...")`)
 
 ### Core Game Development Suite
+
 ```
 projects/skills/game-development/SKILLS.md                    # Orchestrator
 projects/skills/game-development/game-design/SKILL.md         # Core design principles
@@ -49,6 +50,7 @@ projects/skills/game-testing/SKILL.md                         # Automated testin
 ```
 
 ### Three.js / R3F Suite
+
 ```
 projects/skills/threejs-fundamentals/SKILL.md
 projects/skills/threejs-animation/SKILL.md
@@ -66,6 +68,7 @@ projects/skills/r3f-drei/SKILL.md
 ```
 
 ### Marketplace Mirror (External Source — davila7)
+
 ```
 codex/marketplace-davila7/market-davila7__claude-code-templates-cli-tool-components-skills-creative-design-game-development/SKILL.md
 codex/marketplace-davila7/market-davila7__claude-code-templates-cli-tool-components-skills-creative-design-game-development/2d-games/SKILL.md
@@ -84,22 +87,22 @@ codex/marketplace-davila7/market-davila7__claude-code-templates-cli-tool-compone
 
 ## Recommended Skill Loadouts by Task
 
-| Task | Skills to Load |
-|------|----------------|
-| **Core gameplay design** | `game-development/game-design`, `game-development` |
-| **3D web prototype (Three.js)** | `threejs-fundamentals`, `threejs-skills`, `game-development/web-games`, `threejs-performance` |
-| **3D web prototype (R3F)** | `r3f-drei`, `threejs-fundamentals`, `game-development/web-games`, `threejs-performance` |
-| **Vehicle/physics mechanics** | `threejs-fundamentals`, `threejs-animation`, `game-development/3d-games`, `game-development/game-design` |
-| **Multiplayer architecture** | `game-development/multiplayer`, `game-development/web-games` |
-| **Art pipeline & style** | `game-development/game-art`, `threejs-materials`, `threejs-textures`, `threejs-loaders` |
-| **Audio integration** | `game-development/game-audio`, `threejs-loaders` |
-| **Performance optimization** | `threejs-performance`, `r3f-drei` (AdaptiveDpr, Instancing), `game-development/web-games` |
-| **Testing/CI** | `game-testing`, `threejs-performance` |
-| **Mobile deployment** | `game-development/mobile-games`, `game-development/web-games` (PWA) |
-| **VR/AR consideration** | `game-development/vr-ar`, `threejs-interaction` (PointerLockControls) |
-| **Shader work** | `threejs-shaders`, `threejs-materials`, `r3f-drei` (shaderMaterial) |
-| **Animation systems** | `threejs-animation`, `r3f-drei` (useFrame), `game-development/game-design` |
-| **Input/controls** | `threejs-interaction`, `game-development/game-design`, `r3f-drei` (KeyboardControls) |
+| Task                            | Skills to Load                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Core gameplay design**        | `game-development/game-design`, `game-development`                                                       |
+| **3D web prototype (Three.js)** | `threejs-fundamentals`, `threejs-skills`, `game-development/web-games`, `threejs-performance`            |
+| **3D web prototype (R3F)**      | `r3f-drei`, `threejs-fundamentals`, `game-development/web-games`, `threejs-performance`                  |
+| **Vehicle/physics mechanics**   | `threejs-fundamentals`, `threejs-animation`, `game-development/3d-games`, `game-development/game-design` |
+| **Multiplayer architecture**    | `game-development/multiplayer`, `game-development/web-games`                                             |
+| **Art pipeline & style**        | `game-development/game-art`, `threejs-materials`, `threejs-textures`, `threejs-loaders`                  |
+| **Audio integration**           | `game-development/game-audio`, `threejs-loaders`                                                         |
+| **Performance optimization**    | `threejs-performance`, `r3f-drei` (AdaptiveDpr, Instancing), `game-development/web-games`                |
+| **Testing/CI**                  | `game-testing`, `threejs-performance`                                                                    |
+| **Mobile deployment**           | `game-development/mobile-games`, `game-development/web-games` (PWA)                                      |
+| **VR/AR consideration**         | `game-development/vr-ar`, `threejs-interaction` (PointerLockControls)                                    |
+| **Shader work**                 | `threejs-shaders`, `threejs-materials`, `r3f-drei` (shaderMaterial)                                      |
+| **Animation systems**           | `threejs-animation`, `r3f-drei` (useFrame), `game-development/game-design`                               |
+| **Input/controls**              | `threejs-interaction`, `game-development/game-design`, `r3f-drei` (KeyboardControls)                     |
 
 ---
 

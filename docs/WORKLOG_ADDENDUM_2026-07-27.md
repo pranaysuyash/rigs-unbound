@@ -88,7 +88,7 @@
   error in parallel-owned `src/game/animation.ts` was stale by the time of this
   correction note.
 - `src/game/animation.ts` has been reconciled in the current pass; `npm run
-  typecheck` has not been rerun yet in this session, so no fresh pass or fail
+typecheck` has not been rerun yet in this session, so no fresh pass or fail
   claim is being made here.
 
 ## 2026-07-27 — workshop guidance now derives from spend-ready first-rung state
@@ -116,7 +116,7 @@
   machine-friendly and human-friendly shapes.
 - `src/game/state.test.ts` now asserts that `publicState(state, world)` exposes
   the same first-rung summary as `resolveFirstRung(state, world.collectedNodes,
-  world)`, keeping the acceptance snapshot source honest.
+world)`, keeping the acceptance snapshot source honest.
 - `publicState(state, world)` now also exposes `progression.workshopActionable`,
   derived from the same first-rung and workshop reach facts that drive the HUD.
 

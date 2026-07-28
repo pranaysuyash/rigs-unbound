@@ -378,7 +378,7 @@ renderer mode, a save import API, or a share/ghost feature. Browser execution
 of the hook remains a required Tier 3+ proof before claiming a real runtime
 record validates end to end.
 
-## Addendum (2026-07-26) - replay schema v3 admits the actual initial simulation context
+## Addendum (2026-07-26) - replay schema legacy admits the actual initial simulation context
 
 Run records now capture a versioned immutable initial context exactly once at
 creation: canonical `GameState`, bounded `GameWorld` memory, and separate

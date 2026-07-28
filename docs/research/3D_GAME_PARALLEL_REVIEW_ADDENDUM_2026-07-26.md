@@ -115,6 +115,7 @@ The next implementation owner should take the smallest vertical proof in this or
   path.
 
 ## Addendum (2026-07-27): live renderer delegation superseded the earlier
+
 parallel-only reading of the animation note
 
 - At the time of the later 2026-07-27 addendum, the checkout wired

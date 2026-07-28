@@ -11,11 +11,7 @@
  * path is on tilled surface without pushing low-elevation cells underwater.
  */
 import { describe, expect, it } from "vitest";
-import {
-  FIXED_STEP_SECONDS,
-  type GameState,
-  type RigId,
-} from "./contracts";
+import { FIXED_STEP_SECONDS, type GameState, type RigId } from "./contracts";
 import { GameWorld } from "./gameworld";
 import { createInitialState, stepGame } from "./state";
 
@@ -191,11 +187,7 @@ describe("R3: cross-rig benefit — opened route helps other rigs too", () => {
     }
     expect(tilledWorld.terrain.surfaceIdAt(mud.x, mud.z)).toBe("tilled");
     placeRig(tilledState, mud.x, mud.z);
-    const skimmerTilled = driveAndRecordDistance(
-      tilledState,
-      tilledWorld,
-      80,
-    );
+    const skimmerTilled = driveAndRecordDistance(tilledState, tilledWorld, 80);
 
     expect(skimmerTilled).toBeGreaterThan(skimmerMud);
   });

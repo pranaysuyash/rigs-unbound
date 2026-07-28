@@ -57,9 +57,17 @@ export function canCraftRecipe(
 export function craftRecipe(
   recipe: CraftingRecipe,
   inventory: Record<CommodityType, number>,
-): { success: boolean; updatedInventory: Record<CommodityType, number>; craftedModuleId: string | null } {
+): {
+  success: boolean;
+  updatedInventory: Record<CommodityType, number>;
+  craftedModuleId: string | null;
+} {
   if (!canCraftRecipe(recipe, inventory)) {
-    return { success: false, updatedInventory: inventory, craftedModuleId: null };
+    return {
+      success: false,
+      updatedInventory: inventory,
+      craftedModuleId: null,
+    };
   }
 
   const updatedInventory = { ...inventory };

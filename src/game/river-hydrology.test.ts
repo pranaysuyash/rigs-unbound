@@ -14,7 +14,14 @@ describe("dynamic river hydrology & water drag engine", () => {
     const drowned = calculateRiverHydroState(1.8, 0, 2.0, 4500, false, 1.4);
     expect(drowned.engineHydroLocked).toBe(true);
 
-    const savedBySnorkel = calculateRiverHydroState(1.8, 0, 2.0, 4500, true, 1.4);
+    const savedBySnorkel = calculateRiverHydroState(
+      1.8,
+      0,
+      2.0,
+      4500,
+      true,
+      1.4,
+    );
     expect(savedBySnorkel.engineHydroLocked).toBe(false);
   });
 });

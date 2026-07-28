@@ -25,8 +25,10 @@ export function updateEngineThermalState(
   // Radiator airflow & water cooling
   const waterCoolingBonus = isFordingWater ? 4.0 : 1.0;
   const coolingRate = (0.015 + speedMps * 0.005) * waterCoolingBonus;
-  const heatDissipate = (currentState.temperatureCelsius - ambientTempCelsius) * coolingRate * deltaSeconds;
-
+  const heatDissipate =
+    (currentState.temperatureCelsius - ambientTempCelsius) *
+    coolingRate *
+    deltaSeconds;
 
   const newTemp = Math.max(
     ambientTempCelsius,

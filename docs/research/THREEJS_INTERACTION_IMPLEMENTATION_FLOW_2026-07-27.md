@@ -68,7 +68,7 @@ const pointerLockControls = new PointerLockControls(camera, domElement);
 ```typescript
 const transformControls = new TransformControls(camera, domElement);
 transformControls.addEventListener("dragging-changed", (event) => {
-  orbitControls.enabled = !event.value;  // Disable orbit during drag
+  orbitControls.enabled = !event.value; // Disable orbit during drag
 });
 // Keyboard: G=translate, R=rotate, S=scale, Escape=detach
 ```
@@ -104,23 +104,28 @@ function onClick(event) {
 
 ## Camera Mode → Controls Mapping
 
-| Camera Mode | OrbitControls | PointerLockControls | Notes |
-|-------------|---------------|---------------------|-------|
-| chase       | ✅ Enabled    | Unlocked             | Default follow camera |
-| side        | ✅ Enabled    | Unlocked             | Side view |
-| top-down    | ✅ Enabled    | Unlocked             | Overhead view |
-| survey      | ✅ Enabled    | Unlocked             | Wide survey mode |
-| hood        | ❌ Disabled   | ✅ Locked            | First-person from cab |
-| tactical    | ✅ Enabled    | Unlocked             | Tactical overview |
+| Camera Mode | OrbitControls | PointerLockControls | Notes                 |
+| ----------- | ------------- | ------------------- | --------------------- |
+| chase       | ✅ Enabled    | Unlocked            | Default follow camera |
+| side        | ✅ Enabled    | Unlocked            | Side view             |
+| top-down    | ✅ Enabled    | Unlocked            | Overhead view         |
+| survey      | ✅ Enabled    | Unlocked            | Wide survey mode      |
+| hood        | ❌ Disabled   | ✅ Locked           | First-person from cab |
+| tactical    | ✅ Enabled    | Unlocked            | Tactical overview     |
 
 ---
 
 ## Integration Points
 
 ### Renderer Integration
+
 ```typescript
 // In GameRenderer constructor:
-this.interactionSystem = new InteractionSystem(this.camera, this.domElement, this.scene);
+this.interactionSystem = new InteractionSystem(
+  this.camera,
+  this.domElement,
+  this.scene,
+);
 this.interactionSystem.registerRig("utility-tractor", tractor);
 this.interactionSystem.registerRig("toy-buggy", buggy);
 this.interactionSystem.registerRig("marsh-skimmer", skimmer);
@@ -130,6 +135,7 @@ this.interactionSystem.update(delta, state);
 ```
 
 ### Camera Mode Switching
+
 ```typescript
 setCameraMode(mode: CameraMode): void {
   this.interactionSystem.setCameraMode(mode);
@@ -140,11 +146,11 @@ setCameraMode(mode: CameraMode): void {
 
 ## Testing & Verification
 
-| Check | Result |
-|-------|--------|
-| TypeScript | ✅ Clean |
-| Unit Tests | ✅ 361/361 pass |
-| Production Build | ✅ Success |
+| Check            | Result          |
+| ---------------- | --------------- |
+| TypeScript       | ✅ Clean        |
+| Unit Tests       | ✅ 361/361 pass |
+| Production Build | ✅ Success      |
 
 ---
 
@@ -166,4 +172,4 @@ setCameraMode(mode: CameraMode): void {
 
 ---
 
-*Generated: 2026-07-27 | Skill: threejs-interaction | Project: rigs-unbound*
+_Generated: 2026-07-27 | Skill: threejs-interaction | Project: rigs-unbound_

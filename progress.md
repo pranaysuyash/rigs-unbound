@@ -237,7 +237,7 @@ The first code should answer a disputed question. It should not exist merely to 
 ## Field 02 convergence and browser acceptance — 2026-07-25
 
 - Integrated the parallel terrain, traversal, collision, exploration, minimap,
-  procedural-audio, schema-v3 persistence, and six-policy camera work into the
+  procedural-audio, legacy persistence, and six-policy camera work into the
   canonical root runtime.
 - Repaired the reusable browser acceptance tool after Field 02 superseded the
   Rig Lab 01 title and v2 storage contract.
@@ -249,7 +249,7 @@ The first code should answer a disputed question. It should not exist merely to 
   probe tests, production build, formatting, staged whitespace, and the full
   browser workflow on port 4174.
 - Current Tier 4 browser evidence covers all six camera policies, top-down
-  capture, terrain-aware cargo relay, buggy ramp traversal, schema-v3 reload,
+  capture, terrain-aware cargo relay, buggy ramp traversal, legacy reload,
   390 × 844 touch layout, performance snapshots, and zero console/page errors.
 - The production build still carries a visible initial-chunk advisory; current
   local evidence does not replace cold-cache representative-device measurement

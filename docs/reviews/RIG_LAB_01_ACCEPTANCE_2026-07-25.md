@@ -302,7 +302,7 @@ Closure: keep commercial claims out of the prototype; validate player pull befor
 
 Valid v1 state migrates; invalid data fails closed to a visible clean record; numeric values are clamped; bounded furrows prevent unbounded local growth; both keys clear explicitly. Browser acceptance proves a v2 relay result survives reload.
 
-Remaining risk: no fuzz/property corpus covers arbitrary malformed nested payloads, and no future v3 migration exists yet.
+Remaining risk: no fuzz/property corpus covers arbitrary malformed nested payloads, and no future legacy migration exists yet.
 
 Closure: add schema-validation fixtures and migration-chain tests when a third schema is proposed.
 

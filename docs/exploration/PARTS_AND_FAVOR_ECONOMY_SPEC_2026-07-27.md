@@ -9,16 +9,16 @@ This document proposes concrete accrual and spend loops for **Parts** and
 **Favor**, the two progression axes that ADR-0018 deliberately left
 under-specified. It does not mandate implementation; it gives the Farmfall slice
 and later economy work a shared vocabulary and a first set of bounded hypotheses
- to test.
+to test.
 
 ## Resource grammar (recap)
 
-| Resource | Kind | Spendable? | Accrues from | Spent on |
-| --- | --- | --- | --- | --- |
-| **Scrap** | soft liquidity | yes | salvage, broken parts, small jobs | ordinary repair, fabrication, fuel |
-| **Parts** | concrete inventory | yes (as objects) | salvage sites, rescue, trade, dismantling | module fitting, replacement components, upgrades |
-| **Favor** | relationship state | **no** | helping inhabitants, completing contracts, keeping promises | access, trust, loaners, blueprints, services |
-| **Insight** | knowledge | no | discovery, surveying, experimentation | reveals possibilities; gates content |
+| Resource    | Kind               | Spendable?       | Accrues from                                                | Spent on                                         |
+| ----------- | ------------------ | ---------------- | ----------------------------------------------------------- | ------------------------------------------------ |
+| **Scrap**   | soft liquidity     | yes              | salvage, broken parts, small jobs                           | ordinary repair, fabrication, fuel               |
+| **Parts**   | concrete inventory | yes (as objects) | salvage sites, rescue, trade, dismantling                   | module fitting, replacement components, upgrades |
+| **Favor**   | relationship state | **no**           | helping inhabitants, completing contracts, keeping promises | access, trust, loaners, blueprints, services     |
+| **Insight** | knowledge          | no               | discovery, surveying, experimentation                       | reveals possibilities; gates content             |
 
 ## Parts loop
 
@@ -112,14 +112,14 @@ inhabitant, faction, or place. It unlocks access and options; it is not
 
 ## Parts × Favor interaction
 
-| Scenario | Parts change | Favor change |
-| --- | --- | --- |
-| Recover salvage for self | +Parts | none |
-| Recover salvage for inhabitant | +small Parts or Scrap | +Favor |
-| Repair community pump using own Parts | -Parts | +Favor |
-| Sell salvaged Part to trader | -Part, +Scrap | depends on trader relationship |
-| Borrow a rare Part from trusted NPC | temporary Part | consumes/trust threshold |
-| Dismantle a storied Part | +Scrap | possible -Favor if the Part had provenance |
+| Scenario                              | Parts change          | Favor change                               |
+| ------------------------------------- | --------------------- | ------------------------------------------ |
+| Recover salvage for self              | +Parts                | none                                       |
+| Recover salvage for inhabitant        | +small Parts or Scrap | +Favor                                     |
+| Repair community pump using own Parts | -Parts                | +Favor                                     |
+| Sell salvaged Part to trader          | -Part, +Scrap         | depends on trader relationship             |
+| Borrow a rare Part from trusted NPC   | temporary Part        | consumes/trust threshold                   |
+| Dismantle a storied Part              | +Scrap                | possible -Favor if the Part had provenance |
 
 ## What this spec does not decide
 

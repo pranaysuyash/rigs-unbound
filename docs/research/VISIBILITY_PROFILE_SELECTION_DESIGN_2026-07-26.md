@@ -12,18 +12,18 @@ Define device-profile tiers with measurable thresholds, and expose fallback reas
 
 ### What exists today
 
-| Layer | Implementation | Gap |
-|-------|---------------|-----|
-| Visibility profiles | `full`, `standard`, `mobile-safe` with near/mid/far distance bands | No device-detection tier; no player-facing reason text |
-| Runtime profile policy | `selectRuntimeProfile()` checks average/p95 frame time against budget | Binary decision; no graduated quality tiers |
-| Fallback activation | `RuntimeProfileController` tracks fallback/recovery with 180-frame hysteresis | Player sees only "reduced scenery detail"; no reason why |
-| Developer diagnostics | fps, draw calls, heap, geometry/texture counts, profile summary | Hidden from players; no public surface |
-| Recovery | 180-frame healthy window, then restore to standard | No player notification of recovery |
+| Layer                  | Implementation                                                                | Gap                                                      |
+| ---------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Visibility profiles    | `full`, `standard`, `mobile-safe` with near/mid/far distance bands            | No device-detection tier; no player-facing reason text   |
+| Runtime profile policy | `selectRuntimeProfile()` checks average/p95 frame time against budget         | Binary decision; no graduated quality tiers              |
+| Fallback activation    | `RuntimeProfileController` tracks fallback/recovery with 180-frame hysteresis | Player sees only "reduced scenery detail"; no reason why |
+| Developer diagnostics  | fps, draw calls, heap, geometry/texture counts, profile summary               | Hidden from players; no public surface                   |
+| Recovery               | 180-frame healthy window, then restore to standard                            | No player notification of recovery                       |
 
 ### What's missing
 
 1. **Device-profile tiers**: No system to classify a device into a quality tier before runtime pressure appears
-2. **Player-facing reason text**: The current message "Performance safeguard active: reduced scenery detail." doesn't explain *why*
+2. **Player-facing reason text**: The current message "Performance safeguard active: reduced scenery detail." doesn't explain _why_
 3. **Loading progress meter**: No startup progress indicator beyond the welcome panel
 4. **Profile chooser**: No player-facing way to select or override the auto-detected tier
 5. **Cross-system resource governance**: Visibility fallback exists; simulation/audio/persistence fallbacks don't
@@ -34,13 +34,14 @@ Define device-profile tiers with measurable thresholds, and expose fallback reas
 
 Two player-facing tiers plus one operator-only benchmark tier:
 
-| Tier | Prop Radius | Frustum Cull | Representation | Instance Cap | Who selects it |
-|------|------------|--------------|----------------|--------------|----------------|
-| **balanced** (standard) | 168m | Yes | Full geometry, near/mid/far classification | Unlimited | Default; auto-selected at startup |
-| **conservative** (mobile-safe) | 132m | Yes | Reduced near distance, fewer instances | 600 instances | Auto-selected after 90 frame samples show budget breach |
-| ~~full~~ (benchmark-only) | 168m | Yes | Full geometry, all instances | Unlimited | Operator-only; never auto-selected, never player-facing |
+| Tier                           | Prop Radius | Frustum Cull | Representation                             | Instance Cap  | Who selects it                                          |
+| ------------------------------ | ----------- | ------------ | ------------------------------------------ | ------------- | ------------------------------------------------------- |
+| **balanced** (standard)        | 168m        | Yes          | Full geometry, near/mid/far classification | Unlimited     | Default; auto-selected at startup                       |
+| **conservative** (mobile-safe) | 132m        | Yes          | Reduced near distance, fewer instances     | 600 instances | Auto-selected after 90 frame samples show budget breach |
+| ~~full~~ (benchmark-only)      | 168m        | Yes          | Full geometry, all instances               | Unlimited     | Operator-only; never auto-selected, never player-facing |
 
 **Detection strategy**: Do NOT infer from user-agent. Instead:
+
 - Start at `balanced` (the acceptance baseline)
 - After 90 frame samples, if average frame time > 25ms or p95 frame time > 33.4ms, fall back to `conservative`
 - Recovery after 180 healthy frames (~3 seconds at 60fps)
@@ -52,16 +53,18 @@ Two player-facing tiers plus one operator-only benchmark tier:
 
 Each tier should have distinct, measurable visual differences:
 
-| Tier | Near Distance | Mid Distance | Far Distance | Instance Cap |
-|------|--------------|--------------|--------------|--------------|
-| balanced | 64m | 120m | 168m | Unlimited |
-| conservative | 48m | 96m | 132m | 600 instances |
+| Tier         | Near Distance | Mid Distance | Far Distance | Instance Cap  |
+| ------------ | ------------- | ------------ | ------------ | ------------- |
+| balanced     | 64m           | 120m         | 168m         | Unlimited     |
+| conservative | 48m           | 96m          | 132m         | 600 instances |
 
 **What changes for the player:**
+
 - **balanced**: Full visual range. Props rendered up to 168m. This is the acceptance baseline that most devices will use.
 - **conservative**: Noticeably sparser scenery. Props disappear at 132m instead of 168m. Near distance shrinks from 64m to 48m. Instance count capped at 600. Terrain feels more open. Frame rate improves.
 
 **What does NOT change:**
+
 - Simulation frequency (physics, collision, terrain deformation)
 - Camera behavior (all six policies still work)
 - Input responsiveness (same semantic actions)
@@ -72,17 +75,18 @@ Each tier should have distinct, measurable visual differences:
 
 Replace the opaque "Performance safeguard active: reduced scenery detail." with honest, plain-language reasons:
 
-| Fallback Reason Code | Player Message | Operator Message |
-|---------------------|---------------|-----------------|
-| `average-frame-budget` | "Your device is working hard to render the world. We've simplified the scenery to keep things smooth." | `average-frame-budget: avg {X}ms > {budget}ms` |
-| `p95-frame-budget` | "Some moments are heavier than usual. We've simplified the scenery to prevent stuttering." | `p95-frame-budget: p95 {X}ms > {budget}ms` |
-| `insufficient-frame-samples` | "Still measuring your device performance. Scenery will adjust automatically." | `awaiting-evidence: {count}/{min} samples` |
-| `recovery-window` | "Performance has improved. Scenery will restore in a few seconds." | `recovery: {count}/180 healthy frames` |
+| Fallback Reason Code         | Player Message                                                                                         | Operator Message                               |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| `average-frame-budget`       | "Your device is working hard to render the world. We've simplified the scenery to keep things smooth." | `average-frame-budget: avg {X}ms > {budget}ms` |
+| `p95-frame-budget`           | "Some moments are heavier than usual. We've simplified the scenery to prevent stuttering."             | `p95-frame-budget: p95 {X}ms > {budget}ms`     |
+| `insufficient-frame-samples` | "Still measuring your device performance. Scenery will adjust automatically."                          | `awaiting-evidence: {count}/{min} samples`     |
+| `recovery-window`            | "Performance has improved. Scenery will restore in a few seconds."                                     | `recovery: {count}/180 healthy frames`         |
 
 **Recovery message**: "Performance recovered. Scenery detail restored." (shown after the 180-frame hysteresis window completes, approximately 3 seconds at 60fps)
 
 **Why this works:**
-- Player learns *what* changed (scenery) and *why* (device performance)
+
+- Player learns _what_ changed (scenery) and _why_ (device performance)
 - No technical jargon (no "frame time", "p95", "budget")
 - Honest about the tradeoff (simpler scenery for smoother play)
 - Operator retains full technical detail in diagnostics
@@ -91,51 +95,56 @@ Replace the opaque "Performance safeguard active: reduced scenery detail." with 
 
 The current bootstrap uses `bootstrapStatus` in the welcome panel and `saveStatus` for persistence state. This design augments those existing elements rather than replacing them:
 
-| State | Player Sees (bootstrapStatus) | What Happens |
-|-------|------------------------------|--------------|
-| Initial | "Loading field data..." | Scene warming up (replaces empty welcome panel) |
-| Measuring | "Measuring device performance..." | Frame samples collecting after scene ready |
-| Ready | "Field systems ready." | Profile selected, world entered (existing behavior) |
-| Fallback | "Performance safeguard active: reduced scenery detail." | Conservative profile activated (existing behavior) |
-| Recovery | "Performance recovered. Scenery detail restored." | Standard profile restored |
+| State     | Player Sees (bootstrapStatus)                           | What Happens                                        |
+| --------- | ------------------------------------------------------- | --------------------------------------------------- |
+| Initial   | "Loading field data..."                                 | Scene warming up (replaces empty welcome panel)     |
+| Measuring | "Measuring device performance..."                       | Frame samples collecting after scene ready          |
+| Ready     | "Field systems ready."                                  | Profile selected, world entered (existing behavior) |
+| Fallback  | "Performance safeguard active: reduced scenery detail." | Conservative profile activated (existing behavior)  |
+| Recovery  | "Performance recovered. Scenery detail restored."       | Standard profile restored                           |
 
 **Integration with existing shell**: The `bootstrapStatus` element already exists in `index.html` and is updated by `src/main.ts`. This design adds the "Measuring" state between "Loading" and "Ready" without changing the existing shell structure. The `saveStatus` element continues to show persistence state independently.
 
 **What we will NOT do:**
+
 - Fake progress bars (the contract forbids this)
 - Show percentage numbers (we can't accurately predict load time)
 - Block interaction behind a splash screen
 
 ### 5. Evidence requirements before these tiers become public claims
 
-| Claim | Evidence Needed | Current Status |
-|-------|----------------|----------------|
-| "Smooth on most devices" | Representative-device benchmark across 3+ device classes | Missing |
-| "Automatic quality adjustment" | Browser capture showing profile switch before overload | Partial (policy exists, no representative capture) |
-| "No visual glitches during fallback" | Before/after screenshots at desktop + narrow mobile | Missing |
-| "Recovery is imperceptible" | Side-by-side comparison of standard vs restored standard | Missing |
-| "Scenery scales honestly" | Measured prop count reduction at each tier | Missing |
+| Claim                                | Evidence Needed                                          | Current Status                                     |
+| ------------------------------------ | -------------------------------------------------------- | -------------------------------------------------- |
+| "Smooth on most devices"             | Representative-device benchmark across 3+ device classes | Missing                                            |
+| "Automatic quality adjustment"       | Browser capture showing profile switch before overload   | Partial (policy exists, no representative capture) |
+| "No visual glitches during fallback" | Before/after screenshots at desktop + narrow mobile      | Missing                                            |
+| "Recovery is imperceptible"          | Side-by-side comparison of standard vs restored standard | Missing                                            |
+| "Scenery scales honestly"            | Measured prop count reduction at each tier               | Missing                                            |
 
 ## Implementation path
 
 ### Phase 1: Named tiers with measured thresholds
+
 - Define the three tiers with explicit distance bands
 - Wire tier selection through the existing `RuntimeProfileController`
 - Add player-facing reason text for each fallback code
 - Test: verify fallback activates before overload in a controlled scenario
 
 ### Phase 2: Loading progress surface
+
 - Add a textual progress indicator to the bootstrap shell
 - Wire it to actual load events (scene ready, first controllable, input ready)
 - Test: verify progress text updates during startup
 
 ### Phase 3: Representative-device evidence
+
 - Capture performance snapshots across 3+ device classes
 - Prove each tier produces distinct, measurable visual differences
 - Prove fallback and recovery are imperceptible to players
 - Test: before/after screenshots at each tier
 
 ### Phase 4: Player-facing profile chooser (future)
+
 - Only after representative-device evidence exists
 - Allow players to override auto-detection with a named quality preset ("balanced" / "conservative")
 - Preserve the "auto" default; manual selection is opt-in

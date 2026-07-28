@@ -164,4 +164,3 @@ Supported, diagnostic, and non-replayable entries are distinguishable in the
 record and validator output. The reusable inspector exposes exact divergence
 paths. Network authority, ghost export, retention policy, and account/cloud
 portability remain later D4 work rather than being implied complete here.
-

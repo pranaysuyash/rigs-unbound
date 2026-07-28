@@ -44,30 +44,30 @@ or a runtime authority.
 
 ## Family registry
 
-| Family | Core verbs | Locomotion envelope | Candidate game roles | Reference status |
-|---|---|---|---|---|
-| Farm / field | cultivate, seed, harvest, irrigate, tow | wheeled, tracked, marsh hybrid | farming, trade, restoration, racing | active |
-| Utility / tow | repair, tow, recover, carry, bridge | wheeled, tracked, articulated | service, salvage, construction, rescue | active |
-| Rescue / emergency | reach, stabilize, evacuate, illuminate, supply | wheeled, tracked, aquatic hybrid | disaster response, escort, co-op rescue | active |
-| Construction / salvage | lift, cut, brace, demolish, reclaim | wheeled, tracked, crane hybrid | building, ruins, economic recovery | active |
-| Scout / courier | discover, map, deliver, evade, signal | wheeled, bike, hover, light flight | exploration, time trials, relay | proposed |
-| Hauler / logistics | load, route, convoy, trade, provision | wheeled, tracked, aquatic | economy, convoy, settlement growth | proposed |
-| Amphibious / water | ferry, dredge, skim, pump, recover | aquatic, wheeled-aquatic, hover | flood, marsh, river, coast | active |
-| Extreme terrain | climb, anchor, survive, tunnel, traverse | snow, dune, vertical, hybrid | expedition, survival, discovery | active |
-| Aerial / orbital | lift, survey, dock, deploy, retrieve | VTOL, balloon, orbital | high-altitude, launch, zero-g | active |
-| Defense / warding | protect, distract, barricade, clear, escort | wheeled, tracked, modular | night defense, zombie tiers, faction conflict | proposed |
-| Civic / absurd | perform, parade, improvise, reveal, delight | any family substrate | festivals, myths, toyscale, surreal events | proposed |
+| Family                 | Core verbs                                     | Locomotion envelope                | Candidate game roles                          | Reference status |
+| ---------------------- | ---------------------------------------------- | ---------------------------------- | --------------------------------------------- | ---------------- |
+| Farm / field           | cultivate, seed, harvest, irrigate, tow        | wheeled, tracked, marsh hybrid     | farming, trade, restoration, racing           | active           |
+| Utility / tow          | repair, tow, recover, carry, bridge            | wheeled, tracked, articulated      | service, salvage, construction, rescue        | active           |
+| Rescue / emergency     | reach, stabilize, evacuate, illuminate, supply | wheeled, tracked, aquatic hybrid   | disaster response, escort, co-op rescue       | active           |
+| Construction / salvage | lift, cut, brace, demolish, reclaim            | wheeled, tracked, crane hybrid     | building, ruins, economic recovery            | active           |
+| Scout / courier        | discover, map, deliver, evade, signal          | wheeled, bike, hover, light flight | exploration, time trials, relay               | proposed         |
+| Hauler / logistics     | load, route, convoy, trade, provision          | wheeled, tracked, aquatic          | economy, convoy, settlement growth            | proposed         |
+| Amphibious / water     | ferry, dredge, skim, pump, recover             | aquatic, wheeled-aquatic, hover    | flood, marsh, river, coast                    | active           |
+| Extreme terrain        | climb, anchor, survive, tunnel, traverse       | snow, dune, vertical, hybrid       | expedition, survival, discovery               | active           |
+| Aerial / orbital       | lift, survey, dock, deploy, retrieve           | VTOL, balloon, orbital             | high-altitude, launch, zero-g                 | active           |
+| Defense / warding      | protect, distract, barricade, clear, escort    | wheeled, tracked, modular          | night defense, zombie tiers, faction conflict | proposed         |
+| Civic / absurd         | perform, parade, improvise, reveal, delight    | any family substrate               | festivals, myths, toyscale, surreal events    | proposed         |
 
 The registry is intentionally broader than the current runtime. “Active” means
 there is an image/reference exploration lane, not that the family is playable.
 
 ## Current generated tranche
 
-| Asset | What it explores | Intended next use |
-|---|---|---|
-| [utility-tow-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/utility-tow-lineup-2026-07-28.png) | mechanic van, tow boom, tracked recovery, flatbed, service cart, inspection crane | isolate the tow rig and recovery crawler; define winch, boom, cargo, and stabilizer sockets |
-| [rescue-emergency-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/rescue-emergency-lineup-2026-07-28.png) | ambulance, flood boat, mountain crawler, water tender, clinic bus, search rover | compare response roles; remove accidental real-world markings before any public-facing reuse |
-| [extreme-aspiration-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/extreme-aspiration-lineup-2026-07-28.png) | snow crawler, dune sail hauler, marsh skimmer, VTOL, sky barge, orbital tug | choose one grounded extreme rig and one aspirational rig for isolated reconstruction tests |
+| Asset                                                                                                                       | What it explores                                                                  | Intended next use                                                                            |
+| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| [utility-tow-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/utility-tow-lineup-2026-07-28.png)               | mechanic van, tow boom, tracked recovery, flatbed, service cart, inspection crane | isolate the tow rig and recovery crawler; define winch, boom, cargo, and stabilizer sockets  |
+| [rescue-emergency-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/rescue-emergency-lineup-2026-07-28.png)     | ambulance, flood boat, mountain crawler, water tender, clinic bus, search rover   | compare response roles; remove accidental real-world markings before any public-facing reuse |
+| [extreme-aspiration-lineup-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/extreme-aspiration-lineup-2026-07-28.png) | snow crawler, dune sail hauler, marsh skimmer, VTOL, sky barge, orbital tug       | choose one grounded extreme rig and one aspirational rig for isolated reconstruction tests   |
 
 ### First isolated candidate
 
@@ -78,6 +78,19 @@ front tow eyes, a rear winch, a folded boom, cab mass, side tool drawers, two
 axles, and a clear neutral background. It is still not sufficient for mesh
 admission because exact scale, rear/side/top views, socket coordinates,
 underbody geometry, wheel pivot conventions, and material IDs are unknown.
+
+The package now has a visual turnaround and a mode-diff board:
+
+- [utility-tow-reconstruction-turnaround-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/utility-tow-reconstruction-turnaround-2026-07-28.png)
+- [utility-tow-mode-diff-board-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/utility-tow-mode-diff-board-2026-07-28.png)
+- Detailed intake and admission gates: [Utility Tow Reconstruction Intake](../research/UTILITY_TOW_RECONSTRUCTION_INTAKE_2026-07-28.md)
+
+The turnaround is a generated multi-view aid, not exact orthographic proof.
+The mode board is design evidence, not geometry evidence.
+
+### Extreme candidate
+
+[snow-crawler-reconstruction-candidate-2026-07-28.png](assets/vehicle-family-atlas-2026-07-28/snow-crawler-reconstruction-candidate-2026-07-28.png) is the provisional extreme candidate `extreme_snow_crawler_01`. It adds tracked locomotion, heated track housings, a front blade, cargo, and cold-weather survival verbs. It remains single-view reference-only.
 
 All three are concept/reference only. They are not approved runtime assets.
 
@@ -118,24 +131,25 @@ presentation:
   animation_roles: [boom_raise, winch_pull, stabilizer_deploy, beacon_spin]
 asset_pipeline:
   reference_views: [beauty, front, side, rear, top]
-  mesh_targets: {high: 30000, medium: 12000, low: 3000}
+  mesh_targets: { high: 30000, medium: 12000, low: 3000 }
   collision: convex_compound
-  approval_gates: [reference_admission, mesh_validation, runtime_budget, browser_proof]
+  approval_gates:
+    [reference_admission, mesh_validation, runtime_budget, browser_proof]
 ```
 
 ## Mode/use-case diff model
 
 The same family should be evaluated across modes using a structured diff:
 
-| Diff axis | Farming | Racing | Survival / zombie tiers | Construction / salvage | Absurd / discovery |
-|---|---|---|---|---|---|
-| Primary verb | cultivate | route and corner | illuminate, escape, defend | lift, brace, reclaim | reveal, improvise, delight |
-| Valuable stat | soil care and reliability | acceleration and handling | light reach, noise, fuel | torque, stability, socket capacity | surprise and interaction affordance |
-| Failure cost | crop loss, time | position, condition | health, fuel, shelter | collapse, debt, lost materials | opportunity and reputation |
-| Attachment emphasis | plow, seeder, trailer | aero kit, slicks, ballast | floodlights, cage, decoy, weapon mount subject to design review | crane, winch, breaker, scaffold | parade rig, impossible tool, signal device |
-| Lighting | warm work lamps | readable track markers | darkness is a resource problem; progressive tiers demand better coverage | work lamps and dust readability | theatrical reveal with readable navigation |
-| Camera | work close and isometric | chase and corner anticipation | low visibility tactical and rear-threat awareness | overhead placement and attachment clearance | authored set-piece plus free exploration |
-| World relationship | improves land | masters a route | protects a fragile route or shelter | changes the physical world | changes what the player believes is possible |
+| Diff axis           | Farming                   | Racing                        | Survival / zombie tiers                                                  | Construction / salvage                      | Absurd / discovery                           |
+| ------------------- | ------------------------- | ----------------------------- | ------------------------------------------------------------------------ | ------------------------------------------- | -------------------------------------------- |
+| Primary verb        | cultivate                 | route and corner              | illuminate, escape, defend                                               | lift, brace, reclaim                        | reveal, improvise, delight                   |
+| Valuable stat       | soil care and reliability | acceleration and handling     | light reach, noise, fuel                                                 | torque, stability, socket capacity          | surprise and interaction affordance          |
+| Failure cost        | crop loss, time           | position, condition           | health, fuel, shelter                                                    | collapse, debt, lost materials              | opportunity and reputation                   |
+| Attachment emphasis | plow, seeder, trailer     | aero kit, slicks, ballast     | floodlights, cage, decoy, weapon mount subject to design review          | crane, winch, breaker, scaffold             | parade rig, impossible tool, signal device   |
+| Lighting            | warm work lamps           | readable track markers        | darkness is a resource problem; progressive tiers demand better coverage | work lamps and dust readability             | theatrical reveal with readable navigation   |
+| Camera              | work close and isometric  | chase and corner anticipation | low visibility tactical and rear-threat awareness                        | overhead placement and attachment clearance | authored set-piece plus free exploration     |
+| World relationship  | improves land             | masters a route               | protects a fragile route or shelter                                      | changes the physical world                  | changes what the player believes is possible |
 
 This table is a design test, not a promise that every mode ships. A candidate
 that only changes paint, props, or weather fails the same-vehicle test.
@@ -187,6 +201,9 @@ functional parts, material callouts, socket locations, and an uncertainty log.
 5. Complete `utility_tow_recovery_01` as a reconstruction package. Closure:
    front/side/rear/top views, dimensions, socket map, material callouts,
    uncertainty log, and `img2threejs` intake checks.
+6. Decide whether `extreme_snow_crawler_01` is the grounded extreme candidate
+   or whether the marsh skimmer should be preferred. Closure: verb/tradeoff
+   comparison and stable ID.
 
 ## Anything else?
 
@@ -211,3 +228,5 @@ and gameplay readability instead of only aspirational beauty shots.
   Pass 3 checked provenance, uncertainty, and the “Anything else?” sweep.
 - Selected `utility_tow_recovery_01` and generated one isolated candidate view;
   it passes visual intake review but remains below multi-view admission.
+- Added a generated turnaround, cross-mode board, and snow-crawler candidate;
+  all passed visual review and remain below mesh/runtime admission.

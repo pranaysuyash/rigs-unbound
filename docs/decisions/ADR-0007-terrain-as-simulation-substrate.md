@@ -125,7 +125,7 @@ reads it back. Felled obstacles and harvested salvage persist the same way.
 
 **Negative / accepted risk**
 
-- Save schema must go to v3. Mitigation: the existing v1→v2 migration pattern is
+- Save schema must go to legacy. Mitigation: the existing v1→v2 migration pattern is
   extended, not replaced; v1 and v2 records still load.
 - Terrain mesh generation costs boot time. Mitigation: measured, budgeted, and
   reported through the existing performance instrumentation rather than assumed.

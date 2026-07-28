@@ -18,14 +18,14 @@ That is enough for the current scale. What is not yet present is a separate rout
 
 ## Current route model
 
-| Concern | Current posture |
-| --- | --- |
-| Route construction | Authored routes are turned into grade-limited elevation profiles. |
-| Route legality | The corridor is deterministic and validated by construction. |
-| Recovery behavior | A disabled rig can be winched back to the nearest authored track. |
-| Clearance vocabulary | Clearance exists as a real rig state and contract field. |
-| Capability vocabulary | Capabilities already gate affordances and recovery options. |
-| Diagnostic language | Failure reasons are still mostly prose, not structured route-cost events. |
+| Concern               | Current posture                                                           |
+| --------------------- | ------------------------------------------------------------------------- |
+| Route construction    | Authored routes are turned into grade-limited elevation profiles.         |
+| Route legality        | The corridor is deterministic and validated by construction.              |
+| Recovery behavior     | A disabled rig can be winched back to the nearest authored track.         |
+| Clearance vocabulary  | Clearance exists as a real rig state and contract field.                  |
+| Capability vocabulary | Capabilities already gate affordances and recovery options.               |
+| Diagnostic language   | Failure reasons are still mostly prose, not structured route-cost events. |
 
 ## What is already real
 

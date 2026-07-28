@@ -26,7 +26,11 @@ export function computeBoulderImpactDisplacement(
   const impactImpulseN = (rigMassKg * rigSpeedMps) / 0.1;
 
   if (impactImpulseN <= staticFrictionForceN) {
-    return { updatedBoulder: boulder, impulseN: Number(impactImpulseN.toFixed(1)), displaced: false };
+    return {
+      updatedBoulder: boulder,
+      impulseN: Number(impactImpulseN.toFixed(1)),
+      displaced: false,
+    };
   }
 
   // Calculate displacement magnitude

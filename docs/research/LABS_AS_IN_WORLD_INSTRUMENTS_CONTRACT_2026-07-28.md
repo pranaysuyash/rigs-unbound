@@ -164,3 +164,26 @@ The smallest durable proof for this contract is:
 Yes: the key product rule is continuity. The labs are useful only if they let
 the user inspect a problem or evidence path without breaking the world they are
 trying to understand.
+
+## Addendum (2026-07-28) - the labs contract is still spec-only in runtime
+
+- Source inspection of `src/` still finds no `openLabs` runtime action and no
+  dedicated labs drawer overlay.
+- The only current shell-facing lab affordance in runtime is the separate
+  `#physics-lab-link` anchor in `src/main.ts`, which points to a standalone
+  page rather than an in-shell instrument tray.
+- That means the contract remains a projection and continuity note, not a live
+  labs drawer surface. The missing work is still the same: a shell-mounted
+  entry that preserves context and focus.
+
+## Addendum (2026-07-28) - live browser proof confirms the separate-page lab boundary
+
+- Re-checked the canonical browser surface at `http://localhost:4173/`.
+- The live DOM exposes `#physics-lab-link` with `href="/physics-lab.html"`,
+  so the lab is still a separate page entry rather than a shell-mounted
+  drawer.
+- A DOM sweep found no mounted labs drawer element or labs overlay in the
+  public shell.
+- That keeps the next proof slice focused on routing plus focus-safe shell
+  entry, not more lab vocabulary.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 source inspection.

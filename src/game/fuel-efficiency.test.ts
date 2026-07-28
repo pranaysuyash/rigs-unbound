@@ -14,8 +14,12 @@ describe("fuel consumption & range efficiency engine", () => {
     const cruising = updateFuelConsumption(initial, 1500, 0.3, 10, 60);
     const heavyPull = updateFuelConsumption(initial, 3000, 1.0, 4, 60);
 
-    expect(heavyPull.fuelBurnRateLitersPerMin).toBeGreaterThan(cruising.fuelBurnRateLitersPerMin);
-    expect(heavyPull.currentFuelLiters).toBeLessThan(cruising.currentFuelLiters);
+    expect(heavyPull.fuelBurnRateLitersPerMin).toBeGreaterThan(
+      cruising.fuelBurnRateLitersPerMin,
+    );
+    expect(heavyPull.currentFuelLiters).toBeLessThan(
+      cruising.currentFuelLiters,
+    );
   });
 
   it("flags outOfFuel when tank depletes to 0", () => {

@@ -50,7 +50,10 @@ import {
 } from "./terrain-traversal";
 import { WATER_LEVEL } from "./world";
 import { calculateRiverHydroState } from "./river-hydrology";
-import { computeBarometricAtmosphere, applyAltitudePowerDerate } from "./barometric-engine";
+import {
+  computeBarometricAtmosphere,
+  applyAltitudePowerDerate,
+} from "./barometric-engine";
 
 /**
  * Fraction of gravity a tyre can transmit at grip 1.0.
@@ -330,7 +333,8 @@ function stepGroundMotion(
     false,
     profile.fordDepth,
   );
-  const drowning = hydroState.engineHydroLocked || waterDepth > profile.fordDepth;
+  const drowning =
+    hydroState.engineHydroLocked || waterDepth > profile.fordDepth;
   const netGrip = grip * hydroState.effectiveGripRatio;
 
   // ---------------------------------------------------------------------------
@@ -348,7 +352,10 @@ function stepGroundMotion(
       ground.height,
       rig.modules.includes("survey-mast"),
     );
-    const effectivePower = applyAltitudePowerDerate(profile.enginePower, atmos.engineAirEfficiency);
+    const effectivePower = applyAltitudePowerDerate(
+      profile.enginePower,
+      atmos.engineAirEfficiency,
+    );
     const baseDemand = driveForce(profile, rig.speed);
     const demand = (baseDemand * effectivePower) / profile.enginePower;
     const applied = Math.min(demand, tractionLimit);

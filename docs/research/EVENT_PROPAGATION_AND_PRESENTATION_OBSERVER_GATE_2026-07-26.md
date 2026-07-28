@@ -12,13 +12,13 @@ The current run record is an audit/replay artifact, not a live pub/sub mechanism
 
 ## Current event-shaped behavior
 
-| Mechanism | Role | Authority |
-| --- | --- | --- |
-| Versioned primary-action and rig-selection outcomes | Immutable result of validation and state transition | State/simulation owns creation. |
-| Run-record `event` entries | Diagnostics-only record of authoritative outcomes | Records what happened; never replays as input. |
-| Run-record checkpoints | Hash-bound evidence of reconstructed state | Diagnostics/audit only. |
-| Renderer/audio/UI updates | Presentation reactions to state and known outcomes | No direct mutation authority. |
-| Runtime profile fallback checkpoints | Explainable renderer-quality transition record | Profile/renderer owns decision; simulation remains unchanged. |
+| Mechanism                                           | Role                                                | Authority                                                     |
+| --------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------- |
+| Versioned primary-action and rig-selection outcomes | Immutable result of validation and state transition | State/simulation owns creation.                               |
+| Run-record `event` entries                          | Diagnostics-only record of authoritative outcomes   | Records what happened; never replays as input.                |
+| Run-record checkpoints                              | Hash-bound evidence of reconstructed state          | Diagnostics/audit only.                                       |
+| Renderer/audio/UI updates                           | Presentation reactions to state and known outcomes  | No direct mutation authority.                                 |
+| Runtime profile fallback checkpoints                | Explainable renderer-quality transition record      | Profile/renderer owns decision; simulation remains unchanged. |
 
 This is sufficient while outcomes have a small number of direct consumers and the state snapshot remains the primary presentation source.
 

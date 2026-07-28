@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { ComponentHealthState, performFieldRepair, updateComponentWear } from "./vehicle-maintenance";
+import {
+  ComponentHealthState,
+  performFieldRepair,
+  updateComponentWear,
+} from "./vehicle-maintenance";
 
 describe("component mechanical wear & field maintenance engine", () => {
   it("clogs radiator during mud fording and frays cable during heavy winching", () => {
@@ -24,7 +28,11 @@ describe("component mechanical wear & field maintenance engine", () => {
       alternatorBeltHealthPercent: 70,
     };
 
-    const repaired = performFieldRepair(degradedState, "radiatorCleanlinessPercent", 35);
+    const repaired = performFieldRepair(
+      degradedState,
+      "radiatorCleanlinessPercent",
+      35,
+    );
     expect(repaired.radiatorCleanlinessPercent).toBe(85);
   });
 });

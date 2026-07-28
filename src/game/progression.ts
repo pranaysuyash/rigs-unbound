@@ -212,6 +212,7 @@ export function completeMilestone(
 }
 
 export function moduleSlotsForJourney(phase: JourneyPhase): number {
-  const index = JOURNEY_PHASE_DEFINITIONS.find((item) => item.phase === phase)?.index ?? 0;
+  const index =
+    JOURNEY_PHASE_DEFINITIONS.find((item) => item.phase === phase)?.index ?? 0;
   return Math.min(5, 1 + index);
 }

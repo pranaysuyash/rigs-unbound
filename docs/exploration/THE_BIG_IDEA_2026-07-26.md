@@ -13,8 +13,8 @@ smallest thing that would prove or kill it, and the reasons it might be wrong.
 Working name for the mode: **Reclamation**.
 
 You are a machine. There are no people. A valley is impassable, and you make it
-passable — not by unlocking it, but by *physically moving earth with a blade you
-drive yourself*. Every metre you grade is a permanent change to the heightfield.
+passable — not by unlocking it, but by _physically moving earth with a blade you
+drive yourself_. Every metre you grade is a permanent change to the heightfield.
 Every rut you wear compacts the soil and makes the next crossing faster. Every
 route you open is a route the next machine can use, including machines belonging
 to people you will never meet.
@@ -32,19 +32,19 @@ only concept I can find where **every load-bearing prerequisite is already built
 and paid for**, and where the things this codebase does unusually well stop being
 engineering trivia and become the product.
 
-| The engine already has | Most projects don't | It becomes |
-|---|---|---|
-| A heightfield that is a pure function of a seed | terrain is baked art | a world is 8 bytes |
-| Persistent sparse deformation, bounded and validated | terrain edits are engine-owned blobs | a world's *history* is kilobytes |
-| Surface material derived from **height** (`surfaceFor`) | material is painted separately | moving soil changes what ground *is* |
-| A deterministic fixed-step kernel with input replay | physics is frame-coupled | a run is a shareable, verifiable tape |
-| Emergent vehicle identity from one grip rule | vehicles are stat blocks | machines differ *because of the dirt* |
-| 167 KB, link-native, zero assets | 40 GB storefront build | distribution is a message |
+| The engine already has                                  | Most projects don't                  | It becomes                            |
+| ------------------------------------------------------- | ------------------------------------ | ------------------------------------- |
+| A heightfield that is a pure function of a seed         | terrain is baked art                 | a world is 8 bytes                    |
+| Persistent sparse deformation, bounded and validated    | terrain edits are engine-owned blobs | a world's _history_ is kilobytes      |
+| Surface material derived from **height** (`surfaceFor`) | material is painted separately       | moving soil changes what ground _is_  |
+| A deterministic fixed-step kernel with input replay     | physics is frame-coupled             | a run is a shareable, verifiable tape |
+| Emergent vehicle identity from one grip rule            | vehicles are stat blocks             | machines differ _because of the dirt_ |
+| 167 KB, link-native, zero assets                        | 40 GB storefront build               | distribution is a message             |
 
 The last column is the pitch. Nothing there is a wish; it is an inventory.
 
 **The specific insight:** `surfaceFor` derives material from elevation. That means
-raising a muddy cell far enough *turns it into pasture*. Soil is not decoration
+raising a muddy cell far enough _turns it into pasture_. Soil is not decoration
 being pushed around — soil is the state machine. A player with a blade is editing
 the world's rules, not its appearance. I do not know of another vehicle game where
 that is true, and it exists in this repo today, reachable and uncalled.
@@ -58,8 +58,8 @@ no: too steep for your gearing, too soft for your tyres, water too deep to ford.
 You read the land and pick a line. This already works and is the best thing in
 the build.
 
-**40 minutes — the works.** You stop *going around* the problem and start
-*removing* it. Cut a bench into the slope so the grade drops under your climb
+**40 minutes — the works.** You stop _going around_ the problem and start
+_removing_ it. Cut a bench into the slope so the grade drops under your climb
 limit. Fill a bog until it dries into pasture. Bridge a gully with its own spoil.
 This is a session with a beginning and an end, and its reward is not points — it
 is that a place you could not reach is now reachable, permanently, and the fog map
@@ -75,13 +75,13 @@ driving.**
 
 ## 4. The five systems, and how much of each already exists
 
-| System | State | What's missing |
-|---|---|---|
-| **Blade cut/fill** | shipped today | depth control; spoil conservation (dirt removed must go somewhere) |
-| **Compaction → desire paths** | not built | ~40 lines: traversal raises a per-cell compaction value; `surfaceFor` reads it toward `track` |
-| **Decay** | not built | a `touchedAt` per deformation cell and a bounded decay pass; makes maintenance a renewable loop with zero content cost |
-| **Grade/grip gating** | shipped | nothing |
-| **World diff merge** | not built | the hard part is already done — diffs are sparse, per-cell, and **commutative under clamped max**, so merging needs no authority, no tick, no rollback |
+| System                        | State         | What's missing                                                                                                                                         |
+| ----------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Blade cut/fill**            | shipped today | depth control; spoil conservation (dirt removed must go somewhere)                                                                                     |
+| **Compaction → desire paths** | not built     | ~40 lines: traversal raises a per-cell compaction value; `surfaceFor` reads it toward `track`                                                          |
+| **Decay**                     | not built     | a `touchedAt` per deformation cell and a bounded decay pass; makes maintenance a renewable loop with zero content cost                                 |
+| **Grade/grip gating**         | shipped       | nothing                                                                                                                                                |
+| **World diff merge**          | not built     | the hard part is already done — diffs are sparse, per-cell, and **commutative under clamped max**, so merging needs no authority, no tick, no rollback |
 
 Four of the five are additive to systems that already run. That ratio is the
 reason to believe this is buildable rather than merely appealing.
@@ -94,8 +94,8 @@ I want to be careful, because "novel" is usually a lie. Three specific claims:
 
 1. **Terrain as the only construction material.** City-builders place objects.
    Snowrunner deforms mud cosmetically and resets it. Landlord-style terraforming
-   games edit terrain with a god cursor. Here you terraform *from inside a vehicle
-   that is itself subject to the terrain you are changing* — you can bog your own
+   games edit terrain with a god cursor. Here you terraform _from inside a vehicle
+   that is itself subject to the terrain you are changing_ — you can bog your own
    grader in the bog it is draining. The tool and the obstacle are the same object.
 2. **Soil that changes the rules, not the texture.** Because material derives from
    height, filling is a state transition (mud → pasture → track) rather than a
@@ -134,7 +134,7 @@ small. Therefore:
   it, submit your diff back. Merge is per-cell clamped max — there is no conflict
   resolution to write.
 - **A run is a tape.** `seed + rig + input log` reproduces byte-exactly, so a
-  challenge — *this hill, this machine, beat my ghost* — fits in a link with no
+  challenge — _this hill, this machine, beat my ghost_ — fits in a link with no
   server and no video.
 
 The unit of distribution is not the game. It is the situation. That is the growth
@@ -163,9 +163,9 @@ project's failure mode is writing documents like this one instead of building.
 **The single question it answers:** does moving dirt with a vehicle feel like
 building something, or does it feel like chores?
 
-If five strangers finish that and one of them says *"I made a road"* — unprompted,
+If five strangers finish that and one of them says _"I made a road"_ — unprompted,
 in their own words — the thesis is alive and everything in §4 through §7 is worth
-building. If they say *"I dug a hole for a while"*, the concept is dead and it cost
+building. If they say _"I dug a hole for a while"_, the concept is dead and it cost
 one slice instead of a year.
 
 ---
@@ -176,7 +176,7 @@ Honest failure modes, in the order I think they're likely.
 
 1. **Earthmoving is slow, and slow is boring.** Grading a 60 m bench at a
    tractor's blade rate could be tedious rather than satisfying. Mitigation: the
-   loop must pay out in *access*, visibly, within one session — and the fog map is
+   loop must pay out in _access_, visibly, within one session — and the fog map is
    the payout surface. If it doesn't land in the slice, no amount of systems fixes
    it.
 2. **The player cannot see what they changed.** Terrain edits are subtle at eye
@@ -185,7 +185,7 @@ Honest failure modes, in the order I think they're likely.
    therefore unrewarding.
 3. **Shared worlds could feel like litter.** Other people's half-finished cuts
    might read as vandalism rather than as inheritance. Mitigation: decay favours
-   *used* routes, so the network is curated by traffic, not by moderation.
+   _used_ routes, so the network is curated by traffic, not by moderation.
 4. **It is a construction game, and the audience for that may not be the audience
    for a driving game.** This is the real strategic risk and I do not have an
    answer for it beyond the slice.
@@ -199,7 +199,7 @@ Honest failure modes, in the order I think they're likely.
 Straight, because a pitch that adds without subtracting is a wish list.
 
 - **The genre ladder** — zombies, gunfights, tower defence, space. Not deferred:
-  *deleted from the pitch*. They are what makes this project unable to say no.
+  _deleted from the pitch_. They are what makes this project unable to say no.
 - **Rigs four and up**, until the slice answers its question.
 - **Verb Mastery and Insight ladders.** Ship Rig Journey only — the machine's body
   visibly changing is the one progression a player reads without a menu.
@@ -213,8 +213,8 @@ Straight, because a pitch that adds without subtracting is a wish list.
 
 Compaction. Traversal compacts soil, compaction raises grip, grip attracts
 traversal. Forty lines, no new subsystems, and it converts the emergence engine
-that already produced the tractor-versus-buggy result from a property of *vehicles*
-into a property of *the world*. Roads authored by driving. It is the smallest
+that already produced the tractor-versus-buggy result from a property of _vehicles_
+into a property of _the world_. Roads authored by driving. It is the smallest
 change in this document with the largest change in what the game is about.
 
 ---

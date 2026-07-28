@@ -12,14 +12,14 @@ Do not externalize this data into arbitrary JSON merely to call it data-driven. 
 
 ## What the canonical world schema owns
 
-| Data group | Current consumers | Why central ownership matters |
-| --- | --- | --- |
-| World radius, water, ridge limits | Terrain and traversal rules | Prevents a render-only boundary or a physics-only waterline. |
-| Surface materials | Terrain, physics/readability, audio/feedback | Keeps grip, drag, deformation, visual colour, and spray semantics aligned. |
-| Biomes | Terrain surface/relief selection | Makes a biome a world rule, not just a texture palette. |
-| Authored sites | Terrain anchors, discovery, state, renderer, minimap, navigator, rumor graph | A landmark cannot be buried by terrain or differently named by separate systems. |
-| Structures | Renderer, scene query, rig collision, camera obstruction | Visual dimensions and spatial-query proxies share one record. |
-| Routes | Terrain construction and route validation | Road/accessibility intent is explicit rather than inferred from decoration. |
+| Data group                        | Current consumers                                                            | Why central ownership matters                                                    |
+| --------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| World radius, water, ridge limits | Terrain and traversal rules                                                  | Prevents a render-only boundary or a physics-only waterline.                     |
+| Surface materials                 | Terrain, physics/readability, audio/feedback                                 | Keeps grip, drag, deformation, visual colour, and spray semantics aligned.       |
+| Biomes                            | Terrain surface/relief selection                                             | Makes a biome a world rule, not just a texture palette.                          |
+| Authored sites                    | Terrain anchors, discovery, state, renderer, minimap, navigator, rumor graph | A landmark cannot be buried by terrain or differently named by separate systems. |
+| Structures                        | Renderer, scene query, rig collision, camera obstruction                     | Visual dimensions and spatial-query proxies share one record.                    |
+| Routes                            | Terrain construction and route validation                                    | Road/accessibility intent is explicit rather than inferred from decoration.      |
 
 The module’s declared dependency order is intentionally one-way:
 
@@ -31,12 +31,12 @@ noise -> world -> terrain -> contracts -> state -> renderer
 
 ## What is dynamic versus authored
 
-| Layer | Current source of truth |
-| --- | --- |
-| Authored geography, landmarks, terrain intent, structure proxies | `world.ts` static typed tables. |
-| Procedural terrain and obstacle field | Seeded `GameWorld` fields constrained by the authored tables. |
+| Layer                                                                        | Current source of truth                                                               |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Authored geography, landmarks, terrain intent, structure proxies             | `world.ts` static typed tables.                                                       |
+| Procedural terrain and obstacle field                                        | Seeded `GameWorld` fields constrained by the authored tables.                         |
 | Player-caused deltas such as deformation, felled objects, collection, survey | Bounded `GameWorld` spatial memory, persisted and replay-context captured separately. |
-| Presentation geometry | Renderer projection of the canonical authored and dynamic world. |
+| Presentation geometry                                                        | Renderer projection of the canonical authored and dynamic world.                      |
 
 This separation avoids two common failures: persisting an entire generated world when a seed plus deltas is enough, and letting renderer-only placement become hidden collision/navigation truth.
 

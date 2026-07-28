@@ -6,7 +6,9 @@ describe("seismic subsurface probe engine", () => {
     const dryPulse = fireSeismicPulse(0, 0, 5, 0.1, []);
     const wetPulse = fireSeismicPulse(0, 0, 5, 0.9, []);
 
-    expect(wetPulse.penetrationDepthMeters).toBeGreaterThan(dryPulse.penetrationDepthMeters);
+    expect(wetPulse.penetrationDepthMeters).toBeGreaterThan(
+      dryPulse.penetrationDepthMeters,
+    );
   });
 
   it("detects subterranean salvage deposit anomaly within acoustic range", () => {

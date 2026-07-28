@@ -344,3 +344,31 @@ This closes the public-production real-touch implementation gate at Tier 4.
 It does not close external fresh-player comprehension. Exact deployment
 provenance, checks, observations, gaps, rollback, and handoff are recorded in
 [Sites Version 9 Release](SITES_VERSION_9_RELEASE_2026-07-26.md).
+
+## Addendum (2026-07-28) — canonical 4173 first-cut refresh
+
+A fresh canonical `4173` run of `tools/first-cut-browser-acceptance.cjs`
+completed again at this tree state. The exact executed flow was:
+
+- `bootstrap`
+- `collect-salvage`
+- `return-home`
+- `first-cut-verify`
+- `lower-blade`
+- `drive-forward`
+
+This run reports no console or page errors and writes proof to
+`docs/reviews/assets/first-cut-acceptance.json` with the completed
+stage transitions:
+
+- start: `find-cache`
+- collected cache: `return-home`
+- returned home: `choose-part`
+- first-cut verify: `first-cut` with objective `Drive forward`
+- lower blade: unchanged `first-cut` objective `Drive forward`
+- drive forward: `first-cut`, objective `Plough toward Long Furrow (28 furrows carved)`
+
+Tier 3 evidence remains valid with this run: real keyboard path to cache recovery,
+return, fitting, and visible consequence through Long Furrow progress. The
+remaining open gate is external fresh-player comprehension and explicit operator
+acceptance wording around the stage sequence in non-expert sessions.

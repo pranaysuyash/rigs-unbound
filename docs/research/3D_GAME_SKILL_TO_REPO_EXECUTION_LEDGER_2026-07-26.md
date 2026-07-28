@@ -574,6 +574,23 @@ addendum makes no new browser-performance claim.
 - Evidence depth: Tier 4 runtime/status observation plus Tier 1 doc and skill
   inspection.
 
+## Addendum (2026-07-28) - the shell already has the baseline accessibility primitives
+
+- Re-read the current shell entry files against the accessibility lens and the
+  browser-delivery guidance.
+- `index.html` already provides the obvious public-shell primitives:
+  - a skip link,
+  - a focusable playable canvas,
+  - named status regions for bootstrap, save, and profile state,
+  - and semantic landmarks for the world HUD.
+- `src/styles.css` already gives visible focus treatment and skip-link
+  behavior, while `src/main.ts` keeps the browser entry point in the wiring /
+  HUD / observability lane rather than gameplay rules.
+- That means the next useful browser-contract proof is not "add basic shell
+  accessibility"; it is the acceptance board / proposition surface as a
+  named, focus-managed interaction contract with readable row semantics.
+- Evidence depth: Tier 1 static source inspection.
+
 ## Continuation checklist
 
 - [ ] Record a baseline capture that binds current telemetry to a device/profile and playable scenario.

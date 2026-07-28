@@ -73,7 +73,11 @@ export function deriveWeatherState(worldTimeMinutes: number): WeatherState {
  * Computes soil grip penalty derived from weather moisture.
  * Hardpan tracks are unaffected; soft soils lose up to 30% grip when saturated.
  */
-export function applyWeatherGripPenalty(baseGrip: number, surfaceId: string, soilMoisture: number): number {
+export function applyWeatherGripPenalty(
+  baseGrip: number,
+  surfaceId: string,
+  soilMoisture: number,
+): number {
   if (surfaceId === "track" || surfaceId === "rock") {
     return baseGrip; // Hard surfaces resist moisture grip loss
   }

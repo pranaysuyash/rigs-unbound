@@ -30,7 +30,10 @@ export function fireSeismicPulse(
   knownCaches: readonly { x: number; z: number; depthMeters: number }[],
 ): SeismicPulseResult {
   // Moisture enhances acoustic coupling: deeper propagation in moist ground
-  const effectiveMaxDepth = Math.min(50, pulseEnergy * 4.5 * (1 + soilMoisture * 0.4));
+  const effectiveMaxDepth = Math.min(
+    50,
+    pulseEnergy * 4.5 * (1 + soilMoisture * 0.4),
+  );
 
   const layers: SubsurfaceLayer[] = [
     { depthMeters: 0.5, density: 0.3 + soilMoisture * 0.2, strataType: "mud" },
@@ -44,7 +47,11 @@ export function fireSeismicPulse(
 
   for (const cache of knownCaches) {
     const dist = Math.hypot(cache.x - x, cache.z - z);
-    if (dist < minCacheDist && dist <= 25 && cache.depthMeters <= effectiveMaxDepth) {
+    if (
+      dist < minCacheDist &&
+      dist <= 25 &&
+      cache.depthMeters <= effectiveMaxDepth
+    ) {
       minCacheDist = dist;
       matchedCache = cache;
     }

@@ -12,14 +12,14 @@ Any future origin system must be introduced as a versioned world-coordinate cont
 
 ## Current coordinate model
 
-| Concern | Current posture |
-| --- | --- |
-| World extent | One bounded disc, `WORLD_RADIUS = 250`. |
-| Safety edge | `WORLD_LIMIT = 246`; terrain ridge communicates the boundary before numerical clamp. |
-| Authored data | Sites, structures, routes, terrain anchors, collision queries, minimap, and camera use the same absolute `x/z` frame. |
-| Dynamic state | Rigs and bounded world-memory deltas use that same frame. |
-| Persistence/replay | Seed plus spatial deltas and state context reconstruct the same coordinate frame. |
-| Rendering | Renderer projects the shared world frame; it does not own a private coordinate system. |
+| Concern            | Current posture                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| World extent       | One bounded disc, `WORLD_RADIUS = 250`.                                                                               |
+| Safety edge        | `WORLD_LIMIT = 246`; terrain ridge communicates the boundary before numerical clamp.                                  |
+| Authored data      | Sites, structures, routes, terrain anchors, collision queries, minimap, and camera use the same absolute `x/z` frame. |
+| Dynamic state      | Rigs and bounded world-memory deltas use that same frame.                                                             |
+| Persistence/replay | Seed plus spatial deltas and state context reconstruct the same coordinate frame.                                     |
+| Rendering          | Renderer projects the shared world frame; it does not own a private coordinate system.                                |
 
 This is the simplest correct model for the active scale and a strength for determinism, camera behavior, route validation, and replay.
 

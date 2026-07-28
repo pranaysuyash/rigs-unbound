@@ -12,7 +12,7 @@
 
 This is not a driving game. It is not a construction game. It is not a survival game. It is a **reclamation game** — the act of making something that was impossible become possible, and having the world bear witness to that act.
 
-The irreversible insight: **the machine is the verb, not the noun.** The tractor is not a vehicle you drive. The tractor is the act of cutting, filling, and opening. When you switch from Torque to Spark, you are not switching vehicles — you are switching the *way the world can be changed*. That is the thesis that makes this project exist and nothing else does.
+The irreversible insight: **the machine is the verb, not the noun.** The tractor is not a vehicle you drive. The tractor is the act of cutting, filling, and opening. When you switch from Torque to Spark, you are not switching vehicles — you are switching the _way the world can be changed_. That is the thesis that makes this project exist and nothing else does.
 
 ---
 
@@ -21,11 +21,13 @@ The irreversible insight: **the machine is the verb, not the noun.** The tractor
 **The strongest reason to kill this project:** The current build is an instrumented ghost world. Three simulated playtests described it as "a small valley, checklist, test field." No external player has ever said "I made a road." The 349 tests prove correctness. They do not prove anyone cares.
 
 **Fatal flaws that no engineering will fix:**
+
 1. The verbs (drive, survey, plough, fill, tow, collect, upgrade, jump, hover, recover) do not form one irresistible chain. They form a menu.
 2. The world is continuous mathematically but fragmented experientially — seven named site circles, a "PATCHWORK RUMOR GRAPH," rig-specific demonstration regions.
 3. The interface has become an engineering dashboard competing for attention.
 
 **What would need to be true to reverse this verdict:**
+
 - A stranger enters one continuous world, changes the land, crosses what previously blocked them, sees another machine benefit from their work, and wants to continue.
 - This must happen within 15–20 minutes, without assistance, on the first session.
 - Nobody describes the build as a lab, field selector, or tech demo.
@@ -53,12 +55,14 @@ The ChatGPT analysis said the project has "systems, not a validated game loop." 
 ## 4. Strategist's 10,000-Foot View
 
 **What should exist:**
+
 - One continuous world, one seamless journey, one clear moment of "I did that"
 - Three rigs that feel like three different ways of changing the world
 - A terrain system that rewards ploughing and remembers what was done
 - A UI that disappears when the world is doing its job
 
 **What should NOT exist (kill list):**
+
 - Field 02 branding (it's not a field, it's a world)
 - Developer labs visible to players
 - Permanent opportunity checklist (replace with landscape signals)
@@ -98,6 +102,7 @@ src/
 ```
 
 **Missing map lines:**
+
 - No path from "I see the gully" to "I ploughed through it" that doesn't pass through a lab or field selector
 - No visual signal that says "the world remembers" after terrain change
 - No cross-rig handoff moment that feels like "Spark benefits from what Torque built"
@@ -107,6 +112,7 @@ src/
 ## 7. Archivist's Record
 
 **What this project has already proven (and should never redo):**
+
 - Deterministic fixed-step simulation with versioned save migrations
 - Terrain as shared truth for physics, collision, camera, and rendering
 - Two distinct mobility families (ground + hover) with strict profile validation
@@ -118,6 +124,7 @@ src/
 - Replay validation with admitted initial context
 
 **What should NEVER be built:**
+
 - Generic event bus (the run record is the audit spine, not pub/sub)
 - ECS migration (3 rigs, ~10 authored sites — the machine-centric model is correct)
 - R3F/React migration (vanilla Three.js is the right choice)
@@ -156,6 +163,7 @@ The HUD is an engineering dashboard. It shows instruments, diagnostics, opportun
 "I can see a gully blocking my path. I found a blade. I ploughed through it. The road is there. I want to see what's on the other side."
 
 **Evidence we do NOT have and urgently need:**
+
 - One external player completing the full journey without assistance
 - A video of someone saying "I made that road"
 - Mobile performance numbers on representative devices
@@ -166,11 +174,13 @@ The HUD is an engineering dashboard. It shows instruments, diagnostics, opportun
 ## 10. Future Self (6 Months)
 
 **If the Reclamation journey is proven, the project becomes:**
+
 - A terrain-authoring platform where the vehicle is the cursor
 - A cross-rig puzzle game where different machines unlock different paths
 - A persistence showcase where the world is a living diary of player actions
 
 **If it is NOT proven, the project becomes:**
+
 - A technically impressive demo reel
 - A reference implementation for procedural terrain deformation
 - A cautionary tale about building systems before games
@@ -189,6 +199,7 @@ The team should lean into the tractor. Make the tractor the hero. Make the road 
 ## 12. Customer Whisperer
 
 **What players will actually say:**
+
 - "Oh, I can see the ground changing when I plough. That's cool."
 - "Wait, I can't drive through this mud. I need to plough it first."
 - "I just built a road through a swamp. Nice."
@@ -196,6 +207,7 @@ The team should lean into the tractor. Make the tractor the hero. Make the road 
 - "This is like a chill road-building game. I like it."
 
 **What they will NOT say:**
+
 - "The runtime profile fallback is working correctly."
 - "The furrow circular buffer is rendering at capacity."
 - "The obstacle cache invalidation is event-driven."
@@ -204,14 +216,14 @@ The team should lean into the tractor. Make the tractor the hero. Make the road 
 
 ## 13. Six-Hat Coverage
 
-| Hat | Coverage | Status |
-|-----|----------|--------|
-| White (Facts) | 349 tests, 127 TS files, 2954-line renderer, 3 rigs, 7 surfaces | ✅ Strong |
-| Yellow (Value) | "I made a road" moment, cross-rig benefit, land remembers | ✅ Proven in R2/R3 |
-| Black (Risk) | No external validation, engineering dashboard UI, field language | ⚠️ Critical gap |
-| Green (Creativity) | Land that heals, tractor as character, road as story | 🔵 Unexplored |
-| Red (Emotion) | Satisfaction of terrain change, pride of route opening | 🔵 Not measured |
-| Blue (Process) | 10 corrective defects, corrective foundation pass defined | ✅ Planned |
+| Hat                | Coverage                                                         | Status             |
+| ------------------ | ---------------------------------------------------------------- | ------------------ |
+| White (Facts)      | 349 tests, 127 TS files, 2954-line renderer, 3 rigs, 7 surfaces  | ✅ Strong          |
+| Yellow (Value)     | "I made a road" moment, cross-rig benefit, land remembers        | ✅ Proven in R2/R3 |
+| Black (Risk)       | No external validation, engineering dashboard UI, field language | ⚠️ Critical gap    |
+| Green (Creativity) | Land that heals, tractor as character, road as story             | 🔵 Unexplored      |
+| Red (Emotion)      | Satisfaction of terrain change, pride of route opening           | 🔵 Not measured    |
+| Blue (Process)     | 10 corrective defects, corrective foundation pass defined        | ✅ Planned         |
 
 ---
 
@@ -233,6 +245,7 @@ The team should lean into the tractor. Make the tractor the hero. Make the road 
 **Champion says:** "The R2 proof shows the road-making mechanic works. The R3 proof shows cross-rig benefit works. The first-rung guidance wires the journey. The gully is placed. The next commit can prove the moment."
 
 **Verdict:** Build conditions:
+
 1. One external player completes the full journey without assistance
 2. That player says something equivalent to "I made a road"
 3. Mobile performance is acceptable on a representative device
@@ -245,6 +258,7 @@ If all four conditions are met, the project lives. If not, pivot to terrain-auth
 ## 16. High-Signal Convergence
 
 Multiple roles independently converged on:
+
 1. **The UI is the biggest problem.** Not the renderer, not the physics, not the rigs — the UI competing for attention.
 2. **"I made a road" is the moment.** Strategist, Champion, Trickster, and Customer Whisperer all identified this as the proof point.
 3. **Kill the field language.** Every role flagged "Field 02" and developer-facing surfaces as player-trust violations.
@@ -255,16 +269,19 @@ Multiple roles independently converged on:
 ## 17. Build Conditions
 
 **Immediate (next commit):**
+
 - Kill "Field 02" language from all player surfaces
 - Wire the complete first-rung journey (7 stages through to free-explore)
 - Remove developer labs and diagnostic surfaces from player view
 
 **Before external testing:**
+
 - Complete the 10 corrective defects from ChatGPT Step 1
 - Merge the two map overlays into one
 - Add loading progress indicator
 
 **Before the project can claim "game":**
+
 - One external player completes the journey without assistance
 - That player says "I made a road"
 - Mobile performance is acceptable

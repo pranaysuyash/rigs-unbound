@@ -13,6 +13,10 @@ import { FIRST_SALVAGE_NODE, SALVAGE_PICKUP_RADIUS } from "./exploration";
 import { resolveTerrainTraversal } from "./terrain-traversal";
 import { HOME_SITE, findSite, isWithinSiteServiceArea } from "./world";
 import type { GameWorld } from "./gameworld";
+import {
+  eligiblePassageLanes,
+  resolveUnboundPassageCommand,
+} from "./unbound-passage";
 
 export const FIRST_RUNG_RECOMMENDED_MODULE: ModuleId = "lug-tires";
 export const SECOND_RUNG_RECOMMENDED_MODULE: ModuleId = "winch";
@@ -219,12 +223,23 @@ export function evaluateCorridorQuality(
   }
 
   const passable = blockedCount === 0 && maxSlope <= 0.48 && hasGullyTilled;
-  const minWidth = passable ? Math.max(profile.track * 1.2, measuredClearWidth) : 0;
+  const minWidth = passable
+    ? Math.max(profile.track * 1.2, measuredClearWidth)
+    : 0;
 
-  if (passable && state.unboundPassage.status !== "open") {
-    state.unboundPassage.status = "open";
-    state.unboundPassage.openedByRigId = state.activeRigId;
-  }
+  // This function is a **selector**. It is reached from `resolveFirstRung()`,
+  // which `publicState()` calls while building its read model, so any mutation
+  // here means reading state changes state — `render_game_to_text()` or a
+  // read-only contract board could open gameplay progression by being looked at.
+  //
+  // An earlier revision opened the Unbound Passage here directly. That also
+  // bypassed the canonical command boundary and wrote an invalid shape: it set
+  // `openedByRigId` without `openedByLaneId`, and `restoreUnboundPassageState()`
+  // resets any "open" passage missing either field back to blocked — so the
+  // passage appeared open in-session and silently reverted on reload.
+  //
+  // The transition now belongs to `syncUnboundPassageFromCorridor()`, called
+  // from the fixed-step kernel where mutation is legitimate.
 
   return {
     passable,
@@ -237,6 +252,54 @@ export function evaluateCorridorQuality(
 
 function isCorridorPassable(state: GameState, world: GameWorld): boolean {
   return evaluateCorridorQuality(state, world).passable;
+}
+
+/**
+ * Open the Unbound Passage when the player has actually made the corridor
+ * passable.
+ *
+ * This is the **mutating** half of the corridor check and belongs to the
+ * fixed-step kernel, not to any selector. It routes through
+ * `resolveUnboundPassageCommand()` so the transition validates the actor and
+ * lane, increments the revision, and emits an event — the same boundary every
+ * other passage transition uses.
+ *
+ * Returns the accepted transition, or `null` when nothing changed. Callers pass
+ * the corridor quality they already computed so the expensive route probe runs
+ * once per step rather than twice.
+ */
+export function syncUnboundPassageFromCorridor(
+  state: GameState,
+  quality: CorridorQuality,
+  tick: number,
+): ReturnType<typeof resolveUnboundPassageCommand> | null {
+  if (!quality.passable) return null;
+  if (state.unboundPassage.status === "open") return null;
+
+  const rig = state.rigs[state.activeRigId];
+  const profile = effectiveProfile(rig.id, rig.modules);
+  const capabilities = profile.capabilities;
+
+  // The lane must be one this rig can actually use; without an eligible lane
+  // there is no honest way to say who opened the passage or how.
+  const lane = eligiblePassageLanes(capabilities)[0];
+  if (!lane) return null;
+
+  const transition = resolveUnboundPassageCommand(
+    state.unboundPassage,
+    {
+      type: "resolve-attempt",
+      actorRigId: rig.id,
+      actorCapabilities: capabilities,
+      laneId: lane.id,
+      outcome: { kind: "opened" },
+    },
+    tick,
+  );
+
+  if (!transition.accepted) return null;
+  state.unboundPassage = transition.state;
+  return transition;
 }
 
 const SIGHT_RADIUS_MULTIPLIER = 2.2;
@@ -256,13 +319,14 @@ const ATTEMPT_ROUTE_RADIUS = 44;
  * no modules are fitted, the rig is compatible, and the player is not
  * at the Home workshop.
  */
-function resolvePreBladeJourney(
-  state: GameState,
-): FirstRungResolution | null {
-  const affordable = state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost;
+function resolvePreBladeJourney(state: GameState): FirstRungResolution | null {
+  const affordable =
+    state.salvage >= MODULES[FIRST_RUNG_RECOMMENDED_MODULE].cost;
   if (!affordable) return null;
   if (state.rigs[state.activeRigId].modules.length > 0) return null;
-  const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(state.activeRigId);
+  const compatible = MODULES[FIRST_RUNG_RECOMMENDED_MODULE].fits.includes(
+    state.activeRigId,
+  );
   if (!compatible) return null;
   if (atHomeWorkshop(state)) return null;
 
@@ -451,23 +515,31 @@ export function resolveSecondFit(state: GameState): FirstRungResolution {
 }
 
 /**
- * After the first module is fitted, guide the player through terrain
- * transformation before releasing to free-explore. The progression:
+ * After the first module is fitted, the mandatory first rung is complete.
+ * Keep optional terrain-transformation guidance visible as a contextual
+ * first-cut beat without making it a completion gate. The progression:
  * 1. If the active rig has no blade → switch to a rig with plough
  * 2. If the blade is not engaged → "Lower the blade"
  * 3. If the blade is engaged but no furrows → "Drive forward"
  * 4. If furrows exist but not near Long Furrow → "Drive toward Long Furrow"
  * 5. If near Long Furrow with furrows → transition to second-fit
  */
-function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolution {
+function resolvePostFitRung(
+  state: GameState,
+  world: GameWorld,
+): FirstRungResolution {
   const rig = state.rigs[state.activeRigId];
 
   // Check if this rig has plough capability.
-  const hasBlade = effectiveProfile(rig.id, rig.modules).capabilities.includes("plough");
+  const hasBlade = effectiveProfile(rig.id, rig.modules).capabilities.includes(
+    "plough",
+  );
   if (!hasBlade) {
     // Guide to a rig that can plough.
     const ploughRigs = RIG_IDS.filter((id) =>
-      effectiveProfile(id, state.rigs[id].modules).capabilities.includes("plough"),
+      effectiveProfile(id, state.rigs[id].modules).capabilities.includes(
+        "plough",
+      ),
     );
     const targetRigId = ploughRigs[0];
     if (targetRigId) {
@@ -485,7 +557,7 @@ function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolu
         recommendedModuleId: null,
         recommendedRigId: targetRigId,
         affordable: false,
-        complete: false,
+        complete: true,
       };
     }
   }
@@ -499,12 +571,13 @@ function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolu
       shortLabel: "Re-fit plough",
       ariaLabel:
         "The plough blade was expected but not found. Return to the workshop to re-fit it.",
-      reason: "Blade capability reported but plough attachment not found on rig.",
+      reason:
+        "Blade capability reported but plough attachment not found on rig.",
       target: { x: HOME_SITE.x, z: HOME_SITE.z },
       recommendedModuleId: null,
       recommendedRigId: null,
       affordable: false,
-      complete: false,
+      complete: true,
     };
   }
   if (plough && !plough.engaged) {
@@ -512,13 +585,14 @@ function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolu
       stage: "first-cut",
       objective: "Lower the blade",
       shortLabel: "Lower blade",
-      ariaLabel: "Press Space or E to lower the plough blade and begin terrain transformation.",
+      ariaLabel:
+        "Press Space or E to lower the plough blade and begin terrain transformation.",
       reason: "The blade is fitted but not engaged.",
       target: null,
       recommendedModuleId: null,
       recommendedRigId: null,
       affordable: false,
-      complete: false,
+      complete: true,
     };
   }
 
@@ -528,13 +602,14 @@ function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolu
       stage: "first-cut",
       objective: "Drive forward",
       shortLabel: "Create furrows",
-      ariaLabel: "Drive forward with the blade lowered to transform the terrain.",
+      ariaLabel:
+        "Drive forward with the blade lowered to transform the terrain.",
       reason: "The blade is engaged but no terrain has been transformed yet.",
       target: null,
       recommendedModuleId: null,
       recommendedRigId: null,
       affordable: false,
-      complete: false,
+      complete: true,
     };
   }
 
@@ -564,19 +639,21 @@ function resolvePostFitRung(state: GameState, world: GameWorld): FirstRungResolu
   const furrowCount = state.furrows.length;
   return {
     stage: "first-cut",
-    objective: furrowCount > 0
-      ? `Plough toward Long Furrow (${furrowCount} furrow${furrowCount === 1 ? "" : "s"} carved)`
-      : "Plough toward Long Furrow",
+    objective:
+      furrowCount > 0
+        ? `Plough toward Long Furrow (${furrowCount} furrow${furrowCount === 1 ? "" : "s"} carved)`
+        : "Plough toward Long Furrow",
     shortLabel: "Plough toward Long Furrow",
-    ariaLabel: furrowCount > 0
-      ? `Keep ploughing toward Long Furrow. You have carved ${furrowCount} furrow${furrowCount === 1 ? "" : "s"} so far. The terrain is transforming under your blade.`
-      : "Drive toward Long Furrow with the blade lowered to transform the terrain.",
+    ariaLabel:
+      furrowCount > 0
+        ? `Keep ploughing toward Long Furrow. You have carved ${furrowCount} furrow${furrowCount === 1 ? "" : "s"} so far. The terrain is transforming under your blade.`
+        : "Drive toward Long Furrow with the blade lowered to transform the terrain.",
     reason: "Terrain has been transformed but the route is not yet complete.",
     target,
     recommendedModuleId: null,
     recommendedRigId: null,
     affordable: false,
-    complete: false,
+    complete: true,
   };
 }
 
@@ -596,8 +673,8 @@ export function resolveFirstRung(
   if (hasFittedPart(state)) {
     const fittedCount = totalFittedModules(state);
 
-    // After the first module is fitted, guide the player through terrain
-    // transformation (first-cut) before releasing to free-explore.
+    // After the first module is fitted, the mandatory rung is complete;
+    // first-cut remains optional contextual guidance before free exploration.
     if (fittedCount === 1) {
       return resolvePostFitRung(state, world);
     }
@@ -627,7 +704,9 @@ export function resolveFirstRung(
   // first cache.  Before that, the normal find-cache → return-home flow
   // should guide them to fit the blade first.
   const firstCacheCollected = collectedNodes.has(FIRST_SALVAGE_NODE.id);
-  const preBladeJourney = firstCacheCollected ? resolvePreBladeJourney(state) : null;
+  const preBladeJourney = firstCacheCollected
+    ? resolvePreBladeJourney(state)
+    : null;
   if (preBladeJourney) return preBladeJourney;
 
   if (affordable) {

@@ -33,60 +33,60 @@ This atlas is not a ship list. It is a visual research seed bank.
 
 These are the closest neighbors to the tractor baseline.
 
-| ID | Concept | What it tests |
-| --- | --- | --- |
-| `field-tractor-restored` | cleaner version of the patchwork tractor with repaired cab and clearer mount geometry | canonical turnaround, restoration history |
-| `field-tractor-workhorse` | heavier rear stance, wider tires, stronger plow body | mass, traction, stance, load-bearing silhouette |
-| `seed-runner` | narrow rapid planting rig with rear sowing body and tank | cargo + sowing hardpoints |
-| `harvest-tug` | compact tow-and-salvage farm rig | towing, recovery, winch language |
-| `orchard-crawler` | low, wide machine for tight rows and terrain pressure | width, clearance, crop-safe geometry |
-| `marsh-skimmer` | amphibious farm support rig for wet land | floatation, raised intake, mud logic |
+| ID                        | Concept                                                                               | What it tests                                   |
+| ------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `field-tractor-restored`  | cleaner version of the patchwork tractor with repaired cab and clearer mount geometry | canonical turnaround, restoration history       |
+| `field-tractor-workhorse` | heavier rear stance, wider tires, stronger plow body                                  | mass, traction, stance, load-bearing silhouette |
+| `seed-runner`             | narrow rapid planting rig with rear sowing body and tank                              | cargo + sowing hardpoints                       |
+| `harvest-tug`             | compact tow-and-salvage farm rig                                                      | towing, recovery, winch language                |
+| `orchard-crawler`         | low, wide machine for tight rows and terrain pressure                                 | width, clearance, crop-safe geometry            |
+| `marsh-skimmer`           | amphibious farm support rig for wet land                                              | floatation, raised intake, mud logic            |
 
 ### 2. Utility and service rigs
 
 These broaden the world beyond farm identity without leaving the project’s mechanical language.
 
-| ID | Concept | What it tests |
-| --- | --- | --- |
-| `service-van-rig` | boxy mobile mechanic/support vehicle | enclosed service body, side access, tool storage |
-| `tow-truck-rig` | long wheelbase recovery truck | boom, hook, chassis length, rear logic |
-| `crane-yard-rig` | compact crane truck for construction or salvage | vertical arm articulation, counterweight silhouette |
-| `delivery-sprinter` | small route runner with parcel capacity | road speed, urban readability, side-panel language |
-| `garage-carrier` | mobile repair platform with open deck | multi-vehicle support, staging deck, module stacking |
-| `road-winch-rig` | road-clearing utility vehicle with front and rear cable systems | cable routing, anchoring, asymmetric tool faces |
+| ID                  | Concept                                                         | What it tests                                        |
+| ------------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
+| `service-van-rig`   | boxy mobile mechanic/support vehicle                            | enclosed service body, side access, tool storage     |
+| `tow-truck-rig`     | long wheelbase recovery truck                                   | boom, hook, chassis length, rear logic               |
+| `crane-yard-rig`    | compact crane truck for construction or salvage                 | vertical arm articulation, counterweight silhouette  |
+| `delivery-sprinter` | small route runner with parcel capacity                         | road speed, urban readability, side-panel language   |
+| `garage-carrier`    | mobile repair platform with open deck                           | multi-vehicle support, staging deck, module stacking |
+| `road-winch-rig`    | road-clearing utility vehicle with front and rear cable systems | cable routing, anchoring, asymmetric tool faces      |
 
 ### 3. Toy-scale and small-world rigs
 
 These keep the vehicle-as-protagonist idea alive at tiny scale.
 
-| ID | Concept | What it tests |
-| --- | --- | --- |
-| `desk-buggy` | tiny toy car that can move through furniture-scale worlds | small silhouette readability |
-| `mini-crawler` | compact tracked rig for ducts, shelves, and maintenance spaces | track language, interior traversal |
-| `courier-skiff` | tiny hover or glide craft for delicate routes | floating clearance and smooth undersides |
-| `pocket-forklift` | micro utility loader | fork geometry, compact articulation |
+| ID                | Concept                                                        | What it tests                            |
+| ----------------- | -------------------------------------------------------------- | ---------------------------------------- |
+| `desk-buggy`      | tiny toy car that can move through furniture-scale worlds      | small silhouette readability             |
+| `mini-crawler`    | compact tracked rig for ducts, shelves, and maintenance spaces | track language, interior traversal       |
+| `courier-skiff`   | tiny hover or glide craft for delicate routes                  | floating clearance and smooth undersides |
+| `pocket-forklift` | micro utility loader                                           | fork geometry, compact articulation      |
 
 ### 4. Rescue, defense, and odd jobs
 
 These add story and gameplay verbs without becoming generic combat vehicles.
 
-| ID | Concept | What it tests |
-| --- | --- | --- |
-| `rescue-bus` | shelter-on-wheels with visible interior volume | passenger scale, public-service identity |
-| `field-ambulance` | compact support van for recovery and triage | medical/service identity without brand cues |
+| ID                | Concept                                                | What it tests                                  |
+| ----------------- | ------------------------------------------------------ | ---------------------------------------------- |
+| `rescue-bus`      | shelter-on-wheels with visible interior volume         | passenger scale, public-service identity       |
+| `field-ambulance` | compact support van for recovery and triage            | medical/service identity without brand cues    |
 | `light-guard-rig` | work-light vehicle with shielded lamps and sensor mast | visibility, beacon language, night readability |
-| `riot-scrub` | barrier-moving municipal rig | push, block, and clear semantics |
+| `riot-scrub`      | barrier-moving municipal rig                           | push, block, and clear semantics               |
 
 ### 5. Extreme and aspiration rigs
 
 These are for “what if the same world gets stranger” moments.
 
-| ID | Concept | What it tests |
-| --- | --- | --- |
-| `snow-crawler` | winter terrain machine with high ground clearance | seasonal state, track depth, cold-weather character |
-| `dune-hauler` | desert cargo machine with oversized intake and suspension | heat, sand, dust, cargo mass |
-| `launch-tender` | airport/spaceport service rig | scale aspiration, landing gear-like supports |
-| `sky-barge` | slow aerial utility craft or lift platform | non-road locomotion, underside structure |
+| ID              | Concept                                                   | What it tests                                       |
+| --------------- | --------------------------------------------------------- | --------------------------------------------------- |
+| `snow-crawler`  | winter terrain machine with high ground clearance         | seasonal state, track depth, cold-weather character |
+| `dune-hauler`   | desert cargo machine with oversized intake and suspension | heat, sand, dust, cargo mass                        |
+| `launch-tender` | airport/spaceport service rig                             | scale aspiration, landing gear-like supports        |
+| `sky-barge`     | slow aerial utility craft or lift platform                | non-road locomotion, underside structure            |
 
 ## Initial generation order
 
@@ -115,7 +115,7 @@ Each concept should be explored in at least three visual variants:
 
 - `v1` baseline form;
 - `v2` repaired / more story-bearing form;
-- `v3` specialized form with a stronger tool or environment bias.
+- advanced specialized form with a stronger tool or environment bias.
 
 For the tractor family, the intended sequence is:
 

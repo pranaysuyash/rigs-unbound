@@ -108,12 +108,7 @@ type ContractLedgerRow = {
   status: ContractLedgerStatus;
   title: string;
   summary: string;
-  source:
-    | "activity"
-    | "progression"
-    | "sites"
-    | "worldMemory"
-    | "affordance";
+  source: "activity" | "progression" | "sites" | "worldMemory" | "affordance";
   siteId?: string | null;
   rigId?: string | null;
   requiredCapability?: string | null;
@@ -127,16 +122,16 @@ new authority.
 
 ## Source mapping
 
-| Current source | Ledger role |
-| -------------- | ----------- |
-| `publicState.activity` | Active cargo-relay row and activity progress |
-| `publicState.progression.firstRung` | First-rung / first-spend summary rows |
-| `publicState.progression.unboundPassage` | Cross-rig or passage-gate rows |
-| `publicState.progression.workshopInReach` / `workshopActionable` | Workshop spend/readiness rows |
-| `publicState.sites` | Site-backed offers and location context |
-| `publicState.rigs` | Current rig summary, capability envelope, and chosen context |
-| `publicState.worldMemory` | Discovery, visibility, and progression history |
-| `RELAY_CARGO_TOW_AFFORDANCE` / `SURVEY_CONTRACT_AFFORDANCE` | Named affordance rules and reason-coded compatibility |
+| Current source                                                   | Ledger role                                                  |
+| ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| `publicState.activity`                                           | Active cargo-relay row and activity progress                 |
+| `publicState.progression.firstRung`                              | First-rung / first-spend summary rows                        |
+| `publicState.progression.unboundPassage`                         | Cross-rig or passage-gate rows                               |
+| `publicState.progression.workshopInReach` / `workshopActionable` | Workshop spend/readiness rows                                |
+| `publicState.sites`                                              | Site-backed offers and location context                      |
+| `publicState.rigs`                                               | Current rig summary, capability envelope, and chosen context |
+| `publicState.worldMemory`                                        | Discovery, visibility, and progression history               |
+| `RELAY_CARGO_TOW_AFFORDANCE` / `SURVEY_CONTRACT_AFFORDANCE`      | Named affordance rules and reason-coded compatibility        |
 
 ## Lifecycle
 
@@ -212,6 +207,75 @@ The smallest durable proof for this contract is:
   remain fully separate?
 - Which rows should be retained as history once the session becomes crowded?
 
+## Addendum (2026-07-28) — the board shape now has a dedicated presentation contract
+
+The remaining layout question now lives in
+[Mission Acceptance Section and Visibility Contract](./MISSION_ACCEPTANCE_SECTION_AND_VISIBILITY_CONTRACT_2026-07-28.md).
+
+That note keeps the ledger spec focused on source, row shape, and read-only
+authority while delegating compact-versus-expanded presentation to the board
+layout contract.
+
+## Addendum (2026-07-28) — the board header now has its own contract
+
+The title, summary count, and mode line now live in
+[Mission Acceptance Board Header and Summary Contract](./MISSION_ACCEPTANCE_BOARD_HEADER_AND_SUMMARY_CONTRACT_2026-07-28.md).
+
+That keeps the ledger spec focused on row derivation while the board header
+handles player orientation and compact/expanded mode framing.
+
+## Addendum (2026-07-28) — the history recap now has its own contract
+
+The board's history retention and recap behavior now lives in
+[Mission Acceptance History and Recap Contract](./MISSION_ACCEPTANCE_HISTORY_RECAP_CONTRACT_2026-07-28.md).
+
+That keeps the ledger spec focused on source and row derivation while the
+history contract decides how much of the past stays visible on the board.
+
+## Addendum (2026-07-28) — the board transition now has its own contract
+
+The open/close/reconfigure choreography now lives in
+[Mission Acceptance Transition and Restore Contract](./MISSION_ACCEPTANCE_TRANSITION_AND_RESTORE_CONTRACT_2026-07-28.md).
+
+That keeps the ledger spec focused on row derivation while the transition
+contract decides how the board is reopened and restored.
+
+## Addendum (2026-07-28) — the board empty state now has its own contract
+
+The zero-row and fallback behavior now lives in
+[Mission Acceptance Empty State and Fallback Contract](./MISSION_ACCEPTANCE_EMPTY_STATE_AND_FALLBACK_CONTRACT_2026-07-28.md).
+
+That keeps the ledger spec focused on row derivation while the empty-state
+contract decides what the player sees when no rows are ready.
+
+## Addendum (2026-07-28) — the board loading state now has its own contract
+
+The loading and refresh behavior now lives in
+[Mission Acceptance Loading and Refresh Contract](./MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md).
+
+## Addendum (2026-07-28) — the current runtime still does not expose a dedicated contract-board component
+
+Source inspection now shows that the repository has the proposition and
+resolver layers, but not a separate runtime board component that renders the
+read-only ledger as its own focus-managed overlay:
+
+- `src/game/mission-propositions.ts` derives deterministic propositions.
+- `src/game/mission-resolver.ts` applies reward and progression after a
+  proposition is accepted.
+- `src/game/state.ts` exposes the `SURVEY_CONTRACT_AFFORDANCE` as a local
+  contextual offer.
+- `src/game/rumor-map-ui.ts` and `src/game/navigator-ui.ts` are separate
+  overlays for world understanding and tactical navigation, not the contract
+  board named by this spec.
+
+That means the spec remains a forward-looking read model. The missing work is
+not more proposition derivation; it is the player-facing board that turns
+those rows into a named acceptance surface with focus, selection, and row
+announcement behavior.
+
+That keeps the ledger spec focused on row derivation while the loading
+contract decides what the player sees while rows are still being rebuilt.
+
 ## Anything else?
 
 Yes: the ledger should be honest about what it is not. It is not a new mission
@@ -246,3 +310,17 @@ touching `src/game/`, and that any future implementation should keep:
 - no duplicate mission authority.
 
 Evidence tier: Tier 1 static source inspection.
+
+## Addendum (2026-07-28) — the acceptance surface sits above the ledger
+
+The ledger remains the read-only projection layer. The player-choice contract
+now lives in [Mission Acceptance Surface Contract](./MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md).
+
+That distinction matters:
+
+- the ledger explains what the world is offering,
+- the acceptance surface explains how the player chooses,
+- the command/result path explains how the world resolves the choice.
+
+The first durable board slice should therefore keep reason-coded rows, but it
+should not try to become a second authority or a separate mission engine.

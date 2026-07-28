@@ -220,10 +220,10 @@ Definitions, owned state, compiled world output, runtime orchestration, and run 
 
 ### Acquisition and relationship
 
-| Topic        | Possibilities to explore                                                                        |             Status |
-| ------------ | ----------------------------------------------------------------------------------------------- | -----------------: |
-| Unlock       | discovery, rescue, restoration, reputation, blueprint, challenge, trade                         |        Researching |
-| Ownership    | collect all vs limited active garage vs relationships/loans                                     |               Idea |
+| Topic     | Possibilities to explore                                                |      Status |
+| --------- | ----------------------------------------------------------------------- | ----------: |
+| Unlock    | discovery, rescue, restoration, reputation, blueprint, challenge, trade | Researching |
+| Ownership | collect all vs limited active garage vs relationships/loans             |        Idea |
 
 ### Browser-delivered 3D trust layer
 
@@ -247,12 +247,12 @@ evolving.
 The accessibility pass now also has source support: the public profile line is
 visible in the shell, the save line is announced, and the remaining closure
 work is now stronger assistive-tech proof rather than more design invention.
-| Loaners      | temporary compatible vehicle/loadout lets a player try a contract without owning its capability |           Proposed |
-| Upgrade      | reversible modules, tuning, repairs, cosmetic history, hybrid grafts                            |           Proposed |
-| Mastery      | player skill, vehicle familiarity, certification, relationship                                  |        Researching |
-| Damage       | performance consequences, visible history, field repair, recovery                               |        Researching |
-| Trading      | NPC barter first; player trading only with server ledger/escrow                                 |           Deferred |
-| Real designs | inspiration without unauthorized brand/logo/livery replication                                  | Proposed guardrail |
+| Loaners | temporary compatible vehicle/loadout lets a player try a contract without owning its capability | Proposed |
+| Upgrade | reversible modules, tuning, repairs, cosmetic history, hybrid grafts | Proposed |
+| Mastery | player skill, vehicle familiarity, certification, relationship | Researching |
+| Damage | performance consequences, visible history, field repair, recovery | Researching |
+| Trading | NPC barter first; player trading only with server ledger/escrow | Deferred |
+| Real designs | inspiration without unauthorized brand/logo/livery replication | Proposed guardrail |
 
 The proposed tractor journey is now `found → stabilized → working → specialized → hybridized → storied`. Restoration, chassis tuning, swappable physical modules, and deployed module states remain separate systems. The first playable should restore one signature plow and choose one support module; large swaps occur at the workshop by default, while field swapping is a later earned capability. See [Tractor Restoration and Modular Growth](TRACTOR_RESTORATION_AND_MODULAR_GROWTH_2026-07-25.md).
 
@@ -1077,7 +1077,7 @@ Marsh Skimmer 01 implements the earlier “water or hover” decision unit:
   camera, exploration, activity, persistence, and observability contracts;
 - Drift crosses the deep Sunken Flats while steep terrain still reduces
   authority and raises strain;
-- schema v4 preserves valid v3 Torque/Spark state and adds Drift without
+- schema v4 preserves valid legacy Torque/Spark state and adds Drift without
   replacing shared world memory;
 - visible browser acceptance verifies three rigs, six cameras, hover telemetry,
   reload, and narrow controls.
@@ -1859,6 +1859,19 @@ New exploration questions opened by this package:
   package, including dimensions, sockets, materials, uncertainty, and failure
   variants.
 
+## Addendum — 2026-07-28 utility/tow package and extreme candidate expanded
+
+- The utility/tow candidate now has a generated turnaround and five-mode board,
+  with a dedicated intake contract at
+  [UTILITY_TOW_RECONSTRUCTION_INTAKE_2026-07-28.md](../research/UTILITY_TOW_RECONSTRUCTION_INTAKE_2026-07-28.md).
+- The turnaround is visual evidence only; exact orthographic consistency,
+  scale, socket coordinates, and underbody geometry remain unknown.
+- `extreme_snow_crawler_01` is now the grounded extreme candidate under review;
+  it remains single-view reference-only.
+- The next image-pipeline proof is strict spec authoring plus reference
+  admission checks, not runtime registration. The runtime asset manifest stays
+  unchanged until a validated mesh and browser budget proof exist.
+
 ## Addendum — 2026-07-28 contract ledger source-surface recheck
 
 - The current runtime already exposes the board inputs through
@@ -1895,6 +1908,8 @@ New exploration questions opened by this package:
 - The next proof is a focus-safe wheel that maps to named actions and stays
   secondary to the rig.
 
+- Source inspection still shows no runtime `openRadial` branch in `src/main.ts`, so the wheel remains spec-only until it is mounted into the shell manager.
+
 ## Addendum — 2026-07-28 world graph and place contract drafted
 
 - The world graph now has a dedicated contract at
@@ -1928,7 +1943,7 @@ node tools/audit-runtime-reachability.mjs
 
 The audit walks the transitive import graph from the real entry points
 (`index.html`, `physics-lab.html`, `box3d-lab.html`, and the build configs), so
-it catches orphan *clusters* — for example `expedition-economy.ts`, which has an
+it catches orphan _clusters_ — for example `expedition-economy.ts`, which has an
 importer, but only from `salvage-crafting.ts`, which is itself unreachable.
 
 ### Why this belongs on the exploration map and not only in the tracker
@@ -1960,24 +1975,24 @@ at what cost. `radial-ui.ts` is that missing layer, and it is unreachable.
 
 ### Correction to a load-bearing record
 
-ADR-0031 and the Master Execution Tracker both state that `src/game/animation.ts`
-is wired into the live renderer path. It is imported by nothing. This is the
-first observed case of the governance layer making a false claim about the
-runtime, and it is tracked as a provenance repair in the same class as RU-0903
-rather than as a documentation typo.
+ADR-0031 and the Master Execution Tracker previously recorded that `src/game/
+animation.ts` was not wired into the live renderer path. The current checkout has
+resolved this with an explicit renderer import and per-frame update path.
+The original false-claim record is preserved for provenance, while the
+runtime-ownership assertion is now corrected.
 
 ### Status of the proposals
 
-| Item | Status | Next evidence |
-| --- | ---: | --- |
-| The Missing Middle diagnosis | Proposed | Wire three tactical verbs; observe whether session language stops using "checklist" |
-| Reachability Budget as repo policy | Proposed | Operator sign-off; then adopt `--max` in the verification path |
-| The Pegboard (`radial-ui.ts` revival) | Idea | Focus-safe wheel bound to named actions |
-| Stranded, Not Reset (`fleet-recovery` + `winch-physics`) | Idea | One failure that produces a rescue contract instead of a rollback |
-| The Land Is Trying To Forget (decay/regrowth) | Idea | Route decay that makes persistence earned |
-| The Compliance Officer (Atlas as bureaucracy) | Idea | One episode where an improvised route is filed non-compliant |
-| Routes Are The Save File | Idea (leapfrog) | Export one route graph as a shareable artifact under ADR-0004 policy |
-| One Machine That Changes (fleet deferred to Act II) | Open disagreement | Operator decision; changes Act I sequencing |
+| Item                                                     |            Status | Next evidence                                                                       |
+| -------------------------------------------------------- | ----------------: | ----------------------------------------------------------------------------------- |
+| The Missing Middle diagnosis                             |          Proposed | Wire three tactical verbs; observe whether session language stops using "checklist" |
+| Reachability Budget as repo policy                       |          Proposed | Operator sign-off; then adopt `--max` in the verification path                      |
+| The Pegboard (`radial-ui.ts` revival)                    |              Idea | Focus-safe wheel bound to named actions                                             |
+| Stranded, Not Reset (`fleet-recovery` + `winch-physics`) |              Idea | One failure that produces a rescue contract instead of a rollback                   |
+| The Land Is Trying To Forget (decay/regrowth)            |              Idea | Route decay that makes persistence earned                                           |
+| The Compliance Officer (Atlas as bureaucracy)            |              Idea | One episode where an improvised route is filed non-compliant                        |
+| Routes Are The Save File                                 |   Idea (leapfrog) | Export one route graph as a shareable artifact under ADR-0004 policy                |
+| One Machine That Changes (fleet deferred to Act II)      | Open disagreement | Operator decision; changes Act I sequencing                                         |
 
 Full room, role outputs, arbitration, and build conditions:
 [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md).
@@ -2011,3 +2026,266 @@ behind it, that is evidence the method needs changing, not the map.
   command/result -> progression consequence.
 - The route now also probes whether the read-only contract board can become
   the player choice surface for that proposition.
+
+## Addendum — 2026-07-28 mission acceptance surface named
+
+- The player-choice layer is now named in
+  `docs/research/MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md`.
+- The map still treats the wiring experiment as the next concrete step, but
+  the experiment's outcome is now clearly framed: the ledger projects rows,
+  the acceptance surface makes them reachable and accessible, and the command
+  path resolves the chosen proposition.
+- This keeps the repository from silently collapsing the board, the choice,
+  and the simulation into one undifferentiated authority.
+
+## Addendum — 2026-07-28 row and announcement model named
+
+- The acceptance surface now has a concrete row contract at
+  `docs/research/MISSION_ACCEPTANCE_ROW_AND_ANNOUNCEMENT_CONTRACT_2026-07-28.md`.
+- That note gives the map a place to point when the next proof slice is about
+  selected rows, spoken reasons, explicit accept/dismiss behavior, and focus
+  restore.
+- The next step is no longer “some accessible board.” It is a focus-managed,
+  announced row model with clear world-state versus selection-state separation.
+
+## Addendum — 2026-07-28 board sectioning and visibility named
+
+- The board’s compact-versus-expanded layout now has its own contract at
+  `docs/research/MISSION_ACCEPTANCE_SECTION_AND_VISIBILITY_CONTRACT_2026-07-28.md`.
+- That note keeps the next proof slice concrete: visible section headings,
+  manageable default density, and readable history without collapsing the
+  board into a giant flat list.
+- The exploration map can now point at a fully named chain from ledger ->
+  surface -> row -> sectioning, which is the last missing browser-contract
+  seam for this lane.
+
+## Addendum — 2026-07-28 board header and summary named
+
+- The board’s title, summary count, and mode line now have a contract at
+  `docs/research/MISSION_ACCEPTANCE_BOARD_HEADER_AND_SUMMARY_CONTRACT_2026-07-28.md`.
+- That means the acceptance-surface lane is now fully named from top-level
+  orientation through sectioning, row announcement, and choice semantics.
+- The remaining proof is now runtime/browser evidence, not missing naming.
+
+## Addendum — 2026-07-28 history recap named
+
+- The board’s history retention and recap behavior now has a contract at
+  `docs/research/MISSION_ACCEPTANCE_HISTORY_RECAP_CONTRACT_2026-07-28.md`.
+- That closes the remaining naming gap for the board presentation chain:
+  header -> sections -> rows -> announcements -> bounded history.
+- The next proof is now about the live browser surface, not another contract
+  note.
+
+## Addendum — 2026-07-28 transition and restore named
+
+- The board’s open / reconfigure / close choreography now has a contract at
+  `docs/research/MISSION_ACCEPTANCE_TRANSITION_AND_RESTORE_CONTRACT_2026-07-28.md`.
+- That closes the last named browser-contract seam in this lane.
+- What remains is not naming; it is runtime proof of focus restore, selection
+  preservation, and compact/expanded behavior in the live surface.
+
+## Addendum — 2026-07-28 empty state and fallback named
+
+- The board’s zero-row and fallback behavior now has a contract at
+  `docs/research/MISSION_ACCEPTANCE_EMPTY_STATE_AND_FALLBACK_CONTRACT_2026-07-28.md`.
+- That closes the last browser-facing presentation gap for the board lane:
+  the board can now explain itself when populated, compact, empty, or
+  returning to play.
+- The remaining proof is live runtime/browser evidence, not another board note.
+
+## Addendum — 2026-07-28 loading and refresh named
+
+- The board’s in-progress loading / refresh behavior now has a contract at
+  `docs/research/MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md`.
+- That keeps the board from looking broken while it is rebuilding rows and
+  gives the browser surface a distinct “still loading” state instead of
+  silently defaulting to empty.
+- The remaining proof is live runtime/browser evidence, not another board note.
+
+## Addendum — 2026-07-28 proposition, resolver, and surface are still separate source layers
+
+- Source inspection now shows the acceptance lane should be read as three
+  distinct layers:
+  - `src/game/mission-propositions.ts` derives deterministic propositions.
+  - `src/game/mission-resolver.ts` applies rewards and progression.
+  - `src/game/state.ts` exposes the survey contract as a contextual offer.
+- That matters because the repo still does not show a dedicated board
+  component that turns those contracts into a named player-facing acceptance
+  surface with focus, row announcement, and compact/expanded semantics.
+- The next proof target is therefore not more proposition logic; it is the
+  player-facing board that consumes it.
+
+## Addendum — 2026-07-28 the runtime still lacks a dedicated contract-board overlay
+
+- A source sweep now confirms the runtime has the mission proposition engine,
+  the mission resolver, and a contextual survey offer, but it does not yet
+  expose a separate focus-managed contract-board component.
+- The current overlays (`rumor-map-ui.ts`, `navigator-ui.ts`) are separate
+  world-navigation and tactical surfaces, not the read-only ledger board named
+  in the contract spec.
+- That means the remaining proof is architectural, not lexical: the board
+  needs to exist as its own overlay before the accessibility and row semantics
+  work can be validated live.
+- The exact runtime insertion point is the `OverlayKind` / `openOverlay` /
+  `closeOverlay` cluster in `src/main.ts`; today it only branches for `map`,
+  `pause`, `workshop`, and `lesson`, so the contract board has no runtime
+  branch to enter yet.
+- The labs drawer has the same status: `src/main.ts` still exposes only a
+  separate `#physics-lab-link` anchor, and `openLabs` does not exist in the
+  runtime shell yet.
+- The garage/fleet roster is the same kind of gap: `src/` has no dedicated
+  garage overlay or `openGarage` runtime branch yet, even though the roster
+  spec already has enough public state for a read-only first slice.
+
+## Addendum — 2026-07-28 the animation boundary is fixed, and it changed what "wire the orphans" means
+
+The first orphan is wired (30 → 29 unreachable, 2,365 → 2,040 lines), but the
+way it went is the durable finding, not the count.
+
+Implementing ADR-0031 literally would have **damaged the game**. Its module
+re-derived `wheelRotation` and suspension compression that the fixed-step kernel
+already owns, persists, and replay-validates, and its transform step dropped
+`heading`, `pitch`, and `roll` outright. ADR-0034 supersedes it: the kernel owns
+anything that survives a reload or a replay, and `vehicleAnimationSystem` owns
+how that truth is shown.
+
+### The lesson that generalises to the other 29
+
+> **An unreachable module cannot be trusted to be correct.** Nothing forces an
+> unimported module to stay consistent with the runtime it describes, so it can
+> hold an arbitrarily wrong design indefinitely without a single check failing.
+> Its tests pass because they test its own invented model.
+
+This materially changes the RU-0910 experiment. "Wire three verbs" is not a
+mechanical exercise: each orphan must first be **re-derived against the current
+authoritative layers** before it is connected. Expect some of the 29 to be wrong
+in the same way — written against an imagined state shape rather than the real
+one. That is exactly the Champion-versus-Executioner test the brainstorm framed,
+and the first data point says the Executioner was more right than the Champion
+on this file.
+
+### Build rather than delete
+
+Two dormant channels were built instead of removed, per operator direction:
+
+- the **cockpit steering control** now exists on Torque and Spark and turns at
+  2.5× the road-wheel angle. Live browser evidence corrected the design: the
+  tractor's hood camera socket sits _ahead_ of the windscreen, so it is a
+  hood-mounted view, not an interior one. The control sits in the cab where a
+  driver would hold it, and the genuine cockpit payoff is **gated on an interior
+  camera that does not exist**. This makes an interior/cockpit camera a concrete
+  candidate, and connects directly to the Patchwork Dashboard idea already named
+  in the UI research section;
+- the **clip seam** is real: imported GLB animations bind to a mixer the frame
+  loop ticks, so the asset pipeline no longer silently discards
+  `gltf.animations`.
+
+### Status changes
+
+| Item                                           |                                   Status | Evidence                                               |
+| ---------------------------------------------- | ---------------------------------------: | ------------------------------------------------------ |
+| Rig-local animation ownership                  |      **Accepted mechanism, implemented** | ADR-0034; 382 tests; live `visualFrontIsForward: true` |
+| Cockpit instrument layer (Patchwork Dashboard) | Idea → **Partially built, camera-gated** | Control exists and animates; no interior camera        |
+| Imported-asset clip playback                   |                   Idea → **Implemented** | `animationClipCount` in bridge evidence                |
+| "Wire the orphans" as a mechanical task        |                     **Rejected framing** | The first orphan required supersession, not wiring     |
+
+## Addendum — 2026-07-28 the next five are sequenced, and the Pegboard has a modality
+
+The reachability tranche is now sequenced with per-item reasoning, acceptance
+gates, and **explicit expansion paths** so each stays open to redesign as
+playable evidence arrives:
+[Next Five — The Reachability Tranche](../plans/NEXT_FIVE_REACHABILITY_TRANCHE_2026-07-28.md).
+
+|   # | Item                                                 | Exploration status                          |
+| --: | ---------------------------------------------------- | ------------------------------------------- |
+|   1 | Reachability budget (`--max 29`, ratcheting)         | **Adopted**                                 |
+|   2 | The Pegboard — the missing 1,000-ft tool-state layer | Proposed; geometry open                     |
+|   3 | Tyre pressure + differential lock                    | Proposed; may shrink to fewer, deeper verbs |
+|   4 | Stranded, Not Reset                                  | Proposed; recovery _form_ genuinely open    |
+|   5 | `world-memory.ts`                                    | Proposed; highest supersession risk         |
+
+### One modality decided, deliberately narrow
+
+**ADR-0035**: the Pegboard runs **live**, with an **accessibility opt-in that
+pauses**. Operator direction. Only the modality is accepted — geometry, tool
+list, and visual design remain open.
+
+The reasoning belongs on this map because it is a product principle, not a UI
+detail: _a tool choice made outside of time is inventory management._ The
+Missing Middle diagnosis says the absent thing is coping under pressure, so a
+surface that removes pressure would fill the gap with the wrong substance. The
+opt-in exists so that does not become a dexterity gate, and it is a comfort
+setting rather than a difficulty setting.
+
+This constrains the design harder than pausing would: tool states must be
+readable at a glance, under motion, without reading numbers — and narrow-screen
+touch is now the hardest case rather than an afterthought.
+
+### Ideas this tranche keeps deliberately unresolved
+
+Three named brainstorm ideas are _routed_ by the tranche but not decided by it,
+and each should get its own exploration pass before its host item fixes shape:
+
+- **The Logbook** (diegetic provenance in the machine's voice) and **The Land Is
+  Trying To Forget** (decay makes persistence earned) both live inside item 5 and
+  could reshape it substantially.
+- **Routes Are The Save File** — the leapfrog — becomes reachable if item 5
+  settles on routes as the durable memory object.
+- **One Machine That Changes** (RU-0912, Act I sequencing) is not resolved here,
+  but item 4 supplies real evidence for it: if a rescue makes the second rig feel
+  necessary rather than administrative, that is an argument for the fleet
+  arriving earlier rather than later.
+
+### The open gap carried forward
+
+The cockpit steering control built under ADR-0034 is real and animated, but the
+tractor's hood camera socket sits ahead of the windscreen — it is a hood-mounted
+view, not an interior one. **An interior/cockpit camera would unlock both that
+control and the Patchwork Dashboard idea already named in the UI research
+section.** It is deliberately not in this five and is the first candidate for the
+next one.
+
+## Addendum — 2026-07-28 the permanent controls strip was a second guidance authority
+
+Operator review of a live screenshot asked why the keyboard controls were
+permanently on screen. The answer turned out to be structural rather than
+cosmetic, and it sharpens an accepted principle.
+
+`ADR-0020` already decided that a control is introduced when its context first
+becomes relevant and **retired once the player performs it**. The always-visible
+strip along the bottom of the play surface was a _second_ control-guidance
+surface that was never contextual and never retired — two truth sources for one
+job. It also ran directly against two anti-patterns already recorded in this
+map's UI section: _information overload in early play_, and _UI that fights the
+Patchwork Atlas tone_.
+
+### The rule this establishes
+
+> **Scaffolding that never comes down is not scaffolding — it is permanent
+> furniture in front of the thing the player came for.**
+
+Teaching and reference are different jobs. Teaching is contextual, one at a
+time, and retires itself (ADR-0020). Reference is on demand, complete, and
+remembers whether you want it. Conflating them produces a legend that is both a
+bad teacher and permanent clutter.
+
+### What changed
+
+The legend is hidden by default and revealed by `?` or a small `? Keys` button,
+with the choice persisted as a browser-local UI preference. The camera selector
+and Reset field stay visible, because they are _controls_ rather than a legend
+and the accessibility baseline requires a pointer path.
+
+### The longer-term reading
+
+The legend existed because the game has no diegetic surface showing what the
+machine can do. That is the same Missing Middle hole from a different angle: a
+list of keys is what an interface produces when it cannot show tool state in the
+world. As the Pegboard lands (ADR-0035) and the cockpit instrument layer becomes
+viewable, the legend should become **progressively less necessary rather than
+more elaborate**. If a future change makes the key list longer, that is a signal
+the diegetic layer is missing something, not that the legend needs more room.
+
+This also strengthens the case for the interior camera already carried forward as
+the next tranche's first candidate: the more the rig can say about itself, the
+less the frame needs to.

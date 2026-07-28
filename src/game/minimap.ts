@@ -80,7 +80,7 @@ export class FieldMap {
 
         const east = this.world.terrain.height(x + METRES_PER_PIXEL, z);
         const north = this.world.terrain.height(x, z + METRES_PER_PIXEL);
-        
+
         // Slope & surface normal components
         const dzdx = (east - height) / METRES_PER_PIXEL;
         const dzdz = (north - height) / METRES_PER_PIXEL;
@@ -105,16 +105,24 @@ export class FieldMap {
           baseB = Math.round(180 * (1 - depth) + 110 * depth);
         } else if (height < 10) {
           // Lowland lush meadow
-          baseR = 40; baseG = 135; baseB = 65;
+          baseR = 40;
+          baseG = 135;
+          baseB = 65;
         } else if (height < 22) {
           // Upland plateau & graded soil
-          baseR = 125; baseG = 105; baseB = 55;
+          baseR = 125;
+          baseG = 105;
+          baseB = 55;
         } else if (height < 36) {
           // Mountain ridge rock
-          baseR = 85; baseG = 95; baseB = 105;
+          baseR = 85;
+          baseG = 95;
+          baseB = 105;
         } else {
           // High mountain peak
-          baseR = 175; baseG = 185; baseB = 195;
+          baseR = 175;
+          baseG = 185;
+          baseB = 195;
         }
 
         // Apply 3D hillshading
@@ -343,10 +351,7 @@ export class FieldMap {
     context.lineWidth = 1.2;
     context.beginPath();
     context.moveTo(0, 0);
-    context.lineTo(
-      Math.sin(headingAngle) * 16,
-      -Math.cos(headingAngle) * 16,
-    );
+    context.lineTo(Math.sin(headingAngle) * 16, -Math.cos(headingAngle) * 16);
     context.stroke();
 
     context.rotate(headingAngle);

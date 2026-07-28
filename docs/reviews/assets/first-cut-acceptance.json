@@ -21,7 +21,7 @@
       "stage": "first-cut",
       "objective": "Drive forward",
       "dataStage": "first-cut",
-      "borderColor": "rgb(217, 170, 82)",
+      "borderColor": "rgb(185, 79, 50)",
       "pass": true
     },
     {
@@ -35,9 +35,9 @@
     {
       "step": "drive-forward",
       "stage": "first-cut",
-      "objective": "Plough toward Long Furrow (25 furrows carved)",
+      "objective": "Plough toward Long Furrow (28 furrows carved)",
       "dataStage": "first-cut",
-      "furrows": 25,
+      "furrows": 28,
       "pass": true
     }
   ],

@@ -87,7 +87,9 @@ import {
 } from "./activities";
 import { SALVAGE_PICKUP_RADIUS } from "./exploration";
 import {
+  evaluateCorridorQuality,
   resolveFirstRung,
+  syncUnboundPassageFromCorridor,
   workshopActionable as firstRungWorkshopActionable,
 } from "./first-rung";
 import type { GameWorld } from "./gameworld";
@@ -300,9 +302,15 @@ function recoverProgression(value: unknown): ProgressionState {
       if (journeyVal && typeof journeyVal === "object") {
         const j = journeyVal as Record<string, unknown>;
         journeys[rigId] = {
-          phase: typeof j.phase === "string" && JOURNEY_PHASES.includes(j.phase as any) ? (j.phase as JourneyPhase) : "found",
+          phase:
+            typeof j.phase === "string" &&
+            JOURNEY_PHASES.includes(j.phase as any)
+              ? (j.phase as JourneyPhase)
+              : "found",
           investment: typeof j.investment === "number" ? j.investment : 0,
-          completedDeeds: Array.isArray(j.completedDeeds) ? j.completedDeeds.filter((d): d is string => typeof d === "string") : [],
+          completedDeeds: Array.isArray(j.completedDeeds)
+            ? j.completedDeeds.filter((d): d is string => typeof d === "string")
+            : [],
         };
       }
     }
@@ -314,7 +322,10 @@ function recoverProgression(value: unknown): ProgressionState {
     }
   }
 
-  const mastery: Record<string, Partial<Record<RigCapability, MasteryState>>> = {};
+  const mastery: Record<
+    string,
+    Partial<Record<RigCapability, MasteryState>>
+  > = {};
   if (candidate.mastery && typeof candidate.mastery === "object") {
     for (const [rigId, masteryVal] of Object.entries(candidate.mastery)) {
       if (masteryVal && typeof masteryVal === "object") {
@@ -324,11 +335,21 @@ function recoverProgression(value: unknown): ProgressionState {
           if (stateVal && typeof stateVal === "object") {
             const s = stateVal as Record<string, unknown>;
             rigMastery[cap as RigCapability] = {
-              rank: typeof s.rank === "string" && MASTERY_RANKS.includes(s.rank as any) ? (s.rank as MasteryRank) : "novice",
+              rank:
+                typeof s.rank === "string" &&
+                MASTERY_RANKS.includes(s.rank as any)
+                  ? (s.rank as MasteryRank)
+                  : "novice",
               points: typeof s.points === "number" ? s.points : 0,
-              situations: s.situations && typeof s.situations === "object" ? Object.fromEntries(
-                Object.entries(s.situations).map(([k, v]) => [k, typeof v === "number" ? v : 0])
-              ) : {},
+              situations:
+                s.situations && typeof s.situations === "object"
+                  ? Object.fromEntries(
+                      Object.entries(s.situations).map(([k, v]) => [
+                        k,
+                        typeof v === "number" ? v : 0,
+                      ]),
+                    )
+                  : {},
             };
           }
         }
@@ -1308,6 +1329,17 @@ export function stepGame(
           state.furrows.splice(0, state.furrows.length - MAX_FURROWS);
         }
 
+        // Terrain just changed, so the Home -> Long Furrow corridor may have
+        // become passable. This is the only place the passage opens: the
+        // corridor probe is expensive, and mutation belongs to the fixed step
+        // rather than to any selector. `evaluateCorridorQuality()` is pure, so
+        // reading the game state can never trigger this transition.
+        syncUnboundPassageFromCorridor(
+          state,
+          evaluateCorridorQuality(state, world),
+          Math.max(0, Math.floor(state.elapsedMs)),
+        );
+
         // Spatially bound route attribution to Home -> Long Furrow corridor (within 12m)
         const lfSite = findSite("long-furrow");
         const lfX = lfSite ? lfSite.x : 18;
@@ -1583,7 +1615,11 @@ export function publicState(state: GameState, world: GameWorld): object {
   );
   const journeys = Object.fromEntries(
     RIG_IDS.map((rigId) => {
-      const journey = state.progression.journeys[rigId] ?? { phase: "found", investment: 0, completedDeeds: [] };
+      const journey = state.progression.journeys[rigId] ?? {
+        phase: "found",
+        investment: 0,
+        completedDeeds: [],
+      };
       return [
         rigId,
         {
@@ -2426,14 +2462,16 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
 }
 
 /**
- * Migrate Field 02 (v3) into the bounded-adapter state shape.
+ * Migrate Field 02 legacy schema into the bounded-adapter state shape.
  *
  * The two ground rigs keep their established identity and motion state, while
  * Drift is introduced at its authored Sunken Flats berth. Adding the new rig
- * here is intentional schema migration, not recovery fallback: a corrupt v3
- * tractor or buggy still rejects the whole record.
+ * here is intentional schema migration, not recovery fallback: a corrupt legacy
+ * Field 02 payload still rejects the whole record.
  */
-function migrateV3(candidate: Record<string, unknown>): GameState | null {
+function migrateField02Legacy(
+  candidate: Record<string, unknown>,
+): GameState | null {
   if (
     typeof candidate.seed !== "string" ||
     candidate.seed.length < 1 ||
@@ -2555,13 +2593,14 @@ function migrateV1(candidate: Record<string, unknown>): GameState | null {
 /**
  * Migrate a Rig Lab 01 (v2) record.
  *
- * v2's rig shape is a strict subset of v3's, so the shared recovery path handles
- * it directly. The only semantic change is the world: v2 positions were recorded
+ * v2's rig shape is a strict subset of the legacy schema, so the shared
+ * recovery path handles it directly. The only semantic change is the world: v2
+ * positions were recorded
  * on a flat plane inside a `±92` box, so they are clamped into the disc and
  * re-settled onto terrain.
  */
 function migrateV2(candidate: Record<string, unknown>): GameState | null {
-  const recovered = migrateV3(candidate);
+  const recovered = migrateField02Legacy(candidate);
   if (!recovered) return null;
   recovered.lastDiagnostic =
     "Rig Lab 01 record migrated. Both rigs re-settled onto real terrain.";
@@ -2574,8 +2613,7 @@ function migratePriorSchema(
 ): GameState | null {
   const recovered = recoverCurrent(candidate, true);
   if (!recovered) return null;
-  recovered.lastDiagnostic =
-    `Schema v${sourceSchemaVersion} record migrated. Progression state is now tracked alongside the field.`;
+  recovered.lastDiagnostic = `Schema v${sourceSchemaVersion} record migrated. Progression state is now tracked alongside the field.`;
   return recovered;
 }
 
@@ -2612,7 +2650,7 @@ export function recoverState(value: unknown): GameState | null {
     return migrateV4(candidate);
   }
   if (candidate.schemaVersion === FIELD_02_SAVE_SCHEMA_VERSION) {
-    return migrateV3(candidate);
+    return migrateField02Legacy(candidate);
   }
   if (candidate.schemaVersion === RIG_LAB_SAVE_SCHEMA_VERSION) {
     return migrateV2(candidate);

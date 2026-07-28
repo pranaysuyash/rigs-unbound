@@ -30,9 +30,12 @@ export function updateElectricalGrid(
   if (grid.isSeismicActive) loadAmps += 80.0;
 
   const netCurrentAmps = alternatorAmps - loadAmps;
-  const netChargeAhChange = (netCurrentAmps * (deltaSeconds / 3600));
+  const netChargeAhChange = netCurrentAmps * (deltaSeconds / 3600);
 
-  const newChargeAh = Math.max(0, Math.min(grid.batteryCapacityAh, grid.currentChargeAh + netChargeAhChange));
+  const newChargeAh = Math.max(
+    0,
+    Math.min(grid.batteryCapacityAh, grid.currentChargeAh + netChargeAhChange),
+  );
   const chargeRatio = newChargeAh / grid.batteryCapacityAh;
   // Voltage curve from 10.5V (0%) to 13.8V (100%)
   const batteryVoltage = Number((10.5 + chargeRatio * 3.3).toFixed(2));
@@ -43,7 +46,9 @@ export function updateElectricalGrid(
     currentChargeAh: Number(newChargeAh.toFixed(3)),
     batteryVoltage,
     accessoryCutoffTriggered,
-    isHeadlightsActive: accessoryCutoffTriggered ? false : grid.isHeadlightsActive,
+    isHeadlightsActive: accessoryCutoffTriggered
+      ? false
+      : grid.isHeadlightsActive,
     isWinchActive: accessoryCutoffTriggered ? false : grid.isWinchActive,
     isSeismicActive: accessoryCutoffTriggered ? false : grid.isSeismicActive,
   };

@@ -25,12 +25,12 @@ Modules are the primary upgrade layer. Each module is a physical part that expan
 export interface ModuleDefinition {
   id: ModuleId;
   name: string;
-  promise: string;          // What the player can newly do
-  cost: number;             // Salvage cost in workshop
-  fits: readonly RigId[];   // Compatibility matrix
+  promise: string; // What the player can newly do
+  cost: number; // Salvage cost in workshop
+  fits: readonly RigId[]; // Compatibility matrix
   grantsCapability?: RigCapability;
   effects: Partial<{
-    enginePower: number;    // Multiplicative
+    enginePower: number; // Multiplicative
     lowSpeedTorque: number;
     topSpeed: number;
     tireGrip: number;
@@ -41,7 +41,7 @@ export interface ModuleDefinition {
     suspensionStiffness: number;
   }>;
   offsets?: Partial<{
-    lugBonus: number;       // Additive
+    lugBonus: number; // Additive
     fordDepth: number;
     surveyRange: number;
   }>;
@@ -50,14 +50,14 @@ export interface ModuleDefinition {
 
 ### Existing Modules
 
-| Module | Cost | Effect | Grants Capability | Fits |
-|--------|------|--------|-------------------|------|
-| Low-range gearing | 6 | `enginePower ×1.5`, `lowSpeedTorque ×3.8`, `topSpeed ×0.86` | — | Tractor, Buggy |
-| Lug tyres | 5 | `tireGrip ×1.06`, `lugBonus +0.34` | — | Tractor, Buggy |
-| Recovery winch | 8 | `towSpeedMultiplier ×1.14` | `winch` | Tractor, Buggy |
-| Survey mast | 7 | `surveyRange +62m` | `survey` | Tractor, Buggy |
-| Skid plate | 5 | `landingTolerance ×1.7`, `suspensionStiffness ×1.08` | — | Tractor, Buggy |
-| Flotation pontoons | 9 | `fordDepth +1.9m` | `ford` | Tractor, Buggy |
+| Module             | Cost | Effect                                                      | Grants Capability | Fits           |
+| ------------------ | ---- | ----------------------------------------------------------- | ----------------- | -------------- |
+| Low-range gearing  | 6    | `enginePower ×1.5`, `lowSpeedTorque ×3.8`, `topSpeed ×0.86` | —                 | Tractor, Buggy |
+| Lug tyres          | 5    | `tireGrip ×1.06`, `lugBonus +0.34`                          | —                 | Tractor, Buggy |
+| Recovery winch     | 8    | `towSpeedMultiplier ×1.14`                                  | `winch`           | Tractor, Buggy |
+| Survey mast        | 7    | `surveyRange +62m`                                          | `survey`          | Tractor, Buggy |
+| Skid plate         | 5    | `landingTolerance ×1.7`, `suspensionStiffness ×1.08`        | —                 | Tractor, Buggy |
+| Flotation pontoons | 9    | `fordDepth +1.9m`                                           | `ford`            | Tractor, Buggy |
 
 ### Compatibility Matrix
 
@@ -66,10 +66,11 @@ Only `utility-tractor` and `toy-buggy` have module slots currently. `marsh-skimm
 ### Module Composition (`effectiveProfile`)
 
 ```typescript
-function effectiveProfile(rigId: RigId, modules: ModuleId[]): EffectiveRig
+function effectiveProfile(rigId: RigId, modules: ModuleId[]): EffectiveRig;
 ```
 
 This pure function composes module effects onto the base `RIG_PROFILES` blueprint:
+
 1. Copies the base profile
 2. Iterates installed modules, filtering by `definition.fits.includes(rigId)`
 3. Applies multiplicative `effects`
@@ -80,14 +81,14 @@ This pure function composes module effects onto the base `RIG_PROFILES` blueprin
 
 ### Future Modules
 
-| Module | Effect | Unlock Rung |
-|--------|--------|-------------|
-| Auxiliary fuel tank | `fordDepth +0.5` (extended range) | 1 |
-| Reinforced chassis | `landingTolerance ×2.0`, `suspensionStiffness ×1.15` | 2 |
-| High-clearance suspension | `rideHeight +0.3`, `suspensionTravel ×1.25` | 2 |
-| Heavy-duty winch | `towSpeedMultiplier ×1.3` | 3 |
-| Terrain scanner | `surveyRange +100m` (rung 3 unlock) | 3 |
-| Skimmer upgrade kit | `hover clearance +0.5m`, `mobilityAdapter: hover` | 3 |
+| Module                    | Effect                                               | Unlock Rung |
+| ------------------------- | ---------------------------------------------------- | ----------- |
+| Auxiliary fuel tank       | `fordDepth +0.5` (extended range)                    | 1           |
+| Reinforced chassis        | `landingTolerance ×2.0`, `suspensionStiffness ×1.15` | 2           |
+| High-clearance suspension | `rideHeight +0.3`, `suspensionTravel ×1.25`          | 2           |
+| Heavy-duty winch          | `towSpeedMultiplier ×1.3`                            | 3           |
+| Terrain scanner           | `surveyRange +100m` (rung 3 unlock)                  | 3           |
+| Skimmer upgrade kit       | `hover clearance +0.5m`, `mobilityAdapter: hover`    | 3           |
 
 ---
 
@@ -102,7 +103,7 @@ interface ChassisMassDistribution {
   totalMassKg: number;
   centerOfMassOffset: { x: number; y: number; z: number };
   yawInertiaKgM2: number;
-  rolloverRisk: number;        // 0..1
+  rolloverRisk: number; // 0..1
 }
 ```
 
@@ -112,7 +113,7 @@ interface ChassisMassDistribution {
 function computeChassisMassDistribution(
   baseProfile: RigProfile,
   fittedModuleIds: readonly ModuleId[],
-): ChassisMassDistribution
+): ChassisMassDistribution;
 ```
 
 - Base mass from `RigProfile.mass` (in tonnes), converted to kg
@@ -126,20 +127,20 @@ function computeChassisMassDistribution(
 
 ### Gameplay Consequences
 
-| Stat | Effect |
-|------|--------|
-| `centerOfMassOffset.y` | Higher = more pitch/roll, more rollover risk, softer suspension feel |
+| Stat                   | Effect                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| `centerOfMassOffset.y` | Higher = more pitch/roll, more rollover risk, softer suspension feel                       |
 | `centerOfMassOffset.z` | Positive = rear-heavy (traction under accel), negative = front-heavy (understeer tendency) |
-| `yawInertiaKgM2` | Higher = slower to rotate, more stable in turns |
-| `rolloverRisk` | Higher = more likely to tip on camber; affects map routing decisions |
+| `yawInertiaKgM2`       | Higher = slower to rotate, more stable in turns                                            |
+| `rolloverRisk`         | Higher = more likely to tip on camber; affects map routing decisions                       |
 
 ### Workshop Actions
 
-| Action | Effect | Materials |
-|--------|--------|-----------|
-| Install module | Adds module to fittedModuleIds | Module cost in salvage |
-| Remove module | Removes from fitted list | None (free) |
-| Compute distribution | Triggers `computeChassisMassDistribution()` | On install/remove |
+| Action               | Effect                                      | Materials              |
+| -------------------- | ------------------------------------------- | ---------------------- |
+| Install module       | Adds module to fittedModuleIds              | Module cost in salvage |
+| Remove module        | Removes from fitted list                    | None (free)            |
+| Compute distribution | Triggers `computeChassisMassDistribution()` | On install/remove      |
 
 ---
 
@@ -151,10 +152,10 @@ Four tracked components degrade from field use. The model is diegetic — each c
 
 ```typescript
 interface ComponentHealthState {
-  tireTreadHealthPercent: number;      // 0..100
-  radiatorCleanlinessPercent: number;   // 0..100 (100 = clean)
-  winchCableIntegrityPercent: number;   // 0..100
-  alternatorBeltHealthPercent: number;  // 0..100
+  tireTreadHealthPercent: number; // 0..100
+  radiatorCleanlinessPercent: number; // 0..100 (100 = clean)
+  winchCableIntegrityPercent: number; // 0..100
+  alternatorBeltHealthPercent: number; // 0..100
 }
 ```
 
@@ -162,12 +163,12 @@ interface ComponentHealthState {
 
 **`updateComponentWear`** — called each tick while the rig is moving:
 
-| Component | Wear Rate | Special Conditions |
-|-----------|-----------|-------------------|
-| Tyre tread | 0.8% per km travelled | — |
-| Radiator cleanliness | 0.05 per km (0.05 in mud) | +1.5 per km while fording mud (mud clogging) |
-| Winch cable | 0 baseline | +2.5 per unit tension above 20kN, scaling to tension/35000 × 2.5 |
-| Alternator belt | 0.2% per km travelled | — |
+| Component            | Wear Rate                 | Special Conditions                                               |
+| -------------------- | ------------------------- | ---------------------------------------------------------------- |
+| Tyre tread           | 0.8% per km travelled     | —                                                                |
+| Radiator cleanliness | 0.05 per km (0.05 in mud) | +1.5 per km while fording mud (mud clogging)                     |
+| Winch cable          | 0 baseline                | +2.5 per unit tension above 20kN, scaling to tension/35000 × 2.5 |
+| Alternator belt      | 0.2% per km travelled     | —                                                                |
 
 **`performFieldRepair`** — restore a single component by 35% (adjustable):
 
@@ -176,25 +177,25 @@ function performFieldRepair(
   current: ComponentHealthState,
   componentKey: keyof ComponentHealthState,
   repairAmountPercent = 35,
-): ComponentHealthState
+): ComponentHealthState;
 ```
 
 ### Consequences of Wear
 
-| Component | Below 25% | Below 10% (Critical) |
-|-----------|-----------|----------------------|
-| Tyre tread | Reduced grip on loose terrain | Flat tyre — mobility severely reduced |
-| Radiator | Overheating on sustained climbs | Engine damage risk |
-| Winch cable | Reduced max tension | Snaps under load |
-| Alternator belt | Diminished electrical | Total electrical failure, engine stall |
+| Component       | Below 25%                       | Below 10% (Critical)                   |
+| --------------- | ------------------------------- | -------------------------------------- |
+| Tyre tread      | Reduced grip on loose terrain   | Flat tyre — mobility severely reduced  |
+| Radiator        | Overheating on sustained climbs | Engine damage risk                     |
+| Winch cable     | Reduced max tension             | Snaps under load                       |
+| Alternator belt | Diminished electrical           | Total electrical failure, engine stall |
 
 ### Repair Actions
 
-| Action | Where | Cost | Effect |
-|--------|-------|------|--------|
-| Field repair | Anywhere | 10 Scrap per component | Restores 35% of one component |
+| Action            | Where       | Cost                    | Effect                          |
+| ----------------- | ----------- | ----------------------- | ------------------------------- |
+| Field repair      | Anywhere    | 10 Scrap per component  | Restores 35% of one component   |
 | Workshop overhaul | Drift Berth | 50 Scrap + 2 Microchips | Restores all components to 100% |
-| Parts replacement | Workshop | Module-dependent | Full restoration of component |
+| Parts replacement | Workshop    | Module-dependent        | Full restoration of component   |
 
 ---
 
@@ -214,11 +215,11 @@ interface CraftingRecipe {
 
 ### Existing Recipes
 
-| Output Module | Name | Steel Scrap | Microchips | Fuel Cell Core |
-|---------------|------|-------------|------------|----------------|
-| `winch` | Winch Assembly | 4 | 2 | 0 |
-| `survey-mast` | Survey Mast Antenna | 3 | 4 | 0 |
-| `auxiliary-fuel-tank` | Auxiliary Fuel Tank | 2 | 0 | 1 |
+| Output Module         | Name                | Steel Scrap | Microchips | Fuel Cell Core |
+| --------------------- | ------------------- | ----------- | ---------- | -------------- |
+| `winch`               | Winch Assembly      | 4           | 2          | 0              |
+| `survey-mast`         | Survey Mast Antenna | 3           | 4          | 0              |
+| `auxiliary-fuel-tank` | Auxiliary Fuel Tank | 2           | 0          | 1              |
 
 ### Crafting Flow
 
@@ -240,11 +241,11 @@ Player collects salvage → Inventory updated → Workshop screen
 
 ### Commodity Types (`src/game/expedition-economy.ts`)
 
-| Commodity | Source | Rarity | Primary Use |
-|-----------|--------|--------|-------------|
-| `steel-scrap` | Salvage, wrecks | Common | Basic crafting |
-| `microchips` | Electronics salvage, ruins | Uncommon | Advanced modules |
-| `fuel-cell-core` | Rare salvage, rewards | Rare | Auxiliary systems |
+| Commodity        | Source                     | Rarity   | Primary Use       |
+| ---------------- | -------------------------- | -------- | ----------------- |
+| `steel-scrap`    | Salvage, wrecks            | Common   | Basic crafting    |
+| `microchips`     | Electronics salvage, ruins | Uncommon | Advanced modules  |
+| `fuel-cell-core` | Rare salvage, rewards      | Rare     | Auxiliary systems |
 
 ---
 
@@ -276,21 +277,21 @@ interface TandemTowConnection {
 
 ### Progression Link
 
-| Upgrade | Effect on Recovery |
-|---------|-------------------|
-| Winch module | Enables `winch` capability |
-| Heavy-duty winch | Higher stiffness or combined force cap |
-| Tandem tow | Both rigs' tractive force summed |
+| Upgrade                       | Effect on Recovery                         |
+| ----------------------------- | ------------------------------------------ |
+| Winch module                  | Enables `winch` capability                 |
+| Heavy-duty winch              | Higher stiffness or combined force cap     |
+| Tandem tow                    | Both rigs' tractive force summed           |
 | Tracked/ground rig as support | Higher support rig tractive force vs hover |
 
 ### Recovery States
 
-| State | Condition | Player Action |
-|-------|-----------|---------------|
-| Stuck | speed ≈ 0, rig tilted > 30°, or water > fordDepth | Deploy recovery |
-| Self-recovery | Winch equipped, anchor nearby | Use winch |
-| Tandem tow | Two rigs in range (≤ 8m + stretch) | Connect strap |
-| Emergency recovery | Manual override in pause menu | Costs salvage × behavior |
+| State              | Condition                                         | Player Action            |
+| ------------------ | ------------------------------------------------- | ------------------------ |
+| Stuck              | speed ≈ 0, rig tilted > 30°, or water > fordDepth | Deploy recovery          |
+| Self-recovery      | Winch equipped, anchor nearby                     | Use winch                |
+| Tandem tow         | Two rigs in range (≤ 8m + stretch)                | Connect strap            |
+| Emergency recovery | Manual override in pause menu                     | Costs salvage × behavior |
 
 ---
 
@@ -316,18 +317,19 @@ Player earns XP → Rung threshold crossed
 
 ### Restoration Stage ↔ Module Slot Gating
 
-| Restoration Stage | Module Slots | Accessible Rigs |
-|-------------------|-------------|-----------------|
-| 0: Scavenged | 1 | Starting rig only |
-| 1: Patched | 2 | Tractor + Buggy |
-| 2: Functional | 2 | All three rigs |
-| 3: Reliable | 3 | All three rigs |
-| 4: Custom | 4 | All three rigs |
-| 5: Masterwork | Max | All three rigs + unique |
+| Restoration Stage | Module Slots | Accessible Rigs         |
+| ----------------- | ------------ | ----------------------- |
+| 0: Scavenged      | 1            | Starting rig only       |
+| 1: Patched        | 2            | Tractor + Buggy         |
+| 2: Functional     | 2            | All three rigs          |
+| 3: Reliable       | 3            | All three rigs          |
+| 4: Custom         | 4            | All three rigs          |
+| 5: Masterwork     | Max          | All three rigs + unique |
 
 ### Wear → Restoration Feedback
 
 Component wear cannot be eliminated until Restoration Stage 3 (Reliable):
+
 - **Stage 0-2:** Field repairs only; components degrade faster
 - **Stage 3+:** Workshop overhauls available; component degradation rate halved
 - **Stage 5:** Masterwork components never degrade below 75%
@@ -394,17 +396,17 @@ Component wear cannot be eliminated until Restoration Stage 3 (Reliable):
 
 ## 8. Open Items
 
-| Item | Priority | Status |
-|------|----------|--------|
-| Module slot unlock per rig class | High | Design |
-| Blueprint fragment drop rates | High | Pending |
-| Workshop UI (module install/remove) | High | Pending |
-| Component degradation visual feedback | High | Pending |
-| Field repair animation/sound | Medium | Pending |
-| Marsh-skimmer module compatibility | Medium | Design |
-| Tandem tow visual (strap rendering) | Medium | Pending |
-| Emergency recovery cost balance | Low | Design |
-| Module socket locations per rig class | Low | Design |
+| Item                                  | Priority | Status  |
+| ------------------------------------- | -------- | ------- |
+| Module slot unlock per rig class      | High     | Design  |
+| Blueprint fragment drop rates         | High     | Pending |
+| Workshop UI (module install/remove)   | High     | Pending |
+| Component degradation visual feedback | High     | Pending |
+| Field repair animation/sound          | Medium   | Pending |
+| Marsh-skimmer module compatibility    | Medium   | Design  |
+| Tandem tow visual (strap rendering)   | Medium   | Pending |
+| Emergency recovery cost balance       | Low      | Design  |
+| Module socket locations per rig class | Low      | Design  |
 
 ---
 
@@ -417,4 +419,4 @@ Component wear cannot be eliminated until Restoration Stage 3 (Reliable):
 
 ---
 
-*Generated: 2026-07-28 | Project: rigs-unbound | Status: Design Phase*
+_Generated: 2026-07-28 | Project: rigs-unbound | Status: Design Phase_

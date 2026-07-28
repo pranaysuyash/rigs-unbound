@@ -82,10 +82,11 @@ export function deriveRadialMenuItems(state: GameState): RadialMenuItem[] {
       badgeText: "FM",
     },
   ];
-
 }
 
-export function createInitialRadialMenuState(state: GameState): RadialMenuState {
+export function createInitialRadialMenuState(
+  state: GameState,
+): RadialMenuState {
   return {
     isOpen: false,
     selectedIndex: 0,

@@ -13,12 +13,12 @@ This is not a player-facing failure today. With one browser input path and a bou
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `InputFrame` in the contracts/state/replay path | Active fixed-step simulation input and replay sample shape | Current authoritative runtime input record. |
-| `src/game/vehicle-intent.ts` | Normalized throttle, steering, brake, handbrake, tool, stabilise, and boost values | Prepared semantic contract; not an active runtime source of truth. |
-| `normalizeVehicleIntent()` | Sanitizes untrusted continuous input into bounded values | Not currently called by the gameplay runtime. |
-| Primary-action and rig-selection commands | Versioned discrete intent/outcome proofs | Separate from continuous driving input and correctly narrow. |
+| Artifact                                        | Role now                                                                           | Canonical status                                                   |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `InputFrame` in the contracts/state/replay path | Active fixed-step simulation input and replay sample shape                         | Current authoritative runtime input record.                        |
+| `src/game/vehicle-intent.ts`                    | Normalized throttle, steering, brake, handbrake, tool, stabilise, and boost values | Prepared semantic contract; not an active runtime source of truth. |
+| `normalizeVehicleIntent()`                      | Sanitizes untrusted continuous input into bounded values                           | Not currently called by the gameplay runtime.                      |
+| Primary-action and rig-selection commands       | Versioned discrete intent/outcome proofs                                           | Separate from continuous driving input and correctly narrow.       |
 
 ## Why this matters
 

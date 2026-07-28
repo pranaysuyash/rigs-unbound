@@ -35,7 +35,9 @@ async function main() {
   let browser;
   try {
     browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 720 },
+    });
     const consoleProblems = collectConsole(page);
 
     await bootstrapAndEnter(page);
@@ -52,29 +54,44 @@ async function main() {
 
     // ── Step 1: Verify gully deformation ──
     console.log("Step 1: Verify gully deformation...");
-    const gullyY = await page.evaluate(({ gx, gz }) => {
-      window.placeRig(gx, gz);
-      const s = JSON.parse(window.render_game_to_text());
-      return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
-    }, { gx: GULLY.x, gz: GULLY.z });
+    const gullyY = await page.evaluate(
+      ({ gx, gz }) => {
+        window.placeRig(gx, gz);
+        const s = JSON.parse(window.render_game_to_text());
+        return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
+      },
+      { gx: GULLY.x, gz: GULLY.z },
+    );
     await page.waitForTimeout(300);
 
     const surroundYs = [];
-    for (const [dx, dz] of [[0, -6], [0, 6], [6, 0], [-6, 0]]) {
-      const y = await page.evaluate(({ x, z }) => {
-        window.placeRig(x, z);
-        const s = JSON.parse(window.render_game_to_text());
-        return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
-      }, { x: GULLY.x + dx, z: GULLY.z + dz });
+    for (const [dx, dz] of [
+      [0, -6],
+      [0, 6],
+      [6, 0],
+      [-6, 0],
+    ]) {
+      const y = await page.evaluate(
+        ({ x, z }) => {
+          window.placeRig(x, z);
+          const s = JSON.parse(window.render_game_to_text());
+          return s.y ?? s.rigs?.[s.activeRigId]?.y ?? 0;
+        },
+        { x: GULLY.x + dx, z: GULLY.z + dz },
+      );
       await page.waitForTimeout(300);
       surroundYs.push(y);
     }
-    const avgSurround = surroundYs.reduce((a, b) => a + b, 0) / surroundYs.length;
+    const avgSurround =
+      surroundYs.reduce((a, b) => a + b, 0) / surroundYs.length;
     const depth = avgSurround - gullyY;
     console.log(`  Gully center y: ${gullyY.toFixed(3)}`);
     console.log(`  Surrounding avg y: ${avgSurround.toFixed(3)}`);
     console.log(`  Depth: ${depth.toFixed(3)}m`);
-    assert(depth > 0.02, `Gully should be deeper than surroundings (depth=${depth.toFixed(3)})`);
+    assert(
+      depth > 0.02,
+      `Gully should be deeper than surroundings (depth=${depth.toFixed(3)})`,
+    );
     console.log("  ✓ Gully deformation confirmed\n");
 
     // ── Step 2: Gully is on the direct Home→LF path ──
@@ -87,8 +104,13 @@ async function main() {
     console.log(`  Direct Home→LF: ${directDist.toFixed(1)}m`);
     // Gully should be roughly halfway (within 60-80% of the direct distance)
     const gullyFraction = distGullyToHome / directDist;
-    console.log(`  Gully fraction of route: ${(gullyFraction * 100).toFixed(0)}%`);
-    assert(gullyFraction > 0.2 && gullyFraction < 0.9, `Gully should be on the route (fraction=${gullyFraction.toFixed(2)})`);
+    console.log(
+      `  Gully fraction of route: ${(gullyFraction * 100).toFixed(0)}%`,
+    );
+    assert(
+      gullyFraction > 0.2 && gullyFraction < 0.9,
+      `Gully should be on the route (fraction=${gullyFraction.toFixed(2)})`,
+    );
     console.log("  ✓ Gully is on the direct Home→LF path\n");
 
     // ── Step 3: Rig drives from Home toward LF through gully zone ──
@@ -107,7 +129,9 @@ async function main() {
     const dist = Math.hypot(end.x - start.x, end.z - start.z);
     const distToLF = Math.hypot(end.x - LF.x, end.z - LF.z);
     console.log(`  End: (${end.x.toFixed(1)}, ${end.z.toFixed(1)})`);
-    console.log(`  Driven: ${dist.toFixed(1)}m, dist to LF: ${distToLF.toFixed(1)}m`);
+    console.log(
+      `  Driven: ${dist.toFixed(1)}m, dist to LF: ${distToLF.toFixed(1)}m`,
+    );
 
     // Soft blockage: rig moves but mud slows it (R2 proof: tilled > mud)
     assert(dist > 5, `Rig should move at least 5m (soft blockage, not hard)`);
@@ -116,7 +140,9 @@ async function main() {
 
     // ── Step 4: Console warnings ──
     console.log("Step 4: Checking for gully warnings...");
-    const gullyWarnings = consoleProblems.filter((l) => typeof l === "string" && l.toLowerCase().includes("gully"));
+    const gullyWarnings = consoleProblems.filter(
+      (l) => typeof l === "string" && l.toLowerCase().includes("gully"),
+    );
     console.log(
       gullyWarnings.length > 0
         ? `  Gully warnings: ${gullyWarnings.join("; ")}`
@@ -125,8 +151,12 @@ async function main() {
 
     // ── Summary ──
     console.log("\n=== ALL CHECKS PASSED ===");
-    console.log(`  • Gully at (${GULLY.x},${GULLY.z}) deforms terrain (${depth.toFixed(3)}m deep)`);
-    console.log(`  • Gully is on the direct Home→LF route (${(gullyFraction * 100).toFixed(0)}% of distance)`);
+    console.log(
+      `  • Gully at (${GULLY.x},${GULLY.z}) deforms terrain (${depth.toFixed(3)}m deep)`,
+    );
+    console.log(
+      `  • Gully is on the direct Home→LF route (${(gullyFraction * 100).toFixed(0)}% of distance)`,
+    );
     console.log("  • Rig drives through gully zone on mud (soft blockage)");
     console.log("  • R2 proof: ploughing makes the route faster");
 

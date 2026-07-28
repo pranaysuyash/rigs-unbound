@@ -23,14 +23,14 @@ mud-runner physics.
   (`01-boot-retry.png`)
 - First click on the button missed (button is smaller than it looks) — trivial.
 - Tutorial card: drive with WASD/arrows. Pressed W. Torque crawled to 5 km/h, then 28 km/h…
-  straight into the home silo, because the chase camera was *behind the building* at spawn.
+  straight into the home silo, because the chase camera was _behind the building_ at spawn.
   (`03-enter-field.png`, `06-drive-w.png`, `07-drive-long.png`)
 - Cycled camera (C) → Hood view: lovely dash (engine strain, surface grip, load). Drove "forward"
   into a hillside — entire screen went black (camera inside terrain). Confusing.
   (`16-drive-more.png`)
 - Blundered into a "Salvage in reach · press Space or Act · 5 units" prompt in the pasture west of
   spawn. Tutorial card explained contextual Act. By the time I pressed Space I'd drifted out of
-  range and Space *lowered the plough* instead — which then anchored the tractor at 0 km/h.
+  range and Space _lowered the plough_ instead — which then anchored the tractor at 0 km/h.
   First "huh?" moment. (`09-cycle-view.png`, `11-collect.png`, `13-approach2.png`)
 - Raised blade, spent several minutes lost: the "W · salvage N m" hint and I disagreed about
   directions; distance went 8→13→17→21 m. Backed into a tree, wedged, rocked free.
@@ -39,15 +39,15 @@ mud-runner physics.
   stuck**: no combination of W/S/A/D or blade-down ploughing moved it a centimetre.
   (`33-straight.png` → `39-fwd.png`)
 - Clicked "Reset field" expecting a respawn — got a confirm saying it resets "both rigs, the relay,
-  and everything the world remembers". That's a *wipe*, not a respawn. Backed out.
+  and everything the world remembers". That's a _wipe_, not a respawn. Backed out.
 - Reloaded the page (persistence check): "Local save restored" — exact position, condition 99%,
   survey % kept. Persistence works. Minor: the intro modal ("THE GROUND DECIDES") shows again on
   top of a returning save.
 - Still stuck post-reload. Pressed R — switched to **Spark** at the silo (rig-swap needs proximity).
 - Spark off the line: 2 km/h after ~3 s on 97%-grip hardpan. Felt broken; then it spooled up to
-  27+ km/h. The intro *did* warn me ("bogs off the line, needs a run-up") — fair, but the first
+  27+ km/h. The intro _did_ warn me ("bogs off the line, needs a run-up") — fair, but the first
   3 seconds feel like a bug. (`47-spark-go.png`, `48-spark-runup.png`)
-- S confused me: held S while rolling and kept going *forward* 12 m. It's brake-then-reverse.
+- S confused me: held S while rolling and kept going _forward_ 12 m. It's brake-then-reverse.
   Learnable, but undiscoverable in the moment.
 - Opened the map (M): "PATCHWORK RUMOR GRAPH" — 5/8 discoveries, named regions (Sunken Flats,
   Rustline Salvage, Long Furrow, Quarry Shelf, Toy Grove…), legend, "climb for sightlines."
@@ -77,10 +77,10 @@ mud-runner physics.
 ## 3. Vehicle feel — adjectives per machine
 
 - **Torque (utility tractor):** deliberate, lumbering, honest, sure-footed, unstoppable-ish,
-  tractor-in-a-cute-way. Full pull from standstill, slow steering, 28 km/h feels *earned*.
+  tractor-in-a-cute-way. Full pull from standstill, slow steering, 28 km/h feels _earned_.
   Gets wedged on scenery and can't self-rescue.
 - **Spark (toy buggy):** sleepy, then zippy; skatey; coasts forever; fragile (crash = condition
-  loss); *pathetic* in mud — literally 0 km/h. Personality: an eager RC car.
+  loss); _pathetic_ in mud — literally 0 km/h. Personality: an eager RC car.
 - **Drift (marsh skimmer):** floaty, fast everywhere, slidey, effortless, grin-inducing. The
   hover cushion changes the whole feel — least "connected" to the ground (ironically).
 
@@ -94,16 +94,18 @@ game's thesis — and it lands.
 ## 4. Confused / delighted / bored
 
 **Confused:**
+
 - Compass hints ("W · salvage 8 m"). I never cracked the mapping, and with multiple piles the hint
   silently retargets ("5 units" → "1 unit"), so homing felt random. I only succeeded by memorizing
   a landmark from an earlier life.
 - Contextual Space: collect vs lower-blade vs explore, changing by proximity. The idea is good
-  ("never hides what will happen"), but my first-ever Space press did the *wrong* thing (plough).
+  ("never hides what will happen"), but my first-ever Space press did the _wrong_ thing (plough).
 - S = brake-then-reverse. No cue that reverse only engages at a stop.
 - "Reset field" label vs its actual full-wipe semantics.
 - Chase camera at spawn is behind the silo; hood camera goes black inside hills.
 
 **Delighted:**
+
 - The writing voice everywhere ("rides a lift cushion across the flooded Sunken Flats without
   pretending it has wheels", "the ground decides", workshop one-liners).
 - The map ("Patchwork Rumor Graph") and discovery toasts.
@@ -114,6 +116,7 @@ game's thesis — and it lands.
 - Diorama look, dusk light, tiny dust puffs.
 
 **Bored:**
+
 - Long crawls at 2 km/h when a rig is out of its element (Spark in mud: 30+ s of holding W for
   zero metres — that's not challenge, it's dead air).
 - Slow 180° turns in Torque (~15 s of holding W+A).
@@ -121,16 +124,16 @@ game's thesis — and it lands.
 ## 5. First task, time-to-reward, tab-close moment
 
 - **Found the first task?** Yes — "FIRST FIT: Recover 5 salvage" is on-screen from the first
-  second, plus a workshop nudge. Crystal clear *what*; unclear *where/how*.
+  second, plus a workshop nudge. Crystal clear _what_; unclear _where/how_.
 - **Completed it?** Only on my second "life". Organically (first run): after ~25 minutes I had
   **0 salvage**, was beached in mud, and wiped the world. On the fresh run I completed it in
   **under 2 minutes** — the task itself is well-placed (a 5-unit pile ~20 m west of spawn); the
   onboarding just doesn't get you to it before you can get lost/stuck.
 - **Time to first reward:** ~2 min on the informed run; effectively never on the blind run
-  (first *earned* thing was the "Long Furrow discovered" toast at ~18 min, which did feel good).
+  (first _earned_ thing was the "Long Furrow discovered" toast at ~18 min, which did feel good).
 - **When would I have closed the tab?** Two sharp moments: (1) ~12 min in, Torque welded to the
   silo, no input doing anything; (2) **definitively** at ~22 min, Spark immobile in mud 22 m from
-  the prize, the only rescue tool (winch) priced in the currency I can't earn *because* I'm stuck,
+  the prize, the only rescue tool (winch) priced in the currency I can't earn _because_ I'm stuck,
   and the only other option a full progress wipe. A real casual player is gone there — not angry,
   just done. What kept me was the writing and wanting to meet Drift.
 

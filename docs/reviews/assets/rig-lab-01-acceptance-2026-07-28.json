@@ -1,0 +1,763 @@
+{
+  "url": "http://127.0.0.1:4173/?acceptance=field-02",
+  "cargoApproach": {
+    "minimumDistance": 4.178,
+    "maximumY": 1.743,
+    "steps": 47
+  },
+  "deliveryApproach": {
+    "minimumDistance": 2.381999999999998,
+    "maximumY": 2.09,
+    "steps": 61
+  },
+  "rampApproach": {
+    "minimumDistance": 1.1473818021914082,
+    "maximumY": 2.467,
+    "steps": 140
+  },
+  "perception": {
+    "expressed": {
+      "rigId": "utility-tractor",
+      "reducedMotion": false,
+      "steeringAngle": 0.3,
+      "bodyRollOffset": -0.0361,
+      "bodyPitchOffset": -0.011,
+      "speedFovBoost": 4.098,
+      "cameraFocusOffset": 1.7,
+      "expectedFocusOffset": 1.7,
+      "cameraFocusContractMet": true,
+      "visibleModules": []
+    },
+    "reduced": {
+      "rigId": "utility-tractor",
+      "reducedMotion": true,
+      "steeringAngle": 0.3,
+      "bodyRollOffset": -0.0138,
+      "bodyPitchOffset": -0.0016,
+      "speedFovBoost": 0,
+      "cameraFocusOffset": 1.7,
+      "expectedFocusOffset": 1.7,
+      "cameraFocusContractMet": true,
+      "visibleModules": []
+    }
+  },
+  "camera": {
+    "spawn": {
+      "rigId": "utility-tractor",
+      "mode": "chase",
+      "obstructionSource": null,
+      "obstructionId": null,
+      "idealDistance": 12.996,
+      "resolvedDistance": 12.996,
+      "minimumReadableDistance": 2.808,
+      "readableComposition": true,
+      "forwardOffset": -11,
+      "behindRig": true,
+      "pathClear": true,
+      "selfIntersecting": false,
+      "selfIntersectionPart": null
+    },
+    "launchStructure": {
+      "launch": {
+        "id": "launch-ridge",
+        "name": "Launch Ridge",
+        "verb": "ascend",
+        "x": -158,
+        "z": 140,
+        "discoverRadius": 26,
+        "workshop": false
+      },
+      "rig": {
+        "id": "utility-tractor",
+        "x": -158,
+        "y": 46.253,
+        "z": 143.051,
+        "heading": 0,
+        "pitch": -0.0036,
+        "roll": 0.0009,
+        "speed": 3.952,
+        "stable": true,
+        "mobility": {
+          "kind": "ground",
+          "grounded": true,
+          "verticalVelocity": 0,
+          "wheelRotation": 0.0998,
+          "wheels": [
+            {
+              "compression": 0.499,
+              "contact": true
+            },
+            {
+              "compression": 0.501,
+              "contact": true
+            },
+            {
+              "compression": 0.501,
+              "contact": true
+            },
+            {
+              "compression": 0.499,
+              "contact": true
+            }
+          ]
+        },
+        "condition": 100,
+        "strain": 0.005,
+        "distanceTravelled": 0.07,
+        "attachments": [
+          {
+            "id": "field-plough",
+            "engaged": false,
+            "mode": "cut"
+          },
+          {
+            "id": "tow-hook",
+            "engaged": false
+          }
+        ],
+        "modules": [],
+        "capabilities": [
+          "plough",
+          "tow"
+        ],
+        "surveyRange": 46,
+        "terrain": {
+          "surface": "rock",
+          "grade": -0.004,
+          "grip": 0.958,
+          "slip": 0,
+          "waterDepth": 0,
+          "stalled": false
+        }
+      },
+      "distance": 3.0509999999999877,
+      "camera": {
+        "rigId": "utility-tractor",
+        "mode": "chase",
+        "obstructionSource": "structure",
+        "obstructionId": "launch-rocket-body",
+        "idealDistance": 12.996,
+        "resolvedDistance": 10.502,
+        "minimumReadableDistance": 2.808,
+        "readableComposition": true,
+        "forwardOffset": -1.5,
+        "behindRig": true,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      }
+    },
+    "standingToFelledTree": {
+      "fixture": {
+        "id": "t-11:-6:1",
+        "x": -138.09612613846548,
+        "z": -67.28386095585302,
+        "groundY": 21.439937017993284,
+        "radius": 0.7552797030285001,
+        "height": 7.199871027097107,
+        "kind": "tree",
+        "fellable": true,
+        "variation": 0.882315007969737
+      },
+      "standing": {
+        "rigId": "utility-tractor",
+        "mode": "chase",
+        "obstructionSource": "obstacle",
+        "obstructionId": "t-11:-6:1",
+        "idealDistance": 12.996,
+        "resolvedDistance": 4.837,
+        "minimumReadableDistance": 2.808,
+        "readableComposition": true,
+        "forwardOffset": -4.099,
+        "behindRig": true,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      },
+      "felled": {
+        "rigId": "utility-tractor",
+        "mode": "chase",
+        "obstructionSource": null,
+        "obstructionId": null,
+        "idealDistance": 12.996,
+        "resolvedDistance": 13.155,
+        "minimumReadableDistance": 2.808,
+        "readableComposition": true,
+        "forwardOffset": -11.178,
+        "behindRig": true,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      }
+    },
+    "hoods": [
+      {
+        "rigId": "utility-tractor",
+        "mode": "hood",
+        "obstructionSource": null,
+        "obstructionId": null,
+        "idealDistance": 1.805,
+        "resolvedDistance": 1.805,
+        "minimumReadableDistance": 0,
+        "readableComposition": true,
+        "forwardOffset": 0.532,
+        "behindRig": false,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      },
+      {
+        "rigId": "toy-buggy",
+        "mode": "hood",
+        "obstructionSource": null,
+        "obstructionId": null,
+        "idealDistance": 0.999,
+        "resolvedDistance": 0.999,
+        "minimumReadableDistance": 0,
+        "readableComposition": true,
+        "forwardOffset": 0.537,
+        "behindRig": false,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      },
+      {
+        "rigId": "marsh-skimmer",
+        "mode": "hood",
+        "obstructionSource": null,
+        "obstructionId": null,
+        "idealDistance": 2.249,
+        "resolvedDistance": 2.249,
+        "minimumReadableDistance": 0,
+        "readableComposition": true,
+        "forwardOffset": 1.719,
+        "behindRig": false,
+        "pathClear": true,
+        "selfIntersecting": false,
+        "selfIntersectionPart": null
+      }
+    ]
+  },
+  "freshAcquisition": [
+    {
+      "requested": "toy-buggy",
+      "active": "toy-buggy",
+      "x": -7,
+      "z": 4,
+      "diagnostic": "Toy Buggy active · tow + jump."
+    },
+    {
+      "requested": "marsh-skimmer",
+      "active": "marsh-skimmer",
+      "x": -13,
+      "z": 5,
+      "diagnostic": "Marsh Skimmer active · tow + survey + hover."
+    },
+    {
+      "requested": "utility-tractor",
+      "active": "utility-tractor",
+      "x": -0.005,
+      "z": 3,
+      "diagnostic": "Utility Tractor active · plough + tow."
+    }
+  ],
+  "firstRung": {
+    "firstCacheApproach": {
+      "steps": 97,
+      "nearestDistance": 3.4990570158258345
+    },
+    "cacheStop": {
+      "steps": 1,
+      "speed": 0.082
+    },
+    "homeApproach": {
+      "steps": 17,
+      "nearestDistance": 4.472414225001973,
+      "terminalFirstRungStage": "choose-part"
+    },
+    "homeStop": {
+      "steps": 3,
+      "speed": -0.177
+    },
+    "start": {
+      "stage": "find-cache",
+      "objective": "Recover 5 salvage",
+      "shortLabel": "Find salvage",
+      "ariaLabel": "Drive to the nearby first cache and recover 5 salvage.",
+      "reason": "The authored first cache is uncollected and remains the nearest guaranteed reward.",
+      "target": {
+        "x": -18,
+        "z": 5
+      },
+      "recommendedModuleId": "lug-tires",
+      "recommendedRigId": "utility-tractor",
+      "affordable": false,
+      "complete": false
+    },
+    "fitted": {
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "shortLabel": "Create furrows",
+      "ariaLabel": "Drive forward with the blade lowered to transform the terrain.",
+      "reason": "The blade is engaged but no terrain has been transformed yet.",
+      "target": null,
+      "recommendedModuleId": null,
+      "recommendedRigId": null,
+      "affordable": false,
+      "complete": true
+    },
+    "restored": {
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "shortLabel": "Create furrows",
+      "ariaLabel": "Drive forward with the blade lowered to transform the terrain.",
+      "reason": "The blade is engaged but no terrain has been transformed yet.",
+      "target": null,
+      "recommendedModuleId": null,
+      "recommendedRigId": null,
+      "affordable": false,
+      "complete": true
+    },
+    "fittedModules": [
+      "lug-tires"
+    ],
+    "visibleModules": [
+      "lug-tires"
+    ]
+  },
+  "touchFirstRung": {
+    "cacheApproach": {
+      "steps": 51,
+      "nearestDistance": 4.596218119280241,
+      "terminalLessonIncludes": "Collect the salvage"
+    },
+    "cacheStop": {
+      "steps": 1,
+      "speed": -0.019
+    },
+    "homeApproach": {
+      "steps": 7,
+      "nearestDistance": 4.546056862820789,
+      "terminalFirstRungStage": "choose-part"
+    },
+    "homeStop": {
+      "steps": 2,
+      "speed": -0.1
+    },
+    "start": {
+      "stage": "find-cache",
+      "objective": "Recover 5 salvage",
+      "shortLabel": "Find salvage",
+      "ariaLabel": "Drive to the nearby first cache and recover 5 salvage.",
+      "reason": "The authored first cache is uncollected and remains the nearest guaranteed reward.",
+      "target": {
+        "x": -18,
+        "z": 5
+      },
+      "recommendedModuleId": "lug-tires",
+      "recommendedRigId": "utility-tractor",
+      "affordable": false,
+      "complete": false
+    },
+    "restored": {
+      "stage": "first-cut",
+      "objective": "Lower the blade",
+      "shortLabel": "Lower blade",
+      "ariaLabel": "Press Space or E to lower the plough blade and begin terrain transformation.",
+      "reason": "The blade is fitted but not engaged.",
+      "target": null,
+      "recommendedModuleId": null,
+      "recommendedRigId": null,
+      "affordable": false,
+      "complete": true
+    },
+    "fittedModules": [
+      "lug-tires"
+    ],
+    "visibleModules": [
+      "lug-tires"
+    ],
+    "replayBeforeReload": {
+      "ok": true,
+      "status": "verified",
+      "issues": [],
+      "commandsApplied": 2,
+      "inputsApplied": 96,
+      "checkpointsVerified": 368,
+      "finalTickHash": "h03d09f59"
+    }
+  },
+  "portableReplayAtEnd": {
+    "ok": true,
+    "status": "verified",
+    "issues": [],
+    "commandsApplied": 1,
+    "inputsApplied": 0,
+    "checkpointsVerified": 6,
+    "finalTickHash": "h7f8b4e5f"
+  },
+  "fixtureReplayClassification": {
+    "ok": false,
+    "status": "unsupported-entry",
+    "issues": [
+      {
+        "sequence": 9,
+        "code": "unsupported-entry",
+        "message": "Run contains non-replayable command 'placeRig'."
+      }
+    ],
+    "commandsApplied": 1,
+    "inputsApplied": 0,
+    "checkpointsVerified": 6,
+    "finalTickHash": "h7f8b4e5f"
+  },
+  "terrainFaces": [
+    {
+      "rigId": "utility-tractor",
+      "fixture": {
+        "x": 0,
+        "z": 204,
+        "heading": 0,
+        "outwardX": 0,
+        "outwardZ": 1
+      },
+      "atRestAdvance": -0.32200000000000273,
+      "runUpAdvance": 1.6459999999999866,
+      "faceOvershoot": 0.14599999999998658,
+      "inwardAdvance": 2.431999999999988
+    },
+    {
+      "rigId": "toy-buggy",
+      "fixture": {
+        "x": 0,
+        "z": 204,
+        "heading": 0,
+        "outwardX": 0,
+        "outwardZ": 1
+      },
+      "atRestAdvance": -0.24399999999999977,
+      "runUpAdvance": 1.6899999999999977,
+      "faceOvershoot": 0.18999999999999773,
+      "inwardAdvance": 3.984000000000009
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "fixture": {
+        "x": 0,
+        "z": 202,
+        "heading": 0,
+        "outwardX": 0,
+        "outwardZ": 1
+      },
+      "atRestAdvance": -0.5519999999999925,
+      "runUpAdvance": 1.5449999999999875,
+      "faceOvershoot": 0.044999999999987494,
+      "inwardAdvance": 1.7340000000000089
+    }
+  ],
+  "relay": {
+    "id": "cargo-relay",
+    "status": "complete",
+    "elapsedMs": 4927,
+    "bestTimeMs": 4926.666666666666,
+    "cargoAttachedTo": null,
+    "delivered": true,
+    "cargoPosition": {
+      "x": 18,
+      "y": 1.744,
+      "z": -46
+    },
+    "deliveryPosition": {
+      "x": 18,
+      "z": -46
+    },
+    "rampPosition": {
+      "x": 24,
+      "z": -26
+    }
+  },
+  "rigDistances": {
+    "tractor": 39.9,
+    "buggy": 60.16,
+    "skimmer": 16.04
+  },
+  "performance": {
+    "desktop": {
+      "sampledAt": 17140,
+      "firstControllableMs": 390.8,
+      "firstInputReadyMs": 498.3,
+      "firstActionReadyMs": 508.2,
+      "averageFrameMs": 9.1,
+      "p95FrameMs": 9.4,
+      "frameSampleCount": 240,
+      "totalFrameSampleCount": 1896,
+      "framesPerSecond": 109.9,
+      "drawCalls": 1,
+      "triangles": 1,
+      "geometries": 176,
+      "textures": 16,
+      "terrainBuildMs": 34.2,
+      "rendererBackend": "webgl",
+      "rendererRequestedBackend": "auto",
+      "rendererBackendFallback": false,
+      "rendererBackendReason": "renderer=auto retained webgl for composer compatibility (stable)",
+      "visibility": {
+        "profile": "standard",
+        "candidates": 198,
+        "submitted": 198,
+        "capacityLimited": 0,
+        "near": 15,
+        "mid": 59,
+        "far": 124,
+        "culled": 0
+      },
+      "heapUsedMb": 37.8,
+      "largestContentfulPaintMs": 188,
+      "inputDelayMs": 240,
+      "cumulativeLayoutShift": 0.028,
+      "longTaskCount": 3,
+      "longTaskDurationMs": 417,
+      "loadDurationMs": 0.6,
+      "lastSaveDurationMs": 0,
+      "saveBytes": 0,
+      "gpuMemoryMb": 64.2
+    },
+    "save": {
+      "sampledAt": 17587,
+      "firstControllableMs": 390.8,
+      "firstInputReadyMs": 498.3,
+      "firstActionReadyMs": 508.2,
+      "averageFrameMs": 9.1,
+      "p95FrameMs": 9.3,
+      "frameSampleCount": 240,
+      "totalFrameSampleCount": 1950,
+      "framesPerSecond": 109.9,
+      "drawCalls": 1,
+      "triangles": 1,
+      "geometries": 176,
+      "textures": 16,
+      "terrainBuildMs": 34.2,
+      "rendererBackend": "webgl",
+      "rendererRequestedBackend": "auto",
+      "rendererBackendFallback": false,
+      "rendererBackendReason": "renderer=auto retained webgl for composer compatibility (stable)",
+      "visibility": {
+        "profile": "standard",
+        "candidates": 198,
+        "submitted": 198,
+        "capacityLimited": 0,
+        "near": 15,
+        "mid": 59,
+        "far": 124,
+        "culled": 0
+      },
+      "heapUsedMb": 40.6,
+      "largestContentfulPaintMs": 188,
+      "inputDelayMs": 240,
+      "cumulativeLayoutShift": 0.028,
+      "longTaskCount": 3,
+      "longTaskDurationMs": 417,
+      "loadDurationMs": 0.6,
+      "lastSaveDurationMs": 0.1,
+      "saveBytes": 6133,
+      "gpuMemoryMb": 64.2
+    },
+    "restored": {
+      "sampledAt": 269,
+      "firstControllableMs": 246.1,
+      "firstInputReadyMs": null,
+      "firstActionReadyMs": null,
+      "averageFrameMs": 49.99,
+      "p95FrameMs": 133.27,
+      "frameSampleCount": 3,
+      "totalFrameSampleCount": 3,
+      "framesPerSecond": 20,
+      "drawCalls": 1,
+      "triangles": 1,
+      "geometries": 110,
+      "textures": 14,
+      "terrainBuildMs": 28.2,
+      "rendererBackend": "webgl",
+      "rendererRequestedBackend": "auto",
+      "rendererBackendFallback": false,
+      "rendererBackendReason": "renderer=auto retained webgl for composer compatibility (stable)",
+      "visibility": {
+        "profile": "standard",
+        "candidates": 198,
+        "submitted": 198,
+        "capacityLimited": 0,
+        "near": 15,
+        "mid": 59,
+        "far": 124,
+        "culled": 0
+      },
+      "heapUsedMb": 45.5,
+      "largestContentfulPaintMs": 52,
+      "inputDelayMs": null,
+      "cumulativeLayoutShift": 0.0056,
+      "longTaskCount": 2,
+      "longTaskDurationMs": 193,
+      "loadDurationMs": 0.3,
+      "lastSaveDurationMs": 0,
+      "saveBytes": 0,
+      "gpuMemoryMb": 56.1
+    },
+    "narrow": {
+      "sampledAt": 2284,
+      "firstControllableMs": 673.4,
+      "firstInputReadyMs": 878.5,
+      "firstActionReadyMs": 877.6,
+      "averageFrameMs": 10.11,
+      "p95FrameMs": 9.2,
+      "frameSampleCount": 183,
+      "totalFrameSampleCount": 183,
+      "framesPerSecond": 98.9,
+      "drawCalls": 1,
+      "triangles": 1,
+      "geometries": 78,
+      "textures": 14,
+      "terrainBuildMs": 38.5,
+      "rendererBackend": "webgl",
+      "rendererRequestedBackend": "auto",
+      "rendererBackendFallback": false,
+      "rendererBackendReason": "renderer=auto retained webgl for composer compatibility (stable)",
+      "visibility": {
+        "profile": "standard",
+        "candidates": 243,
+        "submitted": 243,
+        "capacityLimited": 0,
+        "near": 19,
+        "mid": 74,
+        "far": 150,
+        "culled": 0
+      },
+      "heapUsedMb": 33.4,
+      "largestContentfulPaintMs": 124,
+      "inputDelayMs": null,
+      "cumulativeLayoutShift": 0.033,
+      "longTaskCount": 2,
+      "longTaskDurationMs": 410,
+      "loadDurationMs": 1,
+      "lastSaveDurationMs": 0,
+      "saveBytes": 0,
+      "gpuMemoryMb": 56.1
+    }
+  },
+  "narrowCamera": {
+    "rigId": "utility-tractor",
+    "mode": "chase",
+    "obstructionSource": null,
+    "obstructionId": null,
+    "idealDistance": 29.082,
+    "resolvedDistance": 29.081,
+    "minimumReadableDistance": 13,
+    "readableComposition": true,
+    "forwardOffset": -27.5,
+    "behindRig": true,
+    "pathClear": true,
+    "selfIntersecting": false,
+    "selfIntersectionPart": null
+  },
+  "narrowLayout": {
+    "touchDisplay": "flex",
+    "fieldBottom": 662.40625,
+    "touchTop": 676.078125,
+    "touchButtons": [
+      {
+        "label": "←",
+        "top": 784.015625,
+        "bottom": 833.609375,
+        "left": 10.390625,
+        "right": 59.984375
+      },
+      {
+        "label": "↑",
+        "top": 728.828125,
+        "bottom": 778.421875,
+        "left": 65.578125,
+        "right": 115.171875
+      },
+      {
+        "label": "↓",
+        "top": 784.015625,
+        "bottom": 833.609375,
+        "left": 65.578125,
+        "right": 115.171875
+      },
+      {
+        "label": "→",
+        "top": 784.015625,
+        "bottom": 833.609375,
+        "left": 120.765625,
+        "right": 170.359375
+      },
+      {
+        "label": "Lower blade",
+        "top": 676.078125,
+        "bottom": 711.265625,
+        "left": 240.265625,
+        "right": 311.578125
+      },
+      {
+        "label": "Rig",
+        "top": 676.078125,
+        "bottom": 711.265625,
+        "left": 317.171875,
+        "right": 379.609375
+      },
+      {
+        "label": "Cam",
+        "top": 716.859375,
+        "bottom": 752.046875,
+        "left": 240.265625,
+        "right": 311.578125
+      },
+      {
+        "label": "Map",
+        "top": 716.859375,
+        "bottom": 752.046875,
+        "left": 317.171875,
+        "right": 379.609375
+      },
+      {
+        "label": "Radar",
+        "top": 757.640625,
+        "bottom": 792.828125,
+        "left": 240.265625,
+        "right": 311.578125
+      },
+      {
+        "label": "Blade: cut",
+        "top": 757.640625,
+        "bottom": 792.828125,
+        "left": 317.171875,
+        "right": 379.609375
+      },
+      {
+        "label": "No winch",
+        "top": 796.0700073242188,
+        "bottom": 831.9612426757812,
+        "left": 239.55250549316406,
+        "right": 312.291259765625
+      },
+      {
+        "label": "Quick",
+        "top": 798.421875,
+        "bottom": 833.609375,
+        "left": 317.171875,
+        "right": 379.609375
+      }
+    ],
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  "consoleProblems": [],
+  "screenshots": [
+    "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets/field-02-front-forward.png",
+    "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets/field-02-top-down.png",
+    "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets/rig-lab-01-desktop.png",
+    "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets/rig-lab-01-narrow.png"
+  ]
+}

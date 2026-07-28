@@ -37,6 +37,9 @@ export function calculateTirePressureState(
   };
 }
 
-export function adjustTirePressure(currentPsi: number, deltaPsi: number): number {
+export function adjustTirePressure(
+  currentPsi: number,
+  deltaPsi: number,
+): number {
   return Number(Math.min(45, Math.max(10, currentPsi + deltaPsi)).toFixed(1));
 }

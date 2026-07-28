@@ -16,17 +16,17 @@ This bundle does not replace the specialized contracts. It maps them.
 
 The most recent recorded live snapshot in the worklog shows:
 
-| Signal | Recorded value | Reading |
-| --- | --- | --- |
-| Average frame | 20.25 ms | Readable, but not a public threshold claim |
-| p95 frame | 21.7 ms | Readable, but contaminated by concurrent GPU activity |
-| FPS | 49.4 | Stable enough for the current field snapshot |
-| Draw calls | 73 | Measured, not yet tied to a public budget table |
-| Triangles | 104,694 | Measured, not yet tied to a public budget table |
-| Terrain build | 92.7 ms | First-run cost visible, not yet packaged as an operator artifact |
-| Heap used | 29.4 MB | Observed, but not a cross-browser budget policy |
-| First controllable | 469.2 ms | Observed input readiness, not a final acceptance claim |
-| Save bytes | 2,969 | Compact, but not the only replay/recovery concern |
+| Signal             | Recorded value | Reading                                                          |
+| ------------------ | -------------- | ---------------------------------------------------------------- |
+| Average frame      | 20.25 ms       | Readable, but not a public threshold claim                       |
+| p95 frame          | 21.7 ms        | Readable, but contaminated by concurrent GPU activity            |
+| FPS                | 49.4           | Stable enough for the current field snapshot                     |
+| Draw calls         | 73             | Measured, not yet tied to a public budget table                  |
+| Triangles          | 104,694        | Measured, not yet tied to a public budget table                  |
+| Terrain build      | 92.7 ms        | First-run cost visible, not yet packaged as an operator artifact |
+| Heap used          | 29.4 MB        | Observed, but not a cross-browser budget policy                  |
+| First controllable | 469.2 ms       | Observed input readiness, not a final acceptance claim           |
+| Save bytes         | 2,969          | Compact, but not the only replay/recovery concern                |
 
 Source trail:
 
@@ -47,11 +47,11 @@ At the moment, the repo can answer those questions in pieces, but not yet as one
 
 ## Policy mapping
 
-| Umbrella state | Meaning | Existing contract owners |
-| --- | --- | --- |
-| Within budget | Readable field, no fail-soft required | Performance/readability baseline, visibility policy, camera feel, accessibility profile |
+| Umbrella state          | Meaning                                                                          | Existing contract owners                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Within budget           | Readable field, no fail-soft required                                            | Performance/readability baseline, visibility policy, camera feel, accessibility profile   |
 | Degraded but acceptable | Lower-cost rendering or presentation posture while preserving gameplay semantics | Resource budget/fallback envelope, visibility profile policy, lighting/fallback contracts |
-| Fail-soft | Explicitly reduced quality with preserved controls and readable state | Resource fallback, browser-loading/profile bootstrap, public smoke-test gate |
+| Fail-soft               | Explicitly reduced quality with preserved controls and readable state            | Resource fallback, browser-loading/profile bootstrap, public smoke-test gate              |
 
 ## What this bundle is not
 

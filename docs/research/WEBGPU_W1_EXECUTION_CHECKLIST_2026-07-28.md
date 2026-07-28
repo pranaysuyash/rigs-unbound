@@ -15,13 +15,13 @@ The unit of evidence is one complete startup-to-recovery session, not a browser 
 
 ## Matrix
 
-| Row | Surface | Request | Policy | Expected outcome | Required evidence | Status |
-|---|---|---|---|---|---|---|
-| W1-A | Developer desktop reference | `webgl` | `stable` | WebGL selected | startup checkpoint, metrics, first frame | Pending |
-| W1-B | Developer desktop reference | `auto` | `stable` | policy-approved backend selected | request, policy, selected backend, reason | Pending |
-| W1-C | Developer desktop reference | `auto` | `canary` | canary decision is explicit and recoverable | policy checkpoint, backend checkpoint, recovery result | Pending |
-| W1-D | Developer desktop reference | `webgpu` | `stable` | WebGPU selected, or explicit refusal with reason | backend attempt, error class, fallback policy | Pending |
-| W1-E | Production-like constrained surface | `auto` | `off` | stable fallback behavior, no silent canary | policy checkpoint, selected backend, user-visible outcome | Pending |
+| Row  | Surface                             | Request  | Policy   | Expected outcome                                 | Required evidence                                         | Status  |
+| ---- | ----------------------------------- | -------- | -------- | ------------------------------------------------ | --------------------------------------------------------- | ------- |
+| W1-A | Developer desktop reference         | `webgl`  | `stable` | WebGL selected                                   | startup checkpoint, metrics, first frame                  | Pending |
+| W1-B | Developer desktop reference         | `auto`   | `stable` | policy-approved backend selected                 | request, policy, selected backend, reason                 | Pending |
+| W1-C | Developer desktop reference         | `auto`   | `canary` | canary decision is explicit and recoverable      | policy checkpoint, backend checkpoint, recovery result    | Pending |
+| W1-D | Developer desktop reference         | `webgpu` | `stable` | WebGPU selected, or explicit refusal with reason | backend attempt, error class, fallback policy             | Pending |
+| W1-E | Production-like constrained surface | `auto`   | `off`    | stable fallback behavior, no silent canary       | policy checkpoint, selected backend, user-visible outcome | Pending |
 
 ## Capture template
 

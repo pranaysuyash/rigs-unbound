@@ -33,7 +33,8 @@ export function generateElevationContours(
       const eBL = elevationGrid[r + 1]![c]!;
 
       const avgElevation = (eTL + eTR + eBL) / 3;
-      const nearestContour = Math.round(avgElevation / contourIntervalM) * contourIntervalM;
+      const nearestContour =
+        Math.round(avgElevation / contourIntervalM) * contourIntervalM;
 
       const dzX = (eTR - eTL) / gridStepSizeM;
       const dzY = (eBL - eTL) / gridStepSizeM;

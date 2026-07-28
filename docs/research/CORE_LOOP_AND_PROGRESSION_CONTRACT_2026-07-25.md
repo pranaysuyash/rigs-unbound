@@ -271,3 +271,18 @@ second progression authority.
   - it shows whether the acceptance surface is UI, pressure, consequence, or
     a combination of the three.
 - Evidence depth: Tier 1 static source inspection and contract synthesis.
+
+## Addendum (2026-07-28) - the acceptance surface is now explicitly named
+
+- The player-facing choice layer is now named in
+  [Mission Acceptance Surface Contract](./MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md).
+- That note keeps the existing loop intact while separating:
+  - the read-only contract ledger,
+  - the player choice moment,
+  - the authoritative command/result path.
+- The core loop still owns the sequence `see a place -> choose a verb ->
+perform it in motion -> receive consequence -> recover or return -> modify
+the machine -> reveal the next possibility`.
+- This addendum does not settle ADR-0033 or any universal mission-board
+  authority question. It only names the interaction contract that the current
+  runtime and wiring experiment are already pointing at.

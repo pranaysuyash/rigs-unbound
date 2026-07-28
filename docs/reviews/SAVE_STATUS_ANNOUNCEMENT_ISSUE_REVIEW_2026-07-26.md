@@ -20,11 +20,11 @@ That means the player can read the state, but the state change is still mostly v
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `index.html` `#save-status` | Visible persistence/recovery line | Visual readout, not a dedicated announcement element |
-| `src/main.ts` `statusMessage` updates | Emits fresh/restored/migrated/recovered/fallback/reset text | Correct content, incomplete accessibility contract |
-| `#bootstrap-status` | Separate announced entry state | Good bootstrap contract, not a substitute for save announcements |
+| Artifact                              | Role now                                                    | Canonical status                                                 |
+| ------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| `index.html` `#save-status`           | Visible persistence/recovery line                           | Visual readout, not a dedicated announcement element             |
+| `src/main.ts` `statusMessage` updates | Emits fresh/restored/migrated/recovered/fallback/reset text | Correct content, incomplete accessibility contract               |
+| `#bootstrap-status`                   | Separate announced entry state                              | Good bootstrap contract, not a substitute for save announcements |
 
 ## Why this matters
 

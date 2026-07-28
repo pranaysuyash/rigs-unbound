@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { calculateErosionResistanceFactor, updateSoilEcosystem } from "./soil-ecosystem";
+import {
+  calculateErosionResistanceFactor,
+  updateSoilEcosystem,
+} from "./soil-ecosystem";
 
 describe("dynamic soil ecosystem & vegetation engine", () => {
   it("regenerates vegetation over world time in moist soil", () => {
-    const initialCell = { x: 0, z: 0, vegetationCoverage: 0.1, rootDensity: 0.1, soilHealth: 0.1 };
+    const initialCell = {
+      x: 0,
+      z: 0,
+      vegetationCoverage: 0.1,
+      rootDensity: 0.1,
+      soilHealth: 0.1,
+    };
     const updated = updateSoilEcosystem(initialCell, 5, 0.8, 0);
 
     expect(updated.vegetationCoverage).toBeGreaterThan(0.1);
@@ -12,7 +21,13 @@ describe("dynamic soil ecosystem & vegetation engine", () => {
   });
 
   it("strips vegetation when heavy wheelspin damage is applied", () => {
-    const lushCell = { x: 0, z: 0, vegetationCoverage: 0.9, rootDensity: 0.8, soilHealth: 0.85 };
+    const lushCell = {
+      x: 0,
+      z: 0,
+      vegetationCoverage: 0.9,
+      rootDensity: 0.8,
+      soilHealth: 0.85,
+    };
     const damaged = updateSoilEcosystem(lushCell, 0.1, 0.5, 0.8);
 
     expect(damaged.vegetationCoverage).toBeLessThan(0.9);

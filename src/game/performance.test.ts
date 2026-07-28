@@ -41,7 +41,16 @@ describe("performance readiness markers", () => {
 
   it("reports how many bounded frames support its timing summary", () => {
     const monitor = new PerformanceMonitor(0, 0);
-    const metrics = { drawCalls: 0, triangles: 0, geometries: 0, textures: 0, rendererBackend: "webgl" as const, rendererRequestedBackend: "auto" as const, rendererBackendFallback: false, rendererBackendReason: "test" };
+    const metrics = {
+      drawCalls: 0,
+      triangles: 0,
+      geometries: 0,
+      textures: 0,
+      rendererBackend: "webgl" as const,
+      rendererRequestedBackend: "auto" as const,
+      rendererBackendFallback: false,
+      rendererBackendReason: "test",
+    };
 
     monitor.recordFrame(12);
     monitor.recordFrame(16);

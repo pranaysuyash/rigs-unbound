@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { BoulderDebris, computeBoulderImpactDisplacement } from "./debris-physics";
+import {
+  BoulderDebris,
+  computeBoulderImpactDisplacement,
+} from "./debris-physics";
 
 describe("terrain debris & boulder displacement engine", () => {
   it("resists movement when low-speed light vehicle impact fails to overcome static friction", () => {
@@ -12,7 +15,10 @@ describe("terrain debris & boulder displacement engine", () => {
       displaced: false,
     };
 
-    const result = computeBoulderImpactDisplacement(boulder, 800, 0.2, { x: 1, z: 0 });
+    const result = computeBoulderImpactDisplacement(boulder, 800, 0.2, {
+      x: 1,
+      z: 0,
+    });
     expect(result.displaced).toBe(false);
     expect(result.updatedBoulder.x).toBe(50);
   });
@@ -27,7 +33,10 @@ describe("terrain debris & boulder displacement engine", () => {
       displaced: false,
     };
 
-    const result = computeBoulderImpactDisplacement(boulder, 3200, 4.5, { x: 1, z: 0 }); // Heavy tractor at 4.5 m/s
+    const result = computeBoulderImpactDisplacement(boulder, 3200, 4.5, {
+      x: 1,
+      z: 0,
+    }); // Heavy tractor at 4.5 m/s
     expect(result.displaced).toBe(true);
     expect(result.updatedBoulder.x).toBeGreaterThan(50);
   });

@@ -29,20 +29,20 @@ the current browser, and command output are the current source of truth.
 
 ## Current architecture reality
 
-| Area | Current truth | Evidence tier | Disposition |
-|---|---|---:|---|
-| Player path | Field 02 on port 4174 is the canonical player-facing path. | 4 | Preserve |
-| Gameplay simulation | `src/game/physics.ts` owns the fixed-step ground and hover adapters. | 1 | Preserve and extend by proof |
-| Renderer boundary | Simulation state and telemetry feed the renderer; renderer-only diagnostics do not own gameplay state. | 1 and 4 | Preserve |
-| Dynamics experiments | Rapier and Box3D implement project-owned dynamics contracts for isolated lab surfaces. | 1 and 4 | Keep replaceable and lab-scoped |
-| Locomotion | Ground and hover are bounded discriminated adapters with explicit mismatch errors. | 1 | Do not add a universal adapter yet |
-| Capabilities | Rig profiles compose capabilities and modules; the affordance resolver is versioned and deterministic. | 1 | Preserve; prove a third real offer before generalizing further |
-| Activities | Cargo relay and survey route are the first two real capability-consuming activity seams. | 1 and browser path inspection | Preserve the two-activity proof; generalize only after a third materially different offer |
-| Persistence | Versioned keys v1-v6, seed peek before world construction, state/world-memory restore, migration and invalid-payload recovery. | 1 | Add structured event observability only when the next workflow needs it |
-| Assets | Manifest and preflight enforce path, GLB, external-URI, hash, and approval rules. | 1 and 4 | Keep unapproved assets off the public player path |
-| Runtime fallback | Standard profile is selected from frame metrics and resource pressure. | 1 and 4 | First-input and first-controllable latency remain observations, not fallback causes |
-| Streaming | The repo has a streaming/residency contract, but no measured need for a full world streamer is established by this audit. | 1 | Defer until world scale or memory pressure proves it |
-| Multiplayer authority | Separation seams exist conceptually through commands, state, events, and persistence, but no shared-world authority runtime exists. | 1 | Defer until a real shared-state feature exists |
+| Area                  | Current truth                                                                                                                       |                 Evidence tier | Disposition                                                                               |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------: | ----------------------------------------------------------------------------------------- |
+| Player path           | Field 02 on port 4174 is the canonical player-facing path.                                                                          |                             4 | Preserve                                                                                  |
+| Gameplay simulation   | `src/game/physics.ts` owns the fixed-step ground and hover adapters.                                                                |                             1 | Preserve and extend by proof                                                              |
+| Renderer boundary     | Simulation state and telemetry feed the renderer; renderer-only diagnostics do not own gameplay state.                              |                       1 and 4 | Preserve                                                                                  |
+| Dynamics experiments  | Rapier and Box3D implement project-owned dynamics contracts for isolated lab surfaces.                                              |                       1 and 4 | Keep replaceable and lab-scoped                                                           |
+| Locomotion            | Ground and hover are bounded discriminated adapters with explicit mismatch errors.                                                  |                             1 | Do not add a universal adapter yet                                                        |
+| Capabilities          | Rig profiles compose capabilities and modules; the affordance resolver is versioned and deterministic.                              |                             1 | Preserve; prove a third real offer before generalizing further                            |
+| Activities            | Cargo relay and survey route are the first two real capability-consuming activity seams.                                            | 1 and browser path inspection | Preserve the two-activity proof; generalize only after a third materially different offer |
+| Persistence           | Versioned keys v1-v6, seed peek before world construction, state/world-memory restore, migration and invalid-payload recovery.      |                             1 | Add structured event observability only when the next workflow needs it                   |
+| Assets                | Manifest and preflight enforce path, GLB, external-URI, hash, and approval rules.                                                   |                       1 and 4 | Keep unapproved assets off the public player path                                         |
+| Runtime fallback      | Standard profile is selected from frame metrics and resource pressure.                                                              |                       1 and 4 | First-input and first-controllable latency remain observations, not fallback causes       |
+| Streaming             | The repo has a streaming/residency contract, but no measured need for a full world streamer is established by this audit.           |                             1 | Defer until world scale or memory pressure proves it                                      |
+| Multiplayer authority | Separation seams exist conceptually through commands, state, events, and persistence, but no shared-world authority runtime exists. |                             1 | Defer until a real shared-state feature exists                                            |
 
 ## Live browser evidence
 
@@ -106,8 +106,8 @@ responsive certification.
 - The page showed Box3D and Box3D-WASM versions, four-wheel proximity, solver
   controls, and body/shape counts of `13/13`.
 - Dispatching throttle input for two seconds produced approximately `54.4
-  km/h`, approximately `19%` slip, `4/4` wheel proximity, approximately `0.10
-  ms` physics time, and `120 fps`.
+km/h`, approximately `19%` slip, `4/4` wheel proximity, approximately `0.10
+ms` physics time, and `120 fps`.
 
 This is Tier 4 evidence that the physical-wheel probe responds to input. It is
 not evidence that Box3D has replaced the canonical Field 02 traversal model.
@@ -310,16 +310,16 @@ documentation and any next implementation slice are stable.
 
 ## Remaining gaps and closure criteria
 
-| Gap | Current status | Closure criteria |
-|---|---|---|
+| Gap                                       | Current status | Closure criteria                                                                                                                      |
+| ----------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Third capability-consuming offer/activity | Open by design | Two independent offers already exist; a third materially different offer must share a proven constraint and browser/test proof exists |
-| Cross-engine parity | Open | Shared project-semantic fixture reports comparable outcomes and explicit engine limitations |
-| Terrain/water fallback envelope | Review | Named policy covers slope, water, recovery, and player-visible diagnostics |
-| Structured persistence events | Deferred | Replay/operator workflow requires durable reason-coded event history |
-| Public asset approval | Review | Asset owner confirms license/provenance and manifest approval fields are updated |
-| Long-duration performance/memory proof | Open | Recorded soak evidence across standard/mobile-safe profiles |
-| Full device/accessibility certification | Unknown | Real target-device/browser matrix and assistive-technology pass completed |
-| Multiplayer authority | Deferred | A real shared-state feature creates an authority requirement |
+| Cross-engine parity                       | Open           | Shared project-semantic fixture reports comparable outcomes and explicit engine limitations                                           |
+| Terrain/water fallback envelope           | Review         | Named policy covers slope, water, recovery, and player-visible diagnostics                                                            |
+| Structured persistence events             | Deferred       | Replay/operator workflow requires durable reason-coded event history                                                                  |
+| Public asset approval                     | Review         | Asset owner confirms license/provenance and manifest approval fields are updated                                                      |
+| Long-duration performance/memory proof    | Open           | Recorded soak evidence across standard/mobile-safe profiles                                                                           |
+| Full device/accessibility certification   | Unknown        | Real target-device/browser matrix and assistive-technology pass completed                                                             |
+| Multiplayer authority                     | Deferred       | A real shared-state feature creates an authority requirement                                                                          |
 
 ## Anything else?
 

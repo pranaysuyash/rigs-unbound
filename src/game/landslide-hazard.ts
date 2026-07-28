@@ -25,17 +25,22 @@ export function evaluateSlopeStability(
   const z = 1.5; // Failure plane depth
 
   // Moisture saturation liquefies soil, reducing cohesion
-  const effectiveCohesion = Math.max(1.0, soilCohesionKpa * (1 - soilMoistureRatio * 0.88));
+  const effectiveCohesion = Math.max(
+    1.0,
+    soilCohesionKpa * (1 - soilMoistureRatio * 0.88),
+  );
   // Pore water pressure scales with soil moisture
   const u = soilMoistureRatio * 14.0;
   const normalStress = gamma * z * Math.pow(Math.cos(betaRad), 2) - u;
-  const shearStrength = effectiveCohesion + Math.max(0, normalStress) * Math.tan(phiRad);
+  const shearStrength =
+    effectiveCohesion + Math.max(0, normalStress) * Math.tan(phiRad);
   const shearStress = gamma * z * Math.sin(betaRad) * Math.cos(betaRad);
-
 
   const safetyFactorFs = shearStress > 0 ? shearStrength / shearStress : 99.0;
   const landslideTriggered = safetyFactorFs < 1.0;
-  const displacedMudVolumeM3 = landslideTriggered ? Number((12.5 * (1 + soilMoistureRatio)).toFixed(1)) : 0;
+  const displacedMudVolumeM3 = landslideTriggered
+    ? Number((12.5 * (1 + soilMoistureRatio)).toFixed(1))
+    : 0;
 
   return {
     slopeAngleDeg: Number(slopeAngleDeg.toFixed(1)),

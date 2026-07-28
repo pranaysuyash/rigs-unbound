@@ -35,9 +35,9 @@ Adopt the following durable fantasy as the north-star product vision:
 
 The desired player story is:
 
-> *I gave abandoned machines a second life, learned what each one could become,
+> _I gave abandoned machines a second life, learned what each one could become,
 > and used my strange fleet to leave a wounded world more connected—but not
-> necessarily more controlled.*
+> necessarily more controlled._
 
 ### Core identity commitments
 

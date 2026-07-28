@@ -31,7 +31,11 @@ export function computeWinchTension(
   rigPos: { x: number; y: number; z: number },
   rigVelocity: { x: number; z: number },
   cable: WinchCableState,
-): { tensionN: number; pullVector: { x: number; z: number }; snapped: boolean } {
+): {
+  tensionN: number;
+  pullVector: { x: number; z: number };
+  snapped: boolean;
+} {
   if (!cable.attached || !cable.anchorPos || cable.snapped) {
     return { tensionN: 0, pullVector: { x: 0, z: 0 }, snapped: cable.snapped };
   }
@@ -50,7 +54,10 @@ export function computeWinchTension(
 
   // Relative velocity along line direction
   const relVel = rigVelocity.x * unitX + rigVelocity.z * unitZ;
-  const tensionN = Math.max(0, stretchMeters * CABLE_SPRING_K - relVel * CABLE_DAMPING_C);
+  const tensionN = Math.max(
+    0,
+    stretchMeters * CABLE_SPRING_K - relVel * CABLE_DAMPING_C,
+  );
 
   const snapped = tensionN > CABLE_MAX_TENSION_N;
 
@@ -66,7 +73,10 @@ export function computeWinchTension(
   };
 }
 
-export function spoolWinchLine(cable: WinchCableState, deltaMeters: number): WinchCableState {
+export function spoolWinchLine(
+  cable: WinchCableState,
+  deltaMeters: number,
+): WinchCableState {
   if (!cable.attached || cable.snapped) return cable;
 
   const newRestLength = Math.max(2.0, cable.restLengthMeters + deltaMeters);

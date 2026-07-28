@@ -1,4 +1,4 @@
-// Hunter v3: switch to the buggy (R), chase the salvage guidance, collect,
+// Hunter legacy: switch to the buggy (R), chase the salvage guidance, collect,
 // then observe what the HUD says about getting home / banking.
 const {
   chromium,

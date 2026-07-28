@@ -54,16 +54,16 @@ The actual schema may be narrower than this sketch, but it must be explicit, val
 
 ## Validation gates
 
-| Gate | Rejects |
-| --- | --- |
-| Schema | Missing/invalid types, unsupported versions, unbounded fields. |
-| Reference resolution | Unknown sites, rigs, capabilities, assets, rewards, or activity IDs. |
-| Capability compatibility | Impossible machine/tool combinations. |
-| World probe | Unreachable objectives, invalid spawn/exit, blocked critical routes, impossible terrain constraints. |
-| Reward/economy | Negative/overflowing rewards, circular prerequisites, duplicate redemption. |
-| Resource budget | Candidate content exceeding entity, renderer, audio, or persistence limits. |
-| Authority/replay | Direct mutation, unrecorded activation, or non-versioned payloads. |
-| Player agency | Forced preference profiling, hidden escalation, or no visible opt-out where the event is optional. |
+| Gate                     | Rejects                                                                                              |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Schema                   | Missing/invalid types, unsupported versions, unbounded fields.                                       |
+| Reference resolution     | Unknown sites, rigs, capabilities, assets, rewards, or activity IDs.                                 |
+| Capability compatibility | Impossible machine/tool combinations.                                                                |
+| World probe              | Unreachable objectives, invalid spawn/exit, blocked critical routes, impossible terrain constraints. |
+| Reward/economy           | Negative/overflowing rewards, circular prerequisites, duplicate redemption.                          |
+| Resource budget          | Candidate content exceeding entity, renderer, audio, or persistence limits.                          |
+| Authority/replay         | Direct mutation, unrecorded activation, or non-versioned payloads.                                   |
+| Player agency            | Forced preference profiling, hidden escalation, or no visible opt-out where the event is optional.   |
 
 ## Player-model and privacy boundary
 

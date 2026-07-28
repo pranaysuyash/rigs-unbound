@@ -23,7 +23,6 @@
 
 ## 2026-07-27 — playtest2 artifact bundle classified
 
-
 - New local evidence surfaced in `artifacts/playtest2-achiever.cjs`,
   `artifacts/playtest2-casual.cjs`, `artifacts/playtest2-explorer.cjs`, and
   `artifacts/playtest2-explorer/`.
@@ -108,7 +107,7 @@
 
 ## 2026-07-27 — Master Vehicle Catalog & Visual Asset Pipeline
 
-- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (`v1` Found, `v2` Restored, `v3` Overcharged).
+- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (baseline, restored, advanced).
 - Defined silhouette specifications, locomotion classes, hardpoints, material tokens, and upgrade arcs for every rig family (Farm Utility, Service/Recovery, Toy/Micro, Rescue/Defense, Extreme/Aspirational, Fantasy/Cosmic).
 - Generated a concept art reference sheet (`master_rig_catalog_lineup`) adhering to single-subject/lineup isolation rules on neutral backdrops for downstream `img2threejs` 3D reconstruction.
 - Verified system status and documented provenance linkage for future engine reconstruction.
@@ -243,10 +242,10 @@
 ## 2026-07-26 — the instruction stack is v4-only from source through generated context
 
 - Corrected the canonical `/Users/pranay/Downloads/motto_v4.md` multi-pass
-  clause from “revalidate against motto_v3” to motto_v4.
+  clause from “revalidate against legacy doctrine wording” to motto_v4.
 - Updated `/Users/pranay/AGENTS.md` and `/Users/pranay/Projects/AGENTS.md` so
   startup loads the only canonical project doctrine, `motto_v4.md`, and treats
-  v2/v3 filenames as retired rather than compatibility inputs.
+  legacy filenames as retired rather than compatibility inputs.
 - Corrected the shared hook description to require the actual v4 attestation.
 - Updated `/Users/pranay/Projects/agent-start` to remove the exported “legacy
   bridge,” report retired doctrine paths honestly, and use the workspace v4
@@ -256,7 +255,7 @@
   `docs/context`.
 - `bash -n /Users/pranay/Projects/agent-start` passed. Regenerated the current
   project context after both instruction changes. The project now has one
-  `motto_v4.md`, no v2/v3 doctrine files, and generated context that names only
+  `motto_v4.md`, no legacy doctrine files, and generated context that names only
   v4 as authority.
 
 ## 2026-07-26 — the first reward-to-fit loop passed on the current shared runtime
@@ -2698,7 +2697,7 @@ The robust end-state is most meaningful when it reveals decisions. A tractor wit
 - Recomputed the five intentional concept/reference image hashes; each matched its provenance record.
 - Confirmed `.agent/`, `docs/context/agent-start/`, and `mcp-shell.log` are ignored while the durable project documents and images remain candidates for the initial commit.
 - Completed the coverage-complete 51-section motto review and preserved its generated, human-readable report at `docs/reviews/motto_review.md`.
-- Corrected the shared hook renderer so that its report identifies the audited doctrine as motto v4 rather than the obsolete v3 label.
+- Corrected the shared hook renderer so that its report identifies the audited doctrine as motto v4 rather than the obsolete legacy label.
 
 ### Anything else?
 
@@ -2846,7 +2845,7 @@ The current technical contrast is real, but player-perceived contrast remains un
 - `npm test`: 74 root tests plus seven kernel-probe tests passed.
 - `npm run build`: typecheck and production build passed; JavaScript remains above Vite's 500 kB advisory at 617.70 kB raw / 162.84 kB gzip.
 - `npm run format:check`: passed after formatting the previously unmatched `src/game/performance.ts`.
-- `npm run test:browser`: passed in visible Chrome across cargo, jump, schema-v3 save/reload, all six cameras, `390 × 844` touch layout, and zero console/page errors.
+- `npm run test:browser`: passed in visible Chrome across cargo, jump, legacy save/reload, all six cameras, `390 × 844` touch layout, and zero console/page errors.
 - Browser Daemon was restarted after an IPC collision caused by parallel client commands, navigated to the live server, and left at `http://127.0.0.1:4174/?live=camera-policies` in Top-down.
 - Result: Tier 4 local browser evidence exists; representative-device performance, external player comfort, prop collision, and non-ground-rig portability remain open.
 
@@ -2975,7 +2974,7 @@ A future imported GLB must nominate real nose and rear reference nodes when it e
 
 ### Implementation
 
-- Advanced save schema v3 → v4 while preserving v1, v2, and v3 recovery.
+- Advanced legacy save schema to v4 while preserving v1, v2, and legacy recovery.
 - Moved ground-only fields into `GroundMobilityState`; added
   `HoverMobilityState` for lift velocity, clearance, cushion pressure, and skirt
   contact.
@@ -3015,7 +3014,7 @@ A future imported GLB must nominate real nose and rear reference nodes when it e
 ### Multi-pass result
 
 - Pass 1: existing ground behavior stayed green; new deterministic water,
-  hover-repeatability, steep-ground, mismatch-recovery, and v3 migration tests
+  hover-repeatability, steep-ground, mismatch-recovery, and migration tests
   passed.
 - Pass 2: replaced the initial two-way dispatcher with the registry promised by
   ADR-0009; no speculative adapter types entered the contract.
@@ -4639,16 +4638,17 @@ Field 02` in the current daemon snapshot.
 - Re-read the resource-budget contract against the current browser daemon
   snapshot and live repo state.
 - Confirmed the live app is still `Rigs Unbound — Field 02`, and the browser
-  daemon is healthy with zero console logs in the 
+  daemon is healthy with zero console logs in the
 
 ## Master Vehicle Catalog & Image Generation Infrastructure — 2026-07-27
 
-- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (`v1` Found, `v2` Restored, `v3` Overcharged).
+- Created the canonical [Master Vehicle & Rig Catalog](docs/exploration/MASTER_VEHICLE_CATALOG.md) documenting 36 unique vehicle concepts across 6 core categories with 108 upgrade/version tiers (baseline, restored, advanced).
 - Defined silhouette specifications, locomotion classes, hardpoints, material tokens, and upgrade arcs for every rig family (Farm Utility, Service/Recovery, Toy/Micro, Rescue/Defense, Extreme/Aspirational, Fantasy/Cosmic).
 - Generated a concept art reference sheet (`master_rig_catalog_lineup`) adhering to single-subject/lineup isolation rules on neutral backdrops for downstream `img2threejs` 3D reconstruction.
 - Verified system status and documented provenance linkage for future engine reconstruction.
 
 ## Current status snapshot.
+
 - Confirmed the runtime already exposes the measurement fields through
   `PerformanceMonitor.snapshot()` and `window.getPerformanceSnapshot()`:
   - frame timing,
@@ -6289,7 +6289,7 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 
 ## 2026-07-26 — replay initial-context admission
 
-- Advanced run records to schema v3 with one immutable, hash-bound initial
+- Advanced run records to legacy schema with one immutable, hash-bound initial
   state/world-memory context captured after canonical load and world settling.
 - The validator now restores that admitted baseline before processing commands,
   making restored local sessions eligible for deterministic validation rather
@@ -7149,7 +7149,7 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
 ## 2026-07-27 — canonical research sweep for the reread addendum is clean
 
 - Re-swept the canonical research docs for remaining `3D Game Optimization
-  Gaps` references that lacked the reread bridge.
+Gaps` references that lacked the reread bridge.
 - No additional canonical research doc needed a bridge after the earlier
   updates; the remaining live outlier is the parallel-owned implementation-flow
   note, which stays isolated.
@@ -7384,7 +7384,7 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   instead of sign-off; pause on solver/backend work remains in force.
   Produced `docs/research/DYNAMICS_DIRECTION_FIRST_PRINCIPLES_2026-07-27.md`:
   the question reframed (which physical consequences should mean something),
-  positions A/B/C with discriminators, and the insight that two *design*
+  positions A/B/C with discriminators, and the insight that two _design_
   decisions (rollover-as-fail-state, articulated-recovery-as-requirement)
   precede any solver benchmark.
 - Canon reconciliation audit run against the new long-term horizon doc:

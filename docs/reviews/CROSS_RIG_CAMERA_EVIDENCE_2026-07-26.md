@@ -8,6 +8,7 @@
 ## Purpose
 
 Prove that all three rigs (Torque, Spark, Drift) produce valid camera resolution across all six camera policies. The camera feel contract requires:
+
 - `pathClear === true` — no self-intersection or unresolved obstruction
 - `selfIntersecting === false` — camera does not clip through the rig mesh
 - `behindRig === true` for chase/side/tactical/survey — camera stays behind the travel direction
@@ -22,36 +23,36 @@ Prove that all three rigs (Torque, Spark, Drift) produce valid camera resolution
 
 ## Results matrix
 
-| Rig | Camera | PathClear | SelfInt | Obstruction | Resolved | Ideal | BehindRig | FwdOffset |
-|-----|--------|-----------|---------|-------------|----------|-------|-----------|-----------|
-| utility-tractor | chase | ✅ true | false | structure:home-silo-body | 10.37 | 13.00 | true | -1.505 |
-| utility-tractor | hood | ✅ true | false | none | 1.81 | 1.81 | false | 0.564 |
-| utility-tractor | side | ✅ true | false | structure:home-barn-roof | 11.32 | 12.17 | true | -1.861 |
-| utility-tractor | tactical | ✅ true | false | none | 26.37 | 26.37 | true | -3.000 |
-| utility-tractor | top-down | ✅ true | false | none | 39.20 | 39.20 | false | 0.000 |
-| utility-tractor | survey | ✅ true | false | none | 78.17 | 78.17 | true | -46.000 |
-| toy-buggy | chase | ✅ true | false | structure:home-barn-roof | 7.11 | 9.92 | true | -6.090 |
-| toy-buggy | hood | ✅ true | false | none | 1.01 | 1.01 | false | 0.582 |
-| toy-buggy | side | ✅ true | false | none | 12.17 | 12.17 | true | -2.000 |
-| toy-buggy | tactical | ✅ true | false | none | 26.37 | 26.37 | true | -3.000 |
-| toy-buggy | top-down | ✅ true | false | none | 39.20 | 39.20 | false | 0.000 |
-| toy-buggy | survey | ✅ true | false | none | 78.17 | 78.17 | true | -46.000 |
-| marsh-skimmer | chase | ✅ true | false | structure:home-barn-roof | 4.60 | 11.77 | true | -3.911 |
-| marsh-skimmer | hood | ✅ true | false | none | 2.24 | 2.24 | false | 1.705 |
-| marsh-skimmer | side | ✅ true | false | none | 12.17 | 12.17 | true | -2.000 |
-| marsh-skimmer | tactical | ✅ true | false | none | 26.37 | 26.37 | true | -3.001 |
-| marsh-skimmer | top-down | ✅ true | false | none | 39.20 | 39.20 | false | -0.001 |
-| marsh-skimmer | survey | ✅ true | false | none | 78.17 | 78.17 | true | -46.001 |
+| Rig             | Camera   | PathClear | SelfInt | Obstruction              | Resolved | Ideal | BehindRig | FwdOffset |
+| --------------- | -------- | --------- | ------- | ------------------------ | -------- | ----- | --------- | --------- |
+| utility-tractor | chase    | ✅ true   | false   | structure:home-silo-body | 10.37    | 13.00 | true      | -1.505    |
+| utility-tractor | hood     | ✅ true   | false   | none                     | 1.81     | 1.81  | false     | 0.564     |
+| utility-tractor | side     | ✅ true   | false   | structure:home-barn-roof | 11.32    | 12.17 | true      | -1.861    |
+| utility-tractor | tactical | ✅ true   | false   | none                     | 26.37    | 26.37 | true      | -3.000    |
+| utility-tractor | top-down | ✅ true   | false   | none                     | 39.20    | 39.20 | false     | 0.000     |
+| utility-tractor | survey   | ✅ true   | false   | none                     | 78.17    | 78.17 | true      | -46.000   |
+| toy-buggy       | chase    | ✅ true   | false   | structure:home-barn-roof | 7.11     | 9.92  | true      | -6.090    |
+| toy-buggy       | hood     | ✅ true   | false   | none                     | 1.01     | 1.01  | false     | 0.582     |
+| toy-buggy       | side     | ✅ true   | false   | none                     | 12.17    | 12.17 | true      | -2.000    |
+| toy-buggy       | tactical | ✅ true   | false   | none                     | 26.37    | 26.37 | true      | -3.000    |
+| toy-buggy       | top-down | ✅ true   | false   | none                     | 39.20    | 39.20 | false     | 0.000     |
+| toy-buggy       | survey   | ✅ true   | false   | none                     | 78.17    | 78.17 | true      | -46.000   |
+| marsh-skimmer   | chase    | ✅ true   | false   | structure:home-barn-roof | 4.60     | 11.77 | true      | -3.911    |
+| marsh-skimmer   | hood     | ✅ true   | false   | none                     | 2.24     | 2.24  | false     | 1.705     |
+| marsh-skimmer   | side     | ✅ true   | false   | none                     | 12.17    | 12.17 | true      | -2.000    |
+| marsh-skimmer   | tactical | ✅ true   | false   | none                     | 26.37    | 26.37 | true      | -3.001    |
+| marsh-skimmer   | top-down | ✅ true   | false   | none                     | 39.20    | 39.20 | false     | -0.001    |
+| marsh-skimmer   | survey   | ✅ true   | false   | none                     | 78.17    | 78.17 | true      | -46.001   |
 
 ## Summary
 
-| Metric | Value |
-|--------|-------|
-| Total combinations | 18 |
-| Path clear | **18/18 (100%)** |
-| Self-intersecting | **0/18 (0%)** |
-| Obstructions resolved | **4/18 (22%)** |
-| Console errors | **0** |
+| Metric                | Value            |
+| --------------------- | ---------------- |
+| Total combinations    | 18               |
+| Path clear            | **18/18 (100%)** |
+| Self-intersecting     | **0/18 (0%)**    |
+| Obstructions resolved | **4/18 (22%)**   |
+| Console errors        | **0**            |
 
 ## Key findings
 
@@ -63,18 +64,19 @@ Every rig/camera pair resolves to `pathClear === true`. No combination leaves th
 
 Four combinations detect a structure obstruction and pull the camera inward to resolve it:
 
-| Rig | Camera | Structure | Ideal → Resolved |
-|-----|--------|-----------|------------------|
-| utility-tractor | chase | home-silo-body | 13.00 → 10.37 |
-| utility-tractor | side | home-barn-roof | 12.17 → 11.32 |
-| toy-buggy | chase | home-barn-roof | 9.92 → 7.11 |
-| marsh-skimmer | chase | home-barn-roof | 11.77 → 4.60 |
+| Rig             | Camera | Structure      | Ideal → Resolved |
+| --------------- | ------ | -------------- | ---------------- |
+| utility-tractor | chase  | home-silo-body | 13.00 → 10.37    |
+| utility-tractor | side   | home-barn-roof | 12.17 → 11.32    |
+| toy-buggy       | chase  | home-barn-roof | 9.92 → 7.11      |
+| marsh-skimmer   | chase  | home-barn-roof | 11.77 → 4.60     |
 
 The Drift skimmer's chase camera pulls in the most aggressively (11.77 → 4.60) because its broader silhouette and hover height create a longer obstruction ray through the barn roof. This is correct behavior: the camera policy trades distance for path-clear readability.
 
 ### 3. Hood camera uses rig-specific sockets
 
 The hood camera resolves to the rig's named `hoodCameraSocket` mesh attachment. The resolved distances differ meaningfully by rig:
+
 - Torque: 1.81m (higher cab position)
 - Spark: 1.01m (lower buggy profile)
 - Drift: 2.24m (forward-deck hover craft)

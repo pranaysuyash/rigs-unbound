@@ -223,6 +223,16 @@ The following need ADRs before implementation:
   implementation remains deferred.
 - Labs-as-instruments routing.
 
+## Addendum (2026-07-28) — the board overlay now has a named acceptance contract
+
+- The player-choice contract is now named in
+  `docs/research/MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md`.
+- The roadmap's contract-board overlay item should be read in that light: the
+  ledger remains the read-only projection, while the acceptance surface names
+  the focus, choice, and announcement rules above it.
+- This keeps the integration-first sequence clean: derive the rows, present
+  them read-only, then make the acceptance action explicit and accessible.
+
 ---
 
 ## 6. Sequencing recommendation

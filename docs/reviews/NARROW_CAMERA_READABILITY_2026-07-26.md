@@ -156,4 +156,3 @@ presentation.
 Recorded exact evidence, rejected frames, current parallel blocker, verified
 versus pending gates, and the next closure path. No parallel renderer changes
 were discarded or overwritten.
-

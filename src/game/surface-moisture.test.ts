@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { SurfaceMoistureCell, updateSurfaceMoistureCell } from "./surface-moisture";
+import {
+  SurfaceMoistureCell,
+  updateSurfaceMoistureCell,
+} from "./surface-moisture";
 
 describe("surface moisture & mud saturation engine", () => {
   it("saturates soil cell and reduces soil shear strength during heavy rain", () => {

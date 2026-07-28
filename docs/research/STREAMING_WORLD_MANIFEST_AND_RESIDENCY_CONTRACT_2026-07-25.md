@@ -296,6 +296,7 @@ general streaming infrastructure:
   planner, not a general asset-loader rewrite or renderer-local cache.
 - Evidence depth: Tier 1 static source inspection using the current world/save
   code and the live asset-manifest bridge path.
+
 5. Prove that an activate -> mutate -> evict -> reactivate sequence preserves
    terrain, obstacle, exploration, and save/load outcomes, including mutations
    on a chunk border.

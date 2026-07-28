@@ -11,12 +11,12 @@ The repo already computes and surfaces runtime profile information, but that sig
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `src/main.ts` | Builds runtime diagnostics, save text, and profile summary | Active source of truth, but profile state is not player-facing. |
-| `src/game/runtime-profile-policy.ts` | Chooses `standard` or `mobile-safe` based on measured pressure | Canonical policy engine for runtime profile selection. |
-| `index.html` | Public shell and HUD structure | No dedicated public profile/status element is visible here. |
-| `docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md` | Existing analysis trail for the same gap | Confirms the missing player-facing signal is intentional and still open. |
+| Artifact                                                                              | Role now                                                       | Canonical status                                                         |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `src/main.ts`                                                                         | Builds runtime diagnostics, save text, and profile summary     | Active source of truth, but profile state is not player-facing.          |
+| `src/game/runtime-profile-policy.ts`                                                  | Chooses `standard` or `mobile-safe` based on measured pressure | Canonical policy engine for runtime profile selection.                   |
+| `index.html`                                                                          | Public shell and HUD structure                                 | No dedicated public profile/status element is visible here.              |
+| `docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md` | Existing analysis trail for the same gap                       | Confirms the missing player-facing signal is intentional and still open. |
 
 ## Why this matters
 

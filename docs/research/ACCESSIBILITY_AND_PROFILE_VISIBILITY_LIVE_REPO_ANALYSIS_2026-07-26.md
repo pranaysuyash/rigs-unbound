@@ -295,3 +295,120 @@ carries the wider machine-keeper thesis and long-range product direction.
   player-facing browser contract.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static trail
   inspection.
+
+## Addendum (2026-07-28) - the new acceptance surface needs the same non-visual contract discipline
+
+- Re-read the newly named mission acceptance surface alongside this accessibility
+  note.
+- The contract board / acceptance surface should not be treated as merely a
+  visual list:
+  - the selected row needs a clear focus path,
+  - the row's status and reason need to be read aloud,
+  - accept and dismiss need explicit names,
+  - returning to play needs a reliable focus restore path.
+- This is the same accessibility principle already identified for save,
+  map, pause, and workshop surfaces: the player-facing browser contract is
+  incomplete until the non-visual announcement path is explicit.
+- Evidence depth: Tier 1 static source inspection and contract synthesis.
+
+## Addendum (2026-07-28) - the row model itself is now named
+
+- The acceptance surface now has a concrete row contract at
+  `docs/research/MISSION_ACCEPTANCE_ROW_AND_ANNOUNCEMENT_CONTRACT_2026-07-28.md`.
+- That note makes the accessibility gap more specific:
+- selection state is distinct from world state,
+- announcements should speak the selected row plus reason,
+- keyboard navigation should move between rows without losing the opener
+  focus path.
+- This keeps the analysis aligned with the browser contract rather than with a
+  general UI philosophy note.
+
+## Addendum (2026-07-28) - the sectioned board layout is now named too
+
+- The compact-versus-expanded and sectioning behavior is now named in
+  `docs/research/MISSION_ACCEPTANCE_SECTION_AND_VISIBILITY_CONTRACT_2026-07-28.md`.
+- That contract matters for accessibility because it determines whether the
+  board reads like a manageable agenda or an overwhelming flat list.
+- The accessibility requirement is therefore not just “can the board be
+  focused,” but also “can its sectioning and compact mode be understood by
+  sighted and screen-reader users alike.”
+
+## Addendum (2026-07-28) - the board header and summary are now named too
+
+- The board title, summary line, and compact/expanded indicator are now named
+  in `docs/research/MISSION_ACCEPTANCE_BOARD_HEADER_AND_SUMMARY_CONTRACT_2026-07-28.md`.
+- That matters because the first accessible clue on the surface is not the row;
+  it is the header that tells the player what kind of board they are on and
+  how dense it is.
+- The accessibility requirement is now clearly layered:
+  - title and summary orient the player,
+  - sections group the content,
+  - rows carry the choice and reason,
+  - focus/announcement makes the choice usable.
+
+## Addendum (2026-07-28) - history now needs a bounded recap too
+
+- The history section's retention and recap behavior is now named in
+  `docs/research/MISSION_ACCEPTANCE_HISTORY_RECAP_CONTRACT_2026-07-28.md`.
+- That matters for accessibility because a large board can become unusable if
+  history keeps growing without a concise recap.
+- The accessible history contract is therefore:
+  - keep the latest meaningful outcomes visible,
+  - summarize older outcomes when the section gets crowded,
+  - keep the recap understandable even when details are collapsed.
+
+## Addendum (2026-07-28) - board transition and restore need a named browser contract too
+
+- The open / close / reconfigure choreography is now named in
+  `docs/research/MISSION_ACCEPTANCE_TRANSITION_AND_RESTORE_CONTRACT_2026-07-28.md`.
+- That matters because accessibility is not just about static content; it is
+  about what happens when the board opens, changes mode, and returns focus.
+- The browser contract is therefore:
+  - open has a focus target,
+  - reconfigure preserves context,
+  - close restores the opener without losing the player's place.
+
+## Addendum (2026-07-28) - the empty board needs an explicit fallback message
+
+- The zero-row case is now named in
+  `docs/research/MISSION_ACCEPTANCE_EMPTY_STATE_AND_FALLBACK_CONTRACT_2026-07-28.md`.
+- That matters because an empty board can read as a broken browser panel if it
+  does not explain itself.
+- The accessibility requirement is therefore:
+  - show an explicit empty-state message,
+  - keep a readable way back to play,
+  - do not confuse empty with loading.
+
+## Addendum (2026-07-28) - the loading board needs an explicit refresh message too
+
+- The loading / refresh case is now named in
+  `docs/research/MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md`.
+- That matters because an in-progress board can look like an empty or broken
+  surface if it does not say that it is still rebuilding rows.
+- The accessibility requirement is therefore:
+  - show a clear loading or refreshing message,
+  - keep the close/back path available,
+  - keep loading distinct from empty state.
+
+## Addendum (2026-07-28) - the public shell already has the baseline accessibility primitives
+
+- Re-read the current shell entry files against the accessibility lens from
+  `Accessibility Auditor` and the 3D-web-experience guidance.
+- The public shell is not accessibility-blank:
+  - `index.html` already provides a skip link, a focusable playable canvas, a
+    named game-status header, live status text for time, and explicit status
+    regions for save and runtime profile updates.
+  - `src/main.ts` keeps the browser entry point focused on wiring, HUD, and
+    observability rather than on gameplay rules, which makes the public shell
+    easier to reason about.
+  - `src/styles.css` already gives the shell visible focus treatment and
+    clear skip-link behavior.
+- That means the next useful accessibility proof slice is not “add basic
+  shell accessibility.” It is the acceptance board / proposition surface as a
+  named, focus-managed interaction contract with readable row semantics.
+- This aligns with the 3D-web-experience rule that 3D should serve a purpose
+  and that loading/fallback states should be explicit rather than implied:
+  the shell already has those first-order primitives, so the remaining work is
+  to make the choice surface equally legible.
+- Evidence depth: Tier 1 static source inspection of `index.html`,
+  `src/main.ts`, and `src/styles.css`.

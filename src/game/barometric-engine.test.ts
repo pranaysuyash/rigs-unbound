@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { applyAltitudePowerDerate, computeBarometricAtmosphere } from "./barometric-engine";
+import {
+  applyAltitudePowerDerate,
+  computeBarometricAtmosphere,
+} from "./barometric-engine";
 
 describe("high-altitude barometric atmospheric engine", () => {
   it("reduces barometric pressure and air density at high elevation", () => {
@@ -15,11 +18,19 @@ describe("high-altitude barometric atmospheric engine", () => {
     const naturallyAspirated = computeBarometricAtmosphere(150, false);
     const turboCharged = computeBarometricAtmosphere(150, true);
 
-    expect(turboCharged.engineAirEfficiency).toBeGreaterThan(naturallyAspirated.engineAirEfficiency);
+    expect(turboCharged.engineAirEfficiency).toBeGreaterThan(
+      naturallyAspirated.engineAirEfficiency,
+    );
 
     const basePower = 100;
-    const deratedPower = applyAltitudePowerDerate(basePower, naturallyAspirated.engineAirEfficiency);
-    const recoveredPower = applyAltitudePowerDerate(basePower, turboCharged.engineAirEfficiency);
+    const deratedPower = applyAltitudePowerDerate(
+      basePower,
+      naturallyAspirated.engineAirEfficiency,
+    );
+    const recoveredPower = applyAltitudePowerDerate(
+      basePower,
+      turboCharged.engineAirEfficiency,
+    );
 
     expect(recoveredPower).toBeGreaterThan(deratedPower);
   });

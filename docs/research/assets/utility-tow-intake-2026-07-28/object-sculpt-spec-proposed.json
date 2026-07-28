@@ -1,0 +1,127 @@
+{
+  "targetName": "Utility Tow Recovery Rig",
+  "targetId": "utility_tow_recovery_01",
+  "schemaVersion": "proposed-0.1",
+  "status": "proposal-not-strict-quality-validated",
+  "sourceImages": [
+    "../../../exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-recovery-candidate-01-2026-07-28.png",
+    "../../../exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-reconstruction-turnaround-2026-07-28.png"
+  ],
+  "suitability": "conditional",
+  "identity": {
+    "familyId": "utility_tow",
+    "persistentFeatures": [
+      "compact teal-and-cream cab",
+      "orange rear recovery boom",
+      "twin front tow eyes",
+      "rear winch spool",
+      "side service drawers",
+      "amber beacon",
+      "two-axle stance"
+    ],
+    "verbs": ["tow", "recover", "carry", "inspect", "stabilize", "light"]
+  },
+  "provisionalScaleMeters": {
+    "length": 5.6,
+    "width": 2.2,
+    "height": 2.7,
+    "confidence": 0.25,
+    "status": "authored-hypothesis-not-image-measured"
+  },
+  "componentHierarchy": {
+    "macro": ["root", "chassis-system", "body-and-recovery-system"],
+    "meso": [
+      "hood-shell",
+      "cab-shell",
+      "front-bumper-and-tow-eyes",
+      "rear-bed",
+      "boom-system",
+      "winch-system",
+      "wheel-system",
+      "service-drawers",
+      "lighting-system"
+    ],
+    "microFeatureGroups": [
+      "panel-seams",
+      "fastener-rows",
+      "edge-wear",
+      "grille-slats",
+      "tread-and-hub-repeat",
+      "cable-ridges",
+      "lamp-lenses",
+      "repair-patches"
+    ]
+  },
+  "materials": [
+    { "id": "painted-metal", "roughness": "to-author", "status": "proposed" },
+    { "id": "aged-hardware", "roughness": "to-author", "status": "proposed" },
+    { "id": "rubber", "roughness": "to-author", "status": "proposed" },
+    { "id": "glass", "roughness": "to-author", "status": "proposed" },
+    {
+      "id": "emissive-lamp",
+      "roughness": "not-applicable",
+      "status": "proposed"
+    },
+    { "id": "cable-rope", "roughness": "to-author", "status": "proposed" }
+  ],
+  "socketsAndPivots": [
+    {
+      "id": "root",
+      "purpose": "chassis-origin-and-ground-contact",
+      "confidence": 0.45
+    },
+    {
+      "id": "front-tool-socket",
+      "purpose": "front-attachment",
+      "confidence": 0.55
+    },
+    {
+      "id": "rear-winch",
+      "purpose": "recovery-cable-origin",
+      "confidence": 0.7
+    },
+    { "id": "boom-pivot", "purpose": "boom-raise-and-fold", "confidence": 0.6 },
+    { "id": "cargo-platform", "purpose": "load-placement", "confidence": 0.55 },
+    { "id": "beacon", "purpose": "emissive-rotation", "confidence": 0.8 },
+    {
+      "id": "left-front-wheel",
+      "purpose": "steering-and-wheel-rotation",
+      "confidence": 0.7
+    },
+    {
+      "id": "right-front-wheel",
+      "purpose": "steering-and-wheel-rotation",
+      "confidence": 0.7
+    },
+    { "id": "left-rear-wheel", "purpose": "wheel-rotation", "confidence": 0.7 },
+    { "id": "right-rear-wheel", "purpose": "wheel-rotation", "confidence": 0.7 }
+  ],
+  "reviewViews": [
+    "front-three-quarter",
+    "left-side",
+    "rear-three-quarter",
+    "top-down"
+  ],
+  "meshTargets": { "high": 30000, "medium": 12000, "low": 3000 },
+  "collisionPlan": "compound-chassis-box-plus-wheel-proxies-plus-front-tool-proxy",
+  "unknowns": [
+    "exact scale and mass",
+    "hidden-side and underside geometry",
+    "orthographic consistency of generated turnaround",
+    "wheelbase and steering limits",
+    "boom joint limits and safe load envelope",
+    "winch cable path and detach behavior",
+    "UV layout and texture resolution",
+    "animation hierarchy and origin conventions",
+    "runtime LOD and browser budget evidence"
+  ],
+  "admissionGates": [
+    "owner-reference-terms-review",
+    "measured-multi-view-reference",
+    "strict-object-sculpt-spec-validation",
+    "blockout-silhouette-comparison",
+    "socket-and-pivot-review",
+    "topology-uv-material-collision-animation-review",
+    "runtime-manifest-and-browser-proof"
+  ]
+}

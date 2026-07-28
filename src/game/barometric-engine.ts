@@ -35,6 +35,9 @@ export function computeBarometricAtmosphere(
   };
 }
 
-export function applyAltitudePowerDerate(basePower: number, airEfficiency: number): number {
+export function applyAltitudePowerDerate(
+  basePower: number,
+  airEfficiency: number,
+): number {
   return Number((basePower * airEfficiency).toFixed(2));
 }

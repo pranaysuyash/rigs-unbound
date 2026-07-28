@@ -39,14 +39,22 @@ export function updateTandemTowPhysics(
   strapStiffness = 4500, // N/m stiffness
 ): TandemTowConnection {
   if (!connection.isStrapConnected) {
-    return { ...connection, strapTensionN: 0, combinedTractiveForceN: leadRigTractiveForceN };
+    return {
+      ...connection,
+      strapTensionN: 0,
+      combinedTractiveForceN: leadRigTractiveForceN,
+    };
   }
 
   const stretchM = Math.max(0, currentDistanceM - connection.strapRestLengthM);
   const strapTensionN = Number((stretchM * strapStiffness).toFixed(1));
 
   // Combined force pulls stuck lead rig using support rig's tractive effort
-  const combinedTractiveForceN = Number((leadRigTractiveForceN + Math.min(supportRigTractiveForceN, strapTensionN)).toFixed(1));
+  const combinedTractiveForceN = Number(
+    (
+      leadRigTractiveForceN + Math.min(supportRigTractiveForceN, strapTensionN)
+    ).toFixed(1),
+  );
 
   return {
     ...connection,

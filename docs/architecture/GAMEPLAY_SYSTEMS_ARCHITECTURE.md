@@ -12,6 +12,7 @@
 rigs-unbound is a vehicle-centric exploration and restoration game where players operate customizable rigs across a procedurally generated world. The core loop revolves around **driving, discovering, salvaging, restoring, and upgrading** vehicles to tackle increasingly challenging expeditions.
 
 The architecture follows a **systems-based ECS-lite pattern** with clear separation between:
+
 - **Simulation** (physics, vehicle dynamics, world state)
 - **Presentation** (rendering, camera, UI)
 - **Gameplay Systems** (missions, progression, economy, vehicles)
@@ -75,12 +76,14 @@ The architecture follows a **systems-based ECS-lite pattern** with clear separat
 **Responsibility:** Generate, track, and complete objectives.
 
 **Key Concepts:**
+
 - **Mission Types:** Delivery, Salvage, Survey, Recovery, Escort, Survey
 - **Mission States:** Available → Active → Completed/Failed → Rewarded
 - **Procedural Generation:** Seeded from world seed + player progress
 - **Rewards:** Currency, XP, Blueprint Fragments, Reputation, Unique Modules
 
 **Data Flow:**
+
 ```
 World Seed + Player Progress → Mission Generator → Mission Object
                                     ↓
@@ -98,12 +101,14 @@ World Seed + Player Progress → Mission Generator → Mission Object
 **Responsibility:** Track player advancement, unlock content, manage restoration arc.
 
 **Key Concepts:**
+
 - **Experience (XP):** Earned from missions, discoveries, restoration milestones
 - **Rungs/Tiers:** Progressive unlock gates (First Rung → ... → Master)
 - **Restoration Arc:** Visual + mechanical progression from dilapidated → pristine
 - **Module Unlocks:** New attachment types, tools, cosmetics
 
 **Restoration Arc Stages:**
+
 ```
 Stage 0: Dilapidated (rust, missing parts, limited function)
     ↓ XP + Parts
@@ -119,14 +124,16 @@ Stage 3: Masterwork (optimized, unique modules, visual flair)
 **Responsibility:** Resource flows, markets, crafting, cargo logistics.
 
 **Resources:**
-| Category | Examples | Source | Sink |
-|----------|----------|--------|------|
-| **Currency** | Credits, Scrip | Missions, sales | Purchases, repairs |
-| **Raw Materials** | Scrap, Ore, Crystals | Salvage, mining | Crafting, upgrades |
-| **Processed** | Plates, Circuits, Fuel | Crafting, refining | Upgrades, fuel |
-| **Special** | Blueprints, Artifacts, Data | Missions, ruins | Unlocks, research |
+
+| Category          | Examples                    | Source             | Sink               |
+| ----------------- | --------------------------- | ------------------ | ------------------ |
+| **Currency**      | Credits, Scrip              | Missions, sales    | Purchases, repairs |
+| **Raw Materials** | Scrap, Ore, Crystals        | Salvage, mining    | Crafting, upgrades |
+| **Processed**     | Plates, Circuits, Fuel      | Crafting, refining | Upgrades, fuel     |
+| **Special**       | Blueprints, Artifacts, Data | Missions, ruins    | Unlocks, research  |
 
 **Markets:**
+
 - **Local Markets:** Per-settlement buy/sell prices, supply/demand
 - **Traveling Merchants:** Rare goods, blueprints, exotic modules
 - **Player-to-Player:** Direct trade, fleet contracts
@@ -136,6 +143,7 @@ Stage 3: Masterwork (optimized, unique modules, visual flair)
 **Responsibility:** Vehicle customization, restoration, module management.
 
 **Rig Architecture:**
+
 ```
 Rig (Entity)
 ├── Chassis (base stats: mass, hardpoints, wheel config)
@@ -148,17 +156,19 @@ Rig (Entity)
 ```
 
 **Module System:**
-| Slot Type | Examples | Effects |
-|-----------|----------|---------|
-| **Powertrain** | Engine, Transmission, Turbo | Speed, torque, fuel efficiency |
-| **Suspension** | Springs, Shocks, Active | Load capacity, comfort, travel |
-| **Utility** | Winch, Crane, Drill, Scanner | New verbs, capabilities |
-| **Weapon** | Mount, Turret, Launcher | Combat, defense |
-| **Sensor** | Radar, Lidar, Thermal, Sonar | Detection range, modes |
-| **Cargo** | Container, Tank, Hopper | Capacity, specialized storage |
-| **Utility** | Winch, Plow, Crane, Scanner | New verbs, world interaction |
+
+| Slot Type      | Examples                     | Effects                        |
+| -------------- | ---------------------------- | ------------------------------ |
+| **Powertrain** | Engine, Transmission, Turbo  | Speed, torque, fuel efficiency |
+| **Suspension** | Springs, Shocks, Active      | Load capacity, comfort, travel |
+| **Utility**    | Winch, Crane, Drill, Scanner | New verbs, capabilities        |
+| **Weapon**     | Mount, Turret, Launcher      | Combat, defense                |
+| **Sensor**     | Radar, Lidar, Thermal, Sonar | Detection range, modes         |
+| **Cargo**      | Container, Tank, Hopper      | Capacity, specialized storage  |
+| **Utility**    | Winch, Plow, Crane, Scanner  | New verbs, world interaction   |
 
 **Restoration Arc (per rig):**
+
 ```
 Stage 0: Scavenged (rust, missing panels, barely runs)
     ↓ 100 XP + Scrap ×50
@@ -176,6 +186,7 @@ Stage 4: Masterwork (unique module, signature paint, max slots)
 **Responsibility:** Structured narrative progression, world state evolution.
 
 **Structure:**
+
 ```
 Campaign → Acts → Missions → Objectives
     │
@@ -183,6 +194,7 @@ Campaign → Acts → Missions → Objectives
 ```
 
 **Campaign State:**
+
 - **Act Progress:** 0-100% per act
 - **World Flags:** Key events triggered, NPCs met, regions unlocked
 - **Legacy Choices:** Persistent consequences of major decisions
@@ -192,6 +204,7 @@ Campaign → Acts → Missions → Objectives
 ## System Interactions
 
 ### Mission → Economy
+
 ```
 Complete Mission → Credits + Salvage + Blueprint Fragment
                               ↓
@@ -203,6 +216,7 @@ Complete Mission → Credits + Salvage + Blueprint Fragment
 ```
 
 ### Progression → Vehicle
+
 ```
 Earn XP → Level Up → Unlock Module Slot / Blueprint
                               ↓
@@ -212,6 +226,7 @@ Earn XP → Level Up → Unlock Module Slot / Blueprint
 ```
 
 ### Economy → Progression
+
 ```
 Salvage High-Value → Sell → Credits
                               ↓
@@ -226,53 +241,53 @@ Salvage High-Value → Sell → Credits
 
 ## Data Ownership
 
-| System | Owns | Exposes (Read) | Mutates (Write) |
-|--------|------|----------------|-----------------|
-| **Physics** | Rigid bodies, collision shapes | Positions, velocities | Forces, impulses |
-| **Vehicle** | Rig state, modules, condition | Rig specs, module effects | Module install/remove, repair |
-| **Missions** | Mission definitions, progress | Available missions, progress | Accept/complete/fail |
-| **Progression** | XP, rungs, unlocks, restoration | XP, unlocked content | Award XP, grant unlocks |
-| **Economy** | Currency, inventory, market prices | Prices, inventory, orders | Transactions, crafting |
-| **Campaign** | World flags, act progress | Flags, progress | Set flags, advance acts |
-| **Vehicle** | Rig entities, modules, condition | Rig specs, module list | Module install, repair, wear |
+| System          | Owns                               | Exposes (Read)               | Mutates (Write)               |
+| --------------- | ---------------------------------- | ---------------------------- | ----------------------------- |
+| **Physics**     | Rigid bodies, collision shapes     | Positions, velocities        | Forces, impulses              |
+| **Vehicle**     | Rig state, modules, condition      | Rig specs, module effects    | Module install/remove, repair |
+| **Missions**    | Mission definitions, progress      | Available missions, progress | Accept/complete/fail          |
+| **Progression** | XP, rungs, unlocks, restoration    | XP, unlocked content         | Award XP, grant unlocks       |
+| **Economy**     | Currency, inventory, market prices | Prices, inventory, orders    | Transactions, crafting        |
+| **Campaign**    | World flags, act progress          | Flags, progress              | Set flags, advance acts       |
+| **Vehicle**     | Rig entities, modules, condition   | Rig specs, module list       | Module install, repair, wear  |
 
 ---
 
 ## Communication Patterns
 
-| Pattern | Used For | Example |
-|---------|----------|---------|
-| **Direct Calls** | Same-frame, deterministic | Physics → Vehicle dynamics |
-| **Events** | Cross-system, async | Mission complete → Economy reward |
-| **Queries** | Read-only, frequent | UI → Vehicle specs |
-| **Commands** | Intent, validation | UI → Vehicle: "Install Module" |
+| Pattern          | Used For                  | Example                           |
+| ---------------- | ------------------------- | --------------------------------- |
+| **Direct Calls** | Same-frame, deterministic | Physics → Vehicle dynamics        |
+| **Events**       | Cross-system, async       | Mission complete → Economy reward |
+| **Queries**      | Read-only, frequent       | UI → Vehicle specs                |
+| **Commands**     | Intent, validation        | UI → Vehicle: "Install Module"    |
 
 ---
 
 ## Persistence
 
-| Data | Scope | Serialization |
-|------|-------|---------------|
-| **Player Profile** | Global | JSON (localStorage / cloud) |
-| **Vehicle Fleet** | Per-profile | JSON (compressed) |
-| **Mission Progress** | Per-campaign | JSON (incremental) |
-| **World State** | Per-save | Binary (compressed) |
-| **Progression** | Per-profile | JSON (incremental) |
+| Data                 | Scope        | Serialization               |
+| -------------------- | ------------ | --------------------------- |
+| **Player Profile**   | Global       | JSON (localStorage / cloud) |
+| **Vehicle Fleet**    | Per-profile  | JSON (compressed)           |
+| **Mission Progress** | Per-campaign | JSON (incremental)          |
+| **World State**      | Per-save     | Binary (compressed)         |
+| **Progression**      | Per-profile  | JSON (incremental)          |
 
 ---
 
 ## Open Items / TODOs
 
-| Item | Priority | Status |
-|------|----------|--------|
-| Mission type definitions & reward tables | High | Draft |
-| Progression XP curve & rung thresholds | High | Draft |
-| Economy resource definitions & recipes | High | Draft |
-| Vehicle module slot layout per chassis | High | Draft |
-| Restoration arc visual milestones | Medium | Concept |
-| Campaign act structure & world flags | Medium | Outline |
-| Save/load serialization format | High | Design |
-| Multiplayer/fleet sync architecture | Low | Deferred |
+| Item                                     | Priority | Status   |
+| ---------------------------------------- | -------- | -------- |
+| Mission type definitions & reward tables | High     | Draft    |
+| Progression XP curve & rung thresholds   | High     | Draft    |
+| Economy resource definitions & recipes   | High     | Draft    |
+| Vehicle module slot layout per chassis   | High     | Draft    |
+| Restoration arc visual milestones        | Medium   | Concept  |
+| Campaign act structure & world flags     | Medium   | Outline  |
+| Save/load serialization format           | High     | Design   |
+| Multiplayer/fleet sync architecture      | Low      | Deferred |
 
 ---
 
@@ -293,15 +308,16 @@ Salvage High-Value → Sell → Credits
 
 The gameplay-system foundation now has a concrete runtime boundary:
 
-- Account and per-rig progression are namespaced under `GameState.progression`.
-- Save schema v9 persists progression; v8 and earlier saves migrate with safe defaults.
+- Capability-shaped progression (Journey, Mastery, Insight) is the canonical runtime spine for current games.
+- Universal XP/levels/rungs/restoration remain an optional policy for future games and explicit hybrid compositions.
+- Save schema v10 persists the current capability progression; older saves migrate with safe defaults.
 - Existing activity definitions remain the canonical reward source.
 - Mission propositions are derived through a generator registry rather than persisted as a quest table.
-- The reward resolver bridges both new mission propositions and existing activity completions.
+- The reward resolver bridges mission propositions and existing activity completions into the capability tracks.
 - Public runtime state exposes derived progression views without duplicating authoritative state.
 
-The architecture is intentionally still open. ADR-0033 is Proposed and must be reconciled with ADR-0018 before universal XP/rungs are treated as accepted product direction.
+The architecture is intentionally open. ADR-0033 documents mission derivation and nested state while the coexistence exploration defines how an eventual XP policy can be added without creating a second authority.
 
 ---
 
-*Generated: 2026-07-28 | Project: rigs-unbound | Status: Design + runtime foundation*
+_Generated: 2026-07-28 | Project: rigs-unbound | Status: Design + runtime foundation_

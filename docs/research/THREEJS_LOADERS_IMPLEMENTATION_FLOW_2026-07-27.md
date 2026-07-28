@@ -23,14 +23,14 @@ Applied the `threejs-loaders` skill to rigs-unbound, enhancing the asset loading
 
 ## Current State Before Enhancement
 
-| Loader | Status | Notes |
-|--------|--------|-------|
-| GLTFLoader | ✅ Used | `loadAsync()` for runtime asset bridge |
-| TextureLoader | ❌ Not used | Could enhance runtime bridge textures |
-| CubeTextureLoader | ❌ Not used | Skybox/environment maps |
-| RGBELoader | ❌ Not used | HDR environment maps |
-| PMREMGenerator | ❌ Not used | Prefiltered environment maps |
-| LoadingManager | ❌ Not used | No progress tracking |
+| Loader            | Status      | Notes                                  |
+| ----------------- | ----------- | -------------------------------------- |
+| GLTFLoader        | ✅ Used     | `loadAsync()` for runtime asset bridge |
+| TextureLoader     | ❌ Not used | Could enhance runtime bridge textures  |
+| CubeTextureLoader | ❌ Not used | Skybox/environment maps                |
+| RGBELoader        | ❌ Not used | HDR environment maps                   |
+| PMREMGenerator    | ❌ Not used | Prefiltered environment maps           |
+| LoadingManager    | ❌ Not used | No progress tracking                   |
 
 ---
 
@@ -57,7 +57,7 @@ private readonly cubeTextureLoader = new THREE.CubeTextureLoader(this.loadingMan
 ```typescript
 // Proper texture configuration for PBR
 const texture = this.textureLoader.load(url, (tex) => {
-  tex.colorSpace = THREE.SRGBColorSpace;  // For albedo/color maps
+  tex.colorSpace = THREE.SRGBColorSpace; // For albedo/color maps
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   tex.minFilter = THREE.LinearMipmapLinearFilter;
@@ -118,7 +118,7 @@ class AssetManager {
 
   async loadTexture(key: string, url: string): Promise<THREE.Texture> {
     if (this.textures.has(key)) return this.textures.get(key)!;
-    
+
     const texture = await this.textureLoader.loadAsync(url);
     this.textures.set(key, texture);
     return texture;
@@ -126,7 +126,7 @@ class AssetManager {
 
   async loadModel(key: string, url: string): Promise<THREE.Group> {
     if (this.models.has(key)) return this.models.get(key)!.clone();
-    
+
     const gltf = await this.gltfLoader.loadAsync(url);
     const model = gltf.scene ?? gltf.scenes[0];
     this.models.set(key, model);
@@ -134,7 +134,7 @@ class AssetManager {
   }
 
   dispose() {
-    this.textures.forEach(t => t.dispose());
+    this.textures.forEach((t) => t.dispose());
     this.textures.clear();
     this.models.clear();
   }
@@ -154,7 +154,7 @@ async function loadWithRetry(url: string, maxRetries = 3, timeout = 30000) {
       return response.arrayBuffer();
     } catch (error) {
       if (i === 2) throw error;
-      await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+      await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
     }
   }
 }
@@ -191,7 +191,7 @@ async loadRuntimeAsset(spec: RuntimeBridgeSpec): Promise<void> {
   try {
     const gltf = await this.gltfLoader.loadAsync(spec.runtimeUrl);
     const root = gltf.scene ?? gltf.scenes[0];
-    
+
     // Proper material setup
     root.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -200,13 +200,13 @@ async loadRuntimeAsset(spec: RuntimeBridgeSpec): Promise<void> {
         child.material.envMapIntensity = 0.5;
       }
     });
-    
+
     // Auto-center and scale
     const box = new THREE.Box3().setFromObject(root);
     const size = box.getSize(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z);
     root.scale.setScalar(1 / maxDim);
-    
+
     this.runtimeAssets.set(spec.id, root);
     this.scene.add(root);
   } catch (error) {
@@ -221,11 +221,11 @@ async loadRuntimeAsset(spec: RuntimeBridgeSpec): Promise<void> {
 
 ## Testing & Verification
 
-| Check | Result |
-|-------|--------|
+| Check      | Result                                                           |
+| ---------- | ---------------------------------------------------------------- |
 | TypeScript | ✅ Clean (pre-existing errors in first-rung.ts/state.ts/main.ts) |
-| Unit Tests | ✅ 356/361 pass (5 pre-existing failures in first-rung.test.ts) |
-| Build | ✅ Success |
+| Unit Tests | ✅ 356/361 pass (5 pre-existing failures in first-rung.test.ts)  |
+| Build      | ✅ Success                                                       |
 
 ---
 
@@ -255,4 +255,4 @@ async loadRuntimeAsset(spec: RuntimeBridgeSpec): Promise<void> {
 
 ---
 
-*Generated: 2026-07-27 | Skill: threejs-loaders | Project: rigs-unbound*
+_Generated: 2026-07-27 | Skill: threejs-loaders | Project: rigs-unbound_

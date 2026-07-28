@@ -10,7 +10,7 @@ the browser vehicle-physics catalog, and `src/game/physics.ts`.
 ## 1. The question, reframed
 
 "Which physics engine?" is the wrong question, and the project's own canon
-proves it. DESIGN.md's invariant is *vehicles are characters*: handling
+proves it. DESIGN.md's invariant is _vehicles are characters_: handling
 identity is **characterization** — `driveForce`'s lugging falloff
 (`physics.ts:145-158`) is why "you need a run-up at that hill" is a learnable
 fact about Spark. A general solver computes plausible motion; it does not
@@ -18,13 +18,13 @@ know that Torque should feel deliberate.
 
 The first-principles question is:
 
-> **Which physical consequences does the game want to *mean* something, and
+> **Which physical consequences does the game want to _mean_ something, and
 > what is the cheapest honest generator for each meaning?**
 
 That decomposes the problem: locomotion feel is a meaning the authored layer
 already generates well (342-test deterministic baseline, two contrasting
 families, save migration, grade-as-progression). Joints, unstable cargo,
-rollover, and destruction are meanings the authored model *cannot* generate
+rollover, and destruction are meanings the authored model _cannot_ generate
 (ADR-0007 §3 is explicit: three rotational DOF on springs cannot tumble; no
 joints, no stacking, no real hitch dynamics). The solver question is only
 ever about the second list.
@@ -34,7 +34,7 @@ ever about the second list.
 - **Authored adapters prove**: a shipped, deterministic, migratable baseline
   with authored feel for two families. They fail structurally at: rollover,
   articulation, stacking, real hitch dynamics.
-- **Rapier lab proves**: the *port* is executable (intent → project-owned
+- **Rapier lab proves**: the _port_ is executable (intent → project-owned
   contract → solver → plain-data capture/telemetry), same-runtime
   determinism, ~0.10 ms step. It does not prove player feel, cross-runtime
   determinism, representative-device perf, or articulation. 593 kB gzip WASM.
@@ -43,37 +43,37 @@ ever about the second list.
   outcomes (contact telemetry is an AABB estimate), collision semantics, and
   wrapper maturity (unofficial, untyped, young).
 - **Neither lab ranks engines.** Rapier-raycast vs Box3D-physical-wheel is a
-  solver-plus-controller *bundle* comparison; per ADR-0023 §4 it must never
+  solver-plus-controller _bundle_ comparison; per ADR-0023 §4 it must never
   be cited as an engine verdict.
 
 ## 3. Three candidate long-term positions
 
-**A. Authored core + targeted solver services** *(catalog's hybrid; the
-default posture)* — locomotion always authored per family; solvers admitted
+**A. Authored core + targeted solver services** _(catalog's hybrid; the
+default posture)_ — locomotion always authored per family; solvers admitted
 per-capability (joints, unstable cargo, CCD events) as bounded services
 behind `DynamicsService`-shaped ports that never own the rig's transform or
 identity. Preserves determinism, bundle, and feel absolutely. Costs: an
 honest coupling seam between solver-simulated attachments and authored
 locomotion (unbuilt anywhere); bespoke admission per capability.
-*Discriminator: the articulated towing/lifting/recovery experiment — if the
-coupling seam reads coherently in play within browser budgets, A wins.*
+_Discriminator: the articulated towing/lifting/recovery experiment — if the
+coupling seam reads coherently in play within browser budgets, A wins._
 
-**B. Solver-core with authored tuning layer** *(ADR-0017's original shape,
-done honestly)* — full rigid-body rigs; character lives in a controller layer
+**B. Solver-core with authored tuning layer** _(ADR-0017's original shape,
+done honestly)_ — full rigid-body rigs; character lives in a controller layer
 above the solver. Makes articulation/rollover/destruction native. Costs:
 determinism becomes a proof obligation (insertion order, JS transcendentals);
 WASM on the critical path; the highest rig-character risk — raycast wheels
 "still require authoring the same handling curve, so the cost is paid either
-way" (ADR-0007). *Discriminator: the rig-character gate — solver chassis
+way" (ADR-0007). _Discriminator: the rig-character gate — solver chassis
 running Torque/Spark/Drift profiles must stay statistically separable and,
-ultimately, player-distinguishable (Tier 4/5).*
+ultimately, player-distinguishable (Tier 4/5)._
 
-**C. Dual-track per family** *(the audit's synthesis)* — each controller
+**C. Dual-track per family** _(the audit's synthesis)_ — each controller
 family independently chooses authored or solver-backed at admission time.
 Maximally honest to the vehicle-universe thesis; highest lifecycle burden and
 the most variance pushed into save/replay/telemetry contracts.
-*Discriminator: whether the second and third admitted families reuse the port
-machinery cleanly (as the raycast/physical-wheel split did) or fork it.*
+_Discriminator: whether the second and third admitted families reuse the port
+machinery cleanly (as the raycast/physical-wheel split did) or fork it._
 
 The docs' own trajectory: catalog → A; ADR-0017-as-written → B;
 ADR-0023 → procedurally neutral, structurally closest to C-with-A-as-default.
@@ -81,11 +81,11 @@ ADR-0023 → procedurally neutral, structurally closest to C-with-A-as-default.
 ## 4. The load-bearing insight: two design decisions precede any solver evidence
 
 ADR-0007's flip trigger lists articulated trailers, destructibles, and
-**rollover as a fail state**. These are *design* decisions the operator can
+**rollover as a fail state**. These are _design_ decisions the operator can
 make today, and making them reopens ADR-0007 regardless of ADR-0023's status:
 
 1. **Is rollover a desired fail state?** If yes, authored-only is
-   disqualified for that family *by construction* — no benchmark needed. It
+   disqualified for that family _by construction_ — no benchmark needed. It
    fits the fiction (recovery gameplay, strain narrative, scars on the
    machine) but costs a 6-DOF body somewhere.
 2. **Is an articulated towing/lifting/recovery activity a named product
@@ -127,12 +127,12 @@ option, not a failure.
 ## Anything else?
 
 Yes. The terrain-face traversability addendum (ADR-0007, 2026-07-26) quietly
-created the first *solver-independent* physical boundary above the adapters —
+created the first _solver-independent_ physical boundary above the adapters —
 a semantic refusal (`terrain-face`) that any future solver service must also
 honor. That is the template position A needs: physical truth expressed as
 project-owned meaning, generator-agnostic. Whoever builds the articulation
 experiment should copy that pattern exactly, and the fair-comparison harness
-should treat cross-runtime determinism as a *reported divergence* metric, not
+should treat cross-runtime determinism as a _reported divergence_ metric, not
 a promised property — the honest version of the determinism contract is "we
 measure and publish drift," which is also the only version compatible with
 ever shipping a solver.

@@ -1,6 +1,6 @@
 # Radial Quick-Action Wheel Contract (2026-07-28)
 
-**Status:** proposed interaction contract - not implemented in play  
+**Status:** live shell surface present; selection/focus proof still incomplete  
 **Evidence tier:** Tier 1 static source inspection plus design reasoning  
 **Related input contract:** [Accessibility and Input Contract](./ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md)  
 **Related shell spec:** [Unified UI Shell Specification](./UNIFIED_UI_SHELL_SPEC_2026-07-27.md)  
@@ -147,3 +147,91 @@ The smallest durable proof for this contract is:
 Yes: the wheel is valuable only if it clarifies the rig’s current capability
 set. If it becomes a second menu vocabulary, it will be a regression rather
 than an improvement.
+
+## Addendum (2026-07-28) - the wheel is now mounted in the shell, but the proof slice is incomplete
+
+- Re-checked the canonical browser surface at `http://localhost:4173/`.
+- The live DOM now contains:
+  - `#touch-radial-action`
+  - `#radial-overlay`
+  - `#radial-menu-list`
+  - `#radial-menu-close`
+- Clicking the `Quick` touch affordance opens the radial overlay, and the list
+  renders the authored seven-item wheel:
+  - winch in/out,
+  - tire pressure up/down,
+  - diff lock,
+  - seismic pulse,
+  - radio scan/tuning.
+- The overlay closes again through the shared overlay path, so the wheel is now
+  a real shell surface rather than dead code.
+- The remaining proof slice is accessibility quality:
+  - focus landing still needs stronger browser confirmation,
+  - selection/announcement behavior still needs a durable proof,
+  - keyboard parity still needs to be checked before the wheel is treated as
+    fully operable.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 static source
+  inspection.
+
+## Addendum (2026-07-28) - the wheel also has a live selection handler now
+
+- Re-checked the radial item wiring in `src/main.ts`.
+- Each item is rendered as a real `button`, and the click path:
+  - calls `selectRadialMenuItem(radialMenuState, index)`,
+  - toggles the item’s `aria-pressed` state,
+  - re-renders the menu,
+  - and shows a toast describing the on/off result.
+- That means the wheel now has a genuine selection mechanism, not just a static
+  list of labels.
+- The remaining proof slice is now narrower:
+  - accessible focus handoff,
+  - keyboard parity for item selection,
+  - and a browser-confirmed announcement story that matches the player-facing
+    experience.
+- Evidence depth: Tier 1 static source inspection, with the earlier Tier 4 live
+  shell proof that the wheel mounts and opens in-browser.
+
+## Addendum (2026-07-28) - live browser focus proof still lands on BODY
+
+- Re-checked the canonical browser surface at `http://localhost:4173/` after
+  the shell contract and accessibility notes were already in place.
+- The live DOM still contains the full wheel surface:
+  - `#touch-radial-action`
+  - `#radial-overlay`
+  - `#radial-menu-list`
+  - `#radial-menu-close`
+- Clicking `Quick` opens the wheel and renders eight buttons, but the focus
+  path still fails:
+  - `overlayHidden: false`
+  - `overlayAria: "false"`
+  - `activeTag: "BODY"`
+  - `activeId: ""`
+  - `closeFocused: false`
+  - `itemCount: 8`
+- That means the wheel is now real shell UI with real selection handling, but
+  the accessibility proof is still incomplete because open does not hand focus
+  to the close control or another intentional target.
+- Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - focus handoff now lands on the close control
+
+- Re-checked the canonical browser surface after hardening the shared overlay
+  focus helper in `src/main.ts`.
+- Clicking `Quick` now opens the radial wheel with focus on
+  `#radial-menu-close`:
+  - `overlayHidden: false`
+  - `overlayAria: "false"`
+  - `activeTag: "BUTTON"`
+  - `activeId: "radial-menu-close"`
+  - `closeFocused: true`
+  - `itemCount: 8`
+- The wheel is now accessible enough to prove the modal-style handoff path,
+  and its selection path already uses native button semantics.
+- The live announcement path is also present:
+  - `#toast` is a polite `role="status"` live region;
+  - clicking `Diff Lock (100%)` updates the toast to
+    `Diff Lock (100%) off.`;
+  - the clicked item’s `aria-pressed` state changes with the selection.
+- The remaining open check is a manual spoken narration pass for assistive
+  technology, not the existence of a runtime announcement mechanism.
+- Evidence depth: Tier 4 live browser inspection.

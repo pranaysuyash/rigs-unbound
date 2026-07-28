@@ -10,7 +10,7 @@
 
 ## Derived implementation scope
 
-1. Advance persistence to schema v4 while keeping v1–v3 recovery.
+1. Advance persistence to schema v4 while keeping v1–legacy recovery.
 2. Move ground-only runtime fields into `GroundMobilityState`.
 3. Add the typed mobility registry and preserve the existing ground model.
 4. Add a deterministic low-hover adapter and `HoverMobilityState`.
@@ -56,7 +56,7 @@
 - state stepping and settling dispatch through one adapter registry;
 - activities and world queries still use capabilities, not vehicle names;
 - renderer narrowing is contained in rig factories and mobility presentation;
-- v3 world memory survives v4 migration;
+- legacy world memory survives v4 migration;
 - invalid union data fails closed.
 
 ### Verification
@@ -92,7 +92,7 @@ fields.
 
 The coherent stage is implemented through a two-member typed registry. Ground
 contacts are no longer universal state; Drift owns lift velocity, clearance,
-cushion pressure, and skirt contact. Valid v3 records migrate to v4, all three
+cushion pressure, and skirt contact. Valid legacy records migrate to v4, all three
 rigs share the world/input/camera/activity/persistence path, and visible Chrome
 acceptance exercised deep-water motion and reload.
 

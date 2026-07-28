@@ -17,7 +17,9 @@ export interface WinchPulleyOutput {
   mechanicalAdvantageFactor: number;
 }
 
-export function computeWinchPulleyOutput(config: WinchPulleyConfig): WinchPulleyOutput {
+export function computeWinchPulleyOutput(
+  config: WinchPulleyConfig,
+): WinchPulleyOutput {
   const n = config.pulleyRatio;
   const effectivePullForceN = config.baseLinePullForceN * n;
   const effectiveSpoolSpeedMps = config.baseSpoolSpeedMps / n;

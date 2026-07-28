@@ -27,11 +27,15 @@ export function calculateFogVisibility(
   const density = Math.min(1.0, Math.max(0, fogDensity));
   const extinctionCoeff = density * 0.08;
   const lightTransmittance = Math.exp(-extinctionCoeff * targetDistanceM);
-  const attenuationPercent = Number(((1 - lightTransmittance) * 100).toFixed(1));
+  const attenuationPercent = Number(
+    ((1 - lightTransmittance) * 100).toFixed(1),
+  );
 
   // Thermal camera penetrates optical fog, maintaining longer view distance
   const baseViewM = 250 * Math.exp(-extinctionCoeff * 15);
-  const viewDistanceM = Number((thermalModeActive ? baseViewM * 1.8 : baseViewM).toFixed(1));
+  const viewDistanceM = Number(
+    (thermalModeActive ? baseViewM * 1.8 : baseViewM).toFixed(1),
+  );
 
   return {
     fogDensity: Number(density.toFixed(2)),
@@ -48,7 +52,9 @@ export function deriveThermalSignature(
 ): ThermalSignature {
   const heatRange = 105.0 - ambientCelsius;
   const delta = Math.max(0, temperatureCelsius - ambientCelsius);
-  const normalizedHeatRatio = Number(Math.min(1.0, delta / heatRange).toFixed(2));
+  const normalizedHeatRatio = Number(
+    Math.min(1.0, delta / heatRange).toFixed(2),
+  );
 
   let hex = "#000033"; // Cold dark blue
   if (normalizedHeatRatio > 0.85) {

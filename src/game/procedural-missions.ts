@@ -8,7 +8,11 @@
 export interface ProceduralMission {
   id: string;
   title: string;
-  type: "flood-rescue" | "deep-seismic-survey" | "high-altitude-haul" | "salvage-convoy";
+  type:
+    | "flood-rescue"
+    | "deep-seismic-survey"
+    | "high-altitude-haul"
+    | "salvage-convoy";
   targetSiteId: string;
   difficultyRating: "standard" | "hard" | "extreme";
   rewardScrap: number;
@@ -20,7 +24,6 @@ export function generateExpeditionMission(
   _playerSiteId: string,
   weatherPhase: string,
 ): ProceduralMission {
-
   // Deterministic seed hash
   let hash = 0;
   for (let i = 0; i < seed.length; i++) {

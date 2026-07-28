@@ -6,8 +6,6 @@
  * static and signal pulse synthesizer.
  */
 
-
-
 export interface RadioSignalState {
   signalStrength: number; // 0..1 (1 = directly on target)
   carrierFrequencyHz: number; // 88.5..108.0 MHz

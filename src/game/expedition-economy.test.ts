@@ -13,7 +13,10 @@ describe("expedition economy & regional trade network", () => {
     expect(sunkenFlatsQuote.regionalMultiplier).toBeGreaterThan(3.0);
     expect(sunkenFlatsQuote.finalPriceScrap).toBeGreaterThan(150);
 
-    const launchRidgeQuote = quoteCommodityPrice("fuel-cell-core", "launch-ridge");
+    const launchRidgeQuote = quoteCommodityPrice(
+      "fuel-cell-core",
+      "launch-ridge",
+    );
     expect(launchRidgeQuote.regionalMultiplier).toBeGreaterThan(3.5);
     expect(launchRidgeQuote.finalPriceScrap).toBeGreaterThan(400);
   });

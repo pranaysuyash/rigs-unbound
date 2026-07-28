@@ -63,13 +63,13 @@ Make Rigs Unbound feel like one coherent game by fixing the most disorienting UI
 
 ## Verification results
 
-| Gate                              | Result               | Notes                                                                                        |
-| --------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
-| `npx vite build`                  | ✅ Pass              | Production client/server build succeeds.                                                     |
-| `tools/ui-shell-verification.cjs` | ✅ Pass              | Pause, map layers, navigator toggle, no console errors.                                      |
-| Prettier on touched files         | ✅ Pass              | `index.html`, `src/main.ts`, `src/styles.css`, `tools/ui-shell-verification.cjs` formatted.  |
+| Gate                              | Result                     | Notes                                                                                                                                                    |
+| --------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx vite build`                  | ✅ Pass                    | Production client/server build succeeds.                                                                                                                 |
+| `tools/ui-shell-verification.cjs` | ✅ Pass                    | Pause, map layers, navigator toggle, no console errors.                                                                                                  |
+| Prettier on touched files         | ✅ Pass                    | `index.html`, `src/main.ts`, `src/styles.css`, `tools/ui-shell-verification.cjs` formatted.                                                              |
 | `npm run typecheck`               | ⚠️ Earlier note superseded | The original blocker note referenced `src/game/animation.ts`; later follow-up work reconciled that boundary, but typecheck was not rerun in this review. |
-| `npx vitest run`                  | ⚠️ One flaky failure | `src/game/storage.test.ts` fails in full suite, passes in isolation. Parallel-owned runtime. |
+| `npx vitest run`                  | ⚠️ One flaky failure       | `src/game/storage.test.ts` fails in full suite, passes in isolation. Parallel-owned runtime.                                                             |
 
 ## Parallel-owned blockers
 
@@ -85,7 +85,7 @@ Because `src/game/` is parallel-owned, these were left for the runtime owner.
 1. Re-run fresh `npm run typecheck && npx vitest run` against the current checkout if you want updated verification.
 2. Re-check `src/game/storage.test.ts` only if the full-suite failure still reproduces in the current tree.
 3. Keep the animation-blocker note as historical unless a fresh typecheck reproduces it again.
-3. Continue integration roadmap next slices:
+4. Continue integration roadmap next slices:
    - Contract Ledger overlay (read-only from `publicState`).
    - Garage / fleet roster overlay.
    - Labs-as-instruments drawer.

@@ -23,12 +23,12 @@ world offer declares `tow`
   -> authoritative state transition and presentation response
 ```
 
-| Source | Current responsibility |
-| --- | --- |
-| `src/game/affordances.ts` | Versioned affordance definition, capability claim, availability, and deterministic resolution. |
-| `src/game/state.ts` | Resolves relay availability/range, turns the result into a primary-action outcome, and owns any mutation. |
-| Effective rig profile in the state/contracts layer | Composes module and rig capability claims. |
-| `src/game/affordances.test.ts` | Documents legal, incompatible, and out-of-range resolver outcomes. |
+| Source                                             | Current responsibility                                                                                    |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `src/game/affordances.ts`                          | Versioned affordance definition, capability claim, availability, and deterministic resolution.            |
+| `src/game/state.ts`                                | Resolves relay availability/range, turns the result into a primary-action outcome, and owns any mutation. |
+| Effective rig profile in the state/contracts layer | Composes module and rig capability claims.                                                                |
+| `src/game/affordances.test.ts`                     | Documents legal, incompatible, and out-of-range resolver outcomes.                                        |
 
 The result intentionally distinguishes:
 

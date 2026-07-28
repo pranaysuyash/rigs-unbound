@@ -13,13 +13,13 @@ The renderer is presentation. The simulation, action resolution, save state, and
 
 ## Device cohorts
 
-| Cohort | Why it exists | Minimum sample | Evidence required |
-|---|---|---:|---|
-| Reference desktop | establishes a repeatable high-capability baseline | 1 | W1 matrix, frame-time and draw-call samples, first-frame proof |
-| Mid-tier laptop | tests the likely general audience envelope | 2 | sustained frame-time sample, quality behavior, recovery path |
-| Integrated/low-power device | tests graceful degradation and thermal pressure | 2 | fallback/quality decision, input responsiveness, no crash |
-| Mobile-capable browser surface | tests constrained viewport and memory behavior | 2 | startup, resize/orientation, touch/input, recovery |
-| Unknown/unsupported surface | proves refusal and explanation behavior | 1 | explicit policy outcome, user/operator explanation, no partial renderer |
+| Cohort                         | Why it exists                                     | Minimum sample | Evidence required                                                       |
+| ------------------------------ | ------------------------------------------------- | -------------: | ----------------------------------------------------------------------- |
+| Reference desktop              | establishes a repeatable high-capability baseline |              1 | W1 matrix, frame-time and draw-call samples, first-frame proof          |
+| Mid-tier laptop                | tests the likely general audience envelope        |              2 | sustained frame-time sample, quality behavior, recovery path            |
+| Integrated/low-power device    | tests graceful degradation and thermal pressure   |              2 | fallback/quality decision, input responsiveness, no crash               |
+| Mobile-capable browser surface | tests constrained viewport and memory behavior    |              2 | startup, resize/orientation, touch/input, recovery                      |
+| Unknown/unsupported surface    | proves refusal and explanation behavior           |              1 | explicit policy outcome, user/operator explanation, no partial renderer |
 
 The sample counts are a minimum evidence set, not a market-performance claim.
 
@@ -36,14 +36,14 @@ The sample counts are a minimum evidence set, not a market-performance claim.
 
 ## Acceptance envelope
 
-| Dimension | D1 acceptance rule |
-|---|---|
-| Correctness | no backend changes simulation outcomes, action availability, obstacle interaction, or save semantics |
-| Stability | no uncaught initialization/rendering error; failed WebGPU setup reaches a known fallback or refusal state |
-| Observability | every backend decision has request, policy, selected backend, reason, and recovery fields |
-| Performance | compare sustained frame time and responsiveness against the WebGL reference; do not optimize for peak FPS alone |
-| UX | no unexplained blank scene, control loss, or policy-specific dead end |
-| Rollback | disabling canary returns the same stable behavior without code changes or data migration |
+| Dimension     | D1 acceptance rule                                                                                              |
+| ------------- | --------------------------------------------------------------------------------------------------------------- |
+| Correctness   | no backend changes simulation outcomes, action availability, obstacle interaction, or save semantics            |
+| Stability     | no uncaught initialization/rendering error; failed WebGPU setup reaches a known fallback or refusal state       |
+| Observability | every backend decision has request, policy, selected backend, reason, and recovery fields                       |
+| Performance   | compare sustained frame time and responsiveness against the WebGL reference; do not optimize for peak FPS alone |
+| UX            | no unexplained blank scene, control loss, or policy-specific dead end                                           |
+| Rollback      | disabling canary returns the same stable behavior without code changes or data migration                        |
 
 Numerical thresholds should be set after the first reference and mid-tier samples. Pre-committing to a universal FPS target would confuse hardware variance with product quality.
 

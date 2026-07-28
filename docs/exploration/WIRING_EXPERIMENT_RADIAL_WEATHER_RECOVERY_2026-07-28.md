@@ -83,6 +83,23 @@ In other words, the experiment is not just about recovery. It is a concrete
 probe for whether the read-only contract board can become the accepted mission
 choice surface.
 
+## Current source evidence for the acceptance-surface seam
+
+Source inspection now shows three distinct layers that should not be collapsed:
+
+- `src/game/mission-propositions.ts` derives deterministic propositions from
+  world state.
+- `src/game/mission-resolver.ts` applies rewards and progression after a
+  proposition is accepted.
+- `src/game/state.ts` contains a local `SURVEY_CONTRACT_AFFORDANCE` branch
+  that exposes the survey contract as a contextual action when the rig is in
+  range and has the required capability.
+
+What is still missing is a dedicated player-facing board component that turns
+those contracts into a named acceptance surface with row focus, selection,
+announcement, and compact/expanded board semantics. The current code proves
+the proposition and resolver seam; it does not yet prove the full board UI.
+
 ## Experiment hypothesis
 
 If these modules are wired into one player-facing route, then:

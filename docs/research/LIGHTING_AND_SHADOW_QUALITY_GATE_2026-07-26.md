@@ -14,24 +14,24 @@ This is not a rejection of richer lighting. It preserves a correct sequence: est
 
 `src/game/renderer.ts` currently owns the lighting posture:
 
-| Concern | Current behavior | Rationale |
-| --- | --- | --- |
-| Key lighting | One warm directional sun plus a cool/earthy hemisphere fill | Keeps terrain and rig forms legible without per-object lights. |
-| Output | sRGB output and ACES filmic tone mapping | Provides the current stable color-management baseline. |
-| Device cost | Pixel ratio capped at `1.75` | Prevents unbounded high-DPR fill-rate cost. |
-| Shadows | `renderer.shadowMap.enabled = false`; runtime GLTF meshes are explicitly non-casting/non-receiving | Avoids shadow-map allocation and lifecycle cost. |
-| Grounding | Blob-shadow representation | Retains contact/readability at a predictable cost. |
+| Concern      | Current behavior                                                                                   | Rationale                                                      |
+| ------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Key lighting | One warm directional sun plus a cool/earthy hemisphere fill                                        | Keeps terrain and rig forms legible without per-object lights. |
+| Output       | sRGB output and ACES filmic tone mapping                                                           | Provides the current stable color-management baseline.         |
+| Device cost  | Pixel ratio capped at `1.75`                                                                       | Prevents unbounded high-DPR fill-rate cost.                    |
+| Shadows      | `renderer.shadowMap.enabled = false`; runtime GLTF meshes are explicitly non-casting/non-receiving | Avoids shadow-map allocation and lifecycle cost.               |
+| Grounding    | Blob-shadow representation                                                                         | Retains contact/readability at a predictable cost.             |
 
 The renderer comment records the immediate reason: a Chrome lifecycle run observed a shadow-map allocation warning, and the blob posture is cheaper for first frame and low-power devices.
 
 ## Contract boundaries
 
-| Owner | Owns | Must not own |
-| --- | --- | --- |
-| `GameRenderer` | Light construction, shadow representation, renderer-side resource use | Simulation truth, gameplay collision, direct UI preferences. |
-| Runtime profile policy | Evidence-based request for a supported renderer quality tier | Hardware guesses from the user agent or hidden automatic visual changes. |
-| Performance monitor | Frame-time/startup/renderer-resource evidence | VRAM claims it cannot directly observe. |
-| Visual direction | Required readability and style outcomes | Permission to bypass a measured profile gate. |
+| Owner                  | Owns                                                                  | Must not own                                                             |
+| ---------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `GameRenderer`         | Light construction, shadow representation, renderer-side resource use | Simulation truth, gameplay collision, direct UI preferences.             |
+| Runtime profile policy | Evidence-based request for a supported renderer quality tier          | Hardware guesses from the user agent or hidden automatic visual changes. |
+| Performance monitor    | Frame-time/startup/renderer-resource evidence                         | VRAM claims it cannot directly observe.                                  |
+| Visual direction       | Required readability and style outcomes                               | Permission to bypass a measured profile gate.                            |
 
 The player-facing product surface must not expose internal threshold controls. If a future quality selector is introduced, it must present understandable choices and preserve the low-cost blob fallback.
 

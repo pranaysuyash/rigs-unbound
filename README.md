@@ -64,7 +64,7 @@ Gamepad driving and responsive touch controls use the same named actions. All
 three rigs, cargo-relay progress, condition, terrain deformation, salvage, modules,
 plough marks, surveyed cells, and discoveries are stored in one validated local
 browser record. Existing Field Test 001 and Rig Lab 01 saves migrate into the
-v4 bounded-mobility schema; v3 Field 02 records preserve Torque and Spark and
+v4 bounded-mobility schema; legacy Field 02 records preserve Torque and Spark and
 add Drift at the Sunken Flats.
 
 `window.render_game_to_text()`, `window.advanceTime(ms)`,

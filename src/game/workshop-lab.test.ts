@@ -14,10 +14,14 @@ describe("workshop lab mass distribution engine", () => {
   it("increases total mass and top CG height when mounting a high survey mast", () => {
     const baseTractor = RIG_PROFILES["utility-tractor"];
     const bareDist = computeChassisMassDistribution(baseTractor, []);
-    const mastDist = computeChassisMassDistribution(baseTractor, ["survey-mast"]);
+    const mastDist = computeChassisMassDistribution(baseTractor, [
+      "survey-mast",
+    ]);
 
     expect(mastDist.totalMassKg).toBeGreaterThan(bareDist.totalMassKg);
-    expect(mastDist.centerOfMassOffset.y).toBeGreaterThan(bareDist.centerOfMassOffset.y);
+    expect(mastDist.centerOfMassOffset.y).toBeGreaterThan(
+      bareDist.centerOfMassOffset.y,
+    );
     expect(mastDist.rolloverRisk).toBeGreaterThan(bareDist.rolloverRisk);
   });
 });

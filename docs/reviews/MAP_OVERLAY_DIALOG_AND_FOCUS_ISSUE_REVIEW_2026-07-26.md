@@ -19,12 +19,12 @@ The runtime does suppress some helper UI while the map is open, so this is not m
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `index.html` `#map-overlay` | Full-screen map surface with `aria-label` only | Modal-like surface, not a declared dialog |
-| `src/main.ts` map toggle path | Toggles `state.mapOpen` and `mapOverlay.hidden`, draws the field map when opening | Operability exists, but focus management is absent |
-| `src/main.ts` keyboard path | `Escape` closes the map before pause, so the map is not a dead end | Good recovery behavior, incomplete dialog contract |
-| `src/styles.css` `.map-overlay` | Visually occupies the whole viewport | Presentation only; no semantic contract |
+| Artifact                        | Role now                                                                          | Canonical status                                   |
+| ------------------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `index.html` `#map-overlay`     | Full-screen map surface with `aria-label` only                                    | Modal-like surface, not a declared dialog          |
+| `src/main.ts` map toggle path   | Toggles `state.mapOpen` and `mapOverlay.hidden`, draws the field map when opening | Operability exists, but focus management is absent |
+| `src/main.ts` keyboard path     | `Escape` closes the map before pause, so the map is not a dead end                | Good recovery behavior, incomplete dialog contract |
+| `src/styles.css` `.map-overlay` | Visually occupies the whole viewport                                              | Presentation only; no semantic contract            |
 
 ## Why this matters
 
@@ -53,3 +53,26 @@ This issue closes only when the map overlay is explicitly treated as a modal dia
 ## Anything else?
 
 The map overlay is the next a11y surface worth hardening because it already changes interaction mode. If we leave it as only a labeled section, the repo will keep a visible-but-under-specified control surface in the public player path.
+
+## Addendum (2026-07-28): live browser proof shows the map opens, but focus still does not land inside it
+
+- Re-checked the canonical browser surface at `http://localhost:4173/`.
+- Opening the map through the runtime path successfully makes `#map-overlay`
+  visible and sets its aria-hidden state to `"false"`.
+- The focus probe after opening still reports `document.activeElement` as
+  `BODY`, not `#map-close` or another overlay control.
+- That means the original static finding is still true in the live shell:
+  the map behaves like a modal mode switch, but it is not yet an accessible
+  dialog because focus does not move into the overlay.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 static source
+  inspection.
+
+## Addendum (2026-07-28): source-side focus deferral has now landed, browser recheck pending
+
+- `src/main.ts` now routes overlay entry focus through a deferred
+  `focusAfterPaint(...)` helper for map, pause, and radial overlays.
+- The code change is intended to let the focus land after the overlay is
+  painted rather than in the same tick as the click path.
+- This note is intentionally not claiming browser verification yet; the next
+  proof step is to re-open the live shell and re-check the focus landing path
+  after the patch.

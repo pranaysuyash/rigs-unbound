@@ -141,7 +141,9 @@ async function captureVisibility(page) {
   }
 
   // Summary comparison: three tiers
-  console.log("\n\n=== PROP COUNT COMPARISON: FULL vs STANDARD vs CONSERVATIVE ===\n");
+  console.log(
+    "\n\n=== PROP COUNT COMPARISON: FULL vs STANDARD vs CONSERVATIVE ===\n",
+  );
   console.log(
     "Rig".padEnd(20) +
       "Full".padEnd(10) +
@@ -156,9 +158,7 @@ async function captureVisibility(page) {
   console.log("-".repeat(100));
 
   for (const rigId of rigIds) {
-    const full = results.find(
-      (r) => r.rigId === rigId && r.tier === "full",
-    );
+    const full = results.find((r) => r.rigId === rigId && r.tier === "full");
     const balanced = results.find(
       (r) => r.rigId === rigId && r.tier === "standard",
     );
@@ -169,9 +169,21 @@ async function captureVisibility(page) {
 
     const fullToStd = full.submitted - balanced.submitted;
     const stdToCon = balanced.submitted - conservative.submitted;
-    const fullPct = full.submitted > 0 ? ((fullToStd / full.submitted) * 100).toFixed(1) : "0.0";
-    const stdPct = balanced.submitted > 0 ? ((stdToCon / balanced.submitted) * 100).toFixed(1) : "0.0";
-    const conPct = full.submitted > 0 ? (((full.submitted - conservative.submitted) / full.submitted) * 100).toFixed(1) : "0.0";
+    const fullPct =
+      full.submitted > 0
+        ? ((fullToStd / full.submitted) * 100).toFixed(1)
+        : "0.0";
+    const stdPct =
+      balanced.submitted > 0
+        ? ((stdToCon / balanced.submitted) * 100).toFixed(1)
+        : "0.0";
+    const conPct =
+      full.submitted > 0
+        ? (
+            ((full.submitted - conservative.submitted) / full.submitted) *
+            100
+          ).toFixed(1)
+        : "0.0";
 
     console.log(
       rigId.padEnd(20) +
@@ -198,9 +210,16 @@ async function captureVisibility(page) {
     .reduce((s, r) => s + r.submitted, 0);
   const totalFullToStd = totalFull - totalBalanced;
   const totalStdToCon = totalBalanced - totalConservative;
-  const totalFullPct = totalFull > 0 ? ((totalFullToStd / totalFull) * 100).toFixed(1) : "0.0";
-  const totalStdPct = totalBalanced > 0 ? ((totalStdToCon / totalBalanced) * 100).toFixed(1) : "0.0";
-  const totalConPct = totalFull > 0 ? (((totalFull - totalConservative) / totalFull) * 100).toFixed(1) : "0.0";
+  const totalFullPct =
+    totalFull > 0 ? ((totalFullToStd / totalFull) * 100).toFixed(1) : "0.0";
+  const totalStdPct =
+    totalBalanced > 0
+      ? ((totalStdToCon / totalBalanced) * 100).toFixed(1)
+      : "0.0";
+  const totalConPct =
+    totalFull > 0
+      ? (((totalFull - totalConservative) / totalFull) * 100).toFixed(1)
+      : "0.0";
 
   console.log("-".repeat(100));
   console.log(
@@ -228,9 +247,7 @@ async function captureVisibility(page) {
   );
   console.log("-".repeat(100));
   for (const rigId of rigIds) {
-    const full = results.find(
-      (r) => r.rigId === rigId && r.tier === "full",
-    );
+    const full = results.find((r) => r.rigId === rigId && r.tier === "full");
     const balanced = results.find(
       (r) => r.rigId === rigId && r.tier === "standard",
     );

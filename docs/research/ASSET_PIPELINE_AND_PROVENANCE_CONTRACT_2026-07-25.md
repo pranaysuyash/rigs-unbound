@@ -519,3 +519,19 @@ Yes. The current manifest/runtime split is healthy precisely because the
 bridge can be live without being public. The next asset decision should preserve
 that asymmetry until a specific player-facing asset has enough provenance,
 budget, and replacement policy to justify promotion.
+
+## Addendum (2026-07-28) - developer bridge proof is live in the browser
+
+- Re-checked the canonical browser on the developer surface:
+  `http://localhost:4173/?surface=developer`.
+- The live runtime bridge evidence now reports two loaded imported assets:
+  - `kenney-car-kit-breakable-crate-fixture`
+  - `kenney-car-kit-tractor-preview`
+- Their evidence shape is now concrete rather than hypothetical:
+  - crate status: `loaded`, fallback inactive, loaded node count `1`,
+    animation clip count `0`
+  - tractor preview status: `loaded`, fallback inactive, loaded node count `5`,
+    animation clip count `0`
+- The player surface remains separate, so the manifest is acting as a
+  promotion gate rather than a second asset authority.
+- Evidence depth: Tier 4 live browser inspection.

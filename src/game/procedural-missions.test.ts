@@ -11,8 +11,16 @@ describe("procedural expedition mission generator", () => {
   });
 
   it("escalates mission difficulty and reward scrap payout during storm weather", () => {
-    const clearMission = generateExpeditionMission("SEED-202", "home-farm", "clear");
-    const stormMission = generateExpeditionMission("SEED-202", "home-farm", "storm");
+    const clearMission = generateExpeditionMission(
+      "SEED-202",
+      "home-farm",
+      "clear",
+    );
+    const stormMission = generateExpeditionMission(
+      "SEED-202",
+      "home-farm",
+      "storm",
+    );
 
     expect(stormMission.difficultyRating).toBe("extreme");
     expect(stormMission.rewardScrap).toBeGreaterThan(clearMission.rewardScrap);

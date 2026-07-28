@@ -34,7 +34,7 @@ function memoryStorage(): Storage {
 }
 
 describe("versioned local persistence", () => {
-  it("migrates a wrapped v3 state and restores its world memory into v7", () => {
+  it("migrates a wrapped legacy state and restores its world memory into v7", () => {
     const storage = memoryStorage();
     const source = createInitialState("FIELD-02-WORLD-MIGRATION");
     source.rigs["utility-tractor"].distanceTravelled = 212;
@@ -304,14 +304,9 @@ describe("versioned local persistence", () => {
       }),
     );
 
-    const loaded = loadState(
-      storage,
-      new GameWorld(String(source.seed)),
-    );
+    const loaded = loadState(storage, new GameWorld(String(source.seed)));
     expect(loaded.status).toBe("restored");
-    expect(loaded.state.unboundPassage).toEqual(
-      createUnboundPassageState(),
-    );
+    expect(loaded.state.unboundPassage).toEqual(createUnboundPassageState());
   });
 
   it("admits a custom seed only after the full saved state is accepted", () => {
@@ -420,7 +415,8 @@ describe("versioned local persistence", () => {
   });
 
   it("propagates storage.setItem errors into the SaveResult.error field", () => {
-    const errorMessage = "Failed to execute 'setItem' on 'Storage': quota exceeded";
+    const errorMessage =
+      "Failed to execute 'setItem' on 'Storage': quota exceeded";
     const failingStorage: Storage = {
       get length() {
         return 0;

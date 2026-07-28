@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { computeWinchTension, spoolWinchLine, WinchCableState } from "./winch-physics";
+import {
+  computeWinchTension,
+  spoolWinchLine,
+  WinchCableState,
+} from "./winch-physics";
 
 describe("winch cable physics engine", () => {
   it("produces zero tension when distance is less than rest length", () => {
@@ -13,7 +17,11 @@ describe("winch cable physics engine", () => {
       snapped: false,
     };
 
-    const result = computeWinchTension({ x: 0, y: 0, z: 0 }, { x: 0, z: 0 }, cable);
+    const result = computeWinchTension(
+      { x: 0, y: 0, z: 0 },
+      { x: 0, z: 0 },
+      cable,
+    );
     expect(result.tensionN).toBe(0);
     expect(result.snapped).toBe(false);
   });
@@ -29,8 +37,11 @@ describe("winch cable physics engine", () => {
       snapped: false,
     };
 
-
-    const result = computeWinchTension({ x: 0, y: 0, z: 0 }, { x: 0, z: 0 }, cable);
+    const result = computeWinchTension(
+      { x: 0, y: 0, z: 0 },
+      { x: 0, z: 0 },
+      cable,
+    );
     expect(result.tensionN).toBeGreaterThan(1000);
     expect(result.pullVector.x).toBeGreaterThan(0);
   });

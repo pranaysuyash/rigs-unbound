@@ -15,7 +15,9 @@ export interface MarketPriceQuote {
   finalPriceScrap: number;
 }
 
-export const REGIONAL_DEMAND_TABLE: Readonly<Record<string, Record<CommodityType, number>>> = {
+export const REGIONAL_DEMAND_TABLE: Readonly<
+  Record<string, Record<CommodityType, number>>
+> = {
   "home-farm": {
     "steel-scrap": 1.0,
     microchips: 1.0,
@@ -49,7 +51,8 @@ export function quoteCommodityPrice(
   };
 
   const baseValue = basePrices[commodity];
-  const siteDemands = REGIONAL_DEMAND_TABLE[siteId] ?? REGIONAL_DEMAND_TABLE["home-farm"]!;
+  const siteDemands =
+    REGIONAL_DEMAND_TABLE[siteId] ?? REGIONAL_DEMAND_TABLE["home-farm"]!;
   const multiplier = siteDemands[commodity];
   const finalPrice = Math.round(baseValue * multiplier);
 

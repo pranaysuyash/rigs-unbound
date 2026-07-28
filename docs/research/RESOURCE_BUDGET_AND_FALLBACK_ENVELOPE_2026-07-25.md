@@ -259,7 +259,7 @@ The engine can already tell us when it is getting expensive. This contract makes
 A profile decision without a sample count would be a disguised hardware guess.
 The policy therefore makes insufficient evidence a visible state, not a reason
 to silently degrade or promote the player.
- 
+
 ## Addendum (2026-07-27) - the renderer/profile lane is now tiered, but the cross-system budget ledger is still the missing policy surface
 
 - Re-checked this contract against the live renderer/performance and profile
@@ -278,7 +278,7 @@ to silently degrade or promote the player.
 - So the repo can now explain the renderer/profile lane, but it still cannot
   explain the whole budget economy as a single operational artifact.
 - Evidence depth: Tier 1 static inspection of the live documentation trail.
-to silently degrade or promote the player.
+  to silently degrade or promote the player.
 
 ## Addendum (2026-07-26) - first low-budget fallback is active and auditable
 
@@ -310,7 +310,7 @@ audio, and persistence still retain their current cadence and authority.
   - `runtimeProfileFallback` and `runtimeProfileRecovery` checkpoints record the
     selected profile plus the triggering reasons;
   - the player-facing message says `Performance safeguard active: reduced
-    scenery detail.` when fallback engages;
+scenery detail.` when fallback engages;
   - the developer diagnostics show the active profile, visibility counts, draw
     calls, geometry/texture counts, heap where available, and the current
     runtime bridge summary.

@@ -32,7 +32,9 @@ export function updateFuelConsumption(
   const speedKmh = speedMps * 3.6;
   const burnRateLph = burnRateLpm * 60;
   const kmPerLiter = burnRateLph > 0 ? speedKmh / burnRateLph : 0;
-  const estimatedRangeKm = outOfFuel ? 0 : Math.round(newFuelLiters * kmPerLiter);
+  const estimatedRangeKm = outOfFuel
+    ? 0
+    : Math.round(newFuelLiters * kmPerLiter);
 
   return {
     fuelTankCapacityLiters: current.fuelTankCapacityLiters,

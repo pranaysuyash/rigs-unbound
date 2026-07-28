@@ -65,18 +65,18 @@ teaser with real gameplay capture. The following rules were applied:
 
 ## Media truth ledger
 
-| Claim or element | Evidence | Public handling |
-|---|---|---|
-| 1280x720 H.264 video | `ffprobe` on all candidate MP4s | Safe for X candidate selection |
-| 30 fps | `ffprobe` on all candidate MP4s | Safe to describe only as media metadata, not game performance |
-| Stereo AAC audio | `ffprobe` on audio candidates | Safe; human listening still required |
-| 37.4-second full trailer | `ffprobe` on `trailer-final.mp4` | Use as current default candidate |
-| 28.9-second tighter cut | `ffprobe` on ACE-Step exports | Keep as alternate social edit |
-| Engine audio and generated music | production log and asset provenance | Do not call all audio in the video shipped game audio |
-| Browser URL reachable | `curl -I -L` returned HTTP 200 on 2026-07-26 | Reachability only; not runtime acceptance |
-| Current local runtime healthy | browser-daemon console showed startup/module errors | Not claimable until the parallel integration blocker closes |
-| Mobile support | historical responsive evidence exists | Do not say “works on every phone” without a fresh real-device check |
-| Fun, finished, launch-ready | no direct evidence | Explicitly deny these claims in the announcement |
+| Claim or element                 | Evidence                                            | Public handling                                                     |
+| -------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------- |
+| 1280x720 H.264 video             | `ffprobe` on all candidate MP4s                     | Safe for X candidate selection                                      |
+| 30 fps                           | `ffprobe` on all candidate MP4s                     | Safe to describe only as media metadata, not game performance       |
+| Stereo AAC audio                 | `ffprobe` on audio candidates                       | Safe; human listening still required                                |
+| 37.4-second full trailer         | `ffprobe` on `trailer-final.mp4`                    | Use as current default candidate                                    |
+| 28.9-second tighter cut          | `ffprobe` on ACE-Step exports                       | Keep as alternate social edit                                       |
+| Engine audio and generated music | production log and asset provenance                 | Do not call all audio in the video shipped game audio               |
+| Browser URL reachable            | `curl -I -L` returned HTTP 200 on 2026-07-26        | Reachability only; not runtime acceptance                           |
+| Current local runtime healthy    | browser-daemon console showed startup/module errors | Not claimable until the parallel integration blocker closes         |
+| Mobile support                   | historical responsive evidence exists               | Do not say “works on every phone” without a fresh real-device check |
+| Fun, finished, launch-ready      | no direct evidence                                  | Explicitly deny these claims in the announcement                    |
 
 ## X upload fit
 

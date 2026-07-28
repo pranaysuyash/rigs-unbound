@@ -10,14 +10,14 @@ Persona: explorer / systems tinkerer. Fresh eyes, no project files read. Played 
 
 ## 2. Discoveries, and what each felt like
 
-- **The three-rig terrain triangle is real, not marketing.** Torque drove into standing water: grip collapsed to 42%, speed to 0–1 km/h, and the HUD coached me — "Water is over the axles. Get out before it costs you." then "Too steep for this gearing. Back off or find a line." While stuck, condition bled 91% → 31% (`38-out-of-water`, `40-drift-into-water`, `41-drift-water-crossing`). Drift later crossed the same water at 32 km/h (`27-skimmer-drive2`). Discovering that the warning text *means it* was the best moment of the session — the game punishes and rewards exactly as the intro promised.
+- **The three-rig terrain triangle is real, not marketing.** Torque drove into standing water: grip collapsed to 42%, speed to 0–1 km/h, and the HUD coached me — "Water is over the axles. Get out before it costs you." then "Too steep for this gearing. Back off or find a line." While stuck, condition bled 91% → 31% (`38-out-of-water`, `40-drift-into-water`, `41-drift-water-crossing`). Drift later crossed the same water at 32 km/h (`27-skimmer-drive2`). Discovering that the warning text _means it_ was the best moment of the session — the game punishes and rewards exactly as the intro promised.
 - **Contextual HUD warnings.** Grip/grade bars plus plain-language state lines ("slipping", "stalled", "weak cushion", "steep up 25%"). Felt like the machine talking to me. Excellent.
 - **R switches rigs on the spot.** Each rig announces itself ("Toy Buggy active · tow + jump", "Marsh Skimmer active · tow + survey + hover") and the bottom control bar rewrites itself per rig. Felt like a garage I carry with me.
 - **The map is a rumor graph, not a map.** M opens a node graph of place names with dotted unexplored edges and a discovery counter. Felt mysterious in the right way — I wanted to "unlock" nodes. But it told me nothing about actual geography, which stung when I was lost in fog.
 - **Night exists and it's beautiful.** The clock runs roughly 25–30× real time (a day ≈ 50 min). At 18:45 the phase label flipped DAY → **GLOAM**, the sky went rust-red, visibility collapsed, my buggy's headlight (N) became a real tool, and the home base lit its windows (`61-light`, `62-buggy-roam`, `66-night-final`). The gloaming home-yard shot was the atmospheric peak.
 - **Damage is positional and sticky.** Condition drops from drowning/stalling and survives reload; "Reset field" restores condition and repositions the rig. Water is a genuine fail-state generator.
 - **Churned mud slows but doesn't stop Torque** (7 km/h at 53% grip, `58-grab3`) — again matching the intro's "claws through mud".
-- **Unexplained set dressing I could not decode** — and I tried: a teal glowing ring on the ground by a pole (`48-after-reset`, `23-rig-switch`), an orange ramp/platform by the water (`49-post-reset-drive`, `27-skimmer-drive2`), a crate surrounded by an orange glowing ring near where I drowned (`38-out-of-water`). Nothing reacted to driving through/over. These *look* like interactables and behaved like decals.
+- **Unexplained set dressing I could not decode** — and I tried: a teal glowing ring on the ground by a pole (`48-after-reset`, `23-rig-switch`), an orange ramp/platform by the water (`49-post-reset-drive`, `27-skimmer-drive2`), a crate surrounded by an orange glowing ring near where I drowned (`38-out-of-water`). Nothing reacted to driving through/over. These _look_ like interactables and behaved like decals.
 - **"Space" is fully contextual per rig** — lower blade (Torque), explore (Spark), take contract (Drift). Pressing "take contract" produced no visible change (`25-contract`).
 - **Survey % grows as I drive** (5% → 19% over the session) with no explanation of what it buys.
 - **Fog rolls in** in the southern pasture (`54-collect5`) — weather or region dressing, unclear, but it changed the mood.
@@ -29,7 +29,7 @@ Persona: explorer / systems tinkerer. Fresh eyes, no project files read. Played 
 - **Spark:** skittish, eager, tail-happy — 58–61 km/h on pasture vs Torque's ~38, "slipping" warnings at speed. Felt like a toy in the best way.
 - **Drift:** gliding, floaty, fast (70 km/h), cushion bar instead of grip, "weak" on 25% climbs. Felt alien compared to the other two — genuinely different machine, not a reskin.
 
-Did terrain make machines matter differently? **Yes — this is the game's core strength.** Water is a hard gate for wheels and a non-event for the hover rig; mud is a shrug for Torque; hills expose Spark. The machine you bring *is* the decision.
+Did terrain make machines matter differently? **Yes — this is the game's core strength.** Water is a hard gate for wheels and a non-event for the hover rig; mud is a shrug for Torque; hills expose Spark. The machine you bring _is_ the decision.
 
 ## 4. Alive or empty? Does the world remember me?
 

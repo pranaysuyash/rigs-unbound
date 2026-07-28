@@ -12,7 +12,7 @@
 ## Context
 
 The Reclamation loop is the first validated game loop for Rigs Unbound. Its
-core promise is: *you make land passable, and the land remembers.* The loop
+core promise is: _you make land passable, and the land remembers._ The loop
 requires the player to encounter a terrain blocker, transform it, and see the
 world change in a way that opens a route and benefits another rig.
 
@@ -41,15 +41,15 @@ water → authored pad → track (routeWeight > 0.5) → rock (steep/high)
 
 The thresholds are:
 
-| Surface | Trigger condition |
-|---------|-------------------|
-| water   | `height < WATER_LEVEL` |
-| pad     | inside a site's `serviceRadius` with `padSurface` |
-| track   | `routeWeight > 0.5` |
-| rock    | `slope > 0.62` or `elevation > 38` |
+| Surface | Trigger condition                                     |
+| ------- | ----------------------------------------------------- |
+| water   | `height < WATER_LEVEL`                                |
+| pad     | inside a site's `serviceRadius` with `padSurface`     |
+| track   | `routeWeight > 0.5`                                   |
+| rock    | `slope > 0.62` or `elevation > 38`                    |
 | mud     | `elevation < WATER_LEVEL + 1.05` or `moisture > 0.71` |
-| sand    | `moisture < 0.34` |
-| grass   | everything else |
+| sand    | `moisture < 0.34`                                     |
+| grass   | everything else                                       |
 
 Critically, **deformation does not participate in surface selection**. A cell
 that was grass stays grass no matter how deep it is cut or how high it is
@@ -88,19 +88,19 @@ None of these produce a meaningful feedback loop today because:
 The blade remains a single physical attachment on the utility tractor. The
 player switches between three modes that map to distinct terrain outcomes:
 
-| Verb | Blade mode | Height effect | When the player uses it |
-|------|-----------|---------------|-------------------------|
-| **Clear** | `cut` | Lowers ground by `PLOUGH_DEPTH` per pass | A bog, gully, or shallow water blocks the route |
-| **Grade** | `cut` | Lowers ground, but the renderer draws a *smoothed* furrow with reduced side ridges | A slope is too steep; the player cuts the high side |
-| **Fill** | `fill` | Raises ground by `PLOUGH_FILL` per pass | A gap or depression needs bridging |
+| Verb      | Blade mode | Height effect                                                                      | When the player uses it                             |
+| --------- | ---------- | ---------------------------------------------------------------------------------- | --------------------------------------------------- |
+| **Clear** | `cut`      | Lowers ground by `PLOUGH_DEPTH` per pass                                           | A bog, gully, or shallow water blocks the route     |
+| **Grade** | `cut`      | Lowers ground, but the renderer draws a _smoothed_ furrow with reduced side ridges | A slope is too steep; the player cuts the high side |
+| **Fill**  | `fill`     | Raises ground by `PLOUGH_FILL` per pass                                            | A gap or depression needs bridging                  |
 
 **Clear vs Grade distinction**: Both use the `cut` blade mode and the same
-`deform()` call. The distinction is *presentation*, not simulation:
+`deform()` call. The distinction is _presentation_, not simulation:
 
 - **Clear** applies the standard furrow: full `PLOUGH_DEPTH`, standard falloff,
   side ridges at `DEFORM_MAX` on adjacent cells. This is the existing behaviour.
 - **Grade** applies a wider, shallower cut: half the depth (`PLOUGH_DEPTH ×
-  0.5`), double the radius (`radiusCells = 2`), and suppresses side-ridge
+0.5`), double the radius (`radiusCells = 2`), and suppresses side-ridge
   generation. The result is a smoothed surface rather than a furrowed trench.
 
 The mode selection is automatic based on context, not a player toggle. When the
@@ -113,12 +113,12 @@ blade is in `cut` mode:
 
 This means the player does not need to choose between clear and grade. They
 lower the blade and drive. The terrain responds appropriately. The distinction
-matters for the *renderer*, not for the *input*.
+matters for the _renderer_, not for the _input_.
 
 ### 2. Surface classification shifts on deformation
 
 This is the load-bearing change. After any `deform()` call, the affected cells
-must be re-classified by `surfaceFor()` using the *new* height, not the base
+must be re-classified by `surfaceFor()` using the _new_ height, not the base
 height. The implementation is:
 
 **`surfaceFor` gains a deformation-aware path.** The current `height()` already
@@ -128,8 +128,8 @@ deformed height. However, the current threshold logic does not produce
 meaningful transitions because:
 
 - Mud is triggered by `elevation < WATER_LEVEL + 1.05` or `moisture > 0.71`
-- Cutting a bog cell *lowers* its elevation, which keeps it in the mud zone
-- Filling a bog cell *raises* it, which could push it above the waterline
+- Cutting a bog cell _lowers_ its elevation, which keeps it in the mud zone
+- Filling a bog cell _raises_ it, which could push it above the waterline
   threshold into the grass zone — **but only if the water-level margin is
   crossed**
 
@@ -150,12 +150,12 @@ surfaceFor(x, z, height, slope):
 
 This gives the player visible, meaningful consequences:
 
-| Action | Before | After | Gameplay effect |
-|--------|--------|-------|-----------------|
-| Cut a bog deeply | mud (grip 0.38) | tilled (grip 0.52) | Better traction, still high drag |
-| Fill a depression above waterline | water/mud | grass (grip 0.82) | Crossable, good grip |
-| Fill wet ground to sand level | mud | sand (grip 0.54) | Moderate grip, high drag |
-| Grade a slope | rock/steep grass | grass (smoothed) | Grade drops, rig can climb |
+| Action                            | Before           | After              | Gameplay effect                  |
+| --------------------------------- | ---------------- | ------------------ | -------------------------------- |
+| Cut a bog deeply                  | mud (grip 0.38)  | tilled (grip 0.52) | Better traction, still high drag |
+| Fill a depression above waterline | water/mud        | grass (grip 0.82)  | Crossable, good grip             |
+| Fill wet ground to sand level     | mud              | sand (grip 0.54)   | Moderate grip, high drag         |
+| Grade a slope                     | rock/steep grass | grass (smoothed)   | Grade drops, rig can climb       |
 
 ### 3. Furrow visual by blade mode
 
@@ -177,10 +177,10 @@ interface FurrowMark {
 
 **Visual consequences:**
 
-| Mode | Vertex displacement | Vertex color | Side ridges |
-|------|--------------------|-------------:|:-----------:|
-| cut  | Negative (trench)  | Dark brown (`0x5c3a1a`) | Yes — raised spoil on both sides |
-| fill | Positive (mound)   | Light ochre (`0xb8975a`) | No — material comes from behind |
+| Mode | Vertex displacement |             Vertex color |           Side ridges            |
+| ---- | ------------------- | -----------------------: | :------------------------------: |
+| cut  | Negative (trench)   |  Dark brown (`0x5c3a1a`) | Yes — raised spoil on both sides |
+| fill | Positive (mound)    | Light ochre (`0xb8975a`) | No — material comes from behind  |
 
 The grade mode (wide, shallow cut) uses the same dark brown as cut but with
 reduced side ridges and a wider displacement kernel. The renderer can detect
@@ -209,7 +209,7 @@ previously impassable path traversable. The chain is:
 
 This chain requires no changes to `physics.ts` or `collision.ts`. The physics
 already reads `surface.grip` and `surface.rollingDrag` from the terrain sample.
-The only change is that those numbers now *shift* when the player deforms the
+The only change is that those numbers now _shift_ when the player deforms the
 ground.
 
 ### 5. Persistence
@@ -220,7 +220,7 @@ also persist. This is a schema-safe addition: old save records without `mode`
 default to `"cut"` (matching the pre-ADR behaviour), and the recovery path in
 `recoverShared` already handles missing fields gracefully.
 
-The surface classification shift is *derived* from the persisted deformation, not
+The surface classification shift is _derived_ from the persisted deformation, not
 stored separately. This means the save record remains a minimal height-delta
 list, and the surface re-classification happens at load time through the same
 `surfaceFor()` path. No new save schema version is required.
@@ -255,7 +255,7 @@ list, and the surface re-classification happens at load time through the same
   is tunable after playtesting, not a design flaw.
 - The surface shift thresholds (DEFORM_MIN × 0.6 for tilled, waterline for
   grass) are first-draft values. They will need playtesting to confirm they
-  produce the right *feel* — a single cut should not instantly flip a bog to
+  produce the right _feel_ — a single cut should not instantly flip a bog to
   grass; it should take 3-5 passes to cross the threshold.
 
 ---
@@ -264,8 +264,8 @@ list, and the surface re-classification happens at load time through the same
 
 1. **Keep cut/fill as the only verbs, add visual distinction only.** Rejected:
    without surface classification shifts, the Reclamation loop has no gameplay
-   consequence. The player changes how the ground *looks* but not how it
-   *behaves*. The synthesis identifies this as the exact gap that makes terrain
+   consequence. The player changes how the ground _looks_ but not how it
+   _behaves_. The synthesis identifies this as the exact gap that makes terrain
    transformation feel like chores rather than building.
 
 2. **Add a separate "grade" blade attachment.** Rejected: the Reclamation
@@ -291,16 +291,18 @@ list, and the surface re-classification happens at load time through the same
 
 ## Implementation scope
 
-This ADR covers the *design* of the terrain transformation grammar. The
+This ADR covers the _design_ of the terrain transformation grammar. The
 implementation is split across R1 and R2 in the Reclamation execution plan:
 
 **R1: Terrain transformation feedback** (~3 commits)
+
 - `FurrowMark.mode` field addition
 - `surfaceFor()` deformation-aware branch
 - Renderer furrow colour by mode
 - `state.ts` plough depth/radius adjustment for grade mode
 
 **R2: Route opening proof** (~2 commits)
+
 - Surface classification shift validation (tests proving mud→tilled, water→grass)
 - `physics.ts` traversal confirmation (grip/rollingDrag change makes route passable)
 - End-to-end test: bog → cut → surface shift → rig drives through

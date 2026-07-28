@@ -18,9 +18,9 @@ Implemented in `src/game/progression.ts` and nested under `GameState.progression
 
 ```typescript
 interface ProgressionState {
-  journeys: Record<string, RigJourneyState>;      // per-rig history
-  mastery: Record<string, Partial<Record<RigCapability, MasteryState>>>;  // per-rig, per-verb skill
-  insight: number;                                 // profile-level knowledge
+  journeys: Record<string, RigJourneyState>; // per-rig history
+  mastery: Record<string, Partial<Record<RigCapability, MasteryState>>>; // per-rig, per-verb skill
+  insight: number; // profile-level knowledge
   completedMilestones: readonly string[];
 }
 ```
@@ -28,6 +28,7 @@ interface ProgressionState {
 **Preserved for future use: XP-based progression (universal account XP + levels + rungs + restoration arc)**
 
 Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime code. Available as a design reference for:
+
 - Future games in the same engine that want universal XP
 - Hybrid modes where account XP coexists with capability mastery
 - Prestige/legacy systems that convert capability progress into account XP
@@ -86,3 +87,15 @@ Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime c
 ## Anything else?
 
 Yes. The architecture stays open only if future additions are additive and generator-based, not hardcoded into a single mission ledger or a flat save blob.
+
+## Addendum — 2026-07-28 XP interoperability exploration
+
+Operator direction confirms that capability-shaped progression remains canonical,
+while the older XP design should be explored rather than discarded. The bounded
+uses and migration rules are recorded in
+[Progression Mode Interoperability and Legacy XP Exploration](../research/PROGRESSION_MODE_INTEROP_AND_LEGACY_XP_EXPLORATION_2026-07-28.md).
+
+XP may be a derived campaign summary, a mode-local score, a future mode's
+primary progression, or preserved legacy evidence. It must not become a second
+mutable campaign authority or silently convert into Mastery, Insight, or rig
+power.

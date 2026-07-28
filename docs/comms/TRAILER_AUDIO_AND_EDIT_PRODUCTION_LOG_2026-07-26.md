@@ -36,13 +36,13 @@ The previously generated silent picture candidate remains available:
 
 Its 28.9-second structure keeps the useful beats from the original recording while removing slower repetition:
 
-| Time | Picture role |
-| --- | --- |
-| 0.0-3.0 | title/premise: `THE GROUND DECIDES` |
-| 3.0-8.0 | playable field proof |
-| 11.0-16.0 | overhead/map context |
-| 16.0-22.0 | terrain-edge consequence |
-| 27.5-37.4 source range | night-driving closing button |
+| Time                   | Picture role                        |
+| ---------------------- | ----------------------------------- |
+| 0.0-3.0                | title/premise: `THE GROUND DECIDES` |
+| 3.0-8.0                | playable field proof                |
+| 11.0-16.0              | overhead/map context                |
+| 16.0-22.0              | terrain-edge consequence            |
+| 27.5-37.4 source range | night-driving closing button        |
 
 The source and silent candidate are preserved so music, copy, or later pacing decisions can be changed without re-recording the game.
 

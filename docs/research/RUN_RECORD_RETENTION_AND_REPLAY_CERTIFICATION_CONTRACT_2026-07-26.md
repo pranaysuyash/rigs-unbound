@@ -12,17 +12,17 @@ The replay validator returns `truncated-record` before it applies any input when
 
 ## Why
 
-Schema v3 records capture a hash-bound initial simulation state and world memory. Replaying from that point requires every subsequent replayable input. The bounded in-memory recorder deliberately removes oldest entries when it reaches its retention limit. Once that happens, the retained suffix has an unknown predecessor state and cannot prove a deterministic result from the original initial context.
+Schema legacy records capture a hash-bound initial simulation state and world memory. Replaying from that point requires every subsequent replayable input. The bounded in-memory recorder deliberately removes oldest entries when it reaches its retention limit. Once that happens, the retained suffix has an unknown predecessor state and cannot prove a deterministic result from the original initial context.
 
 Allowing the validator to return `verified` in this condition would confuse "the suffix parsed" with "the run was reproduced." That would make replay, ghost, debugging, and future authority evidence unreliable.
 
 ## Current behavior
 
-| Condition | Validator result | Meaning |
-| --- | --- | --- |
-| No dropped entries and all supported commands reproduce the stored checks | `verified` | The local validator reproduced the available artifact from its captured context. |
-| One or more entries were dropped | `truncated-record` | The record may remain useful as diagnostics, but it cannot certify a replay from its captured context. |
-| Unsupported command, invalid payload, invalid record, or mismatch | Existing explicit failure status | The record is not certified. |
+| Condition                                                                 | Validator result                 | Meaning                                                                                                |
+| ------------------------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| No dropped entries and all supported commands reproduce the stored checks | `verified`                       | The local validator reproduced the available artifact from its captured context.                       |
+| One or more entries were dropped                                          | `truncated-record`               | The record may remain useful as diagnostics, but it cannot certify a replay from its captured context. |
+| Unsupported command, invalid payload, invalid record, or mismatch         | Existing explicit failure status | The record is not certified.                                                                           |
 
 `truncated-record` is intentionally distinct from malformed data. Retention is an expected bounded-resource policy; it is still disqualifying for full replay certification.
 

@@ -100,11 +100,11 @@ activity controller. Its value is exposing assumptions in shared systems.
 
 ### 5. Schema v4 owns the mobility-state migration
 
-The save schema advances from v3 to v4. Valid v3 records migrate each existing
+The save schema advances from legacy to v4. Valid legacy records migrate each existing
 rig’s wheel/contact fields into `mobility.kind === "ground"` and add a fresh
 Drift instance without discarding world memory.
 
-Keys remain versioned. The v3 record is still readable for rollback; invalid
+Keys remain versioned. The legacy record is still readable for rollback; invalid
 mobility data fails closed with a visible recovery diagnostic.
 
 ## Options considered
@@ -144,7 +144,7 @@ mobility data fails closed with a visible recovery diagnostic.
 
 - Tier 2:
   - existing Torque/Spark motion and migration tests remain green;
-  - v3-to-v4 migration preserves both ground histories and world memory;
+  - legacy-to-v4 migration preserves both ground histories and world memory;
   - invalid profile/state adapter pairings fail recovery;
   - identical hover seeds and inputs remain deterministic;
   - Drift crosses deep water without drowning;
@@ -163,7 +163,7 @@ architectural portability without proving that Drift is fun.
 
 ## Rollback and revisit
 
-The v3 save key remains readable. Reverting the hover rig must not restore wheel
+The legacy save key remains readable. Reverting the hover rig must not restore wheel
 fields to universal state; the `ground` union is still the correct ownership
 shape.
 

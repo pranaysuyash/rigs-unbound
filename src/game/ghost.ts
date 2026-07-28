@@ -22,7 +22,10 @@ export class GhostTrailRecorder {
   private lastSampleMs = -1;
 
   record(rig: RigState, timestampMs: number): void {
-    if (this.lastSampleMs < 0 || timestampMs - this.lastSampleMs >= this.sampleIntervalMs) {
+    if (
+      this.lastSampleMs < 0 ||
+      timestampMs - this.lastSampleMs >= this.sampleIntervalMs
+    ) {
       this.lastSampleMs = timestampMs;
       this.snapshots.push({
         timestampMs,
@@ -49,7 +52,8 @@ export class GhostTrailRecorder {
    */
   sampleAt(timestampMs: number): GhostSnapshot | null {
     if (this.snapshots.length === 0) return null;
-    if (timestampMs <= this.snapshots[0]!.timestampMs) return this.snapshots[0]!;
+    if (timestampMs <= this.snapshots[0]!.timestampMs)
+      return this.snapshots[0]!;
     if (timestampMs >= this.snapshots[this.snapshots.length - 1]!.timestampMs) {
       return this.snapshots[this.snapshots.length - 1]!;
     }

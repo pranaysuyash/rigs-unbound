@@ -350,6 +350,7 @@ One complete fictional patchwork tractor in a centered three-quarter front view,
 All vehicle catalog documentation, reference image assets, and downstream procedural 3D reconstructed Three.js meshes are stored within the project tree (`docs/` and `assets/`).
 
 ### Project-Local Asset Locations:
+
 - **Master Vehicle Catalog:** [`docs/exploration/MASTER_VEHICLE_CATALOG.md`](file:///Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/MASTER_VEHICLE_CATALOG.md) (144 Vehicles / 432 Upgrade Tiers)
 - **Concept Reference Images:** [`docs/exploration/assets/vehicle_references/`](file:///Users/pranay/Projects/Game_dev/rigs-unbound/docs/exploration/assets/vehicle_references/)
   - `master_rig_catalog_lineup_1785090848982.jpg` (Lineup Sheet)
@@ -430,6 +431,28 @@ Files and hashes:
 Replacement path: select named candidates, generate isolated reconstruction
 references, validate mesh/topology/material/collision/animation budgets, then
 admit only the validated derivative through the canonical runtime manifest.
+
+### Additional vehicle-family tranche artifacts — 2026-07-28
+
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-reconstruction-turnaround-2026-07-28.png`
+  — SHA-256 `f5d54ce75833df345c54af6f3e1d8859bb561ff7e7978c33fd565ba3eca65b03`
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-mode-diff-board-2026-07-28.png`
+  — SHA-256 `54b53a56da452287fcf8ed976162eee3cde42e4ac3274d8394d3de26768ee78d`
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/snow-crawler-reconstruction-candidate-2026-07-28.png`
+  — SHA-256 `29f6dcc4e1e0c1861a43359a9146500498fb267479b20381f7f5c99b2c6c3ce1`
+
+All are generated-image references, 1536 × 1024 RGB PNGs, generated in the
+Codex workspace on 2026-07-28, manually inspected, and **not approved for
+runtime**. The turnaround is a visual aid rather than exact orthographic
+evidence; the mode board is a use-case diff; the snow crawler is a single-view
+extreme candidate. Replacement path: authored/measured multi-view package,
+strict reconstruction spec, validation, browser proof, then manifest admission.
+
+The proposed sculpt record at
+`docs/research/assets/utility-tow-intake-2026-07-28/object-sculpt-spec-proposed.json`
+is also reference-stage data. It is explicitly not strict-quality validated,
+not a runtime code generator input, and not a substitute for measured scale or
+owner approval.
 
 ## Addendum (2026-07-25) - provenance is still reference-first, not runtime-imported
 

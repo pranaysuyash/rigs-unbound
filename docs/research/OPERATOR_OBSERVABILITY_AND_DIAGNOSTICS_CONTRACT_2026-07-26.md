@@ -12,17 +12,17 @@ Existing diagnostics are the canonical local evidence surface. New subsystems mu
 
 ## Active evidence surfaces
 
-| Surface | Current evidence | Intended consumer |
-| --- | --- | --- |
-| Public state snapshot | Canonical public state plus welcome state, runtime profile selection, bridge state, performance snapshot, map build duration, and audio-running state | Browser acceptance and developer investigation. |
-| Run record | Versioned input/command/event/load/save/checkpoint entries, initial context, hashes, and retention count | Replay/debugging/authority groundwork. |
-| Run-record verification | Structural schema/hash/order validation | Artifact integrity investigation. |
-| Deterministic replay validation | Explicit `verified`, invalid, unsupported, divergence, and truncated-record outcomes | Local replay certification boundary. |
-| Performance snapshot | Frame timing, startup/input readiness, renderer counters, bounded heap signal where available, save/load timing/size, visibility data | Renderer/profile investigation. |
-| Runtime profile selection | Profile, state, and concrete fallback/recovery reasons | Explainable safe degradation. |
-| Runtime asset bridge evidence | Per-asset loading/loaded/error/fallback state and node count | Asset activation/fallback investigation. |
-| Camera/rig evidence APIs | Orientation, perception, camera resolution, and acceptance fixtures | 3D readability/collision review. |
-| Developer diagnostics DOM panel | Compact metrics/profile/asset/visibility summary, hidden on the player surface | Local operator visibility without public tuning controls. |
+| Surface                         | Current evidence                                                                                                                                      | Intended consumer                                         |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Public state snapshot           | Canonical public state plus welcome state, runtime profile selection, bridge state, performance snapshot, map build duration, and audio-running state | Browser acceptance and developer investigation.           |
+| Run record                      | Versioned input/command/event/load/save/checkpoint entries, initial context, hashes, and retention count                                              | Replay/debugging/authority groundwork.                    |
+| Run-record verification         | Structural schema/hash/order validation                                                                                                               | Artifact integrity investigation.                         |
+| Deterministic replay validation | Explicit `verified`, invalid, unsupported, divergence, and truncated-record outcomes                                                                  | Local replay certification boundary.                      |
+| Performance snapshot            | Frame timing, startup/input readiness, renderer counters, bounded heap signal where available, save/load timing/size, visibility data                 | Renderer/profile investigation.                           |
+| Runtime profile selection       | Profile, state, and concrete fallback/recovery reasons                                                                                                | Explainable safe degradation.                             |
+| Runtime asset bridge evidence   | Per-asset loading/loaded/error/fallback state and node count                                                                                          | Asset activation/fallback investigation.                  |
+| Camera/rig evidence APIs        | Orientation, perception, camera resolution, and acceptance fixtures                                                                                   | 3D readability/collision review.                          |
+| Developer diagnostics DOM panel | Compact metrics/profile/asset/visibility summary, hidden on the player surface                                                                        | Local operator visibility without public tuning controls. |
 
 ## Ownership boundary
 
@@ -56,13 +56,13 @@ Examples:
 
 ## Evidence classifications
 
-| Claim type | Required evidence |
-| --- | --- |
-| Static architecture/contract claim | Source inspection and targeted source/test review. |
-| Deterministic local behavior claim | Focused test or deterministic acceptance hook. |
-| Browser behavior claim | Browser/manual capture with console and visible result. |
-| Target-device performance claim | Device/browser profile, measured trace/snapshot, and comparison baseline. |
-| Production usage/reliability claim | Deployed telemetry or real-session evidence with privacy review. |
+| Claim type                         | Required evidence                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| Static architecture/contract claim | Source inspection and targeted source/test review.                        |
+| Deterministic local behavior claim | Focused test or deterministic acceptance hook.                            |
+| Browser behavior claim             | Browser/manual capture with console and visible result.                   |
+| Target-device performance claim    | Device/browser profile, measured trace/snapshot, and comparison baseline. |
+| Production usage/reliability claim | Deployed telemetry or real-session evidence with privacy review.          |
 
 No current local snapshot proves production observability, cross-device performance, remote crash reporting, or player analytics. Those remain unimplemented until a product/privacy/operations decision supplies a real requirement.
 

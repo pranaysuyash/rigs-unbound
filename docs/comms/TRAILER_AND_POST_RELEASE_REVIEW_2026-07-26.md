@@ -13,16 +13,16 @@ Related surfaces:
 
 ## Evidence inspected
 
-| Artifact | Observation |
-|---|---|
-| [`trailer.mp4`](./assets/trailer.mp4) | 37.4 seconds, 1280x720 H.264, 30fps, one video stream, no audio stream, approximately 3.7MB. |
-| [`trailer-cut1-noplough.mp4`](./assets/trailer-cut1-noplough.mp4) | 37.4 seconds, 1280x720 H.264, approximately 5.1MB. It is also tractor-focused and removes the plough emphasis. |
-| [`trailer.gif`](./assets/trailer.gif) | 7 seconds, 640x360 GIF, approximately 5.1MB. Suitable for lightweight preview use, not the preferred X attachment. |
-| [`trailer-poster.jpg`](./assets/trailer-poster.jpg) | Strongest single frame: tractor, water, farm landmark, terrain, objective panel, and HUD are all legible. |
-| [`POST_TODAY_2026-07-26.md`](./POST_TODAY_2026-07-26.md) | Strong honest positioning and thread structure. It correctly flags the silent video and weak furrow beat. |
-| [`BUILD_IN_PUBLIC_KIT_2026-07-25.md`](./BUILD_IN_PUBLIC_KIT_2026-07-25.md) | Broader historical story bank. The mistake stories are strong but should remain later posts, not the first trailer announcement. |
-| [`trailer-review/trailer-detail-sheet.jpg`](./assets/trailer-review/trailer-detail-sheet.jpg) | Review contact sheet generated from the current main trailer. |
-| [`trailer-review/trailer-cut1-contact-sheet.jpg`](./assets/trailer-review/trailer-cut1-contact-sheet.jpg) | Review contact sheet generated from the no-plough cut. |
+| Artifact                                                                                                  | Observation                                                                                                                      |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| [`trailer.mp4`](./assets/trailer.mp4)                                                                     | 37.4 seconds, 1280x720 H.264, 30fps, one video stream, no audio stream, approximately 3.7MB.                                     |
+| [`trailer-cut1-noplough.mp4`](./assets/trailer-cut1-noplough.mp4)                                         | 37.4 seconds, 1280x720 H.264, approximately 5.1MB. It is also tractor-focused and removes the plough emphasis.                   |
+| [`trailer.gif`](./assets/trailer.gif)                                                                     | 7 seconds, 640x360 GIF, approximately 5.1MB. Suitable for lightweight preview use, not the preferred X attachment.               |
+| [`trailer-poster.jpg`](./assets/trailer-poster.jpg)                                                       | Strongest single frame: tractor, water, farm landmark, terrain, objective panel, and HUD are all legible.                        |
+| [`POST_TODAY_2026-07-26.md`](./POST_TODAY_2026-07-26.md)                                                  | Strong honest positioning and thread structure. It correctly flags the silent video and weak furrow beat.                        |
+| [`BUILD_IN_PUBLIC_KIT_2026-07-25.md`](./BUILD_IN_PUBLIC_KIT_2026-07-25.md)                                | Broader historical story bank. The mistake stories are strong but should remain later posts, not the first trailer announcement. |
+| [`trailer-review/trailer-detail-sheet.jpg`](./assets/trailer-review/trailer-detail-sheet.jpg)             | Review contact sheet generated from the current main trailer.                                                                    |
+| [`trailer-review/trailer-cut1-contact-sheet.jpg`](./assets/trailer-review/trailer-cut1-contact-sheet.jpg) | Review contact sheet generated from the no-plough cut.                                                                           |
 
 The live URL returned HTTP 200 during this review. That is a reachability check only, not proof of current mobile runtime quality, fun, or launch readiness.
 
@@ -44,14 +44,14 @@ The main limitations are equally clear:
 
 ## Claim review
 
-| Claim | Status for public copy | Handling |
-|---|---|---|
-| Browser-playable | Supported by the live URL reachability check and existing project artifacts, but current check is Tier 1/Tier 2 boundary only. | Say “playable in a browser.” Keep phone/laptop wording only where the existing responsive evidence is intended to support it. |
-| Terrain is a meaningful system | Supported by the current project direction and visible trailer framing. | Lead with this. |
-| Tractor and buggy have different surface personalities | Supported by existing project evidence, but not shown in this trailer. | Use in the post, not as a trailer-specific claim. |
-| Furrows persist | Supported as a project behavior claim in existing docs, but not visibly proven by this cut. | Put in a reply or follow-up clip, not “the trailer proves this.” |
-| No full game engine underneath | Too easy to misunderstand. Three.js is still the rendering library. | Say: “There is no full game engine underneath this build; the terrain, traversal physics, audio, and save system are project-owned, with Three.js handling rendering.” |
-| The game is fun or launch-ready | Not supported. | Keep the honest “no goal yet; I do not know if it is fun” line. |
+| Claim                                                  | Status for public copy                                                                                                         | Handling                                                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser-playable                                       | Supported by the live URL reachability check and existing project artifacts, but current check is Tier 1/Tier 2 boundary only. | Say “playable in a browser.” Keep phone/laptop wording only where the existing responsive evidence is intended to support it.                                          |
+| Terrain is a meaningful system                         | Supported by the current project direction and visible trailer framing.                                                        | Lead with this.                                                                                                                                                        |
+| Tractor and buggy have different surface personalities | Supported by existing project evidence, but not shown in this trailer.                                                         | Use in the post, not as a trailer-specific claim.                                                                                                                      |
+| Furrows persist                                        | Supported as a project behavior claim in existing docs, but not visibly proven by this cut.                                    | Put in a reply or follow-up clip, not “the trailer proves this.”                                                                                                       |
+| No full game engine underneath                         | Too easy to misunderstand. Three.js is still the rendering library.                                                            | Say: “There is no full game engine underneath this build; the terrain, traversal physics, audio, and save system are project-owned, with Three.js handling rendering.” |
+| The game is fun or launch-ready                        | Not supported.                                                                                                                 | Keep the honest “no goal yet; I do not know if it is fun” line.                                                                                                        |
 
 ## Recommended publish decision
 

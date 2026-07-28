@@ -39,7 +39,9 @@ function writeEvidence(filename, repoFilename, screenshotBuffer, metadata) {
   fs.writeFileSync(repoPath, screenshotBuffer);
   fs.writeFileSync(jsonArtifactPath, JSON.stringify(metadata, null, 2));
 
-  console.log(`Saved evidence: ${filename} & sidecar ${filename.replace(/\.png$/, ".json")}`);
+  console.log(
+    `Saved evidence: ${filename} & sidecar ${filename.replace(/\.png$/, ".json")}`,
+  );
 }
 
 async function main() {
@@ -85,12 +87,17 @@ async function main() {
     if (!snap1) throw new Error("render_game_to_text not available on window!");
 
     const buf1 = await page.screenshot();
-    writeEvidence("01_home_valley_spawn.png", "home_valley_spawn_2026-07-27.png", buf1, {
-      title: "Home Valley Spawn & Session Restoration",
-      port: 4173,
-      snapshot: snap1,
-      pass: true,
-    });
+    writeEvidence(
+      "01_home_valley_spawn.png",
+      "home_valley_spawn_2026-07-27.png",
+      buf1,
+      {
+        title: "Home Valley Spawn & Session Restoration",
+        port: 4173,
+        snapshot: snap1,
+        pass: true,
+      },
+    );
 
     // 2. Open Workshop & Capture Pre-purchase UI
     console.log("2. Opening Workshop UI via public hook...");
@@ -101,11 +108,16 @@ async function main() {
     });
     await page.waitForTimeout(1000);
     const buf2 = await page.screenshot();
-    writeEvidence("02_workshop_prepurchasing.png", "workshop_prepurchasing_2026-07-27.png", buf2, {
-      title: "Workshop Pre-purchase Module Details",
-      port: 4173,
-      pass: true,
-    });
+    writeEvidence(
+      "02_workshop_prepurchasing.png",
+      "workshop_prepurchasing_2026-07-27.png",
+      buf2,
+      {
+        title: "Workshop Pre-purchase Module Details",
+        port: 4173,
+        pass: true,
+      },
+    );
 
     // Close Workshop UI
     await page.evaluate(() => {
@@ -134,12 +146,17 @@ async function main() {
     await page.waitForTimeout(1000);
     const snap3 = await page.evaluate(() => window.render_game_to_text());
     const buf3 = await page.screenshot();
-    writeEvidence("03_semantic_terrain_editing.png", "semantic_terrain_editing_2026-07-27.png", buf3, {
-      title: "Semantic Terrain Editing & Blade Cut",
-      port: 4173,
-      snapshot: snap3,
-      pass: true,
-    });
+    writeEvidence(
+      "03_semantic_terrain_editing.png",
+      "semantic_terrain_editing_2026-07-27.png",
+      buf3,
+      {
+        title: "Semantic Terrain Editing & Blade Cut",
+        port: 4173,
+        snapshot: snap3,
+        pass: true,
+      },
+    );
 
     // 4. Capture Tactical View & Corridor Telemetry
     console.log("4. Switching to Tactical Camera...");
@@ -151,15 +168,22 @@ async function main() {
     await page.waitForTimeout(800);
     const snap4 = await page.evaluate(() => window.render_game_to_text());
     const buf4 = await page.screenshot();
-    writeEvidence("04_corridor_quality_evaluation.png", "corridor_quality_evaluation_2026-07-27.png", buf4, {
-      title: "Corridor Telemetry & Quality Evaluation",
-      port: 4173,
-      snapshot: snap4,
-      pass: true,
-    });
+    writeEvidence(
+      "04_corridor_quality_evaluation.png",
+      "corridor_quality_evaluation_2026-07-27.png",
+      buf4,
+      {
+        title: "Corridor Telemetry & Quality Evaluation",
+        port: 4173,
+        snapshot: snap4,
+        pass: true,
+      },
+    );
 
     // 5. Capture Fleet Inheritance Crossing (Switch to Spark)
-    console.log("5. Switching to Spark (toy-buggy) for Fleet Inheritance Crossing...");
+    console.log(
+      "5. Switching to Spark (toy-buggy) for Fleet Inheritance Crossing...",
+    );
     await page.evaluate(() => {
       if (typeof window.selectRig === "function") {
         window.selectRig("toy-buggy");
@@ -174,12 +198,17 @@ async function main() {
     await page.waitForTimeout(800);
     const snap5 = await page.evaluate(() => window.render_game_to_text());
     const buf5 = await page.screenshot();
-    writeEvidence("05_fleet_inheritance_crossing.png", "fleet_inheritance_crossing_2026-07-27.png", buf5, {
-      title: "Fleet Inheritance Route Crossing",
-      port: 4173,
-      snapshot: snap5,
-      pass: true,
-    });
+    writeEvidence(
+      "05_fleet_inheritance_crossing.png",
+      "fleet_inheritance_crossing_2026-07-27.png",
+      buf5,
+      {
+        title: "Fleet Inheritance Route Crossing",
+        port: 4173,
+        snapshot: snap5,
+        pass: true,
+      },
+    );
 
     // 6. Capture Survey Camera Preset
     console.log("6. Switching to Survey Camera Preset...");
@@ -190,11 +219,16 @@ async function main() {
     });
     await page.waitForTimeout(800);
     const buf6 = await page.screenshot();
-    writeEvidence("06_camera_preset_validation.png", "camera_preset_validation_2026-07-27.png", buf6, {
-      title: "Survey Camera Preset Validation",
-      port: 4173,
-      pass: true,
-    });
+    writeEvidence(
+      "06_camera_preset_validation.png",
+      "camera_preset_validation_2026-07-27.png",
+      buf6,
+      {
+        title: "Survey Camera Preset Validation",
+        port: 4173,
+        pass: true,
+      },
+    );
 
     // 7. Open Field Map Overlay
     console.log("7. Opening Field Map Overlay...");
@@ -205,13 +239,20 @@ async function main() {
     });
     await page.waitForTimeout(1200);
     const buf7 = await page.screenshot();
-    writeEvidence("07_real_ingame_field_map.png", "real_ingame_field_map_2026-07-27.png", buf7, {
-      title: "Real In-Game 3D Topographical Field Map",
-      port: 4173,
-      pass: true,
-    });
+    writeEvidence(
+      "07_real_ingame_field_map.png",
+      "real_ingame_field_map_2026-07-27.png",
+      buf7,
+      {
+        title: "Real In-Game 3D Topographical Field Map",
+        port: 4173,
+        pass: true,
+      },
+    );
 
-    console.log("All visual evidence screenshots & sidecar metadata generated cleanly!");
+    console.log(
+      "All visual evidence screenshots & sidecar metadata generated cleanly!",
+    );
   } catch (err) {
     console.error("Visual evidence capture failed:", err);
     process.exit(1);

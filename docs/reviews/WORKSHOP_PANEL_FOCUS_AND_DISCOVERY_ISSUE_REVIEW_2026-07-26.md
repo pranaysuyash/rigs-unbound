@@ -20,11 +20,11 @@ This is not a cosmetic issue. The workshop is a first-class game affordance that
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `index.html` `#workshop-panel` | Conditional workshop surface with `aria-label="Workshop"` | Visible region, not a named dialog or announced discovery surface |
-| `src/main.ts` workshop visibility logic | Shows/hides the workshop based on `workshopInReach(state)` and `state.mapOpen` | Correct gating, incomplete focus/announcement story |
-| `src/main.ts` module list updates | Buttons get stateful labels and eligibility | Content is descriptive, but appearance is not explicitly announced |
+| Artifact                                | Role now                                                                       | Canonical status                                                   |
+| --------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `index.html` `#workshop-panel`          | Conditional workshop surface with `aria-label="Workshop"`                      | Visible region, not a named dialog or announced discovery surface  |
+| `src/main.ts` workshop visibility logic | Shows/hides the workshop based on `workshopInReach(state)` and `state.mapOpen` | Correct gating, incomplete focus/announcement story                |
+| `src/main.ts` module list updates       | Buttons get stateful labels and eligibility                                    | Content is descriptive, but appearance is not explicitly announced |
 
 ## Why this matters
 

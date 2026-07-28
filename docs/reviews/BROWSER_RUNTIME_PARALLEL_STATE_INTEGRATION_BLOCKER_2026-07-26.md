@@ -74,14 +74,14 @@ that the source is invalid, but it blocks release/runtime claims for port
 Unit tests and TypeScript checks passing do not close the browser contract. The
 current evidence separates the state as follows:
 
-| Surface | Current evidence | Status |
-|---|---|---|
-| Pure passage contract | Targeted Vitest tests passed | Green at Tier 2 |
-| TypeScript project | `npm run typecheck` passed in the prior refresh | Green at Tier 2 |
-| Full unit suite | `npm test` passed in the prior refresh | Green at Tier 2 |
-| Dev browser startup | Console startup/module errors present | Blocked at Tier 4 |
-| Field Test preview | MIME/asset errors present | Blocked at Tier 4 |
-| Release/browser acceptance | Not claimable until clean rerun | Open |
+| Surface                    | Current evidence                                | Status            |
+| -------------------------- | ----------------------------------------------- | ----------------- |
+| Pure passage contract      | Targeted Vitest tests passed                    | Green at Tier 2   |
+| TypeScript project         | `npm run typecheck` passed in the prior refresh | Green at Tier 2   |
+| Full unit suite            | `npm test` passed in the prior refresh          | Green at Tier 2   |
+| Dev browser startup        | Console startup/module errors present           | Blocked at Tier 4 |
+| Field Test preview         | MIME/asset errors present                       | Blocked at Tier 4 |
+| Release/browser acceptance | Not claimable until clean rerun                 | Open              |
 
 The most likely explanation is a live parallel integration window combined
 with multiple Vite servers and a stale preview artifact. This is an

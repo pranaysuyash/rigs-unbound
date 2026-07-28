@@ -40,7 +40,7 @@ export class AssetManager {
       magFilter?: THREE.MagnificationTextureFilter;
       anisotropy?: number;
       flipY?: boolean;
-    } = {}
+    } = {},
   ): Promise<THREE.Texture> {
     if (this.textures.has(key)) {
       return this.textures.get(key)!;
@@ -76,7 +76,7 @@ export class AssetManager {
       receiveShadow?: boolean;
       scale?: number;
       center?: boolean;
-    } = {}
+    } = {},
   ): Promise<THREE.Group> {
     if (this.models.has(key)) {
       return this.models.get(key)!.clone(true);
@@ -135,7 +135,7 @@ export class AssetManager {
       dataTexture.width,
       dataTexture.height,
       THREE.RGBAFormat,
-      THREE.FloatType
+      THREE.FloatType,
     );
     texture.mapping = THREE.EquirectangularReflectionMapping;
     texture.needsUpdate = true;
@@ -152,7 +152,10 @@ export class AssetManager {
    * @param key Unique cache key
    * @param urls Array of 6 face URLs [px, nx, py, ny, pz, nz]
    */
-  async loadCubeTexture(key: string, urls: string[]): Promise<THREE.CubeTexture> {
+  async loadCubeTexture(
+    key: string,
+    urls: string[],
+  ): Promise<THREE.CubeTexture> {
     if (this.environments.has(key)) {
       return this.environments.get(key) as THREE.CubeTexture;
     }
@@ -209,13 +212,15 @@ export class AssetManager {
   /**
    * Preload multiple assets in parallel.
    */
-  async preload(assets: Array<{
-    type: "texture" | "model" | "environment" | "cubeTexture";
-    key: string;
-    url: string;
-    urls?: string[];
-    options?: any;
-  }>): Promise<void> {
+  async preload(
+    assets: Array<{
+      type: "texture" | "model" | "environment" | "cubeTexture";
+      key: string;
+      url: string;
+      urls?: string[];
+      options?: any;
+    }>,
+  ): Promise<void> {
     await Promise.all(
       assets.map((asset) => {
         switch (asset.type) {
@@ -230,7 +235,7 @@ export class AssetManager {
           default:
             return Promise.resolve();
         }
-      })
+      }),
     );
   }
 

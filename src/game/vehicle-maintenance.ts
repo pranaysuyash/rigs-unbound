@@ -23,10 +23,21 @@ export function updateComponentWear(
   const cableFray = winchTensionN > 20000 ? (winchTensionN / 35000) * 2.5 : 0;
 
   return {
-    tireTreadHealthPercent: Number(Math.max(0, current.tireTreadHealthPercent - tireWear).toFixed(1)),
-    radiatorCleanlinessPercent: Number(Math.max(0, current.radiatorCleanlinessPercent - radiatorClog).toFixed(1)),
-    winchCableIntegrityPercent: Number(Math.max(0, current.winchCableIntegrityPercent - cableFray).toFixed(1)),
-    alternatorBeltHealthPercent: Number(Math.max(0, current.alternatorBeltHealthPercent - distanceTraveledKm * 0.2).toFixed(1)),
+    tireTreadHealthPercent: Number(
+      Math.max(0, current.tireTreadHealthPercent - tireWear).toFixed(1),
+    ),
+    radiatorCleanlinessPercent: Number(
+      Math.max(0, current.radiatorCleanlinessPercent - radiatorClog).toFixed(1),
+    ),
+    winchCableIntegrityPercent: Number(
+      Math.max(0, current.winchCableIntegrityPercent - cableFray).toFixed(1),
+    ),
+    alternatorBeltHealthPercent: Number(
+      Math.max(
+        0,
+        current.alternatorBeltHealthPercent - distanceTraveledKm * 0.2,
+      ).toFixed(1),
+    ),
   };
 }
 

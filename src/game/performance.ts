@@ -20,7 +20,6 @@ export interface RendererMetrics {
   rendererRequestedBackend?: "auto" | "webgl" | "webgpu";
   rendererBackendFallback?: boolean;
   rendererBackendReason?: string;
-
 }
 
 export interface PerformanceSnapshot {
@@ -294,7 +293,8 @@ export class PerformanceMonitor {
       rendererBackend: renderer.rendererBackend ?? "webgl",
       rendererRequestedBackend: renderer.rendererRequestedBackend ?? "auto",
       rendererBackendFallback: renderer.rendererBackendFallback ?? false,
-      rendererBackendReason: renderer.rendererBackendReason ?? "default WebGL renderer",
+      rendererBackendReason:
+        renderer.rendererBackendReason ?? "default WebGL renderer",
 
       visibility: renderer.visibility ? { ...renderer.visibility } : null,
       heapUsedMb: memory.memory

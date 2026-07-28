@@ -14,7 +14,7 @@ family. It uses the same semantic input, world, camera, exploration, tow
 activity, save, reload, audio, HUD, and text-observability paths as Torque and
 Spark. It does not have wheel/contact state.
 
-The implementation advances the local save to schema v4. Valid v3 Field 02
+The implementation advances the local save to schema v4. Valid legacy Field 02
 records preserve both ground rigs and their histories, retain shared world
 memory, and add Drift at the authored Sunken Flats berth.
 
@@ -44,7 +44,7 @@ memory, and add Drift at the authored Sunken Flats berth.
 - Profile/state kind mismatches fail closed during save recovery and throw at
   the runtime adapter boundary.
 - Public hover state has no `wheels` member.
-- v1, v2, and v3 migrations remain covered.
+- v1, v2, and legacy migrations remain covered.
 
 ## Three-pass review
 
@@ -53,7 +53,7 @@ memory, and add Drift at the authored Sunken Flats berth.
 - Preserved the existing Torque/Spark movement model while moving its
   locomotion-only fields behind the ground adapter.
 - Added deterministic deep-water, hover-repeatability, steep-ground strain,
-  profile/state mismatch, and v3-to-v4 migration coverage.
+  profile/state mismatch, and legacy-to-v4 migration coverage.
 - Confirmed the shared cargo path remains capability-driven.
 - Corrected HUD/audio/renderer consumers that previously assumed wheels.
 

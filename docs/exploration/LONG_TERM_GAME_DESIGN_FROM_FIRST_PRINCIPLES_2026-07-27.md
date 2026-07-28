@@ -96,14 +96,14 @@ player language.
 
 Long-term desire should come from six mutually reinforcing motives:
 
-| Desire | Player thought | Game expression |
-| --- | --- | --- |
-| Attachment | “This is my machine.” | Repairs, quirks, scars, sound, history, care |
-| Mastery | “I understand how this body works.” | Weight, terrain, tools, route judgment, technique |
-| Agency | “That was my solution.” | Multiple physical approaches and consequential preparation |
-| Belonging | “My work matters here.” | Recurring places, inhabitants, favors, visible dependence |
-| Curiosity | “What is over there—and what can reach it?” | Signals, regions, mysteries, scale changes, strange rigs |
-| Legacy | “The world can show what I did.” | Persistent roads, fields, water, structures, ecology, stories |
+| Desire     | Player thought                              | Game expression                                               |
+| ---------- | ------------------------------------------- | ------------------------------------------------------------- |
+| Attachment | “This is my machine.”                       | Repairs, quirks, scars, sound, history, care                  |
+| Mastery    | “I understand how this body works.”         | Weight, terrain, tools, route judgment, technique             |
+| Agency     | “That was my solution.”                     | Multiple physical approaches and consequential preparation    |
+| Belonging  | “My work matters here.”                     | Recurring places, inhabitants, favors, visible dependence     |
+| Curiosity  | “What is over there—and what can reach it?” | Signals, regions, mysteries, scale changes, strange rigs      |
+| Legacy     | “The world can show what I did.”            | Persistent roads, fields, water, structures, ecology, stories |
 
 No single progression bar can sustain this. The game becomes durable when the
 player accumulates **identity, capability, relationships, knowledge, and
@@ -363,18 +363,18 @@ and space. Earlier machines remain socially and mechanically meaningful.
 
 ### Comparative judgment
 
-| Criterion | Living County | Wandering Fleet | Impossible Atlas | Civilization Journey |
-| --- | ---: | ---: | ---: | ---: |
-| Machine attachment | Excellent | Excellent | Good | Good |
-| Place attachment | Excellent | Good | Good | Variable |
-| Vehicle breadth | Limited | Excellent | Excellent | Excellent |
-| Narrative coherence | Strong | Strong | Medium | Medium |
-| Genre-change support | Medium | Strong | Excellent | Strong |
-| Long-term aspiration | Medium | Excellent | Excellent | Excellent |
-| Content scalability | Strong | Good | Difficult | Difficult |
-| Distinctiveness | Good | Strong | Excellent | Strong |
-| Social/co-op fit | Good | Excellent | Good | Strong |
-| Risk of fragmentation | Low | Medium | High | High |
+| Criterion             | Living County | Wandering Fleet | Impossible Atlas | Civilization Journey |
+| --------------------- | ------------: | --------------: | ---------------: | -------------------: |
+| Machine attachment    |     Excellent |       Excellent |             Good |                 Good |
+| Place attachment      |     Excellent |            Good |             Good |             Variable |
+| Vehicle breadth       |       Limited |       Excellent |        Excellent |            Excellent |
+| Narrative coherence   |        Strong |          Strong |           Medium |               Medium |
+| Genre-change support  |        Medium |          Strong |        Excellent |               Strong |
+| Long-term aspiration  |        Medium |       Excellent |        Excellent |            Excellent |
+| Content scalability   |        Strong |            Good |        Difficult |            Difficult |
+| Distinctiveness       |          Good |          Strong |        Excellent |               Strong |
+| Social/co-op fit      |          Good |       Excellent |             Good |               Strong |
+| Risk of fragmentation |           Low |          Medium |             High |                 High |
 
 ---
 
@@ -633,18 +633,18 @@ But the whole-game layer adds purpose:
 
 ### Activity families and their emotional jobs
 
-| Activity | Primary pleasure | Meaning in the larger game |
-| --- | --- | --- |
-| Cultivation/ecology | rhythm, planning, transformation | sustain places and reveal ecological tradeoffs |
-| Hauling/logistics | route judgment, load management | connect communities and make promises physical |
-| Rescue/recovery | improvisation, responsibility | turn failure and vulnerability into stories |
-| Construction | authorship, problem-solving | create durable shared infrastructure |
-| Racing/courier work | expression, flow, mastery | map unstable routes and move urgent knowledge |
-| Exploration/survey | curiosity, navigation | make the unknown legible without conquering it |
-| Salvage/repair | diagnosis, care, discovery | preserve history and create machine relationships |
-| Defense/protection | pressure, preparation, sacrifice | protect consequences the player already values |
-| Stealth/signature play | restraint, tension, reading | make power, noise, light, and visibility meaningful |
-| Flight/spaceflight | awe, precision, aspiration | extend connection without invalidating ground work |
+| Activity               | Primary pleasure                 | Meaning in the larger game                          |
+| ---------------------- | -------------------------------- | --------------------------------------------------- |
+| Cultivation/ecology    | rhythm, planning, transformation | sustain places and reveal ecological tradeoffs      |
+| Hauling/logistics      | route judgment, load management  | connect communities and make promises physical      |
+| Rescue/recovery        | improvisation, responsibility    | turn failure and vulnerability into stories         |
+| Construction           | authorship, problem-solving      | create durable shared infrastructure                |
+| Racing/courier work    | expression, flow, mastery        | map unstable routes and move urgent knowledge       |
+| Exploration/survey     | curiosity, navigation            | make the unknown legible without conquering it      |
+| Salvage/repair         | diagnosis, care, discovery       | preserve history and create machine relationships   |
+| Defense/protection     | pressure, preparation, sacrifice | protect consequences the player already values      |
+| Stealth/signature play | restraint, tension, reading      | make power, noise, light, and visibility meaningful |
+| Flight/spaceflight     | awe, precision, aspiration       | extend connection without invalidating ground work  |
 
 ### Transformation rules
 

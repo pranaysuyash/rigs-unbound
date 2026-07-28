@@ -59,7 +59,9 @@ export function computeMissionReward(
   const baseInsight = Math.max(1, Math.round(distance / 20));
   const difficultyMultiplier = wasHard ? 1.5 : 1;
   const discoveryBonus = firstDiscovery ? 2 : 0;
-  const insight = Math.round(baseInsight * difficultyMultiplier + discoveryBonus);
+  const insight = Math.round(
+    baseInsight * difficultyMultiplier + discoveryBonus,
+  );
   const journeyInvestment = Math.round(insight * 0.4);
 
   return {

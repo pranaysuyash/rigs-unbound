@@ -47,13 +47,29 @@ Deliberate exclusions, so the number stays trustworthy:
   reachability — only root-level shells do.
 
 A module that is typechecked, tested, and documented but unreachable is an
-*unreachable claim*: behaviour the player can never observe. Absence of a path
+_unreachable claim_: behaviour the player can never observe. Absence of a path
 is the strong signal. Presence of a path only proves the module is wired, not
 that it is exercised.
 
-`--max N` supports a **budget**, not a purity gate: a declared ceiling with an
-explicit allowance for deliberate pre-positioned work. Adopting a ceiling in the
-verification path is a decision, not a default — see RU-0911.
+### The budget
+
+`--max N` is a **budget, not a purity gate**: a declared ceiling with an explicit
+allowance for deliberate pre-positioned work.
+
+```bash
+npm run audit:reachability:budget
+```
+
+The ceiling is currently **29**, recorded in `package.json`. It is a ratchet:
+lowering it is a deliberate act taken when a tranche item lands, and raising it
+requires a recorded reason. Archiving a module is a legitimate way to reduce the
+count — the goal is that pre-positioned work is _declared_ rather than
+accumulated by inattention.
+
+Adopted under RU-0911 after ADR-0034 showed the failure this prevents: a
+load-bearing decision record asserted a module was wired into the live path when
+nothing imported it, and the claim survived a full documentation and release
+gate.
 
 ## Field 02 browser acceptance
 

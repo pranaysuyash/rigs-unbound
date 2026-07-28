@@ -201,7 +201,7 @@ interaction packs.
   spatial-range, and idempotency semantics; browser inputs record its separate
   simulation outcome. This validates a non-affordance command shape without
   introducing a general bus, remote authority, or speculative state layer.
-- 2026-07-26: The bounded run record advanced to schema v3 with an immutable,
+- 2026-07-26: The bounded run record advanced to schema legacy with an immutable,
   hash-bound initial state/world-memory context. Local replay validation now
   restores that exact admitted context instead of assuming a fresh seed, while
   refusing any tampered or unrecoverable baseline. This adds no save-import API,

@@ -107,12 +107,22 @@ import {
   peekSavedSeed,
   saveState,
 } from "./game/storage";
-import { BIOMES, SURFACES, type SurfaceId } from "./game/world";
+import { BIOMES, SURFACES, WORLD_SITES, type SurfaceId } from "./game/world";
+import {
+  deriveMissions,
+  type MissionProposition,
+} from "./game/mission-propositions";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
 import { createHoodDashboardUI } from "./game/hood-dashboard-ui";
 import { createNavigatorUI } from "./game/navigator-ui";
+import {
+  createInitialRadialMenuState,
+  selectRadialMenuItem,
+  type RadialMenuItem,
+  type RadialMenuState,
+} from "./game/radial-ui";
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
@@ -618,6 +628,9 @@ function boot(): void {
   const touchRecoveryAction = requiredElement<HTMLButtonElement>(
     "#touch-recovery-action",
   );
+  const touchRadialAction = requiredElement<HTMLButtonElement>(
+    "#touch-radial-action",
+  );
   const landmarkList = requiredElement<HTMLOListElement>("#landmark-list");
   const toast = requiredElement<HTMLElement>("#toast");
   const pauseOverlay = requiredElement<HTMLElement>("#pause-overlay");
@@ -650,12 +663,94 @@ function boot(): void {
   const enterWorldButton = requiredElement<HTMLButtonElement>("#enter-world");
   const resetButton = requiredElement<HTMLButtonElement>("#reset-button");
   const muteButton = requiredElement<HTMLButtonElement>("#mute-button");
+  const controlsLegend = requiredElement<HTMLElement>("#controls-legend");
+  const controlsLegendToggle = requiredElement<HTMLButtonElement>(
+    "#controls-legend-toggle",
+  );
+
+  /*
+   * The keyboard legend is a reference surface, not play state, so it defaults
+   * to hidden and the world fills the screen. ADR-0020 still owns *teaching* a
+   * control when its context first becomes relevant; this is only the
+   * look-it-up path.
+   *
+   * `pin` persists the player's choice as a browser-local UI preference, in the
+   * same class as the control-lesson preference and deliberately outside the
+   * save schema: a cleared or malformed preference simply returns to the
+   * default rather than corrupting anything.
+   */
+  const CONTROLS_LEGEND_PREFERENCE = "rigs-unbound.controls-legend.v1";
+
+  let controlsLegendVisible = false;
+
+  function setControlsLegendVisible(visible: boolean, pin = false): void {
+    controlsLegendVisible = visible;
+    controlsLegend.hidden = !visible;
+    controlsLegendToggle.setAttribute("aria-expanded", String(visible));
+    if (!pin) return;
+    try {
+      window.localStorage.setItem(
+        CONTROLS_LEGEND_PREFERENCE,
+        visible ? "shown" : "hidden",
+      );
+    } catch {
+      // A blocked or full storage quota must never break the control surface.
+    }
+  }
+
+  let legendPreference: string | null = null;
+  try {
+    legendPreference = window.localStorage.getItem(CONTROLS_LEGEND_PREFERENCE);
+  } catch {
+    legendPreference = null;
+  }
+  setControlsLegendVisible(legendPreference === "shown");
+
+  controlsLegendToggle.addEventListener("click", () => {
+    setControlsLegendVisible(!controlsLegendVisible, true);
+  });
   const fullscreenButton =
     requiredElement<HTMLButtonElement>("#fullscreen-button");
   const cameraSelect = requiredElement<HTMLSelectElement>("#camera-select");
   const workshopPanel = requiredElement<HTMLElement>("#workshop-panel");
   const workshopSalvage = requiredElement<HTMLElement>("#workshop-salvage");
   const moduleList = requiredElement<HTMLOListElement>("#module-list");
+  const radialOverlay = requiredElement<HTMLElement>("#radial-overlay");
+  const radialMenuList = requiredElement<HTMLElement>("#radial-menu-list");
+  const radialMenuClose =
+    requiredElement<HTMLButtonElement>("#radial-menu-close");
+  const missionBoard = requiredElement<HTMLElement>("#mission-board");
+  const missionBoardButton = requiredElement<HTMLButtonElement>(
+    "#mission-board-button",
+  );
+  const missionBoardClose = requiredElement<HTMLButtonElement>(
+    "#mission-board-close",
+  );
+  const missionBoardSummary = requiredElement<HTMLElement>(
+    "#mission-board-summary",
+  );
+  const missionBoardList = requiredElement<HTMLOListElement>(
+    "#mission-board-list",
+  );
+  const missionBriefing = requiredElement<HTMLElement>("#mission-briefing");
+  const missionBriefingKicker = requiredElement<HTMLElement>(
+    "#mission-briefing-kicker",
+  );
+  const missionBriefingTitle = requiredElement<HTMLElement>(
+    "#mission-briefing-title",
+  );
+  const missionBriefingCopy = requiredElement<HTMLElement>(
+    "#mission-briefing-copy",
+  );
+  const missionBriefingOrigin = requiredElement<HTMLElement>(
+    "#mission-briefing-origin",
+  );
+  const missionBriefingDestination = requiredElement<HTMLElement>(
+    "#mission-briefing-destination",
+  );
+  const missionBriefingReward = requiredElement<HTMLElement>(
+    "#mission-briefing-reward",
+  );
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
@@ -680,17 +775,138 @@ function boot(): void {
   // Unified overlay shell
   // ---------------------------------------------------------------------------
 
-  type OverlayKind = "none" | "map" | "pause" | "workshop" | "lesson";
+  type OverlayKind =
+    | "none"
+    | "map"
+    | "pause"
+    | "workshop"
+    | "lesson"
+    | "radial"
+    | "mission-board";
   let activeOverlay: OverlayKind = "none";
+  let radialMenuState: RadialMenuState = createInitialRadialMenuState(state);
   let mapLayer: "field" | "rumor" | "journal" = "field";
   let navigatorVisible =
     window.localStorage.getItem("rigs-unbound.navigator-visible") === "true";
+  const focusAfterPaint = (element: HTMLElement | null): void => {
+    if (!element) return;
+    const focus = (): void => {
+      if (!element.isConnected) return;
+      if (document.activeElement === element) return;
+      element.focus({ preventScroll: true });
+    };
+
+    focus();
+    window.requestAnimationFrame(() => {
+      focus();
+      window.requestAnimationFrame(() => {
+        focus();
+        window.setTimeout(() => {
+          focus();
+        }, 0);
+      });
+    });
+  };
 
   const updateNavigatorVisibility = (): void => {
     navigatorUI.element.hidden = !navigatorVisible;
     navigatorUI.element.setAttribute("aria-hidden", String(!navigatorVisible));
   };
   updateNavigatorVisibility();
+
+  const renderRadialMenu = (): void => {
+    radialMenuList.replaceChildren();
+    radialMenuState.items.forEach((item: RadialMenuItem, index) => {
+      const entry = document.createElement("li");
+      entry.className = [
+        item.active ? "is-active" : "",
+        item.available ? "" : "is-disabled is-locked",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.disabled = !item.available;
+      button.textContent = item.label;
+      button.setAttribute("aria-pressed", String(item.active));
+      button.addEventListener("click", () => {
+        const selection = selectRadialMenuItem(radialMenuState, index);
+        if (!selection.selectedItem) {
+          showToast(`${item.label} unavailable on this rig.`);
+          return;
+        }
+        radialMenuState = selection.updatedMenu;
+        renderRadialMenu();
+        showToast(
+          `${selection.selectedItem.label} ${selection.selectedItem.active ? "on" : "off"}.`,
+        );
+      });
+      entry.appendChild(button);
+
+      if (item.badgeText) {
+        const badge = document.createElement("span");
+        badge.textContent = item.badgeText;
+        entry.appendChild(badge);
+      }
+      radialMenuList.appendChild(entry);
+    });
+  };
+
+  let selectedMissionId: string | null = null;
+  const missionVisibility = new Set(WORLD_SITES.map((site) => site.id));
+  const currentMissions = (): readonly MissionProposition[] =>
+    deriveMissions(state, state.progression, state.phase, missionVisibility);
+
+  const renderMissionBoard = (): void => {
+    const missions = currentMissions();
+    const selected = missions.find(
+      (mission) => mission.id === selectedMissionId,
+    );
+    missionBoardSummary.textContent = missions.length
+      ? `${missions.length} contract${missions.length === 1 ? "" : "s"} resolved from the field state.`
+      : "No contract is visible yet. Survey more ground or fit a capability that can reach a signal.";
+    missionBoardList.replaceChildren();
+    missionBriefing.hidden = !selected;
+
+    for (const mission of missions) {
+      const item = document.createElement("li");
+      item.className = mission.id === selectedMissionId ? "is-selected" : "";
+      const button = document.createElement("button");
+      button.type = "button";
+      button.setAttribute(
+        "aria-pressed",
+        String(mission.id === selectedMissionId),
+      );
+      const copy = document.createElement("span");
+      const title = document.createElement("strong");
+      title.textContent = mission.title;
+      const premise = document.createElement("small");
+      premise.textContent = mission.premise;
+      copy.append(title, premise);
+      const reward = document.createElement("em");
+      reward.textContent = `${mission.rewardSalvage} salvage`;
+      button.append(copy, reward);
+      button.addEventListener("click", () => {
+        selectedMissionId = mission.id;
+        renderMissionBoard();
+        recordCheckpoint("missionSelected", {
+          missionId: mission.id,
+          binding: mission.binding,
+        });
+      });
+      item.appendChild(button);
+      missionBoardList.appendChild(item);
+    }
+
+    if (!selected) return;
+    missionBriefingKicker.textContent = `${selected.binding} · ${selected.difficultyLabel}`;
+    missionBriefingTitle.textContent = selected.title;
+    missionBriefingCopy.textContent = selected.briefing;
+    missionBriefingOrigin.textContent = selected.origin;
+    missionBriefingDestination.textContent = selected.destination;
+    missionBriefingReward.textContent = `${selected.rewardSalvage} salvage · ${selected.requiredCapabilities.length ? selected.requiredCapabilities.join(" · ") : "no special capability"}`;
+  };
 
   const toggleNavigator = (): void => {
     navigatorVisible = !navigatorVisible;
@@ -801,17 +1017,31 @@ function boot(): void {
       mapOverlay.hidden = false;
       mapOverlay.setAttribute("aria-hidden", "false");
       updateMapLayerUI();
-      mapClose.focus();
+      focusAfterPaint(mapClose);
     } else if (kind === "pause") {
       togglePause(state);
       pauseOverlay.hidden = false;
       pauseOverlay.setAttribute("aria-hidden", "false");
       updatePauseSaveStatus();
-      requiredElement<HTMLButtonElement>("#pause-resume").focus();
+      focusAfterPaint(requiredElement<HTMLButtonElement>("#pause-resume"));
     } else if (kind === "workshop") {
       workshopPanel.hidden = false;
     } else if (kind === "lesson") {
       controlLesson.hidden = false;
+    } else if (kind === "radial") {
+      radialMenuState = {
+        ...createInitialRadialMenuState(state),
+        isOpen: true,
+      };
+      renderRadialMenu();
+      radialOverlay.hidden = false;
+      radialOverlay.setAttribute("aria-hidden", "false");
+      focusAfterPaint(radialMenuClose);
+    } else if (kind === "mission-board") {
+      renderMissionBoard();
+      missionBoard.hidden = false;
+      missionBoard.setAttribute("aria-hidden", "false");
+      focusAfterPaint(missionBoardClose);
     }
   };
 
@@ -832,8 +1062,20 @@ function boot(): void {
       workshopPanel.hidden = true;
     } else if (previousOverlay === "lesson") {
       controlLesson.hidden = true;
+    } else if (previousOverlay === "radial") {
+      radialMenuState = { ...radialMenuState, isOpen: false };
+      radialOverlay.hidden = true;
+      radialOverlay.setAttribute("aria-hidden", "true");
+    } else if (previousOverlay === "mission-board") {
+      missionBoard.hidden = true;
+      missionBoard.setAttribute("aria-hidden", "true");
     }
   };
+
+  missionBoardButton.addEventListener("click", () =>
+    openOverlay("mission-board"),
+  );
+  missionBoardClose.addEventListener("click", closeOverlay);
 
   const restoreSavedPreferences = (): void => {
     const savedLayer = window.localStorage.getItem("rigs-unbound.map-layer");
@@ -1126,6 +1368,10 @@ function boot(): void {
       muteButton.click();
     } else if (event.code === "KeyF") {
       fullscreenButton.click();
+    } else if (event.code === "Slash" && event.shiftKey) {
+      // `?` is the platform convention for "show me the controls".
+      event.preventDefault();
+      setControlsLegendVisible(!controlsLegendVisible, true);
     } else if (event.code === "KeyP") {
       tap("pause");
     } else if (event.code === "Escape") {
@@ -1206,7 +1452,20 @@ function boot(): void {
       markControlLessonLearned(visibleControlLessonId, "dismissed");
     }
     if (activeOverlay === "lesson") closeOverlay();
-    canvas.focus();
+    focusAfterPaint(canvas);
+  });
+  radialMenuClose.addEventListener("click", () => {
+    markInputReady();
+    closeOverlay();
+    focusAfterPaint(canvas);
+  });
+  touchRadialAction.addEventListener("click", () => {
+    markInputReady();
+    if (activeOverlay === "radial") {
+      closeOverlay();
+    } else {
+      openOverlay("radial");
+    }
   });
   emergencyRecover.addEventListener("click", () => {
     markInputReady();
@@ -1308,7 +1567,7 @@ function boot(): void {
   pauseResume.addEventListener("click", () => {
     markInputReady();
     closeOverlay();
-    canvas.focus();
+    focusAfterPaint(canvas);
   });
 
   pauseNavigator.addEventListener("click", () => {
@@ -1334,6 +1593,7 @@ function boot(): void {
   mapClose.addEventListener("click", () => {
     markInputReady();
     closeOverlay();
+    focusAfterPaint(canvas);
   });
 
   cameraSelect.addEventListener("change", () => {

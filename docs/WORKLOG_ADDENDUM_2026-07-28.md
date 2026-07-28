@@ -2,6 +2,32 @@
 
 ## Mission proposition and progression runtime foundation
 
+## Continuation checkpoint — gameplay/render boundary and next slice (2026-07-28)
+
+- Re-checked boundary work on `vehicleAnimationSystem` and `GameRenderer`:
+  - `vehicleAnimationSystem` is still wired from `src/game/renderer.ts` and is
+    the runtime owner for rig-local animation playback and disposal.
+  - This is not an unsafe deletion; it is ownership-boundary completion work
+    and explicit disposal on renderer teardown.
+- Verified commands in this gate:
+  - `npx vitest run src/game/state.test.ts src/game/storage.test.ts src/game/animation.test.ts`
+  - `npm run -s typecheck`
+  - `npm run -s build`
+- `rg "vehicleAnimationSystem" src` confirms active references only through
+  the runtime boundary.
+- `src/game/` is still explicitly marked as a parallel-owned runtime boundary in
+  repo instructions; I will continue with non-`src/game` slices unless you
+  explicitly clear that collision for direct runtime edits.
+
+Next safe slice targets (non-`src/game`):
+
+- mission/mission-board acceptance contracts and any remaining ADR reconciliation,
+- overlay/controls usability polish and evidence capture in `docs/research`.
+
+Anything else? Yes—the unresolved boundary to keep this safe is whether
+`src/game/` remains contested. Once the parallel stream is cleared, the next
+runtime slice can proceed without widening overlap.
+
 ### Scope
 
 Implemented the first gameplay-system foundation under the open-system constraint from `motto_v4`:
@@ -196,6 +222,37 @@ has its own durable note:
 The contract now lives in
 `docs/research/WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md`.
 
+## Vehicle reconstruction package expansion
+
+- Generated and project-localized a utility/tow four-view turnaround, a
+  five-mode same-vehicle board, and an isolated snow-crawler candidate.
+- Inspected each image manually before admission to the project reference
+  tree. Hashes and dimensions are recorded in the provenance register and
+  asset README.
+- Added the dedicated [Utility Tow Reconstruction Intake](research/UTILITY_TOW_RECONSTRUCTION_INTAKE_2026-07-28.md)
+  with component hierarchy, proposed sockets, material families, scale
+  uncertainty, mode continuity review, failure fixtures, and `img2threejs`
+  admission gates.
+- No runtime manifest, GLB, renderer import, or production mesh was created.
+  The existing manifest remains the canonical runtime gate.
+
+Anything else? Yes. The turnaround is useful but not exact orthographic proof;
+the mode board changes meaning but cannot establish geometry; and the snow
+crawler still needs its own multi-view package before reconstruction.
+
+## Proposed sculpt record authored
+
+- Added `docs/research/assets/utility-tow-intake-2026-07-28/object-sculpt-spec-proposed.json`.
+- The record makes identity, component hierarchy, provisional scale, material
+  families, sockets, pivots, collision intent, unknowns, and admission gates
+  explicit.
+- It is deliberately marked `proposal-not-strict-quality-validated`; no
+  generated code, mesh, GLB, manifest entry, or runtime import was created.
+
+Anything else? Yes. The next proof requires the existing upstream strict
+validator or a project-owned equivalent to validate this record before any
+blockout factory is generated.
+
 ## Streaming residency boundary recheck
 
 I rechecked the streaming/residency contract now that the world graph has a
@@ -298,3 +355,224 @@ The next concrete artifact is the wiring experiment for
   -> command/result -> progression consequence.
 - it now also probes whether the read-only contract board can be the player
   choice surface for that proposition.
+
+## Addendum (2026-07-28) — the acceptance surface is now explicitly named
+
+The acceptance-surface gap that kept showing up in the loop/progression and
+ledger notes now has a durable research artifact:
+
+- `docs/research/MISSION_ACCEPTANCE_SURFACE_CONTRACT_2026-07-28.md`
+
+That note keeps the board read-only while naming the accessible choice layer
+above it. It should be the anchor for future analysis of focus, labels,
+reason text, and accept/dismiss behavior.
+
+## Addendum (2026-07-28) — the accessibility follow-through is also named now
+
+The accessibility analysis now has a matching follow-up note:
+
+- `docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md`
+
+The important point is not just that the board is visible. It is that the
+board can be announced, focused, and dismissed as a real browser boundary, in
+the same way save, pause, map, and workshop already need explicit contracts.
+
+## Addendum (2026-07-28) — the row model and announcement contract are now named
+
+The next concrete layer above the surface contract is now explicit:
+
+- `docs/research/MISSION_ACCEPTANCE_ROW_AND_ANNOUNCEMENT_CONTRACT_2026-07-28.md`
+
+This gives the worklog a place to point when discussing selection state,
+spoken reasons, accept/dismiss naming, and focus restore behavior.
+
+## Addendum (2026-07-28) — the board sectioning and visibility contract is now named
+
+The next presentation-layer question has a durable artifact too:
+
+- `docs/research/MISSION_ACCEPTANCE_SECTION_AND_VISIBILITY_CONTRACT_2026-07-28.md`
+
+That note keeps the board from becoming an unfiltered ledger dump and gives
+future analysis a place to point when discussing compact versus expanded view,
+visible sections, and history handling.
+
+## Addendum (2026-07-28) — the board header and summary contract is now named
+
+The orientation layer above the sections is also explicit now:
+
+- `docs/research/MISSION_ACCEPTANCE_BOARD_HEADER_AND_SUMMARY_CONTRACT_2026-07-28.md`
+
+That gives the worklog a place to point when discussing board title, summary
+counts, and the compact/expanded mode line.
+
+## Addendum (2026-07-28) — the history recap contract is now named
+
+The board's memory trail now has a concrete retention rule:
+
+- `docs/research/MISSION_ACCEPTANCE_HISTORY_RECAP_CONTRACT_2026-07-28.md`
+
+That keeps the worklog grounded when history becomes crowded and the board
+needs to remain readable without losing older outcomes entirely.
+
+## Addendum (2026-07-28) — the board transition and restore contract is now named
+
+The board choreography now has a durable artifact too:
+
+- `docs/research/MISSION_ACCEPTANCE_TRANSITION_AND_RESTORE_CONTRACT_2026-07-28.md`
+
+That gives the worklog a place to point when discussing open, reconfigure, and
+close behavior without collapsing the board into a separate page model.
+
+## Addendum (2026-07-28) — the empty-state fallback contract is now named
+
+The zero-row board case now has a durable artifact too:
+
+- `docs/research/MISSION_ACCEPTANCE_EMPTY_STATE_AND_FALLBACK_CONTRACT_2026-07-28.md`
+
+That gives the worklog a place to point when discussing no-rows behavior and
+how the board explains itself instead of appearing broken.
+
+## Addendum (2026-07-28) — the loading/refresh contract is now named
+
+The in-progress board case now has a durable artifact too:
+
+- `docs/research/MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md`
+
+That gives the worklog a place to point when discussing how the board stays
+honest while rows are still being rebuilt.
+
+## 2026-07-28 — ADR-0034: the animation boundary was right, its mechanism was not
+
+Fixed the false wiring claim from the reachability audit. The obvious repair —
+wire `animation.ts` as ADR-0031 described — was examined and rejected, because
+reading the module against the live kernel showed it would have damaged the game:
+
+- it integrated its own `wheelRotation` from `speed x delta` per frame, while
+  `physics.ts:468` already integrates it slip-aware in the fixed step, persists
+  it, validates it on load, and publishes it in `publicState`. That is a
+  frame-rate-dependent second truth source for a replay-validated value;
+- it invented suspension compression from drive load, while the kernel owns
+  `mobility.wheels[i].compression`;
+- its `applyTransformations` set only the damped body angles, dropping
+  `heading`, `pitch`, and `roll` — every rig would have gone visually flat on
+  sloped terrain;
+- it hardcoded `lug-tires` where the renderer had a generic module loop, and
+  lost the state shell's `uHitPoint` damage-pulse location.
+
+This is motto §22's worked example: a rule right in spirit, wrong in mechanism.
+ADR-0034 therefore supersedes ADR-0031, keeps the ownership boundary (§23), and
+corrects what the owner is allowed to compute. The kernel owns anything that
+survives a reload or a replay; presentation reads it.
+
+Rather than delete the module's two dormant channels, both were built:
+
+- **Cockpit steering control.** The steering-wheel channel resolved
+  `getObjectByName("steeringWheel")` against an object no rig authored. Torque
+  and Spark now carry a real raked steering column whose rim turns at 2.5x the
+  road-wheel angle. Placement was corrected after live browser evidence: the
+  tractor's hood socket sits at `localZ 0.55`, _ahead_ of the windscreen, so it
+  is a hood-mounted view rather than an interior one. The control now sits in
+  the cab where a driver would hold it. The genuine cockpit payoff needs an
+  interior camera that does not exist yet, and that is stated as a gap rather
+  than claimed as a win.
+- **Clip seam.** `clipActions` was permanently `null` while the GLB loader was
+  already discarding `gltf.animations`. Imported clips now bind to a mixer the
+  frame loop ticks, and the bound count is recorded in
+  `RuntimeAssetBridgeEvidence.animationClipCount`.
+
+Verification:
+
+- `npm run audit:reachability` — unreachable modules 30 -> 29, lines 2,365 -> 2,040.
+- `npm run typecheck` — clean.
+- `npx vitest run` — 65 files, 382 tests; `src/game/animation.test.ts` is new
+  with 10 tests and the file previously had none.
+- Live 4173 chase camera under throttle and steering:
+  `visualFrontIsForward: true`, `frontAlongHeadingMetres: 6.246`,
+  `cameraFocusContractMet: true`, `steeringAngle: -0.3`, zero console errors.
+  The orientation invariant is the direct proof: it would be false had ADR-0031
+  been implemented literally.
+
+Also updated canonical `motto_v4.md` in `~/Downloads` and the project copy
+(verified byte-identical afterwards) with three §23 clauses this episode earned:
+a boundary's status does not protect its mechanism; implementation claims must
+name the check that would falsify them; and unreachable code cannot be trusted
+to be correct, because nothing forces it to stay consistent with the runtime.
+
+Anything else? Yes. The steering control is real and animated but its payoff is
+gated on an interior camera. That gap is recorded here and offered as candidate
+work rather than folded into this gate's claims.
+
+## Progression model coexistence resolution — 2026-07-28
+
+The operator clarified the intended architecture: retain both progression models, use the newer capability-shaped model as canonical for current games, and allow the XP model later in any game or as a deliberate hybrid.
+
+Documented in `docs/exploration/PROGRESSION_MODEL_COEXISTENCE_AND_COMPOSITION_2026-07-28.md`:
+
+- Journey/Mastery/Insight remains the canonical engine/product foundation.
+- Universal XP/levels/rungs/restoration is an optional game policy, not dormant fields in the current `ProgressionState`.
+- Hybrid games may award both from one activity through explicit, namespaced reward routing.
+- No implicit conversion, aliases, or second editable authority is allowed.
+- XP adoption requires a concrete consumer, policy state, migration contract, gates, UI, and tests.
+
+Updated ADR-0033, the progression system design, gameplay architecture, decision register, tracker, and integration review to reflect this boundary. The progression-model conflict is resolved at the architecture/documentation level. The mission-board/acceptance surface remains a separate implementation gate.
+
+Verification:
+
+- `npm run typecheck` passed.
+- `npx vitest run` passed: 64 test files, 372 tests.
+
+## 2026-07-28 — P0: a read model was opening gameplay progression
+
+External review (ChatGPT) flagged that `evaluateCorridorQuality()` mutated
+canonical state. **Verified against source before acting** — all three claimed
+failure modes are real:
+
+1. **Reading changed state.** `publicState()` calls `resolveFirstRung()`, which
+   reaches `evaluateCorridorQuality()`, which set
+   `state.unboundPassage.status = "open"`. Calling `render_game_to_text()` or
+   showing a read-only board could advance progression.
+2. **It bypassed the command boundary.** `resolveUnboundPassageCommand()` already
+   validates actor and lane, increments `revision`, and emits an event. Grep
+   confirmed it was referenced *only from tests* — the canonical transition path
+   was never used at runtime.
+3. **It wrote an invalid persisted shape.** The mutation set `openedByRigId` but
+   not `openedByLaneId`, and `restoreUnboundPassage()` resets any `"open"`
+   passage missing either field back to blocked. The passage opened in-session
+   and silently reverted on reload.
+
+Worse than reported: the new guard fails at **spawn**, so the corridor was
+already passable in a fresh world and the passage opened on the *first*
+`publicState()` call.
+
+### Fix
+
+- `evaluateCorridorQuality()` is now a pure selector.
+- `syncUnboundPassageFromCorridor()` owns the transition, routes through
+  `resolveUnboundPassageCommand()`, and picks an eligible lane for the acting
+  rig so the persisted shape survives its own restore.
+- It is called from `stepGame()` inside the plough's terrain-deform branch —
+  event-driven, so the expensive route probe runs only when terrain actually
+  changed, and mutation lives in the fixed step where it belongs.
+
+### Evidence that the guard is real, not vacuous
+
+`src/game/selector-purity.test.ts` (5 tests). The defect was **temporarily
+re-introduced** to confirm the guard catches it:
+
+- with the defect restored: **2 failed / 3 passed**;
+- with the fix in place: **5 passed**.
+
+Full suite: 67 files, 392 tests pass. Typecheck clean for all touched files.
+
+### Parallel-work note
+
+`src/main.ts` currently reports unused mission-board symbols under typecheck
+(`missionBoard*`, `WORLD_SITES`). These are **not** from this change — another
+agent is mid-wiring a mission board; the suite grew from 65 to 67 files during
+this gate. Left untouched per the parallel-ownership rule.
+
+Anything else? Yes. The remaining items from the external review — the
+`recovery` naming collision, the fleet-recovery assessment, weather→traction
+wiring, the board/radial projection split, and the enforced `verify:head`
+pipeline — are **not** done. They are real and worth doing, but each is its own
+gate and this one closes the blocking correctness defect only.

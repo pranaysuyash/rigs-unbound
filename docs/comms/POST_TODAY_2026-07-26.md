@@ -11,7 +11,7 @@ Related surfaces:
 - [Trailer Audio and Edit Production Log](TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
 
 The earlier draft of this file led with mud and grip and left the vision out. That
-was wrong. Mud is *evidence*. The thing being announced is the north star in
+was wrong. Mud is _evidence_. The thing being announced is the north star in
 [README.md](../../README.md):
 
 > Build a playful world where every vehicle is a different verb, and where changing
@@ -23,10 +23,10 @@ was wrong. Mud is *evidence*. The thing being announced is the north star in
 ## The strategic argument for announcing big on day one
 
 Announcing a vision this large from a one-day-old build invites exactly one
-reaction: *show me.* There are two ways to survive that, and you need both.
+reaction: _show me._ There are two ways to survive that, and you need both.
 
 1. **Carry mechanical proof of the central claim, not a mockup of it.** The
-   vision's load-bearing claim is that machines differ *in kind*, not in stat
+   vision's load-bearing claim is that machines differ _in kind_, not in stat
    blocks. That is already true in the build and it was not authored — the tractor
    and the buggy got their personalities from one grip rule, and I found out which
    one owned the marsh by measuring afterwards. That is the strongest possible
@@ -51,7 +51,7 @@ A terrain demo becomes a terrain-demo guy. This project is not a terrain demo.
 - [ ] **Watch `docs/comms/assets/trailer-final.mp4` once, with sound.** Every audio
       claim below is measurement. I cannot hear it.
 - [ ] Re-render the trailer if the ploughing beat still shows only a couple of
-      furrows (see *Trailer state*).
+      furrows (see _Trailer state_).
 - [ ] Use `docs/comms/assets/trailer-final.mp4` as the default attachment; keep
       `trailer.mp4` only as the silent fallback.
 
@@ -68,7 +68,7 @@ register:
   and wheel-slip telemetry a player hears.
 - **The music** is an ACE-Step cue generated locally from a brief written for this
   footage (`generate_rigs_unbound_cue.py` in the music-lab repo), then
-  sidechain-ducked *by* the engine layer so the machine stays audible through it.
+  sidechain-ducked _by_ the engine layer so the machine stays audible through it.
 
 Measured: -13.7 LUFS integrated (platforms target about -14), peak -4.3 dB, no
 clipping, audio length exactly matching picture. Of two generated takes the one used
@@ -227,7 +227,7 @@ Title: **Announcing Rigs Unbound: a browser game where a vehicle is a verb, not 
 >     effectiveGrip = surfaceGrip * tyreGrip + lugBonus * (1 - surfaceGrip)
 >
 > The second term means lugged tyres recover a fraction of whatever the surface
-> *lacks*, so lugs are worth most exactly where grip is worst. Result: a tractor with
+> _lacks_, so lugs are worth most exactly where grip is worst. Result: a tractor with
 > about 1.9x the buggy's grip in marsh, and a buggy that wins on hardpan. I didn't
 > pick that crossover — I measured it.
 >
@@ -268,12 +268,12 @@ Expect "this is just a terrain demo with a big story attached." The answer is a
 mapping from each vision claim to something already running, plus an honest gap
 column. Keep it to hand:
 
-| Vision claim | Already true in the build | Not yet |
-|---|---|---|
-| A vehicle is a verb, not a skin | Two rigs whose behaviour diverges in kind from one grip rule, plus emergent gearing; measured, not authored | Only two rigs; no bicycle, rocket or hybrid |
-| The world transforms the genre | Seven surfaces, height-derived material, grade-limited routes, sites with distinct opportunities | No genre shift yet — one traversal mode |
-| Your machine and its consequences persist | Persisted terrain edits, saved spatial memory, deterministic replay of a run | No damage, parts or upgrade history carried between activities |
-| A world is a link | 167 KB link-native build; a world is a seed plus a sparse diff | Not shared between players yet |
+| Vision claim                              | Already true in the build                                                                                   | Not yet                                                        |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| A vehicle is a verb, not a skin           | Two rigs whose behaviour diverges in kind from one grip rule, plus emergent gearing; measured, not authored | Only two rigs; no bicycle, rocket or hybrid                    |
+| The world transforms the genre            | Seven surfaces, height-derived material, grade-limited routes, sites with distinct opportunities            | No genre shift yet — one traversal mode                        |
+| Your machine and its consequences persist | Persisted terrain edits, saved spatial memory, deterministic replay of a run                                | No damage, parts or upgrade history carried between activities |
+| A world is a link                         | 167 KB link-native build; a world is a seed plus a sparse diff                                              | Not shared between players yet                                 |
 
 If asked what's next, the honest answer is the medium-term design being explored in
 `docs/exploration/THE_BIG_IDEA_2026-07-26.md`: the blade becomes the primary verb, the
@@ -302,8 +302,8 @@ what you made.
   a halo left a derivative discontinuity: 0.23 slope four metres from spawn, and the
   rigs couldn't pull away. Smooth-looking is not smooth.
 
-The through-line when you tell them: *my tests checked that things worked, not that
-they were true.*
+The through-line when you tell them: _my tests checked that things worked, not that
+they were true._
 
 ---
 

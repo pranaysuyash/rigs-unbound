@@ -12,6 +12,7 @@
  */
 
 import type { GameState } from "./contracts";
+import { FIELD_02_SAVE_SCHEMA_VERSION } from "./contracts";
 import type { GameWorld, WorldMemoryRecord } from "./gameworld";
 import { createInitialState, recoverState, settleWorld } from "./state";
 
@@ -22,7 +23,7 @@ export const V7_SAVE_KEY = "rigs-unbound.save.v7";
 export const V6_SAVE_KEY = "rigs-unbound.save.v6";
 export const DRIFT_BERTH_SAVE_KEY = "rigs-unbound.save.v5";
 export const FIELD_CLOCK_SAVE_KEY = "rigs-unbound.save.v4";
-export const FIELD_02_SAVE_KEY = "rigs-unbound.save.v3";
+export const FIELD_02_SAVE_KEY = `rigs-unbound.save.v${FIELD_02_SAVE_SCHEMA_VERSION}`;
 export const RIG_LAB_SAVE_KEY = "rigs-unbound.save.v2";
 export const LEGACY_SAVE_KEY = "rigs-unbound.save.v1";
 
@@ -178,7 +179,7 @@ export function loadState(storage: Storage, world: GameWorld): LoadResult {
 
   try {
     const parsed = JSON.parse(raw) as unknown;
-    // v3+ wrap state alongside world memory; v1 and v2 stored state directly.
+    // Legacy Field 02 records wrap world memory; v1 and v2 store state directly.
     const container = parsed as Partial<SavePayload>;
     const stateCandidate =
       container && typeof container === "object" && container.state

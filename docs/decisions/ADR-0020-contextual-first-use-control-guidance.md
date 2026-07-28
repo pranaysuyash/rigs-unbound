@@ -98,3 +98,52 @@ semantic action truth while remaining distinct presentation layers.
   browser evidence are real; exact-final preview, real-touch, public release,
   and human-comprehension evidence remain open. See
   [the decision register](README.md).
+
+## Addendum — 2026-07-28: the permanent controls strip contradicted this ADR
+
+Operator review of a live screenshot flagged the always-visible keyboard legend
+along the bottom of the play surface. That strip predates this ADR and was never
+reconciled with it.
+
+The conflict is structural, not cosmetic. This ADR decides that a control is
+introduced when its context first becomes relevant, is shown one at a time, and
+is **retired once the player performs the action**. The permanent strip was a
+second control-guidance surface that was never contextual and never retired —
+two truth sources for the same job, which motto §7 forbids. It also worked
+against the accepted UI anti-patterns already recorded in the exploration map
+("information overload in early play", "UI that fights the Patchwork Atlas
+tone") and against the proposed progressive-HUD-unlock direction.
+
+### Correction
+
+The strip is now split by role:
+
+- **Teaching stays here.** `control-guidance.ts` remains the only surface that
+  _introduces_ a control, under the rules above.
+- **Reference is now on demand.** The keyboard legend is hidden by default and
+  revealed by `?`, by a persistent `? Keys` button for pointer and touch, and it
+  remembers the player's choice in the browser-local preference
+  `rigs-unbound.controls-legend.v1` — same class as the control-lesson
+  preference, deliberately outside the save schema, and safe to lose.
+- **Functional controls stay visible.** The camera selector and Reset field
+  remain on the bar, because they are the only pointer/touch path to those
+  actions and the accessibility baseline requires pointer parity. They are
+  controls, not a legend.
+
+### First-principles reason
+
+A key legend is learning scaffolding. Scaffolding that never comes down is not
+scaffolding — it is permanent furniture in front of the thing the player came
+for. The long-term direction is stronger still: the legend exists because the
+game currently has no diegetic surface showing what the machine can do. The
+Pegboard (ADR-0035) is that surface, and as it lands the legend should become
+progressively less necessary rather than more elaborate.
+
+### Evidence (2026-07-28, canonical 4173)
+
+- Fresh profile: legend hidden by default, toggle present with
+  `aria-expanded="false"` and an accessible name.
+- `?` reveals it, `aria-expanded` flips to `true`, preference persists as
+  `shown`; toggling again persists `hidden`.
+- Ten keyboard hints move off the play surface into the on-demand panel.
+- Zero console errors.

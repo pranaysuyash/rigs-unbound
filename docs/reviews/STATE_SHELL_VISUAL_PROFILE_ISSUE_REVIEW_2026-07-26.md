@@ -26,12 +26,12 @@ and this is the browser proof that the look is readable on representative device
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `src/game/renderer.ts` | Rig silhouette and state-shell mesh hook | Runtime anchor exists, but shell profile is not canonicalized. |
-| `src/game/feedback.ts` | Shared perception frame for motion/impact/integrity | Read-only presentation signals exist. |
-| `src/game/audio.ts` | Shell harmonic and strain modulation | Audio shell support exists, but not a visual profile boundary. |
-| `docs/research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md` | Shell concepts, tiers, and open questions | Strong design lane, still an architectural lane. |
+| Artifact                                                          | Role now                                            | Canonical status                                               |
+| ----------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------- |
+| `src/game/renderer.ts`                                            | Rig silhouette and state-shell mesh hook            | Runtime anchor exists, but shell profile is not canonicalized. |
+| `src/game/feedback.ts`                                            | Shared perception frame for motion/impact/integrity | Read-only presentation signals exist.                          |
+| `src/game/audio.ts`                                               | Shell harmonic and strain modulation                | Audio shell support exists, but not a visual profile boundary. |
+| `docs/research/GAME_VFX_STATE_SHELL_VISUAL_QUALITY_2026-07-26.md` | Shell concepts, tiers, and open questions           | Strong design lane, still an architectural lane.               |
 
 ## Why this matters
 

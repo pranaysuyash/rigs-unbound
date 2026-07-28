@@ -65,19 +65,19 @@ The repo has ~90+ tests proving state transitions are deterministic. The three s
 
 From ChatGPT's list, verified against current code:
 
-| Defect | Current status (Tier 1) |
-|--------|------------------------|
-| Non-default-seed saves can discard world memory during boot | `recoverShared` preserves `lastDiagnostic` verbatim now, but seed-dependent world memory restoration path still has implicit assumptions in `recoverRig` |
-| Terrain visual invalidation uses deformation count vs revision | `terrain-revision` field exists in schema but renderer prop rebuild still checks `furrowRevision` counters |
-| Cut and fill produce the same generic furrow visual | `setFurrow` records depth/slope but the renderer applies one rust-tone displacement regardless of blade mode |
-| Bounded furrow rendering fails when entries rotate at capacity | furrow circular buffer in renderer can lose visual entries when capacity is reached without graceful degradation |
-| Obstacle caching assumes mutable terrain is static | `collision.ts` obstacle field is generated once at world init; terrain deformation does not invalidate cached obstacle positions |
-| Collected salvage and felled trees may remain visually stale | prop rebuild depends on prop-rebuild radius traversal, not immediate event-driven invalidation |
-| Survey cadence lives in a WeakMap outside persisted state | confirmed — `surveyCooldowns` is runtime-only and resets on reload |
-| Storage failures can still throw | `loadState` wraps parsing in try/catch but `saveState` does not guarantee atomic write |
-| Two separate map overlays have conflicting state | field map and rumor graph share `mapOpen` but maintain separate DOM trees and update cadences |
-| Automated browser testing remains machine-specific | Playwright scripts use absolute paths to a local skill directory; no CI-friendly module resolution |
-| No GitHub workflow enforces local checks | `package.json` has test/typecheck scripts but no `.github/workflows/` CI pipeline exists |
+| Defect                                                         | Current status (Tier 1)                                                                                                                                  |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Non-default-seed saves can discard world memory during boot    | `recoverShared` preserves `lastDiagnostic` verbatim now, but seed-dependent world memory restoration path still has implicit assumptions in `recoverRig` |
+| Terrain visual invalidation uses deformation count vs revision | `terrain-revision` field exists in schema but renderer prop rebuild still checks `furrowRevision` counters                                               |
+| Cut and fill produce the same generic furrow visual            | `setFurrow` records depth/slope but the renderer applies one rust-tone displacement regardless of blade mode                                             |
+| Bounded furrow rendering fails when entries rotate at capacity | furrow circular buffer in renderer can lose visual entries when capacity is reached without graceful degradation                                         |
+| Obstacle caching assumes mutable terrain is static             | `collision.ts` obstacle field is generated once at world init; terrain deformation does not invalidate cached obstacle positions                         |
+| Collected salvage and felled trees may remain visually stale   | prop rebuild depends on prop-rebuild radius traversal, not immediate event-driven invalidation                                                           |
+| Survey cadence lives in a WeakMap outside persisted state      | confirmed — `surveyCooldowns` is runtime-only and resets on reload                                                                                       |
+| Storage failures can still throw                               | `loadState` wraps parsing in try/catch but `saveState` does not guarantee atomic write                                                                   |
+| Two separate map overlays have conflicting state               | field map and rumor graph share `mapOpen` but maintain separate DOM trees and update cadences                                                            |
+| Automated browser testing remains machine-specific             | Playwright scripts use absolute paths to a local skill directory; no CI-friendly module resolution                                                       |
+| No GitHub workflow enforces local checks                       | `package.json` has test/typecheck scripts but no `.github/workflows/` CI pipeline exists                                                                 |
 
 ---
 
@@ -87,7 +87,7 @@ From ChatGPT's list, verified against current code:
 
 ChatGPT says "biome blending" exists. The actual implementation (`biomeInfluence` in `src/game/terrain.ts`) uses inverse-distance-weighted influence from site anchors. This is smoother than nearest-site Voronoi but still produces **site-dominated regions**, not true continuous biome gradients. The "circular island, empty gap, circular island" read that ChatGPT correctly identifies as a problem is precisely because `biomeInfluence` still resolves to dominant biome per-site rather than blending moisture/relief across arbitrary terrain positions.
 
-The recent `biomeInfluence` refactor (visible in the git diff) replaced the old nearest-site Voronoi with a weighted blend across all site anchors. This is a real improvement — no more hard edges between biomes. However, the influence still falls off with the square of distance measured in units of the site's own radius, so large sites dominate nearby terrain heavily. The blend is **continuous but site-anchored**, not truly position-independent. For the Reclamation loop this is actually acceptable: the player transforms terrain *within* a biome, not across biome boundaries.
+The recent `biomeInfluence` refactor (visible in the git diff) replaced the old nearest-site Voronoi with a weighted blend across all site anchors. This is a real improvement — no more hard edges between biomes. However, the influence still falls off with the square of distance measured in units of the site's own radius, so large sites dominate nearby terrain heavily. The blend is **continuous but site-anchored**, not truly position-independent. For the Reclamation loop this is actually acceptable: the player transforms terrain _within_ a biome, not across biome boundaries.
 
 ### 2. "executePrimaryActionCommand" is real, not stale
 
@@ -142,6 +142,7 @@ The current `first-rung.ts` covers steps 3–5 partially (find cache → collect
 ### The "land remembers" feedback loop is weak
 
 The terrain stores furrows, but:
+
 - furrows are visual-only displacement (no gameplay consequence beyond surface type)
 - cut and fill produce the same visual record (no distinction between clearing a path and building a mound)
 - the player cannot see a before/after comparison of their terrain work
@@ -160,30 +161,30 @@ The long-term shape is now clear: **Reclamation** — terrain as the only buildi
 
 ### What to cut (not part of the shape)
 
-| Item | Rationale |
-|------|-----------|
-| Farmfall crops/signature ecology/night threats | ADR-0002 depends on the Reclamation loop being proven first; crops are a second activity, not the first loop |
-| Fourth rig | Breadth should be measured by new assumptions exposed, not roster size (EXPLORATION_MAP addendum) |
-| ECS migration | No measured pressure at current scale; composition-first model is sufficient |
-| Generic ActivityDefinition registry | Only one activity seam proven; wait for second proof |
-| Chunk streaming | World is one canonical residency; streaming is future-gated |
-| Replay playback transport | Record/verify is proven; playback is a product feature, not a technical prerequisite |
-| Multiplayer authority | Local-first is the proven mode; shared state is future-gated |
-| Representation LOD | Current visibility budget is sufficient for the Reclamation loop scope |
-| Collision category/mask generalization | Narrow obstacle behavior is sufficient; triggers/sensors/hazards are future |
-| Developer labs (Rig Lab, Physics Lab, Box3D Probe) | These are evidence fixtures, not player-facing surfaces. Hide behind `?acceptance=` flag; remove from player-visible links and nav. Keep the acceptance runners but do not expand them.
+| Item                                               | Rationale                                                                                                                                                                               |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Farmfall crops/signature ecology/night threats     | ADR-0002 depends on the Reclamation loop being proven first; crops are a second activity, not the first loop                                                                            |
+| Fourth rig                                         | Breadth should be measured by new assumptions exposed, not roster size (EXPLORATION_MAP addendum)                                                                                       |
+| ECS migration                                      | No measured pressure at current scale; composition-first model is sufficient                                                                                                            |
+| Generic ActivityDefinition registry                | Only one activity seam proven; wait for second proof                                                                                                                                    |
+| Chunk streaming                                    | World is one canonical residency; streaming is future-gated                                                                                                                             |
+| Replay playback transport                          | Record/verify is proven; playback is a product feature, not a technical prerequisite                                                                                                    |
+| Multiplayer authority                              | Local-first is the proven mode; shared state is future-gated                                                                                                                            |
+| Representation LOD                                 | Current visibility budget is sufficient for the Reclamation loop scope                                                                                                                  |
+| Collision category/mask generalization             | Narrow obstacle behavior is sufficient; triggers/sensors/hazards are future                                                                                                             |
+| Developer labs (Rig Lab, Physics Lab, Box3D Probe) | These are evidence fixtures, not player-facing surfaces. Hide behind `?acceptance=` flag; remove from player-visible links and nav. Keep the acceptance runners but do not expand them. |
 
 ### What to finish (part of the shape)
 
-| Item | Commit-units | Primary files | Proof gate |
-|------|-------------|---------------|------------|
-| **R1: Terrain transformation feedback** | ~3 commits | `src/game/renderer.ts` (furrow visual by blade mode), `src/game/state.ts` (blade mode recorded in furrow record), `src/game/terrain.ts` (cut/fill depth semantics) | Cut vs fill produce distinct visual records; player sees before/after |
-| **R2: Route opening proof** | ~2 commits | `src/game/terrain.ts` (surface classification shift on deformation), `src/game/physics.ts` (traversalBlockReason resolves differently after deformation), `src/game/collision.ts` (obstacle cache invalidation on terrain change) | A furrowed path changes surface classification; a blocked route becomes traversable |
-| **R3: Cross-rig benefit** | ~2 commits | `src/game/state.ts` (terrain changes visible to all rigs via shared world), `src/main.ts` (rig switch after terrain work) | Spark or Drift benefits from terrain Torque transformed |
-| **R4: Persistence proof** | ~1 commit | `src/game/storage.ts` (terrain deformation round-trips correctly), `src/game/state.ts` (recovery preserves terrain revisions) | Terrain changes survive save/load and are visible to all rigs |
-| **R5: Reclamation journey (end-to-end)** | ~2 commits | `src/game/first-rung.ts` (extend resolver through terrain transformation → route opening → cross-rig handoff), `src/game/world.ts` (authored blocker placement) | One 15-minute loop from blocker → failure → salvage → transform → cross → arrive |
-| **R6: Player surface simplification** | ~2 commits | `index.html` (remove Field 02 branding, hide labs), `src/main.ts` (combine map overlays, make navigator toggleable), `src/styles.css` (simplified HUD) | Remove Field 02 branding; combine map overlays; make navigator optional |
-| **R7: Correctness repairs** | ~3 commits | `src/game/storage.ts` (atomic save), `src/game/renderer.ts` (event-driven prop invalidation), `src/game/state.ts` (persisted survey cadence) | Storage atomicity, prop invalidation on event, survey cadence persistence |
+| Item                                     | Commit-units | Primary files                                                                                                                                                                                                                     | Proof gate                                                                          |
+| ---------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **R1: Terrain transformation feedback**  | ~3 commits   | `src/game/renderer.ts` (furrow visual by blade mode), `src/game/state.ts` (blade mode recorded in furrow record), `src/game/terrain.ts` (cut/fill depth semantics)                                                                | Cut vs fill produce distinct visual records; player sees before/after               |
+| **R2: Route opening proof**              | ~2 commits   | `src/game/terrain.ts` (surface classification shift on deformation), `src/game/physics.ts` (traversalBlockReason resolves differently after deformation), `src/game/collision.ts` (obstacle cache invalidation on terrain change) | A furrowed path changes surface classification; a blocked route becomes traversable |
+| **R3: Cross-rig benefit**                | ~2 commits   | `src/game/state.ts` (terrain changes visible to all rigs via shared world), `src/main.ts` (rig switch after terrain work)                                                                                                         | Spark or Drift benefits from terrain Torque transformed                             |
+| **R4: Persistence proof**                | ~1 commit    | `src/game/storage.ts` (terrain deformation round-trips correctly), `src/game/state.ts` (recovery preserves terrain revisions)                                                                                                     | Terrain changes survive save/load and are visible to all rigs                       |
+| **R5: Reclamation journey (end-to-end)** | ~2 commits   | `src/game/first-rung.ts` (extend resolver through terrain transformation → route opening → cross-rig handoff), `src/game/world.ts` (authored blocker placement)                                                                   | One 15-minute loop from blocker → failure → salvage → transform → cross → arrive    |
+| **R6: Player surface simplification**    | ~2 commits   | `index.html` (remove Field 02 branding, hide labs), `src/main.ts` (combine map overlays, make navigator toggleable), `src/styles.css` (simplified HUD)                                                                            | Remove Field 02 branding; combine map overlays; make navigator optional             |
+| **R7: Correctness repairs**              | ~3 commits   | `src/game/storage.ts` (atomic save), `src/game/renderer.ts` (event-driven prop invalidation), `src/game/state.ts` (persisted survey cadence)                                                                                      | Storage atomicity, prop invalidation on event, survey cadence persistence           |
 
 **Total: ~15 commits, dependency-ordered.**
 

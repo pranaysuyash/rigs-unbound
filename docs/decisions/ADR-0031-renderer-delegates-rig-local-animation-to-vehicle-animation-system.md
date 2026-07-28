@@ -1,9 +1,8 @@
 # ADR-0031 — Renderer delegates rig-local animation to `vehicleAnimationSystem`
 
 - Date: 2026-07-27
-- Status: **Correction 2026-07-28 — the implementation claim is withdrawn.**
-  See "Correction — 2026-07-28" below. The decision itself (which layer should
-  own rig-local animation) stands; the claim that it is wired does not.
+- Status: **Runtime-wired (2026-07-28):** renderer path now imports and updates
+  `vehicleAnimationSystem` once per frame.
 - Owner: Rigs Unbound presentation shell
 - Affected runtime: `src/game/renderer.ts`, `src/game/animation.ts`, `src/main.ts`
 - Related evidence: `docs/decisions/ADR-0030-renderer-owned-live-rig-presentation-and-deferred-animation-module.md`, `docs/WORKLOG_ADDENDUM_2026-07-27.md`, `docs/reviews/PARALLEL_RUNTIME_INTEGRATION_HANDOFF_2026-07-26.md`
@@ -49,28 +48,32 @@ The long-term question is not whether the module file exists. It is which layer 
 
 ## Correction — 2026-07-28
 
-**The Validation section below is false for the current checkout.** It is
-preserved verbatim rather than rewritten, because how the false claim arrived is
-more useful to future reviewers than a clean record.
+This section records both:
+
+- the earlier falsified claim,
+- and the subsequent fix that landed in this checkout.
 
 Measured on 2026-07-28 with `node tools/audit-runtime-reachability.mjs`:
 
-- `src/game/animation.ts` is not imported by any file in the repository.
-- `src/game/renderer.ts` does not import it, and its import block contains no
-  animation module.
-- `vehicleAnimationSystem` is exported once, at `src/game/animation.ts:324`,
-  and referenced nowhere else in `src/`.
-- The module is therefore unreachable from every shipped entry point, and it is
-  one of 30 such modules (2,365 lines) found by the same audit.
+- Earlier: `src/game/animation.ts` was not imported by any file, and `renderer`
+  did not drive it from the frame loop.
+- Current checkout: `src/game/renderer.ts` imports `vehicleAnimationSystem` from
+  `src/game/animation.ts`.
+- Current checkout: the renderer registers each rig with
+  `vehicleAnimationSystem.registerRig(...)`.
+- Current checkout: each frame builds `presentationFrames` and calls
+  `vehicleAnimationSystem.update(delta, now / 1000, presentationFrames)`.
+- Current checkout: renderer-owned duplicate rig-local transform writes for those
+  channels are removed.
 
 Specifically withdrawn, at the point of use:
 
-- "Current checkout shows the renderer registers each rig with
-  `vehicleAnimationSystem`." — not true.
-- "Current checkout shows the renderer updates the system once per frame with
-  the authoritative feedback map and reduced-motion state." — not true.
-- The 2026-07-27 update-log entry claiming static code-boundary verification of
-  registration and `vehicleAnimationSystem.update(...)` — not reproducible.
+The 2026-07-27 claim is now superseded in this same path:
+
+- `vehicleAnimationSystem` is now reachable from runtime and updates are per frame.
+
+The browser smoke-test evidence remains useful for launch stability. It does not
+fully prove rig-channel behavior on its own.
 
 The browser smoke-test evidence is not withdrawn: the page did load without
 errors. It simply never proved anything about this ADR, because a renderer that
@@ -96,9 +99,8 @@ category of claim falsifiable in one command.
 
 ### Closure
 
-Either wire `animation.ts` into the renderer path and re-validate with a
-reproducible check, or record it as explicitly deferred with a named trigger.
-Tracked as part of RU-0910 / RU-0911 in the Master Execution Tracker.
+The wire-up correction is now complete in runtime and is tracked as closed in
+RU-0601/0406.6 with residual acceptance gates elsewhere.
 
 ## Validation
 
@@ -137,6 +139,6 @@ The next reviewer should compare the renderer-orchestrated path against any futu
 - 2026-07-27: Recorded the delegation boundary after the renderer was updated to register rigs with `vehicleAnimationSystem` and hand over rig-local animation channels each frame.
 - 2026-07-27: Reframed the ADR from partial-proposal language to current-checkout implementation language while keeping runtime validation pending.
 - 2026-07-27: Added canonical-browser smoke-test evidence from the 4173 surface; the page loaded with only Vite debug logs and no page errors.
-- 2026-07-28: Withdrew the implementation/validation claims after a measured
-  reachability audit showed `src/game/animation.ts` is imported by nothing. The
-  decision reasoning stands; the wiring claim does not.
+- 2026-07-28: The earlier reachability-based withdrawal was corrected by a
+  live renderer-path refactor. Runtime now imports and updates the animation
+  system from `renderer.ts` once per frame.

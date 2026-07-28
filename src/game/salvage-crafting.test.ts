@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { CommodityType } from "./expedition-economy";
-import { canCraftRecipe, CRAFTING_RECIPES, craftRecipe } from "./salvage-crafting";
+import {
+  canCraftRecipe,
+  CRAFTING_RECIPES,
+  craftRecipe,
+} from "./salvage-crafting";
 
 describe("salvage crafting & blueprint assembly engine", () => {
   it("rejects crafting when material inventory is insufficient", () => {

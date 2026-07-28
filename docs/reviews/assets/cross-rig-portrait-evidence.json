@@ -129,10 +129,7 @@
           "height": 35.1875
         }
       ],
-      "viewport": [
-        390,
-        844
-      ],
+      "viewport": [390, 844],
       "allPassed": true
     },
     {
@@ -258,10 +255,7 @@
           "height": 35.1875
         }
       ],
-      "viewport": [
-        390,
-        844
-      ],
+      "viewport": [390, 844],
       "allPassed": true
     },
     {
@@ -387,10 +381,7 @@
           "height": 35.1875
         }
       ],
-      "viewport": [
-        390,
-        844
-      ],
+      "viewport": [390, 844],
       "allPassed": true
     }
   ],

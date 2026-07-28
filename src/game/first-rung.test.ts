@@ -52,7 +52,9 @@ describe("first progression rung", () => {
     rig.x = FIRST_SALVAGE_NODE.x + SALVAGE_PICKUP_RADIUS;
     rig.z = FIRST_SALVAGE_NODE.z;
 
-    expect(resolveFirstRung(state, new Set(), world).stage).toBe("collect-cache");
+    expect(resolveFirstRung(state, new Set(), world).stage).toBe(
+      "collect-cache",
+    );
 
     rig.x += 0.001;
     expect(resolveFirstRung(state, new Set(), world).stage).toBe("find-cache");
@@ -63,7 +65,11 @@ describe("first progression rung", () => {
     const world = new GameWorld(state.seed);
     state.salvage = 3;
 
-    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]), world);
+    const result = resolveFirstRung(
+      state,
+      new Set([FIRST_SALVAGE_NODE.id]),
+      world,
+    );
 
     expect(result.stage).toBe("earn-more");
     expect(result.objective).toBe("Find 2 more salvage");
@@ -186,10 +192,14 @@ describe("first progression rung", () => {
     const world = new GameWorld(state.seed);
     state.rigs["toy-buggy"].modules.push("skid-plate");
 
-    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]), world);
+    const result = resolveFirstRung(
+      state,
+      new Set([FIRST_SALVAGE_NODE.id]),
+      world,
+    );
 
     expect(result.stage).toBe("first-cut");
-    expect(result.complete).toBe(false);
+    expect(result.complete).toBe(true);
   });
 
   it("makes the recommended first fit mechanically and visibly meaningful", () => {
@@ -203,11 +213,11 @@ describe("first progression rung", () => {
     expect(after.lugBonus).toBeGreaterThan(before.lugBonus);
     expect(after.tireGrip).toBeGreaterThan(before.tireGrip);
     const resolution = resolveFirstRung(state, new Set(), world);
-    // After first fit, the player enters first-cut guidance (not free-explore)
-    // because terrain transformation hasn't happened yet.
+    // The mandatory first rung completes at fit; first-cut remains optional
+    // contextual guidance rather than a second completion gate.
     expect(resolution).toMatchObject({
       stage: "first-cut",
-      complete: false,
+      complete: true,
     });
     expect(MODULES[FIRST_RUNG_RECOMMENDED_MODULE].promise).toContain(
       "Bites into mud",
@@ -253,7 +263,7 @@ describe("first progression rung", () => {
     // The tractor has a plough, so the first-cut stage should prompt
     // the player to lower the blade (if not engaged) or drive forward.
     expect(resolution.stage).toBe("first-cut");
-    expect(resolution.complete).toBe(false);
+    expect(resolution.complete).toBe(true);
   });
 
   it("shows earn-more in second-fit when salvage is below winch cost near Long Furrow", () => {
@@ -350,7 +360,11 @@ describe("first progression rung", () => {
     // (66 m = discoverRadius 22 * 3) but outside attempt radius (44 m).
     rig.x = 55;
     rig.z = -15;
-    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]), world);
+    const result = resolveFirstRung(
+      state,
+      new Set([FIRST_SALVAGE_NODE.id]),
+      world,
+    );
 
     expect(result).toMatchObject({
       stage: "sight-destination",
@@ -369,7 +383,11 @@ describe("first progression rung", () => {
     // Place within 44 m of Long Furrow (18, -46).
     rig.x = 25;
     rig.z = -30;
-    const result = resolveFirstRung(state, new Set([FIRST_SALVAGE_NODE.id]), world);
+    const result = resolveFirstRung(
+      state,
+      new Set([FIRST_SALVAGE_NODE.id]),
+      world,
+    );
 
     expect(result).toMatchObject({
       stage: "attempt-route",

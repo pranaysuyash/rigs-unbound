@@ -43,4 +43,3 @@ development server.
   from the worklog or relevant review.
 - Keep the generated images out of any gameplay-complete claim until they show
   actual game state.
-

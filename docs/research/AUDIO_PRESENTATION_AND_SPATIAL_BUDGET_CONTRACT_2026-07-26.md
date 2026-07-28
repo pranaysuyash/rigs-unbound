@@ -15,27 +15,27 @@ The current procedural active-rig voice remains local, immediate, and independen
 
 `src/game/audio.ts` provides one `RigAudio` presentation owner:
 
-| Capability | Current behavior | Boundary |
-| --- | --- | --- |
-| Active-rig engine voice | Two oscillators, load/filter response, per-rig voice profiles | Reads `RigState` and `EffectiveRig`; does not mutate them. |
-| Surface/traction voice | Looping deterministic noise filtered by surface, speed, slip, and contact | Telemetry-driven feedback, not a simulation input. |
-| Impact | Disposable filtered-noise one-shot | Rare presentation event; non-fatal if unavailable. |
-| Confirmation | Short synthesized chirp | UI/action acknowledgement only. |
-| Browser activation | `AudioContext` unlock from a user gesture; failure is a safe no-op | Autoplay policy cannot break boot or simulation. |
-| Accessibility | Mute is safe because audio is not the only channel for mechanics | No mechanic may be audio-exclusive. |
+| Capability              | Current behavior                                                          | Boundary                                                   |
+| ----------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Active-rig engine voice | Two oscillators, load/filter response, per-rig voice profiles             | Reads `RigState` and `EffectiveRig`; does not mutate them. |
+| Surface/traction voice  | Looping deterministic noise filtered by surface, speed, slip, and contact | Telemetry-driven feedback, not a simulation input.         |
+| Impact                  | Disposable filtered-noise one-shot                                        | Rare presentation event; non-fatal if unavailable.         |
+| Confirmation            | Short synthesized chirp                                                   | UI/action acknowledgement only.                            |
+| Browser activation      | `AudioContext` unlock from a user gesture; failure is a safe no-op        | Autoplay policy cannot break boot or simulation.           |
+| Accessibility           | Mute is safe because audio is not the only channel for mechanics          | No mechanic may be audio-exclusive.                        |
 
 There is no active music system, ambient-zone system, dialogue/voice system, `PannerNode` source graph, listener-relative world-source scheduler, or imported audio asset runtime path. That is accurate current scope, not a gap to hide with mock infrastructure.
 
 ## Current category posture
 
-| Category | Current state | Required behavior if expanded |
-| --- | --- | --- |
-| Player machine feedback | Active and local | Highest gameplay-audio priority; preserve before ambience. |
-| UI feedback | Active and local | Immediate and non-spatial; never the sole accessibility channel. |
-| World SFX | Not active | Must be event-driven and source-budgeted. |
-| Ambient zones | Not active | Must be optional and first to shed under pressure. |
-| Music | Not active | Must declare state ownership, transition policy, and ducking rules before assets arrive. |
-| Dialogue/announcer | Not active | Must declare accessibility text/transcript support and a ducking policy before use. |
+| Category                | Current state    | Required behavior if expanded                                                            |
+| ----------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| Player machine feedback | Active and local | Highest gameplay-audio priority; preserve before ambience.                               |
+| UI feedback             | Active and local | Immediate and non-spatial; never the sole accessibility channel.                         |
+| World SFX               | Not active       | Must be event-driven and source-budgeted.                                                |
+| Ambient zones           | Not active       | Must be optional and first to shed under pressure.                                       |
+| Music                   | Not active       | Must declare state ownership, transition policy, and ducking rules before assets arrive. |
+| Dialogue/announcer      | Not active       | Must declare accessibility text/transcript support and a ducking policy before use.      |
 
 ## Future `WorldAudioSource` admission contract
 

@@ -332,3 +332,60 @@ one canonical semantic-action registry.
 - That means the wheel is an input surface consumer, not a place to invent new
   control semantics.
 - Evidence depth: Tier 1 static source inspection plus contract synthesis.
+
+## Addendum (2026-07-28): the visible controls legend is still the public help surface
+
+- Re-checked `src/main.ts` against the input contract after the wheel analysis.
+- `?` currently toggles `#controls-legend`, which is the live public help
+  surface for keyboard/action hints in the shell.
+- The authored radial wheel remains spec-only because `src/main.ts` still has
+  no runtime `openRadial` branch or focus-safe wheel entry.
+- So the present accessibility story is:
+  - explain controls with the visible legend,
+  - route actions through the named-action model,
+  - and keep the wheel out of the player HUD until it has a real shell entry.
+- Evidence depth: Tier 1 static source inspection plus docs synthesis.
+
+## Addendum (2026-07-28): live browser proof matches the static help-surface reading
+
+- Re-checked the canonical browser surface at `http://localhost:4173/`.
+- The live DOM shows `#controls-legend-toggle` as the public help entry, while
+  `#controls-legend` is hidden until the player opens it.
+- The legend text contains the live keybinding hints, including movement and
+  the `?` help affordance, which makes it the current visible explanation layer.
+- A DOM sweep found no mounted radial-wheel element or class in the public
+  shell, which confirms the authored wheel is still data-only at runtime.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 static source
+  inspection.
+
+## Addendum (2026-07-28): the shell now exposes a live quick-action surface
+
+- Re-checked the canonical browser surface after the reload.
+- The public shell now contains a visible `#touch-radial-action` button labeled
+  `Quick`, plus a `#radial-overlay` with `#radial-menu-list` and
+  `#radial-menu-close`.
+- Clicking the quick-action affordance opens the wheel and renders the authored
+  radial item list, so this is now a live shell surface rather than dormant DOM.
+- The accessibility implication is now more specific:
+  - the `?` legend remains the general help surface,
+  - the quick-action wheel is a separate control surface,
+  - and the remaining work is proving focus landing, selection announcement, and
+    keyboard parity at the same standard as the other overlays.
+- Evidence depth: Tier 4 live browser inspection plus Tier 1 source inspection.
+
+## Addendum (2026-07-28): the quick-action wheel has a live selection path, but the a11y proof is still incomplete
+
+- Re-checked the radial item wiring in `src/main.ts`.
+- The wheel items are real buttons and the click path:
+  - toggles `aria-pressed`,
+  - rerenders the list,
+  - and emits a toast for the selection result.
+- That means the wheel is now more than a visible affordance; it has an actual
+  interaction model.
+- The remaining accessibility proof is narrower and still open:
+  - focus handoff into the wheel,
+  - keyboard parity for item selection,
+  - and whether the announcement/readout quality is strong enough for the public
+    shell.
+- Evidence depth: Tier 1 static source inspection plus Tier 4 live browser
+  inspection of the mounted shell surface.

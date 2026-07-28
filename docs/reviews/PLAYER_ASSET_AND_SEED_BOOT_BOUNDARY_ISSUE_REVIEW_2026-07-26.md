@@ -86,3 +86,19 @@ Approved GLBs with external image or buffer URIs will need those dependencies
 represented as manifest-owned distribution files before approval. The present
 public-approved set is empty, so this does not weaken the current release gate;
 the manifest preflight remains the admission point for that future extension.
+
+## Addendum (2026-07-28) - developer bridge candidates now load live
+
+- Re-checked the browser on the developer surface:
+  `http://localhost:4173/?surface=developer`.
+- The runtime bridge list now contains two live imported assets:
+  - `kenney-car-kit-breakable-crate-fixture`
+  - `kenney-car-kit-tractor-preview`
+- Both are loaded with fallback inactive, so the browser is no longer only
+  proving manifest registration; it is proving runtime activation on the
+  developer surface.
+- The player distribution boundary remains intact because `publicRuntimeApproved`
+  is still false for both rows, so the live developer bridge does not weaken the
+  player-only release gate.
+- Evidence depth: Tier 4 live browser inspection plus the existing build/test
+  proof from this review.

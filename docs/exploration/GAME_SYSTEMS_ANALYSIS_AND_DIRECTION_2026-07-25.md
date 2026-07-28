@@ -30,7 +30,7 @@ What exists and is real:
   `terrain.ts`, `collision.ts`, `exploration.ts`, `gameworld.ts`, `noise.ts`)
   with seeded world generation, bounded mobility adapters (ground, hover),
   capability-gated interactions, world memory (furrows, felled trees, salvage,
-  surveyed cells), and schema-v4 validated saves with v1–v3 migration.
+  surveyed cells), and schema-v4 validated saves with v1–legacy migration.
 - Three rigs (Torque, Spark, Drift) as data-driven profiles with real handling
   contrast; a shared perception chain (ADR-0012) feeding renderer, camera, and
   procedural audio from one derived frame.

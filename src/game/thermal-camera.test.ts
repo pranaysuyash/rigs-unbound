@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculateFogVisibility, deriveThermalSignature } from "./thermal-camera";
+import {
+  calculateFogVisibility,
+  deriveThermalSignature,
+} from "./thermal-camera";
 
 describe("atmospheric fog & infrared thermal camera system", () => {
   it("calculates optical fog extinction and thermal view distance penetration", () => {

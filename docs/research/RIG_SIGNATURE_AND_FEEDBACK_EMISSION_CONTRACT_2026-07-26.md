@@ -80,4 +80,3 @@ The contract should fail visibly if it:
 Yes: this emission layer is deliberately smaller than a full audio or VFX
 system. It exists so the game can later express machine condition through a
 stable source contract instead of scattered ad hoc effects.
-

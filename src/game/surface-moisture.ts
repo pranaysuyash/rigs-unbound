@@ -21,9 +21,15 @@ export function updateSurfaceMoistureCell(
   const absorptionRate = rainIntensity * 0.45; // Moisture increase per hour during rain
   const netMoistureChange = (absorptionRate - cell.drainageRate) * deltaHours;
 
-  const newMoisture = Math.max(0, Math.min(1.0, cell.moistureRatio + netMoistureChange));
+  const newMoisture = Math.max(
+    0,
+    Math.min(1.0, cell.moistureRatio + netMoistureChange),
+  );
   // Shear strength drops non-linearly with moisture saturation
-  const shearStrengthKpa = Math.max(5.0, 40.0 * Math.pow(1 - newMoisture * 0.85, 1.5));
+  const shearStrengthKpa = Math.max(
+    5.0,
+    40.0 * Math.pow(1 - newMoisture * 0.85, 1.5),
+  );
 
   return {
     ...cell,

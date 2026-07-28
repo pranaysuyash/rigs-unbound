@@ -10,18 +10,18 @@ A 3D top-down-ish driving game about **running machines over terrain that fights
 
 The game chains objectives through a "FIRST FIT" rung plus dynamic HUD directives:
 
-| Objective | Status | Notes |
-|---|---|---|
-| Enter the field (welcome panel) | ✅ ~1 min | Button click works; the "Measuring device performance…" line never resolves (see bugs) |
-| FIRST FIT: Recover 5 salvage | ✅ | Collected the authored first cache at (-18, 5) — "Recovered 5 salvage. 5 in the bin." (shot 29) |
-| FIRST FIT: Fit Lug tyres | ✅ | Bought at Home Silo with number key `2` — "Lug tyres fitted. Bites into mud and dust bowls where slicks spin." (shot 32). Module persists across reloads |
-| Head toward Long Furrow | ✅ | Discovered the site; biome changed to TILLED SOIL · TERRACE FARMLAND |
-| Lower the blade | ⚠️ partially | Space lowers the plough and the HUD advances, but the internal rung never marks complete (see bugs) |
-| Plough toward Long Furrow (furrow counter) | ✅ ongoing | Counter climbed 0 → 211; tilled patches visibly persist on the field map (shot 41) |
-| Find 8 more salvage | ❌ not finished | Seen as a directive; collected only the first cache |
-| Cargo-relay timed activity | ❌ never started | Found cargo at (26,-6), delivery at (18,-46); could not discover the hook-up interaction — no prompt appears near the cargo, Space/X did nothing |
-| Survey the valley | 42% | Surveyed % ticks up as you drive; field map reveals only ground your rig could see |
-| Discover sites (rumor graph) | 5/8 | Home Silo, Long Furrow confirmed discovered |
+| Objective                                  | Status           | Notes                                                                                                                                                    |
+| ------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Enter the field (welcome panel)            | ✅ ~1 min        | Button click works; the "Measuring device performance…" line never resolves (see bugs)                                                                   |
+| FIRST FIT: Recover 5 salvage               | ✅               | Collected the authored first cache at (-18, 5) — "Recovered 5 salvage. 5 in the bin." (shot 29)                                                          |
+| FIRST FIT: Fit Lug tyres                   | ✅               | Bought at Home Silo with number key `2` — "Lug tyres fitted. Bites into mud and dust bowls where slicks spin." (shot 32). Module persists across reloads |
+| Head toward Long Furrow                    | ✅               | Discovered the site; biome changed to TILLED SOIL · TERRACE FARMLAND                                                                                     |
+| Lower the blade                            | ⚠️ partially     | Space lowers the plough and the HUD advances, but the internal rung never marks complete (see bugs)                                                      |
+| Plough toward Long Furrow (furrow counter) | ✅ ongoing       | Counter climbed 0 → 211; tilled patches visibly persist on the field map (shot 41)                                                                       |
+| Find 8 more salvage                        | ❌ not finished  | Seen as a directive; collected only the first cache                                                                                                      |
+| Cargo-relay timed activity                 | ❌ never started | Found cargo at (26,-6), delivery at (18,-46); could not discover the hook-up interaction — no prompt appears near the cargo, Space/X did nothing         |
+| Survey the valley                          | 42%              | Surveyed % ticks up as you drive; field map reveals only ground your rig could see                                                                       |
+| Discover sites (rumor graph)               | 5/8              | Home Silo, Long Furrow confirmed discovered                                                                                                              |
 
 ## 3. Vehicle feel
 

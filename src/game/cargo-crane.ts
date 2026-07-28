@@ -28,7 +28,8 @@ export function updateCargoSlingPhysics(
     (vehicleLateralAccelMps2 / L) * Math.cos(current.swayAngleRad) -
     damping * current.swayAngularVelocityRadSec;
 
-  const newVel = current.swayAngularVelocityRadSec + angularAccel * deltaSeconds;
+  const newVel =
+    current.swayAngularVelocityRadSec + angularAccel * deltaSeconds;
   const newAngle = current.swayAngleRad + newVel * deltaSeconds;
 
   // Dynamic side force transferred to towing vehicle

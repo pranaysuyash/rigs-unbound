@@ -10,7 +10,10 @@ import {
 
 describe("progression kernel", () => {
   it("initialises progression state with rig journeys", () => {
-    const state = createInitialProgressionState(["utility-tractor", "toy-buggy"]);
+    const state = createInitialProgressionState([
+      "utility-tractor",
+      "toy-buggy",
+    ]);
     expect(state.insight).toBe(0);
     expect(state.completedMilestones).toEqual([]);
     expect(state.journeys["utility-tractor"]?.phase).toBe("found");
@@ -32,7 +35,7 @@ describe("progression kernel", () => {
   it("advances mastery rank through situation events with diminishing returns", () => {
     let state = createInitialProgressionState(["toy-buggy"]);
     state = recordMasteryEvent(state, "toy-buggy", "tow", "situation-1");
-    
+
     // First occurrence earns 10 points
     let mastery = state.mastery["toy-buggy"]?.["tow"]!;
     expect(mastery.points).toBe(10);

@@ -21,11 +21,11 @@ That means the player can mute the game in-session, but the preference is likely
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `src/main.ts` mute handler | Toggles audio enablement and updates the button | Functional control, not persistent preference storage |
-| `src/game/audio.ts` `RigAudio` | Safe no-op mute behavior and browser unlock handling | Presentation owner only |
-| Storage path in repo | Save/load exists for world and session state | No explicit audio preference persistence path found |
+| Artifact                       | Role now                                             | Canonical status                                      |
+| ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
+| `src/main.ts` mute handler     | Toggles audio enablement and updates the button      | Functional control, not persistent preference storage |
+| `src/game/audio.ts` `RigAudio` | Safe no-op mute behavior and browser unlock handling | Presentation owner only                               |
+| Storage path in repo           | Save/load exists for world and session state         | No explicit audio preference persistence path found   |
 
 ## Why this matters
 

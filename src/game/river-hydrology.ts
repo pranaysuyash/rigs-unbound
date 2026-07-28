@@ -40,7 +40,15 @@ export function calculateRiverHydroState(
   const relativeVelocity = Math.abs(currentVelocityMps - vehicleVelocityMps);
   const frontalArea = Math.min(3.5, depth * 1.8);
   const cd = 0.9; // Drag coefficient of truck chassis
-  const currentDragForceN = Number((0.5 * densityWater * Math.pow(relativeVelocity, 2) * cd * frontalArea).toFixed(1));
+  const currentDragForceN = Number(
+    (
+      0.5 *
+      densityWater *
+      Math.pow(relativeVelocity, 2) *
+      cd *
+      frontalArea
+    ).toFixed(1),
+  );
 
   // Engine Hydro-Lock Risk (water depth > intake height without snorkel)
   const engineHydroLocked = depth > intakeHeightM && !hasSnorkelModule;

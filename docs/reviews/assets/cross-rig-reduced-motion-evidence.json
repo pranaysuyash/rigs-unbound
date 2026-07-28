@@ -1,23 +1,51 @@
 {
-  "timestamp": "2026-07-26T12:35:46.803Z",
+  "timestamp": "2026-07-28T11:29:04.370Z",
   "url": "http://127.0.0.1:4173/?acceptance=field-02",
   "results": [
     {
       "rigId": "utility-tractor",
       "mode": "chase",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 1.937,
-        "bodyRollOffset": -0.003,
-        "bodyPitchOffset": -0.002,
-        "steeringAngle": -0.0525,
+        "speedFovBoost": 1.694,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0014,
+        "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
-        "bodyRollOffset": -0.0025,
-        "bodyPitchOffset": -0.0004,
-        "steeringAngle": -0.075,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0005,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "chase",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 3.589,
+        "bodyRollOffset": 0.0028,
+        "bodyPitchOffset": -0.0013,
+        "steeringAngle": -0.03,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0007,
+        "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
@@ -31,19 +59,47 @@
     {
       "rigId": "utility-tractor",
       "mode": "hood",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 4.582,
-        "bodyRollOffset": -0.0363,
-        "bodyPitchOffset": -0.0068,
-        "steeringAngle": -0.3,
+        "speedFovBoost": 0.002,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.003,
+        "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
-        "bodyRollOffset": -0.0127,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.001,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "hood",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.001,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.004,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
         "bodyPitchOffset": -0.0011,
-        "steeringAngle": -0.3,
+        "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
@@ -57,11 +113,120 @@
     {
       "rigId": "utility-tractor",
       "mode": "side",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 0.986,
+        "speedFovBoost": 0.004,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0024,
+        "bodyPitchOffset": -0.0052,
         "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0017,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "side",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.79,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.005,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0016,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "tactical",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.396,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0046,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0016,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "tactical",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.254,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0046,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0016,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "top-down",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.515,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0053,
+        "steeringAngle": 0.0075,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
@@ -82,63 +247,66 @@
     },
     {
       "rigId": "utility-tractor",
-      "mode": "tactical",
-      "normal": {
-        "speedFovBoost": 0.006,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0045,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.002,
-        "steeringAngle": -0.0525,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "utility-tractor",
       "mode": "top-down",
+      "steerDirection": "right",
       "normal": {
-        "speedFovBoost": 0.022,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0051,
-        "steeringAngle": 0,
+        "speedFovBoost": 0.699,
+        "bodyRollOffset": 0.0005,
+        "bodyPitchOffset": -0.0062,
+        "steeringAngle": -0.0525,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0019,
-        "steeringAngle": 0,
+        "bodyRollOffset": 0.0007,
+        "bodyPitchOffset": -0.0023,
+        "steeringAngle": -0.0975,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
       "cameraPathClear": true,
       "cameraObstruction": "none",
       "fovClamped": true,
-      "bodyRollReduced": true,
+      "bodyRollReduced": false,
       "reducedMotionFlag": true,
-      "clampingPassed": true
+      "clampingPassed": false
     },
     {
       "rigId": "utility-tractor",
       "mode": "survey",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 0.013,
+        "speedFovBoost": 0.459,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0053,
+        "bodyPitchOffset": -0.0056,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": -0.0001,
+        "bodyPitchOffset": -0.0019,
+        "steeringAngle": 0.03,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": false,
+      "reducedMotionFlag": true,
+      "clampingPassed": false
+    },
+    {
+      "rigId": "utility-tractor",
+      "mode": "survey",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.168,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0046,
         "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
@@ -146,7 +314,7 @@
       "reduced": {
         "speedFovBoost": 0,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0011,
+        "bodyPitchOffset": -0.0015,
         "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
@@ -161,10 +329,11 @@
     {
       "rigId": "toy-buggy",
       "mode": "chase",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 1.786,
+        "speedFovBoost": 1.779,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0034,
+        "bodyPitchOffset": -0.0032,
         "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
@@ -186,11 +355,12 @@
     },
     {
       "rigId": "toy-buggy",
-      "mode": "hood",
+      "mode": "chase",
+      "steerDirection": "right",
       "normal": {
-        "speedFovBoost": 0.001,
+        "speedFovBoost": 3.976,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0026,
+        "bodyPitchOffset": -0.0088,
         "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
@@ -198,7 +368,61 @@
       "reduced": {
         "speedFovBoost": 0,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0002,
+        "bodyPitchOffset": -0.0035,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "hood",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.014,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.01,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0037,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "hood",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.014,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0126,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.004,
         "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
@@ -213,45 +437,101 @@
     {
       "rigId": "toy-buggy",
       "mode": "side",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 0.245,
-        "bodyRollOffset": -0.001,
-        "bodyPitchOffset": -0.0131,
-        "steeringAngle": -0.48,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": -0.0081,
-        "bodyPitchOffset": -0.0132,
-        "steeringAngle": -0.48,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": false,
-      "reducedMotionFlag": true,
-      "clampingPassed": false
-    },
-    {
-      "rigId": "toy-buggy",
-      "mode": "tactical",
-      "normal": {
-        "speedFovBoost": 0.082,
-        "bodyRollOffset": -0.0001,
-        "bodyPitchOffset": -0.0156,
-        "steeringAngle": -0.48,
+        "speedFovBoost": 0.013,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0091,
+        "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0043,
-        "steeringAngle": -0.48,
+        "bodyPitchOffset": -0.0038,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "side",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.012,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.021,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0081,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "tactical",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.012,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.021,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0069,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "tactical",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.012,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0218,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0068,
+        "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
@@ -265,19 +545,47 @@
     {
       "rigId": "toy-buggy",
       "mode": "top-down",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 0.086,
-        "bodyRollOffset": -0.0001,
-        "bodyPitchOffset": -0.0125,
-        "steeringAngle": -0.48,
+        "speedFovBoost": 0.011,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0243,
+        "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0038,
-        "steeringAngle": -0.48,
+        "bodyPitchOffset": -0.0068,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "top-down",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.011,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0227,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0069,
+        "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
@@ -291,19 +599,47 @@
     {
       "rigId": "toy-buggy",
       "mode": "survey",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 0.098,
-        "bodyRollOffset": -0.0002,
-        "bodyPitchOffset": -0.0116,
-        "steeringAngle": -0.48,
+        "speedFovBoost": 0.011,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0211,
+        "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
       },
       "reduced": {
         "speedFovBoost": 0,
-        "bodyRollOffset": -0.0001,
-        "bodyPitchOffset": -0.0037,
-        "steeringAngle": -0.48,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0067,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "toy-buggy",
+      "mode": "survey",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.011,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0211,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0086,
+        "steeringAngle": 0,
         "reducedMotion": true,
         "cameraFocusContractMet": true
       },
@@ -317,140 +653,11 @@
     {
       "rigId": "marsh-skimmer",
       "mode": "chase",
+      "steerDirection": "left",
       "normal": {
-        "speedFovBoost": 2.653,
-        "bodyRollOffset": -0.0492,
-        "bodyPitchOffset": -0.0305,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": -0.03,
-        "bodyPitchOffset": -0.0103,
-        "steeringAngle": 0,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "marsh-skimmer",
-      "mode": "hood",
-      "normal": {
-        "speedFovBoost": 0.122,
-        "bodyRollOffset": -0.0003,
-        "bodyPitchOffset": -0.0318,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
+        "speedFovBoost": 2.396,
         "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0001,
-        "steeringAngle": 0,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "marsh-skimmer",
-      "mode": "side",
-      "normal": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0004,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0001,
-        "steeringAngle": 0,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "marsh-skimmer",
-      "mode": "tactical",
-      "normal": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0004,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0001,
-        "steeringAngle": 0,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "marsh-skimmer",
-      "mode": "top-down",
-      "normal": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0001,
-        "steeringAngle": 0,
-        "reducedMotion": false,
-        "cameraFocusContractMet": true
-      },
-      "reduced": {
-        "speedFovBoost": 0,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0004,
-        "steeringAngle": 0,
-        "reducedMotion": true,
-        "cameraFocusContractMet": true
-      },
-      "cameraPathClear": true,
-      "cameraObstruction": "none",
-      "fovClamped": true,
-      "bodyRollReduced": true,
-      "reducedMotionFlag": true,
-      "clampingPassed": true
-    },
-    {
-      "rigId": "marsh-skimmer",
-      "mode": "survey",
-      "normal": {
-        "speedFovBoost": 0.001,
-        "bodyRollOffset": 0,
-        "bodyPitchOffset": -0.0016,
+        "bodyPitchOffset": -0.0003,
         "steeringAngle": 0,
         "reducedMotion": false,
         "cameraFocusContractMet": true
@@ -469,14 +676,311 @@
       "bodyRollReduced": true,
       "reducedMotionFlag": true,
       "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "chase",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 5.437,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0196,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0025,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "hood",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 3.808,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0305,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0084,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "hood",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 1.229,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0206,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0.015,
+        "bodyPitchOffset": -0.0135,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": false,
+      "reducedMotionFlag": true,
+      "clampingPassed": false
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "side",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 4,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0101,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": -0.0017,
+        "bodyPitchOffset": -0.0062,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": false,
+      "reducedMotionFlag": true,
+      "clampingPassed": false
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "side",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 4.185,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0334,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0099,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "tactical",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.04,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0308,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "tactical",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.069,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0304,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "top-down",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.038,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0306,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "top-down",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.032,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0305,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "survey",
+      "steerDirection": "left",
+      "normal": {
+        "speedFovBoost": 0.019,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0307,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
+    },
+    {
+      "rigId": "marsh-skimmer",
+      "mode": "survey",
+      "steerDirection": "right",
+      "normal": {
+        "speedFovBoost": 0.038,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0307,
+        "steeringAngle": 0,
+        "reducedMotion": false,
+        "cameraFocusContractMet": true
+      },
+      "reduced": {
+        "speedFovBoost": 0,
+        "bodyRollOffset": 0,
+        "bodyPitchOffset": -0.0098,
+        "steeringAngle": 0,
+        "reducedMotion": true,
+        "cameraFocusContractMet": true
+      },
+      "cameraPathClear": true,
+      "cameraObstruction": "none",
+      "fovClamped": true,
+      "bodyRollReduced": true,
+      "reducedMotionFlag": true,
+      "clampingPassed": true
     }
   ],
   "summary": {
-    "totalCombinations": 18,
-    "fovClampedCount": 18,
-    "bodyRollReducedCount": 17,
-    "allPassed": 17,
-    "pathClearCount": 18,
+    "totalCombinations": 36,
+    "fovClampedCount": 36,
+    "bodyRollReducedCount": 32,
+    "allPassed": 32,
+    "pathClearCount": 36,
     "consoleProblems": 0
   }
 }

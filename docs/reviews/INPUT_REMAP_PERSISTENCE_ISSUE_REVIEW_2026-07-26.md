@@ -13,12 +13,12 @@ That means the current player can learn what a control does and can use the game
 
 ## Current evidence
 
-| Artifact | Role now | Canonical status |
-| --- | --- | --- |
-| `src/game/input.ts` | Fixed keyboard-to-action map plus gamepad/gyro sampling | Active input source, but keyboard bindings are hard-coded. |
-| `src/main.ts` | Wires input, action prompts, and control lessons | No persisted remap registry or restore path is visible here. |
-| `src/game/control-guidance.ts` | Persists learned help/lesson IDs | Helpful, but not the same as a binding profile. |
-| `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md` | Names remap persistence as a missing contract layer | Confirms the gap is intentional and still open. |
+| Artifact                                                       | Role now                                                | Canonical status                                             |
+| -------------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------ |
+| `src/game/input.ts`                                            | Fixed keyboard-to-action map plus gamepad/gyro sampling | Active input source, but keyboard bindings are hard-coded.   |
+| `src/main.ts`                                                  | Wires input, action prompts, and control lessons        | No persisted remap registry or restore path is visible here. |
+| `src/game/control-guidance.ts`                                 | Persists learned help/lesson IDs                        | Helpful, but not the same as a binding profile.              |
+| `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md` | Names remap persistence as a missing contract layer     | Confirms the gap is intentional and still open.              |
 
 ## Why this matters
 

@@ -8,7 +8,9 @@ describe("campaign contracts engine", () => {
     const contracts = deriveCampaignContracts(state);
     expect(contracts.length).toBeGreaterThan(0);
 
-    const initialContract = contracts.find((c) => c.id === "contract-sunken-relay");
+    const initialContract = contracts.find(
+      (c) => c.id === "contract-sunken-relay",
+    );
     expect(initialContract).toBeDefined();
     expect(initialContract?.status).toBe("available");
   });
@@ -19,7 +21,9 @@ describe("campaign contracts engine", () => {
     state.cargoRelay.cargo.attachedRigId = "utility-tractor";
 
     const contracts = deriveCampaignContracts(state);
-    const initialContract = contracts.find((c) => c.id === "contract-sunken-relay");
+    const initialContract = contracts.find(
+      (c) => c.id === "contract-sunken-relay",
+    );
     expect(initialContract?.status).toBe("active");
     expect(activeContractCount(state)).toBe(1);
   });
@@ -29,7 +33,9 @@ describe("campaign contracts engine", () => {
     state.cargoRelay.status = "complete";
 
     const contracts = deriveCampaignContracts(state);
-    const initialContract = contracts.find((c) => c.id === "contract-sunken-relay");
+    const initialContract = contracts.find(
+      (c) => c.id === "contract-sunken-relay",
+    );
     expect(initialContract?.status).toBe("completed");
   });
 });

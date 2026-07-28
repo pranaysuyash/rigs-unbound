@@ -13,8 +13,7 @@ armWatchdog({
 });
 
 const TARGET_URL =
-  process.env.RIGS_ACCESSIBILITY_URL ||
-  "http://127.0.0.1:4173/?proof=1";
+  process.env.RIGS_ACCESSIBILITY_URL || "http://127.0.0.1:4173/?proof=1";
 
 const VIEWPORT = {
   width: Number(process.env.RIGS_ACCESSIBILITY_WIDTH || 390),
@@ -27,12 +26,14 @@ function assert(condition, message) {
 
 function ensureCanonicalDevServer() {
   if (process.env.RIGS_ACCESSIBILITY_AUTOSTART !== "1") return;
-  const startResult = spawnSync(process.execPath, [
-    path.resolve(__dirname, "start-canonical-dev-server.cjs"),
-  ], {
-    encoding: "utf8",
-    stdio: "pipe",
-  });
+  const startResult = spawnSync(
+    process.execPath,
+    [path.resolve(__dirname, "start-canonical-dev-server.cjs")],
+    {
+      encoding: "utf8",
+      stdio: "pipe",
+    },
+  );
   if (startResult.status !== 0) {
     throw new Error(
       `Failed to start canonical dev server:\n${startResult.stdout || ""}${startResult.stderr || ""}`,
@@ -141,7 +142,11 @@ function collectAccessibleHits(nodes, wantedNames) {
         while (current) {
           const style = getComputedStyle(current);
           const background = style.backgroundColor;
-          if (background && background !== "rgba(0, 0, 0, 0)" && background !== "transparent") {
+          if (
+            background &&
+            background !== "rgba(0, 0, 0, 0)" &&
+            background !== "transparent"
+          ) {
             return parseColor(background);
           }
           current = current.parentElement;
@@ -152,8 +157,7 @@ function collectAccessibleHits(nodes, wantedNames) {
         const style = getComputedStyle(element);
         const fg = parseColor(style.color);
         const bg = solidBackground(element);
-        const effectiveFg =
-          fg[3] < 1 ? blend(fg, bg) : [fg[0], fg[1], fg[2]];
+        const effectiveFg = fg[3] < 1 ? blend(fg, bg) : [fg[0], fg[1], fg[2]];
         const l1 =
           0.2126 *
             (effectiveFg[0] / 255 <= 0.03928
@@ -232,7 +236,10 @@ function collectAccessibleHits(nodes, wantedNames) {
 
     assert(domState.profileVisible, "Profile status is not visible in DOM");
     assert(domState.saveVisible, "Save status is not visible in DOM");
-    assert(domState.diagnosticsHidden === true, "Diagnostics surface should stay hidden");
+    assert(
+      domState.diagnosticsHidden === true,
+      "Diagnostics surface should stay hidden",
+    );
     assert(
       domState.profileRole === "status" && domState.profileLive === "polite",
       `Profile status lost its announcement contract: ${JSON.stringify({

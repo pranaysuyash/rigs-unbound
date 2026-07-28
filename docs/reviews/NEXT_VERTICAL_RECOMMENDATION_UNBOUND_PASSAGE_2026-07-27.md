@@ -63,4 +63,3 @@ work stabilizes.
 Keep documenting and sequencing, but do not merge this recommendation into the
 runtime until the operator explicitly accepts C1 and the current live worktree
 is stable enough to rerun the browser admission path.
-

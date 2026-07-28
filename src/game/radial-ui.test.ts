@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createInitialRadialMenuState, deriveRadialMenuItems, selectRadialMenuItem } from "./radial-ui";
+import {
+  createInitialRadialMenuState,
+  deriveRadialMenuItems,
+  selectRadialMenuItem,
+} from "./radial-ui";
 import { createInitialState } from "./state";
 
 describe("radial quick-action control wheel", () => {

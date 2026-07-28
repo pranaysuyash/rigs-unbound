@@ -343,7 +343,7 @@ The integrated and replay matrices now pass locally. The next ordered work is:
 4. perform a fresh preservation audit, exact-source deployment, and public
    rerun for the post-version-10 tranche;
 5. then wire the chosen player-facing vertical without turning a validation
-fixture into product identity.
+   fixture into product identity.
 
 ### Renderer policy lane (motto_v4 long-term continuation)
 
