@@ -1197,6 +1197,10 @@ node tools/audit-runtime-reachability.mjs
 node --test tools/audit-runtime-reachability.test.mjs
 ```
 
+The next safe move is classification, not cleanup: split the unreachable set
+into parallel-owned work, future-bound contracts, lab-only surfaces, and
+genuinely dead code before any pruning decision.
+
 ### Correction — RU-0601/0406.6 contains a false wiring claim
 
 This tracker and
