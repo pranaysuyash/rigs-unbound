@@ -284,6 +284,10 @@ The durable review artifact for that classification is
 the live admission path is manifest-driven runtime assets, not the old
 centralized loader sketch documented in the 2026-07-27 loader-flow note.
 
+`src/game/world-memory.ts` stays preserved as a contained prototype. The module
+is a pure, read-only projection of furrow and rig telemetry, and its dedicated
+containment review already says it has no gameplay integration yet.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

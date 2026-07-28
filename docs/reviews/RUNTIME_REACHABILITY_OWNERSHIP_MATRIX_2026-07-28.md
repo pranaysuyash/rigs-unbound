@@ -25,6 +25,8 @@ does **not** prove a module is unused, dead, wrong, or safe to delete.
   not yet wired into the shipped entry graph.
 - **Lab-only surface** means the module exists to support evidence, probes, or
   experimental surfaces rather than the player loop.
+- **Contained prototype** means the module is a deliberate non-authoritative
+  experiment with its own containment review and no gameplay integration yet.
 - **Superseded contract** means the module once represented a real design
   direction, but a newer canonical path now owns the live contract.
 - **Dead code** means the module has no current purpose, no credible planned
@@ -53,6 +55,20 @@ Reason:
 - the audit says it is not entry-reachable, but the surrounding docs treat it
   as a useful evidence fixture rather than junk.
 
+### Contained prototype
+
+- `src/game/world-memory.ts`
+
+Reason:
+
+- the module header says it is a pure, read-only interpretation of saved furrow
+  and rig telemetry data;
+- the dedicated review at
+  `docs/reviews/world_memory_projection_issue_review.md` already classifies it
+  as a contained non-authoritative prototype with no gameplay integration;
+- the only code reference is its own unit test, so the module is intentionally
+  preserved as an analysis surface rather than a live runtime path.
+
 ### Superseded contract
 
 These modules look like intentional product or architecture work that is no
@@ -77,8 +93,6 @@ wired into the current entry graph:
 - `src/game/weather.ts` - weather and environment contract
 - `src/game/salvage-crafting.ts` - salvage economy / crafting contract
 - `src/game/seismic-probe.ts` - tactical sensing contract
-- `src/game/world-memory.ts` - accepted-thesis memory layer; highest product
-  value but still not entry-wired
 - `src/game/thermal-camera.ts` - tactical sensing / inspection layer
 - `src/game/procedural-missions.ts` - mission generation contract
 - `src/game/expedition-economy.ts` - route / economy contract
