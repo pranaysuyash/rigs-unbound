@@ -87,6 +87,14 @@ import {
 } from "./activities";
 import { SALVAGE_PICKUP_RADIUS } from "./exploration";
 import { deriveWeatherState } from "./weather";
+import { deriveFleetRecoveryAssessment } from "./fleet-recovery-assessment";
+import {
+  applyFleetRecovery,
+  fleetRecoveryProjection,
+  resolveFleetRecoveryCommand,
+  type FleetRecoveryCommand,
+  type FleetRecoveryTransition,
+} from "./fleet-recovery-command";
 import {
   evaluateCorridorQuality,
   resolveFirstRung,
@@ -1613,6 +1621,13 @@ export function publicState(state: GameState, world: GameWorld): object {
     world.collectedNodes,
   );
   const firstRung = resolveFirstRung(state, world.collectedNodes, world);
+  // One assessment, one projection. The board, the radial wheel, the HUD, and
+  // the acceptance harness all read this — none of them re-derives whether a
+  // recovery is possible, so they cannot drift apart.
+  const publicWeather = deriveWeatherState(state.worldTimeMinutes);
+  const fleetRecovery = fleetRecoveryProjection(
+    deriveFleetRecoveryAssessment(state, world, publicWeather),
+  );
   const workshop = workshopInReach(state);
   const workshopActionable = firstRungWorkshopActionable(
     workshop !== undefined,
@@ -1669,6 +1684,12 @@ export function publicState(state: GameState, world: GameWorld): object {
     rigs: Object.fromEntries(
       RIG_IDS.map((id) => [id, rigSummary(state.rigs[id])]),
     ),
+    weather: {
+      phase: publicWeather.phase,
+      soilMoisture: fixedNumber(publicWeather.soilMoisture, 3),
+      rainIntensity: fixedNumber(publicWeather.rainIntensity, 3),
+    },
+    fleetRecovery,
     progression: {
       insight: state.progression.insight,
       journeys,
@@ -2665,4 +2686,34 @@ export function recoverState(value: unknown): GameState | null {
     return migrateV1(candidate);
   }
   return null;
+}
+
+/**
+ * Issue a fleet-recovery command from the runtime.
+ *
+ * This is the single mutating entry point for recovery. It derives weather from
+ * the same monotonic clock the simulation uses, resolves through the command
+ * boundary, and applies only an accepted transition. A rejection returns its
+ * player-readable reason rather than throwing, because "not yet, here is why"
+ * is the normal answer during a logistics operation.
+ */
+export function performFleetRecovery(
+  state: GameState,
+  world: GameWorld,
+  command: FleetRecoveryCommand,
+): FleetRecoveryTransition {
+  const weather = deriveWeatherState(state.worldTimeMinutes);
+  const transition = resolveFleetRecoveryCommand(
+    state,
+    world,
+    weather,
+    command,
+    Math.max(0, Math.floor(state.elapsedMs)),
+  );
+  if (transition.accepted) {
+    applyFleetRecovery(state, transition.event);
+  } else {
+    state.lastDiagnostic = transition.reason;
+  }
+  return transition;
 }

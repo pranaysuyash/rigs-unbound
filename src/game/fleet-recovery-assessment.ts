@@ -104,8 +104,7 @@ export function deriveFleetRecoveryAssessment(
   if (!strandedRigId) return NONE;
 
   const stranded = state.rigs[strandedRigId];
-  const weatherPressure =
-    weather.phase === "rain" || weather.phase === "storm";
+  const weatherPressure = weather.phase === "rain" || weather.phase === "storm";
 
   const candidates: RecoveryCandidate[] = [];
   for (const rigId of RIG_IDS) {
@@ -152,9 +151,7 @@ export function deriveFleetRecoveryAssessment(
       status: "blocked",
       strandedRigId,
       blockedBy: "no-support-rig",
-      reasons: [
-        `${stranded.id} is disabled and no other rig is operational.`,
-      ],
+      reasons: [`${stranded.id} is disabled and no other rig is operational.`],
       weatherPressure,
     };
   }

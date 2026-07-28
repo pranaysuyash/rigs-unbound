@@ -27,12 +27,14 @@ import { deriveWeatherState, type WeatherState } from "./weather";
 const TORQUE: RigId = "utility-tractor";
 const SPARK: RigId = "toy-buggy";
 
-function scenario(options: {
-  /** Distance from the stranded rig to the support rig. */
-  supportDistanceM?: number;
-  weather?: Partial<WeatherState>;
-  strandSpark?: boolean;
-} = {}) {
+function scenario(
+  options: {
+    /** Distance from the stranded rig to the support rig. */
+    supportDistanceM?: number;
+    weather?: Partial<WeatherState>;
+    strandSpark?: boolean;
+  } = {},
+) {
   const state = createInitialState();
   const world = new GameWorld(state.seed);
 
@@ -71,7 +73,12 @@ describe("fleet recovery — assessment", () => {
     // Disable every rig that could tow, leaving only the stranded one.
     for (const rigId of RIG_IDS) {
       if (rigId === SPARK) continue;
-      if (effectiveProfile(rigId, state.rigs[rigId].modules).capabilities.includes("tow")) {
+      if (
+        effectiveProfile(
+          rigId,
+          state.rigs[rigId].modules,
+        ).capabilities.includes("tow")
+      ) {
         state.rigs[rigId].condition = 0;
       }
     }
@@ -241,7 +248,9 @@ describe("fleet recovery — command boundary", () => {
 
     // The consequence survives a serialise/restore round trip.
     const roundTripped = JSON.parse(JSON.stringify(state));
-    expect(roundTripped.rigs[SPARK].condition).toBe(RECOVERY_RESTORED_CONDITION);
+    expect(roundTripped.rigs[SPARK].condition).toBe(
+      RECOVERY_RESTORED_CONDITION,
+    );
 
     // And the same recovery cannot be replayed for a second payout.
     const repeat = resolveFleetRecoveryCommand(

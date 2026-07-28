@@ -99,8 +99,12 @@ import {
   togglePause,
   toggleMap,
   winchRecover,
+  performFleetRecovery,
   workshopInReach,
 } from "./game/state";
+import { deriveFleetRecoveryAssessment } from "./game/fleet-recovery-assessment";
+import { fleetRecoveryProjection } from "./game/fleet-recovery-command";
+import { deriveWeatherState } from "./game/weather";
 import {
   clearState,
   loadState,
@@ -171,6 +175,8 @@ declare global {
     setAcceptanceManualStepping: (enabled: boolean) => string;
     installRigModule: (moduleId: ModuleId) => string;
     winchRecoverRig: () => string;
+    /** Issue a fleet recovery. Returns the transition reason, then the report. */
+    recoverStrandedRig: () => { accepted: boolean; reason: string };
     toggleBlade: () => string;
     toggleFieldMap: () => string;
     toggleWorkshop: () => string;
@@ -2385,6 +2391,28 @@ function boot(): void {
     recordCommand("tap", { action: "blade", source: "acceptance" });
     toggleBladeMode(state);
     return settleAndReport();
+  };
+  window.recoverStrandedRig = () => {
+    markActionReady();
+    // The projection decides whether a command exists at all, so the runtime
+    // hook cannot invent one the board would call impossible.
+    const projection = fleetRecoveryProjection(
+      deriveFleetRecoveryAssessment(
+        state,
+        world,
+        deriveWeatherState(state.worldTimeMinutes),
+      ),
+    );
+    if (!projection.command) {
+      return {
+        accepted: false,
+        reason: projection.reasons[0] ?? "No recovery is available.",
+      };
+    }
+    recordCommand("tap", { action: "fleet-recovery", source: "acceptance" });
+    const transition = performFleetRecovery(state, world, projection.command);
+    settleAndReport();
+    return { accepted: transition.accepted, reason: transition.reason };
   };
   window.winchRecoverRig = () => {
     markActionReady();

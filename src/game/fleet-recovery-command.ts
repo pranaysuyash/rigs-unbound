@@ -57,7 +57,8 @@ export type FleetRecoveryTransition =
       accepted: false;
       event: null;
       reason: string;
-      blockedBy: RecoveryBlockReason | "wrong-support-rig" | "wrong-stranded-rig";
+      blockedBy:
+        RecoveryBlockReason | "wrong-support-rig" | "wrong-stranded-rig";
     };
 
 function reject(
@@ -153,9 +154,7 @@ export function applyFleetRecovery(
 }
 
 /** Read-only projection for boards, wheels, and acceptance output. */
-export function fleetRecoveryProjection(
-  assessment: FleetRecoveryAssessment,
-): {
+export function fleetRecoveryProjection(assessment: FleetRecoveryAssessment): {
   id: "fleet-recovery";
   label: string;
   status: "available" | "conditional" | "blocked" | "none";

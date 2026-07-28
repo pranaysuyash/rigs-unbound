@@ -44,6 +44,23 @@ meaningful spend (`lug-tires`) and first-cut furrow creation. Next evidence is
 player comprehension plus save/reload continuity before expanding progression
 surfaces.
 
+## Overlay accessibility seam recheck (2026-07-28)
+
+The next safe docs-backed analysis seam is the major-overlay accessibility and
+focus contract, not the contested runtime implementation:
+
+- `docs/research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md` already names the shell
+  stack and treats accessibility as structural.
+- `docs/reviews/MAP_OVERLAY_DIALOG_AND_FOCUS_ISSUE_REVIEW_2026-07-26.md`,
+  `docs/reviews/PAUSE_STATE_ANNOUNCEMENT_ISSUE_REVIEW_2026-07-26.md`, and
+  `docs/reviews/TOUCH_RADIAL_ACTION_BOOT_BLOCKER_ISSUE_REVIEW_2026-07-28.md`
+  keep the focus/announcement surfaces explicitly live.
+- `docs/research/SHELL_ACCESSIBILITY_NEXT_SEAM_2026-07-28.md` now records the
+  next slice: contract-board / modal-overlay semantics, focus restore, and
+  keyboard/touch parity.
+
+`src/game/` remains parallel-owned and was not touched during this analysis.
+
 New P1 drift found during the broader harness: the accepted first-rung contract
 completes at the first meaningful module fit, while the current runtime/tests
 keep `complete: false` until first-cut terrain transformation. See [Progression

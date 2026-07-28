@@ -23,7 +23,9 @@
     "test:kernel-probe": "npm --prefix experiments/deterministic-kernel-probe test",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check package.json tsconfig.json vite.config.ts vitest.config.ts index.html \"src/**/*.{ts,css}\" \"worker/**/*.ts\" \"tools/**/*.cjs\""
+    "format:check": "prettier --check package.json tsconfig.json vite.config.ts vitest.config.ts index.html \"src/**/*.{ts,css}\" \"worker/**/*.ts\" \"tools/**/*.cjs\"",
+    "verify:head": "npm run format:check && npm run typecheck && npm run test && npm run test:assets && npm run test:reachability && npm run audit:reachability:budget && npm run build",
+    "verify:head:browser": "npm run verify:head && npm run test:browser && npm run test:shell-accessibility"
   },
   "dependencies": {
     "@dimforge/rapier3d": "^0.19.3",

@@ -633,3 +633,16 @@ gate and this one closes the blocking correctness defect only.
 - Accessibility pass (`npm run test:shell-accessibility`) remains clean (no console problems), and the live acceptance profile still shows camera/readability, save/reload parity, and replay probes passing on desktop and narrow snapshots.
 - The immediate next gate is unchanged from the execution board: A6 external fresh-player comprehension, then reconcile B3a/B4/C1 schema and ownership decisions before opening wider vertical choices.
 - No source code was edited for this cycle beyond tracked acceptance artifacts; this cycle preserves the boundary with `src/game/` while the remaining gates are decided.
+
+## 2026-07-28 — accessibility auditor seam recheck
+
+- I used the `Accessibility Auditor` skill as the next analysis lens because the unified shell spec and the operator-observability contract both point to the overlay stack as the next trust boundary after the current runtime/progression work.
+- Static review now ties the next safe docs-backed seam to the major-overlay contract surface:
+  - `docs/research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md` already names the map, contract board, workshop, garage, pause, labs, and control-lesson surfaces as one shell;
+  - `docs/reviews/MAP_OVERLAY_DIALOG_AND_FOCUS_ISSUE_REVIEW_2026-07-26.md`,
+    `docs/reviews/PAUSE_STATE_ANNOUNCEMENT_ISSUE_REVIEW_2026-07-26.md`, and
+    `docs/reviews/TOUCH_RADIAL_ACTION_BOOT_BLOCKER_ISSUE_REVIEW_2026-07-28.md`
+    show the current accessibility/focus gaps are still treated as live shell contracts;
+  - the contract board remains planned in the shell spec and is still a read-only surface, not a second authority.
+- Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
+- Runtime files in `src/game/` remain contested and were not touched.
