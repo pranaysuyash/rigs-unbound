@@ -2,6 +2,7 @@ import { WORLD_SITES } from "./world";
 import type { RigId } from "./rig-ids";
 import type { ProgressionState } from "./progression";
 import type { UnboundPassageState } from "./unbound-passage";
+import type { MissionBinding } from "./mission-propositions";
 
 export const SAVE_SCHEMA_VERSION = 10 as const;
 export const PREVIOUS_SAVE_SCHEMA_VERSION = 9 as const;
@@ -79,6 +80,23 @@ export const RIG_CAPABILITIES = [
 ] as const;
 export type RigCapability = (typeof RIG_CAPABILITIES)[number];
 export type AttachmentId = "field-plough" | "tow-hook";
+
+/** Drivetrain coupling. Locked buys climb traction and costs turning ease. */
+export type DifferentialMode = "open" | "limited-slip" | "locked";
+
+/** Highway pressure. The neutral state a fresh rig starts in. */
+export const DEFAULT_TIRE_PRESSURE_PSI = 32;
+export const MIN_TIRE_PRESSURE_PSI = 10;
+export const MAX_TIRE_PRESSURE_PSI = 45;
+
+export interface RigToolState {
+  /**
+   * Airing down grows the contact patch: more float on soft ground, more
+   * rolling resistance and less top speed on hard ground.
+   */
+  tirePressurePsi: number;
+  differentialMode: DifferentialMode;
+}
 export type ActivityStatus = "ready" | "active" | "complete";
 
 export type ContinuousAction =
@@ -553,6 +571,13 @@ export interface RigState {
   mobility: RigMobilityState;
   attachments: AttachmentState[];
   modules: ModuleId[];
+  /**
+   * Tool states the player commits to. Each buys something and costs something,
+   * which is what separates a tactical verb from a "better" button.
+   *
+   * Kernel-owned because they change motion and must survive reload and replay.
+   */
+  tools: RigToolState;
   /** Cached read-only telemetry for HUD and audio; not authoritative. */
   telemetry: {
     surfaceId: string;
@@ -616,6 +641,20 @@ export interface SurveyRouteState {
   bestSightedCount: number;
 }
 
+/** The single authoritative accepted mission contract. Propositions remain derived. */
+export interface ActiveMissionState {
+  id: string;
+  binding: MissionBinding;
+  targetSiteId: string;
+  waypointIds: readonly string[];
+  requiredCapabilities: readonly RigCapability[];
+  rewardSalvage: number;
+  difficultyLabel: "standard" | "hard" | "extreme";
+  activeRigId: RigId;
+  acceptedAtMs: number;
+  progressIndex: number;
+}
+
 export interface CutFillEditRecord {
   mode: BladeMode;
   authorRigId: RigId;
@@ -652,6 +691,7 @@ export interface GameState {
   rigs: Record<RigId, RigState>;
   cargoRelay: CargoRelayState;
   surveyRoute: SurveyRouteState;
+  activeMission: ActiveMissionState | null;
   unboundPassage: UnboundPassageState;
   furrows: FurrowMark[];
   semanticEdits: CutFillEditRecord[];

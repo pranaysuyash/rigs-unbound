@@ -34,6 +34,21 @@ const IMPORT_PATTERNS = [
 const HTML_MODULE_PATTERN = /<script[^>]*\ssrc=["']([^"']+)["'][^>]*>/gi;
 
 /**
+ * Modules that an accepted decision forbids from the runtime.
+ *
+ * Unreachable is a budgeted allowance; quarantined-and-reachable is a hard
+ * failure. These are excluded from the unreachable count because their
+ * unreachability is intentional and permanent — counting them would create
+ * pressure to "fix" them by wiring them, which is the exact opposite of intent.
+ */
+const QUARANTINED = new Map([
+  [
+    "src/game/xp-progression.ts",
+    "ADR-0036: universal XP is rejected by ADR-0018 and must not reach the runtime.",
+  ],
+]);
+
+/**
  * Build-time entry points that live outside `src/` but legitimately pull
  * modules into the graph (Vite/Vitest config plugins, for example).
  */
@@ -209,9 +224,20 @@ export async function auditReachability({
     }
   }
 
+  // A quarantined module that became reachable is a decision violation, not a
+  // budget item. Report it separately and loudly.
+  const quarantineViolations = [];
+  for (const [relativePath, note] of QUARANTINED) {
+    const absolute = resolve(root, relativePath);
+    if (reachable.has(absolute)) {
+      quarantineViolations.push({ path: relativePath, note });
+    }
+  }
+
   const unreachable = [];
   for (const file of sourceFiles) {
     if (reachable.has(file)) continue;
+    if (QUARANTINED.has(relative(root, file))) continue;
     unreachable.push({
       path: relative(root, file),
       lines: await countLines(file),
@@ -240,12 +266,21 @@ export async function auditReachability({
     totalLines,
     unreachableLines,
     unreachable,
+    quarantined: [...QUARANTINED.keys()],
+    quarantineViolations,
   };
 }
 
 function renderMarkdown(report) {
   const lines = [];
   lines.push("# Runtime reachability audit", "");
+  if (report.quarantineViolations.length > 0) {
+    lines.push("## ❌ Quarantine violations", "");
+    for (const violation of report.quarantineViolations) {
+      lines.push(`- **${violation.path}** is reachable. ${violation.note}`);
+    }
+    lines.push("");
+  }
   lines.push(
     `- Entry points: ${report.entryPoints.join(", ") || "none found"}`,
   );
@@ -298,7 +333,14 @@ async function main(argv) {
       : `${renderMarkdown(report)}\n`,
   );
 
-  if (failOnFindings && report.unreachableCount > 0) {
+  if (report.quarantineViolations.length > 0) {
+    for (const violation of report.quarantineViolations) {
+      process.stderr.write(
+        `Quarantine violation: ${violation.path} is reachable. ${violation.note}\n`,
+      );
+    }
+    process.exitCode = 1;
+  } else if (failOnFindings && report.unreachableCount > 0) {
     process.exitCode = 1;
   } else if (
     max !== null &&

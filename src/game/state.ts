@@ -27,6 +27,7 @@ import {
   type CutFillEditRecord,
   type FleetInheritanceRecord,
   type FurrowMark,
+  type ActiveMissionState,
   type GameState,
   type GroundMobilityState,
   IDLE_INPUT,
@@ -85,6 +86,13 @@ import {
   surveyRouteMinutesRemaining,
   surveyRouteTargets,
 } from "./activities";
+import {
+  DEFAULT_TIRE_PRESSURE_PSI,
+  MAX_TIRE_PRESSURE_PSI,
+  MIN_TIRE_PRESSURE_PSI,
+  type DifferentialMode,
+  type RigToolState,
+} from "./contracts";
 import { SALVAGE_PICKUP_RADIUS } from "./exploration";
 import { deriveWeatherState } from "./weather";
 import { deriveFleetRecoveryAssessment } from "./fleet-recovery-assessment";
@@ -223,6 +231,10 @@ function createRig(
           ]
         : [{ id: "tow-hook", engaged: false }],
     modules: [],
+    tools: {
+      tirePressurePsi: DEFAULT_TIRE_PRESSURE_PSI,
+      differentialMode: "open",
+    },
     telemetry: {
       surfaceId: "grass",
       grade: 0,
@@ -283,6 +295,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
       },
     },
     surveyRoute: createSurveyRouteState(),
+    activeMission: null,
     unboundPassage: createUnboundPassageState(),
     furrows: [],
     semanticEdits: [],
@@ -1227,6 +1240,7 @@ export function stepGame(
     ramp: BUGGY_RAMP,
     canJump: profile.capabilities.includes("jump"),
     soilMoisture: weather.soilMoisture,
+    tools: rig.tools,
   });
 
   // ---------------------------------------------------------------------------
@@ -1601,6 +1615,7 @@ export function publicState(state: GameState, world: GameWorld): object {
       distanceTravelled: fixedNumber(rig.distanceTravelled, 2),
       attachments: rig.attachments.map((item) => ({ ...item })),
       modules: [...rig.modules],
+      tools: { ...rig.tools },
       capabilities: [...profile.capabilities],
       surveyRange: profile.surveyRange,
       terrain: {
@@ -1788,6 +1803,66 @@ function isFiniteNumber(value: unknown): value is number {
 
 function isRigId(value: unknown): value is RigId {
   return RIG_IDS.includes(value as RigId);
+}
+
+const DIFFERENTIAL_MODES: readonly DifferentialMode[] = [
+  "open",
+  "limited-slip",
+  "locked",
+];
+
+function recoverToolState(candidate: unknown): RigToolState {
+  const source = (candidate ?? {}) as Partial<RigToolState>;
+  return {
+    tirePressurePsi: isFiniteNumber(source.tirePressurePsi)
+      ? clamp(
+          source.tirePressurePsi,
+          MIN_TIRE_PRESSURE_PSI,
+          MAX_TIRE_PRESSURE_PSI,
+        )
+      : DEFAULT_TIRE_PRESSURE_PSI,
+    differentialMode: DIFFERENTIAL_MODES.includes(
+      source.differentialMode as DifferentialMode,
+    )
+      ? (source.differentialMode as DifferentialMode)
+      : "open",
+  };
+}
+
+function recoverActiveMission(candidate: unknown): ActiveMissionState | null {
+  if (!candidate || typeof candidate !== "object") return null;
+  const source = candidate as Partial<ActiveMissionState>;
+  if (
+    typeof source.id !== "string" ||
+    typeof source.binding !== "string" ||
+    typeof source.targetSiteId !== "string" ||
+    !Array.isArray(source.waypointIds) ||
+    !Array.isArray(source.requiredCapabilities) ||
+    !isRigId(source.activeRigId) ||
+    !isFiniteNumber(source.acceptedAtMs) ||
+    !isFiniteNumber(source.progressIndex) ||
+    !isFiniteNumber(source.rewardSalvage) ||
+    !["standard", "hard", "extreme"].includes(source.difficultyLabel ?? "")
+  ) {
+    return null;
+  }
+  return {
+    id: source.id,
+    binding: source.binding,
+    targetSiteId: source.targetSiteId,
+    waypointIds: source.waypointIds.filter(
+      (id): id is string => typeof id === "string",
+    ),
+    requiredCapabilities: source.requiredCapabilities.filter(
+      (cap): cap is RigCapability =>
+        RIG_CAPABILITIES.includes(cap as RigCapability),
+    ),
+    rewardSalvage: Math.max(0, Math.floor(source.rewardSalvage)),
+    difficultyLabel: source.difficultyLabel!,
+    activeRigId: source.activeRigId,
+    acceptedAtMs: Math.max(0, source.acceptedAtMs),
+    progressIndex: Math.max(0, Math.floor(source.progressIndex)),
+  };
 }
 
 function recoverModules(value: unknown, rigId: RigId): ModuleId[] {
@@ -1989,6 +2064,10 @@ function recoverRig(
     mobility,
     attachments,
     modules: recoverModules(candidate.modules, id),
+    // Older saves carry no tool state. Defaulting is the correct migration:
+    // the fields are presentation-of-commitment, not earned progress, so a
+    // missing value means "the player has not committed to anything yet".
+    tools: recoverToolState(candidate.tools),
     telemetry: {
       surfaceId:
         typeof recordedTelemetry?.surfaceId === "string"
@@ -2309,6 +2388,7 @@ function recoverShared(
       },
     },
     surveyRoute,
+    activeMission: recoverActiveMission(candidate.activeMission),
     unboundPassage,
     furrows,
     semanticEdits,
@@ -2716,4 +2796,41 @@ export function performFleetRecovery(
     state.lastDiagnostic = transition.reason;
   }
   return transition;
+}
+
+/**
+ * Adjust the active rig's tyre pressure.
+ *
+ * A commitment with a cost: lower pressure floats better on soft ground and
+ * gives up top end on hard ground. The kernel owns the value so it survives
+ * reload and replay, and so the assessment and the wheel read the same number.
+ */
+export function setTirePressure(state: GameState, psi: number): string {
+  const rig = activeRig(state);
+  const next = clamp(psi, MIN_TIRE_PRESSURE_PSI, MAX_TIRE_PRESSURE_PSI);
+  if (next === rig.tools.tirePressurePsi) {
+    return `Tyres already at ${next} PSI.`;
+  }
+  const loweredPressure = next < rig.tools.tirePressurePsi;
+  rig.tools.tirePressurePsi = next;
+  state.lastDiagnostic = loweredPressure
+    ? `Aired down to ${next} PSI. More float in mud, less top end on hardpan.`
+    : `Aired up to ${next} PSI. Faster on hardpan, less float in mud.`;
+  return state.lastDiagnostic;
+}
+
+/** Cycle the drivetrain coupling: open -> limited-slip -> locked -> open. */
+export function cycleDifferentialMode(state: GameState): string {
+  const rig = activeRig(state);
+  const order: readonly DifferentialMode[] = ["open", "limited-slip", "locked"];
+  const index = order.indexOf(rig.tools.differentialMode);
+  const next = order[(index + 1) % order.length] ?? "open";
+  rig.tools.differentialMode = next;
+  state.lastDiagnostic =
+    next === "locked"
+      ? "Differential locked. Climbs better, turns wider."
+      : next === "limited-slip"
+        ? "Limited slip engaged. Some climb gain, mild scrub."
+        : "Differential open. Turns freely, spins a wheel in mud.";
+  return state.lastDiagnostic;
 }

@@ -1,4 +1,21 @@
 /**
+ * ⚠️ QUARANTINED — DO NOT IMPORT FROM RUNTIME CODE (ADR-0036)
+ *
+ * This module implements universal XP and player levels. **ADR-0018 —
+ * accepted by explicit operator sign-off — rejects exactly that:** the
+ * canonical progression spine is per-rig Journey, per-verb Mastery, and
+ * profile-level Insight, with no universal XP and no player level.
+ *
+ * The module is preserved as a record of an alternative progression policy that
+ * was explored and not adopted. It is not dead code awaiting wiring.
+ *
+ * Importing this from any module reachable from an entry point fails
+ * `npm run audit:reachability` and therefore `npm run verify:head`. That is
+ * deliberate. If XP becomes a product direction, it needs a new ADR superseding
+ * ADR-0018 with operator sign-off — not an import.
+ */
+
+/**
  * Optional Universal XP policy kernel.
  *
  * This namespace is deliberately separate from ProgressionState. It is usable

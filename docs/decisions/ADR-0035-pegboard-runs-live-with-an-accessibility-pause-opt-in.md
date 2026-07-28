@@ -1,8 +1,9 @@
 # ADR-0035 — The Pegboard runs live, with an accessibility opt-in that pauses
 
 - Date: 2026-07-28
-- Status: **Accepted by direct operator direction** for the modality only; the
-  Pegboard's geometry, contents, and visual design remain Proposed
+- Status: **Accepted by direct operator direction; modality implemented and
+  verified** for desktop keyboard and pointer. Geometry, contents, and visual
+  design remain Proposed; narrow-viewport and touch evidence is still open.
 - Owner: Rigs Unbound interface shell
 - Scope: **narrow.** This ADR decides _when time passes_ while the player
   changes a rig tool state. It does not accept the radial geometry, the tool
@@ -79,19 +80,39 @@ The two honest positions:
   moving rig is the hardest case, and it should be designed for first rather
   than adapted to afterwards.
 
-## Validation plan
+## Validation — implemented 2026-07-28
 
-Not yet implemented. Before this ADR can claim implementation, per motto §23's
-falsifier rule, the following must be named and run:
+- **Live by default.** With the Pegboard open, `render_game_to_text()` reports
+  `paused: false`. The overlay path never calls `togglePause` unless the opt-in
+  is set.
+- **Opt-in pauses and restores.** `setPegboardPausesWorld(true)` then opening
+  reports `paused: true`; closing reports `paused: false`. It routes through the
+  canonical `togglePause`, and it only un-pauses a pause it created — so a
+  player who paused deliberately before opening stays paused.
+- **Keyboard parity added.** The wheel was reachable only from a touch button,
+  which failed this ADR's own parity gate. `Q` now opens and closes it, and the
+  keyboard legend lists it.
+- **Projections, not stored state.** Entries come from
+  `deriveRigToolProjections()`. `RadialMenuItem.active` is no longer gameplay
+  authority. Live capture:
 
-- a test proving the fixed-step loop continues to advance while the surface is
-  open in default mode, and halts in opt-in mode;
-- a test proving both modes issue the identical canonical tool-state command;
-- browser evidence at desktop and 390×844 showing keyboard, pointer, and real
-  touch all reaching the same command path;
-- reduced-motion and focus-order evidence consistent with the unified shell spec.
+  ```text
+  Air down · 16 PSI      [pressed=false]  "More float in mud. Slower on hardpan."
+  Air up · 32 PSI        [pressed=true ]  "Faster on hardpan. Digs in on soft ground."
+  Differential · open    [pressed=false]  "Open: turns freely, spins a wheel in mud."
+  Winch                  [disabled]       "No winch fitted."
+  ```
 
-Until those exist, this ADR's status covers the **decision only**.
+- **Commitments persist.** Aired down to 16 PSI and cycled the differential,
+  reloaded, and both survived; the wheel re-derived `pressed` correctly.
+- **Every entry states its cost**, enforced by a test rather than by review.
+- Zero console errors across the whole flow.
+
+### Still open
+
+Narrow-viewport (390×840) and real-touch capture, and reduced-motion/focus-order
+evidence against the unified shell spec, are not yet recorded. The desktop
+keyboard and pointer paths are proven; this ADR does not claim the mobile half.
 
 ## Rollback and revisit triggers
 

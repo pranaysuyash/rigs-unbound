@@ -142,25 +142,31 @@ async function clickWorkshopModuleButton(page, moduleId, labelPrefix) {
     await button.click({ force: true, timeout: 10_000 });
     return;
   } catch {
-    await page.evaluate((sel, expectedPrefix) => {
-      const element = document.querySelector(sel);
-      if (!element) throw new Error(`Missing action button: ${sel}`);
-      if (!(element instanceof HTMLButtonElement)) {
-        throw new Error(`Selector ${sel} is not a button`);
-      }
-      if (!(element.getAttribute("aria-label") ?? "").startsWith(expectedPrefix)) {
-        throw new Error(
-          `Button ${sel} no longer matches label: ${element.getAttribute("aria-label")}`,
+    await page.evaluate(
+      (sel, expectedPrefix) => {
+        const element = document.querySelector(sel);
+        if (!element) throw new Error(`Missing action button: ${sel}`);
+        if (!(element instanceof HTMLButtonElement)) {
+          throw new Error(`Selector ${sel} is not a button`);
+        }
+        if (
+          !(element.getAttribute("aria-label") ?? "").startsWith(expectedPrefix)
+        ) {
+          throw new Error(
+            `Button ${sel} no longer matches label: ${element.getAttribute("aria-label")}`,
+          );
+        }
+        element.dispatchEvent(
+          new MouseEvent("click", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+          }),
         );
-      }
-      element.dispatchEvent(
-        new MouseEvent("click", {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-    }, selector, labelPrefix);
+      },
+      selector,
+      labelPrefix,
+    );
   }
 }
 
@@ -1611,7 +1617,9 @@ async function enterFirstRungWorld(page) {
     await page.evaluate(() =>
       window.applyRigInput({ accelerate: true, steerLeft: true }, 180),
     );
-    steeringSamples.push(await page.evaluate(() => window.getRigPerceptionEvidence()));
+    steeringSamples.push(
+      await page.evaluate(() => window.getRigPerceptionEvidence()),
+    );
   }
   const steeringEnd = await state(page);
   let leftHeadingDelta =

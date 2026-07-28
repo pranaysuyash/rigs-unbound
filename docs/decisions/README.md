@@ -95,6 +95,8 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0032 | Proposed — operator sign-off required                        | Episode runner composes bounded episodes above the contract ledger instead of creating a second quest ledger or hidden story machine.                                                                                              |
 | ADR-0033 | Proposed — operator sign-off required                        | Mission propositions are derived, not persisted; capability-shaped progression is canonical for current games; XP remains an optional future/hybrid policy.                                                                        |
 | ADR-0034 | Implemented and verified for the current runtime             | Simulation owns physical truth; `vehicleAnimationSystem` owns rig-local presentation and imported clip playback. Verified by reachability audit, 382 tests, and live `visualFrontIsForward` browser evidence.                      |
+| ADR-0035 | Accepted by direct operator direction; modality implemented | Pegboard runs live with an accessibility pause opt-in. Keyboard/pointer verified; narrow-viewport and touch still open. |
+| ADR-0036 | Rejected for runtime admission; module quarantined            | Universal XP contradicts ADR-0018. `xp-progression.ts` is preserved but forbidden from the runtime; the reachability audit enforces it and the rule is proven to fail on violation. |
 
 ## Related current surfaces
 

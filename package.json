@@ -18,7 +18,7 @@
     "assets:assert-player-build": "node tools/assert-player-build-assets.mjs assets/asset-manifest.json dist/client",
     "test:assets": "node --test tools/asset-preflight.test.mjs",
     "audit:reachability": "node tools/audit-runtime-reachability.mjs",
-    "audit:reachability:budget": "node tools/audit-runtime-reachability.mjs --max 28",
+    "audit:reachability:budget": "node tools/audit-runtime-reachability.mjs --max 25",
     "test:reachability": "node --test tools/audit-runtime-reachability.test.mjs",
     "test:kernel-probe": "npm --prefix experiments/deterministic-kernel-probe test",
     "test:watch": "vitest",

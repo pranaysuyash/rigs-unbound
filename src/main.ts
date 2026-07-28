@@ -101,6 +101,8 @@ import {
   winchRecover,
   performFleetRecovery,
   workshopInReach,
+  setTirePressure,
+  cycleDifferentialMode,
 } from "./game/state";
 import { deriveFleetRecoveryAssessment } from "./game/fleet-recovery-assessment";
 import { fleetRecoveryProjection } from "./game/fleet-recovery-command";
@@ -123,10 +125,9 @@ import { createHoodDashboardUI } from "./game/hood-dashboard-ui";
 import { createNavigatorUI } from "./game/navigator-ui";
 import {
   createInitialRadialMenuState,
-  selectRadialMenuItem,
-  type RadialMenuItem,
   type RadialMenuState,
 } from "./game/radial-ui";
+import { deriveRigToolProjections } from "./game/rig-tool-projection";
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
@@ -168,6 +169,8 @@ declare global {
     restoreActiveRigForAcceptance: () => string;
     /** Acceptance-only: disable a rig so the recovery chain can be exercised. */
     strandRigForAcceptance: (rigId: string, x?: number, z?: number) => string;
+    /** ADR-0035 comfort preference: pause the world while the Pegboard is open. */
+    setPegboardPausesWorld: (pauses: boolean) => boolean;
     placeTerrainRigForAcceptance: (
       x: number,
       z: number,
@@ -688,6 +691,32 @@ function boot(): void {
    * default rather than corrupting anything.
    */
   const CONTROLS_LEGEND_PREFERENCE = "rigs-unbound.controls-legend.v1";
+  /**
+   * ADR-0035 accessibility opt-in: pause the world while the Pegboard is open.
+   * A browser-local comfort preference, deliberately outside the save schema.
+   */
+  const PEGBOARD_PAUSE_PREFERENCE = "rigs-unbound.pegboard-pause.v1";
+  let pegboardPausesWorld = false;
+  let pegboardPausedWorld = false;
+  try {
+    pegboardPausesWorld =
+      window.localStorage.getItem(PEGBOARD_PAUSE_PREFERENCE) === "pause";
+  } catch {
+    pegboardPausesWorld = false;
+  }
+
+  /** Exposed so settings UI and acceptance can set the comfort preference. */
+  const setPegboardPausesWorld = (pauses: boolean): void => {
+    pegboardPausesWorld = pauses;
+    try {
+      window.localStorage.setItem(
+        PEGBOARD_PAUSE_PREFERENCE,
+        pauses ? "pause" : "live",
+      );
+    } catch {
+      // A blocked storage quota must never break the control surface.
+    }
+  };
 
   let controlsLegendVisible = false;
 
@@ -822,43 +851,57 @@ function boot(): void {
   };
   updateNavigatorVisibility();
 
+  /**
+   * Render the Pegboard from projections.
+   *
+   * The wheel stores no gameplay state. Every label, status, and command comes
+   * from `deriveRigToolProjections()`, so it cannot disagree with the
+   * simulation. Per ADR-0035 it runs live — opening it does not pause — with a
+   * comfort setting for players who need the world to hold still.
+   */
   const renderRadialMenu = (): void => {
     radialMenuList.replaceChildren();
-    radialMenuState.items.forEach((item: RadialMenuItem, index) => {
+    for (const tool of deriveRigToolProjections(state)) {
       const entry = document.createElement("li");
       entry.className = [
-        item.active ? "is-active" : "",
-        item.available ? "" : "is-disabled is-locked",
+        tool.status === "engaged" ? "is-active" : "",
+        tool.status === "blocked" ? "is-disabled is-locked" : "",
       ]
         .filter(Boolean)
         .join(" ");
 
       const button = document.createElement("button");
       button.type = "button";
-      button.disabled = !item.available;
-      button.textContent = item.label;
-      button.setAttribute("aria-pressed", String(item.active));
+      button.disabled = tool.status === "blocked" || tool.command === null;
+      button.textContent = tool.label;
+      button.setAttribute("aria-pressed", String(tool.status === "engaged"));
+      // The cost travels with the control, so the player never has to open a
+      // separate surface to learn what a commitment gives up.
+      button.setAttribute(
+        "aria-description",
+        tool.blockedReason ?? tool.detail,
+      );
       button.addEventListener("click", () => {
-        const selection = selectRadialMenuItem(radialMenuState, index);
-        if (!selection.selectedItem) {
-          showToast(`${item.label} unavailable on this rig.`);
+        if (!tool.command) {
+          showToast(tool.blockedReason ?? `${tool.label} is already set.`);
           return;
         }
-        radialMenuState = selection.updatedMenu;
+        markActionReady();
+        recordCommand("rig-tool", { tool: tool.id });
+        const message =
+          tool.command.type === "set-tire-pressure"
+            ? setTirePressure(state, tool.command.psi)
+            : cycleDifferentialMode(state);
         renderRadialMenu();
-        showToast(
-          `${selection.selectedItem.label} ${selection.selectedItem.active ? "on" : "off"}.`,
-        );
+        showToast(message);
       });
       entry.appendChild(button);
 
-      if (item.badgeText) {
-        const badge = document.createElement("span");
-        badge.textContent = item.badgeText;
-        entry.appendChild(badge);
-      }
+      const detail = document.createElement("span");
+      detail.textContent = tool.blockedReason ?? tool.detail;
+      entry.appendChild(detail);
       radialMenuList.appendChild(entry);
-    });
+    }
   };
 
   let selectedMissionId: string | null = null;
@@ -1041,6 +1084,15 @@ function boot(): void {
         ...createInitialRadialMenuState(state),
         isOpen: true,
       };
+      // ADR-0035: the Pegboard runs live by default, because a tool choice made
+      // outside of time is inventory management. The opt-in exists so that does
+      // not become a dexterity gate; it is a comfort setting, never a
+      // difficulty setting, and it routes through the canonical pause path so
+      // pausing behaves identically however it was reached.
+      if (pegboardPausesWorld && !state.paused) {
+        togglePause(state);
+        pegboardPausedWorld = true;
+      }
       renderRadialMenu();
       radialOverlay.hidden = false;
       radialOverlay.setAttribute("aria-hidden", "false");
@@ -1072,6 +1124,10 @@ function boot(): void {
       controlLesson.hidden = true;
     } else if (previousOverlay === "radial") {
       radialMenuState = { ...radialMenuState, isOpen: false };
+      if (pegboardPausedWorld && state.paused) {
+        togglePause(state);
+      }
+      pegboardPausedWorld = false;
       radialOverlay.hidden = true;
       radialOverlay.setAttribute("aria-hidden", "true");
     } else if (previousOverlay === "mission-board") {
@@ -1364,6 +1420,15 @@ function boot(): void {
       toggleNavigator();
     } else if (event.code === "KeyB") {
       tap("blade");
+    } else if (event.code === "KeyQ") {
+      // ADR-0035 parity gate: the Pegboard was pointer/touch only, which made a
+      // core tool surface unreachable by keyboard. Same overlay, same commands.
+      markInputReady();
+      if (activeOverlay === "radial") {
+        closeOverlay();
+      } else {
+        openOverlay("radial");
+      }
     } else if (event.code === "KeyX") {
       tap("recover");
     } else if (event.code === "KeyT") {
@@ -2287,6 +2352,10 @@ function boot(): void {
     renderer.invalidate(state);
     recordCommand("restoreActiveRigForAcceptance", { rigId: rig.id });
     return settleAndReport();
+  };
+  window.setPegboardPausesWorld = (pauses: boolean) => {
+    setPegboardPausesWorld(pauses);
+    return pauses;
   };
   window.strandRigForAcceptance = (rigId: string, x?: number, z?: number) => {
     if (!acceptanceSurface) {

@@ -1515,3 +1515,70 @@ Evidence: focused XP tests passed (4/4); `npm run typecheck` passed for root and
 ### Anything else?
 
 The old XP model is now both documented and executable as an optional policy, but it is not yet a player-facing feature and must not be described as campaign behavior.
+
+## Addendum (2026-07-28) — external-review sequence executed
+
+The 2026-07-28 external review's ten-item sequence, worked in order.
+
+| # | Item | Status | Evidence |
+| -: | --- | :-: | --- |
+| 1 | P0: `publicState()` mutation | `[x]` | `selector-purity.test.ts`; guard proven by re-introducing the defect (2 fail / 3 pass), then removing it (5 pass) |
+| 2 | Route passage through its command | `[x]` | `syncUnboundPassageFromCorridor()` uses `resolveUnboundPassageCommand()`; called from `stepGame()`, not a selector |
+| 3 | Rename `recovery` -> `salvage-retrieval` | `[x]` | `mission-propositions.ts`; `fleet-recovery` reserved |
+| 4 | Pure `deriveFleetRecoveryAssessment()` | `[x]` | `fleet-recovery-assessment.ts`; 12 vertical tests |
+| 5 | Weather -> actual traction | `[x]` | `MotionOptions.soilMoisture` into `stepGame()`; `weather-traction.test.ts`; `weather.ts` now reachable |
+| 6 | Board/radial as projections | `[-]` | `publicState().fleetRecovery` projection landed and browser-verified; `radial-ui.ts` still holds local booleans |
+| 7 | Authoritative command + event | `[x]` | `resolveFleetRecoveryCommand()` / `applyFleetRecovery()` / `performFleetRecovery()` |
+| 8 | Vertical browser acceptance | `[x]` | Live `?acceptance=field-02` chain, all cases, reload persistence, zero console errors |
+| 9 | Enforced `verify:head` | `[x]` | `npm run verify:head` and `verify:head:browser` |
+| 10 | Docs reconciled with runtime | `[x]` | Architecture status-correction table; README current-runtime-facts table |
+
+### Blocked on parallel work
+
+`verify:head` currently fails at the typecheck stage on unused `missionBoard*`
+and `WORLD_SITES` symbols in `src/main.ts`. Those arrived from **another agent's
+in-flight mission-board work during this gate** and were left untouched under the
+parallel-ownership rule. Every file this work touched typechecks clean.
+
+### Next
+
+Item 6 is the only partial. The Pegboard slice (ADR-0035) converts
+`radial-ui.ts` to pure projections and gives the already-working recovery
+command a surface the player can actually press.
+
+### Anything else?
+
+Yes. The tranche's parts-bin experiment now has two data points and they
+disagree, which is the useful outcome: `animation.ts` needed supersession
+because it re-derived kernel-owned state, while `weather.ts` connected cleanly
+because it did not. **That is the discriminator worth carrying forward** — ask
+whether a dormant module invents state the kernel already owns, not whether it
+has tests.
+
+## Addendum (2026-07-28) — tranche items 2 and 3 closed; XP quarantined
+
+| Tranche item | Status | Evidence |
+| --- | :-: | --- |
+| 1. Reachability budget | `[x]` | Enforced, ratcheted 29 -> 28 -> 25 |
+| 2. The Pegboard | `[x]` | ADR-0035 validation; keyboard parity added, live confirmed, projections replace stored booleans |
+| 3. Tyre pressure + differential lock | `[x]` | `rig-tools.test.ts` (15 tests); both tradeoffs proven end-to-end; persists across reload |
+| 4. Stranded, Not Reset | `[x]` | Landed with the recovery vertical |
+| 5. `world-memory.ts` | `[ ]` | Last named item; highest supersession risk |
+
+### New decision
+
+- **ADR-0036** — universal XP quarantined. `xp-progression.ts` implements what
+  ADR-0018 rejects. Preserved, not deleted; the reachability audit now enforces
+  a quarantine list and was proven to fail when the module is made reachable.
+
+### Verification at this gate
+
+423 tests / 70 files · typecheck clean · reachability 25, budget enforced ·
+live browser Pegboard flow with reload persistence and zero console errors.
+
+### Anything else?
+
+Yes. The orphan set has **three** classes, not two: parts bin (wires cleanly),
+mirage (needs supersession), and contraband (must never be admitted). The audit
+now enforces the third as a distinct rule. Applying the ADR-0034 discriminator
+before wiring correctly predicted every outcome so far.

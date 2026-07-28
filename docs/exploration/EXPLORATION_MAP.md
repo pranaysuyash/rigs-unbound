@@ -2303,3 +2303,112 @@ the diegetic layer is missing something, not that the legend needs more room.
 This also strengthens the case for the interior camera already carried forward as
 the next tranche's first candidate: the more the rig can say about itself, the
 less the frame needs to.
+
+## Addendum — 2026-07-28 the Missing Middle now has one worked example
+
+The fleet-recovery vertical is the first complete cause-and-effect chain in the
+runtime, and it answers the brainstorm's central diagnosis with an artifact
+rather than an argument.
+
+```text
+world situation -> pure assessment -> projection -> validated command
+-> authoritative transition -> event -> persistence
+```
+
+### What it settles
+
+- **The parts-bin question has a second data point, and this one favours the
+  Champion.** `weather.ts` and the tow-force probe were re-derived and connected
+  without redesign; only the mission *naming* had to be superseded. So the
+  unreachable set is neither pure mirage nor pure parts bin — it is mixed, and
+  the deciding factor is whether a module invented state the kernel already owns.
+  `animation.ts` did; `weather.ts` did not.
+- **Weather is now a mechanic, not copy.** Saturated soil lowers grip in the
+  motion model, and the assessment reads grip through the same helper. A
+  contract can no longer say "storm conditions make this harder" while the rig
+  experiences unchanged traction.
+- **Failure can now produce a story.** A stranded rig stays in the world, is
+  assessed, is reached, and is recovered to 25% — mobile but visibly damaged.
+  This is the "Stranded, Not Reset" idea, and it is item 4 of the tranche
+  landing early because the review's slice required it.
+
+### The rule this adds
+
+> **A surface may only claim what the simulation can already deliver.** If a
+> board says the ground is worse, the ground must be worse first. One
+> assessment, read by every surface, is how that stays true.
+
+### Status changes
+
+| Item | Status | Evidence |
+| --- | ---: | --- |
+| Weather as a mechanic | Dangling -> **Implemented** | `weather-traction.test.ts`; grip falls with moisture on soft ground only |
+| Fleet recovery | Idea -> **Implemented vertical** | 410 tests; live browser chain with reload persistence |
+| "Stranded, Not Reset" | Proposed -> **First slice landed** | Recovery restores 25%, never 100% |
+| Contract board as a player-choice surface | **Data model ready, UI pending** | `publicState().fleetRecovery` projection exists and is browser-verified |
+| Radial wheel as pure projection | **Still open** | `radial-ui.ts` retains local `active` booleans |
+
+### What the tranche looks like now
+
+Items 1 (budget), 4 (Stranded, Not Reset), and most of the review's sequence are
+done. The remaining shape is the **Pegboard** (item 2) — which is now the only
+thing standing between the projection and a player being able to press it — then
+tyre pressure and diff lock (item 3), then `world-memory.ts` (item 5).
+
+## Addendum — 2026-07-28 the Missing Middle has its first two verbs
+
+The tranche's item 3 landed, and with it the diagnosis that started this
+session is no longer only a diagnosis.
+
+A player can now, mid-drive, open the Pegboard without the world stopping, air
+down for float, lock the axle for a climb, and pay for both — and the choices
+persist. That is a tactical vocabulary between departure and arrival, which is
+exactly what four independent roles said was absent.
+
+### The design rule that emerged
+
+> **A tool state must be worse somewhere.** Airing down only helps where grip is
+> scarce; on hardpan it is pure cost. If a commitment were better everywhere the
+> player would leave it switched on, and it would stop being a decision — it
+> would be a permanent upgrade wearing a button.
+
+This is stronger than "give it a cost." The cost has to be *situational*, so the
+same control reads differently depending on where the rig is standing. That is
+what makes terrain a decision space rather than a backdrop.
+
+### The discriminator held
+
+ADR-0034 produced the question: *does this dormant module invent state the
+kernel already owns?* Applied to `tire-pressure.ts` and `differential-lock.ts`,
+both answered no — pure functions taking parameters — and both wired cleanly.
+The tranche's parts-bin experiment now reads:
+
+| Module | Verdict | Outcome |
+| --- | --- | --- |
+| `animation.ts` | Invented kernel-owned state | Supersession (ADR-0034) |
+| `weather.ts` | Pure derivation | Clean wire |
+| `tire-pressure.ts` | Pure derivation | Clean wire |
+| `differential-lock.ts` | Pure derivation | Clean wire |
+| `xp-progression.ts` | Contradicts an accepted ADR | **Quarantined** (ADR-0036) |
+
+**Three outcomes, not two.** The set is not parts-bin-versus-mirage; it is
+parts bin, mirage, *and contraband*. Quarantine is the answer to the third,
+and it generalises: the audit now enforces "this may never be admitted" as a
+distinct rule from "this is not admitted yet."
+
+### Status changes
+
+| Item | Status | Evidence |
+| --- | ---: | --- |
+| The Pegboard (tranche item 2) | Proposed -> **Implemented** | ADR-0035 validation section; keyboard, live, projections |
+| Tyre pressure + diff lock (item 3) | Proposed -> **Implemented** | 15 tests; both tradeoffs proven end-to-end |
+| Universal XP | Ungoverned orphan -> **Quarantined** | ADR-0036; enforced by the audit |
+| Radial as pure projection | Open -> **Closed** | `deriveRigToolProjections()` |
+
+### What remains
+
+`world-memory.ts` (item 5) is the last named tranche item, and it carries the
+highest supersession risk: the save schema already holds terrain deltas,
+discoveries, and route state, so the question is whether that module duplicates
+a persistence authority. **The Logbook** and **The Land Is Trying To Forget**
+both live inside it and should get an exploration pass before its shape is fixed.

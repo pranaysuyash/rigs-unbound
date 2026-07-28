@@ -765,3 +765,73 @@ world situation -> pure assessment -> projection -> validated command
 - `src/main.ts` has unused `missionBoard*` / `WORLD_SITES` symbols from
   **parallel work landing during this gate**. Untouched per the ownership rule.
   `verify:head` will fail on them until that agent finishes.
+
+## 2026-07-28 — quarantine, the Pegboard, and the first two commitments
+
+### ADR-0036: universal XP is quarantined
+
+The reachability audit surfaced `xp-progression.ts` — 175 lines, tested,
+unreachable, implementing account XP and player levels. **ADR-0018, accepted by
+explicit operator sign-off, rejects exactly that.**
+
+This is the ADR-0031 failure mode with the polarity reversed: there, an
+unreachable module held a wrong mechanism for an accepted boundary; here it holds
+a rejected design. Both cases share the root cause — an unreachable module is
+governed by nothing.
+
+The module is **preserved, not deleted** (code-preservation rule), and instead
+**quarantined**:
+
+- `tools/audit-runtime-reachability.mjs` now carries an explicit quarantine list;
+  importing a quarantined module from anything entry-reachable fails the audit
+  and therefore `verify:head`;
+- quarantined modules are excluded from the unreachable budget, because counting
+  them would create pressure to "fix" them by wiring them;
+- the file carries a status header so an agent reading only the source learns its
+  standing.
+
+**Proven to bite:** temporarily importing it from `state.ts` produced
+`❌ Quarantine violations`, exit code 1, and a failing budget step. Restored, the
+audit exits 0. Two tests cover the rule.
+
+### The Pegboard is real (ADR-0035 validated)
+
+- **Keyboard parity added.** The wheel was pointer/touch only — a core tool
+  surface unreachable by keyboard, failing ADR-0035's own gate. `Q` now opens it.
+- **Projections replace stored state.** `deriveRigToolProjections()` derives
+  every label, status, cost, and command from canonical state.
+  `RadialMenuItem.active` is no longer gameplay authority.
+- **The accessibility opt-in works.** Live by default (`paused: false` while
+  open); `setPegboardPausesWorld(true)` pauses and restores through the canonical
+  path, and only un-pauses a pause it created.
+
+### Tyre pressure and differential lock are commitments, not upgrades
+
+New kernel-owned `RigToolState` on each rig, with defaulting restore for older
+saves. Both compose into motion:
+
+- **airing down** buys soft-ground float, costs top end — and only helps where
+  grip is scarce, so on hardpan it is pure cost. That is what stops it being a
+  permanent upgrade the player leaves switched on;
+- **locking the differential** buys traction, costs turning, via the existing
+  `computeAxleTorque` scrub factor.
+
+Both modules passed the discriminator from ADR-0034 — they are pure functions
+taking parameters, inventing no state the kernel owns — so they wired cleanly
+rather than needing supersession.
+
+### Verification
+
+- **423 tests** across 70 files (from 410).
+- Reachability **28 -> 25**; budget ratcheted to 25 and enforced.
+- 15 tests in `rig-tools.test.ts`, including both end-to-end tradeoffs and a real
+  `saveState`/`loadState` round trip.
+- Live browser: keyboard open, `paused: false`, every entry states its cost,
+  winch blocked with a reason, commitments applied, **persisted across reload**,
+  zero console errors.
+
+### Not done
+
+Narrow-viewport (390x844) and real-touch capture for the Pegboard, and
+reduced-motion/focus-order evidence, are not recorded. ADR-0035 says so
+explicitly rather than implying full coverage.

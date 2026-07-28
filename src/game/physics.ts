@@ -43,6 +43,9 @@ import {
   WORLD_LIMIT,
 } from "./contracts";
 import { applyWeatherGripPenalty } from "./weather";
+import { calculateTirePressureState } from "./tire-pressure";
+import { computeAxleTorque } from "./differential-lock";
+import type { RigToolState } from "./contracts";
 import { clamp } from "./noise";
 import type { TerrainField } from "./terrain";
 import {
@@ -128,6 +131,54 @@ export interface MotionOptions {
   canJump: boolean;
   /** 0..1 ground saturation from the deterministic weather clock. */
   soilMoisture?: number;
+  /** Kernel-owned tool commitments. Omitted means "neutral, nothing committed". */
+  tools?: RigToolState;
+}
+
+/**
+ * Traction and speed consequences of the player's committed tool states.
+ *
+ * Neither state may be strictly better than the other, or it stops being a
+ * decision and becomes a delay before the obvious choice:
+ *
+ * - **airing down** grows the contact patch, so soft ground holds better, but
+ *   carcass flex raises rolling resistance and caps top speed;
+ * - **locking the differential** sends torque to the wheel that still has grip,
+ *   but the axle scrubs, so turning is worse.
+ */
+export function toolTractionModifiers(tools: RigToolState | undefined): {
+  softGripMultiplier: number;
+  topSpeedMultiplier: number;
+  steeringMultiplier: number;
+} {
+  if (!tools) {
+    return {
+      softGripMultiplier: 1,
+      topSpeedMultiplier: 1,
+      steeringMultiplier: 1,
+    };
+  }
+
+  const patch = calculateTirePressureState(tools.tirePressurePsi, 900);
+  // Floatation is the payoff; rolling resistance is the price.
+  const softGripMultiplier = 1 + patch.mudFloatationFactor * 0.32;
+  const topSpeedMultiplier = clamp(
+    1 - (patch.rollingResistanceCoeff - 0.015) * 9,
+    0.72,
+    1,
+  );
+
+  // A locked axle drives better and turns worse; limited-slip splits the
+  // difference. `computeAxleTorque` owns the torque math; this reads its scrub.
+  const axle = computeAxleTorque(1000, 0.8, 0.25, tools.differentialMode);
+  const lockGrip = tools.differentialMode === "open" ? 1 : 1.14;
+  const steeringMultiplier = clamp(1 / axle.turningScrubFactor, 0.7, 1);
+
+  return {
+    softGripMultiplier: softGripMultiplier * lockGrip,
+    topSpeedMultiplier,
+    steeringMultiplier,
+  };
 }
 
 export function effectiveGrip(
@@ -327,10 +378,23 @@ function stepGroundMotion(
   // to claim conditions are harder. Hardpan and rock resist it; soft soils do
   // not. `deriveFleetRecoveryAssessment()` reads grip through this same helper
   // so the board can never promise traction the rig does not have.
-  const grip = applyWeatherGripPenalty(
+  const toolModifiers = toolTractionModifiers(options.tools);
+  const weatheredGrip = applyWeatherGripPenalty(
     effectiveGrip(ground.surface.grip, profile.tireGrip, profile.lugBonus),
     ground.surface.id,
     options.soilMoisture ?? 0,
+  );
+  // Airing down and locking the diff only help where grip is actually scarce.
+  // On hardpan they are pure cost, which is what makes them a decision rather
+  // than a permanent upgrade the player would simply leave switched on.
+  const softGround =
+    ground.surface.id !== "track" && ground.surface.id !== "rock";
+  const grip = clamp(
+    softGround
+      ? weatheredGrip * toolModifiers.softGripMultiplier
+      : weatheredGrip,
+    0.04,
+    1.35,
   );
   const grade = terrain.gradeAlong(rig.x, rig.z, forwardX, forwardZ);
   // Gravitational acceleration along the direction of travel. sin(atan(g)) keeps
@@ -371,7 +435,11 @@ function stepGroundMotion(
       atmos.engineAirEfficiency,
     );
     const baseDemand = driveForce(profile, rig.speed);
-    const demand = (baseDemand * effectivePower) / profile.enginePower;
+    // Carcass flex at low pressure costs top end. This is the price that stops
+    // airing down from being a free upgrade the player leaves on permanently.
+    const demand =
+      (baseDemand * effectivePower * toolModifiers.topSpeedMultiplier) /
+      profile.enginePower;
     const applied = Math.min(demand, tractionLimit);
     if (demand > tractionLimit) {
       slipDemand = clamp((demand - tractionLimit) / demand, 0, 1);
@@ -444,15 +512,21 @@ function stepGroundMotion(
     ? clamp(profile.mass / (profile.mass + 1.4), 0.45, 0.9)
     : 1;
   const steerAuthority = clamp(grip * contactFraction, 0, 1.1);
-  // Positive steering is the player's left. In the +Z-forward Three.js
-  // coordinate contract, left is negative yaw (toward world −X).
-  rig.heading -=
+  // Positive steering is the player's left. For the chase viewer standing
+  // BEHIND the rig looking along +forward, screen-left is world +X when the rig
+  // faces +Z (Three.js lookAt right-axis = -X), so positive steering must
+  // INCREASE heading. An earlier revision subtracted here after deriving
+  // "left = -X" from the head-on view - a mirror error that made the body turn
+  // opposite to its own visibly-steered front wheels.
+  rig.heading +=
     rig.steering *
     profile.turnRate *
     movementFactor *
     direction *
     towStability *
     steerAuthority *
+    // A locked axle scrubs: torque goes where grip is, and the rig turns wider.
+    toolModifiers.steeringMultiplier *
     dt;
 
   // ---------------------------------------------------------------------------
@@ -637,7 +711,7 @@ function stepHoverMotion(
   const movementFactor = clamp(Math.abs(rig.speed) / 3, 0.2, 1);
   const direction = rig.speed >= 0 ? 1 : -1;
   // Hover and ground adapters share the same player-relative steering sign.
-  rig.heading -=
+  rig.heading +=
     rig.steering *
     profile.turnRate *
     movementFactor *

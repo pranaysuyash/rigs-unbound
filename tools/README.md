@@ -66,6 +66,17 @@ requires a recorded reason. Archiving a module is a legitimate way to reduce the
 count — the goal is that pre-positioned work is _declared_ rather than
 accumulated by inattention.
 
+### Quarantine
+
+Some modules must **never** be admitted, not merely "not yet". The audit carries
+an explicit quarantine list; importing one of those from anything reachable from
+an entry point prints `❌ Quarantine violations`, exits non-zero, and fails
+`verify:head`. Quarantined modules are excluded from the unreachable budget,
+because counting them would create pressure to "fix" them by wiring them.
+
+Current entry: `src/game/xp-progression.ts` (ADR-0036 — universal XP contradicts
+ADR-0018).
+
 Adopted under RU-0911 after ADR-0034 showed the failure this prevents: a
 load-bearing decision record asserted a module was wired into the live path when
 nothing imported it, and the claim survived a full documentation and release

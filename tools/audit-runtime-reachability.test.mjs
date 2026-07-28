@@ -110,3 +110,22 @@ test("does not let an archived docs preview confer reachability", async () => {
   assert.equal(report.unreachable[0].path, "src/game/archived.ts");
   await rm(root, { recursive: true, force: true });
 });
+
+test("quarantined modules are excluded from the unreachable budget", async () => {
+  // Their unreachability is intentional and permanent. Counting them would
+  // create pressure to "fix" them by wiring them — the opposite of intent.
+  const report = await auditReachability();
+  const quarantinedInBudget = report.unreachable.filter((entry) =>
+    report.quarantined.includes(entry.path),
+  );
+  assert.deepEqual(quarantinedInBudget, []);
+});
+
+test("the live tree has no quarantine violations", async () => {
+  const report = await auditReachability();
+  assert.deepEqual(
+    report.quarantineViolations,
+    [],
+    "a module an accepted decision forbids has become reachable",
+  );
+});
