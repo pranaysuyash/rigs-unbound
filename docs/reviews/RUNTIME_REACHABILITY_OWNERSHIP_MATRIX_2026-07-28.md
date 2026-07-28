@@ -86,7 +86,8 @@ wired into the current entry graph:
 
 - `src/game/xp-progression.ts` - mode-scoped XP projection, with current docs
   keeping campaign progression canonical
-- `src/game/campaign.ts` - campaign contract spine
+- `src/game/campaign.ts` - campaign contract spine; tested and documented, but
+  still not imported by the shipped runtime entry graph
 - `src/game/signature.ts` - identity/signature contract
 - `src/game/ghost.ts` - replay / ghost artifact contract
 - `src/game/winch-physics.ts` - rescue / recovery mechanics

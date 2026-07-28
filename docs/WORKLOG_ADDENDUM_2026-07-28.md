@@ -288,6 +288,11 @@ centralized loader sketch documented in the 2026-07-27 loader-flow note.
 is a pure, read-only projection of furrow and rig telemetry, and its dedicated
 containment review already says it has no gameplay integration yet.
 
+`src/game/campaign.ts` stays preserved as a future-bound contract spine. It has
+tests and documentation, but the shipped runtime entry graph still does not
+import it, so it remains a designed-but-unwired seam rather than live gameplay
+authority.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were
