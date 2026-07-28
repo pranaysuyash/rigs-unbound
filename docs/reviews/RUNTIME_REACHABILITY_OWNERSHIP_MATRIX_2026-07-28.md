@@ -96,7 +96,9 @@ wired into the current entry graph:
 - `src/game/ghost.ts` - future-bound replay / ghost helper; tests exist, but
   the live replay authority remains the bounded run-record lane
 - `src/game/winch-physics.ts` - rescue / recovery mechanics
-- `src/game/weather.ts` - weather and environment contract
+- `src/game/weather.ts` - future-bound weather / traction contract; pure and
+  tested, but the live runtime still passes weather as an injected string and
+  does not import this module yet
 - `src/game/salvage-crafting.ts` - salvage economy / crafting contract
 - `src/game/seismic-probe.ts` - tactical sensing contract
 - `src/game/thermal-camera.ts` - tactical sensing / inspection layer

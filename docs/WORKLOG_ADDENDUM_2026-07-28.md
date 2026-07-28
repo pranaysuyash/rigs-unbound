@@ -303,6 +303,11 @@ sketch. The newer mission-proposition system in `src/game/mission-propositions.t
 and the mission acceptance surface now own the canonical mission path, so the
 older generator is historical rather than live runtime wiring.
 
+`src/game/weather.ts` stays preserved as a future-bound weather / traction
+contract. The module is pure and tested, but the live runtime still passes
+weather as an injected string into mission generation and does not import this
+module yet.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were
