@@ -192,6 +192,14 @@ separation between a strong announcement concept, a technically valid media
 candidate, and the runtime/human evidence needed to publish without making a
 false promise.
 
+## Related launch surfaces
+
+- [Comms package index](README.md)
+- [First post draft](POST_TODAY_2026-07-26.md)
+- [Trailer and build-in-public release review](TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer audio and edit production log](TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+- [Build-in-public kit](BUILD_IN_PUBLIC_KIT_2026-07-25.md)
+
 ## Pass outcomes
 
 ### Pass 1: Immediate correctness

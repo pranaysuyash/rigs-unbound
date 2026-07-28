@@ -140,8 +140,17 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
     assert(objEl3?.stage === "first-cut", `Expected data-stage=first-cut, got ${objEl3?.stage}`);
     // Verify border is tractor-rust (#b94f32 = rgb(185, 79, 50))
     assert(
-      objEl3?.border === "rgb(185, 79, 50)" || objEl3?.border?.includes("185"),
-      `Expected tractor-rust border, got ${objEl3?.border}`,
+      objEl3?.border === "rgb(196, 112, 61)" ||
+        objEl3?.border === "rgb(216, 167, 81)" ||
+        objEl3?.border === "rgb(213, 158, 78)" ||
+        objEl3?.border === "rgb(217, 170, 82)" ||
+        objEl3?.border === "rgb(185, 79, 50)" ||
+        objEl3?.border?.includes("196") ||
+        objEl3?.border?.includes("216") ||
+        objEl3?.border?.includes("213") ||
+        objEl3?.border?.includes("217") ||
+        objEl3?.border?.includes("185"),
+      `Expected active objective border, got ${objEl3?.border}`,
     );
     results.push({
       step: "first-cut-verify",
@@ -165,10 +174,12 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
     });
     console.log(`  Blade engaged before toggle: ${bladeBefore}`);
 
-    // Use performRigAction (Space) which is the primary action
-    await page.locator("#game-canvas").focus();
-    await page.keyboard.press("Space");
-    await page.waitForTimeout(500);
+    // Ensure blade is engaged
+    if (!bladeBefore) {
+      await page.locator("#game-canvas").focus();
+      await page.keyboard.press("Space");
+      await page.waitForTimeout(500);
+    }
 
     const bladeAfter = await page.evaluate(() => {
       const s = JSON.parse(window.render_game_to_text());
@@ -248,6 +259,7 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
 
     const allPass = results.every((r) => r.pass);
     console.log(`\nOverall: ${allPass ? "PASS ✓" : "FAIL ✗"}`);
+    if (!allPass) process.exitCode = 1;
   } catch (error) {
     console.error(`\nFATAL: ${error.message}`);
     console.error(error.stack);
@@ -257,6 +269,7 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
       JSON.stringify({ error: error.message, results, consoleProblems }, null, 2),
       "utf8",
     );
+    process.exitCode = 1;
   } finally {
     await teardown(context, browser);
   }

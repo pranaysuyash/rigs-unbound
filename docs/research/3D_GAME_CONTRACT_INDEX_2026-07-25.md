@@ -13,6 +13,8 @@ current 3D-game architecture map easier to traverse.
 | World affordances    | [World Affordances and Capability Resolution Contract](./WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md) | World verbs, affordance records, deterministic capability matching               |
 | Behavior/planner     | [Behavior System and Planner Contracts](./BEHAVIOR_SYSTEM_AND_PLANNER_CONTRACTS_2026-07-25.md)                               | Decision layer, planner selection, deterministic action choice                   |
 | Event graph          | [Event Graph and Deterministic Handlers Contract](./EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md)           | Ordered event envelopes, handler ownership, replay-safe mutations                |
+| Contract ledger      | [Contract Ledger Specification](./CONTRACT_LEDGER_SPEC_2026-07-27.md)                                                      | Read-only activity ledger, progression gates, publicState-derived mission view  |
+| Episode runner       | [Episode Runner Specification](./EPISODE_RUNNER_SPEC_2026-07-27.md) and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md) | Named composition stack, episode plan, consequence schema                      |
 | Kernel ordering      | [Kernel Ordering and Mutable Subsystem Gates Contract](./KERNEL_ORDERING_AND_MUTABLE_SUBSYSTEM_GATES_CONTRACT_2026-07-25.md) | Mutation order, validation gates, renderer-only separation                       |
 | Save and migration   | [Save and Migration Observability Contract](./SAVE_AND_MIGRATION_OBSERVABILITY_CONTRACT_2026-07-25.md)                       | Save visibility, migration reporting, recovery explanation                       |
 | Authority groundwork | [Authority Model Groundwork Contract](./AUTHORITY_MODEL_GROUNDWORK_CONTRACT_2026-07-25.md)                                   | Local-first authority, future-only shared-state boundaries                       |
@@ -28,6 +30,8 @@ current 3D-game architecture map easier to traverse.
 | Camera feel                        | [Camera Feel Contract](./CAMERA_FEEL_CONTRACT_2026-07-25.md)                                                                                     | Mode transitions, comfort policy, obstruction handling                     |
 | Shader/material                    | [Shader and Material Strategy Contract](./SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md)                                                   | Layered materials, readability cues, fallback behavior                     |
 | Renderer performance/accessibility | [Renderer, Performance, and Accessibility Contract for First Public Smoke Test](./RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md) | Smoke-test acceptance profile, reduced-motion safety, baseline readability |
+| Unified UI shell                   | [Unified UI Shell Specification](./UNIFIED_UI_SHELL_SPEC_2026-07-27.md)                                                                          | Overlay stack, accessibility contract, input contract, z-order             |
+| Garage / fleet roster              | [Garage / Fleet Roster Specification](./GARAGE_FLEET_ROSTER_SPEC_2026-07-27.md)                                                                  | Fleet sheet, active rig, location/status, character-sheet summary          |
 | Accessibility/input                | [Accessibility and Input Contract](./ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md)                                                             | Named actions, remaps, comfort settings, device parity                     |
 | Lighting/atmosphere                | [Lighting and Atmosphere Strategy Contract](./LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md)                                           | Readability-first lighting tiers, shadow fallback rules                    |
 | Portal visibility                  | [Portal Visibility and Bounded Rooms Contract](./PORTAL_VISIBILITY_AND_BOUNDED_ROOMS_CONTRACT_2026-07-25.md)                                     | Room graphs, portal propagation, indoor fallback behavior                  |
@@ -74,6 +78,10 @@ current 3D-game architecture map easier to traverse.
 - [3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md](./3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md](./3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
+
+## Related visual reference surfaces
+
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md) - exploratory prompt-ready scene inventory and reusable composition syntax; explicitly not production-approved by default.
 - [Additional ChatGPT Research Ingestion](./ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 - [Compositional Episode Grammar and Storm Relay](./COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 

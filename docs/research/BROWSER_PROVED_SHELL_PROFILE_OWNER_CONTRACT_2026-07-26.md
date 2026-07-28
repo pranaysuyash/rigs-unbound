@@ -6,7 +6,7 @@
 
 ## Decision
 
-Keep the current shell substrate, visibility policy, and runtime diagnostics as separate canonical pieces.
+Keep the shell substrate, visibility policy, and runtime diagnostics as separate canonical pieces.
 
 The repo already has:
 
@@ -30,7 +30,7 @@ What it does not yet have is one browser-proved owner that ties those pieces tog
 
 - The shell language is not theoretical. The renderer already carries the state-shell substrate.
 - The profile policy is not theoretical. The runtime already selects and reports a profile.
-- The shell is truthful enough to support a live browser surface.
+- The shell is truthful enough to support a browser surface.
 
 That makes this a presentation ownership problem, not a missing-engine problem.
 
@@ -103,3 +103,20 @@ Close this issue only when the repo can point to one browser-proved shell profil
 ## Anything else?
 
 Yes: this contract is the bridge between the state-shell visual-language work and the accessibility/profile-visibility work. It gives the repo one shared ownership target instead of two adjacent unresolved questions.
+
+## Addendum (2026-07-27) - the ownership gap was narrower at the time, but still real
+
+- Re-checked the contract against the live renderer/profile trail.
+- At the time of the addendum, the runtime profile selection and renderer
+  fallback path were tiered in the performance flow, so the missing bridge was
+  no longer the existence of a quality policy.
+- What is still missing is a browser-proved owner for the public shell/profile
+  signal itself:
+  - visible active profile in the public surface,
+  - plain-language fallback/recovery status,
+  - stable public ownership separate from operator diagnostics.
+- That means this contract should be read as a presentation-owner bridge over
+  an already-tiered policy engine, not as a request to invent a second
+  profile-selection system.
+- Evidence depth: Tier 1 static inspection of the contract against the live
+  renderer-performance and profile-selection docs.

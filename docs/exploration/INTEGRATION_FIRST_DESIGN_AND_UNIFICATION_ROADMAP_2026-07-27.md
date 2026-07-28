@@ -107,7 +107,7 @@ Replace site-triggered activities with a unified **Contract Ledger**:
 
 This ledger is the bridge between the open world and episode grammar. It lets the player choose an activity without abandoning the persistent field.
 
-### 4.3 Episode Runner as the composition engine
+### 4.3 Episode Runner as the named composition stack
 
 Build an **Episode Runner** that composes contracts into episodes using the grammar from `COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md`:
 
@@ -140,13 +140,44 @@ Create one overlay system with a single z-index and animation regime:
 
 The shell should be reachable by explicit input bindings and should respect the "rig is the interface" principle: the machine itself remains the primary information channel; the shell is a secondary field kit.
 
-### 4.5 Labs as in-world instruments
+The unified shell specification now lives at
+`../research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md`. It formalizes the overlay
+stack, accessibility contract, input contract, z-order, and visual rules that
+the first slice already proved in the review doc.
+
+The garage/fleet roster specification now lives at
+`../research/GARAGE_FLEET_ROSTER_SPEC_2026-07-27.md`. It formalizes the fleet
+sheet as a character sheet and keeps the first slice read-only over current
+public state.
+
+The episode runner specification now lives at
+`../research/EPISODE_RUNNER_SPEC_2026-07-27.md`. It formalizes the composition
+engine above the loop so episodes remain explainable, bounded, and durable.
+
+### 4.5 Completed first slice: unified UI shell coherence
+
+The first shipped slice already landed in `docs/reviews/UI_SHELL_COHERENCE_SLICE_2026-07-27.md`
+and `docs/WORKLOG_ADDENDUM_2026-07-27.md`:
+
+- one overlay manager (`openOverlay` / `closeOverlay`),
+- a unified map overlay with Field / Rumor layers,
+- a navigator radar toggle,
+- a real pause menu with save and settings actions,
+- browser verification for overlay behavior,
+- no changes to `src/game/`.
+
+This slice proves the roadmap can be landed incrementally without touching the parallel-owned runtime. The next slice should remain read-only from `publicState` until operator sign-off opens a runtime lane.
+
+### 4.6 Labs as in-world instruments
 
 Convert `physics-lab.html` and `box3d-lab.html` from separate pages to **in-world instrument modes**:
 
 - Reachable from the Garage/Workshop or a "Tools" drawer in the UI shell.
 - Rendered in the same runtime context so save state is preserved.
 - Treated as diagnostic/teaching instruments, not separate games.
+
+The durable contract for this surface now lives at
+`../research/LABS_AS_IN_WORLD_INSTRUMENTS_CONTRACT_2026-07-28.md`.
 
 ---
 
@@ -157,11 +188,12 @@ Convert `physics-lab.html` and `box3d-lab.html` from separate pages to **in-worl
 ### 5.1 Documentation and design
 
 - [ ] Finalize this roadmap as an ADR or accepted design doc (operator sign-off).
-- [ ] Write a **Contract Ledger specification** defining data shape, sources, lifecycle, and UI contract.
-- [ ] Write a **Unified UI Shell specification** with wireframes, z-index regime, input bindings, and accessibility notes.
-- [ ] Write an **Episode Runner specification** with composition rules and consequence schema.
-- [ ] Update `EXPLORATION_MAP.md` to reflect integration-first priority.
-- [ ] Update `MASTER_EXECUTION_TRACKER.md` with integration work items.
+- [x] Write a **Contract Ledger specification** defining data shape, sources, lifecycle, and UI contract.
+- [x] Write a **Unified UI Shell specification** with wireframes, z-index regime, input bindings, and accessibility notes.
+- [x] Write a **Garage/Fleet roster specification** with identity, location, recovery, and character-sheet rules.
+- [x] Write an **Episode Runner specification** with composition rules and consequence schema.
+- [x] Update `EXPLORATION_MAP.md` to reflect integration-first priority.
+- [x] Update `MASTER_EXECUTION_TRACKER.md` with integration work items.
 
 ### 5.2 UI shell scaffolding (in `src/` and `index.html`, not `src/game/`)
 
@@ -186,7 +218,9 @@ The following need ADRs before implementation:
 
 - Contract Ledger shape and authority.
 - Unified UI Shell architecture.
-- Episode Runner composition rules.
+- Episode Runner composition rules. ADR-0032 now records this as a read-only
+  composition layer above the contract ledger and core loop, but the runtime
+  implementation remains deferred.
 - Labs-as-instruments routing.
 
 ---
@@ -197,6 +231,41 @@ The following need ADRs before implementation:
 2. **Next:** Land the Contract Ledger as a read-only overlay sourced from `publicState`. This gives players a unified view of available activities without changing activity resolution.
 3. **Then:** Add the Episode Runner behind a feature flag, starting with one composed episode (e.g., Storm Relay or Unbound Passage 01).
 4. **Finally:** Convert labs to in-world instruments and add the Garage/Fleet view.
+
+The Contract Ledger specification now lives at
+`../research/CONTRACT_LEDGER_SPEC_2026-07-27.md`, and the Unified UI Shell
+specification now lives at `../research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md`.
+The Garage/Fleet roster specification now lives at
+`../research/GARAGE_FLEET_ROSTER_SPEC_2026-07-27.md`.
+The Episode Runner specification now lives at
+`../research/EPISODE_RUNNER_SPEC_2026-07-27.md`.
+The Labs-as-Instruments contract now lives at
+`../research/LABS_AS_IN_WORLD_INSTRUMENTS_CONTRACT_2026-07-28.md`.
+The next slice is therefore an implementation slice, not another design note.
+
+## Addendum (2026-07-28) — world graph and place contract drafted
+
+The world graph now has a durable topology contract at
+`../research/WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md`.
+
+- The graph is now the named canonical topology of place, routes, and
+  discovery.
+- The episode runner and contract ledger can cite one shared place contract
+  instead of each improvising their own navigation model.
+- The next proof is source-traceable topology validation, not another map
+  analogy.
+
+## Addendum (2026-07-28) — radial quick-action wheel contract drafted
+
+The radial quick-action wheel now has a durable contract at
+`../research/RADIAL_QUICK_ACTION_WHEEL_CONTRACT_2026-07-28.md`.
+
+- The authored wheel in `src/game/radial-ui.ts` is not dismissed as dead code;
+  it is now a named bounded interaction surface.
+- The contract requires the wheel to stay secondary to the rig and to the
+  canonical named-action model.
+- The next proof is a focus-safe quick-action overlay, not an alternate control
+  system or a separate authority.
 
 ---
 
@@ -230,3 +299,15 @@ The following need ADRs before implementation:
 - `docs/decisions/ADR-0018-journey-mastery-insight-progression-spine.md` — progression spine (Accepted)
 - `docs/decisions/ADR-0029-product-vision-machine-keeper-odyssey.md` — vision proposal (Proposed)
 - `docs/research/GAME_UI_MASTER_SYNTHESIS_2026-07-26.md` — UI layer analysis
+
+## Addendum (2026-07-28) — wiring experiment is now the next concrete step
+
+The next exploration artifact is the wiring experiment for
+`src/game/radial-ui.ts`, `src/game/weather.ts`, and
+`src/game/fleet-recovery.ts`:
+
+- see `docs/exploration/WIRING_EXPERIMENT_RADIAL_WEATHER_RECOVERY_2026-07-28.md`
+  for the falsifiable route;
+- it is an experiment, not a new contract note;
+- it is intended to produce a reachable verb and a visible outcome path, not
+  just another architecture proposal.

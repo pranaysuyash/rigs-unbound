@@ -250,12 +250,12 @@ shadow runtime.
 
 ## Addendum (2026-07-26) - episode grammar depends on pack validation, but it does not replace it
 
-- Re-checked the creator-pack lane against the episode-grammar direction.
+- Re-checked the creator-pack lane against the named composition boundary.
 - Episode grammar can only safely compose on top of validated packs if the
   pack lifecycle remains explicit about dependencies, rollback, and publication
   state.
 - That makes the pack-validation contract an upstream content envelope beneath
-  episode grammar, not the story-composition layer itself.
+  the named composition stack, not the stack itself.
 - The current local-only pack posture remains the live mode; public pack
   publication is still future-gated.
 - Evidence tier: Tier 1 static inspection.

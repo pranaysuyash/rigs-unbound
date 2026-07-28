@@ -269,3 +269,17 @@ The long-term first-principles exploration note at
 is the broader horizon for this platform audit. This document still owns the
 platform-risk frame and sequencing of proof obligations; the new note carries
 the wider machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-27): the platform audit now has a named episode-composition layer
+
+- The repo now names the composition stack that sits above the contract ledger
+  and core loop:
+  [Contract Ledger Specification](../research/CONTRACT_LEDGER_SPEC_2026-07-27.md),
+  [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md),
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
+- The audit’s earlier “future episode engine” framing should now be read as
+  implementation latency, not conceptual uncertainty. The runner is a named
+  read-only composition layer; runtime implementation is still deferred.
+- This keeps the platform audit aligned with the newer integration-first trail
+  without changing its implementation truth: the kernel, snapshot boundary,
+  and public-state surfaces remain the current source of reality.

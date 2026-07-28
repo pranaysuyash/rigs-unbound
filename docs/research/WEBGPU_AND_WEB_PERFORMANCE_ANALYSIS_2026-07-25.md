@@ -160,6 +160,10 @@ with ADR-0013's revisit triggers (or an install-to-homescreen product push).
 
 ### W1 rollout matrix to collect
 
+#### Addendum (2026-07-28)
+
+The matrix is now executable through [WEBGPU_W1_EXECUTION_CHECKLIST_2026-07-28.md](WEBGPU_W1_EXECUTION_CHECKLIST_2026-07-28.md). D1 device sampling and the advance/hold/rollback gate are defined in [WEBGPU_D1_REPRESENTATIVE_DEVICE_EVIDENCE_PLAN_2026-07-28.md](WEBGPU_D1_REPRESENTATIVE_DEVICE_EVIDENCE_PLAN_2026-07-28.md). These artifacts intentionally keep evidence collection separate from a rollout authorization claim.
+
 This is the first evidence pass for the renderer policy lane. The goal is to
 make `rendererPolicy`, request mode, and device class comparable before any
 default shift.

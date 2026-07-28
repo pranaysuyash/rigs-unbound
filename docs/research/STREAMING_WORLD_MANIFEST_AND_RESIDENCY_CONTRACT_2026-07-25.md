@@ -259,6 +259,21 @@ general streaming infrastructure:
 4. Enforce an active-chunk budget and record activation latency, eviction count,
    validation failures, and pressure fallbacks.
 
+## Addendum (2026-07-28) — the streaming boundary now sits beneath the world graph contract
+
+- Re-checked the streaming/residency contract after naming the canonical world
+  graph and place contract.
+- The topology layer is now explicit in
+  [World Graph and Place Contract](./WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md),
+  so this residency contract can stay focused on chunk state, activation, and
+  rollback rather than trying to define place itself.
+- The current world remains a single canonical residency until a measured
+  scale trigger requires chunked activation.
+- That makes the next proof still the same one this contract named:
+  request/validate/activate/unload with visible budgets and rollback rules, not
+  a second world model.
+- Evidence tier: Tier 1 static source inspection and contract synthesis.
+
 ## Addendum (2026-07-26) - residency should stay separate from asset approval
 
 - Re-checked the current runtime split while continuing the streaming lane.

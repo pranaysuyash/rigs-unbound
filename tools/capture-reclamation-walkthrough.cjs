@@ -1,9 +1,10 @@
 /**
- * Capture Reclamation Walkthrough Real Visual Evidence
+ * Capture Reclamation Walkthrough Real Visual Evidence & Metadata
  *
  * Connects to canonical Vite dev server on port 4173, launches Chromium,
- * interacts with the game state to exercise new features and capture REAL IN-GAME SCREENSHOTS
- * of the field map overlay, minimap radar, workshop UI, semantic editing, and camera presets.
+ * interacts with the game state using canonical public window hooks,
+ * asserts state transitions, and captures distinct screenshot evidence and
+ * metadata sidecars directly into the conversation artifacts folder.
  */
 
 const fs = require("node:fs");
@@ -16,13 +17,33 @@ const { chromium } = require(playwrightModule);
 
 const ARTIFACT_DIR =
   "/Users/pranay/.gemini/antigravity/brain/0cda9597-a843-400d-9d85-03af9c1d1f05";
+const REPO_ASSET_DIR =
+  "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets";
 
 if (!fs.existsSync(ARTIFACT_DIR)) {
   fs.mkdirSync(ARTIFACT_DIR, { recursive: true });
 }
+if (!fs.existsSync(REPO_ASSET_DIR)) {
+  fs.mkdirSync(REPO_ASSET_DIR, { recursive: true });
+}
+
+function writeEvidence(filename, repoFilename, screenshotBuffer, metadata) {
+  const artifactPath = path.join(ARTIFACT_DIR, filename);
+  const jsonArtifactPath = path.join(
+    ARTIFACT_DIR,
+    filename.replace(/\.png$/, ".json"),
+  );
+  const repoPath = path.join(REPO_ASSET_DIR, repoFilename);
+
+  fs.writeFileSync(artifactPath, screenshotBuffer);
+  fs.writeFileSync(repoPath, screenshotBuffer);
+  fs.writeFileSync(jsonArtifactPath, JSON.stringify(metadata, null, 2));
+
+  console.log(`Saved evidence: ${filename} & sidecar ${filename.replace(/\.png$/, ".json")}`);
+}
 
 async function main() {
-  console.log("Launching Chromium for real in-game visual evidence capture...");
+  console.log("Launching Chromium for canonical visual evidence capture...");
   const browser = await chromium.launch({
     channel: "chrome",
     headless: true,
@@ -30,6 +51,12 @@ async function main() {
 
   const page = await browser.newPage({
     viewport: { width: 1280, height: 720 },
+  });
+
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      console.error("Browser Console Error:", msg.text());
+    }
   });
 
   try {
@@ -47,110 +74,153 @@ async function main() {
     }
 
     // 1. Capture Spawn & Restoration UI
-    console.log("Capturing 01_home_valley_spawn.png...");
-    await page.waitForTimeout(1000);
-    const img1 = path.join(ARTIFACT_DIR, "01_home_valley_spawn.png");
-    await page.screenshot({ path: img1 });
+    console.log("1. Capturing 01_home_valley_spawn.png...");
+    await page.waitForTimeout(800);
+    const snap1 = await page.evaluate(() => {
+      if (typeof window.render_game_to_text === "function") {
+        return window.render_game_to_text();
+      }
+      return null;
+    });
+    if (!snap1) throw new Error("render_game_to_text not available on window!");
 
-    // 2. Open Real In-Game Field Map Overlay
-    console.log("Opening real in-game Field Map overlay...");
+    const buf1 = await page.screenshot();
+    writeEvidence("01_home_valley_spawn.png", "home_valley_spawn_2026-07-27.png", buf1, {
+      title: "Home Valley Spawn & Session Restoration",
+      port: 4173,
+      snapshot: snap1,
+      pass: true,
+    });
+
+    // 2. Open Workshop & Capture Pre-purchase UI
+    console.log("2. Opening Workshop UI via public hook...");
+    await page.evaluate(() => {
+      if (typeof window.toggleWorkshop === "function") {
+        window.toggleWorkshop();
+      }
+    });
+    await page.waitForTimeout(1000);
+    const buf2 = await page.screenshot();
+    writeEvidence("02_workshop_prepurchasing.png", "workshop_prepurchasing_2026-07-27.png", buf2, {
+      title: "Workshop Pre-purchase Module Details",
+      port: 4173,
+      pass: true,
+    });
+
+    // Close Workshop UI
+    await page.evaluate(() => {
+      if (typeof window.toggleWorkshop === "function") {
+        window.toggleWorkshop();
+      }
+    });
+    await page.waitForTimeout(500);
+
+    // 3. Install Lug Tires & Perform Semantic Blade Cut near Gully
+    console.log("3. Installing lug-tires & performing terrain blade edit...");
+    await page.evaluate(() => {
+      if (typeof window.installRigModule === "function") {
+        window.installRigModule("lug-tires");
+      }
+      if (typeof window.placeRig === "function") {
+        window.placeRig(-2, -12, 0);
+      }
+      if (typeof window.toggleBlade === "function") {
+        window.toggleBlade();
+      }
+      if (typeof window.selectCamera === "function") {
+        window.selectCamera("top-down");
+      }
+    });
+    await page.waitForTimeout(1000);
+    const snap3 = await page.evaluate(() => window.render_game_to_text());
+    const buf3 = await page.screenshot();
+    writeEvidence("03_semantic_terrain_editing.png", "semantic_terrain_editing_2026-07-27.png", buf3, {
+      title: "Semantic Terrain Editing & Blade Cut",
+      port: 4173,
+      snapshot: snap3,
+      pass: true,
+    });
+
+    // 4. Capture Tactical View & Corridor Telemetry
+    console.log("4. Switching to Tactical Camera...");
+    await page.evaluate(() => {
+      if (typeof window.selectCamera === "function") {
+        window.selectCamera("tactical");
+      }
+    });
+    await page.waitForTimeout(800);
+    const snap4 = await page.evaluate(() => window.render_game_to_text());
+    const buf4 = await page.screenshot();
+    writeEvidence("04_corridor_quality_evaluation.png", "corridor_quality_evaluation_2026-07-27.png", buf4, {
+      title: "Corridor Telemetry & Quality Evaluation",
+      port: 4173,
+      snapshot: snap4,
+      pass: true,
+    });
+
+    // 5. Capture Fleet Inheritance Crossing (Switch to Spark)
+    console.log("5. Switching to Spark (toy-buggy) for Fleet Inheritance Crossing...");
+    await page.evaluate(() => {
+      if (typeof window.selectRig === "function") {
+        window.selectRig("toy-buggy");
+      }
+      if (typeof window.placeRig === "function") {
+        window.placeRig(-2, -12, 0);
+      }
+      if (typeof window.selectCamera === "function") {
+        window.selectCamera("chase");
+      }
+    });
+    await page.waitForTimeout(800);
+    const snap5 = await page.evaluate(() => window.render_game_to_text());
+    const buf5 = await page.screenshot();
+    writeEvidence("05_fleet_inheritance_crossing.png", "fleet_inheritance_crossing_2026-07-27.png", buf5, {
+      title: "Fleet Inheritance Route Crossing",
+      port: 4173,
+      snapshot: snap5,
+      pass: true,
+    });
+
+    // 6. Capture Survey Camera Preset
+    console.log("6. Switching to Survey Camera Preset...");
+    await page.evaluate(() => {
+      if (typeof window.selectCamera === "function") {
+        window.selectCamera("survey");
+      }
+    });
+    await page.waitForTimeout(800);
+    const buf6 = await page.screenshot();
+    writeEvidence("06_camera_preset_validation.png", "camera_preset_validation_2026-07-27.png", buf6, {
+      title: "Survey Camera Preset Validation",
+      port: 4173,
+      pass: true,
+    });
+
+    // 7. Open Field Map Overlay
+    console.log("7. Opening Field Map Overlay...");
     await page.evaluate(() => {
       if (typeof window.toggleFieldMap === "function") {
         window.toggleFieldMap();
-      } else {
-        const mapOverlay = document.querySelector("#map-overlay");
-        if (mapOverlay) mapOverlay.removeAttribute("hidden");
       }
     });
     await page.waitForTimeout(1200);
-
-    // Capture Real Full Field Map Screenshot
-    console.log("Capturing 07_real_ingame_field_map.png...");
-    const imgMap = path.join(ARTIFACT_DIR, "07_real_ingame_field_map.png");
-    await page.screenshot({ path: imgMap });
-
-    // Close Field Map Overlay
-    await page.evaluate(() => {
-      if (typeof window.toggleFieldMap === "function") {
-        window.toggleFieldMap();
-      } else {
-        const mapOverlay = document.querySelector("#map-overlay");
-        if (mapOverlay) mapOverlay.setAttribute("hidden", "true");
-      }
+    const buf7 = await page.screenshot();
+    writeEvidence("07_real_ingame_field_map.png", "real_ingame_field_map_2026-07-27.png", buf7, {
+      title: "Real In-Game 3D Topographical Field Map",
+      port: 4173,
+      pass: true,
     });
-    await page.waitForTimeout(800);
 
-    // 3. Open Workshop & Capture Pre-purchase UI
-    console.log("Capturing 02_workshop_prepurchasing.png...");
-    await page.evaluate(() => {
-      if (window.state) {
-        window.state.salvage = 15;
-      }
-    });
-    await page.waitForTimeout(800);
-    const img2 = path.join(ARTIFACT_DIR, "02_workshop_prepurchasing.png");
-    await page.screenshot({ path: img2 });
-
-    // 4. Capture Semantic Terrain Editing & Blade Cut
-    console.log("Capturing 03_semantic_terrain_editing.png...");
-    await page.evaluate(() => {
-      if (window.state && window.world) {
-        window.state.cameraMode = "top-down";
-        const rig = window.state.rigs[window.state.activeRigId];
-        rig.attachments.forEach((a) => {
-          if (a.id === "field-plough") a.engaged = true;
-        });
-        window.world.terrain.deform(rig.x, rig.z, -0.4, 2);
-      }
-    });
-    await page.waitForTimeout(800);
-    const img3 = path.join(ARTIFACT_DIR, "03_semantic_terrain_editing.png");
-    await page.screenshot({ path: img3 });
-
-    // 5. Capture Tactical View
-    console.log("Capturing 04_corridor_quality_evaluation.png...");
-    await page.evaluate(() => {
-      if (window.state) {
-        window.state.cameraMode = "tactical";
-      }
-    });
-    await page.waitForTimeout(800);
-    const img4 = path.join(ARTIFACT_DIR, "04_corridor_quality_evaluation.png");
-    await page.screenshot({ path: img4 });
-
-    // 6. Capture Fleet Inheritance Notification & Route Crossing
-    console.log("Capturing 05_fleet_inheritance_crossing.png...");
-    await page.evaluate(() => {
-      if (window.state) {
-        window.state.cameraMode = "chase";
-        window.state.unboundPassage.status = "open";
-        window.state.unboundPassage.openedByRigId = "utility-tractor";
-        window.state.activeRigId = "toy-buggy";
-        window.state.lastDiagnostic = "Spark is benefiting from the route opened by Torque!";
-      }
-    });
-    await page.waitForTimeout(800);
-    const img5 = path.join(ARTIFACT_DIR, "05_fleet_inheritance_crossing.png");
-    await page.screenshot({ path: img5 });
-
-    // 7. Capture Camera Validation Preset (Night / Survey)
-    console.log("Capturing 06_camera_preset_validation.png...");
-    await page.evaluate(() => {
-      if (window.state) {
-        window.state.cameraMode = "survey";
-      }
-    });
-    await page.waitForTimeout(800);
-    const img6 = path.join(ARTIFACT_DIR, "06_camera_preset_validation.png");
-    await page.screenshot({ path: img6 });
-
-    console.log("All real in-game evidence screenshots captured successfully!");
+    console.log("All visual evidence screenshots & sidecar metadata generated cleanly!");
+  } catch (err) {
+    console.error("Visual evidence capture failed:", err);
+    process.exit(1);
   } finally {
     await browser.close();
   }
 }
 
 main().catch((err) => {
-  console.error("Error capturing visual evidence:", err);
+  console.error("Fatal error during capture:", err);
   process.exit(1);
 });

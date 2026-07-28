@@ -1,0 +1,365 @@
+/**
+ * Mission Proposition System.
+ *
+ * Missions are *derived state* — recomputed from the current world state
+ * every evaluation, never stored in the save file.  This makes the system
+ * open to new mission types: adding a generator to the registry instantly
+ * makes those missions visible whenever the world state qualifies.
+ *
+ * Design invariants:
+ *   - Every generator is a pure function: (state, world, weather, time, visibleSites) → proposition[]
+ *   - Propositions are not persisted.  The player's acceptance is tracked by
+ *     the target mission binding (e.g. "cargo-relay" or "survey-route").
+ *   - Future generators (courier, escort, expedition) are added to the registry
+ *     without changing any existing code path.
+ */
+
+import type { GameState, RigCapability } from "./contracts";
+import type { ProgressionState } from "./progression";
+import type { WorldSiteId } from "./world";
+import { findSite } from "./world";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export type MissionBinding =
+  /** Transport cargo from A to B (uses existing 'haul' binding under the hood). */
+  | "delivery"
+  /** Survey / line-of-sight contract (uses existing 'survey' binding). */
+  | "survey"
+  /** Salvage recovery — go to a site, collect a cache. */
+  | "recovery"
+  /** Multi-site expedition — visit several points in a loop. */
+  | "expedition";
+
+export type MissionState = "available" | "active" | "completed" | "failed";
+
+/**
+ * A mission proposition — what the player sees and can accept.
+ *
+ * Derived from the world state, never stored.  The same world state produces
+ * the same propositions (deterministic).
+ */
+export interface MissionProposition {
+  /** Deterministic id derived from seed + type + target. */
+  id: string;
+  binding: MissionBinding;
+  title: string;
+  /** One-line premise shown in mission select. */
+  premise: string;
+  /** Full briefing text. */
+  briefing: string;
+  /** Origin description (where to start). */
+  origin: string;
+  /** Destination or target description. */
+  destination: string;
+  /** Target site id this mission resolves against. */
+  targetSiteId: WorldSiteId;
+  /** World anchor ids this mission involves. */
+  waypointIds: readonly WorldSiteId[];
+  /** Minimum Insight required to see this proposition. */
+  minInsight: number;
+  /** Capabilities the active rig must have to accept. */
+  requiredCapabilities: readonly RigCapability[];
+  /** Reward in salvage. */
+  rewardSalvage: number;
+  /** Approximate difficulty label for display. */
+  difficultyLabel: "standard" | "hard" | "extreme";
+  state: MissionState;
+}
+// ---------------------------------------------------------------------------
+// Generator interface
+// ---------------------------------------------------------------------------
+
+/**
+ * A mission generator produces propositions from world state.
+ * Add new generators to the registry below to make new mission types appear.
+ */
+export interface MissionGenerator {
+  readonly binding: MissionBinding;
+  generate(
+    state: GameState,
+    progression: ProgressionState,
+    weatherPhase: string,
+    visibleSites: ReadonlySet<WorldSiteId>,
+  ): readonly MissionProposition[];
+}
+
+// ---------------------------------------------------------------------------
+// Concrete generators
+// ---------------------------------------------------------------------------
+
+/**
+ * Delivery generator — site-to-site cargo transport missions.
+ *
+ * Any two discovered sites generate a potential delivery mission when the
+ * active rig has the `tow` capability.  More distant pairs pay more salvage.
+ */
+function generateDeliveryMissions(
+  state: GameState,
+  _progression: ProgressionState,
+  _weatherPhase: string,
+  visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  const discovered = new Set(state.discoveries.map((d) => d.id));
+  const discoveredSites = [...discovered].filter((id) => visibleSites.has(id));
+
+  if (discoveredSites.length < 2) return [];
+
+  const proposals: MissionProposition[] = [];
+
+  for (let i = 0; i < discoveredSites.length; i++) {
+    for (let j = i + 1; j < discoveredSites.length; j++) {
+      const originSite = findSite(discoveredSites[i]!);
+      const destSite = findSite(discoveredSites[j]!);
+      if (!originSite || !destSite) continue;
+
+      const dx = destSite.x - originSite.x;
+      const dz = destSite.z - originSite.z;
+      const distance = Math.hypot(dx, dz);
+
+      // Short hops are not worth the fuel.
+      if (distance < 30) continue;
+
+      // Cap at the biggest proposals so we don't flood.
+      if (proposals.length >= 4) break;
+
+      proposals.push({
+        id: `delivery-${originSite.id}-${destSite.id}`,
+        binding: "delivery",
+        title: `${originSite.verb} → ${destSite.name}`,
+        premise: `Transport supplies from ${originSite.name} to ${destSite.name}.`,
+        briefing: `A ${Math.round(distance)}m haul through open country. ${destSite.name} needs these supplies before the next weather window closes.`,
+        origin: originSite.name,
+        destination: destSite.name,
+        targetSiteId: destSite.id,
+        waypointIds: [originSite.id, destSite.id],
+        minInsight: 0,
+        requiredCapabilities: ["tow"],
+        rewardSalvage: Math.max(3, Math.round(distance / 15)),
+        difficultyLabel: distance > 80 ? "hard" : "standard",
+        state: "available",
+      });
+    }
+  }
+
+  return proposals;
+}
+
+/**
+ * Recovery generator — salvage retrieval missions.
+ *
+ * From the current rig's position, suggests recovery at unvisited sites
+ * that have salvage value.  The farther the site, the more valuable.
+ */
+function generateRecoveryMissions(
+  state: GameState,
+  _progression: ProgressionState,
+  weatherPhase: string,
+  visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  const discovered = new Set(state.discoveries.map((d) => d.id));
+  const rig = state.rigs[state.activeRigId];
+
+  const proposals: MissionProposition[] = [];
+
+  for (const siteId of visibleSites) {
+    if (proposals.length >= 3) break;
+    if (discovered.has(siteId)) continue;
+
+    const site = findSite(siteId);
+    if (!site) continue;
+
+    const dx = site.x - rig.x;
+    const dz = site.z - rig.z;
+    const distance = Math.hypot(dx, dz);
+    if (distance < 20) continue;
+
+    const isStorm = weatherPhase === "storm" || weatherPhase === "rain";
+    proposals.push({
+      id: `recovery-${siteId}`,
+      binding: "recovery",
+      title: `Salvage: ${site.name}`,
+      premise: `Unmarked signal at ${site.name}. Possible salvage cache.`,
+      briefing: `A weak return signal is coming from near ${site.name} (${Math.round(distance)}m ${distance > 60 ? "— a serious journey" : "— a short trip"}). Could be salvage, equipment, or a lead on something bigger.`,
+      origin: "Current position",
+      destination: site.name,
+      targetSiteId: site.id,
+      waypointIds: [site.id],
+      minInsight: 0,
+      requiredCapabilities: [],
+      rewardSalvage: isStorm
+        ? Math.max(5, Math.round(distance / 10))
+        : Math.max(3, Math.round(distance / 15)),
+      difficultyLabel: isStorm ? "hard" : "standard",
+      state: "available",
+    });
+  }
+
+  return proposals;
+}
+
+/**
+ * Survey generator — line-of-sight survey contracts.
+ *
+ * When the active rig has `survey` capability, suggests survey contracts
+ * at clusters of undiscovered sites.
+ */
+function generateSurveyMissions(
+  _state: GameState,
+  _progression: ProgressionState,
+  _weatherPhase: string,
+  visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  const proposals: MissionProposition[] = [];
+
+  // Group visible sites into survey regions by proximity.
+  const unvisited: { id: WorldSiteId; site: ReturnType<typeof findSite> }[] =
+    [];
+  for (const siteId of visibleSites) {
+    const site = findSite(siteId);
+    if (site) unvisited.push({ id: siteId, site });
+  }
+
+  // Simple clustering: if we have 3+ unvisited sites, suggest a survey.
+  if (unvisited.length >= 3) {
+    const cluster = unvisited.slice(0, 5);
+    const names = cluster.map((c) => c.site!.name).join(", ");
+
+    proposals.push({
+      id: `survey-${cluster[0]!.id}`,
+      binding: "survey",
+      title: `Survey: ${cluster[0]!.site!.name} region`,
+      premise: `Sight and map ${cluster.length} signals in the ${cluster[0]!.site!.name} region.`,
+      briefing: `Unsurveyed terrain near ${names}. A survey mast would resolve these signals from the high ground. ${cluster.length} targets within a manageable loop.`,
+      origin: "Current position",
+      destination: cluster[0]!.site!.name,
+      targetSiteId: cluster[0]!.id,
+      waypointIds: cluster.map((c) => c.id),
+      minInsight: 1,
+      requiredCapabilities: ["survey"],
+      rewardSalvage: 5 + cluster.length * 2,
+      difficultyLabel: cluster.length > 4 ? "hard" : "standard",
+      state: "available",
+    });
+  }
+
+  return proposals;
+}
+
+/**
+ * Expedition generator — multi-site multi-objective missions.
+ *
+ * Becomes available at Rung 2+.  Generates a loop through several sites
+ * the player hasn't visited, with higher rewards.
+ */
+function generateExpeditionMissions(
+  state: GameState,
+  progression: ProgressionState,
+  _weatherPhase: string,
+  visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  if (progression.insight < 2) return [];
+
+  const discovered = new Set(state.discoveries.map((d) => d.id));
+  const sites: { id: WorldSiteId; site: ReturnType<typeof findSite> }[] = [];
+
+  for (const siteId of visibleSites) {
+    const site = findSite(siteId);
+    if (site && !discovered.has(siteId)) {
+      sites.push({ id: siteId, site });
+    }
+  }
+
+  if (sites.length < 2) return [];
+
+  // Pick a start and loop through several sites.
+  const loop = sites.slice(0, Math.min(4, sites.length));
+
+  return [
+    {
+      id: `expedition-${loop[0]!.id}`,
+      binding: "expedition",
+      title: `Expedition: ${loop[0]!.site!.name} loop`,
+      premise: `Visit ${loop.length} sites in a single expedition. Higher risk, higher reward.`,
+      briefing: `A multi-site loop through ${loop.map((s) => s.site!.name).join(", ")}. ${loop.length} signals to resolve, each with potential salvage or discoveries. Prepare for extended field operations.`,
+      origin: "Current position",
+      destination: loop[loop.length - 1]!.site!.name,
+      targetSiteId: loop[loop.length - 1]!.id,
+      waypointIds: loop.map((s) => s.id),
+      minInsight: 2,
+      requiredCapabilities: [],
+      rewardSalvage: 8 + loop.length * 4,
+      difficultyLabel: "hard",
+      state: "available",
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Generator registry — add new generators here
+// ---------------------------------------------------------------------------
+
+const GENERATORS: readonly MissionGenerator[] = [
+  { binding: "delivery" as const, generate: generateDeliveryMissions },
+  { binding: "recovery" as const, generate: generateRecoveryMissions },
+  { binding: "survey" as const, generate: generateSurveyMissions },
+  { binding: "expedition" as const, generate: generateExpeditionMissions },
+];
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Derive all currently available mission propositions from the world state.
+ *
+ * Pure — the same state always produces the same propositions.
+ * Call this every tick/frame to keep the mission board current.
+ *
+ * @param state       Current GameState (rig positions, discoveries, etc.)
+ * @param progression Current ProgressionState (for rung gating)
+ * @param weatherPhase Current weather phase ("clear", "rain", "storm")
+ * @param visibleSites Set of site ids the active rig can currently see
+ * @returns An ordered list of propositions, sorted by distance (closest first)
+ */
+export function deriveMissions(
+  state: GameState,
+  progression: ProgressionState,
+  weatherPhase: string,
+  visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  const all: MissionProposition[] = [];
+
+  for (const generator of GENERATORS) {
+    const generated = generator.generate(
+      state,
+      progression,
+      weatherPhase,
+      visibleSites,
+    );
+    for (const prop of generated) {
+      if (progression.insight < prop.minInsight) continue;
+      all.push(prop);
+    }
+  }
+
+  // Sort by proximity to the active rig.
+  const rig = state.rigs[state.activeRigId];
+  return all.sort((a, b) => {
+    const aDist = siteDistance(a.targetSiteId, rig.x, rig.z);
+    const bDist = siteDistance(b.targetSiteId, rig.x, rig.z);
+    return aDist - bDist;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function siteDistance(siteId: WorldSiteId, rigX: number, rigZ: number): number {
+  const site = findSite(siteId);
+  if (!site) return Number.POSITIVE_INFINITY;
+  return Math.hypot(site.x - rigX, site.z - rigZ);
+}

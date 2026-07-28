@@ -111,6 +111,26 @@ The repo already knows asset provenance matters. This contract makes the deliver
 path explicit so runtime can consume validated manifests instead of raw source
 art, and so replacement never becomes ambiguous.
 
+## Addendum (2026-07-28) - the 3D asset-production lens confirms the contract is a delivery gate, not an asset factory
+
+- Re-read the `3d-asset-production` skill to check whether the repo should
+  focus on creating more art or on finishing the delivery path for art that is
+  already approved.
+- The answer is delivery path, not raw production volume:
+  - the repo already has a canonical manifest,
+  - provenance and rights are tracked separately,
+  - runtime bridge candidates exist,
+  - the current browser still distinguishes runtime-tested assets from
+    public-runtime approval.
+- That means the next durable question is not "can we make more assets" but
+  "can we package, validate, promote, and replace one asset cleanly without
+  creating a second truth source."
+- The recommended proof slice remains small and production-shaped:
+  source artifact -> normalized export -> manifest entry -> validation ->
+  runtime activation -> browser-visible approval boundary.
+- Evidence depth: Tier 1 static synthesis against the skill and the current
+  asset-contract trail.
+
 ## Addendum (2026-07-25) - Current runtime asset posture
 
 - The live Field 02 renderer is still deliberately asset-light:
@@ -466,3 +486,36 @@ authored landmark into pass-through scenery.
   before a browser asset can be treated as part of the release surface.
 - Evidence depth: Tier 1 static source inspection. No fresh browser capture or
   test execution was run in this pass.
+
+## Addendum (2026-07-28) - manifest authority is now visible in the runtime bridge code path
+
+- Re-read the current `assets/asset-manifest.json`, `src/game/runtime-assets.ts`,
+  and renderer bridge code in the live worktree.
+- The manifest now makes the split explicit:
+  - two concept/reference rows remain `runtimePath: null`,
+  - two imported GLB rows are `runtime-tested`,
+  - every runtime row still carries `publicRuntimeApproved: false`.
+- `src/game/runtime-assets.ts` enforces that split at runtime:
+  - any manifest row with a `runtimePath` must also supply a finite
+    presentation contract,
+  - `runtimeBridgeSpecs("developer")` returns every runtime bridge,
+  - `runtimeBridgeSpecs("player")` only returns bridges whose public approval
+    gate is explicitly true.
+- That means the bridge is still a delivery gate, not a second asset truth
+  source:
+  - manifest admission owns the source/runtime lineage,
+  - the renderer consumes that lineage,
+  - the browser surface can show bridge health without implying public
+    approval.
+- The first concrete question for the next asset tranche is not "are assets
+  present?" but "which asset, if any, should cross the public-approval gate
+  first, and what replacement/deprecation path will prove the gate honest?"
+- Evidence depth: Tier 1 current-source inspection plus the already recorded
+  Tier 3/Tier 4 bridge evidence and shell-accessibility proof trail.
+
+## Anything else? (manifest authority gate)
+
+Yes. The current manifest/runtime split is healthy precisely because the
+bridge can be live without being public. The next asset decision should preserve
+that asymmetry until a specific player-facing asset has enough provenance,
+budget, and replacement policy to justify promotion.

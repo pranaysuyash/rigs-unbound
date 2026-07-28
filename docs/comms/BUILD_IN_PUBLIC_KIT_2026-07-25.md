@@ -5,6 +5,14 @@ the pre-flight checklist at the bottom passes.**
 
 Live build: <https://rigs-unbound.suyashpranay.chatgpt.site>
 
+Related surfaces:
+
+- [Comms package index](README.md)
+- [Trailer and build-in-public release review](TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer and X Announcement Decision](TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [Trailer Audio and Edit Production Log](TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+- [First post draft](POST_TODAY_2026-07-26.md)
+
 ## The honest positioning
 
 What this is: a **playable exploration**, ~10k lines, running in a browser,

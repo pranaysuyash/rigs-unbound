@@ -252,3 +252,83 @@ one canonical semantic-action registry.
 - That keeps the boundary clean: input/accessibility owns player agency and
   comfort, while the episode grammar owns how those actions are composed into a
   richer story shape.
+
+## Addendum (2026-07-28): the 2D shell now reads as separate status bands on mobile
+
+- Re-checked the live browser on a 390 × 844 viewport after the visible
+  profile and announced save updates landed.
+- The field-kit shell now presents the profile and save messages as two
+  separate, readable status bands in the public HUD rather than one merged
+  message:
+  - `#profile-status` remains visible and reads the active quality state in
+    plain language,
+  - `#save-status` remains visible and continues to announce persistence
+    changes,
+  - `#runtime-diagnostics` stays hidden from the public HUD.
+- The geometry check confirms the bands do not overlap at mobile width, which
+  keeps the 2D shell legible instead of collapsing into a tight block.
+- This is the right kind of 2D-game clarity work: every status line has one
+  job, and the shell communicates state without competing layers.
+- Evidence depth: Tier 4 live browser layout observation plus Tier 1 source
+  inspection.
+
+## Addendum (2026-07-28): Chrome accessibility-tree proof confirms the status bands are exposed to AT
+
+- Ran a Chrome accessibility-tree snapshot against `http://localhost:4173/?proof=1`
+  at 390 × 844.
+- The profile line and save line both appear in the tree as exposed text, so
+  the visible status bands are not just painted pixels; they are part of the
+  browser’s accessible representation of the shell.
+- The profile band remains separate from the save band, and the operator
+  diagnostics remain hidden, which keeps the public HUD distinct from the
+  developer surface.
+- This is stronger than DOM-only proof and narrows the remaining gap to a
+  spoken screen-reader narration check rather than a shell-structure rewrite.
+- Evidence depth: Tier 3/4 browser accessibility-tree observation plus Tier 1
+  source inspection.
+
+## Addendum (2026-07-28): the visible shell status bands now match the accessible shell contract
+
+- Re-checked the live browser at `390 × 844` after the profile/save updates
+  landed in the field-kit shell.
+- The public HUD now presents the accessibility-relevant shell state as two
+  separate status bands instead of one merged status line:
+  - `#profile-status` displays the active quality profile in plain language,
+  - `#save-status` announces persistence changes,
+  - `#runtime-diagnostics` remains hidden from the public HUD.
+- The accessibility-tree proof is now aligned with the visible shell:
+  - both status bands are exposed as readable text in the browser tree,
+  - the bands do not overlap at mobile width,
+  - the remaining gap is spoken screen-reader narration, not shell structure.
+- That makes the current shell contract stronger in two ways:
+  - the player can read the state directly,
+  - assistive technology can reach the same state without needing the developer
+    diagnostics surface.
+- Evidence depth: Tier 4 live browser layout observation plus Tier 3/4
+  accessibility-tree inspection and Tier 1 source inspection.
+
+## Addendum (2026-07-28): the remaining input gap is the canonical binding registry, not the guidance surface
+
+- Re-checked the live input contract against the current docs trail and the
+  named-action model.
+- The first-use guidance and opportunity compass are now treated as canonical
+  surfaces for explaining what to do next.
+- The still-open contract layer is the binding registry itself:
+  - one persisted action-layout source of truth,
+  - remap restore before sampling,
+  - reload survival for preferred keyboard layouts,
+  - and a clean place for device-parity bindings to land without creating a
+    second truth source.
+- That means future accessibility work should extend the named-action contract,
+  not fork a separate help-only map or a second input authority.
+- Evidence depth: Tier 1 static source inspection and docs synthesis.
+
+## Addendum (2026-07-28): the radial quick-action wheel should inherit the canonical action model
+
+- The newly drafted radial wheel contract treats `src/game/radial-ui.ts` as a
+  bounded quick-action overlay, not as a separate control authority.
+- The wheel should map to the same named-action registry as the rest of the
+  input model, which keeps remaps, accessibility, and device parity coherent.
+- That means the wheel is an input surface consumer, not a place to invent new
+  control semantics.
+- Evidence depth: Tier 1 static source inspection plus contract synthesis.

@@ -35,7 +35,9 @@ The live status showed active edits in:
 - `src/styles.css`
 - `tools/rig-lab-browser-acceptance.cjs`
 - staged world, exploration, first-rung, and gameworld files
-- untracked signature, passage, ADR, showcase-tool, and `src/game/animation.ts` files
+- untracked signature, passage, ADR, showcase-tool, and `src/game/animation.ts`
+  files at the time of the handoff (the animation file later reconciled into the
+  live runtime; see the 2026-07-27 addenda)
 
 These files may contain valuable work from other agents. They must be treated
 as canonical in their current form, but not edited by this tranche.
@@ -58,9 +60,10 @@ not write storage, mutate `GameState`, control the renderer, or decide physics.
 
 ## 3D-web skill application
 
-The current stack is vanilla Three.js with direct renderer control. That is a
-good fit for the game because the project needs explicit performance budgets and
-simulation/presentation separation rather than a framework abstraction.
+At the time of the handoff, the stack was vanilla Three.js with direct
+renderer control. That was a good fit for the game because the project needed
+explicit performance budgets and simulation/presentation separation rather than
+a framework abstraction.
 
 For Unbound Passage, the skill creates these non-negotiable constraints:
 
@@ -122,31 +125,39 @@ For Unbound Passage, the skill creates these non-negotiable constraints:
 
 ## Addendum (2026-07-27) — animation file classified as parallel runtime work
 
-`src/game/animation.ts` is present as a new untracked file and appears to be a
-parallel runtime-owned animation system rather than part of the passage or
-state/store tranche. It is intentionally left untouched in this handoff so the
-owning agent can either complete or discard it without this tranche absorbing a
-second authority model.
+`src/game/animation.ts` was present as a new untracked file at the time of this
+handoff and appeared to be a parallel runtime-owned animation system rather
+than part of the passage or state/store tranche. It was intentionally left
+untouched in this handoff so the owning agent could either complete or discard
+it without this tranche absorbing a second authority model.
 
-The file is now present as a compile-safe skeleton so it no longer blocks
-typecheck, but its runtime integration still belongs to the parallel runtime
-surface and remains outside the passage/state tranche.
+The current live boundary is recorded more directly in
+[Three.js Animation Implementation Flow](../research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+and
+[Three.js Interaction Implementation Flow](../research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md),
+which keeps the renderer-to-animation delegation and the interaction evidence
+reachable without rereading the whole handoff.
+
+At the time of the handoff, the file was a compile-safe skeleton so it no
+longer blocked typecheck, but its runtime integration still belonged to the
+parallel runtime surface and remained outside the passage/state tranche. Later
+2026-07-27 addenda supersede that classification for the live renderer boundary.
 
 ## Addendum (2026-07-27) — interaction file is a separate runtime-owned boundary
 
-The live tree now exposes a new untracked implementation-flow artifact at
-`docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md` rather
-than a present `src/game/interaction.ts` source file. It is still runtime-owned
-renderer/interaction evidence, not part of the passage/state tranche.
+At the time of the handoff, the live tree exposed a new implementation-flow
+artifact at `docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md`
+rather than a present `src/game/interaction.ts` source file. It was runtime-
+owned renderer/interaction evidence, not part of the passage/state tranche.
 
-The current renderer no longer imports or calls `vehicleAnimationSystem`; it
-owns the live per-frame rig presentation updates directly. That means
-`src/game/animation.ts` is currently a parallel runtime artifact, not a
-canonical runtime dependency, until a deliberate migration or retirement plan
-is recorded. The runtime additions should therefore be treated as a coherent
-presentation/interaction lane only if and when they are actually wired into the
-renderer boundary, even while the passage/state tranche remains the canonical
-simulation/persistence lane.
+At the time of the later animation addendum, the renderer-to-animation
+delegation had already become the live boundary. The renderer kept world
+placement and orchestration while `vehicleAnimationSystem` owned the rig-local
+channel updates. That means `src/game/animation.ts` is not a dead artifact and
+the earlier import cleanup should be read as incidental to the real ownership
+supersession, not as the architectural decision itself. The live owner also
+keeps the reserved `ClipActionBindings` contract explicit so future clip-backed
+rigs have a named boundary instead of an implied slot.
 
 ## Addendum (2026-07-27) — same-vehicle comparison boards are separate exploration work
 
@@ -181,11 +192,12 @@ This preserves the long-term first-principles architecture: one authoritative
 simulation state, one persistence owner, explicit capability contracts, and a
 replaceable Three.js presentation layer.
 
-## Addendum (2026-07-27) — newer runtime tranche broadens the live lane
+## Addendum (2026-07-27) — newer runtime tranche broadened the live lane at the time
 
-The live tree now also carries `src/game/landslide-hazard.ts`,
-`src/game/procedural-missions.ts`, `src/game/radial-ui.ts`, and
-`src/game/vehicle-maintenance.ts` as new untracked runtime modules with matching
-tests. They are still parallel-owned implementation evidence, not passage/state
-tranche material, and they widen the live runtime lane without changing the
-canonical simulation/persistence boundary.
+At the time of the addendum, the tree also carried
+`src/game/landslide-hazard.ts`, `src/game/procedural-missions.ts`,
+`src/game/radial-ui.ts`, and `src/game/vehicle-maintenance.ts` as new
+untracked runtime modules with matching tests. They were still parallel-owned
+implementation evidence, not passage/state tranche material, and they widened
+the live runtime lane without changing the canonical simulation/persistence
+boundary.

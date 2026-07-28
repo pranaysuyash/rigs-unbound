@@ -1,7 +1,21 @@
+## 2026-07-28 — mission/progression runtime foundation moved to dated addendum
+
+- This session's implementation, decision, evidence, and remaining gate are in
+  [`docs/WORKLOG_ADDENDUM_2026-07-28.md`](WORKLOG_ADDENDUM_2026-07-28.md).
+
 ## 2026-07-27 — session work moved to dated addendum
 
 - This session's worklog entries are in
   [`docs/WORKLOG_ADDENDUM_2026-07-27.md`](WORKLOG_ADDENDUM_2026-07-27.md).
+- The current package indices are
+  [`docs/comms/README.md`](comms/README.md) and
+  [`docs/reviews/README.md`](reviews/README.md).
+- Recommended order:
+  1. read the comms package for launch/publication work;
+  2. read the reviews index for evidence, approval, and closure work;
+  3. for the live rig-local animation boundary, read ADR-0031 with the
+     Three.js Animation Implementation Flow; ADR-0030 is historical only;
+  4. use the worklog addendum and tracker for the active operational sequence.
 - Rationale: the main `WORKLOG.md` had grown large enough that repeated inline
   edits risked accidental loss of adjacent entries. Future agents should prefer
   dated addendum files once `WORKLOG.md` exceeds ~5 MB or ~500 entries, add a
@@ -598,6 +612,56 @@ ploughing` from a timeout (6 521 ms) to **1 102 ms**. Full suite 27 files /
   trail so the repo keeps a durable accessibility backlog.
 - Evidence depth: Tier 1 static source inspection. No browser or screen-reader
   walkthrough was run in this update.
+
+## 2026-07-27 — resource budget envelope narrowed to the cross-system ledger
+
+- Added a 2026-07-27 addendum to
+  `docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md`
+  clarifying that the renderer/profile lane is already tiered and that the
+  remaining gap is the umbrella cross-system budget ledger and visible state
+  table.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  budget lane now tracks the missing operator artifact instead of repeating the
+  renderer-side seed language.
+- Evidence depth: Tier 1 static documentation inspection. No code, test, build,
+  or browser verification was run in this update.
+
+## 2026-07-27 — shell/profile bridge narrowed to public ownership
+
+- Added a 2026-07-27 addendum to
+  `docs/research/BROWSER_PROVED_SHELL_PROFILE_OWNER_CONTRACT_2026-07-26.md`
+  clarifying that the profile engine is already tiered and that the remaining
+  gap is a browser-proved owner for the public shell/profile signal.
+- Mirrored the same clarification into `docs/exploration/EXPLORATION_MAP.md`
+  so the repo trail no longer treats the bridge as a second profile-selection
+  system.
+- Evidence depth: Tier 1 static documentation inspection. No code, test, build,
+  or browser verification was run in this update.
+
+## 2026-07-27 — runtime-profile design corrected to match the live tiered renderer
+
+- Rechecked `docs/research/VISIBILITY_PROFILE_SELECTION_DESIGN_2026-07-26.md`
+  against the live renderer-performance flow and confirmed the design note’s
+  “binary decision; no graduated quality tiers” row is now stale.
+- Appended an addendum to the profile-selection design and mirrored the change
+  into `docs/exploration/EXPLORATION_MAP.md` so the repo trail now says what is
+  actually true: graduated quality tiers and auto-degrade already exist, while
+  the player-facing policy surface remains incomplete.
+- Evidence depth: Tier 1 static documentation inspection. No code, test, build,
+  or browser verification was run in this update.
+
+## 2026-07-27 — 3D optimization synthesis narrowed to renderer budget enforcement
+
+- Added a 2026-07-27 addendum to
+  `docs/research/3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md`
+  noting that the live renderer performance flow has already moved frustum
+  culling, GPU memory tracking, auto-degrade, and prop/terrain simplification
+  out of the generic gap list.
+- Mirrored the same boundary into `docs/exploration/EXPLORATION_MAP.md` so the
+  3D-game optimization lane now tracks budget enforcement and quality tiers
+  instead of repeating culling as an open gap.
+- Evidence depth: Tier 1 static documentation inspection. No code, test, build,
+  or browser verification was run in this update.
 
 ## 2026-07-26 — the map overlay is a real mode switch, but it still lacks a dialog/focus contract
 
@@ -7063,7 +7127,7 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   the skill-to-repo execution ledger so the remaining canonical research paths
   point back to the addendum instead of leaving the update isolated.
 
-## 2026-07-27 — Three.js animation implementation flow left parallel-owned
+## 2026-07-27 — Three.js animation implementation flow recorded as historical parallel evidence
 
 - A new untracked implementation-flow doc surfaced in the live tree at
   `docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md`.
@@ -7071,6 +7135,16 @@ first-use lessons, remap UI, and device glyphs from the same semantic actions.
   canonical research bridge work, so it remains untouched in this pass.
 - Keeping that boundary explicit preserves the long-term research trail without
   colliding with the live implementation tranche.
+
+## 2026-07-27 — animation implementation flow now maps to the live renderer boundary
+
+- The current checkout now wires `vehicleAnimationSystem` into
+  `src/game/renderer.ts`, so the animation flow is no longer just a deferred
+  parallel note.
+- Rig-local animation is now owned by `src/game/animation.ts` while the
+  renderer keeps orchestration, world placement, and presentation framing.
+- This correction supersedes the earlier "left parallel-owned" wording for the
+  live boundary; the historical note remains intact for provenance.
 
 ## 2026-07-27 — canonical research sweep for the reread addendum is clean
 
@@ -7334,3 +7408,15 @@ acquiring "canonical" authority by cross-declaration) is the exact pattern
 ADR-0023 was written to catch — the correction rule works when someone runs
 the audit; the durable fix is the queued vision ADR and the tracker row for
 the horizon doc's six open operator questions.
+
+## 2026-07-27 — episode-grammar wording in older worklog entries is historical
+
+- Older `docs/WORKLOG.md` entries may still say "episode grammar" or
+  "story-composition layer" because this file is append-only history.
+- The current canonical names are `ADR-0032`, `Episode Runner Specification`,
+  `ADR-0031`, and the named composition stack language used in the canonical
+  exploration and research docs.
+- Future search should treat the older wording in this worklog as provenance,
+  not as the active architectural boundary.
+
+2026-07-28 vehicle-family atlas expansion: see [WORKLOG_ADDENDUM_2026-07-28.md](WORKLOG_ADDENDUM_2026-07-28.md).

@@ -4,6 +4,13 @@ Date: 2026-07-26
 Status: candidate exports ready for human listening
 Owner: Pranay
 
+Related surfaces:
+
+- [Comms package index](README.md)
+- [Trailer and build-in-public release review](TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer and X Announcement Decision](TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [First post draft](POST_TODAY_2026-07-26.md)
+
 ## Purpose
 
 Improve the first public Rigs Unbound trailer without overwriting the original recording or the existing silent edit. The edit promise is:

@@ -127,16 +127,18 @@ That keeps the work aligned with the roadmap:
 - Evidence depth: Tier 1 static source inspection. No fresh browser capture or
   test execution was run in this pass.
 
-## Addendum (2026-07-26) - episode grammar depends on this envelope to stay inspectable
+## Addendum (2026-07-26) - the named composition stack depends on this envelope to stay inspectable
 
-- Re-checked the envelope against the episode-grammar direction.
-- Episode grammar can name the lived moment only if the command/event envelope
-  can carry authoritative outcomes, replay classification, and diagnostics
-  without becoming a second authority surface.
+- Re-checked the envelope against the named composition boundary.
+- The composition stack can name the lived moment only if the command/event
+  envelope can carry authoritative outcomes, replay classification, and
+  diagnostics without becoming a second authority surface.
 - The run record remains the current audit spine; it should feed replay and
-  consequence inspection, not replace the story-composition layer.
+  consequence inspection, not replace the named composition stack.
 - The next durable step is still the shared event graph, but the envelope is
-  the prerequisite boundary beneath it.
+  the prerequisite boundary beneath it, with the composition layer now named
+  explicitly in [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
 - Evidence tier: Tier 1 static inspection.
 
 ## Addendum (2026-07-27)

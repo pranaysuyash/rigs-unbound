@@ -10,6 +10,8 @@ import {
   MODULES,
   RIG_PROFILES,
   SAVE_SCHEMA_VERSION,
+  PREVIOUS_SAVE_SCHEMA_VERSION,
+  V8_SAVE_SCHEMA_VERSION,
   type GameState,
   type RigId,
   worldMinuteOfDay,
@@ -1242,6 +1244,47 @@ describe("save recovery and migration", () => {
     saved.cameraMode = "top-down";
 
     expect(recoverState(saved)?.cameraMode).toBe("top-down");
+  });
+
+  it("migrates predecessor schemas and filters unknown persisted capabilities", () => {
+    const source = createInitialState("SCHEMA-PREDECESSOR");
+    const makeLegacy = (schemaVersion: number) => {
+      const legacy = JSON.parse(JSON.stringify(source)) as Record<string, unknown>;
+      legacy.schemaVersion = schemaVersion;
+      legacy.progression = {
+        journeys: source.progression.journeys,
+        mastery: {
+          "utility-tractor": {
+            tow: {
+              rank: "novice",
+              points: 2,
+              situations: {},
+            },
+            "future-capability": {
+              rank: "master",
+              points: 999,
+              situations: {},
+            },
+          },
+        },
+        insight: 3,
+        completedMilestones: [],
+      };
+      return legacy;
+    };
+
+    for (const schemaVersion of [V8_SAVE_SCHEMA_VERSION, PREVIOUS_SAVE_SCHEMA_VERSION]) {
+      const recovered = recoverState(makeLegacy(schemaVersion));
+      expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+      expect(recovered?.lastDiagnostic).toContain(`Schema v${schemaVersion}`);
+      expect(recovered?.progression.mastery["utility-tractor"]).toEqual({
+        tow: {
+          rank: "novice",
+          points: 2,
+          situations: {},
+        },
+      });
+    }
   });
 
   it("moves only pristine inactive v5 Drift state into the Home berth", () => {

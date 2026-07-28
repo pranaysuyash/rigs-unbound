@@ -38,6 +38,7 @@ import {
   type ModuleId,
   NIGHT_START_MINUTE,
   phaseForWorldTime,
+  RIG_CAPABILITIES,
   RIG_IDS,
   RIG_SWITCH_RANGE,
   RIG_LAB_SAVE_SCHEMA_VERSION,
@@ -47,6 +48,8 @@ import {
   type RigState,
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
+  PREVIOUS_SAVE_SCHEMA_VERSION,
+  V8_SAVE_SCHEMA_VERSION,
   type SurveyRouteState,
   V7_SAVE_SCHEMA_VERSION,
   V6_SAVE_SCHEMA_VERSION,
@@ -57,6 +60,18 @@ import {
   WORLD_MINUTES_PER_REAL_SECOND,
   worldMinuteOfDay,
 } from "./contracts";
+import {
+  createInitialProgressionState,
+  moduleSlotsForJourney,
+  JOURNEY_PHASES,
+  MASTERY_RANKS,
+  type RigJourneyState,
+  type MasteryState,
+  type JourneyPhase,
+  type MasteryRank,
+  type ProgressionState,
+} from "./progression";
+import { applyActivityCompletionProgression } from "./mission-resolver";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
   SURVEY_CONTRACT_AFFORDANCE,
@@ -268,7 +283,71 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
       emergencyCount: 0,
       lastEmergencyAtMs: null,
     },
+    progression: createInitialProgressionState(RIG_IDS),
     lastDiagnostic: null,
+  };
+}
+
+function recoverProgression(value: unknown): ProgressionState {
+  if (!value || typeof value !== "object") {
+    return createInitialProgressionState(RIG_IDS);
+  }
+
+  const candidate = value as Record<string, unknown>;
+  const journeys: Record<string, RigJourneyState> = {};
+  if (candidate.journeys && typeof candidate.journeys === "object") {
+    for (const [rigId, journeyVal] of Object.entries(candidate.journeys)) {
+      if (journeyVal && typeof journeyVal === "object") {
+        const j = journeyVal as Record<string, unknown>;
+        journeys[rigId] = {
+          phase: typeof j.phase === "string" && JOURNEY_PHASES.includes(j.phase as any) ? (j.phase as JourneyPhase) : "found",
+          investment: typeof j.investment === "number" ? j.investment : 0,
+          completedDeeds: Array.isArray(j.completedDeeds) ? j.completedDeeds.filter((d): d is string => typeof d === "string") : [],
+        };
+      }
+    }
+  }
+  // Fill missing rigs
+  for (const rigId of RIG_IDS) {
+    if (!journeys[rigId]) {
+      journeys[rigId] = { phase: "found", investment: 0, completedDeeds: [] };
+    }
+  }
+
+  const mastery: Record<string, Partial<Record<RigCapability, MasteryState>>> = {};
+  if (candidate.mastery && typeof candidate.mastery === "object") {
+    for (const [rigId, masteryVal] of Object.entries(candidate.mastery)) {
+      if (masteryVal && typeof masteryVal === "object") {
+        const rigMastery: Partial<Record<RigCapability, MasteryState>> = {};
+        for (const [cap, stateVal] of Object.entries(masteryVal)) {
+          if (!RIG_CAPABILITIES.includes(cap as RigCapability)) continue;
+          if (stateVal && typeof stateVal === "object") {
+            const s = stateVal as Record<string, unknown>;
+            rigMastery[cap as RigCapability] = {
+              rank: typeof s.rank === "string" && MASTERY_RANKS.includes(s.rank as any) ? (s.rank as MasteryRank) : "novice",
+              points: typeof s.points === "number" ? s.points : 0,
+              situations: s.situations && typeof s.situations === "object" ? Object.fromEntries(
+                Object.entries(s.situations).map(([k, v]) => [k, typeof v === "number" ? v : 0])
+              ) : {},
+            };
+          }
+        }
+        mastery[rigId] = rigMastery;
+      }
+    }
+  }
+
+  const completedMilestones = Array.isArray(candidate.completedMilestones)
+    ? candidate.completedMilestones.filter(
+        (item): item is string => typeof item === "string",
+      )
+    : [];
+
+  return {
+    journeys,
+    mastery,
+    insight: typeof candidate.insight === "number" ? candidate.insight : 0,
+    completedMilestones,
   };
 }
 
@@ -734,7 +813,8 @@ export function winchRecover(state: GameState, world: GameWorld): void {
         lengthSquared <= 1e-6
           ? 0
           : clamp(
-              ((rig.x - route.ax) * dx + (rig.z - route.az) * dz) / lengthSquared,
+              ((rig.x - route.ax) * dx + (rig.z - route.az) * dz) /
+                lengthSquared,
               0,
               1,
             );
@@ -1070,6 +1150,11 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
       relay.bestTimeMs === null
         ? duration
         : Math.min(relay.bestTimeMs, duration);
+    state.progression = applyActivityCompletionProgression(
+      state.progression,
+      "cargo-relay",
+      rig.id,
+    );
     state.lastDiagnostic = `Relay delivered in ${(duration / 1000).toFixed(1)} s with ${RIG_PROFILES[rig.id].displayName}.`;
   }
 }
@@ -1223,6 +1308,26 @@ export function stepGame(
           state.furrows.splice(0, state.furrows.length - MAX_FURROWS);
         }
 
+        // Spatially bound route attribution to Home -> Long Furrow corridor (within 12m)
+        const lfSite = findSite("long-furrow");
+        const lfX = lfSite ? lfSite.x : 18;
+        const lfZ = lfSite ? lfSite.z : -46;
+        const totalDx = lfX - HOME_SITE.x;
+        const totalDz = lfZ - HOME_SITE.z;
+        const lenSq = totalDx * totalDx + totalDz * totalDz;
+        const tClamped = Math.max(
+          0,
+          Math.min(
+            1,
+            ((markX - HOME_SITE.x) * totalDx +
+              (markZ - HOME_SITE.z) * totalDz) /
+              (lenSq || 1),
+          ),
+        );
+        const projX = HOME_SITE.x + totalDx * tClamped;
+        const projZ = HOME_SITE.z + totalDz * tClamped;
+        const distToCorridor = Math.hypot(markX - projX, markZ - projZ);
+
         state.semanticEdits.push({
           mode,
           authorRigId: rig.id,
@@ -1233,11 +1338,14 @@ export function stepGame(
           depthDelta: bladeDelta,
           affectedCellCount: 1,
           createdAt: state.elapsedMs,
-          routeId: "home-to-long-furrow",
+          routeId: distToCorridor <= 12 ? "home-to-long-furrow" : undefined,
           visualCategory: mode === "fill" ? "fill-causeway" : "cut-tilled",
         } satisfies CutFillEditRecord);
         if (state.semanticEdits.length > MAX_FURROWS) {
-          state.semanticEdits.splice(0, state.semanticEdits.length - MAX_FURROWS);
+          state.semanticEdits.splice(
+            0,
+            state.semanticEdits.length - MAX_FURROWS,
+          );
         }
       }
     }
@@ -1255,11 +1363,12 @@ export function stepGame(
     if (longFurrow) {
       const distToHome = Math.hypot(rig.x - HOME_SITE.x, rig.z - HOME_SITE.z);
       const distToLF = Math.hypot(rig.x - longFurrow.x, rig.z - longFurrow.z);
-      const totalRouteLength = Math.hypot(
-        longFurrow.x - HOME_SITE.x,
-        longFurrow.z - HOME_SITE.z,
-      );
-      if (distToHome + distToLF <= totalRouteLength + 14) {
+      const gullyX = -2;
+      const gullyZ = -12;
+      const distToGully = Math.hypot(rig.x - gullyX, rig.z - gullyZ);
+
+      // Traversal condition: rig is near Long Furrow or Home AND has crossed through the reclaimed gully zone
+      if ((distToLF <= 22 || distToHome <= 22) && distToGully <= 14) {
         const alreadyRecorded = state.fleetInheritance.some(
           (entry) =>
             entry.benefitingRigId === rig.id &&
@@ -1349,6 +1458,11 @@ export function stepGame(
       const reward = activityDefinition("survey-route").reward.salvage;
       state.salvage += reward;
       state.salvageCollected += reward;
+      state.progression = applyActivityCompletionProgression(
+        state.progression,
+        "survey-route",
+        rig.id,
+      );
       state.lastDiagnostic = `Survey contract filed from sight alone. ${reward} salvage.`;
     } else if (evaluation.failed) {
       state.lastDiagnostic =
@@ -1467,6 +1581,36 @@ export function publicState(state: GameState, world: GameWorld): object {
     state,
     firstRung,
   );
+  const journeys = Object.fromEntries(
+    RIG_IDS.map((rigId) => {
+      const journey = state.progression.journeys[rigId] ?? { phase: "found", investment: 0, completedDeeds: [] };
+      return [
+        rigId,
+        {
+          phase: journey.phase,
+          investment: journey.investment,
+          completedDeeds: journey.completedDeeds,
+          allowedModuleSlots: moduleSlotsForJourney(journey.phase),
+        },
+      ];
+    }),
+  );
+
+  const mastery = Object.fromEntries(
+    RIG_IDS.map((rigId) => {
+      const rigMastery = state.progression.mastery[rigId] ?? {};
+      const capMastery = Object.fromEntries(
+        Object.entries(rigMastery).map(([cap, masteryState]) => [
+          cap,
+          {
+            rank: masteryState.rank,
+            points: masteryState.points,
+          },
+        ]),
+      );
+      return [rigId, capMastery];
+    }),
+  );
 
   return {
     schemaVersion: state.schemaVersion,
@@ -1484,6 +1628,9 @@ export function publicState(state: GameState, world: GameWorld): object {
       RIG_IDS.map((id) => [id, rigSummary(state.rigs[id])]),
     ),
     progression: {
+      insight: state.progression.insight,
+      journeys,
+      mastery,
       salvage: state.salvage,
       salvageCollected: state.salvageCollected,
       firstRung,
@@ -2122,6 +2269,7 @@ function recoverShared(
           ? Math.max(0, recovery.lastEmergencyAtMs)
           : null,
     },
+    progression: recoverProgression(candidate.progression),
     // Preserve the recorded diagnostic verbatim, including null. Recovery used to
     // substitute a "record restored" message here, which meant an identical save
     // round-tripped to a *different* state — breaking deterministic replay at the
@@ -2420,6 +2568,17 @@ function migrateV2(candidate: Record<string, unknown>): GameState | null {
   return recovered;
 }
 
+function migratePriorSchema(
+  candidate: Record<string, unknown>,
+  sourceSchemaVersion: number,
+): GameState | null {
+  const recovered = recoverCurrent(candidate, true);
+  if (!recovered) return null;
+  recovered.lastDiagnostic =
+    `Schema v${sourceSchemaVersion} record migrated. Progression state is now tracked alongside the field.`;
+  return recovered;
+}
+
 function migrateV7(candidate: Record<string, unknown>): GameState | null {
   const recovered = recoverCurrent(candidate, true);
   if (!recovered) return null;
@@ -2433,6 +2592,12 @@ export function recoverState(value: unknown): GameState | null {
   const candidate = value as Record<string, unknown>;
   if (candidate.schemaVersion === SAVE_SCHEMA_VERSION) {
     return recoverCurrent(candidate);
+  }
+  if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V8_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V8_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V7_SAVE_SCHEMA_VERSION) {
     return migrateV7(candidate);

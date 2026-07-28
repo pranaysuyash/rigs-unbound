@@ -1,9 +1,11 @@
 import { WORLD_SITES } from "./world";
 import type { RigId } from "./rig-ids";
+import type { ProgressionState } from "./progression";
 import type { UnboundPassageState } from "./unbound-passage";
 
-export const SAVE_SCHEMA_VERSION = 8 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 7 as const;
+export const SAVE_SCHEMA_VERSION = 10 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 9 as const;
+export const V8_SAVE_SCHEMA_VERSION = 8 as const;
 export const V7_SAVE_SCHEMA_VERSION = 7 as const;
 export const V6_SAVE_SCHEMA_VERSION = 6 as const;
 export const DRIFT_BERTH_SAVE_SCHEMA_VERSION = 5 as const;
@@ -664,6 +666,8 @@ export interface GameState {
     emergencyCount: number;
     lastEmergencyAtMs: number | null;
   };
+  /** Durable advancement state. XP, rungs, and restoration live here. */
+  progression: ProgressionState;
   saveStatus?: "saved" | "pending" | "restored" | "migrated";
   lastDiagnostic: string | null;
 }

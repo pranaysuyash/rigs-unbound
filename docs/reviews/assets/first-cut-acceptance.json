@@ -1,10 +1,43 @@
 {
-  "error": "Expected return-home, got sight-destination",
   "results": [
     {
       "step": "bootstrap",
       "stage": "find-cache",
       "objective": "Recover 5 salvage",
+      "pass": true
+    },
+    {
+      "step": "collect-salvage",
+      "stage": "return-home",
+      "pass": true
+    },
+    {
+      "step": "return-home",
+      "stage": "choose-part",
+      "pass": true
+    },
+    {
+      "step": "first-cut-verify",
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "dataStage": "first-cut",
+      "borderColor": "rgb(217, 170, 82)",
+      "pass": true
+    },
+    {
+      "step": "lower-blade",
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "dataStage": "first-cut",
+      "bladeEngaged": true,
+      "pass": true
+    },
+    {
+      "step": "drive-forward",
+      "stage": "first-cut",
+      "objective": "Plough toward Long Furrow (25 furrows carved)",
+      "dataStage": "first-cut",
+      "furrows": 25,
       "pass": true
     }
   ],

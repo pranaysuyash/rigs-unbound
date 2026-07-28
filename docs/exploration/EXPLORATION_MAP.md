@@ -2,7 +2,7 @@
 
 Status: living canonical map
 Started: 2026-07-25
-Last updated: 2026-07-26
+Last updated: 2026-07-28
 
 ## How to use this map
 
@@ -25,9 +25,24 @@ acceptance record owns its specific tier.
 
 - [Docs root landing page](../README.md)
 - [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- [Decision Register](../decisions/README.md)
+- [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
+- [Three.js Animation Implementation Flow](../research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Three.js Interaction Implementation Flow](../research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Comms package](../comms/README.md)
+- [Reviews index](../reviews/README.md)
 - [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
 - [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
+- [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md)
 - [Worklog](../WORKLOG.md)
+
+## Suggested order
+
+1. Use the comms package first for launch and build-in-public work.
+2. Use the reviews index next for evidence, approval, and closure work.
+3. Use the decision register and contract index for the current policy/analysis path.
+4. Use the master execution tracker and worklog for the current operational sequence.
 
 ## North star and product identity
 
@@ -40,8 +55,14 @@ acceptance record owns its specific tier.
 | Public promise    | A link opens into an understandable, restartable experience with honest maturity and clear controls.                  |    Proposed | Public smoke-test checklist and external playtest.                                                  |
 | Name and identity | **Rigs Unbound** is the accepted project and repository identity.                                                     |    Accepted | Use consistently; complete trademark/domain clearance before commercial launch. See ADR-0005.       |
 
-The public smoke-test gate now sits beneath episode grammar: the gate binds camera, performance, and accessibility evidence into one reviewable public promise, while episode grammar remains the story-composition layer above it.
-The browser-delivery contract now sits beneath episode grammar too, so the public promise can tell future work what is essential, what can degrade, and what is optional without becoming the story layer itself.
+The public smoke-test gate now sits beneath the named composition stack: the
+gate binds camera, performance, and accessibility evidence into one reviewable
+public promise, while the contract-ledger/runner boundary recorded in ADR-0032
+and the Episode Runner Specification remain the named composition stack above
+it.
+The browser-delivery contract now sits beneath that same stack too, so the
+public promise can tell future work what is essential, what can degrade, and
+what is optional without becoming the composition layer itself.
 
 ## Core loops
 
@@ -83,6 +104,40 @@ activities as disconnected minigames. The integration-first roadmap proposes
 unifying the world graph, contract ledger, episode runner, and UI shell so that
 every mode and activity reads as one game. See
 [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md).
+
+Completed slice: the unified UI shell coherence review now exists at
+[UI Shell Coherence Slice — Implementation Review](../reviews/UI_SHELL_COHERENCE_SLICE_2026-07-27.md),
+and the dated addendum records the single-overlay manager, unified map layers,
+radar toggle, and real pause menu as the first shipped integration-first proof.
+The next slices named in the roadmap are the Contract Ledger overlay, the
+Garage / fleet roster overlay, and the Labs-as-instruments drawer.
+
+The Contract Ledger specification now exists at
+[Contract Ledger Specification](../research/CONTRACT_LEDGER_SPEC_2026-07-27.md),
+so the next step is implementation from `publicState`, not another design pass.
+The Unified UI Shell specification now exists at
+[Unified UI Shell Specification](../research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md),
+so the shell work now has a durable accessibility and overlay contract to
+implement against rather than a blank design target.
+The Garage/Fleet roster specification now exists at
+[Garage/Fleet Roster Specification](../research/GARAGE_FLEET_ROSTER_SPEC_2026-07-27.md),
+so the fleet sheet now has a durable character-sheet contract rather than an
+implicit roster idea.
+The asset pipeline now has a named manifest-authority boundary rather than a
+single undifferentiated runtime-asset list; see
+[Asset Pipeline and Provenance Contract](../research/ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
+and the current [Shell Accessibility Evidence](../research/SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md)
+for the browser-facing bridge/proof split.
+The Episode Runner specification now exists at
+[Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md),
+so the named composition stack now has a durable episode contract instead of a
+loose future-composition idea; the load-bearing decision is now captured
+in [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md)
+and the Episode Runner Specification.
+The episode runner composition decision is now recorded in
+[ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md),
+which keeps the runner as a read-only composition layer above the contract
+ledger rather than a second quest authority.
 
 ### Same vehicle, many games
 
@@ -169,6 +224,29 @@ Definitions, owned state, compiled world output, runtime orchestration, and run 
 | ------------ | ----------------------------------------------------------------------------------------------- | -----------------: |
 | Unlock       | discovery, rescue, restoration, reputation, blueprint, challenge, trade                         |        Researching |
 | Ownership    | collect all vs limited active garage vs relationships/loans                                     |               Idea |
+
+### Browser-delivered 3D trust layer
+
+The `3d-web-experience` skill changes the analysis lens from "does the game
+have enough 3D systems" to "does the browser surface communicate those 3D
+systems clearly and accessibly." The current next probes are browser-delivery
+questions, not simulation questions:
+
+- Is runtime quality/profile state visible to the player, not just in operator
+  diagnostics?
+- Does save and recovery announce itself as a real state transition?
+- Is reduced-capability fallback explicit when the browser cannot support full
+  fidelity?
+- Are loading/progress states clear enough that a player never mistakes them
+  for a hang?
+
+This lane stays paired with the open profile-visibility and save-status issue
+reviews so the browser shell remains trustworthy even while the 3D core keeps
+evolving.
+
+The accessibility pass now also has source support: the public profile line is
+visible in the shell, the save line is announced, and the remaining closure
+work is now stronger assistive-tech proof rather than more design invention.
 | Loaners      | temporary compatible vehicle/loadout lets a player try a contract without owning its capability |           Proposed |
 | Upgrade      | reversible modules, tuning, repairs, cosmetic history, hybrid grafts                            |           Proposed |
 | Mastery      | player skill, vehicle familiarity, certification, relationship                                  |        Researching |
@@ -526,10 +604,16 @@ The immediate consequence is that the project should harden visibility, collisio
 - The physics quality envelope contract now lives in [Physics Quality Envelope Contract](../research/PHYSICS_QUALITY_ENVELOPE_CONTRACT_2026-07-25.md), which makes the deterministic traversal model, fallback expectations, and stability-state visibility explicit.
 - The resource budget and fallback envelope now lives in [Resource Budget and Fallback Envelope](../research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md), which makes the current measured frame/draw/memory posture explicit and keeps low-budget fallback policy visible.
 - The event graph and deterministic handlers contract now lives in [Event Graph and Deterministic Handlers Contract](../research/EVENT_GRAPH_AND_DETERMINISTIC_HANDLERS_CONTRACT_2026-07-25.md), which makes the command/checkpoint/save flow explicit and keeps replay-safe event ownership visible.
-- The command/event envelope now also carries the episode-grammar boundary, so replay and diagnostics remain inspectable without inventing a second history source.
+- The command/event envelope now also carries the named composition boundary,
+  so replay and diagnostics remain inspectable without inventing a second
+  history source.
 - The ECS threshold contract now lives in [ECS Threshold and Composition Readiness Contract](../research/ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT_2026-07-25.md), which makes the actor-count and coupling threshold explicit and keeps composition migration proof-based.
-- The ECS threshold also sits beneath episode grammar, so story composition should continue to use the current machine-centric model until measured pressure proves a migration.
-- The physics quality envelope now also sits beneath episode grammar, so motion remains readable through explicit stability states instead of feel changes becoming a hidden second story system.
+- The ECS threshold also sits beneath the named composition boundary, so story
+  composition should continue to use the current machine-centric model until
+  measured pressure proves a migration.
+- The physics quality envelope now also sits beneath the named composition
+  boundary, so motion remains readable through explicit stability states
+  instead of feel changes becoming a hidden second story system.
 - The modding and creator-pack lifecycle now also sits beneath episode grammar, so packs stay validated content envelopes rather than becoming a second story/runtime authority.
 - Closure condition for deferred gates:
   - deterministic command replay parity,
@@ -698,6 +782,23 @@ See [DESIGN.md](../../DESIGN.md).
 - The next durable proof should name one suppression window or coalescing rule
   before another bursty source is introduced.
 
+## Addendum — 2026-07-28 asset delivery is the next 3D-asset-production lens
+
+- Re-read the `3d-asset-production` skill to distinguish asset creation from
+  asset delivery.
+- The repo already has the key ingredients for delivery:
+  - a canonical runtime asset manifest,
+  - provenance and rights tracking,
+  - validated runtime bridge candidates,
+  - browser-visible public-approval gating.
+- The current gap is not "more assets". It is the promotion path that moves one
+  approved source artifact through normalized export, validation, runtime
+  activation, and browser-visible approval without creating a second truth
+  source.
+- That keeps the art pipeline aligned with the browser-delivery lens: useful 3D
+  assets are packaged, validated, and communicated clearly at the player
+  boundary.
+
 Research:
 
 - three competing visual directions;
@@ -723,6 +824,7 @@ production art, individually budgeted, or LOD-ready. See the
 
 Direct project-owner preference now strengthens the tactile repaired-vehicle/diorama/near-isometric direction. New model-sheet, camera, and comparative art boards propose a hierarchy rather than a blended style: Patchwork Atlas as the persistent base, Signal Noir as a danger/information-state transformation, and Salvage Opera as a rare aspiration/event crescendo. Next evidence is an orthographic tractor turnaround, grayscale/mobile silhouette tests, a non-generic enemy ecology, and an actual camera graybox. See [Visual Direction Preference and Variants](VISUAL_DIRECTION_PREFERENCE_AND_VARIANTS_2026-07-25.md).
 The new [Vehicle Reference Atlas](VEHICLE_REFERENCE_ATLAS_2026-07-26.md) now extends that exploration into a broader family of original rigs so later `img2threejs` passes have multiple silhouettes, scale regimes, and hardpoint grammars to choose from rather than only tractor derivatives.
+The prompt-ready [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md) now holds the larger visual-direction inventory and reusable prompt syntax for future boards, while remaining explicitly exploratory rather than production-approved.
 
 External premium generation currently lacks local Tripo/Gemini/ElevenLabs credentials; this does not block hand-authored, open-asset, procedural, or built-in image-generation exploration.
 
@@ -1220,7 +1322,9 @@ The same principle applies to the core objective review:
 - Addendum (2026-07-25): the portal-visibility gap now has a dedicated contract note, so bounded rooms and indoor spaces stay readable alongside distance and chunk culling.
 - Addendum (2026-07-25): the accessibility/input gap now has a dedicated contract note, so named actions, remaps, and comfort settings stay explicit across keyboard, gamepad, and touch.
 - Addendum (2026-07-25): the kernel-ordering gap now has a dedicated contract note, so mutable subsystems stay gated behind the authoritative step order.
-- Addendum (2026-07-26): the kernel-ordering gate also carries the episode-grammar boundary, so story composition consumes authoritative outcomes instead of authoring state directly.
+- Addendum (2026-07-26): the kernel-ordering gate also carries the named
+  composition boundary, so story composition consumes authoritative outcomes
+  instead of authoring state directly.
 - Addendum (2026-07-25): the save/migration gap now has a dedicated contract note, so recovery, versioning, and fallback paths stay explainable.
 - Addendum (2026-07-25): the authoring/content-validation gap now has a dedicated contract note, so manifests, provenance, and runtime-ready status stay reproducible.
 - Addendum (2026-07-26): the authoring/content-validation gate also sits beneath episode grammar, so story composition consumes validated content instead of replacing the manifest envelope.
@@ -1367,6 +1471,31 @@ New exploration questions opened by this package:
 - That visible profile signal also belongs in the public promise, so comfort
   and fallback state stay player-facing instead of operator-only.
 
+## Addendum — 2026-07-28 browser-delivery trust gaps stay split across profile visibility and save announcements
+
+- The live browser probe still shows the active runtime profile is hidden from
+  the public HUD, so the visible profile bridge remains open.
+- The save/recovery line is still visible but not announced as a dedicated
+  accessibility surface, so persistence trust remains a separate gap.
+- Keep both issues linked from the reviews index rather than folding them into
+  one generic browser-delivery note:
+  [Visible Input and Accessibility Profile Issue Review](../reviews/VISIBLE_INPUT_ACCESSIBILITY_PROFILE_ISSUE_REVIEW_2026-07-26.md)
+
+## Addendum — 2026-07-28 2D shell clarity stays readable as separate bands on mobile
+
+- Re-checked the live browser at 390 × 844 after the profile and save changes
+  landed.
+- The public HUD now reads as a 2D status stack instead of one compressed line:
+  profile status, save status, and hidden diagnostics are separated cleanly.
+- The geometry proof shows the profile and save bands do not overlap at mobile
+  width, which keeps the field-kit shell legible on the public surface.
+- This is the right 2D-games-style result: clarity comes from a small number of
+  distinct, readable status surfaces rather than extra decoration.
+  and
+  [Save Status Announcement Issue Review](../reviews/SAVE_STATUS_ANNOUNCEMENT_ISSUE_REVIEW_2026-07-26.md).
+- The `public promise` lane still owns the browser-delivery policy, but these
+  two issue reviews remain the player-facing proof surfaces.
+
 ## Addendum — 2026-07-26 map overlay focus boundary
 
 - The map overlay still needs a true dialog/focus contract even though it is
@@ -1400,7 +1529,8 @@ New exploration questions opened by this package:
 ## Addendum — 2026-07-26 asset public approval stays separate from story composition
 
 - The asset promotion gate belongs to the asset/provenance lane, not to the
-  episode-grammar or story-composition layer.
+  named composition stack described by ADR-0032 and the Episode Runner
+  Specification.
 - `runtime-tested` proves the browser can ingest the asset; public approval is
   the separate decision that lets the player surface treat it as shippable
   truth.
@@ -1457,6 +1587,28 @@ New exploration questions opened by this package:
 - The new [Browser-Proved Shell Profile Owner Contract](../research/BROWSER_PROVED_SHELL_PROFILE_OWNER_CONTRACT_2026-07-26.md)
   keeps that bridge explicit so the repo does not drift into two adjacent
   unresolved questions.
+
+## Addendum — 2026-07-27 the shell/profile bridge is a presentation-owner problem, not a tier-selection problem
+
+- The runtime profile policy is now tiered, so the bridge contract should not
+  be read as a request for another quality-selection layer.
+- The remaining question is exactly who owns the browser-visible shell/profile
+  signal and how that owner explains fallback or reduced-profile state in the
+  public surface.
+- That keeps the presentation layer honest while leaving operator diagnostics
+  and profile selection in their existing canonical homes.
+
+## Addendum — 2026-07-27 the budget envelope is still missing the cross-system ledger
+
+- The resource budget contract now reflects the live tiered renderer/profile
+  trail, so the remaining gap is no longer whether the renderer can measure and
+  fall back.
+- The open question is still the umbrella budget artifact:
+  one cross-system ledger, one operator-visible oversubscribed-resource summary,
+  one subsystem-caused fallback field, and one readable within-budget /
+  degraded / fail-soft table.
+- This keeps the budget lane aligned with the live runtime without pretending
+  the whole economy has already been formalized.
 
 ## Addendum — 2026-07-26 resource budget is measurable, but fallback ownership is still implicit
 
@@ -1655,3 +1807,205 @@ New exploration questions opened by this package:
   current baseline, fog, lighting, decals, or vertex-color path.
 - The current state shell stays a deliberate narrow shader, not a signal that
   the repo should broaden into a shader fork per surface.
+
+## Addendum — 2026-07-27 renderer optimization is now a budget lane, not a blank-slate culling question
+
+- The renderer performance flow now records frustum culling, GPU memory
+  tracking, auto-degrade quality tiers, and prop/terrain simplification as
+  live repository work, so the old generic “should we cull?” question is no
+  longer the right framing.
+- The next useful proof for this lane is budget enforcement across systems:
+  consistent quality-tier behavior, visibility-aware tiering, and the point at
+  which streaming or collision semantics need to join the same envelope.
+- This lane belongs with the other long-lived contract tracks instead of being
+  treated as a one-off renderer patch.
+
+## Addendum — 2026-07-27 runtime profile selection is now tiered, not binary, but the player-facing policy surface is still incomplete
+
+- The visibility-profile design note now trails the live renderer flow rather
+  than leading it: graduated quality tiers and auto-degrade already exist in
+  the renderer/performance path.
+- What remains open is the player-facing surface around that policy:
+  visible active-profile state, plain-language fallback reasons, and the
+  measured loading/progress story.
+- That keeps the public promise aligned with the actual renderer behavior
+  without pretending the current shell already exposes the full policy.
+
+## Addendum — 2026-07-28 the visible profile bridge is still missing on the public shell
+
+- A fresh browser probe confirms the current Field 02 page still hides
+  `#runtime-diagnostics` from the public HUD, so the active runtime profile is
+  still operator-facing rather than player-facing.
+- That means the remaining browser-delivery work is still the same bridge:
+  one browser-proved shell/profile owner that can explain visible profile,
+  fallback, and loading state in plain language without duplicating the
+  runtime policy itself.
+- The existing `browser-proved shell profile owner` contract remains the right
+  bridge note; this addendum simply keeps the exploration map aligned with the
+  current live surface.
+
+## Addendum — 2026-07-28 vehicle-family atlas is now the exploration substrate
+
+- The next vehicle breadth is captured in
+  [Vehicle Family Atlas and Canonical Spec](VEHICLE_FAMILY_ATLAS_AND_CANONICAL_SPEC_2026-07-28.md).
+- Three new reference sheets cover utility/tow, rescue/emergency, and
+  extreme/aspiration roles. They are concept-only and do not alter runtime
+  truth.
+- The long-term direction is now explicit: family spec → visual candidates →
+  isolated multi-view package → image-to-mesh candidate → validation → runtime
+  admission. The family/spec record, not a generated bitmap, is the proposed
+  cross-mode source of truth.
+- The next proof is candidate selection plus a reconstruction-ready isolated
+  package, including dimensions, sockets, materials, uncertainty, and failure
+  variants.
+
+## Addendum — 2026-07-28 contract ledger source-surface recheck
+
+- The current runtime already exposes the board inputs through
+  `publicState(state, world)` and reason-coded affordance resolution in
+  `src/game/affordances.ts`.
+- The contract ledger remains a read-only projection layer and should not
+  become a second mission authority.
+- Keep the next slice aimed at documentation plus a board overlay derived from
+  current state, not a new persistence or mutation path.
+
+## Addendum — 2026-07-28 garage/fleet roster shell reuse recheck
+
+- The roster should reuse the unified overlay manager and focus behavior from
+  the shell slice.
+- The active rig remains the primary context; the sheet should explain the
+  fleet, not own it.
+- The next proof is presentation plus accessibility, not more state plumbing
+  or a second garage model.
+
+## Addendum — 2026-07-28 labs drawer contract drafted
+
+- The labs now have a dedicated contract at
+  `docs/research/LABS_AS_IN_WORLD_INSTRUMENTS_CONTRACT_2026-07-28.md`.
+- The drawer should preserve runtime context and remain in the same shell.
+- The continuity problem is now named, which makes future implementation and
+  review much harder to misroute into separate pages.
+
+## Addendum — 2026-07-28 radial quick-action wheel contract drafted
+
+- The radial wheel now has a dedicated contract at
+  `docs/research/RADIAL_QUICK_ACTION_WHEEL_CONTRACT_2026-07-28.md`.
+- The authored quick-action surface in `src/game/radial-ui.ts` is now treated
+  as a bounded control overlay, not just dead code.
+- The next proof is a focus-safe wheel that maps to named actions and stays
+  secondary to the rig.
+
+## Addendum — 2026-07-28 world graph and place contract drafted
+
+- The world graph now has a dedicated contract at
+  `docs/research/WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md`.
+- Authored sites, routes, and discovery anchors are now framed as one
+  canonical topology of place.
+- The next proof is source-traceable topology validation, not another map
+  metaphor or navigation sketch.
+
+## Addendum — 2026-07-28 streaming residency boundary recheck
+
+- The streaming/residency contract now sits below the world-graph contract and
+  stays focused on chunk activation and rollback.
+- The current runtime still behaves as a single canonical residency.
+- Chunked activation remains a future boundary, not a hidden implementation
+  already waiting underneath the field.
+
+## Addendum — 2026-07-28 runtime reachability is now a measured number, and it is the session's largest finding
+
+A wide-open brainstorm run against measured repository facts produced one
+finding that outranks every other exploration item currently on this map:
+
+**30 of 78 non-test source modules (2,365 lines) cannot be reached from any
+shipped entry point. 28 of them have passing tests.**
+
+This is now reproducible rather than anecdotal:
+
+```bash
+node tools/audit-runtime-reachability.mjs
+```
+
+The audit walks the transitive import graph from the real entry points
+(`index.html`, `physics-lab.html`, `box3d-lab.html`, and the build configs), so
+it catches orphan *clusters* — for example `expedition-economy.ts`, which has an
+importer, but only from `salvage-crafting.ts`, which is itself unreachable.
+
+### Why this belongs on the exploration map and not only in the tracker
+
+The unreachable set is not incidental debt. Read as a list it is almost exactly
+the tactical vocabulary this project's own thesis calls for — tyre pressure,
+differential lock, winch, crane, thermal load, fuel burn, surface moisture,
+debris, landslide, soil, weather, radio — plus `world-memory.ts`, the engine of
+the accepted "the land remembers" thesis, and `fleet-recovery.ts`, the emotional
+payoff of the entire fleet premise.
+
+**The most on-thesis code in the repository is the code the player cannot
+reach.**
+
+### The Missing Middle
+
+Four independent brainstorm roles converged on the same diagnosis. The current
+loop has verbs for departure and verbs for arrival, and almost none for coping
+in between. A journey with its middle removed is a checklist — which is exactly
+the word three simulated personas used.
+
+The interface has the same hole in the same place: a 10,000-foot layer (map,
+atlas, rumour graph) and a ground layer (action prompt, save line, objective
+chip), with no 1,000-foot layer showing what the machine is doing right now and
+at what cost. `radial-ui.ts` is that missing layer, and it is unreachable.
+
+> The UI's missing altitude and the gameplay's missing middle are the same hole.
+> The interface is an accurate map of the wiring.
+
+### Correction to a load-bearing record
+
+ADR-0031 and the Master Execution Tracker both state that `src/game/animation.ts`
+is wired into the live renderer path. It is imported by nothing. This is the
+first observed case of the governance layer making a false claim about the
+runtime, and it is tracked as a provenance repair in the same class as RU-0903
+rather than as a documentation typo.
+
+### Status of the proposals
+
+| Item | Status | Next evidence |
+| --- | ---: | --- |
+| The Missing Middle diagnosis | Proposed | Wire three tactical verbs; observe whether session language stops using "checklist" |
+| Reachability Budget as repo policy | Proposed | Operator sign-off; then adopt `--max` in the verification path |
+| The Pegboard (`radial-ui.ts` revival) | Idea | Focus-safe wheel bound to named actions |
+| Stranded, Not Reset (`fleet-recovery` + `winch-physics`) | Idea | One failure that produces a rescue contract instead of a rollback |
+| The Land Is Trying To Forget (decay/regrowth) | Idea | Route decay that makes persistence earned |
+| The Compliance Officer (Atlas as bureaucracy) | Idea | One episode where an improvised route is filed non-compliant |
+| Routes Are The Save File | Idea (leapfrog) | Export one route graph as a shareable artifact under ADR-0004 policy |
+| One Machine That Changes (fleet deferred to Act II) | Open disagreement | Operator decision; changes Act I sequencing |
+
+Full room, role outputs, arbitration, and build conditions:
+[Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md).
+
+### Anything else?
+
+Yes, and it is uncomfortable. This map has grown to 1,900+ lines and the wider
+`docs/` corpus to roughly 71,000 lines against 33,000 lines of source. The
+project now produces documentation commits at roughly three times the rate of
+shipping commits. That ratio is defensible as the cost of an agent-parallel
+labour model, but it stops being defensible at the moment the documentation
+begins making claims the runtime contradicts — which has now happened once.
+
+The correct next exploration entry on this map is therefore **not another
+contract note**. It is the result of a wiring experiment on three named modules.
+If the next addendum here is another design proposal with no reachable verb
+behind it, that is evidence the method needs changing, not the map.
+
+## Addendum — 2026-07-28 wiring experiment is now the next concrete step
+
+- The next concrete artifact is
+  `docs/exploration/WIRING_EXPERIMENT_RADIAL_WEATHER_RECOVERY_2026-07-28.md`.
+- The experiment ties together `src/game/radial-ui.ts`, `src/game/weather.ts`,
+  and `src/game/fleet-recovery.ts`.
+- This is intentionally a wiring path, not another contract note.
+- It should surface one reachable verb and one visible outcome path.
+- The current route anchors are the recovery feedback in `main.ts`, the
+  recovery control lesson, weather-weighted recovery propositions, and
+  `fleet-recovery.ts` as the consequence primitive.
+- The route now crosses control guidance -> named action -> proposition ->
+  command/result -> progression consequence.

@@ -194,7 +194,7 @@ This contract is satisfied when a player can:
 This note gives the game-design layer a durable loop grammar that matches the existing technical contracts.
 It keeps the rest of the system honest: renderer, camera, progression, and world state must serve this loop, not compete with it.
 
-## Addendum (2026-07-26): the loop now has a named episode-grammar proposal above it
+## Addendum (2026-07-26): the loop now has a named composition proposal above it
 
 - The core loop remains the canonical 30-second and session-loop contract.
 - The next product-level layer above it is now named in
@@ -216,3 +216,39 @@ It keeps the rest of the system honest: renderer, camera, progression, and world
 - This keeps the split clean: progression owns the long-arc resource and reward
   grammar, while the episode grammar owns how those rewards are assembled into
   a playable episode.
+
+## Addendum (2026-07-28) - the live runtime now proves the derived-mission split, but the acceptance surface is still the product gate
+
+- Re-read the current `src/game/mission-propositions.ts`,
+  `src/game/mission-resolver.ts`, and `src/game/progression.ts` alongside the
+  design docs in `docs/systems/`.
+- The implementation already proves a clean technical split:
+  - mission propositions are derived from current world/progression state and
+    are not persisted,
+  - progression is a pure kernel with account XP plus a separate per-rig
+    restoration track,
+  - mission resolution bridges current activity rewards into that progression
+    kernel.
+- The current live code therefore already matches the loop contract’s
+  machine-centric shape better than a generic universal XP ladder:
+  - the player acts through a machine,
+  - missions are derived opportunities,
+  - progression is the consequence ledger.
+- What remains unresolved is product admission:
+  - the repo still lacks a mission board / acceptance surface that is clearly
+    admitted as the player-facing authority,
+  - `ADR-0033` remains proposed rather than accepted,
+  - universal mission-board direction should not be described as settled until
+    the operator resolves that gate.
+- In practice, the right interpretation is:
+  - derived propositions are runtime evidence,
+  - nested progression is runtime evidence,
+  - the acceptance surface is still a decision, not a finished product claim.
+
+## Anything else? (mission/progression gate)
+
+Yes. The current split is healthy because it keeps machine-centric play,
+derived opportunities, and long-arc progression from collapsing into one
+all-purpose quest ledger. The next durable move is to name the player-facing
+mission acceptance surface explicitly, not to broaden the core loop into a
+second progression authority.

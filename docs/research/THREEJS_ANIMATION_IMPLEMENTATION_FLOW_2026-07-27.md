@@ -3,13 +3,39 @@
 **Project:** rigs-unbound  
 **Skill Applied:** `projects/skills/threejs-animation`  
 **Date:** 2026-07-27  
-**Status:** Complete — All tests pass, build succeeds
+**Status:** Historical implementation note — current checkout has moved to renderer-to-animation delegation; runtime verification is pending
 
 ---
 
 ## Executive Summary
 
-Applied the `threejs-animation` skill to implement a complete vehicle animation system for rigs-unbound. The system integrates Three.js AnimationMixer with the existing physics feedback system (SpringDamper from `feedback.ts`) for procedural vehicle animation driven by physics simulation.
+Applied the `threejs-animation` skill to implement a vehicle animation system for rigs-unbound. The current checkout now uses `vehicleAnimationSystem` as the canonical owner for rig-local animation channels, with the renderer handing over the authoritative feedback map each frame.
+
+## Current verification state
+
+- Static code-boundary verification is complete in the current tree:
+  - `src/game/renderer.ts` registers the rigs, initializes the mixers, and
+    passes the per-frame feedback map into `vehicleAnimationSystem.update(...)`.
+  - `src/game/animation.ts` owns the rig-local animation channels for wheel
+    rotation, suspension, steering, body motion, steering wheel, module
+    visuals, plough articulation, and state-shell pulse.
+  - The renderer does not directly own those same rig-local writes in the
+    update path.
+- The module-visual lane now derives lug-tire visibility from the rig's
+  installed module list instead of leaving a dormant visibility flag in the
+  animation state.
+- The presentation lane now also uses stored track width to tune visible roll
+  response, so geometry data already owned by the rig profile contributes to
+  animation instead of sitting unused.
+- The named `ClipActionBindings` contract remains `null` until future
+  clip-backed rigs arrive; the current tree does not yet load or drive
+  animation clips, so the live owner is still procedural by design.
+- The steering lane now writes pivot orientation only once, at the final
+  presentation step, after the steering dampers have updated state.
+- The current owner now has single presentation commit points for body motion
+  and steering, with no lingering duplicate locals from that consolidation.
+- Runtime/browser proof is still pending and is intentionally left unclaimed in
+  this note.
 
 ---
 
@@ -239,7 +265,12 @@ vehicleAnimationSystem.initializeMixer("utility-tractor", tractor.root);
 render(state: GameState): void {
   // ... existing code ...
   this.updateCamera(state, delta, profile);
-  vehicleAnimationSystem.update(delta, state);  // NEW
+  vehicleAnimationSystem.update(
+    delta,
+    state,
+    this.feedbackFrames,
+    this.reducedMotionQuery.matches,
+  );
   this.composer.render();
 }
 ```
@@ -268,10 +299,10 @@ setCameraMode(mode: CameraMode): void {
 
 | Check | Result |
 |-------|--------|
-| TypeScript | ✅ Clean (only unused var warnings) |
-| Unit Tests | ✅ 359/359 pass |
-| Production Build | ✅ Success (406ms) |
-| Asset Boundary | ✅ Pass |
+| TypeScript | Not re-run in this session |
+| Unit Tests | Not re-run in this session |
+| Production Build | Not re-run in this session |
+| Asset Boundary | Not re-run in this session |
 
 ---
 
@@ -307,6 +338,15 @@ setCameraMode(mode: CameraMode): void {
 4. Add steering wheel mesh animation
 5. Connect `updateModuleVisuals` to module install state
 6. Wire `updateStateShell` to `feedback.lastImpact` and `integrityRatio`
+
+---
+
+## Addendum (2026-07-27)
+
+- The current renderer now registers `utility-tractor`, `toy-buggy`, and `marsh-skimmer` with `vehicleAnimationSystem` during construction.
+- The render loop now passes the authoritative per-rig feedback map and reduced-motion state into `vehicleAnimationSystem.update(...)`.
+- The earlier dead-import cleanup story is superseded by an explicit ownership boundary between renderer orchestration and rig-local animation.
+- Runtime/browser verification still needs to be performed on the live dev server before this note should be treated as fully verified.
 
 ---
 

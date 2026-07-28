@@ -102,26 +102,46 @@ The next implementation owner should take the smallest vertical proof in this or
   then capability/affordance contracts, then migration and observability, then
   streaming or authority only when evidence demands it.
 
-## Addendum (2026-07-27): parallel-owned animation implementation evidence remains outside the canonical trail
+## Addendum (2026-07-27): animation implementation evidence was outside the canonical trail at the time
 
-- A new implementation-flow artifact exists at
-  `docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md`.
-- It is runtime implementation evidence from the parallel lane, not canonical
-  research or roadmap content, so it remains intentionally outside this review
-  addendum and the canonical research bridge.
+- A new implementation-flow artifact existed at
+  `docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md` when this
+  review addendum was written.
+- It was runtime implementation evidence from the parallel lane at the time,
+  not canonical research or roadmap content, so it remained intentionally
+  outside this review addendum and the canonical research bridge.
 - The boundary is documented in the worklog so the repository can preserve the
   distinction without folding parallel implementation proof into the research
   path.
 
+## Addendum (2026-07-27): live renderer delegation superseded the earlier
+parallel-only reading of the animation note
+
+- At the time of the later 2026-07-27 addendum, the checkout wired
+  `vehicleAnimationSystem` into `src/game/renderer.ts`, so the animation
+  implementation flow was no longer just an isolated parallel evidence note.
+- The earlier classification in this addendum remained historically valid for
+  the review context, but the live boundary belonged to the renderer/
+  animation delegation recorded in ADR-0031, the worklog, and the animation
+  implementation-flow note itself.
+- Keep reading this addendum as research provenance, not as the final live
+  authority on the current animation boundary.
+- The live boundary itself is now tracked in
+  [Three.js Animation Implementation Flow](./THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+  and
+  [Three.js Interaction Implementation Flow](./THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md),
+  so readers can jump from provenance to the present implementation trail.
+
 ## Addendum (2026-07-27): interaction boundary is separate runtime-owned evidence too
 
-- The live tree now exposes `docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md`
-  as the current interaction evidence, rather than a present `src/game/interaction.ts`
-  source file.
-- It belongs with the animation lane as presentation/interaction evidence, not
+- At the time of the addendum, the tree exposed
+  `docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md` as the
+  interaction evidence, rather than a present `src/game/interaction.ts` source
+  file.
+- It belonged with the animation lane as presentation/interaction evidence, not
   with the passage/state tranche or the canonical research trail.
-- The ownership split is now reflected in the worklog and the parallel runtime
-  handoff so the live lane stays coherent without becoming the active research
+- The ownership split was reflected in the worklog and the parallel runtime
+  handoff so the live lane stayed coherent without becoming the active research
   authority.
 
 ## Addendum (2026-07-27): the newer runtime tranche stays parallel-owned too

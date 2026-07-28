@@ -122,7 +122,24 @@
             <dd id="survey-value">0%</dd>
           </div>
         </dl>
-        <p id="save-status" class="save-status">New field ready</p>
+        <p
+          id="save-status"
+          class="save-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          New field ready
+        </p>
+        <p
+          id="profile-status"
+          class="save-status profile-status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          Quality: standard
+        </p>
         <p
           id="runtime-diagnostics"
           class="runtime-diagnostics"
@@ -286,6 +303,14 @@
               >
                 Rumor
               </button>
+              <button
+                id="map-layer-journal"
+                type="button"
+                class="map-layer-button"
+                aria-pressed="false"
+              >
+                Journal
+              </button>
             </div>
             <span id="map-progress">0% surveyed</span>
             <button id="map-close" type="button" aria-label="Close map">
@@ -295,6 +320,7 @@
           <div class="map-overlay__viewport">
             <canvas id="map-canvas" aria-label="Surveyed terrain"></canvas>
             <div id="rumor-map-host" class="rumor-map-host" hidden></div>
+            <div id="journal-map-host" class="journal-map-host" hidden></div>
           </div>
           <ul class="map-legend" id="map-legend">
             <li><span class="swatch swatch--unknown"></span> unsurveyed</li>

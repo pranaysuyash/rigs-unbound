@@ -399,6 +399,10 @@ select:focus-visible,
     monospace;
 }
 
+.profile-status {
+  color: var(--signal-cyan);
+}
+
 .runtime-diagnostics {
   margin: 0.32rem 0 0;
   color: rgba(226, 180, 76, 0.78);
@@ -1260,6 +1264,44 @@ kbd {
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
 }
 
+.journal-map-host {
+  position: absolute;
+  inset: 0;
+  padding: 1.25rem;
+  overflow-y: auto;
+  background: rgba(11, 19, 36, 0.95);
+  font-family: var(--font-family-mono, monospace);
+  font-size: 0.8rem;
+  color: #ead8b8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.journal-entry {
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.7);
+  border-left: 3px solid #2dd4bf;
+  border-radius: 0.25rem;
+}
+
+.journal-entry--inheritance {
+  border-left-color: #f59e0b;
+}
+
+.journal-entry__header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-bottom: 0.25rem;
+}
+
+.journal-entry__title {
+  font-weight: 700;
+  color: #f59e0b;
+}
+
 .map-overlay__viewport {
   position: relative;
   min-height: 0;
@@ -1438,10 +1480,6 @@ kbd {
 
   .instruments dd {
     font-size: 0.64rem;
-  }
-
-  .save-status {
-    display: none;
   }
 
   .controls-strip {

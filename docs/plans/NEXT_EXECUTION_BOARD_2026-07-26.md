@@ -328,6 +328,10 @@ Deferred, or Superseded with evidence.
 
 ## Immediate next call
 
+### Addendum (2026-07-28)
+
+The renderer lane now has two execution artifacts: use [WEBGPU_W1_EXECUTION_CHECKLIST_2026-07-28.md](../research/WEBGPU_W1_EXECUTION_CHECKLIST_2026-07-28.md) for row-level capture and [WEBGPU_D1_REPRESENTATIVE_DEVICE_EVIDENCE_PLAN_2026-07-28.md](../research/WEBGPU_D1_REPRESENTATIVE_DEVICE_EVIDENCE_PLAN_2026-07-28.md) for cohort sampling and the rollout decision. W1 evidence must be complete before D1 is treated as executable.
+
 The integrated and replay matrices now pass locally. The next ordered work is:
 
 1. run external fresh-player comprehension for A6;

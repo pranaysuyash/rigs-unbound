@@ -349,7 +349,7 @@ browser, or integration verification was run for this change.
 
 ## Addendum (2026-07-26) - episode grammar depends on authority to make consequence durable
 
-- Re-checked the local-first authority boundary against the episode-grammar
+- Re-checked the local-first authority boundary against the named composition
   direction.
 - Episode grammar can only keep consequence durable if authoritative outcomes
   remain separate from speculative intent and local recovery.

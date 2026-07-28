@@ -1,18 +1,26 @@
-# ADR-0030 — Renderer-owned live rig presentation; standalone animation module deferred
+# ADR-0030 — Renderer-owned live rig presentation; superseded by animation-module delegation
 
 - Date: 2026-07-27
-- Status: implemented and verified for the current runtime; animation-module migration or retirement remains deferred
+- Status: historical / superseded by ADR-0031
 - Owner: Rigs Unbound presentation shell
 - Affected runtime: `src/game/renderer.ts`, `src/main.ts`, `src/game/animation.ts`
 - Related evidence: `docs/reviews/PARALLEL_RUNTIME_INTEGRATION_HANDOFF_2026-07-26.md`, `docs/WORKLOG_ADDENDUM_2026-07-27.md`
 
 ## Context
 
-The live runtime already updates rig presentation directly in `GameRenderer.render(state)`. That frame boundary owns the current vehicle pose, wheel spin, steering pivots, module visibility, state-shell pulses, dust emission, and camera-facing presentation state. The standalone `src/game/animation.ts` module exists, but it is not currently wired into the live update path.
+At the time of the original decision, the live runtime already updated rig
+presentation directly in `GameRenderer.render(state)`. That frame boundary
+owned the current vehicle pose, wheel spin, steering pivots, module visibility,
+state-shell pulses, dust emission, and camera-facing presentation state. The
+standalone `src/game/animation.ts` module existed, but it was not wired into
+the live update path.
 
 A previous cleanup removed an unused `vehicleAnimationSystem` import from `src/game/renderer.ts`. That was a correct dead-import fix, but it also exposed an ownership question: should the renderer delegate to the animation module, or should the renderer remain the canonical live presentation owner?
 
-The long-term risk is a second presentation authority. If the renderer and the standalone animation module both try to own the same per-frame rig visuals, the codebase gains duplicate truth, duplicated updates, and more places for drift.
+The long-term risk was a second presentation authority. If the renderer and
+the standalone animation module both tried to own the same per-frame rig
+visuals, the codebase would gain duplicate truth, duplicated updates, and more
+places for drift.
 
 ## Decision
 
@@ -38,10 +46,14 @@ The long-term risk is a second presentation authority. If the renderer and the s
 
 ## Validation
 
-- Current tree inspection shows `src/game/renderer.ts` owns the live rig presentation updates directly.
-- Current tree inspection shows no live call site for `vehicleAnimationSystem.update(...)`.
-- Current tree inspection shows the standalone animation module still exists as a separate runtime artifact.
-- No runtime tests were required to establish the ownership fact itself; this is a code-boundary decision, not a gameplay balance claim.
+- At the time of the original decision, tree inspection showed `src/game/renderer.ts`
+  owning the live rig presentation updates directly.
+- At the time of the original decision, tree inspection showed no live call site
+  for `vehicleAnimationSystem.update(...)`.
+- At the time of the original decision, the standalone animation module still
+  existed as a separate runtime artifact.
+- No runtime tests were required to establish the ownership fact itself; this
+  was a code-boundary decision, not a gameplay balance claim.
 
 ## Rollback and revisit triggers
 
@@ -62,4 +74,9 @@ Yes. The important decision is not whether a module file exists. The important d
 
 ## Update log
 
+- 2026-07-27: Historical framing only. This ADR preserves the pre-delegation
+  live-owner boundary for recordkeeping, but the current checkout is governed
+  by ADR-0031 and should not be read as a recommendation to keep the animation
+  module deferred.
 - 2026-07-27: Captured the live ownership boundary after inspecting the renderer and animation module. The renderer owns the live per-frame rig presentation path; the standalone animation module remains deferred until a deliberate migration or retirement plan is recorded.
+- 2026-07-27: Superseded by ADR-0031 after the renderer began delegating rig-local animation channels to `vehicleAnimationSystem`. The old renderer-owned boundary is preserved here for history only.

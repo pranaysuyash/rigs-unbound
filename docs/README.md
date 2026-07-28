@@ -8,9 +8,28 @@ the real work.
 
 - [3D Game Contract Index](research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Exploration Map](exploration/EXPLORATION_MAP.md)
+- [Decision Register](decisions/README.md)
+- [Episode Runner Specification](research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Vehicle Game Visual Exploration Living Catalog](vehicle_game_visual_exploration_living_catalog.md)
+- [Three.js Animation Implementation Flow](research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Three.js Interaction Implementation Flow](research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Comms package](comms/README.md)
+- [Reviews index](reviews/README.md)
+- [Operations index](operations/README.md)
+- [Trailer and build-in-public release review](comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer and X announcement decision](comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [Trailer audio and edit production log](comms/TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+- [First post draft](comms/POST_TODAY_2026-07-26.md)
 - [Compositional Episode Grammar and Storm Relay](exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 - [Master Execution Tracker](plans/MASTER_EXECUTION_TRACKER.md)
 - [Worklog](WORKLOG.md)
+
+## Recommended reading order
+
+1. Use the comms package first for launch and build-in-public work.
+2. Use the reviews index first for evidence, approval, and closure work.
+3. For the live rig-local animation boundary, use the Three.js Animation Implementation Flow with ADR-0031; ADR-0030 is historical only.
+4. Use the execution tracker and worklog for the current operational sequence.
 
 ## Research and decisions
 

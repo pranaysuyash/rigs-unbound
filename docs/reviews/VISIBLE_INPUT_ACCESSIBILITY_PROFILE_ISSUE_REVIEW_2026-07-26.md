@@ -55,3 +55,72 @@ Do not turn diagnostics into the public HUD by accident.
 ## Closure trigger
 
 This issue closes only when the player can see the active input/accessibility or quality profile in the public shell, and the indicator explains fallback or reduced-profile state in plain language.
+
+## Addendum (2026-07-28) - the public profile signal is still hidden from the player surface
+
+- Re-checked the live browser surface after the latest browser-delivery notes
+  and confirmed the active Field 02 page still keeps `#runtime-diagnostics`
+  hidden from the public HUD.
+- That means the current runtime continues to expose the active profile and
+  fallback reasons only through the operator/evidence surface, not as a
+  player-facing indicator.
+- The issue therefore remains open exactly where the contract says it should:
+  the shell is truthful, the runtime policy is canonical, but the public
+  browser surface still lacks one stable visible profile owner.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static trail
+  inspection.
+
+## Addendum (2026-07-28) - the shell now carries a visible profile line, but browser proof is still pending
+
+- Static inspection of the current shell source now shows a dedicated
+  `#profile-status` element alongside `#save-status`, and `src/main.ts` now
+  populates that line from the runtime profile selection on bootstrap and on
+  each update pass.
+- The mobile shell keeps the profile line visible by hiding only the plain save
+  line in the narrow breakpoint; the profile indicator remains part of the
+  public HUD.
+- The runtime profile policy is still canonical, and the visible line now
+  explains whether the shell is in measuring, reduced, or standard quality
+  mode using plain language.
+- This is a source-level accessibility improvement, not a closure claim. The
+  issue still needs live browser proof after the source change lands.
+- Evidence depth: Tier 1 static source inspection of `index.html`,
+  `src/main.ts`, and `src/styles.css`.
+
+## Addendum (2026-07-28) - live browser proof now confirms the public profile line is visible
+
+- Re-checked the live browser at `http://localhost:4173/?proof=1` on a
+  390 × 844 viewport.
+- The public profile line is present and readable:
+  `Quality: standard. Still measuring frame performance.`
+- The profile line keeps `role="status"` and `aria-live="polite"`, and it
+  remains visible in the mobile shell.
+- The operator diagnostics line stays hidden, so the public HUD and operator
+  surface are still distinct.
+- Evidence depth: Tier 4 live browser observation plus Tier 1 static source
+  inspection.
+
+## Addendum (2026-07-28) - stronger assistive-tech proof still needs a manual screen-reader pass
+
+- The browser environment here does not expose `window.getComputedAccessibleNode`,
+  so the programmatic accessibility-tree check is unavailable in this session.
+- That means the browser proof above confirms visible DOM and live-region
+  behavior, but not a full screen-reader narration path.
+- The remaining closure step is therefore a manual VoiceOver/NVDA/JAWS-style
+  pass, not further shell rewrites.
+- Evidence depth: Tier 1 environment capability check plus Tier 4 browser
+  proof already captured above.
+
+## Addendum (2026-07-28) - Chrome accessibility tree now exposes the public profile line
+
+- Ran a Chrome accessibility-tree snapshot against `http://localhost:4173/?proof=1`
+  at 390 × 844.
+- The tree contains the visible profile line as exposed text:
+  `Quality: standard. Still measuring frame performance.`
+- The tree also keeps the operator diagnostics surface separate from the
+  public HUD, matching the source contract instead of collapsing the two.
+- This is stronger than DOM-only proof because it confirms the content is
+  exposed through Chrome’s accessibility tree, but it still is not a spoken
+  VoiceOver/NVDA/JAWS narration test.
+- Evidence depth: Tier 3/4 browser accessibility-tree observation plus Tier 1
+  source inspection.

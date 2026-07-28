@@ -282,3 +282,16 @@ The long-term first-principles exploration note at
 is the broader horizon for this accessibility/profile analysis. This document
 still owns the accessible-profile and focus-boundary frame; the new note
 carries the wider machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) - the public profile signal is still hidden from the shell
+
+- Re-checked the live browser surface after the browser-delivery review trail
+  and confirmed the active Field 02 page still keeps the operator diagnostics
+  hidden on the public surface.
+- `#runtime-diagnostics` remains `hidden === true`, so the current runtime
+  still does not expose the active profile to the player in the public HUD.
+- That keeps the previous conclusion intact: the shell is truthful and the
+  runtime policy exists, but the visible profile/loading owner is still not a
+  player-facing browser contract.
+- Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static trail
+  inspection.

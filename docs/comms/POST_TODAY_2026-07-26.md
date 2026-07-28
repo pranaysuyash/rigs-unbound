@@ -3,6 +3,13 @@
 **This post announces Rigs Unbound.** Not a terrain demo, not a physics toy — the
 project, with its full stated ambition, on the record, dated.
 
+Related surfaces:
+
+- [Comms package index](README.md)
+- [Trailer and X Announcement Decision](TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [Trailer and Build-in-Public Release Review](TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer Audio and Edit Production Log](TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+
 The earlier draft of this file led with mud and grip and left the vision out. That
 was wrong. Mud is *evidence*. The thing being announced is the north star in
 [README.md](../../README.md):

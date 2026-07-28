@@ -23,6 +23,8 @@ Related current sources:
 
 - [Vision Synthesis and Next Proof](VISION_SYNTHESIS_AND_NEXT_PROOF_2026-07-25.md)
 - [Game Reference Atlas](../research/GAME_REFERENCE_ATLAS_2026-07-25.md)
+- [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
 - [Versioned Gameplay Content Composition](../decisions/ADR-0003-versioned-gameplay-content-composition.md)
 - [Rig Capability Portability](../decisions/ADR-0006-rig-capability-portability.md)
 - [Sequenced Capability and Authority Rollout](../decisions/ADR-0014-sequenced-capability-streaming-replay-authority-rollout.md)

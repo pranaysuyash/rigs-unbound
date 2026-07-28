@@ -140,7 +140,8 @@ Reject or redesign the slice if it introduces any of the following:
 - mesh colliders for decorative passage geometry;
 - a new shader family before a comprehension failure is demonstrated;
 - realtime shadow complexity as a substitute for route affordance design;
-- a new generic episode engine before the second concrete vertical;
+- a universal episode runner before the second concrete vertical proves the
+  named composition stack;
 - a rig-name branch instead of capability and affordance resolution;
 - camera or animation code that mutates authoritative passage state;
 - persistent effects that have no disposal or downgrade path;

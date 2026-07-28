@@ -118,8 +118,8 @@ Yes: a shared event envelope becomes a durable data contract. It must be designe
   - audio cues,
   - accessible DOM/status surfaces,
   - diagnostics and replay capture.
-- That makes the gate the propagation boundary, while the episode grammar stays
-  the story-composition layer above it.
+- That makes the gate the propagation boundary, while the named composition
+  stack stays above it.
 - A generic bus is still unnecessary because the current consumers remain few
   and directly owned.
 - The next durable expansion, if required later, is a narrow versioned envelope

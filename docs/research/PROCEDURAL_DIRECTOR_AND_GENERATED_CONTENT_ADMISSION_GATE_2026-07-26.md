@@ -122,3 +122,17 @@ Yes: procedural selection and AI-driven generation are separate risks. A determi
 - The first durable proof is still a small authored multi-candidate choice, not
   a generative or personalized runtime.
 - Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-28) — the director now sits above named topology and episode contracts
+
+- Re-checked the director gate after naming the world graph and keeping the
+  episode runner as the bounded composition layer.
+- The director should now be read as the next layer up from:
+  - `WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md` for topology of place,
+  - `EPISODE_RUNNER_SPEC_2026-07-27.md` for bounded episode composition.
+- Candidate proposal can inspect topology and episode envelopes, but it still
+  must not define place, mutate world truth, or replace the runner’s admission
+  rules.
+- The first proof remains a small authored multi-candidate choice with visible
+  accept/reject reasoning and no hidden world mutation.
+- Evidence tier: Tier 1 static source inspection and contract synthesis.

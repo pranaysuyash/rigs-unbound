@@ -163,6 +163,7 @@ declare global {
     winchRecoverRig: () => string;
     toggleBlade: () => string;
     toggleFieldMap: () => string;
+    toggleWorkshop: () => string;
     /**
      * Test hook: place the active rig anywhere and settle it.
      *
@@ -465,6 +466,23 @@ function boot(): void {
     performanceMonitor.snapshot(renderer.metrics()),
   );
   const runtimeProfileController = new RuntimeProfileController();
+  const profileStatusLabel = (selection: RuntimeProfileSelection): string => {
+    if (selection.state === "awaiting-evidence") {
+      return selection.reasonText
+        ? `Quality: measuring. ${selection.reasonText}`
+        : "Quality: measuring.";
+    }
+
+    if (selection.profile === "mobile-safe") {
+      return selection.reasonText
+        ? `Quality: reduced. ${selection.reasonText}`
+        : "Quality: reduced.";
+    }
+
+    return selection.reasonText
+      ? `Quality: standard. ${selection.reasonText}`
+      : "Quality: standard.";
+  };
   const runRecord = createRunRecord(
     state.seed,
     BOOT_STARTED_AT,
@@ -578,6 +596,7 @@ function boot(): void {
   const emergencyRecover =
     requiredElement<HTMLButtonElement>("#emergency-recover");
   let saveStatus!: HTMLElement;
+  const profileStatus = requiredElement<HTMLElement>("#profile-status");
   const runtimeDiagnostics = requiredElement<HTMLElement>(
     "#runtime-diagnostics",
   );
@@ -642,7 +661,10 @@ function boot(): void {
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
   const mapLayerField = requiredElement<HTMLButtonElement>("#map-layer-field");
   const mapLayerRumor = requiredElement<HTMLButtonElement>("#map-layer-rumor");
+  const mapLayerJournal =
+    requiredElement<HTMLButtonElement>("#map-layer-journal");
   const rumorMapHost = requiredElement<HTMLElement>("#rumor-map-host");
+  const journalMapHost = requiredElement<HTMLElement>("#journal-map-host");
   const mapLegend = requiredElement<HTMLElement>("#map-legend");
   saveStatus = requiredElement<HTMLElement>("#save-status");
   attachContextRecovery();
@@ -660,7 +682,7 @@ function boot(): void {
 
   type OverlayKind = "none" | "map" | "pause" | "workshop" | "lesson";
   let activeOverlay: OverlayKind = "none";
-  let mapLayer: "field" | "rumor" = "field";
+  let mapLayer: "field" | "rumor" | "journal" = "field";
   let navigatorVisible =
     window.localStorage.getItem("rigs-unbound.navigator-visible") === "true";
 
@@ -682,29 +704,92 @@ function boot(): void {
     recordCheckpoint("toggleNavigator", { visible: navigatorVisible });
   };
 
+  const renderJournalUI = (): void => {
+    const edits = state.semanticEdits || [];
+    const inheritances = state.fleetInheritance || [];
+
+    if (edits.length === 0 && inheritances.length === 0) {
+      journalMapHost.innerHTML = `
+        <div class="journal-entry">
+          <div class="journal-entry__header">
+            <span>PROVENANCE LOG</span>
+            <span>INITIAL</span>
+          </div>
+          <div class="journal-entry__title">No Earthwork Recorded Yet</div>
+          <p>Lower your rig's blade to carve furrows, shape terrain, or open passage corridors. Operations will log automatically.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const items: string[] = [];
+
+    for (const edit of edits) {
+      items.push(`
+        <div class="journal-entry">
+          <div class="journal-entry__header">
+            <span>TERRAIN EDIT (${edit.visualCategory})</span>
+            <span>T: ${Math.round(edit.createdAt)}ms</span>
+          </div>
+          <div class="journal-entry__title">${edit.mode.toUpperCase()} — Rig ${edit.authorRigId}</div>
+          <p>Graded ${edit.affectedCellCount} cells along ${edit.routeId || "field corridor"} at (${edit.x.toFixed(1)}, ${edit.z.toFixed(1)}).</p>
+        </div>
+      `);
+    }
+
+    for (const record of inheritances) {
+      items.push(`
+        <div class="journal-entry journal-entry--inheritance">
+          <div class="journal-entry__header">
+            <span>FLEET INHERITANCE</span>
+            <span>T: ${Math.round(record.crossedAtMs)}ms</span>
+          </div>
+          <div class="journal-entry__title">Rig ${record.benefitingRigId} Inherited ${record.authorRigId}'s Path</div>
+          <p>Traversed route clearance along ${record.routeId}.</p>
+        </div>
+      `);
+    }
+
+    journalMapHost.innerHTML = items.join("");
+  };
+
   const updateMapLayerUI = (): void => {
     const isField = mapLayer === "field";
+    const isRumor = mapLayer === "rumor";
+    const isJournal = mapLayer === "journal";
+
     mapLayerField.classList.toggle("is-active", isField);
     mapLayerField.setAttribute("aria-pressed", String(isField));
-    mapLayerRumor.classList.toggle("is-active", !isField);
-    mapLayerRumor.setAttribute("aria-pressed", String(!isField));
+    mapLayerRumor.classList.toggle("is-active", isRumor);
+    mapLayerRumor.setAttribute("aria-pressed", String(isRumor));
+    mapLayerJournal.classList.toggle("is-active", isJournal);
+    mapLayerJournal.setAttribute("aria-pressed", String(isJournal));
+
     mapCanvas.hidden = !isField;
-    rumorMapHost.hidden = isField;
+    rumorMapHost.hidden = !isRumor;
+    journalMapHost.hidden = !isJournal;
     mapLegend.hidden = !isField;
+
     if (isField) {
       fieldMap.draw(state);
-    } else {
+    } else if (isRumor) {
       rumorMap.open(state);
       rumorMap.update(state);
+    } else if (isJournal) {
+      renderJournalUI();
     }
   };
 
-  const setMapLayer = (layer: "field" | "rumor"): void => {
+  const setMapLayer = (layer: "field" | "rumor" | "journal"): void => {
     if (mapLayer === layer) return;
     mapLayer = layer;
     window.localStorage.setItem("rigs-unbound.map-layer", layer);
     updateMapLayerUI();
   };
+
+  mapLayerField.addEventListener("click", () => setMapLayer("field"));
+  mapLayerRumor.addEventListener("click", () => setMapLayer("rumor"));
+  mapLayerJournal.addEventListener("click", () => setMapLayer("journal"));
 
   const openOverlay = (kind: Exclude<OverlayKind, "none">): void => {
     if (activeOverlay === kind) return;
@@ -778,6 +863,7 @@ function boot(): void {
   }
 
   saveStatus.textContent = statusMessage;
+  profileStatus.textContent = profileStatusLabel(runtimeProfileSelection);
   runtimeDiagnostics.hidden = !developerSurface;
   physicsLabLink.hidden = !developerSurface;
   const learnedControlLessons = decodeLearnedControlLessons(
@@ -1707,6 +1793,7 @@ function boot(): void {
       );
     }
     saveStatus.textContent = statusMessage;
+    profileStatus.textContent = profileStatusLabel(runtimeProfileSelection);
     if (developerSurface) {
       const heap =
         metrics.heapUsedMb === null ? "heap n/a" : `${metrics.heapUsedMb} MB`;
@@ -1741,7 +1828,11 @@ function boot(): void {
   // ---------------------------------------------------------------------------
 
   const snapshot = (): string => {
-    const resolvedFirstRung = resolveFirstRung(state, world.collectedNodes, world);
+    const resolvedFirstRung = resolveFirstRung(
+      state,
+      world.collectedNodes,
+      world,
+    );
     return JSON.stringify(
       {
         ...publicState(state, world),
@@ -2048,6 +2139,16 @@ function boot(): void {
       closeOverlay();
     } else {
       openOverlay("map");
+    }
+    return settleAndReport();
+  };
+  window.toggleWorkshop = () => {
+    markActionReady();
+    recordCommand("tap", { action: "workshop", source: "acceptance" });
+    if (activeOverlay === "workshop") {
+      closeOverlay();
+    } else {
+      openOverlay("workshop");
     }
     return settleAndReport();
   };

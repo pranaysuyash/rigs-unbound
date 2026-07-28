@@ -1,7 +1,7 @@
 # UI Shell Coherence Slice — Implementation Review
 
 **Date:** 2026-07-27  
-**Status:** implemented, verified (parallel-owned blockers noted)  
+**Status:** implemented, verified for the UI shell slice; later runtime blockers were revised in follow-up notes  
 **Plan:** `/Users/pranay/.kimi-code/sessions/wd_rigs-unbound_7a29f026b7a7/session_c86f1584-8eba-45f7-a8d0-564cc7da6e01/agents/main/plans/polaris-barry-allen-forge.md`  
 **Roadmap:** `docs/exploration/INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md`
 
@@ -68,22 +68,23 @@ Make Rigs Unbound feel like one coherent game by fixing the most disorienting UI
 | `npx vite build`                  | ✅ Pass              | Production client/server build succeeds.                                                     |
 | `tools/ui-shell-verification.cjs` | ✅ Pass              | Pause, map layers, navigator toggle, no console errors.                                      |
 | Prettier on touched files         | ✅ Pass              | `index.html`, `src/main.ts`, `src/styles.css`, `tools/ui-shell-verification.cjs` formatted.  |
-| `npm run typecheck`               | ❌ Blocked           | Fails on syntax errors in parallel-owned `src/game/animation.ts`.                            |
+| `npm run typecheck`               | ⚠️ Earlier note superseded | The original blocker note referenced `src/game/animation.ts`; later follow-up work reconciled that boundary, but typecheck was not rerun in this review. |
 | `npx vitest run`                  | ⚠️ One flaky failure | `src/game/storage.test.ts` fails in full suite, passes in isolation. Parallel-owned runtime. |
 
 ## Parallel-owned blockers
 
-The following issues live in `src/game/` and were **not introduced by this slice**:
+The following issues were recorded in the original slice note and then revisited in later follow-up work:
 
-1. **`src/game/animation.ts` syntax errors** — missing/extra braces cause `tsc --noEmit` to fail across the project.
-2. **`src/game/storage.test.ts` isolation issue** — "migrates the v6 slot into a fresh survey contract" fails when the full suite runs, but passes alone.
+1. **`src/game/animation.ts` syntax errors** — this was the initial blocker note; later reconciliation work in the current session superseded that claim, so treat it as historical unless a fresh typecheck reproduces it.
+2. **`src/game/storage.test.ts` isolation issue** — "migrates the v6 slot into a fresh survey contract" failed when the full suite ran at the time of the review, but this doc does not reassert that result as current-session evidence.
 
 Because `src/game/` is parallel-owned, these were left for the runtime owner.
 
 ## Next steps
 
-1. Resolve parallel-owned `src/game/animation.ts` and `src/game/storage.test.ts` issues.
-2. Re-run full `npm run typecheck && npx vitest run`.
+1. Re-run fresh `npm run typecheck && npx vitest run` against the current checkout if you want updated verification.
+2. Re-check `src/game/storage.test.ts` only if the full-suite failure still reproduces in the current tree.
+3. Keep the animation-blocker note as historical unless a fresh typecheck reproduces it again.
 3. Continue integration roadmap next slices:
    - Contract Ledger overlay (read-only from `publicState`).
    - Garage / fleet roster overlay.
@@ -94,3 +95,8 @@ Because `src/game/` is parallel-owned, these were left for the runtime owner.
 - Audio-as-UI remains out of scope; the pause menu only toggles existing audio on/off.
 - The radial menu (`src/game/radial-ui.ts`) is still unwired; that is a separate roadmap item.
 - The Contract Ledger and Garage overlays can now reuse the unified overlay manager.
+- The live animation and interaction boundary that sits beside this shell slice
+  is documented in
+  [Three.js Animation Implementation Flow](../research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+  and
+  [Three.js Interaction Implementation Flow](../research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md).

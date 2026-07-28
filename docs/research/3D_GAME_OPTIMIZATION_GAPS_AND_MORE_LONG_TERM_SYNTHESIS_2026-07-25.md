@@ -191,3 +191,95 @@ The long-term first-principles exploration note at
 is the broader horizon for this synthesis. This document still owns the
 long-term synthesis frame and ordering guidance; the new note carries the
 wider machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-27): renderer performance has moved culling/LOD from a generic gap list to a budget-enforcement lane
+
+- Re-checked the current repo documentation trail against the renderer
+  performance flow and the live synthesis note.
+- The renderer now has a concrete project-owned optimization path recorded in
+  [Renderer Performance Optimization — Complete Flow](./RENDERER_PERFORMANCE_OPTIMIZATION_FLOW_2026-07-26.md):
+  frustum culling is on for instanced meshes, GPU memory is tracked in
+  performance snapshots, quality tiers can auto-degrade, and prop/terrain
+  simplification has an explicit budget story.
+- That means the old generic reading of the 3D-game thread is no longer the
+  right repo-level framing: culling and LOD are not absent, they are now part
+  of a narrower budget-envelope conversation.
+- The remaining long-term questions are the ones that still cross subsystems:
+  consistent quality-tier enforcement, chunk/residency streaming, explicit
+  collision-category semantics, formal camera policy, and deterministic
+  command/event replay.
+- Evidence depth: Tier 1 static inspection of repo documentation and
+  synthesis notes.
+
+## Addendum (2026-07-27): episode composition has become a named contract lane
+
+- The repo now has a durable contract stack for unified activity composition:
+  [Contract Ledger Specification](./CONTRACT_LEDGER_SPEC_2026-07-27.md),
+  [Episode Runner Specification](./EPISODE_RUNNER_SPEC_2026-07-27.md), and
+  [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
+- That means the old “episode composition” framing is now obsolete at the
+  repo-navigation level. The runner is no longer just a brainstormed future
+  idea; it is a named composition stack that still awaits runtime
+  implementation.
+- The implementation-order question remains the same: keep the kernel and
+  presentation split stable, then implement the runner only once the contract
+  ledger and shell surfaces are ready to consume it without becoming a second
+  mission authority.
+
+## Addendum (2026-07-28): browser 3D experience lens from `3d-web-experience`
+
+- Re-read the `3d-web-experience` skill because the next repo risk is not more
+  raw 3D capability; it is how the 3D experience is delivered in the browser.
+- The skill maps onto the current repo as a browser contract, not a renderer
+  rewrite: 3D should have a purpose, load visibly, degrade on mobile, and stay
+  usable when full fidelity is not available.
+- That reframes the current open trust gaps as shell-surface work:
+  - runtime profile state should be visible to the player, not only in operator
+    diagnostics;
+  - save and recovery should announce themselves instead of relying on a
+    passive text line;
+  - static or reduced-capability fallback needs to remain explicit when the
+    browser cannot support full fidelity.
+- This addendum does not change the earlier renderer-hardening direction. It
+  narrows the next exploit path to browser-delivery clarity and accessibility.
+- Related issue reviews:
+  - [Visible Input Accessibility Profile Issue Review](../reviews/VISIBLE_INPUT_ACCESSIBILITY_PROFILE_ISSUE_REVIEW_2026-07-26.md)
+  - [Save Status Announcement Issue Review](../reviews/SAVE_STATUS_ANNOUNCEMENT_ISSUE_REVIEW_2026-07-26.md)
+- Evidence depth: Tier 1 static synthesis against the current docs trail and
+  the `3d-web-experience` skill guidance.
+
+## Addendum (2026-07-28): asset-production lens from `3d-asset-production`
+
+- Re-read the `3d-asset-production` skill to separate asset creation from
+  asset delivery.
+- The repo’s current asset lane is already organized around provenance,
+  manifest validation, runtime bridge candidates, and public-approval gating.
+- The important next step is not a larger asset backlog. It is a durable
+  promotion path that moves one approved source artifact through normalized
+  export, validation, runtime activation, and browser-visible approval without
+  creating a second truth source.
+- That keeps the art pipeline aligned with the 3D web lens: useful 3D assets
+  are not just rendered, they are packaged, validated, and communicated
+  clearly at the browser boundary.
+- Evidence depth: Tier 1 static synthesis against the current asset contract
+  and the `3d-asset-production` skill.
+
+## Addendum (2026-07-28): accessibility lens from `Accessibility Auditor`
+
+- Re-read the `Accessibility Auditor` skill because the browser-delivery work
+  has moved from generic UI polish to a concrete accessibility contract.
+- The shell now exposes two separate visible announcements in source:
+  - a public profile/status line that tells the player whether quality is
+    measuring, reduced, or standard;
+  - a dedicated save/recovery status region that is announced to assistive
+    technology.
+- That separation matches the skill guidance: keep important state perceivable,
+  keep operators and players on distinct surfaces, and preserve keyboard and
+  screen-reader readability.
+- Live browser proof is now present on `http://localhost:4173/?proof=1` at
+  390 × 844: the profile line is visible, the save line is announced, and the
+  diagnostics surface stays hidden from the public HUD.
+- The remaining gap is stronger assistive-tech proof, not more conceptual
+  design.
+- Evidence depth: Tier 4 live browser observation plus Tier 1 static synthesis
+  against the current shell source and the accessibility skill guidance.

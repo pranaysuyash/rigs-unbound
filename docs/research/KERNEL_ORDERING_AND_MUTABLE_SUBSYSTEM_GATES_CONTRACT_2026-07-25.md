@@ -153,7 +153,7 @@ explicit so future mutable systems stay auditable and replay-safe.
 
 ## Addendum (2026-07-26) - episode grammar depends on kernel order for durable consequence
 
-- Re-checked the gate surface against the episode-grammar proposal.
+- Re-checked the gate surface against the named composition proposal.
 - Episode grammar can compose above the kernel, but it cannot replace the
   kernel's ordered mutation steps or replay-safe event boundaries.
 - The kernel remains the authority for input, validation, mutation, event

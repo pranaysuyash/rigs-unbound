@@ -11,6 +11,10 @@ The strongest references do not suggest copying one game. They reveal a durable 
 
 The open world is better treated as a quilt than a soup. Distinct regions can use different mechanics without forcing every simulation to run everywhere. The vehicle’s passport—identity, capabilities, condition, history, upgrades, inventory, and notable outcomes—stays continuous.
 
+## Related current visual surface
+
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md) - prompt-ready scene inventory and reusable composition syntax for the current visual exploration trail.
+
 ## Vehicle construction, personality, and damage
 
 | Reference                                                                                                                                                                        | What to study                                                                                   | What not to inherit                                                        |

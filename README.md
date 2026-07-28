@@ -20,6 +20,13 @@ The recurring loop under investigation is:
 4. bring back parts, knowledge, relationships, damage, and stories;
 5. modify the vehicle and unlock genuinely different possibilities.
 
+## Recommended reading order
+
+1. Use the comms package first when you are working on the launch/post package.
+2. Use the reviews index first when you are working on evidence, approval, or closure.
+3. For the live rig-local animation boundary, read the Three.js Animation Implementation Flow with ADR-0031; ADR-0030 is historical only.
+4. Use the execution tracker and worklog for the current operational sequence.
+
 ## Run Field 02
 
 ```bash
@@ -78,7 +85,20 @@ reproducible primitive geometry—not a final-engine decision.
 
 - [Docs root landing page](docs/README.md)
 - [Research landing page](docs/research/README.md)
+- [Decision Register](docs/decisions/README.md)
 - [3D Game Contract Index](docs/research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- [Episode Runner Specification](docs/research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Three.js Animation Implementation Flow](docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Vehicle Game Visual Exploration Living Catalog](docs/vehicle_game_visual_exploration_living_catalog.md)
+- [Three.js Animation Implementation Flow](docs/research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Three.js Interaction Implementation Flow](docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Comms package](docs/comms/README.md)
+- [Reviews index](docs/reviews/README.md)
+- [Operations index](docs/operations/README.md)
+- [Trailer and build-in-public release review](docs/comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
+- [Trailer and X announcement decision](docs/comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [Trailer audio and edit production log](docs/comms/TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+- [First post draft](docs/comms/POST_TODAY_2026-07-26.md)
 - [Master execution tracker](docs/plans/MASTER_EXECUTION_TRACKER.md)
 - [Exploration map](docs/exploration/EXPLORATION_MAP.md)
 - [Compositional episode grammar and Storm Relay](docs/exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)

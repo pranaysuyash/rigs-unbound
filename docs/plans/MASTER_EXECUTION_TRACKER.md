@@ -1,14 +1,57 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Started: 2026-07-26
+- Last Updated: 2026-07-28 (Authoritative Reclamation Route Lifecycle, Fleet Inheritance, Map Fidelity, and Evidence Integrity: PASS ✓)
 - Owner: project owner; agents update evidence and status in the same change
 - Product source of truth: [Exploration Map](../exploration/EXPLORATION_MAP.md)
 - Quick lane index: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- Public launch package: [Comms package](../comms/README.md)
+- Evidence index: [Reviews index](../reviews/README.md)
 - Decision source of truth: [ADRs](../decisions/)
 - Evidence source of truth: [Worklog](../WORKLOG.md) and [reviews](../reviews/)
+- Live implementation flows:
+  [Three.js Animation Implementation Flow](../research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+  and
+  [Three.js Interaction Implementation Flow](../research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- Current rig-local animation boundary:
+  [ADR-0031](../decisions/ADR-0031-renderer-delegates-rig-local-animation-to-vehicle-animation-system.md);
+  ADR-0030 is historical / superseded; the reserved `ClipActionBindings`
+  contract remains explicit for future clip-backed rigs.
 - Focused current board:
   [Next Execution Board](NEXT_EXECUTION_BOARD_2026-07-26.md)
+
+## Integration blocker addendum (2026-07-28)
+
+The required gate `npm run typecheck && npx vitest run` is currently blocked by a progression-contract conflict between the capability-shaped model in `src/game/progression.ts` and universal-XP consumers in `src/game/state.ts` plus the active mission/progression tests. See [Progression Contract Integration Issue Review](../reviews/PROGRESSION_CONTRACT_INTEGRATION_ISSUE_REVIEW_2026-07-28.md). This must be reconciled by the parallel runtime owner before the first meaningful spend lane or browser acceptance can advance.
+
+- Open browser-delivery trust gaps are tracked in the reviews index as
+  separate player-facing issues: visible profile state and save/recovery
+  announcement. Live browser and accessibility-tree proof now show both
+  contracts in the rendered shell, with spoken narration validation still
+  pending. See
+  [Reviews](../reviews/README.md)
+  for the canonical pointers. The current stable evidence landing page is
+  [Shell Accessibility Evidence](../research/SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md).
+
+## Suggested order
+
+1. Use the comms package first for launch and build-in-public work.
+2. Use the reviews index next for evidence, approval, and closure work.
+3. Use the decision register when you need the load-bearing policy or status source.
+4. Use the execution tracker and worklog for the current operational sequence.
+
+## Recent Completed Work Packages (2026-07-27)
+- `[x]` **Home Valley Reclamation Route Lifecycle, Fleet Inheritance & 3D Field Map Redesign**:
+  - Schema v8 additive save evolution (`SAVE_SCHEMA_VERSION = 8`) with `CutFillEditRecord` & `FleetInheritanceRecord`.
+  - Upgraded `FieldMap` in `src/game/minimap.ts` to `BASE_RESOLUTION = 384` with 3D North-West hillshading, multi-tier elevation colors, 3m contour isolines, and cyan compass radar bezel.
+  - Resolved vehicle steering direction inversion across physics, animation, and map arrow.
+  - Matured `evaluateCorridorQuality` to check gully tilling/grading, lateral width, and water level clearance.
+  - Spatially bounded semantic edit route attribution and physical entry-to-exit traversal fleet inheritance.
+  - Exposed type-safe public window hooks (`window.toggleWorkshop`, `window.selectRig`, `window.selectCamera`, `window.installRigModule`, `window.toggleFieldMap`, `window.placeRig`).
+  - Fixed browser acceptance harness (`first-cut-acceptance.json` records **100% PASS ✓**, enforcing `process.exitCode = 1` on error).
+  - Integrated `river-hydrology` hydrodynamic buoyancy, `barometric-engine` altitude power derating, and `soil-ecosystem` growth factors.
+  - Added interactive **Machine Journal & Provenance Logbook** tab (`#map-layer-journal`).
+  - Evidence report: [FIELD_MAP_AND_HOME_VALLEY_RECLAMATION_JOURNEY_ACCEPTANCE_2026-07-27.md](../reviews/FIELD_MAP_AND_HOME_VALLEY_RECLAMATION_JOURNEY_ACCEPTANCE_2026-07-27.md).
 
 ## How to maintain this tracker
 
@@ -337,9 +380,10 @@ with permanent instructions.
     `workshopLessonRelevant` explicitly in `src/game/control-guidance.ts`.
   - The naming cleanup landed on `main` as commit `8de9a5e`; public Sites
     release and external-player comprehension remain the open gates.
-  - ADR-0030 now records the renderer-owned live rig presentation boundary;
-    `src/game/animation.ts` remains a deferred parallel runtime artifact until a
-    deliberate migration or retirement plan is recorded.
+  - ADR-0030 is now historical; ADR-0031 records the renderer-to-animation
+    delegation boundary, `src/game/animation.ts` is wired into the live
+    renderer path, and the canonical 4173 browser smoke test loaded the app
+    without page errors.
 - [-] **RU-0601/0406.7 — Close documentation and release.**
   - Append the relevant progression/UI ADRs, core-loop contract, exploration
     map, worklog, acceptance review, and this tracker.
@@ -564,6 +608,12 @@ with permanent instructions.
 - [x] **RU-0402 — Progression spine decision.**
   - ADR-0018: per-rig Journey, per-verb Mastery, and profile-level Insight; no
     universal player XP or aggregate power score.
+- [>] **RU-0409 — Mission proposition and progression runtime foundation.**
+  - Evidence: ADR-0033, `src/game/progression.ts`, derived mission generators,
+    canonical activity reward routing, schema-v9 progression state, v8 migration,
+    public-state observability, and full local verification.
+  - Gate: reconcile ADR-0033 with ADR-0018; admit a mission-board/acceptance
+    surface and playtest the progression model before calling this product-complete.
 - [ ] **RU-0403 — Canonical module slot and compatibility model.**
   - Gate: immutable blueprint slots + mutable installed instances + explicit
     incompatibilities + derived capabilities; one validator and one
@@ -596,6 +646,10 @@ with permanent instructions.
   - Gate: copy only chosen assets into a project-owned source/runtime pipeline;
     provenance manifest, preflight, stable semantic IDs, compression/budget,
     replacement path, and visual review.
+  - 2026-07-28 evidence: the manifest/runtime bridge split is now documented as
+    a delivery gate rather than a second asset truth source; two imported GLBs
+    remain runtime-tested developer bridges while `publicRuntimeApproved`
+    still blocks player-surface promotion.
 - [ ] **RU-0503 — Cold-cache and representative-device profile.**
   - Gate: production URL on at least one real phone and one lower-power desktop;
     first input-ready, route transfer, frame p95, memory/thermal observations,
@@ -621,12 +675,19 @@ with permanent instructions.
 - [ ] **RU-0601 — First-session guidance without quest spam.**
   - Gate: opportunity compass explains reachable verbs, first salvage, current
     rig action, recovery, and night choice while preserving curiosity.
+  - 2026-07-28 evidence: the live runtime already proves derived mission
+    propositions and nested progression tracks, but the player-facing mission
+    acceptance surface is still a decision gate, not an accepted product claim.
 - [ ] **RU-0602 — Remappable action map and device parity.**
   - Gate: keyboard, touch, and gamepad use named actions; remaps persist;
     focus-loss and stuck-key recovery pass.
 - [ ] **RU-0603 — Accessibility profile completion.**
   - Gate: reduced motion, contrast, non-audio threat cues, keyboard focus,
     readable touch targets, zoom/text behavior, and WebGL failure fallback.
+  - 2026-07-28 evidence: the public shell now exposes separate profile and save
+    status bands that are visible on mobile width and exposed in the
+    accessibility tree; spoken screen-reader narration remains the missing
+    proof.
 - [x] **RU-0604 — Separate player surface from evidence laboratories.**
   - Gate: labs remain reachable through an explicit developer/evidence route
     while the public field flow presents player goals rather than debug tools.
@@ -639,6 +700,9 @@ with permanent instructions.
 - [ ] **RU-0606 — Fleet/workshop information architecture.**
   - Gate: journey, mastery, modules, condition, and provenance remain legible
     without dashboard/card sprawl or a universal power score.
+  - 2026-07-28 evidence: the garage/fleet roster spec now confirms the runtime
+    already exposes enough public state for a read-only first slice; the
+    missing proof is the overlay, not the data model.
 
 ## 7. Replay, sharing, multiplayer, auth, AI, and creator systems
 
@@ -709,7 +773,9 @@ code and linked to accepted, rejected, deferred, or implemented outcomes.
   - Coverage: game UI frontend, Three.js UI design, responsive controls,
     onboarding, HUD legibility, settings, accessibility, and public website.
   - Gate: screenshot/device review and accessibility acceptance tied to the
-    current player job.
+    current player job. Browser and accessibility-tree proof now cover the
+    visible profile and save/recovery lines; spoken narration proof remains the
+    next open closure step.
 - [~] **RU-0806 — Testing and browser tooling.**
   - Coverage: game-testing, game-playtest, Browser/Playwright/Webwright,
     Chrome DevTools, deterministic hooks, visual evidence, performance traces,
@@ -895,6 +961,56 @@ contract ledger and episode runner) and proposes concrete work that does not
 require editing the parallel-owned `src/game/` runtime. Agents should read it
 before proposing new modes, activities, or UI panels.
 
+## Addendum (2026-07-27) — unified UI shell coherence slice completed
+
+The first integration-first slice now exists in
+`docs/reviews/UI_SHELL_COHERENCE_SLICE_2026-07-27.md` and the dated addendum
+at `docs/WORKLOG_ADDENDUM_2026-07-27.md`. It implements the single overlay
+manager, unified map/radar/pause shell, and verification tool while preserving
+the parallel-owned runtime. The next slices named in the roadmap are the
+Contract Ledger overlay, the Garage / fleet roster overlay, and the
+Labs-as-instruments drawer.
+
+## Addendum (2026-07-27) — unified UI shell specification drafted
+
+The shell now has a durable spec at
+`docs/research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md`. It records the overlay
+stack, accessibility contract, input contract, z-order, and visual rules that
+the completed shell slice must continue to satisfy as the next overlay layers
+come online.
+
+## Addendum (2026-07-27) — garage/fleet roster specification drafted
+
+The fleet sheet now has a durable spec at
+`docs/research/GARAGE_FLEET_ROSTER_SPEC_2026-07-27.md`. It captures the roster
+as a character sheet over current public rig summaries, with read-only first
+slice rules, accessibility, and the bridge between the active rig and the rest
+of the fleet.
+
+## Addendum (2026-07-27) — episode runner specification drafted
+
+The episode runner now has a durable spec at
+`docs/research/EPISODE_RUNNER_SPEC_2026-07-27.md`. It records the composition
+engine above the loop so episodes can stay explainable, bounded, and durable
+without turning into a second quest ledger; the load-bearing composition
+boundary is now captured in
+`docs/decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md`.
+
+## Addendum (2026-07-27) — episode runner decision recorded
+
+The episode runner composition decision now has a durable ADR at
+`docs/decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md`.
+It keeps the runner as a read-only composition layer above the contract ledger
+and core loop rather than a second quest authority.
+
+## Addendum (2026-07-27) — contract ledger specification drafted
+
+The contract ledger now has a durable spec at
+`docs/research/CONTRACT_LEDGER_SPEC_2026-07-27.md`. It records the read-only
+overlay contract, row model, source mapping, and validation rules that the
+next implementation slice must satisfy without becoming a second mission
+authority.
+
 ## Addendum (2026-07-27)
 
 The long-term first-principles exploration note at
@@ -902,3 +1018,191 @@ The long-term first-principles exploration note at
 is the broader horizon for this tracker. This tracker still owns the current
 execution order and acceptance gates; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) — vehicle-family atlas expansion
+
+The vehicle exploration lane now has a durable family registry and proposed
+canonical spec at
+`docs/exploration/VEHICLE_FAMILY_ATLAS_AND_CANONICAL_SPEC_2026-07-28.md`.
+Three generated reference sheets were added for utility/tow,
+rescue/emergency, and extreme/aspiration families. This is Tier 4 visual
+exploration evidence only; it does not promote any image or mesh into runtime
+truth. The next gate is candidate selection plus a reconstruction-ready
+isolated reference package with dimensions, sockets, failure variants, and
+uncertainty notes.
+
+### Anything else?
+
+Yes. The atlas must eventually include failure and occlusion fixtures so the
+selection process measures recoverability and gameplay readability, not only
+hero-shot appeal.
+
+## Addendum (2026-07-28) — contract ledger source-surface recheck
+
+The contract-ledger slice remains a read-only projection layer in the current
+runtime:
+
+- `publicState(state, world)` in `src/game/state.ts` already exposes the
+  contract inputs named by the spec.
+- `src/game/affordances.ts` already supplies reason-coded affordance
+  resolution for visible/deferred/incompatible offers.
+- The first durable slice is still the board overlay and its documentation,
+  not a new authority, save schema, or mutation path.
+
+This adds evidence for the open RU-0601 / contract-ledger follow-up work
+without touching `src/game/`.
+
+## Addendum (2026-07-28) — garage/fleet roster shell reuse recheck
+
+The garage/fleet roster lane still points at a read-only overlay proof:
+
+- reuse the unified shell manager and focus contract,
+- keep the active rig visually primary,
+- derive from `publicState` instead of introducing a second garage model,
+- treat presentation/focus behavior as the next proof, not more state plumbing.
+
+That keeps RU-0606 aligned with the shell contract and the current runtime
+shape.
+
+## Addendum (2026-07-28) — input remap registry gap recheck
+
+The accessibility/input lane still has one clear missing contract layer:
+
+- first-use guidance is canonical,
+- the opportunity compass is contextual,
+- but the persisted binding registry is still absent.
+
+The next proof should be a canonical action-layout source of truth with
+reload-safe remap persistence, not a second help-only map.
+
+## Addendum (2026-07-28) — labs drawer contract drafted
+
+The labs lane now has a durable in-world-instrument contract at
+`docs/research/LABS_AS_IN_WORLD_INSTRUMENTS_CONTRACT_2026-07-28.md`.
+
+- The labs remain evidence fixtures, not a second game.
+- The next proof is a same-shell drawer with preserved runtime context.
+- The roadmap now has a named target for the `physics-lab.html` /
+  `box3d-lab.html` continuity gap.
+
+## Addendum (2026-07-28) — radial quick-action wheel contract drafted
+
+The radial wheel lane now has a durable contract at
+`docs/research/RADIAL_QUICK_ACTION_WHEEL_CONTRACT_2026-07-28.md`.
+
+- The authored wheel in `src/game/radial-ui.ts` is now a named interaction
+  surface instead of anonymous dead code.
+- The next proof is a quick-action overlay that stays secondary to the rig and
+  canonical action model.
+- Keep the wheel aligned with the input registry / accessibility contract.
+
+## Addendum (2026-07-28) — world graph and place contract drafted
+
+The world graph lane now has a durable contract at
+`docs/research/WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md`.
+
+- Authored sites, routes, and discovery anchors now have a named topology
+  contract.
+- The contract ledger and episode runner can cite one canonical place source.
+- The next proof is topology validation and source traceability, not another
+  map metaphor.
+
+## Addendum (2026-07-28) — streaming residency boundary recheck
+
+The existing streaming/residency contract now sits below the new world-graph
+contract:
+
+- topology now lives in `docs/research/WORLD_GRAPH_AND_PLACE_CONTRACT_2026-07-28.md`,
+- residency remains the separate chunk-state/lifecycle boundary,
+- the current world is still single-residency until measured scale pressure
+  requires chunk activation.
+
+## Addendum (2026-07-28) — runtime reachability audit and the Missing Middle
+
+A wide-open brainstorm run against measured facts produced one finding that
+changes the priority of several open items, plus one correction to this tracker.
+
+### New standing instrument
+
+`tools/audit-runtime-reachability.mjs` (six tests in
+`tools/audit-runtime-reachability.test.mjs`) walks the transitive import graph
+from the real entry points and reports every non-test module the player cannot
+reach. Current result on this checkout:
+
+- 78 non-test source modules, 48 entry-reachable
+- **30 unreachable modules, 2,365 lines, 28 of them with passing tests**
+
+```bash
+node tools/audit-runtime-reachability.mjs
+node --test tools/audit-runtime-reachability.test.mjs
+```
+
+### Correction — RU-0601/0406.6 contains a false wiring claim
+
+This tracker and
+[ADR-0031](../decisions/ADR-0031-renderer-delegates-rig-local-animation-to-vehicle-animation-system.md)
+both state that `src/game/animation.ts` is wired into the live renderer path.
+**It is imported by no file in the repository.** The claim is withdrawn at the
+point of use; the original wording is preserved above rather than rewritten so
+the provenance failure stays visible. This is a repair in the same class as
+RU-0903 and RU-0906.
+
+Closure for this correction: append the correction to ADR-0031, and either wire
+`animation.ts` or record it as explicitly deferred with a named trigger.
+
+### New items
+
+- [ ] **RU-0910 — Wire three tactical verbs (the Missing Middle experiment).**
+  - Scope: `tire-pressure.ts`, `winch-physics.ts` + `fleet-recovery.ts`, and
+    `radial-ui.ts` as the surface that hosts them.
+  - Why these three: they fill the empty step between departure and arrival,
+    which four independent brainstorm roles identified as the reason the current
+    build reads as a checklist rather than a journey.
+  - Dependency: **operator clearance for `src/game/` collision** per `AGENTS.md`.
+    No agent may begin this without that clearance.
+  - Gate: each verb is a commitment with a reversal cost, reachable through the
+    canonical primary-action/named-action path, persisted where it should be,
+    with one player-visible consequence and tests. Target ~300 lines total.
+  - Decision value: this is the cheap experiment that resolves the Champion vs.
+    Executioner disagreement about whether the unreachable set is a parts bin or
+    a mirage. If wiring requires redesign, the parts-bin defence fails and the
+    correct move becomes explicit archival.
+
+- [?] **RU-0911 — Reachability Budget policy.**
+  - Decision needed: whether unreachable-module count becomes a tracked ceiling
+    (`--max N`) in the verification path, with a declared allowance for
+    deliberate pre-positioned work.
+  - Boundary: budget, not purity gate. Reported by default; failing only under
+    an explicitly adopted policy, matching the doc-authority audit convention.
+  - Gate before adoption: operator sign-off on the ceiling and the allowance.
+
+- [?] **RU-0912 — Act I sequencing: fleet versus one machine that changes.**
+  - Open disagreement recorded by the brainstorm's Outsider role: every current
+    document treats the three-rig fleet as foundational, and no evidence says a
+    first-session player wants three machines.
+  - Alternative: Act I is one machine that visibly transforms; the fleet is
+    Act II. This sequences the Living Atlas Odyssey rather than contradicting it.
+  - Gate: operator decision. It changes Act I and therefore RU-0404, RU-0606,
+    and the first-rung guidance shape.
+
+### Anything else?
+
+Yes. The measured docs-to-shipping commit ratio over the last 100 commits is
+roughly 3.3 : 1 (49 docs commits, 15 feature/fix commits). That is defensible as
+the cost of an agent-parallel labour model right up to the point where a
+document makes a claim the runtime contradicts. That point has now been reached
+once. RU-0910 is deliberately specified as a wiring commit rather than another
+contract note for exactly that reason.
+
+Full room and build conditions:
+[Reachability and the Missing Middle](../exploration/WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md).
+
+## Addendum (2026-07-28) — wiring experiment is now the next concrete step
+
+The next concrete artifact is the wiring experiment for
+`src/game/radial-ui.ts`, `src/game/weather.ts`, and
+`src/game/fleet-recovery.ts`:
+
+- see `docs/exploration/WIRING_EXPERIMENT_RADIAL_WEATHER_RECOVERY_2026-07-28.md`;
+- it is a falsifiable wiring path, not another contract note;
+- it should surface one reachable verb and one visible outcome path.

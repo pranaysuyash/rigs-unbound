@@ -21,6 +21,13 @@ This register is the effective status source when an older ADR header or body
 uses ambiguous historical language. Historical ADR text remains preserved; a
 dated update log records corrections.
 
+## Suggested order
+
+1. Use the comms package first when you are handling launch or build-in-public work.
+2. Use the reviews index next when you need evidence, approval, or closure context.
+3. Use this decision register when you need the load-bearing policy or status source.
+4. Use the execution tracker and worklog for the active operational sequence.
+
 ## Source taxonomy
 
 | Source class                                 | What it proves                                                                           | What it cannot prove                |
@@ -83,7 +90,28 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0027 | Proposed — operator sign-off required                        | Terrain transformation grammar (clear, grade, fill) supersedes ad-hoc cut/fill plough modes.                                                            |
 | ADR-0028 | Proposed — operator sign-off required                        | Auto/explicit renderer backend selection is policy-gated and checkpointed at startup and recovery.                                                      |
 | ADR-0029 | Proposed — operator sign-off required                        | Machine-keeper odyssey product vision; downstream slice evaluation filter.                                                                              |
-| ADR-0030 | Implemented and verified for the current runtime             | Renderer owns live per-frame rig presentation; standalone animation module stays deferred until a deliberate migration or retirement plan is recorded. |
+| ADR-0030 | Historical / superseded by ADR-0031                          | Renderer-owned direct rig presentation was replaced by explicit delegation to `vehicleAnimationSystem`.                                            |
+| ADR-0031 | **Decision stands; implementation claim withdrawn 2026-07-28** | The delegation boundary is still the right call, but `src/game/animation.ts` is imported by nothing and is unreachable from every entry point. Measured with `node tools/audit-runtime-reachability.mjs`; correction appended to the ADR. |
+| ADR-0032 | Proposed — operator sign-off required                        | Episode runner composes bounded episodes above the contract ledger instead of creating a second quest ledger or hidden story machine.            |
+| ADR-0033 | Proposed — operator sign-off required                        | Mission propositions are derived, not persisted; progression lives in nested `GameState.progression` with a schema bump.                            |
+
+## Related current surfaces
+
+- [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
+- [Comms package](../comms/README.md)
+- [Reviews index](../reviews/README.md)
+
+For the current rig-local animation boundary, use ADR-0031 together with the
+Three.js Animation Implementation Flow; ADR-0030 is historical record only.
+The live owner keeps the reserved `ClipActionBindings` contract explicit so
+future clip-backed rigs have a named boundary instead of an implied slot.
+
+## Related runtime implementation flows
+
+- [Three.js Animation Implementation Flow](../research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Three.js Interaction Implementation Flow](../research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
 
 ## Recommendation labels outside ADRs
 

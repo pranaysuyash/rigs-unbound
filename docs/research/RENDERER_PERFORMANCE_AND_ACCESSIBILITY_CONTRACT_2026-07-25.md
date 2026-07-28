@@ -239,13 +239,14 @@ Together they define the public-smoke-test contract without widening the product
 
 ## Addendum (2026-07-26) - episode grammar depends on this gate to stay readable publicly
 
-- Re-checked the public-smoke-test contract against the episode-grammar
-  direction.
-- Episode grammar can only stay readable in the public promise if the smoke-
-  test gate binds camera, performance, and accessibility evidence into one
-  reviewable bundle.
-- That makes this contract the public readability gate beneath episode
-  grammar, not the story-composition layer itself.
+- Re-checked the public-smoke-test contract against the named composition
+  boundary.
+- The smoke-test gate can only stay readable in the public promise if it binds
+  camera, performance, and accessibility evidence into one reviewable bundle.
+- That makes this contract the public readability gate beneath the named
+  composition stack, with the stack itself recorded in
+  [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
 - The missing artifact remains the same bundled public-gate package, but the
   dependency boundary is now explicit.
 - Evidence tier: Tier 1 static inspection.

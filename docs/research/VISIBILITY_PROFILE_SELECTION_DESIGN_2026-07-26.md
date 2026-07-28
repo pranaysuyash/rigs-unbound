@@ -150,3 +150,24 @@ The most important design decision is that **device detection is measured, not i
 The second important decision is that **fallback reasons are plain language for players, technical for operators**. The player message explains what changed and why in terms they understand. The operator message retains the exact budget breach for debugging. This keeps the public surface honest without hiding information from developers.
 
 The third important decision is that **simulation is never affected by visibility fallback**. Physics, collision, terrain deformation, save/load, and input responsiveness remain identical across all tiers. This preserves the game's core promise: the world behaves consistently regardless of visual quality.
+
+## Addendum (2026-07-27) - the runtime profile policy had already moved past the binary seed at the time
+
+- Re-checked the renderer performance flow against the profile-selection design.
+- At the time of the addendum, the live renderer path already implemented
+  graduated quality tiers and auto-degrade behavior:
+  - quality tiers exist in the renderer/performance flow,
+  - GPU memory is tracked in the performance snapshot,
+  - frustum culling is on for instanced meshes,
+  - and the renderer can reduce quality without changing simulation truth.
+- That meant the old “binary decision; no graduated quality tiers” row was
+  stale as a repo-state description.
+- The remaining open parts of this design are therefore the player-facing
+  policy surface, not the tier machinery itself:
+  - plain-language fallback reasons,
+  - visible active-profile state,
+  - and the loading/progress surface that tells the player what the runtime is
+    measuring.
+- Evidence depth: Tier 1 static inspection of the design note against the live
+  renderer-performance documentation trail. No runtime/browser pass was run in
+  this update.

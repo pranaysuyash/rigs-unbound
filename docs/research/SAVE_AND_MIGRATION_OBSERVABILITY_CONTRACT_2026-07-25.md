@@ -214,4 +214,4 @@ run or storage integration execution was performed for this change.
   scars, repairs, module choices, and other visible machine-history changes
   the episode grammar creates.
 - This does not add a new save system; it names the relationship between the
-  story-composition layer and the existing persistence observability contract.
+  named composition stack and the existing persistence observability contract.

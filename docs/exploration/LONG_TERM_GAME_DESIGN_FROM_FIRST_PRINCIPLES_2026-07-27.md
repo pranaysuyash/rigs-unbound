@@ -1126,6 +1126,10 @@ the relevant map entries remain Proposed rather than accepted whole-game canon.
 - Patchwork Atlas is the strongest current visual baseline and has a direct
   operator preference signal, but DESIGN explicitly marks it exploratory rather
   than final accepted art direction.
+- The prompt-ready visual exploration inventory now lives in
+  [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md),
+  which collects scene directions, axes, and reusable prompt syntax without
+  approving any direction for production by default.
 
 ### Recommended long-term thesis
 
@@ -1371,3 +1375,17 @@ add?” It should ask:
 
 > **Whose life changes because this machine crossed this place—and what will the
 > player still be able to see, feel, and regret later?**
+
+## Addendum (2026-07-27): the thesis now has a named composition stack
+
+- The current integration-first trail gives this design thesis a concrete
+  composition layer:
+  [Contract Ledger Specification](../research/CONTRACT_LEDGER_SPEC_2026-07-27.md),
+  [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md),
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
+- That layer does not replace the thesis. It gives the thesis a stable way to
+  express “how an episode is assembled” without inventing a second mission or
+  story authority.
+- The wider long-term shape still stands: the home grows, the fleet gains
+  biography, and the world remembers the consequences. The named composition
+  stack is how those consequences become bounded, explainable episodes.

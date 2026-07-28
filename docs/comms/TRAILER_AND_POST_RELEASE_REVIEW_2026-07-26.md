@@ -4,6 +4,13 @@
 **Scope:** Review of the current trailer recordings and the Claude-prepared public announcement copy.  
 **Decision:** Copy can be posted after the owner chooses the media treatment; the current best default candidate is `trailer-final.mp4` with sound, while the silent `trailer.mp4` remains the fallback if a no-audio post is preferred.
 
+Related surfaces:
+
+- [Comms package index](README.md)
+- [Trailer and X Announcement Decision](TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
+- [Trailer Audio and Edit Production Log](TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
+- [First post draft](POST_TODAY_2026-07-26.md)
+
 ## Evidence inspected
 
 | Artifact | Observation |

@@ -2295,3 +2295,16 @@ The long-term first-principles exploration note at
 is the broader horizon for this analysis. This document still owns the broad
 game-analysis frame; the new note carries the wider machine-keeper thesis and
 long-range design direction.
+
+## Addendum (2026-07-27): the analysis now recognizes the named composition stack
+
+- The repo’s composition stack is now explicitly named in
+  [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md),
+  [Contract Ledger Specification](../research/CONTRACT_LEDGER_SPEC_2026-07-27.md),
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
+- That means the analysis no longer needs to refer to the episode layer as a
+  vague future abstraction when it is talking about how episodes are assembled.
+  The implementation remains deferred, but the boundary is now a named stack.
+- The broader thesis still stands: machines, places, and consequences form the
+  game’s long arc. The named stack is simply the mechanism that keeps episodes
+  bounded, readable, and explainable while that arc grows.

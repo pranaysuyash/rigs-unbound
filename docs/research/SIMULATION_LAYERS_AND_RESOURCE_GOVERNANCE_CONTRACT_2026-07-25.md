@@ -250,14 +250,17 @@ measurement, or cross-layer policy was introduced by this addendum.
 - The layered simulation already does important support work for episodes:
   it keeps domain order, ownership, and fallback policy readable when multiple
   systems interact.
-- That makes simulation governance a support layer for the episode grammar,
-  because episodes only stay coherent if weather, economy, traffic, persistence,
-  and presentation still follow a visible order under pressure.
+- That makes simulation governance a support layer for the named composition
+  boundary, because episodes only stay coherent if weather, economy, traffic,
+  persistence, and presentation still follow a visible order under pressure.
 - The layering stays explicit:
   - episode grammar names the lived moment,
   - simulation governance keeps the interacting domains ordered and
     downgradeable,
-  - the episode layer remains the story-composition layer above those domains.
+  - the episode layer remains the named composition stack above those
+    domains, now named in
+    [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+    and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).
 - This note intentionally does not promote the governance ledger into a story
   system; it only keeps the dependency visible so future episode work can rely
   on the same domain-order policy.
@@ -274,4 +277,6 @@ measurement, or cross-layer policy was introduced by this addendum.
   or a new budget owner for them.
 - The long-term implication is unchanged: if these systems become canonical,
   they should inherit the same ordered, downgradeable, evidence-first treatment
-  as the existing simulation layers.
+  as the existing simulation layers, while the episode composition boundary
+  stays named in [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md).

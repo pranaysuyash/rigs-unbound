@@ -101,8 +101,12 @@ operator surface:
 - failure/recovery state;
 - command/event/run-record evidence.
 
-No second quest ledger or generic episode state machine is needed for the
-first proof.
+No second quest ledger is needed for the first proof; the later composition
+layer is named explicitly in
+[Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md),
+so the early vertical can stay bounded without pretending the runner is a
+generic state machine.
 
 ## 6. Actions and workflows
 
@@ -207,7 +211,8 @@ They also agreed:
 
 - do not select or replace a product physics solver here;
 - do not replace or delete Farmfall;
-- do not create a generic episode engine first;
+- do not create a universal episode runner before the first bounded vertical
+  has proved the named composition stack;
 - use capability and world-state queries, never rig-name branches;
 - require save/reload, failure/recovery, and human comprehension evidence.
 
@@ -232,7 +237,8 @@ resolution, persistence, and guidance.
 Stop or redesign the experiment if any of these occur:
 
 - the lanes differ only by speed or vehicle name;
-- completion requires a new generic episode engine;
+- completion requires the named composition stack to prove a first bounded
+  vertical before any universal episode runner is justified;
 - the second rig never materially benefits;
 - the consequence disappears on reload;
 - failure is only a restart;

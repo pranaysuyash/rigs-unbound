@@ -429,6 +429,8 @@ saved artifact import, cross-version replay, or ghost sharing was executed.
 - Episode grammar describes how an episode is composed; replay describes how
   the resulting commands, checkpoints, and bounded history can be replayed,
   verified, and compared later.
-- That means the episode layer remains a story-composition layer, while the
-  replay layer remains the audit and ghost substrate for what actually
-  happened.
+- That means the episode layer remains a named composition stack, recorded in
+  [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
+  and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md),
+  while the replay layer remains the audit and ghost substrate for what
+  actually happened.

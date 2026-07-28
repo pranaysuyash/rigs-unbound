@@ -9,12 +9,19 @@ import { effectiveProfile, type RigId, type RigState, type GameState } from "./c
 import type { RigParts } from "./renderer";
 
 /**
+ * Reserved clip-backed action bindings for future authored rig animations.
+ * `null` means the current tree has not yet introduced clip-driven actions.
+ */
+export type ClipActionBindings = ReadonlyMap<string, THREE.AnimationAction> | null;
+
+/**
  * Animation state for a single rig.
- * Tracks animation mixers, actions, and procedural animation state.
+ * Tracks animation mixers, clip actions, and procedural animation state.
  */
 export interface RigAnimationState {
   mixer: THREE.AnimationMixer | null;
-  actions: Map<string, THREE.AnimationAction>;
+  /** Reserved clip-backed action bindings; null until authored clips arrive. */
+  clipActions: ClipActionBindings;
   wheelRotation: number;
   suspensionCompression: SpringDamper[];
   steeringAngle: SpringDamper;
@@ -51,7 +58,10 @@ export class VehicleAnimationSystem {
 
     const state: RigAnimationState = {
       mixer: null,
-      actions: new Map(),
+      // `clipActions` stays null until future imported animation clips arrive.
+      // The current tree has no clip-backed rig actions yet, so the live owner
+      // remains procedural until assets or authored clips arrive.
+      clipActions: null,
       wheelRotation: 0,
       suspensionCompression: parts.wheels.map(() => new SpringDamper(120, 12)),
       steeringAngle: new SpringDamper(120, 12),
@@ -79,7 +89,12 @@ export class VehicleAnimationSystem {
   /**
    * Update all animations for a frame.
    */
-  update(delta: number, state: GameState): void {
+  update(
+    delta: number,
+    state: GameState,
+    feedbackByRig?: ReadonlyMap<RigId, RigFeedbackFrame>,
+    reducedMotion = false,
+  ): void {
     for (const [rigId] of this.rigAnimations) {
       const rigState = state.rigs?.[rigId as RigId];
       if (!rigState) continue;
@@ -87,14 +102,18 @@ export class VehicleAnimationSystem {
       const parts = this.rigParts.get(rigId);
       if (!parts) continue;
 
-      const feedback = this.computeFeedback(rigState);
+      const feedback =
+        feedbackByRig?.get(rigId as RigId) ?? this.computeFeedback(rigState, reducedMotion);
       this.updateRigAnimation(rigId, delta, rigState, feedback);
     }
   }
 
-  private computeFeedback(rigState: RigState): RigFeedbackFrame {
+  private computeFeedback(
+    rigState: RigState,
+    reducedMotion: boolean,
+  ): RigFeedbackFrame {
     const profile = effectiveProfile(rigState.id, rigState.modules);
-    return deriveRigFeedback(rigState, profile, false);
+    return deriveRigFeedback(rigState, profile, reducedMotion);
   }
 
   private updateRigAnimation(
@@ -154,12 +173,14 @@ export class VehicleAnimationSystem {
   ): void {
     const state = this.rigAnimations.get(rigId);
     const parts = this.rigParts.get(rigId);
+    const trackWidth = this.trackWidth.get(rigId) ?? 2.6;
     if (!state || !parts) return;
 
     const loadCompression = feedback.driveLoad * 0.07;
     const tractionCompression = feedback.tractionLoss * 0.03;
+    const widthFactor = Math.max(0.75, Math.min(1.15, 2.6 / Math.max(1.2, trackWidth)));
     const pitchBias = feedback.bodyPitchOffset * 0.5;
-    const rollBias = feedback.bodyRollOffset * 0.5;
+    const rollBias = feedback.bodyRollOffset * 0.5 * widthFactor;
 
     parts.wheels.forEach((wheelGroup, index) => {
       const damper = state.suspensionCompression[index];
@@ -186,16 +207,7 @@ export class VehicleAnimationSystem {
     const parts = this.rigParts.get(rigId);
     if (!state || !parts) return;
 
-    const steeringAngle = state.steeringAngle.update(
-      feedback.steeringAngle,
-      delta,
-    );
-
-    if (parts.steeringPivots) {
-      parts.steeringPivots.forEach((pivot) => {
-        pivot.rotation.y = steeringAngle;
-      });
-    }
+    state.steeringAngle.update(feedback.steeringAngle, delta);
   }
 
   private updateBodyMotion(
@@ -205,15 +217,12 @@ export class VehicleAnimationSystem {
   ): void {
     const state = this.rigAnimations.get(rigId);
     const parts = this.rigParts.get(rigId);
+    const trackWidth = this.trackWidth.get(rigId) ?? 2.6;
     if (!state || !parts) return;
 
-    const roll = state.bodyRoll.update(feedback.bodyRollOffset, delta);
-    const pitch = state.bodyPitch.update(feedback.bodyPitchOffset, delta);
-
-    if (parts.root) {
-      parts.root.rotation.z = roll;
-      parts.root.rotation.x = pitch;
-    }
+    const widthFactor = Math.max(0.75, Math.min(1.15, 2.6 / Math.max(1.2, trackWidth)));
+    state.bodyRoll.update(feedback.bodyRollOffset * widthFactor, delta);
+    state.bodyPitch.update(feedback.bodyPitchOffset, delta);
   }
 
   private updateSteeringWheel(
@@ -243,6 +252,8 @@ export class VehicleAnimationSystem {
     const state = this.rigAnimations.get(rigId);
     const parts = this.rigParts.get(rigId);
     if (!state || !parts) return;
+
+    state.lugTireVisible = rigState.modules.includes("lug-tires");
 
     if (parts.moduleVisuals?.["lug-tires"]) {
       const visible = state.lugTireVisible;
@@ -293,6 +304,7 @@ export class VehicleAnimationSystem {
     const parts = this.rigParts.get(rigId);
     if (!state || !parts) return;
 
+    // Final presentation commit point for body and steering state.
     if (parts.root) {
       parts.root.rotation.x = state.bodyPitch.value;
       parts.root.rotation.z = state.bodyRoll.value;

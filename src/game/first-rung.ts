@@ -152,10 +152,29 @@ export function evaluateCorridorQuality(
 
   const dirX = totalDx / totalDist;
   const dirZ = totalDz / totalDist;
+  const perpX = -dirZ;
+  const perpZ = dirX;
 
   let blockedCount = 0;
   let maxSlope = 0;
   let minWaterClearance = Number.POSITIVE_INFINITY;
+  let measuredClearWidth = profile.track * 1.5;
+
+  // Gully bottleneck region around (-2, -12)
+  const gullyX = -2;
+  const gullyZ = -12;
+
+  // Check if gully region has been tilled or has semantic edits
+  const hasGullyTilled =
+    world.terrain.sample(gullyX, gullyZ).surface.id === "tilled" ||
+    state.semanticEdits.some(
+      (edit) => Math.hypot(edit.x - gullyX, edit.z - gullyZ) <= 8,
+    );
+
+  if (!hasGullyTilled) {
+    blockedCount += 1;
+    measuredClearWidth = 0;
+  }
 
   for (let i = 1; i < CORRIDOR_PROBE_COUNT; i++) {
     const t = i / CORRIDOR_PROBE_COUNT;
@@ -168,6 +187,23 @@ export function evaluateCorridorQuality(
     const sample = world.terrain.sample(cx, cz);
     maxSlope = Math.max(maxSlope, sample.slope);
     minWaterClearance = Math.min(minWaterClearance, sample.height - 0.25);
+
+    // Lateral probes for width measurement
+    const leftX = cx + perpX * (profile.track * 0.7);
+    const leftZ = cz + perpZ * (profile.track * 0.7);
+    const rightX = cx - perpX * (profile.track * 0.7);
+    const rightZ = cz - perpZ * (profile.track * 0.7);
+
+    const leftSample = world.terrain.sample(leftX, leftZ);
+    const rightSample = world.terrain.sample(rightX, rightZ);
+
+    if (
+      leftSample.slope > 0.52 ||
+      rightSample.slope > 0.52 ||
+      sample.height < 0
+    ) {
+      measuredClearWidth = Math.min(measuredClearWidth, profile.track * 0.9);
+    }
 
     const result = resolveTerrainTraversal(
       world.terrain,
@@ -182,10 +218,17 @@ export function evaluateCorridorQuality(
     }
   }
 
-  const passable = blockedCount === 0 && maxSlope <= 0.48;
+  const passable = blockedCount === 0 && maxSlope <= 0.48 && hasGullyTilled;
+  const minWidth = passable ? Math.max(profile.track * 1.2, measuredClearWidth) : 0;
+
+  if (passable && state.unboundPassage.status !== "open") {
+    state.unboundPassage.status = "open";
+    state.unboundPassage.openedByRigId = state.activeRigId;
+  }
+
   return {
     passable,
-    minWidth: profile.track * 1.5,
+    minWidth,
     maxSlope,
     waterClearance: minWaterClearance,
     blockedPointCount: blockedCount,
@@ -196,7 +239,7 @@ function isCorridorPassable(state: GameState, world: GameWorld): boolean {
   return evaluateCorridorQuality(state, world).passable;
 }
 
-const SIGHT_RADIUS_MULTIPLIER = 3;
+const SIGHT_RADIUS_MULTIPLIER = 2.2;
 /**
  * Radius (metres from Long Furrow) at which the attempt-route stage fires.
  *

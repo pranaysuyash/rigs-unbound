@@ -238,5 +238,5 @@ geometric LOD until representation variants have passed the asset gate.
   depends on them so the player can actually read the pressure, discovery, and
   persistent consequence the episode is trying to communicate.
 - This preserves the boundary: visibility/LOD remains the legibility layer,
-  while episode grammar remains the story-composition layer that uses that
+  while the named composition stack remains the layer that uses that
   legibility.

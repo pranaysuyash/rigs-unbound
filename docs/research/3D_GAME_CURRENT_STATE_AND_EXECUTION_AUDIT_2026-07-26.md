@@ -275,11 +275,14 @@ and regression-tested. Remaining unknowns are listed rather than implied away.
 
 ### Pass 2 - architecture and long-term viability
 
-The current design has one canonical owner for gameplay motion, one project-owned
-dynamics contract for replaceable lab services, one capability-affordance
-resolver, one persistence boundary, and one asset manifest/preflight path. The
-recommended next steps are gated by second-use evidence and measured pressure,
-which avoids both improvised coupling and architecture theatre.
+The current design has one canonical owner for gameplay motion, one canonical
+owner for rig-local animation channels (`vehicleAnimationSystem`) with an
+explicit reserved `ClipActionBindings` contract for future authored clips, one
+project-owned dynamics contract for replaceable lab services, one
+capability-affordance resolver, one persistence boundary, and one asset
+manifest/preflight path. The recommended next steps are gated by second-use
+evidence and measured pressure, which avoids both improvised coupling and
+architecture theatre.
 
 ### Pass 3 - rule compliance and handoff readiness
 

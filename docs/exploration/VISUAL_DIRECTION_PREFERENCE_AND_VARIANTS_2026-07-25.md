@@ -15,6 +15,10 @@ Project owner preference:
 
 The preference is treated as a strong direction signal, not final production approval. The useful qualities must survive real gameplay, browser performance, input, accessibility, asset production, and player observation.
 
+## Related current visual surface
+
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md) - prompt-ready scene inventory for testing more directions without treating any one board as production-approved.
+
 ## What the preference is actually pointing toward
 
 ### Vehicle as a character

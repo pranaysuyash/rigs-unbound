@@ -69,6 +69,16 @@ reusing an older archive.
 - Do not publish paid Kenney source packs or other private source assets. Only
   reviewed runtime exports with recorded provenance may enter the public build.
 
+## Suggested order
+
+1. Read the comms package first if your change affects the launch or public
+   announcement package.
+2. Read the reviews index next if your change affects evidence, approval, or
+   deployment acceptance.
+3. Read the execution tracker and worklog before changing release state.
+4. Then use this runbook to classify the worktree, choose the verification gate,
+   and publish only after the required checks pass.
+
 ## 1. Refresh context and classify the worktree
 
 Start from the repository root:

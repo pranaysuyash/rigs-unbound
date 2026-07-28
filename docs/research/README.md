@@ -8,6 +8,14 @@ evidence registers that keep the analysis grounded.
 
 - [3D Game Master Synthesis](3D_GAME_MASTER_SYNTHESIS_2026-07-25.md)
 - [3D Game Contract Index](3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- [Decision Register](../decisions/README.md)
+- [Episode Runner Specification](EPISODE_RUNNER_SPEC_2026-07-27.md)
+- [Three.js Animation Implementation Flow](THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Three.js Interaction Implementation Flow](THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
+- [Comms package](../comms/README.md)
+- [Reviews index](../reviews/README.md)
+- [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
 - [3D Games Analysis and Long-Term Potential](3D_GAMES_ANALYSIS_AND_LONG_TERM_POTENTIAL_2026-07-25.md)
 - [3D Game Platform Long-Term Audit](3D_GAME_PLATFORM_LONG_TERM_AUDIT_2026-07-25.md)
 - [3D Game Optimization Gaps and More - Long-Term Synthesis](3D_GAME_OPTIMIZATION_GAPS_AND_MORE_LONG_TERM_SYNTHESIS_2026-07-25.md)
@@ -15,6 +23,15 @@ evidence registers that keep the analysis grounded.
 - [3D Game Optimization and More - Execution Roadmap](3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
 - [3D Game Skill-to-Repository Execution Ledger](3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md)
 - [Additional ChatGPT Research Ingestion](ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
+
+## Suggested order
+
+1. Use the comms package first for launch and build-in-public work.
+2. Use the reviews index next for evidence, approval, and closure work.
+3. Use the decision register when you need the load-bearing policy or status source.
+4. Use the contract index and research audits when you need the analytical path.
+5. For the live rig-local animation boundary, read ADR-0031 alongside the
+   Three.js Animation Implementation Flow; ADR-0030 is historical only.
 
 ## Living evidence and continuity
 
@@ -72,6 +89,7 @@ evidence registers that keep the analysis grounded.
 - [Render Accessibility Checklist](RENDER_ACCESSIBILITY_CHECKLIST_2026-07-25.md)
 - [Browser Vehicle Physics Technique Catalog](BROWSER_VEHICLE_PHYSICS_TECHNIQUE_CATALOG_2026-07-25.md)
 - [Game Reference Atlas](GAME_REFERENCE_ATLAS_2026-07-25.md)
+- [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
 - [Multi-Skill Long-Term Possibility Audit](MULTI_SKILL_LONG_TERM_POSSIBILITY_AUDIT_2026-07-25.md)
 - [Tagged Skill Coverage Map](TAGGED_SKILL_COVERAGE_MAP_2026-07-25.md)
 

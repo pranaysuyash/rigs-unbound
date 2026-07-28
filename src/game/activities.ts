@@ -55,7 +55,13 @@ export interface ActivityDefinition {
   requiredCapabilities: readonly RigCapability[];
   /** Authored world anchors this activity resolves against, by site id. */
   worldRefs: readonly WorldSiteId[];
-  reward: { salvage: number };
+  reward: {
+    salvage: number;
+    /** Insight earned for knowledge progression. */
+    insight: number;
+    /** Investment applied to the completing rig's Journey. */
+    journeyInvestment: number;
+  };
 }
 
 export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
@@ -67,7 +73,7 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     binding: "haul",
     requiredCapabilities: ["tow"],
     worldRefs: ["long-furrow"],
-    reward: { salvage: 3 },
+    reward: { salvage: 3, insight: 3, journeyInvestment: 2 },
   },
   {
     id: "survey-route",
@@ -78,7 +84,7 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     binding: "survey",
     requiredCapabilities: ["survey"],
     worldRefs: ["quarry-shelf", "toy-grove", "launch-ridge"],
-    reward: { salvage: 5 },
+    reward: { salvage: 5, insight: 5, journeyInvestment: 4 },
   },
 ];
 

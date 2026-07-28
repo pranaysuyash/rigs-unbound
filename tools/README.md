@@ -18,6 +18,43 @@ Use `--fail-on-findings` only after a reviewed allowlist or a zero-finding
 policy is intentionally adopted. The default audit is non-mutating and prints
 Markdown so status-inflation work can be reproduced without ad-hoc searches.
 
+## Runtime reachability audit
+
+`audit-runtime-reachability.mjs` answers a question the documentation cannot
+answer about itself: **which modules can a player actually reach?** It walks the
+transitive import graph from the real entry points — root-level HTML shells plus
+the build configs — and reports every non-test source module the traversal never
+visits.
+
+```bash
+node tools/audit-runtime-reachability.mjs
+node tools/audit-runtime-reachability.mjs --json
+node tools/audit-runtime-reachability.mjs --max 30
+node --test tools/audit-runtime-reachability.test.mjs
+```
+
+Why transitive rather than "does anything import this?": orphans travel in
+clusters. `expedition-economy.ts` has an importer, but only
+`salvage-crafting.ts`, which is itself unreachable. A per-file grep reports that
+pair as healthy; the graph walk does not.
+
+Deliberate exclusions, so the number stays trustworthy:
+
+- ambient `.d.ts` declarations are never runtime imports and are skipped;
+- `vite.config.ts`, `vitest.config.ts`, and `worker/index.ts` count as entry
+  points so build-time plugins are not reported as orphans;
+- HTML shells under `docs/` (archived evidence previews) do **not** confer
+  reachability — only root-level shells do.
+
+A module that is typechecked, tested, and documented but unreachable is an
+*unreachable claim*: behaviour the player can never observe. Absence of a path
+is the strong signal. Presence of a path only proves the module is wired, not
+that it is exercised.
+
+`--max N` supports a **budget**, not a purity gate: a declared ceiling with an
+explicit allowance for deliberate pre-positioned work. Adopting a ceiling in the
+verification path is a decision, not a default — see RU-0911.
+
 ## Field 02 browser acceptance
 
 `rig-lab-browser-acceptance.cjs` retains its original Rig Lab filename for
@@ -56,6 +93,61 @@ Start the game on the canonical Vite port (`4173`), then run:
 ```bash
 npm run test:browser
 ```
+
+## Shell accessibility acceptance
+
+`shell-accessibility-browser-acceptance.cjs` verifies the player-facing shell
+contracts for the public profile line and save announcement:
+
+- the visible profile line stays in the public HUD and reports the current
+  quality state;
+- the save line stays announced as a live status region;
+- the operator diagnostics surface remains hidden from the public HUD;
+- the profile and save lines stay separated and non-overlapping at mobile
+  width;
+- Chrome’s accessibility tree exposes both status lines as readable text.
+
+Run it against the live Vite server:
+
+```bash
+npm run test:shell-accessibility
+```
+
+If you want the probe to start the canonical dev server for you, set
+`RIGS_ACCESSIBILITY_AUTOSTART=1`. The default path stays explicit and expects
+the live server to already be running.
+
+Override the browser target or viewport when needed:
+
+```bash
+RIGS_ACCESSIBILITY_URL=http://127.0.0.1:4173/?proof=1 \
+RIGS_ACCESSIBILITY_WIDTH=390 \
+RIGS_ACCESSIBILITY_HEIGHT=844 \
+npm run test:shell-accessibility
+```
+
+This is local Tier 3/4 evidence for the shell readability and accessibility
+contract. It is not a substitute for a manual VoiceOver/NVDA/JAWS narration
+pass.
+
+## Shell accessibility summary
+
+`shell-accessibility-summary.cjs` runs the authoritative probe and prints a
+compact human-readable summary of the visible profile line, announced save
+line, diagnostics visibility, layout separation, and accessibility-tree hit
+count.
+
+Run it against the live server:
+
+```bash
+npm run test:shell-accessibility:summary
+```
+
+Use this when you want the proof in one glance without losing the underlying
+evidence command:
+
+- the detailed probe remains the source of truth;
+- the summary helper is just the fast reader.
 
 ## Asset manifest preflight
 

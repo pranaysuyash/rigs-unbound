@@ -45,7 +45,7 @@ describe("activity registry", () => {
     binding: "survey",
     requiredCapabilities: ["survey"],
     worldRefs: ["quarry-shelf"],
-    reward: { salvage: 1 },
+    reward: { salvage: 1, insight: 1, journeyInvestment: 1 },
   };
 
   it("rejects an anchor the authored world does not have", () => {

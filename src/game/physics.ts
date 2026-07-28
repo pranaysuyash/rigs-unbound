@@ -49,6 +49,8 @@ import {
   type TerrainTraversalBlockReason,
 } from "./terrain-traversal";
 import { WATER_LEVEL } from "./world";
+import { calculateRiverHydroState } from "./river-hydrology";
+import { computeBarometricAtmosphere, applyAltitudePowerDerate } from "./barometric-engine";
 
 /**
  * Fraction of gravity a tyre can transmit at grip 1.0.
@@ -320,20 +322,35 @@ function stepGroundMotion(
     -GRAVITY * (grade / Math.sqrt(1 + grade * grade)) * contactFraction;
 
   const waterDepth = Math.max(0, WATER_LEVEL - ground.height);
-  const drowning = waterDepth > profile.fordDepth;
+  const hydroState = calculateRiverHydroState(
+    waterDepth,
+    rig.speed,
+    0.6,
+    profile.mass,
+    false,
+    profile.fordDepth,
+  );
+  const drowning = hydroState.engineHydroLocked || waterDepth > profile.fordDepth;
+  const netGrip = grip * hydroState.effectiveGripRatio;
 
   // ---------------------------------------------------------------------------
   // 5. Longitudinal dynamics.
   // ---------------------------------------------------------------------------
   const tractionLimit =
-    grip *
+    netGrip *
     GRAVITY *
     TRACTION_GRAVITY_FRACTION *
     Math.max(0.05, contactFraction);
 
   let slipDemand = 0;
   if (input.accelerate) {
-    const demand = driveForce(profile, rig.speed);
+    const atmos = computeBarometricAtmosphere(
+      ground.height,
+      rig.modules.includes("survey-mast"),
+    );
+    const effectivePower = applyAltitudePowerDerate(profile.enginePower, atmos.engineAirEfficiency);
+    const baseDemand = driveForce(profile, rig.speed);
+    const demand = (baseDemand * effectivePower) / profile.enginePower;
     const applied = Math.min(demand, tractionLimit);
     if (demand > tractionLimit) {
       slipDemand = clamp((demand - tractionLimit) / demand, 0, 1);

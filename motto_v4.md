@@ -1341,3 +1341,22 @@ Linters (ruff, eslint, etc.), type checkers (mypy, pyright, tsc), formatters, se
 **Relationship to rule 14 (Validation Rules) and rule 1.1:** those rules require checks to pass and typecheck to be clean. This rule does not weaken them — it sharpens them: "passing" means the check is satisfied by correct code or by a reasoned, recorded deviation, never by silent suppression or by degrading the design.
 
 **Relationship to rule 21 (Code Is Evidence, Not a Boundary):** rule 21 says decision-driven refactors are not optional; this rule says tool-driven downgrades are not acceptable. Together: refactor when a decision changes (rule 21); never refactor *downward* just because a tool complained (rule 22).
+
+---
+
+## 23. Parallel-Authoring, Long-Term Continuity, and Contested Runtime Boundaries
+
+- Never treat a contested runtime file as a permission to skip; maintain a first-principles continuation plan and recheck file state before moving forward.
+- Preserve parallel work by default: if a file is being actively edited elsewhere, do not directly patch it.
+- The correct stop condition is explicit: pause, leave a dated handoff note in canonical docs/worklog, and recheck until the file is stable.
+- No boundary drift: if a contract change is decided, update docs and code contracts in the same decision gate; avoid naming or owner mismatches.
+- Keep the progress united: if a task is blocked by overlap, resume at the next explicit recheck point instead of switching to unrelated edits.
+- Use explicit conflict escalation: document what blocked progress, what is required to continue, and the exact trigger that resumes the task.
+- Do not perform logic deletions under uncertainty; prefer contract-alignment and comment-level sync first, then structural edits only with explicit release confidence.
+
+Implementation addendum for this protocol:
+
+- `vehicleAnimationSystem`-style ownership boundaries are treated as long-term contracts, not temporary refactor targets.
+- Decision-driven refactors are mandatory in the same gate that changes ownership or interfaces.
+- Diff-first verification is mandatory before any cross-tool symlink or startup-script handoff.
+- Use commit-unit progress and decision-unit progress reporting, not human-calendar framing.

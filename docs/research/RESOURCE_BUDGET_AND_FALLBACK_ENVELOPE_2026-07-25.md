@@ -259,6 +259,26 @@ The engine can already tell us when it is getting expensive. This contract makes
 A profile decision without a sample count would be a disguised hardware guess.
 The policy therefore makes insufficient evidence a visible state, not a reason
 to silently degrade or promote the player.
+ 
+## Addendum (2026-07-27) - the renderer/profile lane is now tiered, but the cross-system budget ledger is still the missing policy surface
+
+- Re-checked this contract against the live renderer/performance and profile
+  trail after the tiered visibility and shell-profile updates.
+- The renderer-side policy is no longer just a seed:
+  - graduated quality tiers are documented in the renderer-performance flow,
+  - the runtime profile path now has explicit fallback and recovery language,
+  - the public trail now distinguishes the player-facing shell/profile signal
+    from operator diagnostics.
+- What still remains missing is the contract this note was originally asking
+  for at the umbrella level:
+  - one cross-system budget ledger,
+  - one operator-visible summary naming the oversubscribed resource,
+  - one summary field naming the subsystem that caused the fallback,
+  - one shared visible table for within-budget / degraded / fail-soft states.
+- So the repo can now explain the renderer/profile lane, but it still cannot
+  explain the whole budget economy as a single operational artifact.
+- Evidence depth: Tier 1 static inspection of the live documentation trail.
+to silently degrade or promote the player.
 
 ## Addendum (2026-07-26) - first low-budget fallback is active and auditable
 

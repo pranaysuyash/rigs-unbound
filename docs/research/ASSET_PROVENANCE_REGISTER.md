@@ -384,6 +384,53 @@ All vehicle catalog documentation, reference image assets, and downstream proced
 
 A concept image can influence architecture and expectations even when it never ships. Recording it now preserves that influence and prevents “temporary” art from silently becoming production truth.
 
+## Addendum (2026-07-28) - vehicle family reference tranche
+
+The following generated images were copied into the project-owned exploration
+tree. They are concept/reference-only and are not approved runtime assets:
+
+### `vehicle-family-atlas-2026-07-28`
+
+- Tool/provider: built-in OpenAI image generation in the Codex workspace
+- Generation date: 2026-07-28
+- Intended use: family breadth, silhouette comparison, hardpoint discovery,
+  mode variation planning, and later candidate selection for isolated
+  `img2threejs` intake
+- Rights/terms status: generated in the project workspace; public reuse still
+  requires review of provider terms and any generated real-world markings
+- Runtime status: not imported; no asset manifest or runtime path changed
+- Review status: manually inspected at original resolution; all three sheets
+  contain separated full-vehicle candidates with readable silhouettes
+
+Files and hashes:
+
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-lineup-2026-07-28.png`
+  — SHA-256 `a583007d3cb2cd371651b082602b1e677f28c5552ba3e87c4755dd0639684dcf`
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/rescue-emergency-lineup-2026-07-28.png`
+  — SHA-256 `ecc2ef99b174bde00c15ecc76952032e46b6beee474e74581b5c9469dea16c`
+- `docs/exploration/assets/vehicle-family-atlas-2026-07-28/extreme-aspiration-lineup-2026-07-28.png`
+  — SHA-256 `5719c85ef26196ee8f1d21ad00bd6fd4c54e7e4511ee8eeeb95297c0c3db299d`
+
+### `utility-tow-recovery-candidate-01-2026-07-28.png`
+
+- Project path: `docs/exploration/assets/vehicle-family-atlas-2026-07-28/utility-tow-recovery-candidate-01-2026-07-28.png`
+- SHA-256: `d52f39285b12a29acd722ac3d66633d48460ca4a155c8e8e33114f399d60cfe3`
+- Dimensions: 1536 × 1024 RGB PNG
+- Tool/provider: built-in OpenAI image generation in the Codex workspace
+- Provisional stable ID: `utility_tow_recovery_01`
+- Intended use: isolated candidate view for later multi-view reference package
+  and `img2threejs` intake analysis
+- Production status: **concept/reference only; below mesh/runtime admission**
+- Human review: full vehicle and wheels are visible with generous neutral
+  background; exact scale, rear/side/top views, sockets, underbody, and
+  material IDs remain unverified
+- Replacement path: replace or supersede with a complete multi-view package
+  before any mesh is considered for runtime admission
+
+Replacement path: select named candidates, generate isolated reconstruction
+references, validate mesh/topology/material/collision/animation budgets, then
+admit only the validated derivative through the canonical runtime manifest.
+
 ## Addendum (2026-07-25) - provenance is still reference-first, not runtime-imported
 
 - Re-checked the provenance register against the current browser daemon
