@@ -1,0 +1,125 @@
+# Runtime Reachability Ownership Matrix (2026-07-28)
+
+## Purpose
+
+The runtime-reachability audit now gives the repo a measured orphan set:
+
+- 79 non-test source modules total
+- 50 entry-reachable modules
+- 29 unreachable modules
+- 2,201 unreachable lines
+- 28 of the 29 unreachable modules already have tests
+- `src/game/asset-manager.ts` is the only unreachable module with no tests
+
+This review turns that measured set into an ownership classification so we do
+not accidentally treat parallel-owned or future-bound work as junk.
+
+The audit is static. It proves absence of a path from current entry points. It
+does **not** prove a module is unused, dead, wrong, or safe to delete.
+
+## Classification policy
+
+- **Parallel-owned** means another active agent or branch has clearer current
+  ownership than the audit can prove.
+- **Future-bound contract** means the module is intentional design work that is
+  not yet wired into the shipped entry graph.
+- **Lab-only surface** means the module exists to support evidence, probes, or
+  experimental surfaces rather than the player loop.
+- **Dead code** means the module has no current purpose, no credible planned
+  purpose, and no preservation value.
+
+Reachability alone is not enough to mark something dead.
+
+## Findings
+
+### Parallel-owned
+
+None proven by this audit.
+
+Static reachability does not carry provenance. Without explicit branch or task
+ownership, the safe stance is to preserve the code until a caller inventory or
+parallel-work handoff says otherwise.
+
+### Lab-only surface
+
+- `src/game/workshop-lab.ts`
+
+Reason:
+
+- the name and existing architecture notes frame it as a workshop-lab surface,
+  not a canonical player path;
+- the audit says it is not entry-reachable, but the surrounding docs treat it
+  as a useful evidence fixture rather than junk.
+
+### Future-bound contracts
+
+These modules look like intentional product or architecture work that is not yet
+wired into the current entry graph:
+
+- `src/game/asset-manager.ts` - future-bound support layer, and the only orphan
+  without tests; highest supersession/archival review priority
+- `src/game/xp-progression.ts` - mode-scoped XP projection, with current docs
+  keeping campaign progression canonical
+- `src/game/campaign.ts` - campaign contract spine
+- `src/game/signature.ts` - identity/signature contract
+- `src/game/ghost.ts` - replay / ghost artifact contract
+- `src/game/winch-physics.ts` - rescue / recovery mechanics
+- `src/game/weather.ts` - weather and environment contract
+- `src/game/salvage-crafting.ts` - salvage economy / crafting contract
+- `src/game/seismic-probe.ts` - tactical sensing contract
+- `src/game/world-memory.ts` - accepted-thesis memory layer; highest product
+  value but still not entry-wired
+- `src/game/thermal-camera.ts` - tactical sensing / inspection layer
+- `src/game/procedural-missions.ts` - mission generation contract
+- `src/game/expedition-economy.ts` - route / economy contract
+- `src/game/radio-scanner.ts` - sensing / discovery contract
+- `src/game/fleet-recovery.ts` - stranded-rig rescue payoff
+- `src/game/topo-map.ts` - map / terrain-communication layer
+- `src/game/differential-lock.ts` - traction / terrain-control contract
+- `src/game/electrical-grid.ts` - infrastructure / power contract
+- `src/game/debris-physics.ts` - destructible-world / debris contract
+- `src/game/landslide-hazard.ts` - terrain hazard contract
+- `src/game/vehicle-maintenance.ts` - upkeep / damage / service contract
+- `src/game/soil-ecosystem.ts` - ground-state / growth contract
+- `src/game/thermal-engine.ts` - heat / powertrain contract
+- `src/game/fuel-efficiency.ts` - economy / range contract
+- `src/game/cargo-crane.ts` - logistics / lifting contract
+- `src/game/tire-pressure.ts` - traction control contract
+- `src/game/surface-moisture.ts` - terrain-state contract
+- `src/game/winch-pulley.ts` - recovery / towing mechanism
+
+The thematic clustering matches the repo’s own reachability brainstorm: this is
+the tactical vocabulary of the reclamation game, not random leftover code.
+
+### Dead code
+
+None proven.
+
+The strongest available evidence points the other way: these modules align with
+documented future systems, a tactical-off-road gameplay thesis, or lab/evidence
+surfaces. Deleting them on reachability alone would risk discarding the parts
+bin the project still intends to wire.
+
+## What this means operationally
+
+1. Do **not** delete any of the unreachable modules just because the audit
+   found them unreachable.
+2. Before wiring anything, re-derive the module against the current canonical
+   layers and document whether it is supersession, wiring, or archival.
+3. Treat `asset-manager.ts` as the first supersession candidate because it is
+   the only orphan without tests and the repo now has a manifest-driven asset
+   path.
+4. Treat `workshop-lab.ts` as lab-only until a player-facing surface explicitly
+   adopts it.
+5. Keep the other modules as future-bound contracts until a named tranche or
+   ADR wires them into the current loop.
+
+## Next safe action
+
+Inventory callers, then choose one of:
+
+- wire through the canonical path,
+- archive with an explicit decision record, or
+- keep deferred with a documented product or architecture reason.
+
+The audit is now a classification signal, not a cleanup order.

@@ -277,6 +277,9 @@ The new runtime reachability audit is a routing signal, not a deletion order:
 - That keeps preserved work, exploratory code, and deferred platform seams from
   being collapsed into one misleading "unused" bucket.
 
+The durable review artifact for that classification is
+`docs/reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md`.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

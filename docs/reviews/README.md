@@ -38,6 +38,7 @@ document what changed, what was verified, and what remains open.
 - launch/comms approval surfaces;
 - post-hoc clarifications that need a durable home.
 - public asset promotion reviews and approval decisions.
+- runtime reachability ownership matrices and orphan-classification reviews.
 
 ## Open browser-delivery trust gaps
 
