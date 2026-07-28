@@ -2009,3 +2009,5 @@ behind it, that is evidence the method needs changing, not the map.
   `fleet-recovery.ts` as the consequence primitive.
 - The route now crosses control guidance -> named action -> proposition ->
   command/result -> progression consequence.
+- The route now also probes whether the read-only contract board can become
+  the player choice surface for that proposition.

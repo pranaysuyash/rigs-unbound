@@ -296,3 +296,5 @@ The next concrete artifact is the wiring experiment for
   the consequence primitive.
 - the experiment now crosses control guidance -> named action -> proposition
   -> command/result -> progression consequence.
+- it now also probes whether the read-only contract board can be the player
+  choice surface for that proposition.

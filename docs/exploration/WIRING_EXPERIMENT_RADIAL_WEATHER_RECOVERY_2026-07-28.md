@@ -66,6 +66,23 @@ The first wiring goal is therefore not a new registry. It is to make the
 recovery-shaped path visible and reachable across those layers in one
 explainable route.
 
+## Crosswalk to the acceptance surface gate
+
+The experiment should also point at the current player-facing acceptance
+surface question:
+
+- the contract ledger spec already names a read-only board sourced from
+  `publicState`;
+- the core loop contract still says the acceptance surface is not yet a settled
+  product claim;
+- the experiment should therefore use the board/ledger surface as the place
+  where the recovery-shaped proposition becomes a player choice, without
+  turning it into a second quest authority.
+
+In other words, the experiment is not just about recovery. It is a concrete
+probe for whether the read-only contract board can become the accepted mission
+choice surface.
+
 ## Experiment hypothesis
 
 If these modules are wired into one player-facing route, then:
@@ -116,6 +133,8 @@ actually missing:
   mission/progression admission;
 - if the recovery consequence exists but the weather coupling is absent, the
   problem is pressure modeling.
+- if the board can show the proposition but not admit it as a choice, the
+  problem is the missing acceptance surface contract, not the route itself.
 
 That keeps the experiment honest: it should isolate which part of the missing
 middle is still unsolved.
