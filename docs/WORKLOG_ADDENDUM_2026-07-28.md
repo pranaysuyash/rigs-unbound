@@ -644,5 +644,9 @@ gate and this one closes the blocking correctness defect only.
     `docs/reviews/TOUCH_RADIAL_ACTION_BOOT_BLOCKER_ISSUE_REVIEW_2026-07-28.md`
     show the current accessibility/focus gaps are still treated as live shell contracts;
   - the contract board remains planned in the shell spec and is still a read-only surface, not a second authority.
+- The new boundary review at `docs/reviews/CONTRACT_BOARD_COMMAND_BOUNDARY_ISSUE_REVIEW_2026-07-28.md`
+  captures the specific missing step: the acceptance surface still needs a
+  runtime command boundary and focus-managed board branch before it can be a
+  player-reachable overlay rather than a spec-only projection.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

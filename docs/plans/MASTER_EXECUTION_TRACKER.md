@@ -58,6 +58,9 @@ focus contract, not the contested runtime implementation:
 - `docs/research/SHELL_ACCESSIBILITY_NEXT_SEAM_2026-07-28.md` now records the
   next slice: contract-board / modal-overlay semantics, focus restore, and
   keyboard/touch parity.
+- `docs/reviews/CONTRACT_BOARD_COMMAND_BOUNDARY_ISSUE_REVIEW_2026-07-28.md`
+  now captures the exact missing runtime insertion point: the acceptance
+  surface still needs a live board branch and command boundary.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 
