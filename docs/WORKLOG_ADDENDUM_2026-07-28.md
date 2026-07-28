@@ -265,6 +265,18 @@ named topology contract:
 
 That keeps topology and residency separate without making either one vague.
 
+## Runtime reachability classification
+
+The new runtime reachability audit is a routing signal, not a deletion order:
+
+- 30 unreachable non-test modules mean the repo has a real ownership boundary to
+  classify, not a proof that the code is dead.
+- In a repo with parallel agents and reserved lab/runtime surfaces, the next
+  safe step is to classify each unreachable module as parallel-owned,
+  future-bound, lab-only, or truly dead before removing anything.
+- That keeps preserved work, exploratory code, and deferred platform seams from
+  being collapsed into one misleading "unused" bucket.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

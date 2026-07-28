@@ -1927,6 +1927,20 @@ New exploration questions opened by this package:
 - Chunked activation remains a future boundary, not a hidden implementation
   already waiting underneath the field.
 
+## Addendum — 2026-07-28 runtime reachability classification
+
+- `tools/audit-runtime-reachability.mjs` now gives the exploration lane a real
+  measured number: 30 unreachable non-test modules out of 78.
+- That number is a classification problem, not a deletion order.
+- Before any pruning, preserve the parallel-agent and lab-surfaces distinction
+  by sorting unreachable modules into:
+  - parallel-owned work,
+  - future-bound contracts,
+  - lab-only/evidence surfaces,
+  - genuinely dead code.
+- The right next artifact is an ownership/provenance matrix for reachability,
+  not a blanket cleanup pass.
+
 ## Addendum — 2026-07-28 runtime reachability is now a measured number, and it is the session's largest finding
 
 A wide-open brainstorm run against measured repository facts produced one
