@@ -1206,3 +1206,5 @@ The next concrete artifact is the wiring experiment for
 - see `docs/exploration/WIRING_EXPERIMENT_RADIAL_WEATHER_RECOVERY_2026-07-28.md`;
 - it is a falsifiable wiring path, not another contract note;
 - it should surface one reachable verb and one visible outcome path.
+- it also probes whether the read-only contract board can be the player
+  choice surface for that proposition.
