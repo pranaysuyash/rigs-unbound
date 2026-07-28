@@ -676,3 +676,23 @@ gate and this one closes the blocking correctness defect only.
   interactions, but still not the shell itself.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.
+
+## 2026-07-28 — objective refresh: what is left and what is next
+
+- Re-confirmed execution board and master tracker states after the latest local checks:
+  - A6 external fresh-player comprehension is still open and explicitly unproven in all production/review documents.
+  - B3a (Survey Route 01 / schema-v7 claim) and B4 (emissions + cultivation groundwork) remain `Decision needed` gates before widening vertical scope.
+  - B8 is in-progress but explicitly needs a new preservation-audit + full managed hook + exact source push/deploy + public rerun before it can close again.
+  - C1 is still `Decision needed` for the next vertical.
+  - D1 performance envelope is still `[ ]` in the board and remains a separate evidence class from current functional browser passes.
+- Ran live checks in this cycle:
+  - `npm run audit:reachability:budget` passes at `--max 28` (`Non-test source modules: 81`, `Entry-reachable: 53`, `Unreachable: 28`).
+  - `npm run test:reachability` passes (`6/6`, no failures).
+- Key gating mismatch found:
+  - Several files still carry stale language around a prior build/open-gate path, so next work should treat the current addenda as higher-precision than earlier status rows.
+- Concrete next sequence (in order):
+  1. Complete A6 with a clean external fresh-player run and record evidence.
+  2. Resolve B3a/B4 decision dependencies with operator sign-off and ADR/decision links.
+  3. If `C1` is set, begin C2 or C4 per decision, with B8-style preservation/deploy discipline only after that tranche is coherent.
+  4. Execute D1 representative-device evidence only after UI/comprehension decisions are no longer speculative.
+  5. Re-open `B8` only once local, GitHub, Sites, browser, and review evidence are coherent again.
