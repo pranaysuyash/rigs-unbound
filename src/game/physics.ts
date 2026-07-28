@@ -42,6 +42,7 @@ import {
   type RigState,
   WORLD_LIMIT,
 } from "./contracts";
+import { applyWeatherGripPenalty } from "./weather";
 import { clamp } from "./noise";
 import type { TerrainField } from "./terrain";
 import {
@@ -120,6 +121,15 @@ export interface RampDefinition {
  * most where grip is worst. That single term is why the tractor owns the marsh
  * and the buggy owns the hardpan, without either being scripted to.
  */
+/** Per-step motion inputs that are not part of rig or terrain state. */
+export interface MotionOptions {
+  towing: boolean;
+  ramp: RampDefinition | null;
+  canJump: boolean;
+  /** 0..1 ground saturation from the deterministic weather clock. */
+  soilMoisture?: number;
+}
+
 export function effectiveGrip(
   surfaceGrip: number,
   tireGrip: number,
@@ -175,7 +185,7 @@ function stepGroundMotion(
   input: InputFrame,
   terrain: TerrainField,
   dt: number,
-  options: { towing: boolean; ramp: RampDefinition | null; canJump: boolean },
+  options: MotionOptions,
 ): MotionOutcome {
   if (profile.mobilityAdapter !== "ground" || rig.mobility.kind !== "ground") {
     throw new Error(
@@ -313,10 +323,14 @@ function stepGroundMotion(
   // 4. Surface, grip, grade.
   // ---------------------------------------------------------------------------
   const ground = terrain.sample(rig.x, rig.z);
-  const grip = effectiveGrip(
-    ground.surface.grip,
-    profile.tireGrip,
-    profile.lugBonus,
+  // Weather lowers grip in the *simulation*, before any mission text is allowed
+  // to claim conditions are harder. Hardpan and rock resist it; soft soils do
+  // not. `deriveFleetRecoveryAssessment()` reads grip through this same helper
+  // so the board can never promise traction the rig does not have.
+  const grip = applyWeatherGripPenalty(
+    effectiveGrip(ground.surface.grip, profile.tireGrip, profile.lugBonus),
+    ground.surface.id,
+    options.soilMoisture ?? 0,
   );
   const grade = terrain.gradeAlong(rig.x, rig.z, forwardX, forwardZ);
   // Gravitational acceleration along the direction of travel. sin(atan(g)) keeps
@@ -789,11 +803,7 @@ interface MobilityAdapterImplementation {
     input: InputFrame,
     terrain: TerrainField,
     dt: number,
-    options: {
-      towing: boolean;
-      ramp: RampDefinition | null;
-      canJump: boolean;
-    },
+    options: MotionOptions,
   ): MotionOutcome;
   settle(rig: RigState, profile: EffectiveRig, terrain: TerrainField): void;
   stable(rig: RigState): boolean;
@@ -842,7 +852,7 @@ export function stepRigMotion(
   input: InputFrame,
   terrain: TerrainField,
   dt: number,
-  options: { towing: boolean; ramp: RampDefinition | null; canJump: boolean },
+  options: MotionOptions,
 ): MotionOutcome {
   return adapterFor(rig, profile).step(
     rig,

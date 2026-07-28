@@ -24,6 +24,7 @@ import {
   type RigId,
 } from "./contracts";
 import type { GameWorld } from "./gameworld";
+import { effectiveGrip } from "./physics";
 import { applyWeatherGripPenalty, type WeatherState } from "./weather";
 
 /** How close a support rig must be before a strap can be attached. */
@@ -119,10 +120,10 @@ export function deriveFleetRecoveryAssessment(
     // Grip is measured under the *support* rig, because that is the rig that has
     // to pull. Weather lowers it through the same helper the motion model uses,
     // so the assessment cannot claim conditions the simulation does not share.
-    const surface = world.terrain.surfaceFor(rig.x, rig.z);
+    const ground = world.terrain.sample(rig.x, rig.z);
     const grip = applyWeatherGripPenalty(
-      surface.grip * profile.gripFactor,
-      surface.id,
+      effectiveGrip(ground.surface.grip, profile.tireGrip, profile.lugBonus),
+      ground.surface.id,
       weather.soilMoisture,
     );
 

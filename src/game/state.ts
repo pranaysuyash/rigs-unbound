@@ -86,6 +86,7 @@ import {
   surveyRouteTargets,
 } from "./activities";
 import { SALVAGE_PICKUP_RADIUS } from "./exploration";
+import { deriveWeatherState } from "./weather";
 import {
   evaluateCorridorQuality,
   resolveFirstRung,
@@ -1209,10 +1210,15 @@ export function stepGame(
     return;
   }
 
+  // Weather is derived from the same monotonic world clock the phase uses, so
+  // it is deterministic and replay-safe. It reaches the motion model here — the
+  // simulation gets wetter ground *before* any mission copy claims it is harder.
+  const weather = deriveWeatherState(state.worldTimeMinutes);
   const motion = stepRigMotion(rig, profile, input, world.terrain, dt, {
     towing,
     ramp: BUGGY_RAMP,
     canJump: profile.capabilities.includes("jump"),
+    soilMoisture: weather.soilMoisture,
   });
 
   // ---------------------------------------------------------------------------
