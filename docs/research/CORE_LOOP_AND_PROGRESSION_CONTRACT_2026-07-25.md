@@ -252,3 +252,22 @@ derived opportunities, and long-arc progression from collapsing into one
 all-purpose quest ledger. The next durable move is to name the player-facing
 mission acceptance surface explicitly, not to broaden the core loop into a
 second progression authority.
+
+## Addendum (2026-07-28) - the wiring experiment is the first probe of the acceptance surface gate
+
+- Re-read the current loop/progression contract after naming the world graph,
+  the episode runner, and the wiring experiment route.
+- The runtime already proves the loop’s technical split:
+  - mission propositions are derived from current world/progression state,
+  - progression is the consequence ledger,
+  - recovery-shaped opportunities already exist in the proposition set.
+- What is still open is the player-facing acceptance surface:
+  - the repo still lacks a clearly admitted surface where a player chooses from
+    those derived opportunities,
+  - the existing recovery route should be treated as the first concrete probe
+    of that gate, not as a finished product claim.
+- The wiring experiment therefore serves two purposes at once:
+  - it tests whether one reachable verb can become one legible outcome,
+  - it shows whether the acceptance surface is UI, pressure, consequence, or
+    a combination of the three.
+- Evidence depth: Tier 1 static source inspection and contract synthesis.
