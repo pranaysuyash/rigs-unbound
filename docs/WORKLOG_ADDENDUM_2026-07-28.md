@@ -280,6 +280,10 @@ The new runtime reachability audit is a routing signal, not a deletion order:
 The durable review artifact for that classification is
 `docs/reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md`.
 
+`src/game/asset-manager.ts` has now been reclassified as a superseded contract:
+the live admission path is manifest-driven runtime assets, not the old
+centralized loader sketch documented in the 2026-07-27 loader-flow note.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

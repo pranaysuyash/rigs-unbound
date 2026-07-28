@@ -256,3 +256,17 @@ async loadRuntimeAsset(spec: RuntimeBridgeSpec): Promise<void> {
 ---
 
 _Generated: 2026-07-27 | Skill: threejs-loaders | Project: rigs-unbound_
+
+## Addendum (2026-07-28): the `AssetManager` example is historical, not canonical
+
+- Re-checked the current source graph against this loader-flow note.
+- `src/game/asset-manager.ts` is now unreachable from shipped entry points and
+  has no current call sites outside documentation references.
+- The live runtime asset admission path is the manifest-driven bridge in
+  `src/game/runtime-assets.ts`, with the renderer loading bridge assets through
+  that contract and `assets/asset-manifest.json` governing player/developer
+  visibility.
+- The `AssetManager` class in this note should therefore be read as a historical
+  implementation sketch, not as current project architecture.
+- This preserves the documentation trail while preventing the old centralized
+  loader pattern from being mistaken for the canonical live path.

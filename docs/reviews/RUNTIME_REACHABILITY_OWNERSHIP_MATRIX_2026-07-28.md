@@ -25,6 +25,8 @@ does **not** prove a module is unused, dead, wrong, or safe to delete.
   not yet wired into the shipped entry graph.
 - **Lab-only surface** means the module exists to support evidence, probes, or
   experimental surfaces rather than the player loop.
+- **Superseded contract** means the module once represented a real design
+  direction, but a newer canonical path now owns the live contract.
 - **Dead code** means the module has no current purpose, no credible planned
   purpose, and no preservation value.
 
@@ -51,13 +53,21 @@ Reason:
 - the audit says it is not entry-reachable, but the surrounding docs treat it
   as a useful evidence fixture rather than junk.
 
+### Superseded contract
+
+These modules look like intentional product or architecture work that is no
+longer the canonical live path:
+
+- `src/game/asset-manager.ts` - superseded by the manifest-driven runtime asset
+  path in `src/game/runtime-assets.ts` and the renderer’s runtime bridge. The
+  old centralized loader example survives in docs as historical context, but it
+  is not the live admission path.
+
 ### Future-bound contracts
 
 These modules look like intentional product or architecture work that is not yet
 wired into the current entry graph:
 
-- `src/game/asset-manager.ts` - future-bound support layer, and the only orphan
-  without tests; highest supersession/archival review priority
 - `src/game/xp-progression.ts` - mode-scoped XP projection, with current docs
   keeping campaign progression canonical
 - `src/game/campaign.ts` - campaign contract spine
@@ -106,9 +116,9 @@ bin the project still intends to wire.
    found them unreachable.
 2. Before wiring anything, re-derive the module against the current canonical
    layers and document whether it is supersession, wiring, or archival.
-3. Treat `asset-manager.ts` as the first supersession candidate because it is
-   the only orphan without tests and the repo now has a manifest-driven asset
-   path.
+3. Treat `asset-manager.ts` as a superseded contract, not a live loader path.
+   Preserve it as historical documentation unless a future wiring tranche
+   explicitly revives the pattern.
 4. Treat `workshop-lab.ts` as lab-only until a player-facing surface explicitly
    adopts it.
 5. Keep the other modules as future-bound contracts until a named tranche or
