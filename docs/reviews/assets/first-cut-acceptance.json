@@ -35,9 +35,9 @@
     {
       "step": "drive-forward",
       "stage": "first-cut",
-      "objective": "Plough toward Long Furrow (28 furrows carved)",
+      "objective": "Plough toward Long Furrow (25 furrows carved)",
       "dataStage": "first-cut",
-      "furrows": 28,
+      "furrows": 25,
       "pass": true
     }
   ],
