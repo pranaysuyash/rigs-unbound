@@ -4,11 +4,11 @@
 
 The runtime-reachability audit now gives the repo a measured orphan set:
 
-- 79 non-test source modules total
-- 50 entry-reachable modules
-- 29 unreachable modules
-- 2,201 unreachable lines
-- 28 of the 29 unreachable modules already have tests
+- 81 non-test source modules total
+- 53 entry-reachable modules
+- 28 unreachable modules
+- 2,114 unreachable lines
+- 27 of the 28 unreachable modules already have tests
 - `src/game/asset-manager.ts` is the only unreachable module with no tests
 
 This review turns that measured set into an ownership classification so we do
@@ -16,6 +16,12 @@ not accidentally treat parallel-owned or future-bound work as junk.
 
 The audit is static. It proves absence of a path from current entry points. It
 does **not** prove a module is unused, dead, wrong, or safe to delete.
+
+Update 2026-07-28 (re-run):
+
+- `node tools/audit-runtime-reachability.mjs` and `node --test tools/audit-runtime-reachability.test.mjs` were re-run on this checkout.
+- The reachable set now reports 81 non-test modules, 53 entry-reachable, and 28 unreachable (`src/game/world-memory.ts`, `src/game/xp-progression.ts`, `src/game/campaign.ts`, ...).
+- All reachability tests passed (6/6), with the same warning remaining: a tested-but-unreachable tested-behavior set is still present.
 
 ## Classification policy
 
