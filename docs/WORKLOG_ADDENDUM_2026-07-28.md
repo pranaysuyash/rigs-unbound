@@ -298,6 +298,11 @@ replay authority is the bounded run-record lane (`src/game/run-record.ts` and
 `src/game/replay-validator.ts`), while the ghost overlay/ghost-artifact work is
 still a deferred product contract with its own plan and tests.
 
+`src/game/procedural-missions.ts` stays preserved as a superseded generator
+sketch. The newer mission-proposition system in `src/game/mission-propositions.ts`
+and the mission acceptance surface now own the canonical mission path, so the
+older generator is historical rather than live runtime wiring.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

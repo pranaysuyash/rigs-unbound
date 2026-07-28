@@ -78,6 +78,10 @@ longer the canonical live path:
   path in `src/game/runtime-assets.ts` and the renderer’s runtime bridge. The
   old centralized loader example survives in docs as historical context, but it
   is not the live admission path.
+- `src/game/procedural-missions.ts` - superseded by the newer derived mission
+  proposition system in `src/game/mission-propositions.ts` and the mission
+  acceptance surface contracts. The old generator sketch still has a test and
+  documentation trail, but it is no longer the canonical mission path.
 
 ### Future-bound contracts
 
