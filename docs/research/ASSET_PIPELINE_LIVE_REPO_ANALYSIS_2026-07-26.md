@@ -153,3 +153,12 @@ machine-keeper thesis and long-range product direction.
   implications.
 - Evidence depth: Tier 4 live browser inspection plus current manifest/runtime
   state.
+
+## Addendum (2026-07-28) - the promotion workflow is now written down separately
+
+- The concrete public-approval workflow now lives in
+  [Public Asset Promotion Workflow for First Runtime Bridge Candidate](./PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md).
+- That note keeps the decision separate from the manifest entry: the first
+  public candidate remains the breakable crate, while the tractor preview stays
+  developer-scale proof.
+- Evidence depth: Tier 1 doc linkage.

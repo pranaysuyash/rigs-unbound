@@ -243,3 +243,14 @@ for all gameplay semantics currently held outside the mesh.
   - the tractor preview remains the better developer-scale proof, not the
     first public candidate.
 - Evidence depth: Tier 4 live browser inspection plus current manifest state.
+
+## Addendum (2026-07-28) - promotion workflow is recorded separately
+
+- The concrete workflow for promoting the first runtime bridge candidate is
+  now recorded in
+  [Public Asset Promotion Workflow for First Runtime Bridge Candidate](./PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md).
+- That keeps the authority ladder readable:
+  - this contract explains the mesh/blueprint boundary;
+  - the new workflow explains how public approval is decided;
+  - the manifest remains the only promotion authority.
+- Evidence depth: Tier 1 doc linkage.
