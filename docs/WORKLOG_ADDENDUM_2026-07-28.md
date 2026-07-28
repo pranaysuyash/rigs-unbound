@@ -662,5 +662,14 @@ gate and this one closes the blocking correctness defect only.
 - The browser-proved shell profile owner contract now also has live-browser
   proof that the public HUD carries the visible profile line while operator
   diagnostics stay separate.
+- The mute-preference review now clarifies that mute belongs beside the
+  player-facing profile owner as a durable comfort preference, but its
+  persistence layer is still missing.
+- The workshop review now sits in the same focus-managed shell family as the
+  other major overlays, so its next proof stays presentation/focus-oriented
+  rather than state-plumbing-oriented.
+- The resource budget contract now carries a fresh addendum: the public shell
+  shows profile and save state, but the fallback envelope is still policy-only
+  and lacks a canonical low-budget decision path.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

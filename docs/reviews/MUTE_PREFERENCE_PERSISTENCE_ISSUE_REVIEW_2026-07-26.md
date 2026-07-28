@@ -47,3 +47,20 @@ This issue closes only when the mute preference is persisted and restored by the
 ## Anything else?
 
 Yes: this is distinct from audio availability. The current contract already treats no-audio as a safe outcome. The missing piece is remembering the player’s own choice after the page reloads.
+
+## Addendum (2026-07-28) - the mute preference should sit beside the player-facing profile owner, not inside the runtime diagnostics lane
+
+- Re-checked the mute contract against the browser-proved shell profile owner
+  and the public-profile visibility trail.
+- The player now has a visible profile owner in the public HUD, which means the
+  comfort layer and the audio layer should share one preference story rather
+  than drift apart:
+  - visible profile state explains the shell’s current quality/comfort mode,
+  - mute explains whether the player wants audible feedback at all,
+  - both are player preferences, but they are not the same preference.
+- The missing layer is still the persisted preference registry for mute itself:
+  the game should remember mute across reloads without collapsing that choice
+  into diagnostics or gameplay state.
+- That keeps the audio contract aligned with the rest of the accessibility
+  surface: player-facing comfort choices should be durable, plain-language,
+  and separate from operator-only evidence.

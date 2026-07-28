@@ -56,3 +56,19 @@ This issue closes only when the workshop panel has an explicit focus and announc
 ## Anything else?
 
 Yes: the workshop is not just another menu. It is the player’s capability gate. That makes its discoverability part of the core progression contract, not an optional UI flourish.
+
+## Addendum (2026-07-28) - the workshop belongs to the same focus-managed shell family as the other major overlays
+
+- Re-checked the workshop review against the current shell contract trail.
+- The workshop is already treated as one of the major shell surfaces in
+  `docs/research/UNIFIED_UI_SHELL_SPEC_2026-07-27.md`, alongside the map,
+  contract board, garage, pause, and labs surfaces.
+- That means the missing workshop proof is not a separate UI philosophy; it is
+  the same runtime pattern the other overlays are converging on:
+  - explicit focus entry,
+  - visible heading and status,
+  - clean focus restore on close,
+  - and readable discovery of why the panel matters right now.
+- The workshop remains a progression gate, not a second authority, so its
+  next proof should stay presentation- and focus-oriented rather than adding
+  any new state path.

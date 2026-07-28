@@ -74,6 +74,15 @@ focus contract, not the contested runtime implementation:
 - `docs/research/BROWSER_PROVED_SHELL_PROFILE_OWNER_CONTRACT_2026-07-26.md`
   now has live-browser proof that the public HUD owns the visible profile line
   while operator diagnostics stay separate.
+- `docs/reviews/MUTE_PREFERENCE_PERSISTENCE_ISSUE_REVIEW_2026-07-26.md`
+  now ties mute to the player-facing comfort/profile story, while keeping the
+  missing persistent preference registry explicitly open.
+- `docs/reviews/WORKSHOP_PANEL_FOCUS_AND_DISCOVERY_ISSUE_REVIEW_2026-07-26.md`
+  now explicitly frames workshop as part of the same focus-managed shell
+  family as the other major overlays, not a separate UI philosophy.
+- `docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md`
+  now records that the public shell shows profile/save state, but the
+  resource-fallback envelope still lacks a canonical low-budget policy.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 

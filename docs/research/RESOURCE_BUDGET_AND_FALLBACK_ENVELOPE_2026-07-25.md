@@ -240,6 +240,28 @@ The engine can already tell us when it is getting expensive. This contract makes
 - That means the budget story is measurable today, but still not owned as a
   first-class fallback contract.
 
+## Addendum (2026-07-28) - the public shell now shows profile and save state, but the fallback envelope is still the missing policy
+
+- Re-checked the live browser surface against the budget envelope and the
+  player-facing visibility trail.
+- The public shell now exposes the active profile state in plain language and
+  keeps the save/recovery line separate, so the player can see both the shell
+  quality tier and the persistence state without opening diagnostics.
+- That strengthens the user-facing side of the budget story, but it does not
+  yet supply the policy layer this contract needs:
+  - no canonical cross-system budget ledger,
+  - no explicit low-budget fallback profile selected by the envelope,
+  - no operator-visible summary naming the oversubscribed resource,
+  - no summary field naming the subsystem that triggered fallback.
+- In other words: the browser can now show that the app is healthy and what
+  profile it chose, but the repo still lacks the named fallback policy that
+  should activate before overload becomes a player-facing problem.
+- The next proof slice is still policy, not metrics: define which subsystem
+  wins when the envelope needs to shed load, and make that decision visible in
+  the same public language the shell already uses for profile and save state.
+- Evidence depth: Tier 4 browser observation of the public shell plus Tier 1
+  contract/source inspection.
+
 ## Addendum (2026-07-26) - fallback policy seed chooses only from measured pressure
 
 - The measurement envelope now includes `frameSampleCount`, so timing summaries
