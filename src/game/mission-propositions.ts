@@ -28,8 +28,10 @@ export type MissionBinding =
   | "delivery"
   /** Survey / line-of-sight contract (uses existing 'survey' binding). */
   | "survey"
-  /** Salvage recovery — go to a site, collect a cache. */
-  | "recovery"
+  /** Salvage retrieval — go to a site, collect a cache. Not rig recovery. */
+  | "salvage-retrieval"
+  /** Fleet recovery — another rig is disabled and needs logistical assistance. */
+  | "fleet-recovery"
   /** Multi-site expedition — visit several points in a loop. */
   | "expedition";
 
@@ -153,7 +155,7 @@ function generateDeliveryMissions(
  * From the current rig's position, suggests recovery at unvisited sites
  * that have salvage value.  The farther the site, the more valuable.
  */
-function generateRecoveryMissions(
+function generateSalvageRetrievalMissions(
   state: GameState,
   _progression: ProgressionState,
   weatherPhase: string,
@@ -178,8 +180,8 @@ function generateRecoveryMissions(
 
     const isStorm = weatherPhase === "storm" || weatherPhase === "rain";
     proposals.push({
-      id: `recovery-${siteId}`,
-      binding: "recovery",
+      id: `salvage-retrieval-${siteId}`,
+      binding: "salvage-retrieval",
       title: `Salvage: ${site.name}`,
       premise: `Unmarked signal at ${site.name}. Possible salvage cache.`,
       briefing: `A weak return signal is coming from near ${site.name} (${Math.round(distance)}m ${distance > 60 ? "— a serious journey" : "— a short trip"}). Could be salvage, equipment, or a lead on something bigger.`,
@@ -303,7 +305,10 @@ function generateExpeditionMissions(
 
 const GENERATORS: readonly MissionGenerator[] = [
   { binding: "delivery" as const, generate: generateDeliveryMissions },
-  { binding: "recovery" as const, generate: generateRecoveryMissions },
+  {
+    binding: "salvage-retrieval" as const,
+    generate: generateSalvageRetrievalMissions,
+  },
   { binding: "survey" as const, generate: generateSurveyMissions },
   { binding: "expedition" as const, generate: generateExpeditionMissions },
 ];

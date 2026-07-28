@@ -308,6 +308,11 @@ contract. The module is pure and tested, but the live runtime still passes
 weather as an injected string into mission generation and does not import this
 module yet.
 
+`src/game/topo-map.ts` stays preserved as a superseded contour helper. The live
+field map in `src/game/minimap.ts` already renders contour isolines and terrain
+readability directly, so the older isolated contour generator is historical
+rather than canonical runtime wiring.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were

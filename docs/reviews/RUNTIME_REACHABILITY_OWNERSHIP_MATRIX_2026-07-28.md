@@ -106,7 +106,8 @@ wired into the current entry graph:
 - `src/game/expedition-economy.ts` - route / economy contract
 - `src/game/radio-scanner.ts` - sensing / discovery contract
 - `src/game/fleet-recovery.ts` - stranded-rig rescue payoff
-- `src/game/topo-map.ts` - map / terrain-communication layer
+- `src/game/topo-map.ts` - superseded contour helper; the live field map in
+  `src/game/minimap.ts` already owns contour rendering and terrain readability
 - `src/game/differential-lock.ts` - traction / terrain-control contract
 - `src/game/electrical-grid.ts` - infrastructure / power contract
 - `src/game/debris-physics.ts` - destructible-world / debris contract
