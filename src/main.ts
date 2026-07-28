@@ -166,6 +166,8 @@ declare global {
       outwardZ: number;
     };
     restoreActiveRigForAcceptance: () => string;
+    /** Acceptance-only: disable a rig so the recovery chain can be exercised. */
+    strandRigForAcceptance: (rigId: string, x?: number, z?: number) => string;
     placeTerrainRigForAcceptance: (
       x: number,
       z: number,
@@ -2284,6 +2286,23 @@ function boot(): void {
     settleWorld(state, world);
     renderer.invalidate(state);
     recordCommand("restoreActiveRigForAcceptance", { rigId: rig.id });
+    return settleAndReport();
+  };
+  window.strandRigForAcceptance = (rigId: string, x?: number, z?: number) => {
+    if (!acceptanceSurface) {
+      return "strandRigForAcceptance requires the acceptance surface.";
+    }
+    const target = state.rigs[rigId as RigId];
+    if (!target) return `Unknown rig ${rigId}.`;
+    target.condition = 0;
+    target.speed = 0;
+    if (typeof x === "number" && typeof z === "number") {
+      target.x = x;
+      target.z = z;
+    }
+    settleWorld(state, world);
+    renderer.invalidate(state);
+    recordCommand("strandRigForAcceptance", { rigId });
     return settleAndReport();
   };
   window.placeTerrainRigForAcceptance = (

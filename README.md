@@ -6,6 +6,31 @@ The project is deliberately in **exploration**, not production. A local 3D field
 
 Repository: [github.com/pranaysuyash/rigs-unbound](https://github.com/pranaysuyash/rigs-unbound)
 
+## Current runtime facts (2026-07-28)
+
+Verify any of these rather than trusting prose — several documents in this repo
+predate the runtime, and an external review found agents building against an
+architecture that does not exist.
+
+| Fact | Value | How to check |
+| --- | --- | --- |
+| Save schema | **v10** (`SAVE_SCHEMA_VERSION`) | `src/game/contracts.ts` |
+| Physics | Project-owned dynamics. Rapier and Box3D are **isolated evidence labs**, not the product runtime | ADR-0023, `physics-lab.html` |
+| Progression | Per-rig Journey + per-verb Mastery + Insight. **No universal XP or power score** | ADR-0018 |
+| Economy | Scrap (spendable), Insight and Favor (non-spendable), Parts (inventory). No credits or markets | ADR-0018, exploration map |
+| Renderer | Three.js, WebGL in practice | `src/game/renderer.ts` |
+| Unreachable modules | run the audit; the budget is enforced | `npm run audit:reachability` |
+
+Older sections below describe **historical acceptance evidence** and name the
+schema version current at that time (v4, v5, v6). Those are preserved as dated
+evidence, not as current guidance.
+
+Run the full gate with:
+
+```bash
+npm run verify:head
+```
+
 ## Current north star
 
 > Build a playful world where every vehicle is a different verb, and where changing place, scale, time, or danger can transform the genre without erasing the player's machine, progress, or consequences.

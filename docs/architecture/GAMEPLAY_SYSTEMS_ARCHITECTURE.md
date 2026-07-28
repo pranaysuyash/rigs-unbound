@@ -1,5 +1,25 @@
 # Gameplay Systems Architecture
 
+> ## ⚠️ Status correction (2026-07-28)
+>
+> **This document describes an aspirational design, not the current runtime.**
+> An external review found agents selecting it as a source of truth and building
+> against an architecture that does not exist. The corrections below are
+> authoritative; the body text is preserved as design intent.
+>
+> | This document says | The runtime actually does |
+> | --- | --- |
+> | "ECS-lite pattern" | Plain typed state with a fixed-step kernel. ECS is explicitly gated behind a measured actor-count threshold (`ECS_THRESHOLD_AND_COMPOSITION_READINESS_CONTRACT`). |
+> | Rapier as the physics layer | Rapier is an **isolated evidence lab** (`physics-lab.html`). The product runtime uses project-owned dynamics. Solver selection is unresolved — ADR-0023. |
+> | XP as progression currency | **Rejected.** ADR-0018 accepts per-rig Journey, per-verb Mastery, and profile-level Insight, with *no universal player XP or aggregate power score*. |
+> | Credits, markets, blueprint fragments, reputation | Not implemented. The accepted economy is Scrap (the one spendable), Insight and Favor (non-spendable), and Parts (concrete inventory). |
+> | Campaigns as a live system | `campaign.ts` exists but is unreachable from any entry point — see `npm run audit:reachability`. |
+>
+> For the current runtime, read `docs/exploration/EXPLORATION_MAP.md`, the ADRs in
+> `docs/decisions/`, and the reachability audit — in that order.
+
+
+
 **Project:** rigs-unbound  
 **Version:** 0.1.0 (Exploratory)  
 **Last Updated:** 2026-07-27  

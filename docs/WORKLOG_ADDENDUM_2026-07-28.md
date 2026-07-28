@@ -696,3 +696,72 @@ gate and this one closes the blocking correctness defect only.
   3. If `C1` is set, begin C2 or C4 per decision, with B8-style preservation/deploy discipline only after that tranche is coherent.
   4. Execute D1 representative-device evidence only after UI/comprehension decisions are no longer speculative.
   5. Re-open `B8` only once local, GitHub, Sites, browser, and review evidence are coherent again.
+
+## 2026-07-28 — the fleet-recovery vertical chain
+
+Built the complete chain the external review found missing:
+
+```text
+world situation -> pure assessment -> projection -> validated command
+-> authoritative transition -> event -> persistence
+```
+
+### What landed
+
+- **Naming collision removed.** The mission binding `"recovery"` (which meant
+  salvage) is now `"salvage-retrieval"`. `"fleet-recovery"` is reserved for
+  recovering an actual rig.
+- **`deriveFleetRecoveryAssessment()`** — one pure selector answering which rig
+  is stranded, which rigs qualify, what capability is missing, whether proximity
+  suffices, what weather is doing, and what command is issuable. The board, the
+  radial wheel, the HUD, the browser hook, and the tests all read this one
+  assessment, so they cannot drift apart.
+- **Weather reaches traction.** `deriveWeatherState()` now feeds `stepGame()`
+  and the motion model through a shared `MotionOptions.soilMoisture`. The
+  simulation gets wetter ground *before* any mission copy claims it is harder.
+  `weather.ts` moved from unreachable to reachable.
+- **Authoritative command.** `resolveFleetRecoveryCommand()` follows the
+  `unbound-passage.ts` shape: validation, accepted/rejected, event, reason. It
+  is pure; `applyFleetRecovery()` is the only mutation. `performFleetRecovery()`
+  is the single runtime entry point.
+- **`verify:head`** — one pipeline: format, typecheck, tests, asset gates,
+  reachability tests, reachability budget, build. Plus `verify:head:browser`.
+- **Docs reconciled.** `GAMEPLAY_SYSTEMS_ARCHITECTURE.md` carries a status
+  correction table (its ECS-lite / Rapier / XP / credits / markets claims are
+  aspirational, not runtime). README gained a current-runtime-facts table.
+
+### Verification
+
+- 69 files, **410 tests** pass (up from 392).
+- Reachability: 29 -> **28** unreachable; budget ratcheted to 28 and enforced.
+- Typecheck clean for every file this work touched.
+- Live browser on `?acceptance=field-02`, real chain, zero console errors:
+  - no stranded rig -> `status: "none"`, no command;
+  - stranded 60 m away -> `status: "conditional"`,
+    *"utility-tractor is 60 m away. Drive within 12 m to attach the strap."*,
+    `command: null`;
+  - stranded 5 m away -> `status: "available"`, label *"Recover toy-buggy"*,
+    command emitted;
+  - `recoverStrandedRig()` -> accepted, condition 0 -> **25**,
+    diagnostic *"utility-tractor recovered toy-buggy. Condition 25%."*;
+  - repeat -> **rejected**, no double payout;
+  - **after reload, condition persists at 25**.
+
+### Corrections to the external review
+
+- Its claim that the passage restore resets on a null lane was **right**;
+  verified at `unbound-passage.ts:356-361`.
+- Its schema-v10 claim was **right** (`SAVE_SCHEMA_VERSION = 10`); the several
+  lower constants are historical migration anchors, not competing versions.
+- The browser could not prove weather->traction because the spawn sits on
+  hardpan, which `applyWeatherGripPenalty()` deliberately exempts. That is
+  correct behaviour, so the proof moved to `weather-traction.test.ts`, which
+  shows saturated soil produces more slip over an identical run.
+
+### Not done
+
+- The radial wheel still holds local `active` booleans; converting it to pure
+  projections is the Pegboard slice (ADR-0035), not this gate.
+- `src/main.ts` has unused `missionBoard*` / `WORLD_SITES` symbols from
+  **parallel work landing during this gate**. Untouched per the ownership rule.
+  `verify:head` will fail on them until that agent finishes.
