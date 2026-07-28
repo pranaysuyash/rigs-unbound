@@ -131,3 +131,25 @@ The long-term first-principles exploration note at
 is the broader horizon for this asset-pipeline analysis. This document still
 owns the asset provenance and promotion frame; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) - developer bridge proof is live, but the public gate remains the real decision
+
+- Re-checked the canonical browser on the developer surface:
+  `http://localhost:4173/?surface=developer`.
+- The live runtime bridge now reports both imported assets as loaded:
+  - `kenney-car-kit-breakable-crate-fixture`
+  - `kenney-car-kit-tractor-preview`
+- The player surface still stays separate because both rows remain
+  `publicRuntimeApproved: false`; that means the bridge is live without being
+  public.
+- The lowest-risk public-approval candidate remains the breakable crate:
+  - it is smaller,
+  - it is less semantically entangled with rig gameplay,
+  - it already proved the manifest/runtime/texture bridge cleanly,
+  - and it can carry the approval workflow without conflating mesh promotion
+    with vehicle behavior promotion.
+- The tractor preview should stay developer-only until the project explicitly
+  wants to promote a vehicle-shaped asset and own the extra behavior/identity
+  implications.
+- Evidence depth: Tier 4 live browser inspection plus current manifest/runtime
+  state.

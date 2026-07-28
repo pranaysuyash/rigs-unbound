@@ -85,13 +85,13 @@ Chat is ephemeral; the repo is the durable memory of the project. A session ends
 
 **Mandatory documentation candidates (write these to durable repo docs, not only to chat):**
 
-- **Discussions** — any back-and-forth that clarified the problem, surfaced a constraint, or changed the direction. The _arc_ of a discussion (what was proposed, what was rejected, why) is often more valuable than the conclusion; the redirects and rejections are the decision logic.
-- **Decisions** — every load-bearing choice, including the decision _not_ to do something. Record the options considered, the rejection reasons, and what would change the decision. (See §0.12 / §0.12.1 ADR rules.)
+- **Discussions** — any back-and-forth that clarified the problem, surfaced a constraint, or changed the direction. The *arc* of a discussion (what was proposed, what was rejected, why) is often more valuable than the conclusion; the redirects and rejections are the decision logic.
+- **Decisions** — every load-bearing choice, including the decision *not* to do something. Record the options considered, the rejection reasons, and what would change the decision. (See §0.12 / §0.12.1 ADR rules.)
 - **Analyses** — any structured evaluation (comparisons, trade studies, scoring, pros/cons, failure-mode analysis). Record the method and the raw inputs, not only the winner.
 - **Explorations** — research, spikes, feasibility checks, "what if" investigations. Record what was looked at, what was found, and what remains unknown. Negative results (this did not work) are documentation candidates too.
 - **Audits and reviews** — code review, security review, readiness review, naming/brand review. Record the findings, the evidence tier, and the closure state of each item.
-- **Redirects and rejections** — when the operator or a reviewer rejects a direction, record the rejection _verbatim_ (their words, not a paraphrase) and the consequence. A rejected direction that is not recorded will be re-proposed by the next agent.
-- **Process insights** — lessons about _how_ the work was done (what brief was wrong, what method failed, what convergence was misleading). These compound across sessions and are the highest-leverage documentation of all.
+- **Redirects and rejections** — when the operator or a reviewer rejects a direction, record the rejection *verbatim* (their words, not a paraphrase) and the consequence. A rejected direction that is not recorded will be re-proposed by the next agent.
+- **Process insights** — lessons about *how* the work was done (what brief was wrong, what method failed, what convergence was misleading). These compound across sessions and are the highest-leverage documentation of all.
 - **Bugs, fixes, and root causes** — not only the fix, but why the bug existed and why the fix is correct.
 - **External findings** — anything discovered about third-party services, registries, pricing, APIs, or market state, with the date and source.
 
@@ -100,7 +100,7 @@ Chat is ephemeral; the repo is the durable memory of the project. A session ends
 - **Decision-grade depth** — for any choice that future work depends on: the options, the selection, the rejection reasons, the evidence tier, what would change the decision, and an update-log entry when it changes.
 - **Analysis-grade depth** — for any evaluation: the method, the full candidate set (not only the winner), the criteria, and the raw per-candidate assessment.
 - **Transcript-grade depth** — for any redirect or rejection: the operator's verbatim words (blockquoted) plus the consequence. Paraphrase erases the decision logic; verbatim preserves it.
-- **Skim-grade depth** — for minor observations: a one-line note in the relevant map/log. Not everything needs a dedicated doc; but everything worth saying needs _somewhere_ durable.
+- **Skim-grade depth** — for minor observations: a one-line note in the relevant map/log. Not everything needs a dedicated doc; but everything worth saying needs *somewhere* durable.
 
 **Where to document:**
 
@@ -108,9 +108,10 @@ Chat is ephemeral; the repo is the durable memory of the project. A session ends
 - One artifact per logical unit (a decision, an analysis, an audit) — do not collapse unrelated work into a single sprawling doc, and do not fragment one decision across many files.
 - Cross-link related docs; a naming decision should link to the brand audit that motivated it and the rename inventory that will execute it.
 
-**The test:** before ending a session or marking work done, ask — _if this conversation vanished tomorrow, would the next agent be able to reconstruct why we are where we are?_ If the answer is no, documentation is incomplete. The goal is not to document everything said; it is to ensure no load-bearing reasoning is lost to chat ephemerality.
+**The test:** before ending a session or marking work done, ask — *if this conversation vanished tomorrow, would the next agent be able to reconstruct why we are where we are?* If the answer is no, documentation is incomplete. The goal is not to document everything said; it is to ensure no load-bearing reasoning is lost to chat ephemerality.
 
 **Evidence that this rule is needed:** in the 2026-07-28 CoverWise naming process, the founder's three redirects (commentary-not-comprehension; no-regulatory-signal; generic-RAG-not-India-insurance) did more to sharpen the answer than a 10-role brainstorm panel. Had those redirects lived only in chat, a future agent would have read the panel's Indic-rooted shortlist (Tippani, Amanat, Kosha) and concluded the project landed there — when in fact those directions were all killed by the founder's three sentences. The redirects were captured verbatim to `docs/planning/naming/founder_redirect_transcript_2026-07-28.md` precisely because the operator insisted "every discussion that happens should be a documentation candidate." This clause generalizes that insistence into standing doctrine.
+
 
 ### 0.4 Acceptance Contract Before "Done"
 
@@ -158,19 +159,19 @@ Do not hide uncertainty behind confident language.
 
 For each work chunk, run at least three explicit passes before finalizing:
 
-1. **Pass 1 – Immediate correctness and completeness**
+1) **Pass 1 – Immediate correctness and completeness**
    - Check betterness, completeness, and comprehensiveness against the request and canonical instruction stack.
    - Confirm scope boundaries, edge cases, and explicit in-scope exclusions.
    - Remove or document every avoidable gap before moving to next pass.
 
-2. **Pass 2 – Architecture and long-term viability**
+2) **Pass 2 – Architecture and long-term viability**
    - Compare against first-principles direction and canonical architecture.
    - Prefer durable/long-term solutions over patchwork unless scope requires a temporary fix with explicit expiry.
    - Verify no duplicate routes/parallel pipelines were introduced; verify docs/tests/observability remain coherent.
    - Verify behavior is tested (or schedule precise follow-up tests when runtime constraints prevent full verification).
    - Record outcomes in durable notes and ensure exploration/research areas are updated in the appropriate exploration map when meaningful.
 
-3. **Pass 3 – Rule compliance and supervision readiness**
+3) **Pass 3 – Rule compliance and supervision readiness**
    - Re-validate against motto_v4 clauses, especially confidence tiering, evidence requirements, and decision/logging continuity.
    - Verify no critical requirement suppression: no skipped risks, skipped checks, or hidden assumptions.
    - Confirm who approves open items and what trigger closes each.
@@ -650,9 +651,9 @@ Never continue implementation from stale generated instruction surfaces in paral
 - In execution, treat **code as the current source of truth** and all docs (including this file, prompts, notes, and guides) as time-stamped snapshots or references.
 - If docs/instruction layers conflict, verify behavior against the live implementation and runtime state before acting.
 - Use this precedence when conflict appears:
-  1. live code paths and runtime behavior,
-  2. currently loaded instruction stack from `$HOME/AGENTS.md` downward,
-  3. local and project docs.
+  1) live code paths and runtime behavior,
+  2) currently loaded instruction stack from `$HOME/AGENTS.md` downward,
+  3) local and project docs.
 - Keep docs synchronized: if drift is found, update the stale layer in the same task if practical, or record a follow-up with owner and closure criteria.
 - For stale docs, prefer **dated append-only addendums** over rewriting history:
   - keep original text intact as historical record,
@@ -836,6 +837,7 @@ Pre-existing failures must be handled through one of these rules:
 4. **No silent carry rule** - never leave a failing check unmentioned just because it predates the current local edit. Every known issue must be explicitly acknowledged and dispositioned.
 
 Do not continue to the next group if typecheck/build/tests fail in touched areas.
+
 
 ### 6.1 Pre-existing Issue Scope Control
 
@@ -1341,10 +1343,10 @@ This is the positive counterpart to rules 5, 6, and 7:
 
 What this rule requires:
 
-1. **Name the refactor as a deliverable.** When a decision changes the shape of the code (hardcoded values that must become data-driven; a single author that must become multi-author; an in-memory store that must become persisted; a plaintext field that must become hashed), the work that lands the decision _includes_ landing the refactor. Record it in the decision's derived scope. Do not leave it as "TODO: refactor later."
+1. **Name the refactor as a deliverable.** When a decision changes the shape of the code (hardcoded values that must become data-driven; a single author that must become multi-author; an in-memory store that must become persisted; a plaintext field that must become hashed), the work that lands the decision *includes* landing the refactor. Record it in the decision's derived scope. Do not leave it as "TODO: refactor later."
 2. **Same quality bar as new code.** A refactor driven by a decision change is not a shortcut, a hack, or a degraded fix. It gets the full standard: tests, type checks, docs updated in the same pass, audit trail, ADR where architectural.
 3. **Long-term and first-principles aligned.** The refactor targets the correct long-term shape (the one the new decision implies), not the smallest local patch. First principles over expedience. Rule 0 ("build for the best app, not the safest small change") applies.
-4. **Compose with scope control (rule 6.1).** "The refactor is in scope" does not authorize unbounded rewrites. If the decision-driven refactor is broad, stage it deliberately and ask before the broad part — but the _first coherent stage_ that realizes the decision is still in scope and still happens now. Staging is execution discipline, not a deferral mechanism.
+4. **Compose with scope control (rule 6.1).** "The refactor is in scope" does not authorize unbounded rewrites. If the decision-driven refactor is broad, stage it deliberately and ask before the broad part — but the *first coherent stage* that realizes the decision is still in scope and still happens now. Staging is execution discipline, not a deferral mechanism.
 5. **Decision is the trigger; refactor is the consequence.** Never refactor without a decision that justifies it (that would be rule 6.1 scope creep). Never make a decision without owning the refactor it requires (that would be silent debt).
 
 The failure modes this rule exists to prevent:
@@ -1365,20 +1367,20 @@ Linters (ruff, eslint, etc.), type checkers (mypy, pyright, tsc), formatters, se
 
 **What this rule requires:**
 
-1. **Resolve at the root, never paper over.** If mypy/ruff flag something, the default is to fix the underlying code so the tool is satisfied _and_ the design is correct. Silencing (`# type: ignore`, `noqa`, `eslint-disable`) without an inline reason is forbidden — it hides a real issue.
+1. **Resolve at the root, never paper over.** If mypy/ruff flag something, the default is to fix the underlying code so the tool is satisfied *and* the design is correct. Silencing (`# type: ignore`, `noqa`, `eslint-disable`) without an inline reason is forbidden — it hides a real issue.
 2. **Conscious, recorded deviation when the tool is wrong.** If a tool's demand genuinely conflicts with first-principles / long-term / motto alignment (a real, demonstrable conflict — not preference), you may deviate. The deviation must carry: (a) why the tool's demand is wrong here, with reasoning; (b) why the chosen path is correct, with first-principles justification; (c) the deviation recorded as a decision (rule 0.12) where architectural. "Trust me" is not a deviation; reasoning is.
-3. **The evidence bar is on the deviation, not the tool.** Tools err on the side of their rules by default; that is their job. Overriding them is allowed but must be justified the same way any decision is — not asserted. If you cannot articulate _why_ the tool is wrong in product/architecture terms, the tool is probably right; fix the code.
-4. **Tools must still pass unless explicitly deviated.** This rule does **not** authorize ignoring `mypy --strict`, `ruff`, or the project's validation rules (rule 14, rule 1.1). "A check must pass" and "a check is advisory" compose as follows: the check passes either because the code is correct _or_ because there is a recorded, reasoned deviation for that specific case. It never silently fails, and it never fails-by-default with a vague "I disagreed."
+3. **The evidence bar is on the deviation, not the tool.** Tools err on the side of their rules by default; that is their job. Overriding them is allowed but must be justified the same way any decision is — not asserted. If you cannot articulate *why* the tool is wrong in product/architecture terms, the tool is probably right; fix the code.
+4. **Tools must still pass unless explicitly deviated.** This rule does **not** authorize ignoring `mypy --strict`, `ruff`, or the project's validation rules (rule 14, rule 1.1). "A check must pass" and "a check is advisory" compose as follows: the check passes either because the code is correct *or* because there is a recorded, reasoned deviation for that specific case. It never silently fails, and it never fails-by-default with a vague "I disagreed."
 
 **Worked examples:**
 
-- _Mypy can't infer a complex generic and suggests `Any`._ **Wrong response:** `def get(x: Any) -> Any: ...` with `# type: ignore`. **Right response:** fix the generic / add the type annotation / narrow the type so mypy is satisfied _and_ callers get real types. If a correct annotation genuinely isn't expressible in the current type system, deviate with reasoning on that one symbol — not blanket `Any`.
-- _Ruff flags a long function and demands a refactor._ **Wrong response:** mechanically split the function to silence the rule, degrading cohesion. **Right response:** if the length is a real smell, refactor properly (rule 21); if the function is genuinely cohesive and the rule is wrong here, a scoped `noqa` with a one-line reason is a recorded deviation.
-- _A security scanner demands plaintext-secret elimination that breaks HMAC verification._ **Wrong response:** "the scanner says no plaintext, so store a hash" — which is non-functional for HMAC auth. **Right response:** recognize the scanner's rule is correct _in spirit_ but wrong _in mechanism_ for this case; design the right secret shape (e.g. envelope-encrypted or secrets-manager-ref) that honors the intent (no plaintext at rest) while preserving HMAC functionality. Deviate from the scanner's literal demand, record why, and satisfy its intent.
+- *Mypy can't infer a complex generic and suggests `Any`.* **Wrong response:** `def get(x: Any) -> Any: ...` with `# type: ignore`. **Right response:** fix the generic / add the type annotation / narrow the type so mypy is satisfied *and* callers get real types. If a correct annotation genuinely isn't expressible in the current type system, deviate with reasoning on that one symbol — not blanket `Any`.
+- *Ruff flags a long function and demands a refactor.* **Wrong response:** mechanically split the function to silence the rule, degrading cohesion. **Right response:** if the length is a real smell, refactor properly (rule 21); if the function is genuinely cohesive and the rule is wrong here, a scoped `noqa` with a one-line reason is a recorded deviation.
+- *A security scanner demands plaintext-secret elimination that breaks HMAC verification.* **Wrong response:** "the scanner says no plaintext, so store a hash" — which is non-functional for HMAC auth. **Right response:** recognize the scanner's rule is correct *in spirit* but wrong *in mechanism* for this case; design the right secret shape (e.g. envelope-encrypted or secrets-manager-ref) that honors the intent (no plaintext at rest) while preserving HMAC functionality. Deviate from the scanner's literal demand, record why, and satisfy its intent.
 
 **Relationship to rule 14 (Validation Rules) and rule 1.1:** those rules require checks to pass and typecheck to be clean. This rule does not weaken them — it sharpens them: "passing" means the check is satisfied by correct code or by a reasoned, recorded deviation, never by silent suppression or by degrading the design.
 
-**Relationship to rule 21 (Code Is Evidence, Not a Boundary):** rule 21 says decision-driven refactors are not optional; this rule says tool-driven downgrades are not acceptable. Together: refactor when a decision changes (rule 21); never refactor _downward_ just because a tool complained (rule 22).
+**Relationship to rule 21 (Code Is Evidence, Not a Boundary):** rule 21 says decision-driven refactors are not optional; this rule says tool-driven downgrades are not acceptable. Together: refactor when a decision changes (rule 21); never refactor *downward* just because a tool complained (rule 22).
 
 ---
 
@@ -1395,7 +1397,7 @@ Linters (ruff, eslint, etc.), type checkers (mypy, pyright, tsc), formatters, se
 Implementation addendum for this protocol:
 
 - `vehicleAnimationSystem`-style ownership boundaries are treated as long-term contracts, not temporary refactor targets.
-- **A boundary's mechanism is not protected by the boundary's status.** Treating an ownership contract as long-term protects _which layer owns a truth_. It never immunizes _how that layer computes it_ from first-principles correction. When a named owner would re-derive a value the authoritative layer already owns, the mechanism is wrong even though the boundary is right; correct the mechanism and supersede the record (rule 7), do not implement the record literally.
+- **A boundary's mechanism is not protected by the boundary's status.** Treating an ownership contract as long-term protects *which layer owns a truth*. It never immunizes *how that layer computes it* from first-principles correction. When a named owner would re-derive a value the authoritative layer already owns, the mechanism is wrong even though the boundary is right; correct the mechanism and supersede the record (rule 7), do not implement the record literally.
 - **Implementation claims must name their falsifier.** A decision record that asserts implementation — "wired", "delegated", "in the live path", "current checkout shows" — must name the command or check that would fail if the claim stopped being true, and that check must have been run. "Reading the source suggests it" is not implementation evidence. A module that cannot be reached from a shipped entry point is not implemented, regardless of its tests, its types, or its documentation.
 - **Unreachable code cannot be trusted to be correct.** Nothing forces an unimported module to stay consistent with the runtime it describes, so it can hold an arbitrarily wrong design indefinitely without any check failing. Before wiring dormant code, re-derive its correctness against the current authoritative layers rather than assuming its tests imply fitness.
 - Decision-driven refactors are mandatory in the same gate that changes ownership or interfaces.

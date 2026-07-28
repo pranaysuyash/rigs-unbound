@@ -226,3 +226,20 @@ for all gameplay semantics currently held outside the mesh.
   no longer a universal statement about the whole manifest.
 - The next durable asset proof should be a public-runtime admission gate or a
   vehicle-specific mesh contract, not another hidden bridge.
+
+## Addendum (2026-07-28) - developer bridge proof is live; approval still belongs to the manifest gate
+
+- Re-checked the canonical browser on the developer surface:
+  `http://localhost:4173/?surface=developer`.
+- The current runtime bridge evidence reports both imported assets as loaded:
+  - crate: `kenney-car-kit-breakable-crate-fixture`,
+  - tractor preview: `kenney-car-kit-tractor-preview`.
+- The public approval gate is still separate from that bridge proof because the
+  manifest keeps `publicRuntimeApproved: false` for both assets.
+- The right asset-authority conclusion has not changed:
+  - developer bridge proof is about import and browser visibility,
+  - public approval is a distinct promotion decision,
+  - the breakable crate remains the best first candidate for that decision,
+  - the tractor preview remains the better developer-scale proof, not the
+    first public candidate.
+- Evidence depth: Tier 4 live browser inspection plus current manifest state.
