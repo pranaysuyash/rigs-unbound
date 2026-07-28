@@ -120,3 +120,19 @@ Yes: this contract is the bridge between the state-shell visual-language work an
   profile-selection system.
 - Evidence depth: Tier 1 static inspection of the contract against the live
   renderer-performance and profile-selection docs.
+
+## Addendum (2026-07-28) - the browser now has a visible profile owner, but the contract still keeps diagnostics separate
+
+- Re-checked the live browser surface at `http://localhost:4173/?proof=1` on a
+  390 × 844 viewport.
+- The public shell now exposes a visible profile line that reads
+  `Quality: standard. Still measuring frame performance.`
+- The profile line is a public HUD element, while the operator diagnostics line
+  remains hidden, so the ownership split still holds:
+  - public profile owner on the shell,
+  - hidden diagnostics for operator detail.
+- That means the contract is no longer only hypothetical. The browser can now
+  point to one player-facing owner for the visible profile state, while still
+  preserving the separate operator/evidence lane.
+- Evidence depth: Tier 4 live browser observation plus Tier 1 static contract
+  inspection.

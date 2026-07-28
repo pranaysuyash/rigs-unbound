@@ -67,6 +67,13 @@ focus contract, not the contested runtime implementation:
 - `docs/reviews/INPUT_REMAP_PERSISTENCE_ISSUE_REVIEW_2026-07-26.md`
   now explicitly treats the radial wheel and controls legend as consumers of
   the canonical action model, not as the binding registry itself.
+- `docs/research/ACCESSIBILITY_AND_INPUT_CONTRACT_2026-07-25.md`
+  now carries the source-level addendum: first-use guidance and controls help
+  are explanatory surfaces, while the persisted binding registry remains the
+  canonical action-layout source of truth.
+- `docs/research/BROWSER_PROVED_SHELL_PROFILE_OWNER_CONTRACT_2026-07-26.md`
+  now has live-browser proof that the public HUD owns the visible profile line
+  while operator diagnostics stay separate.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 

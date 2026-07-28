@@ -656,5 +656,11 @@ gate and this one closes the blocking correctness defect only.
   the radial wheel and visible controls legend are consumers of the canonical
   action model, not the registry itself. The missing layer is still one
   persisted binding source of truth.
+- The core accessibility/input contract now says the same thing at the source
+  level: help surfaces are explanatory, while the reload-safe binding registry
+  remains the canonical action-layout source of truth.
+- The browser-proved shell profile owner contract now also has live-browser
+  proof that the public HUD carries the visible profile line while operator
+  diagnostics stay separate.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

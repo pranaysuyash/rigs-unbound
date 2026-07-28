@@ -338,6 +338,20 @@ one canonical semantic-action registry.
 - Re-checked `src/main.ts` against the input contract after the wheel analysis.
 - `?` currently toggles `#controls-legend`, which is the live public help
   surface for keyboard/action hints in the shell.
+
+## Addendum (2026-07-28): the binding registry remains the canonical source of truth
+
+- Re-checked the current input contract against the shell surfaces and the
+  radial-wheel contract.
+- The first-use guidance and the opportunity compass are help surfaces that
+  explain what to do next; they are not the persisted input registry.
+- The open layer is still one reload-safe binding registry with remap restore
+  before sampling.
+- The radial quick-action wheel and the visible controls legend both consume
+  the same named-action model, which keeps keyboard, touch, and gamepad parity
+  coherent without creating a second input authority.
+- The next proof slice remains a persisted binding profile that survives reload
+  and is restored before action sampling begins.
 - The authored radial wheel remains spec-only because `src/main.ts` still has
   no runtime `openRadial` branch or focus-safe wheel entry.
 - So the present accessibility story is:
