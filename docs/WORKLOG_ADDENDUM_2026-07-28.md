@@ -671,5 +671,8 @@ gate and this one closes the blocking correctness defect only.
 - The resource budget contract now carries a fresh addendum: the public shell
   shows profile and save state, but the fallback envelope is still policy-only
   and lacks a canonical low-budget decision path.
+- The world affordance/capability resolver now has a fresh addendum saying it
+  is the shared decision surface beneath workshop, acceptance, and radial
+  interactions, but still not the shell itself.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

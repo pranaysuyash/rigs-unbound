@@ -83,6 +83,9 @@ focus contract, not the contested runtime implementation:
 - `docs/research/RESOURCE_BUDGET_AND_FALLBACK_ENVELOPE_2026-07-25.md`
   now records that the public shell shows profile/save state, but the
   resource-fallback envelope still lacks a canonical low-budget policy.
+- `docs/research/WORLD_AFFORDANCES_AND_CAPABILITY_RESOLUTION_CONTRACT_2026-07-25.md`
+  now states that the resolver is the shared decision surface beneath shell
+  interactions, while remaining distinct from the shell itself.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 

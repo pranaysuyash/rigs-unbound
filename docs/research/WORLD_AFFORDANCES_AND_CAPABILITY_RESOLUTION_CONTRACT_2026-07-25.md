@@ -227,3 +227,25 @@ machines can ask the same question and get the same answer.
 - This note intentionally does not broaden the resolver into a planner or
   activity system; it only keeps the dependency visible so future episode work
   can rely on the same affordance vocabulary.
+
+## Addendum (2026-07-28) - the resolver is now the shared decision surface beneath the shell, but it still is not the shell
+
+- Re-checked the current shell and accessibility notes against the resolver
+  contract.
+- The shell now has several player-facing surfaces that depend on the same
+  underlying decision language:
+  - workshop availability and capability fit,
+  - the contract/acceptance surface,
+  - radial quick actions,
+  - player-facing explanatory denials.
+- That means this contract is the shared decision surface beneath those
+  surfaces, but it is still not the surface itself.
+- The resolver remains the right place to answer:
+  - what the world offers,
+  - what the machine claims,
+  - whether the interaction is legal, deferred, or impossible,
+  - and which side caused the mismatch.
+- The next proof slice should extend the resolver vocabulary to the next real
+  world verb instead of introducing another special-case branch, while keeping
+  the shell, accessibility announcements, and diagnostics separate.
+- Evidence depth: Tier 1 static source and contract inspection.
