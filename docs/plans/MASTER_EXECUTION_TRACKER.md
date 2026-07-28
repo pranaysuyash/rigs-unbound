@@ -64,6 +64,9 @@ focus contract, not the contested runtime implementation:
 - `docs/reviews/LABS_DRAWER_CONTINUITY_ISSUE_REVIEW_2026-07-28.md`
   now records the labs boundary: the shell still needs a mounted drawer or
   equivalent runtime route so labs preserve context instead of dropping it.
+- `docs/reviews/INPUT_REMAP_PERSISTENCE_ISSUE_REVIEW_2026-07-26.md`
+  now explicitly treats the radial wheel and controls legend as consumers of
+  the canonical action model, not as the binding registry itself.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 

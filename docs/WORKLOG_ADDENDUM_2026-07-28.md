@@ -652,5 +652,9 @@ gate and this one closes the blocking correctness defect only.
   records the separate-page continuity gap: the labs contract is clear, but
   the shell still needs a mounted drawer or equivalent route to preserve the
   current runtime context.
+- The input-remap persistence review now has a fresh addendum clarifying that
+  the radial wheel and visible controls legend are consumers of the canonical
+  action model, not the registry itself. The missing layer is still one
+  persisted binding source of truth.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

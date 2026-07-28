@@ -58,3 +58,16 @@ Do not introduce a second editable binding store.
 ## Closure trigger
 
 This issue closes only when a binding profile can be changed, saved, and restored through one canonical control registry and the runtime uses that registry before action sampling begins.
+
+## Addendum (2026-07-28): the radial wheel and controls legend are consumers, not the registry
+
+- The newer radial quick-action contract treats `src/game/radial-ui.ts` as a
+  bounded consumer of named actions, not as a separate control authority.
+- The visible controls legend remains the public help surface for action hints;
+  it explains the mapping, but it does not persist the mapping.
+- That keeps the current gap precise: the repo still needs one canonical,
+  reload-safe binding registry that both the shell help and the radial wheel
+  can consume without becoming the source of truth themselves.
+- This addendum keeps the input-remap issue aligned with the shell and radial
+  contracts rather than letting keyboard parity drift into a second help-only
+  map.
