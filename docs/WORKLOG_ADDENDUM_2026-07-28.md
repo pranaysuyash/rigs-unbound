@@ -648,5 +648,9 @@ gate and this one closes the blocking correctness defect only.
   captures the specific missing step: the acceptance surface still needs a
   runtime command boundary and focus-managed board branch before it can be a
   player-reachable overlay rather than a spec-only projection.
+- The new labs review at `docs/reviews/LABS_DRAWER_CONTINUITY_ISSUE_REVIEW_2026-07-28.md`
+  records the separate-page continuity gap: the labs contract is clear, but
+  the shell still needs a mounted drawer or equivalent route to preserve the
+  current runtime context.
 - Next safe exploration slice: document the contract-board / modal-overlay accessibility contract in more detail before any runtime touch, with explicit focus restoration, `role="dialog"`, `aria-modal="true"`, keyboard parity, and announcement behavior.
 - Runtime files in `src/game/` remain contested and were not touched.

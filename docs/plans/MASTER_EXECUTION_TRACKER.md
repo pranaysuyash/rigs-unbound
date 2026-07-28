@@ -61,6 +61,9 @@ focus contract, not the contested runtime implementation:
 - `docs/reviews/CONTRACT_BOARD_COMMAND_BOUNDARY_ISSUE_REVIEW_2026-07-28.md`
   now captures the exact missing runtime insertion point: the acceptance
   surface still needs a live board branch and command boundary.
+- `docs/reviews/LABS_DRAWER_CONTINUITY_ISSUE_REVIEW_2026-07-28.md`
+  now records the labs boundary: the shell still needs a mounted drawer or
+  equivalent runtime route so labs preserve context instead of dropping it.
 
 `src/game/` remains parallel-owned and was not touched during this analysis.
 
