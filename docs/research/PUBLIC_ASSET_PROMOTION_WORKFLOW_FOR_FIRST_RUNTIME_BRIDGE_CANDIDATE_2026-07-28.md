@@ -8,6 +8,7 @@
   - [Asset Authority and Shipped Mesh Contract](./ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md)
   - [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
   - [Player Asset and Seed Boot Boundary Review](../reviews/PLAYER_ASSET_AND_SEED_BOOT_BOUNDARY_ISSUE_REVIEW_2026-07-26.md)
+  - [Public Asset Promotion Review](../reviews/PUBLIC_ASSET_PROMOTION_REVIEW_2026-07-28.md)
 
 ## Purpose
 
@@ -97,4 +98,3 @@ refactored to a different approval mechanism.
 
 Yes: the workflow should remain deliberately boring. The asset becomes public
 because a record says so, not because the developer bridge happened to load.
-

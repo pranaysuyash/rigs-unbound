@@ -37,6 +37,7 @@ document what changed, what was verified, and what remains open.
 - decision-provenance audits;
 - launch/comms approval surfaces;
 - post-hoc clarifications that need a durable home.
+- public asset promotion reviews and approval decisions.
 
 ## Open browser-delivery trust gaps
 

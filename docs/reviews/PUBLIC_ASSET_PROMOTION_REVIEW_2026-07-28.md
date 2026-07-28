@@ -1,0 +1,98 @@
+# Public Asset Promotion Review
+
+- Date: 2026-07-28
+- Status: proposed; operator approval required
+- Evidence tier: Tier 1 static synthesis plus Tier 4 live developer-surface bridge proof
+- Related workflow: [Public Asset Promotion Workflow for First Runtime Bridge Candidate](../research/PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md)
+- Related analysis:
+  - [Asset Pipeline Live Repo Analysis](../research/ASSET_PIPELINE_LIVE_REPO_ANALYSIS_2026-07-26.md)
+  - [Asset Authority and Shipped Mesh Contract](../research/ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md)
+  - [Asset Pipeline and Provenance Contract](../research/ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
+  - [Player Asset and Seed Boot Boundary Review](PLAYER_ASSET_AND_SEED_BOOT_BOUNDARY_ISSUE_REVIEW_2026-07-26.md)
+
+## Purpose
+
+This review records the first concrete public-approval candidate for the
+runtime bridge that the repo already proves live on the developer surface.
+The goal is to separate:
+
+```text
+developer bridge proof -> runtime-tested import and browser visibility
+public approval -> player-safe shippable truth
+```
+
+The repo already has the bridge proof. This review is about the first asset that
+should cross the public gate.
+
+## Candidate order
+
+### 1. `kenney-car-kit-breakable-crate-fixture`
+
+Recommended first public candidate.
+
+Why this one:
+
+- it is the smallest runtime bridge candidate;
+- it is less semantically entangled with core rig gameplay;
+- it already proved live in the developer surface;
+- it gives the manifest a low-risk promotion example;
+- it is easier to roll back or replace if needed.
+
+### 2. `kenney-car-kit-tractor-preview`
+
+Hold back for now.
+
+Why this one stays developer-only:
+
+- it is larger and more identity-bearing;
+- it is more entangled with vehicle semantics;
+- it is a better proof that the bridge scales than it is a first public
+  approval candidate.
+
+## What is already proven
+
+- The developer surface at `?surface=developer` loads both imported bridge
+  candidates.
+- The runtime bridge evidence reports both assets as loaded and fallback-free.
+- The manifest keeps both rows at `publicRuntimeApproved: false`.
+- The player surface therefore remains protected from accidental promotion.
+
+## What still needs operator approval
+
+Before `publicRuntimeApproved: true` is set on the first candidate, the operator
+should confirm:
+
+- that the breakable crate is the right first public asset;
+- that the rights/provenance trail is sufficient for promotion;
+- that the player surface should consume the promoted asset;
+- that a replacement/deprecation path exists if the asset changes later;
+- that the tractor preview should remain developer-only for now.
+
+## Recommendation
+
+Promote `kenney-car-kit-breakable-crate-fixture` first, not the tractor preview.
+That keeps the approval workflow low-risk and preserves the tractor preview as a
+useful developer-scale proof.
+
+## Approval boundary
+
+Approval is incomplete unless all of the following are true:
+
+1. the manifest entry is updated;
+2. the player surface begins consuming the promoted asset;
+3. the developer surface still reports the bridge cleanly;
+4. the decision is captured in a durable review or decision record;
+5. unapproved runtime paths remain absent from player distribution.
+
+## Non-goals
+
+- No new asset catalog.
+- No automatic promotion from CC0 rights alone.
+- No merge of developer bridge proof and public approval into one field.
+- No tractor-first approval just because the tractor is more visible.
+
+## Anything else?
+
+Yes: the repo should keep treating public approval as boring, explicit, and
+separate from import success. That is what keeps the asset boundary honest.
+
