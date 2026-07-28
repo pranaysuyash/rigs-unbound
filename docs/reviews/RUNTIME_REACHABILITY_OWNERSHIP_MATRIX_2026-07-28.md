@@ -89,7 +89,8 @@ wired into the current entry graph:
 - `src/game/campaign.ts` - campaign contract spine; tested and documented, but
   still not imported by the shipped runtime entry graph
 - `src/game/signature.ts` - identity/signature contract
-- `src/game/ghost.ts` - replay / ghost artifact contract
+- `src/game/ghost.ts` - future-bound replay / ghost helper; tests exist, but
+  the live replay authority remains the bounded run-record lane
 - `src/game/winch-physics.ts` - rescue / recovery mechanics
 - `src/game/weather.ts` - weather and environment contract
 - `src/game/salvage-crafting.ts` - salvage economy / crafting contract

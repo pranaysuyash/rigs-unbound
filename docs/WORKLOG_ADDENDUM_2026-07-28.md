@@ -293,6 +293,11 @@ tests and documentation, but the shipped runtime entry graph still does not
 import it, so it remains a designed-but-unwired seam rather than live gameplay
 authority.
 
+`src/game/ghost.ts` stays preserved as a future-bound replay helper. The live
+replay authority is the bounded run-record lane (`src/game/run-record.ts` and
+`src/game/replay-validator.ts`), while the ghost overlay/ghost-artifact work is
+still a deferred product contract with its own plan and tests.
+
 ## Motto alignment correction — save migration and persisted capability data
 
 The completion review surfaced a policy failure: compiler-unused imports were
