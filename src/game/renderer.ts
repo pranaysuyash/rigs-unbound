@@ -1329,14 +1329,29 @@ export class GameRenderer {
       CARGO_DELIVERY.z,
     );
 
+    // Deck dimensions come from BUGGY_RAMP so this mesh and the ground adapter's
+    // driveable-surface height (physics.ts) can never drift out of sync.
     const rampBase = this.world.terrain.height(BUGGY_RAMP.x, BUGGY_RAMP.z);
-    const ramp = box(6.5, 0.6, 8, 0xd59a43);
+    const ramp = box(
+      BUGGY_RAMP.deckWidth,
+      BUGGY_RAMP.deckThickness,
+      BUGGY_RAMP.deckDepth,
+      0xd59a43,
+    );
     ramp.name = "relay-ramp";
-    ramp.position.set(BUGGY_RAMP.x, rampBase + 0.85, BUGGY_RAMP.z);
-    ramp.rotation.x = -0.18;
+    ramp.position.set(
+      BUGGY_RAMP.x,
+      rampBase + BUGGY_RAMP.deckOffset,
+      BUGGY_RAMP.z,
+    );
+    ramp.rotation.x = BUGGY_RAMP.tiltRadians;
     const rampStripe = box(5, 0.09, 1.2, COLORS.bone);
-    rampStripe.position.set(BUGGY_RAMP.x, rampBase + 1.45, BUGGY_RAMP.z - 0.4);
-    rampStripe.rotation.x = -0.18;
+    rampStripe.position.set(
+      BUGGY_RAMP.x,
+      rampBase + BUGGY_RAMP.deckOffset + 0.6,
+      BUGGY_RAMP.z - 0.4,
+    );
+    rampStripe.rotation.x = BUGGY_RAMP.tiltRadians;
 
     this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
   }

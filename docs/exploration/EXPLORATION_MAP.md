@@ -2,7 +2,7 @@
 
 Status: living canonical map
 Started: 2026-07-25
-Last updated: 2026-07-28
+Last updated: 2026-07-29
 
 ## How to use this map
 
@@ -25,6 +25,7 @@ acceptance record owns its specific tier.
 
 - [Docs root landing page](../README.md)
 - [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
+- [3D Web Platform Accessibility & Deliverability Audit](../research/3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md)
 - [Decision Register](../decisions/README.md)
 - [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
 - [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
@@ -33,16 +34,21 @@ acceptance record owns its specific tier.
 - [Comms package](../comms/README.md)
 - [Reviews index](../reviews/README.md)
 - [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
+- [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [3D Game Skill App Analysis and Current Surface Gaps](../research/3D_GAME_SKILL_APP_ANALYSIS_2026-07-28.md)
 - [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
 - [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md)
+- [Stranger at the Silo — Opening Narrative Exploration](STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md)
 - [Worklog](../WORKLOG.md)
 
 ## Suggested order
 
 1. Use the comms package first for launch and build-in-public work.
 2. Use the reviews index next for evidence, approval, and closure work.
-3. Use the decision register and contract index for the current policy/analysis path.
-4. Use the master execution tracker and worklog for the current operational sequence.
+3. Use the public asset promotion package index when you need the asset-gate
+   trail in one place.
+4. Use the decision register and contract index for the current policy/analysis path.
+5. Use the master execution tracker and worklog for the current operational sequence.
 
 ## North star and product identity
 
@@ -63,6 +69,143 @@ it.
 The browser-delivery contract now sits beneath that same stack too, so the
 public promise can tell future work what is essential, what can degrade, and
 what is optional without becoming the composition layer itself.
+
+### Browser delivery and readable feedback
+
+The next 3D-web pass is no longer about proving that the app can render 3D.
+It is about proving that the browser surface can explain itself while it
+loads, degrades, and communicates machine condition.
+
+Current combined evidence points to a narrow gap:
+
+- the shell and accessibility statement are already coherent in a mobile-sized
+  viewport,
+- the animation and interaction systems already separate camera/selection and
+  rig-local presentation ownership,
+- the rig signature contract already exists as a source-side fixture,
+- the missing piece is one listener-owned, player-readable cue that makes the
+  feedback lane visible without taking over gameplay authority.
+
+The live browser probe tightened that further: the shell now narrates a
+measured warmup state with `bootstrap-status`, `profile-status`, and
+`save-status`, but still does not expose a first-class progress element or
+meter. That means the next proof is not “make it visible at all”; it is “make
+the loading evidence more explicit without lying about readiness.”
+
+As of 2026-07-29, the accessibility promise itself is also now browser-
+reachable through the shell's public Accessibility link. So the exploration
+focus has shifted again: the discoverability seam exists, and the remaining
+work is to keep the statement current while proving the manual inclusive QA
+stack on the page and the shell.
+
+The statement page was also opened directly in a live browser at
+`http://127.0.0.1:4173/accessibility.html`, and the probe reached the expected
+`Accessibility Statement - Rigs Unbound` title after resizing the viewport to
+`390 x 844`. That is still only a partial proof, but it moves the public
+promise from a repo artifact into a browser-reachable surface that has already
+been exercised at a compact review size.
+
+The same page was then loaded with JavaScript disabled, and it still rendered
+the public promise content at the same compact viewport without horizontal
+overflow. That makes the public accessibility pointer robust enough to use as
+a real browser-delivery contract, while the remaining manual QA focus stays on
+screen-reader narration.
+
+A follow-up Chrome page-scale probe then set the statement page to `2x` and
+confirmed the layout still stayed in bounds. So the remaining accessibility
+gap is no longer “does the statement survive script-off or zoomed browsing?”.
+It is now narrower: keep the statement current and run the screen-reader pass.
+
+The shell reduced-motion probe now shows the global motion clamp doing its job,
+so reduced-motion is no longer an open question in the public accessibility
+trail.
+
+A Chrome accessibility-tree probe of the shell also found the expected
+`RootWebArea`, `Skip to playable world` link, `main` region, warmup `dialog`,
+and the public accessibility link, which means the remaining screen-reader
+gap is spoken narration rather than missing landmarks.
+
+A Chrome accessibility-tree probe of the statement page also found the expected
+`RootWebArea`, `main`, section headings, and evidence links, which means the
+remaining screen-reader gap is spoken narration rather than missing structure.
+
+A Chrome accessibility-tree probe of the live shell also found explicit
+spoken labels on the announcement surfaces: world clock, current objective,
+loading, save, quality, notification, and control lesson. That means the
+remaining screen-reader gap is now about end-to-end spoken review quality,
+not unlabeled live regions.
+
+A follow-up probe also found no anonymous `status` nodes in the shell tree.
+So the structural live-region cleanup is done for this pass, and the remaining
+work is truly about how the shell sounds when a real screen reader reads it
+end to end.
+
+The shell’s highest-priority live phrases also improved: the current objective
+reads as a full sentence, and the world clock is now passive text instead of a
+live announcement. So the remaining screen-reader work is narrower still,
+focused on flow, cadence, and whether the shell sounds calm rather than noisy.
+
+The notification toast now also drops out of the accessibility tree while it is
+idle. That keeps the notification surface available for real announcements
+without leaving an empty live region behind between messages.
+
+The same live probe also found latent acceptance hooks in the DOM
+(`mission-board-button`, `mission-board-close`, `mission-briefing-accept`)
+without a mounted, visible board. That means the mission gate is not absent,
+but it is still hidden plumbing rather than a player-discoverable surface.
+
+The follow-up surface read found a hidden `survey-contract` banner with the
+text `Contract ready`, which means there is also passive status plumbing in
+place. So the current state is not a single missing feature; it is a layered
+but incomplete acceptance path:
+
+- passive survey status,
+- latent acceptance hooks,
+- no mounted board.
+
+The next browser probe tightened that further: on a desktop viewport the
+acceptance board is already mounted and opens as a visible overlay, while the
+compact/mobile shell hides the masthead trigger cluster through CSS. That
+means the repo now has a viewport-specific exposure policy rather than a
+binary presence/absence story.
+
+After entering the field, the compact shell still did not reveal any
+alternate contract-board entry path, so the mobile experience currently keeps
+only status hints and no discoverable board affordance. That makes the next
+decision explicit: is desktop-first board exposure the intended product shape,
+or should compact/mobile gain a smaller board trigger?
+
+See [3D Game Skill App Analysis and Current Surface Gaps](../research/3D_GAME_SKILL_APP_ANALYSIS_2026-07-28.md)
+and [Rig Signature and Feedback Emission Contract](../research/RIG_SIGNATURE_AND_FEEDBACK_EMISSION_CONTRACT_2026-07-26.md).
+
+### Dynamic world collision authority
+
+The current runtime collision question is no longer “can the mesh render” but
+“what physical role does each body own, and how does the simulation explain
+contact?” The active exploration now treats collision authority as a semantic
+layer over reduced-order bodies, with tunnel prevention, dynamic body
+response, and contact telemetry as the near-term proof obligations. See
+[Dynamic World Collision Exploration](../research/DYNAMIC_WORLD_COLLISION_EXPLORATION_2026-07-28.md)
+and [ADR-0037](../decisions/ADR-0037-solver-independent-dynamic-world-collision-authority.md).
+
+This is a stronger lens than mesh-derived collision because it preserves the
+project-owned meaning of terrain, rig, cargo, obstacle, structure, trigger,
+sensor, and decorative bodies even if the underlying solver changes later.
+
+See also: [Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md).
+
+### Runtime reachability dispositions
+
+The runtime reachability note records a budgeted unreachable-module set; the
+exact measured count and module-by-module ownership live in the ownership
+matrix review. The budget is not a player-facing promise; it is an
+evidence-envelope for future slices.
+
+The disposition note lives at
+[Runtime Reachability Dispositions](RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md)
+and records which modules are intentionally retained as design probes or
+future vertical candidates. This keeps the archive/defer decision durable
+without pretending the modules are already reachable gameplay.
 
 ## Core loops
 
@@ -87,6 +230,18 @@ The next product-level seam after the core loop is not “more modes” but a
 compositional episode grammar that lets place, rig identity, pressure,
 discovery, and persistent consequence combine into a single authored episode.
 See [Compositional Episode Grammar and Storm Relay](COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md).
+
+### Opening narrative — Stranger at the Silo
+
+The proposed Farmfall opening now has a dedicated exploration artifact:
+[Stranger at the Silo — Opening Narrative Exploration](STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md).
+It preserves the operator's seed, expands it into an arrival → bargain →
+inspection → repair → first movement → dusk → dawn sequence, and keeps the
+old man, stranger biography, exact promise, and mystery reveal unresolved.
+The working recommendation is a practical road/relay motivation on the
+surface, a buried signal as the first escalation, and the old man's machine
+history as emotional subtext. This is Tier 0–1 exploration, not accepted
+campaign canon or an implementation commitment.
 
 ### Proposed next-tranche arbitration
 
@@ -242,7 +397,39 @@ questions, not simulation questions:
 
 This lane stays paired with the open profile-visibility and save-status issue
 reviews so the browser shell remains trustworthy even while the 3D core keeps
-evolving.
+evolving. The detailed browser-delivery analysis lives in
+[3D Web Platform Accessibility & Deliverability Audit](../research/3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md),
+which keeps the loading, profile, reduced-motion, and fallback questions on a
+separate durable track from the simulation contracts.
+The live browser-first readout for the current repo state lives in
+[3D Web Experience Live Repo Analysis](../research/3D_WEB_EXPERIENCE_LIVE_REPO_ANALYSIS_2026-07-26.md),
+which records that the surface already behaves like a browser product with
+runtime profile selection, narrow/mobile support, and bridge fallback handling;
+the missing piece is still the public delivery policy name, not the existence
+of a browser-first 3D surface.
+The latest addendum in that note now sharpens the open gap further: the next
+browser-delivery proof is explicit loading/progress, player-facing fallback
+explanation, and a clear line between essential and degradable 3D.
+
+The loading-story trust gap now has its own issue review too:
+[Browser Loading Progress Issue Review](../reviews/BROWSER_LOADING_PROGRESS_ISSUE_REVIEW_2026-07-28.md).
+That keeps the browser-shell contract split cleanly across profile visibility,
+save announcement, and the still-fragmented in-progress/loading story instead
+of merging all three into one vague browser-delivery note.
+The accessibility analysis now agrees with that split: the `Accessibility
+Auditor` pass confirms the remaining work is a manual inclusive QA stack, not
+a basic keyboard-operability rewrite.
+The live browser surface now backs that up more concretely: the public shell
+shows the accessibility primitives at `390 x 844`, and the dedicated
+`/accessibility` page is live as a durable public-promise pointer.
+The statement page itself is also narrow-safe and cross-links the shell
+evidence, the live analysis, and the public promise contract, so the browser
+trail is now navigable rather than only textual.
+
+The public accessibility-statement contract now has its own note too:
+[Accessibility Statement and Public Promise Contract](../research/ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md).
+That keeps the public promise auditable without forcing users to infer the
+statement from runtime diagnostics or chat history.
 
 The accessibility pass now also has source support: the public profile line is
 visible in the shell, the save line is announced, and the remaining closure
@@ -436,6 +623,7 @@ No premium currency is proposed.
 - Replicate significant actors/events; keep decorative debris/particles local.
 - Add interpolation, input sequencing, acknowledgements, reconnect, interest management, and prediction only when measured.
 - Test latency, jitter, packet loss, duplication, reordering, disconnect, reconnect, cheating input, and stale clients.
+- 2026-07-29 skill synthesis: the multiplayer decision tree matches the repo’s staging order. Dedicated-server authority is the right shape for competitive real-time play, host-based authority fits lighter co-op, and both still depend on replayable local truth before they become safe to share.
 
 ### Candidates
 
@@ -470,6 +658,11 @@ AI output cannot be source of truth for:
 - save migrations or network authority.
 
 Any model-backed feature must document model, prompt/input contract, schema, validation, fallback, retry, cost, latency, observability, data/config, and escalation. Generated content remains a proposal until deterministic validation and rights/provenance review.
+
+The current repo-level agent lesson is the same one the parallel-runtime
+handoff now records: autonomous work needs one obvious ownership boundary and
+one durable handoff artifact. Hidden runtime edits are not an acceptable agent
+contract when another lane is already live.
 
 ## Editors, mods, and UGC
 
@@ -537,7 +730,7 @@ the `PLAN_RENDER_PERFORMANCE_ACCESSIBILITY` lane:
 | Portal/cluster stream visibility           | Named contract, implementation pending | Add route/cluster streaming manifest and activation order.                                                              |
 | Shader contract for terrain/weather/hazard | Named contract, implementation pending | Add minimal shared material constants + fallback policy behind contract.                                                |
 | Collision category/mask                    | Named contract, implementation pending | Add semantic response matrix for obstacle/hazard/trigger/particle categories.                                           |
-| Replay/input log artifact                  | Named contract, implementation pending | Add durable versioned replay storage + playback verifier (deterministic input stream first).                            |
+| Replay/input log artifact                  | Named contract, implementation pending | Add durable exportable replay artifact + compatibility classification + visible unsupported/divergence reason; keep playback verifier internal. |
 | Chunked world scaling                      | Named contract, implementation pending | Add streaming manifest + unload policy + regression tests before more activity classes.                                 |
 | ECS migration readiness                    | Named contract, implementation pending | Keep profile/adapters today; add ECS only if actor count or simulation graph complexity crosses a proven threshold.     |
 | Behavior/event model                       | Named contract, implementation pending | Introduce deterministic event/behavior scheduler with payload validation and deterministic update ordering.             |
@@ -752,6 +945,19 @@ decision.
 
 See [DESIGN.md](../../DESIGN.md).
 
+The `3d-asset-production` lens keeps this area honest: the repo already has
+asset provenance, runtime bridge candidates, and a public-approval gate, so
+the remaining question is not whether we can make more art but how one
+approved source artifact crosses normalized export, validation, runtime
+activation, and player-facing promotion without becoming a second truth
+source. The current review trail for that promotion boundary lives in
+[Public Asset Promotion Review](../reviews/PUBLIC_ASSET_PROMOTION_REVIEW_2026-07-28.md)
+and the package index that summarizes the promotion lane.
+The current asset-production conclusion is narrower still: the repo needs a
+promotion path, not more concept art. The breakable crate remains the first
+public candidate, and the tractor preview remains developer-only bridge proof
+until the operator chooses to promote a different asset.
+
 ## Addendum — 2026-07-26 rig signature remains a fixture until listener and accessible feedback exist
 
 - The new deterministic rig-emission source derives bounded acoustic,
@@ -781,6 +987,19 @@ See [DESIGN.md](../../DESIGN.md).
   gating system.
 - The next durable proof should name one suppression window or coalescing rule
   before another bursty source is introduced.
+
+## Addendum — 2026-07-28 audio supports the shell, but it should not own state narration
+
+- Re-read the audio presentation contract against the current shell and
+  accessibility notes.
+- The public shell already carries the visible profile, save, and status bands,
+  and the accessibility statement page gives the player promise a durable home.
+- Audio therefore stays in the support lane: machine feel, comfort, and
+  acknowledgements. It should not become a second announcement system for
+  profile, save, or loading state.
+- The next audio proof remains the same narrow one: persist mute, keep burst
+  suppression explicit, and connect the signature source to one readable cue.
+  None of those should become the only way the player understands shell state.
 
 ## Addendum — 2026-07-28 asset delivery is the next 3D-asset-production lens
 
@@ -1402,6 +1621,24 @@ finishing the first coherent game.
   lane honest about what is intentionally minimal versus what still needs a
   bounded public-entry affordance.
 
+## Addendum — 2026-07-29 3D skill lens now splits rendering theory from browser delivery
+
+- The `3d-games` skill clarifies the core engine-side seams: rendering
+  pipeline, shaders, physics, camera feel, lighting, and LOD.
+- The `3d-web-experience` skill then narrows the question back to the browser:
+  3D should serve the experience, not exist for its own sake, and mobile
+  fallback plus loading readability are part of the contract.
+- The existing research trail already separates those concerns in the repo:
+  the public shell can be 3D-capable while the browser-delivery policy still
+  needs a named, player-visible explanation of full-fidelity, reduced, and
+  fallback states.
+- That means the next exploration work should keep the architecture lens and
+  the browser-delivery lens linked, not merged into one generic "3D" bucket.
+- Useful follow-up notes now live in
+  [3D Game Skill App Analysis and Current Surface Gaps](../research/3D_GAME_SKILL_APP_ANALYSIS_2026-07-28.md)
+  and
+  [3D Web Experience Browser-Delivery Addendum](../research/3D_WEB_EXPERIENCE_BROWSER_DELIVERY_ADDENDUM_2026-07-29.md).
+
 ## Addendum — 2026-07-26 B5–B12 closure discoveries
 
 The latest playtest-defect package produced four reusable product/architecture
@@ -1491,10 +1728,28 @@ New exploration questions opened by this package:
   width, which keeps the field-kit shell legible on the public surface.
 - This is the right 2D-games-style result: clarity comes from a small number of
   distinct, readable status surfaces rather than extra decoration.
+- Keep the browser-delivery proof split across
+  [Visible Input and Accessibility Profile Issue Review](../reviews/VISIBLE_INPUT_ACCESSIBILITY_PROFILE_ISSUE_REVIEW_2026-07-26.md)
   and
   [Save Status Announcement Issue Review](../reviews/SAVE_STATUS_ANNOUNCEMENT_ISSUE_REVIEW_2026-07-26.md).
 - The `public promise` lane still owns the browser-delivery policy, but these
   two issue reviews remain the player-facing proof surfaces.
+
+## Addendum — 2026-07-28 2D shell contract is a clarity stack, not a second game
+
+- Re-read the `2d-games` skill against the unified shell spec and the live
+  browser shell notes.
+- The useful shell guidance is to keep the public surface readable as a small
+  number of bands:
+  - status and prompt strip,
+  - explicit overlay planes,
+  - large touch actions,
+  - clear return path to play.
+- The current mobile shell already matches that direction: profile, save, and
+  diagnostics are separated, the focus path remains obvious, and the public
+  accessibility statement page gives the promise a durable home.
+- The remaining work is refinement of those bands and their announcements, not
+  a new shell authority or a denser navigation system.
 
 ## Addendum — 2026-07-26 map overlay focus boundary
 
@@ -1536,6 +1791,8 @@ New exploration questions opened by this package:
   truth.
 - The promotion decision should carry rights, provenance, budget, and operator
   reason fields so the approval is auditable on its own.
+- The canonical navigation page for that trail is the [Public Asset Promotion
+  Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md).
 
 ## Addendum — 2026-07-26 procedural director remains a proposal layer
 
@@ -1645,6 +1902,19 @@ New exploration questions opened by this package:
 - Pack validation should stay distinct from runtime authority so local content
   remains data-first instead of becoming a second mutable truth source.
 
+## Addendum — 2026-07-28 game design keeps tow-plus-repair as the next coherent activity loop
+
+- Re-read the `game-design` skill against the activity/command readiness
+  contract.
+- The strongest next activity proof is still tow-plus-repair because it gives
+  the player a clean 30-second loop: action, feedback, recovery, repeat.
+- That is more useful than a generic registry or plugin layer because it proves
+  a concrete player-facing loop while reusing the existing command/validation
+  seam.
+- The generic `ActivityDefinition` registry should still wait until a third
+  materially different activity is real and can prove the same validation
+  pattern in play.
+
 ## Addendum — 2026-07-26 physics decision provenance and solver authority
 
 - An internal-only `wide-open-brainstorm` audit found that AI-generated physics
@@ -1696,6 +1966,20 @@ New exploration questions opened by this package:
 - This is still a packaging proof, not a public threshold claim. The next proof
   remains a clean representative-device capture plus a visible budget table
   that can be read alongside the specialized contracts.
+
+## Addendum — 2026-07-29 the performance/readability bundle now needs a named owner map
+
+- Re-read the baseline and operator-observability notes together with the KPI
+  lane.
+- The next proof remains the same canonical budget table, but the table now
+  needs to show which specialized contract owner is responsible for the
+  exceeded threshold when the run falls out of budget.
+- The explicit measurement gap should also be visible in the bundle itself so
+  maintainers do not mistake implied state for first-class runtime state:
+  - actor count,
+  - active physics count.
+- This keeps the bundle as an operator artifact rather than a second hidden
+  policy layer.
 
 ## Addendum — 2026-07-26 world schema stays canonical while external content remains staged
 
@@ -1947,7 +2231,9 @@ A wide-open brainstorm run against measured repository facts produced one
 finding that outranks every other exploration item currently on this map:
 
 **30 of 78 non-test source modules (2,365 lines) cannot be reached from any
-shipped entry point. 28 of them have passing tests.**
+shipped entry point. 28 of them have passing tests.** (historical snapshot;
+the current classification lives in the ownership matrix and disposition
+artifacts.)
 
 This is now reproducible rather than anecdotal:
 
@@ -2412,3 +2698,71 @@ highest supersession risk: the save schema already holds terrain deltas,
 discoveries, and route state, so the question is whether that module duplicates
 a persistence authority. **The Logbook** and **The Land Is Trying To Forget**
 both live inside it and should get an exploration pass before its shape is fixed.
+
+## Addendum — 2026-07-28 dynamic world collision becomes a live substrate
+
+The collision question moved from exploration-only to a verified current-runtime
+substrate under [ADR-0037](../decisions/ADR-0037-solver-independent-dynamic-world-collision-authority.md).
+The implementation preserves the project's key boundary: simulation records own
+physical identity; visual meshes can be replaced without changing gameplay.
+
+### What is now real
+
+| Boundary | Current state | Evidence |
+| --- | --- | --- |
+| Terrain | Ground settling plus swept extreme-face refusal | `terrain-traversal.test.ts` |
+| Procedural obstacles | Earliest swept circle contact; trees may fell | `collision.test.ts` |
+| Authored structures | Earliest swept circle/AABB proxy contact | `scene-query.test.ts` |
+| Parked fleet | Movable, mass-weighted, identified blockers | `world-collision.test.ts`; browser JSON |
+| Relay cargo | Free and attached cargo collide with the world/fleet | `world-collision.test.ts` |
+| Policy | Semantic roles; unknowns fail closed and become telemetry | `collision.test.ts` |
+| Operator visibility | Strongest recent identified pairs retained for 12 steps | `publicState().collision` |
+
+The rig proxy is a conservative circle derived from wheelbase, wheel arc, and
+track. That is intentionally more honest than the old width-only circle: a long
+nose cannot occupy a visible obstacle before the centre notices. It is also
+explicitly transitional. A capsule or compound proxy becomes the next step when
+measured side clearance, a long chassis, or articulation falsifies the circle.
+
+### Product consequence discovered during integration
+
+Once parked rigs became solid, the original west-side Home berths blocked the
+guaranteed westbound first-cache lane. Spark and Drift now berth east of Torque.
+This is a useful design principle, not test trivia:
+
+> Making world bodies real changes level design. Spawn, service, recovery, and
+> mission routes must be validated against physical envelopes, not mesh centres.
+
+The same sweep corrected another stale proof: the skimmer does not gain tyre
+benefit from tilled soil. Its cushion authority deliberately replaces ground
+grip; only changed height/grade may cause a small difference.
+
+### Highest-information next questions
+
+1. At what measured clearance does the conservative circle feel like an
+   invisible bubble, and which current rig falsifies it first?
+2. Should the next proxy be a project-owned capsule/compound record before any
+   solver selection, or should ADR-0023 admit the representation and mechanism
+   together through the trailer/lifting-arm activity?
+3. Which asset-admission check proves every non-decorative imported object has a
+   semantic role and primitive proxy without turning renderer nodes into
+   gameplay authority?
+4. When do collision incidents become durable replay events rather than bounded
+   operator telemetry?
+5. How should audio, camera impulse, deformation, and persistent damage scale
+   from the same strongest-contact record without making feedback a second
+   physics authority?
+
+### Evidence
+
+- [Dynamic World Collision Exploration](../research/DYNAMIC_WORLD_COLLISION_EXPLORATION_2026-07-28.md)
+- [Dynamic World Collision Acceptance](../reviews/DYNAMIC_WORLD_COLLISION_ACCEPTANCE_2026-07-28.md)
+- `npm run test:collision-browser`
+- `npm run typecheck && npx vitest run` — 74 files / 444 tests
+
+The current narrow-viewport probe also keeps the compact contract-board reading
+stable: the contracts controls still exist in the DOM but remain zero-sized and
+absent from the accessibility tree, while the visible tree exposes the skip
+link, warmup dialog, live status regions, and Enter the field. That keeps the
+contract-board question squarely in exposure-policy territory rather than in
+basic accessibility-label territory.

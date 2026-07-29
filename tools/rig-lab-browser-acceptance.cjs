@@ -250,8 +250,8 @@ function planPlayerDrivePulse(rig, target) {
   const speedError = desiredSpeed - rig.speed;
   const driveAction =
     speedError > 0.18 ? "accelerate" : speedError < -0.18 ? "brake" : null;
-  const turnRight = reversing ? travelError < -0.06 : travelError > 0.06;
-  const turnLeft = reversing ? travelError > 0.06 : travelError < -0.06;
+  const turnRight = reversing ? travelError > 0.06 : travelError < -0.06;
+  const turnLeft = reversing ? travelError < -0.06 : travelError > 0.06;
   const steerAction = turnLeft ? "steerLeft" : turnRight ? "steerRight" : null;
   return {
     distance,
@@ -414,8 +414,8 @@ async function driveToWithKeyboard(
     const speedError = desiredSpeed - rig.speed;
     const driveKey =
       speedError > 0.18 ? "KeyW" : speedError < -0.18 ? "KeyS" : null;
-    const turnRight = reversing ? travelError < -0.06 : travelError > 0.06;
-    const turnLeft = reversing ? travelError > 0.06 : travelError < -0.06;
+    const turnRight = reversing ? travelError > 0.06 : travelError < -0.06;
+    const turnLeft = reversing ? travelError < -0.06 : travelError > 0.06;
     const turnKey = turnLeft ? "KeyA" : turnRight ? "KeyD" : null;
     if (driveKey) await page.keyboard.down(driveKey);
     if (turnKey) await page.keyboard.down(turnKey);

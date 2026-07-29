@@ -534,3 +534,53 @@ The long-term first-principles exploration note at
 is the broader horizon for this current-state audit. This document still owns
 the current runtime and acceptance frame; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) - live Field 02 shell readout
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The current page title is `Rigs Unbound`.
+- The live shell still exposes the current browser state as readable status
+  bands:
+  - `Quality: standard.`
+  - `Saved locally just now`
+  - `Field systems ready. Restored session controls are active.`
+- The browser is still browser-first and honest about readiness, but the
+  explicit loading-progress affordance remains absent:
+  - no dedicated progress bar,
+  - no percentage meter,
+  - no separate warmup state distinct from the ready shell.
+- The console sample was limited to Vite connect/connected logs; no gameplay
+  errors were present in the captured snapshot.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - root cause of the loading/progress gap
+
+- Re-checked `src/main.ts` against the live shell evidence.
+- The current browser loading story is binary rather than staged:
+  - `worldEntered` decides whether the shell is already past the entry phase,
+  - `bootstrapStatus` becomes either `measuring` before entry or `ready` after
+    entry,
+  - there is no separate progress percentage or warmup meter in the state
+    model.
+- `PerformanceMonitor` is real, but it is currently consumed for profile
+  selection and diagnostics, not as a player-facing loading meter.
+- `mapProgress` exists, but it is world-survey progress, not startup loading
+  progress.
+- So the actual root cause is not missing DOM wiring. The state model itself
+  never exposes a named loading-progress phase beyond a brief measuring label.
+- Evidence depth: Tier 1 static source inspection plus Tier 4 runtime/manual
+  observation from the same browser surface.
+
+## Addendum (2026-07-29) - ADR-0039 names the public-shell split around that loading story
+
+This current-state audit now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` remains on the acceptance/developer side of the
+  split, where the richer renderer summary can stay readable without becoming
+  player HUD clutter.
+
+That keeps this audit focused on the current player-facing loading story
+rather than duplicating the reviewer diagnostics lane.

@@ -95,3 +95,64 @@ whether the focus and selection path is fully accessible in the browser.
   but the remaining closure work is keyboard parity and announcement behavior
   for the wheel selection path.
 - Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - mobile focus proof corrected; boot blocker still resolved
+
+- The earlier claim that the radial wheel focus handoff lands on
+  `#radial-menu-close` is not stable across the current mobile shell probe.
+- In a `390 x 844` mobile viewport, after dismissing the welcome gate and
+  opening `Quick`, focus stayed on `#touch-radial-action` after 750ms.
+- Pressing `Tab` moved focus to `#control-lesson-dismiss` (`Got it`) instead
+  of trapping inside the radial overlay.
+- So the boot blocker itself remains resolved, but the accessibility proof is
+  still incomplete and the focus-handling claim should be treated as
+  conditional, not universal.
+- Evidence depth: Tier 4 live browser inspection.
+
+## Anything else?
+
+Yes. Keep the boot-blocker wording separate from the remaining shell-access
+proof so later readers do not mistake a mounted wheel for a complete focus
+contract.
+
+## Addendum (2026-07-28) - the remaining issue is visibility, not just focus
+
+A later mobile DOM probe tightened the interpretation of the open-path gap:
+
+- `#radial-overlay` is mounted and populated,
+- but its computed `visibility` remains `hidden`,
+- `#radial-menu-close` exists in markup, but the wheel is not yet visibly
+  surfaced in the probe,
+- `document.activeElement` stays on `#touch-radial-action`.
+
+So the remaining shell-delivery problem is not merely a missing focus handoff.
+The mobile quick-action surface still needs its open-state visibility contract
+proven before the accessibility question can be considered closed.
+
+## Anything else?
+
+Yes. Keep the boot-blocker note scoped to startup recovery; this is now a
+separate visibility-plus-focus proof gap on the live mobile shell.
+
+## Addendum (2026-07-28) - the radial touch surface is now live and focus-safe on mobile
+
+A fresh browser probe on a `390 x 844` mobile viewport confirmed the full
+radial contract after the runtime fixes:
+
+- tapping `Quick` opens the radial overlay,
+- the control lesson no longer closes it out from under the user,
+- `#radial-menu-close` receives focus after the delayed focus assertion,
+- the close control stays focused through later checks,
+- the overlay remains visible with the four live items intact.
+
+That means the old boot-blocker issue is resolved, and the remaining radial
+question is no longer accessibility or visibility. It is just product policy:
+when and where the wheel should be exposed.
+
+Evidence depth: Tier 4 live browser inspection.
+
+## Anything else?
+
+Yes. The radial wheel is now a bona fide compact-shell surface, so any future
+work should treat it as product design or content expansion rather than a
+repair task.

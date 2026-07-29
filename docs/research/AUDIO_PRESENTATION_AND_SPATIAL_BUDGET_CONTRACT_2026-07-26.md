@@ -177,3 +177,65 @@ Yes: imported audio introduces both decode/resource behavior and provenance obli
 - The next proof should name one suppression/cooldown rule before any second
   bursty audio source arrives.
 - Evidence depth: Tier 1 static source inspection.
+
+## Addendum (2026-07-28) - the shell already owns state narration, so audio stays a support channel
+
+- Re-read the audio contract alongside the current shell/accessibility notes.
+- The public shell now carries the player-facing profile, save, and status
+  bands separately, and the accessibility statement page gives the promise a
+  durable browser home.
+- That means audio should remain a support channel for machine feel, comfort,
+  and occasional acknowledgements rather than trying to own state narration for
+  profile, save, or loading.
+- The next audio proof is still the same narrow one: persist mute, prove one
+  readable player-facing cue for the signature source, and keep burst
+  suppression explicit. None of those should become the only way a player
+  understands the shell state.
+- Evidence depth: Tier 1 static contract review plus the existing Tier 4 shell
+  observations already recorded elsewhere in the repo.
+
+## Addendum (2026-07-29) - the next audio proof is a machine-state cue, not a full audio system
+
+- Re-read the `game-audio` skill and the game/UI synthesis against the current
+  audio contract.
+- The useful design direction is the same one the UI synthesis keeps naming:
+  audio should help the player read machine state, speed, strain, and success,
+  not become a second HUD or a standalone music director.
+- That means the next proof slice is still intentionally small:
+  - one readable player-facing cue tied to the signature or machine-state
+    source,
+  - persisted mute so comfort survives restart,
+  - one explicit suppression/cooldown rule for bursty interaction sounds.
+- The contract remains a support layer for machine feel and comfort. It should
+  not become the only place where the player can understand state.
+- Evidence depth: Tier 1 static synthesis from the skill and the current audio
+  contract. No runtime or audio-device validation was run in this pass.
+
+
+## Addendum (2026-07-29) - the next audio proof is a tow-plus-repair machine cue, not a general soundtrack system
+
+- Re-read the `game-audio` skill against the current contract and the loop/accessibility notes.
+- The current audio posture is already correct for the first playable: audio supports machine feel, traction, impact, confirmation, and comfort, while the shell and accessibility layers keep state narration readable.
+- The next durable proof should therefore stay narrow and player-facing:
+  - one readable cue that tells the player a tow / recover / repair state changed in the rescue loop;
+  - persisted mute so comfort survives a reload instead of only surviving the current session;
+  - one explicit suppression rule for bursty interaction sounds so repeated contacts do not drown out the cue.
+- That makes audio useful for the loop we already named without turning it into a second HUD or a replacement for shell narration.
+- Evidence depth: Tier 1 static synthesis from the current audio contract, game-design loop, and accessibility notes. No runtime or audio-device validation was run in this pass.
+
+Anything else? Yes: the audio layer should make rescue state feel legible, not try to narrate the whole world.
+
+## Addendum (2026-07-29) - runtime mute toggles work, but persistence still is not visible in localStorage
+
+A fresh browser probe on the canonical developer surface showed:
+
+- the visible audio control reads `Sound on` before toggling and `Sound off`
+  after toggling in-session;
+- the active visible control is the pause/menu `#pause-mute` button;
+- no `sound`, `audio`, or `mute` keys were present in `localStorage` during
+  the probe.
+
+That means the current audio lane has the useful half of the trust feature:
+comfort can be toggled in-session. What is still missing is a visible persisted
+preference trail that survives reload instead of resetting the session state.
+Evidence depth: Tier 4 runtime/manual observation.

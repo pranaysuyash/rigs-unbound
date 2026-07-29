@@ -11,7 +11,13 @@
  * path is on tilled surface without pushing low-elevation cells underwater.
  */
 import { describe, expect, it } from "vitest";
-import { FIXED_STEP_SECONDS, type GameState, type RigId } from "./contracts";
+import {
+  FIXED_STEP_SECONDS,
+  RIG_PROFILES,
+  rigCollisionRadius,
+  type GameState,
+  type RigId,
+} from "./contracts";
 import { GameWorld } from "./gameworld";
 import { createInitialState, stepGame } from "./state";
 
@@ -31,10 +37,29 @@ const ACCELERATE = {
  */
 function findMudLocation(world: GameWorld): { x: number; z: number } {
   const step = 2;
+  const largestRigRadius = Math.max(
+    ...Object.values(RIG_PROFILES).map(rigCollisionRadius),
+  );
   for (let x = -120; x <= 120; x += step) {
     for (let z = -120; z <= 120; z += step) {
       if (world.terrain.surfaceIdAt(x, z) !== "mud") continue;
       if (world.terrain.slope(x, z) > 0.2) continue;
+      /*
+       * This proof compares surface response, not obstacle response. Require a
+       * clear +Z corridor for the largest authored rig footprint so the new
+       * collision authority cannot truthfully stop both runs at the same rock.
+       */
+      const corridorEndZ = z + 10;
+      const blocked = world.obstacles
+        .near(x, z + 5, 10 + largestRigRadius)
+        .some((obstacle) => {
+          const nearestZ = Math.max(z, Math.min(corridorEndZ, obstacle.z));
+          return (
+            Math.hypot(obstacle.x - x, obstacle.z - nearestZ) <=
+            obstacle.radius + largestRigRadius + 0.1
+          );
+        });
+      if (blocked) continue;
 
       // Verify the surface actually shifts to tilled after deformation.
       // Two passes of −0.13 = −0.26, which crosses the tilled threshold
@@ -164,7 +189,7 @@ describe("R3: cross-rig benefit — opened route helps other rigs too", () => {
     expect(buggyTilled).toBeGreaterThan(buggyMud);
   });
 
-  it("skimmer drives faster on tilled ground that the tractor opened", () => {
+  it("skimmer remains surface-independent because cushion authority replaces tyre grip", () => {
     const seed = "R3-CROSS-RIG-SKIMMER";
     const mud = findMudLocation(new GameWorld(seed));
 
@@ -189,7 +214,13 @@ describe("R3: cross-rig benefit — opened route helps other rigs too", () => {
     placeRig(tilledState, mud.x, mud.z);
     const skimmerTilled = driveAndRecordDistance(tilledState, tilledWorld, 80);
 
-    expect(skimmerTilled).toBeGreaterThan(skimmerMud);
+    /*
+     * Hover traversal deliberately does not read tyre grip or rolling drag.
+     * A route opened for wheels should therefore be available to the skimmer
+     * without becoming a fake hover upgrade. Small differences can still come
+     * from the deformed height/grade sampled by the cushion.
+     */
+    expect(Math.abs(skimmerTilled - skimmerMud)).toBeLessThan(0.12);
   });
 
   it("terrain deformation persists across rig switches", () => {

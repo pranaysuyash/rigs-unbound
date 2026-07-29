@@ -169,3 +169,30 @@ That note gives the header a clear companion for the refresh case.
 Yes. This contract is intentionally small. It exists so the player can orient
 themselves before reading the rows, not so the board can become another
 dashboard.
+
+## Addendum (2026-07-28): the header contract now matches a real desktop board, but not the compact shell
+
+- A desktop probe of the acceptance board showed the exact kind of header this
+  contract describes:
+  - title: `Field contracts`
+  - subtitle: `Choose what pulls you next`
+  - summary: `3 contracts resolved from the field state.`
+  - explicit `Close` control
+- That means the header and summary language is no longer just aspirational;
+  it is already mounted in the desktop runtime.
+- The compact/mobile shell still suppresses the trigger cluster, so this
+  header is not yet available to every viewport that can play the game.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the header on the player-facing side of the browser split
+
+This board-header contract now sits alongside the browser-policy split named
+in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split,
+  where the richer summary can remain readable without displacing the player
+  HUD.
+
+That keeps the header contract focused on player orientation rather than on
+repeating operator diagnostics in the visible board summary.

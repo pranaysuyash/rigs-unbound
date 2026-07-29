@@ -261,3 +261,138 @@ names.
   reachable board that can sit on top of the existing survey banner without
   becoming a second authority.
 - Evidence depth: Tier 4 live browser inspection plus Tier 1 source inspection.
+
+## Addendum (2026-07-28): the runtime also has hidden acceptance hooks, but not a mounted board
+
+- Re-checked the public shell with a browser probe in the canonical
+  `field-02` acceptance path.
+- The live DOM contains latent mission acceptance controls:
+  - `#mission-board-button` with the visible label `Contracts`
+  - `#mission-board-close`
+  - `#mission-briefing-accept` with the visible label `Accept contract`
+- Those hooks are present in the DOM but not visible or directly clickable in
+  the ready shell, which is why the click probe timed out on visibility rather
+  than missing-node lookup.
+- This tightens the boundary rather than changing it:
+  - the repo has acceptance-surface plumbing,
+  - but the player still does not have a mounted, discoverable, focus-safe
+    board in the public ready state.
+- So the next proof remains the same product gate, but with a more precise
+  implementation target: surface the latent hooks in a reachable board without
+  promoting them into a second authority.
+
+## Addendum (2026-07-28): the runtime also exposes a passive survey status, so the surface is split across layers
+
+- A follow-up probe on the public shell at `http://localhost:4173/` found a
+  hidden `#survey-contract` banner in the field-kit HUD with live text
+  fragment `Contract ready`.
+- That banner is useful status feedback, but it is still not the selectable
+  row model this contract describes.
+- The current runtime therefore splits the acceptance story across three
+  layers:
+  - passive survey status,
+  - hidden acceptance hooks,
+  - and no mounted player-facing board.
+- That split is important because it prevents the repo from collapsing all
+  contract-shaped UI into a single missing feature. The question now is how to
+  mount the board cleanly on top of the already-existing status plumbing.
+
+## Addendum (2026-07-28): the board is mounted on desktop, but the mobile shell hides its trigger cluster
+
+- A desktop-sized browser probe at `1440 x 900` showed `#mission-board-button`
+  rendered as a visible control in the masthead.
+- Triggering that control mounted `#mission-board` as a visible overlay with
+  the header `Field contracts` and the subtitle `Choose what pulls you next`.
+- The open board exposed a row set and briefing content, which means the
+  runtime does already have a mounted acceptance surface in the desktop-ready
+  path.
+- The mobile-sized shell at `390 x 844` still hides `.masthead__buttons` via
+  CSS, so the same board is not discoverable from the compact ready view.
+- The current product boundary is therefore viewport-specific, not binary:
+  desktop exposes the acceptance surface; the narrow/mobile shell suppresses
+  the trigger cluster and keeps only the textual status hints.
+- The next proof question is whether that exposure policy is intentional and
+  acceptable, or whether the compact shell should surface the same board entry
+  path in a narrower form.
+
+## Addendum (2026-07-28): the compact shell still has no alternate contract-board entry path after entering the world
+
+- A compact-viewport probe after entering the field still showed no visible
+  contract-board trigger path beyond the hidden masthead cluster.
+- The survey banner remains passive status text, and the mission board remains
+  inaccessible from the ready compact view.
+- That means the compact/mobile shell currently has:
+  - status hints,
+  - hidden acceptance plumbing,
+  - and no alternate entry affordance once the field is active.
+- This is the current product boundary to keep in mind when deciding whether
+  the desktop-first contract board exposure is intentional or whether the
+  compact shell should gain a smaller entry path.
+
+## Addendum (2026-07-28): pause, touch, and keyboard paths still do not expose contracts on compact/mobile
+
+- A source scan of the shell actions found no alternate compact entry path
+  through pause, touch, or keyboard affordances.
+- The named shell actions cover map, radar, pause, workshop, recovery,
+  camera, and related in-world verbs, but not a compact board trigger.
+- That means the absence on compact/mobile is broader than the masthead button
+  cluster: the compact shell currently does not expose any alternate contract
+  affordance at all.
+- The product question is now explicit:
+  - either the compact shell stays board-free and desktop-first,
+  - or a smaller contract entry path gets added as a new shell affordance.
+
+## Addendum (2026-07-28): the compact DOM still carries hidden board controls, but not a usable affordance
+
+- A compact-viewport probe at `390 x 844` found the following contract-related
+  controls in the DOM:
+  - `#mission-board-button` (`Contracts`)
+  - `#reset-button` (`Reset field`)
+  - `#mission-board-close` (`Close`)
+  - `#mission-briefing-accept` (`Accept contract`)
+  - `#enter-world` (`Enter the field`)
+- All of those controls were hidden in the compact shell at the time of the
+  probe, so they are latent implementation hooks rather than reachable user
+  affordances.
+- The same probe also showed a visible `#map-layer-field` control and the
+  passive `#survey-contract` status, which means the compact shell still
+  separates map/status plumbing from player choice.
+- This sharpens the contract boundary: compact/mobile does not lack the
+  underlying controls, but it still lacks a discoverable, focus-safe way to
+  reach the contract board from the ready shell.
+
+## Addendum (2026-07-28): the canonical browser shell now mounts a live, stateful mission board dialog
+
+- Opening `Contracts` in the live shell moved focus to `#mission-board-close`.
+- The board opened as `role="dialog"` with `aria-modal="true"`.
+- The first proposition row was marked selected with `aria-pressed="true"`.
+- `Accept contract` became enabled once the selected row was present.
+- The board remained a distinct overlay surface rather than replacing the
+  whole shell.
+- The current runtime therefore proves the acceptance surface is real in the
+  browser, not just in the design note.
+
+## Addendum (2026-07-29) - ADR-0039 keeps this player-choice surface on the public-shell side
+
+This acceptance-surface contract now sits alongside the browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` remains on the acceptance/developer side of the
+  split, where deeper runtime reasoning can stay readable without becoming
+  public HUD clutter.
+
+That keeps the choice surface focused on player decision-making, while the
+diagnostics lane remains separate for operators and reviewers.
+
+
+## Addendum (2026-07-29) - the board is live on desktop, so the next question is compact exposure policy
+
+- Re-read the mission acceptance surface contract against the current shell and accessibility notes.
+- The runtime already proves the desktop choice surface exists and is mounted as a live board overlay, while the compact/mobile shell still hides the trigger cluster and keeps only passive status hints.
+- That means the next product question is no longer whether the board exists. It is whether the compact shell should stay board-free and desktop-first, or gain a smaller entry path that keeps the same choice semantics.
+- The important constraint is unchanged: whatever exposure policy is chosen, the board must remain a choice layer, not a second mission authority or a second progression ledger.
+- Evidence depth: Tier 1 static synthesis from the current contract trail. No new runtime probe was run in this addendum.
+
+Anything else? Yes: the board is a real surface already; the next durable decision is how much of it compact/mobile should expose.

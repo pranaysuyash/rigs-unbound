@@ -1,6 +1,6 @@
 # ADR-0033: Mission proposition derivation and nested progression state
 
-Status: Proposed - operator sign-off required
+Status: Accepted
 Date: 2026-07-28
 Owner: rigs-unbound gameplay systems
 
@@ -33,11 +33,17 @@ Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime c
 - Hybrid modes where account XP coexists with capability mastery
 - Prestige/legacy systems that convert capability progress into account XP
 
-**Mission layer: Derived propositions, not persisted tables**
+**Mission layer: Derived propositions with one persisted active contract**
 
 - Mission proposals are recomputed from current `GameState`, world state, weather, and discovered sites
 - New mission families are added by registering new generators in `mission-propositions.ts`
-- Accepted missions are represented by existing game bindings (cargo relay, survey route) and reward resolution, not by a fixed save-format ledger
+- Propositions are never authoritative. Acceptance passes through
+  `mission-lifecycle.ts` into the single `GameState.activeMission` contract.
+- Completion and failure return through the same authority. The progression deed
+  `mission:<id>` is the durable idempotency marker for rewards.
+- The active contract is not a second UI ledger or authored mission table. It is
+  the minimum runtime state required to reconnect a derived proposition to an
+  existing binding after save/reload.
 
 ## Why this shape
 
@@ -45,7 +51,8 @@ Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime c
 - Avoids a rigid authored mission database in save files
 - Allows future divergence: more mission bindings, more progression tracks, more reward types, more rig-specific restoration paths
 - Preserves determinism: the same world state yields the same mission propositions
-- Keeps player accomplishment durable where it belongs: capability progress is persisted, missions are not
+- Keeps player accomplishment durable where it belongs: capability progress is
+  persisted, while only an in-flight contract is persisted for continuity.
 
 ## Consequences
 
@@ -71,9 +78,11 @@ Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime c
 - `GameState.progression` nested field with save schema v10 migration (implemented, tested)
 - `docs/systems/PROGRESSION_SYSTEM.md` — XP-based design preserved as reference (documented)
 
-## Open questions
+## Closed questions
 
-- Should mission acceptance itself eventually become a durable event log instead of being inferred from current bindings?
+- Mission acceptance is currently a single active contract, not an event log.
+  A full event log is deferred until multiple simultaneous contracts or rewind
+  semantics are real requirements.
 - Should additional progression tracks be namespaced under `progression` now, or added only when they become real gameplay?
 - Should milestone rewards remain salvage-based, or should the reward palette expand to modules, reputation, or unlock tokens?
 
@@ -83,6 +92,9 @@ Documented in `docs/systems/PROGRESSION_SYSTEM.md`. Not implemented in runtime c
 - 2026-07-28: Added explicit reconciliation gate against ADR-0018. The current implementation is runtime evidence, not product-level acceptance of universal XP.
 - 2026-07-28: Operator correction: do not default to conservative paths. Continue toward the strongest long-term, first-principles architecture aligned with `motto_v4`.
 - 2026-07-28: **Canonical decision** — capability-shaped progression is the runtime model. XP-based progression is preserved in design docs for future/hybrid use.
+- 2026-07-28: Operator explicitly authorized implementation completion. Accepted
+  mission propositions now enter one persisted active-contract boundary, with
+  resolver-owned completion and deed-backed reward idempotency.
 
 ## Anything else?
 

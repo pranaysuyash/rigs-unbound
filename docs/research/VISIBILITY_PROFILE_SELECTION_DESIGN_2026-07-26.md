@@ -180,3 +180,74 @@ The third important decision is that **simulation is never affected by visibilit
 - Evidence depth: Tier 1 static inspection of the design note against the live
   renderer-performance documentation trail. No runtime/browser pass was run in
   this update.
+
+## Addendum (2026-07-28) - compact contract-board exposure is not a visibility-profile fallback
+
+- A compact-viewport probe shows the contract-board trigger cluster is hidden
+  by shell CSS while the runtime still reports `standard` awaiting evidence
+  rather than `mobile-safe`.
+- That means the board exposure issue is not caused by the renderer's quality
+  fallback machinery.
+- Two separate policies are at work:
+  - visibility profiles govern renderer and scenery quality,
+  - shell exposure governs whether the contract-board entry point is shown.
+- If the project later decides to surface a smaller board entry path on the
+  compact shell, that should be treated as shell policy work, not as a
+  visibility-profile change.
+
+## Addendum (2026-07-28) - the public and operator profile surfaces are now both explicit
+
+- The public shell now exposes the profile state in plain language:
+  - warmup: `Quality: measuring. Still measuring frame performance.`
+  - ready: `Quality: standard. Full scenery detail is active.`
+- The developer surface now exposes a terse operator summary:
+  - `Renderer visibility warmup: standard (insufficient-frame-samples)`
+  - `Renderer visibility fallback: mobile-safe (...)`
+  - `Renderer visibility steady: standard`
+- That means the design's two missing presentation halves are now implemented
+  in the live browser:
+  - player-facing fallback reasoning,
+  - operator-facing fallback summary.
+
+## Addendum (2026-07-29) - bootstrap now owns the progress surface while diagnostics stay hidden
+
+A later live probe of the current shell clarified the current presentation
+split:
+
+- `#bootstrap-status` is the real loading affordance and exposes a semantic
+  progressbar while measuring;
+- `#profile-status` stays visible and still narrates the quality profile in
+  plain language;
+- `#runtime-diagnostics` remains hidden from the public HUD.
+
+That makes the profile design cleaner than the older notes suggested. The live
+question is now cohesion and phrasing, not whether the shell has a visible
+quality state or a semantic warmup indicator.
+
+## Addendum (2026-07-29) - the renderer-policy knob is acceptance-visible, not public-shell visible
+
+A route comparison across the current shell clarified the policy boundary:
+
+- the public shell keeps `#runtime-diagnostics` hidden;
+- the `?acceptance=field-02` route exposes `#runtime-diagnostics` with the
+  backend / renderer summary;
+- `rendererPolicy=off` and `rendererPolicy=stable` both preserve the same
+  public bootstrap/profile shape while changing the acceptance/developer
+  diagnostics text.
+
+So the profile-selection design is now better described as a two-surface
+contract: the player sees loading progress and quality state, while the
+acceptance/developer route carries the richer renderer summary and policy
+reasoning.
+
+## Addendum (2026-07-29) - ADR-0039 is the durable browser-policy anchor for the profile split
+
+The live split in this design note now maps cleanly onto ADR-0039:
+
+- ADR-0039 keeps `#bootstrap-status` semantic on the public shell;
+- ADR-0039 keeps `#profile-status` visible to the player;
+- ADR-0039 keeps `#runtime-diagnostics` on the acceptance/developer route.
+
+That matters because this note is about which profile state the player should
+see and when. The policy anchor keeps the public shell focused on player trust,
+while the acceptance route remains the place for fuller renderer reasoning.

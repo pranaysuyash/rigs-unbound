@@ -324,3 +324,16 @@ That distinction matters:
 
 The first durable board slice should therefore keep reason-coded rows, but it
 should not try to become a second authority or a separate mission engine.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the ledger read-only while the player surface stays public
+
+This ledger specification now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` remains on the acceptance/developer side of the split,
+  where row reasoning can stay visible without becoming a second public HUD.
+
+That keeps the ledger in the right layer: it explains the world’s offers, but
+it does not become the player’s diagnostics panel.

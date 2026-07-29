@@ -78,3 +78,14 @@ The live browser surfaces are functional and evidence-rich. The next highest
 value runtime work is not a renderer rewrite: it is to measure and improve the
 actual boot-to-ready path with renderer-owned timings, then prove profile
 continuity after the policy correction.
+
+## Addendum (2026-07-29) - ADR-0039 names the public-shell split this runtime review depends on
+
+This runtime review now sits inside the browser-policy split named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split.
+
+That keeps the review honest about its subject: player-facing runtime profile
+and input semantics, not an operator-only diagnostics lane.

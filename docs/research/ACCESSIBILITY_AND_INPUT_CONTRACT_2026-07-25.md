@@ -339,6 +339,21 @@ one canonical semantic-action registry.
 - `?` currently toggles `#controls-legend`, which is the live public help
   surface for keyboard/action hints in the shell.
 
+## Addendum (2026-07-29) - ADR-0039 clarifies the browser surface split that keeps input and diagnostics separate
+
+The accessibility/input contract now sits alongside the browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and visible;
+- the public shell keeps `#profile-status` readable to the player;
+- acceptance/developer surfaces may expose `#runtime-diagnostics` without
+  turning the public shell into an operator console.
+
+That separation is important for this contract because input and comfort
+policy remain player-facing concerns, while deep diagnostics stay out of the
+primary control surface. The contract should keep building on the named-action
+registry, not on any operator-only text lane.
+
 ## Addendum (2026-07-28): the binding registry remains the canonical source of truth
 
 - Re-checked the current input contract against the shell surfaces and the
@@ -403,3 +418,77 @@ one canonical semantic-action registry.
     shell.
 - Evidence depth: Tier 1 static source inspection plus Tier 4 live browser
   inspection of the mounted shell surface.
+
+## Addendum (2026-07-28): the compact input surface keeps core interactions, but hides the contracts lane
+
+- Re-checked the live browser at `390 x 844` to compare compact interaction
+  affordances with the desktop shell.
+- The compact view still exposes several real interaction surfaces:
+  - `#map-layer-field`, `#map-layer-rumor`, and `#map-layer-journal`
+  - `#map-close`
+  - `#control-lesson-dismiss`
+  - `#pause-resume`, `#pause-mute`, `#pause-fullscreen`, `#pause-navigator`,
+    `#pause-welcome`, and `#pause-reset`
+  - `#radial-menu-close`
+- The compact shell therefore is not interaction-empty; it keeps map, pause,
+  help, and reset-style inputs available.
+- What remains hidden is the contracts lane itself, which keeps the input
+  contract asymmetric across viewport sizes:
+  - the player can still act on map/pause/help surfaces,
+  - but cannot discover the contract board from the compact shell.
+- That makes the interaction question distinct from the accessibility or
+  rendering question: this is a deliberate shell affordance split, not a
+  missing input system.
+
+## Addendum (2026-07-29) - the next input proof is durable bindings plus a visible profile indicator
+
+- Re-read the current input contract against the shell surfaces and the
+  accessibility/profile notes.
+- The live shell already proves the basics:
+  - named actions flow through the same model,
+  - the visible help legend explains the public key hints,
+  - the quick-action wheel is a real control surface,
+  - compact layout still preserves core interactions.
+- The remaining gap is narrower and more durable:
+  - one reload-safe binding profile that restores before input sampling,
+  - one visible input/accessibility profile indicator on the public shell,
+  - one explicit rule for how the compact shell hides or reveals deeper
+    contract surfaces without implying the input system is incomplete.
+- That keeps the contract on the support side of the product: the shell should
+  explain how to act, not multiply control authorities.
+- Evidence depth: Tier 1 static synthesis from the current shell and contract
+  notes. No runtime or input-device validation was run in this pass.
+
+
+## Addendum (2026-07-29) - the next accessibility proof is spoken narration of the tow-plus-repair loop
+
+- Re-read the accessibility/input contract alongside the current core-loop and public-promise notes.
+- The structural accessibility gaps are now mostly closed: named actions exist, the shell is operable, reduced motion is already respected, the public statement is reachable, and the accessibility tree is coherent.
+- The remaining proof is specifically spoken narration quality for the player-facing loop we just named in the game-design pass:
+  - the shell should describe the current objective, the active action, and the recovery/reward transition as one coherent sequence;
+  - the player should be able to hear why the next possibility matters without relying on visual scanning alone;
+  - the same named-action model should stay understandable when the shell is compact or when the loading/status surfaces are active.
+- That makes narration the last meaningful accessibility layer for this slice, not a structural repair task.
+- Evidence depth: Tier 1 static synthesis from the current accessibility contracts and loop notes. No new browser or screen-reader runtime pass was run in this addendum.
+
+Anything else? Yes: the accessibility work now needs narration proof, not another landmark pass.
+
+## Addendum (2026-07-29) - control lessons persist, but the binding registry is still the missing input layer
+
+A fresh browser probe of the live developer surface showed:
+
+- `localStorage` contains `rigs-unbound.control-lessons.v1`;
+- the visible profile line still reads the quality state, not an input or
+  accessibility profile;
+- the shell therefore preserves learned first-use control help, but does not
+  yet expose a separate persisted binding registry or a visible input profile
+  indicator.
+
+That is a useful distinction for the contract:
+
+- persisted help and lessons already exist;
+- a reload-safe remap/binding profile is still missing;
+- the visible input/accessibility profile indicator is still missing.
+
+Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static contract
+inspection.

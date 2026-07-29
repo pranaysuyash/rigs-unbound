@@ -1455,14 +1455,16 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
   },
   "toy-buggy": {
     rigId: "toy-buggy",
-    x: HOME_SITE.x - 7,
+    // Keep the guaranteed first-cache departure lane west of Torque clear now
+    // that parked fleet bodies are real colliders rather than pass-through art.
+    x: HOME_SITE.x + 7,
     z: HOME_SITE.z - 8,
     heading: Math.PI,
     label: "Spark service berth",
   },
   "marsh-skimmer": {
     rigId: "marsh-skimmer",
-    x: HOME_SITE.x - 13,
+    x: HOME_SITE.x + 13,
     z: HOME_SITE.z - 7,
     heading: Math.PI,
     label: "Drift service berth",

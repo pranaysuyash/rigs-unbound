@@ -68,3 +68,33 @@ Yes: pause is not the same as map or save state. The overlay is a visual cue, bu
 - This note is intentionally not claiming browser verification yet; the next
   proof step is to re-open the live shell and re-check the pause focus landing
   path after the patch.
+
+## Addendum (2026-07-28): browser recheck shows focus recovery is fixed, but pause announcement is still visible-only
+
+- Re-opened the canonical browser shell and triggered pause through the live
+  `KeyP` path.
+- The overlay now opens as a visible dialog with `role="dialog"` and
+  `aria-modal="true"`.
+- The close/primary control receives focus on open:
+  - `document.activeElement` becomes `#pause-resume`.
+- Closing the overlay restores focus to `#game-canvas`.
+- The explicit announcement gap still remains, though:
+  - `#current-prompt` reads `Paused.`
+  - but it does not carry its own `aria-live` or role-based announcement
+    contract.
+- So the earlier focus issue is now solved, but the named pause-announcement
+  contract is still open and remains a real accessibility work item.
+
+## Addendum (2026-07-29) - ADR-0039 keeps pause narration on the public shell side of the split
+
+The pause announcement issue now belongs inside the browser-policy split named
+in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` readable as the current shell
+  state;
+- deeper runtime diagnostics stay off the public HUD while the pause overlay
+  carries the visible mode-change cue.
+
+That keeps the pause contract focused on player narration instead of mixing it
+with operator diagnostics.

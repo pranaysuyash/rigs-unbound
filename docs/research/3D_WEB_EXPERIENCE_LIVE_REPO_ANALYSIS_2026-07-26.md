@@ -176,3 +176,232 @@ The long-term first-principles exploration note at
 is the broader horizon for this live repo analysis. This document still owns
 the current browser-experience readout; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) - live shell readout on the canonical Field 02 surface
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The current page title is `Rigs Unbound`.
+- The live shell now clearly exposes the browser product state:
+  - `Quality: standard.`
+  - `Saved locally just now`
+  - `Field systems ready. Restored session controls are active.`
+- The surface remains browser-first and readable, but the explicit loading
+  progression contract is still incomplete:
+  - no dedicated loading percentage,
+  - no visible progress bar,
+  - no separate warmup meter distinct from the ready shell.
+- The console sample was limited to Vite connect/connected logs; no gameplay
+  errors were present in the live snapshot.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - narrow viewport recheck
+
+- Re-checked the same live browser surface at `390 x 844`.
+- The viewport stayed within bounds with no horizontal overflow.
+- The live shell remained structurally intact:
+  - `#save-status` stayed visible,
+  - `#profile-status` stayed visible,
+  - `#first-rung-objective` stayed visible,
+  - the canvas stayed sized to the viewport.
+- `#bootstrap-status` exists in the ready shell, but it is not a persistent
+  loading meter; it behaves as a readiness/status label after the scene is up.
+- That means the mobile/narrow story is currently:
+  - readable ready shell,
+  - no overflow,
+  - status bands preserved,
+  - explicit loading progress still absent.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - the 3d-web-experience skill confirms the next gap is browser-delivery honesty, not a 3D stack rewrite
+
+- Re-read the `3d-web-experience` skill against the current live-repo analysis
+  and the broader 3D-games lens.
+- The skill's warnings line up with the repo's current direction:
+  - 3D should serve the experience rather than exist for its own sake,
+  - desktop-only 3D is a trap,
+  - loading state is part of the product, not an optional extra.
+- The current app already satisfies the first part more strongly than a toy
+  scene would:
+  - the shell exposes named camera modes,
+  - the physics lab is a separate proof lane,
+  - runtime/profile and save/status visibility already exist in the browser
+    surface and supporting docs.
+- The remaining browser-experience gap is narrower and more specific:
+  - explicit progress/loading state,
+  - player-facing explanation of reduced-capability fallback,
+  - durable naming for which 3D is essential and which can degrade.
+- This pass is analysis only; no runtime or code changes were made.
+- Evidence depth: Tier 1 static skill and repo-doc inspection, with prior Tier 4
+  browser observations already linked above.
+
+## Addendum (2026-07-28) - renderer policy fallback is now proven live on the canonical browser surface
+
+- Re-checked the live developer surface with `?rendererPolicy=off`.
+- The renderer snapshot now reports:
+  - `rendererBackend: webgl`
+  - `rendererRequestedBackend: auto`
+  - `rendererBackendFallback: true`
+  - `rendererBackendReason: rendererPolicy=off blocked auto webgpu`
+- The runtime diagnostics lane reflects the same state:
+  - `backend:webgl/auto (fallback)`
+- This is useful 3D-web evidence because it proves the experience already has
+  a policy-gated backend fallback, not just a cosmetic profile label.
+- A comparison probe on `?rendererPolicy=stable` on the same browser returns
+  the direct path instead:
+  - `rendererBackendFallback: false`
+  - `rendererBackendReason: renderer=auto retained webgl for composer compatibility (stable)`
+  - runtime diagnostics: `backend:webgl/auto (direct)`
+- The remaining open question is broader than backend selection:
+  - what the app should say when it is intentionally degraded,
+  - whether there should be a static/no-WebGL fallback surface,
+  - and whether a cross-system resource budget needs to own future degraded
+    behavior outside the renderer.
+- Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - context-loss recovery is wired, but this browser run could only prove it synthetically
+
+- The live shell exposes `webglcontextlost` / `webglcontextrestored` handlers
+  on `#game-canvas`.
+- A browser probe dispatching those events directly produced the expected user
+  messages:
+  - lost: `Graphics context lost. Waiting for restore.`
+  - restored: `Graphics context restored. Recovered on developer profile standard.`
+- The same probe kept the runtime diagnostics lane coherent during the state
+  transition.
+- The browser environment on this run did **not** expose the
+  `WEBGL_lose_context` extension, so this is not a true hardware-loss proof.
+  It is evidence that the recovery state machine is wired and user-visible, not
+  evidence of a real GPU reset.
+- That leaves a very specific next seam:
+  whether the app needs a more explicit degraded-experience surface when the
+  renderer cannot actually recover.
+- Evidence depth: Tier 4 synthetic browser inspection plus Tier 1 source
+  inspection.
+
+## Addendum (2026-07-28) - the no-render fallback surface now exists and is live-verified
+
+- The formerly hidden boot error panel was promoted into the canonical degraded-mode
+  surface.
+- It now carries `role="alertdialog"`, `aria-labelledby="error-title"`, and
+  `aria-describedby="error-message"`.
+- The acceptance/developer hook `window.__showNoRenderFallback(...)` can
+  surface it for verification.
+- A live browser probe confirmed the fallback state:
+  - the panel is visible,
+  - the canvas is hidden,
+  - the shell marks `data-renderer-state="fallback"`,
+  - focus lands on the retry button,
+  - Escape and Tab stay inside the fallback dialog while page scroll is locked.
+- That closes the browser-3D gap the skill was pointing toward: policy fallback
+  exists, recovery exists, and a visible no-render fallback now exists too.
+- Evidence depth: Tier 4 live browser inspection plus Tier 2 helper coverage.
+
+## Addendum (2026-07-28) - the no-render fallback is keyboard-operable in the live browser
+
+A fresh live browser probe confirmed the accessibility contract too:
+
+- focus lands on `Try again`;
+- `Tab` and `Shift+Tab` stay pinned to the retry button;
+- `Escape` routes to the retry action;
+- page scroll remains locked while the fallback is visible.
+
+That means the browser 3D degraded-mode surface is now both present and usable
+as a modal dialog, not just visually exposed.
+
+## Addendum (2026-07-28) - the no-render fallback is named in the accessibility tree
+
+A Chrome accessibility-tree probe confirmed the live fallback dialog is exposed
+to assistive technology with the expected name:
+
+- `alertdialog` name: `The 3D scene is unavailable.`
+- retry button name: `Try again`
+
+That closes the last accessibility gap in the browser-3D fallback story: the
+surface is visible, modal, keyboard-operable, and properly named for screen
+readers.
+
+## Addendum (2026-07-28) - the fresh load still lacks a dedicated asset-loading affordance
+
+A fresh browser load of the developer surface shows the ready shell is readable
+and the no-render fallback stays hidden, but the loading contract is still not a
+first-class asset-loading affordance:
+
+- `#bootstrap-status` resolves to a ready-state status line,
+  `Field systems ready. Restored session controls are active.`
+- `#map-progress` shows world-survey progress (`0% surveyed`), not asset load
+  progress.
+- `#error-panel` remains hidden on the normal ready shell, as it should.
+
+So the browser-delivery story is now clearer on fallback and accessibility, but
+the next named seam is still a dedicated loading/retry contract for asset or
+scene ingestion rather than just a readiness label.
+
+## Addendum (2026-07-29) - the old asset-loading gap note is superseded by a semantic bootstrap progressbar
+
+A later live browser probe of the canonical shell changed the loading reading:
+
+- `#bootstrap-status` now exposes a semantic `progressbar` while measuring
+  device performance;
+- `#profile-status` remains visible and continues to narrate the active
+  quality state;
+- `#runtime-diagnostics` remains hidden from the public HUD.
+
+So the browser story is no longer missing a first-class loading affordance.
+The remaining question is whether the bootstrap/profile/ready sequence reads as
+one cohesive warmup narrative for players, not whether progress exists at all.
+
+## Addendum (2026-07-29) - the diagnostics split is route-based, not universal
+
+A fresh live route comparison on the shell makes the current split explicit:
+
+- the public shell hides `#runtime-diagnostics`;
+- the `?acceptance=field-02` route reveals `#runtime-diagnostics` with the
+  renderer/backend summary;
+- both routes keep `#bootstrap-status` semantic and `#profile-status`
+  player-visible.
+
+So the browser story is now better described as a public/acceptance split than
+as a single universal HUD layout. The loading question is cohesion, not the
+existence of progress semantics.
+
+## Addendum (2026-07-29) - the loading affordance is now semantic, and the visible split is clearer
+
+A fresh live browser probe on the canonical shell surface shows the loading
+contract has evolved beyond the older readiness-label note:
+
+- `#bootstrap-status` is the real loading affordance and now exposes a
+  `progressbar` while measuring device performance;
+- `#profile-status` is visible and continues to narrate the active quality
+  state;
+- `#runtime-diagnostics` remains hidden from the public HUD.
+
+So the live browser story is no longer "no loading affordance". The current
+question is whether the player-facing warmup narrative across bootstrap and
+profile is cohesive enough.
+
+## Addendum (2026-07-29) - diagnostics are route-gated, not globally absent
+
+A live route comparison on the shell shows the current browser policy clearly:
+
+- the public shell keeps `#runtime-diagnostics` hidden;
+- the `?acceptance=field-02` route reveals `#runtime-diagnostics` with the
+  renderer/backend summary;
+- `#bootstrap-status` stays semantic and `#profile-status` stays visible on
+  both routes.
+
+So the browser story is better described as a public/acceptance split than as a
+single universal HUD layout. The loading question is cohesion, not the
+existence of progress semantics.
+
+## Addendum (2026-07-29) - ADR-0039 is the load-bearing browser-policy decision
+
+The browser-policy split now has an explicit decision anchor:
+
+- ADR-0039 keeps the public shell calm with semantic bootstrap progress and
+  visible profile state;
+- ADR-0039 route-gates the renderer/backend summary to acceptance/developer
+  surfaces;
+- the live probes in this note are the evidence trail for that policy.
+
+So this analysis remains the browser evidence, while ADR-0039 captures the
+policy choice.

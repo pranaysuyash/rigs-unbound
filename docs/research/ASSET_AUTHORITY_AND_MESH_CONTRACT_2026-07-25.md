@@ -249,6 +249,8 @@ for all gameplay semantics currently held outside the mesh.
 - The concrete workflow for promoting the first runtime bridge candidate is
   now recorded in
   [Public Asset Promotion Workflow for First Runtime Bridge Candidate](./PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md).
+- The canonical navigation page for the full trail is
+  [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md).
 - That keeps the authority ladder readable:
   - this contract explains the mesh/blueprint boundary;
   - the new workflow explains how public approval is decided;

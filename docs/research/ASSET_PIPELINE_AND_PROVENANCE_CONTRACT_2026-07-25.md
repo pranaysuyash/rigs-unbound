@@ -111,6 +111,9 @@ The repo already knows asset provenance matters. This contract makes the deliver
 path explicit so runtime can consume validated manifests instead of raw source
 art, and so replacement never becomes ambiguous.
 
+The canonical navigation page for the full asset-public-gate trail is
+[Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md).
+
 ## Addendum (2026-07-28) - the 3D asset-production lens confirms the contract is a delivery gate, not an asset factory
 
 - Re-read the `3d-asset-production` skill to check whether the repo should

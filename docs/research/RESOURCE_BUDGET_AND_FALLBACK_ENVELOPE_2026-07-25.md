@@ -219,6 +219,19 @@ The engine can already tell us when it is getting expensive. This contract makes
 - The next durable step is still to name the fallback before the budget is
   exceeded, not after the player can feel the overload.
 
+## Addendum (2026-07-28) - the operator summary is now explicit in the developer lane
+
+- The developer surface now exposes a terse operator summary for the selected
+  runtime profile. The live browser probe confirms the warmup and steady forms,
+  and the fallback form is covered by the policy helper test:
+  - `Renderer visibility warmup: standard (insufficient-frame-samples)`
+  - `Renderer visibility fallback: mobile-safe (...)`
+  - `Renderer visibility steady: standard`
+- The public HUD stays separate and keeps the player-facing quality line in
+  plain language.
+- That means the fallback envelope now has both halves the contract asked for:
+  player-facing clarity and operator-facing summary text.
+
 ## Addendum (2026-07-26) - measurable budgets now outpace policy ownership
 
 - Re-checked the envelope against the current visibility and profile ladder.
@@ -415,6 +428,55 @@ explicit benchmark decision outside the adaptive fallback controller.
 - Evidence depth: Tier 1 source/test implementation. No renderer capture or
   focused test execution was run in this pass.
 
+## Addendum (2026-07-28) - live browser proof now shows the renderer policy gate in action
+
+- A developer-surface browser probe with `?rendererPolicy=off` now reports:
+  - `rendererBackend: webgl`
+  - `rendererRequestedBackend: auto`
+  - `rendererBackendFallback: true`
+  - `rendererBackendReason: rendererPolicy=off blocked auto webgpu`
+- The runtime diagnostics lane mirrors that state as `backend:webgl/auto (fallback)`.
+- This matters for the budget envelope because it proves the app already has a
+  policy-controlled backend fallback, even before we talk about broader
+  non-render resource governance.
+- A companion probe with `?rendererPolicy=stable` keeps the renderer on the
+  direct path instead of a forced fallback:
+  - `rendererBackendFallback: false`
+  - `rendererBackendReason: renderer=auto retained webgl for composer compatibility (stable)`
+  - runtime diagnostics: `backend:webgl/auto (direct)`
+- The still-open question is the one the browser 3D skill kept pointing toward:
+  how the app should communicate intentional degradation when WebGL/WebGPU
+  quality is reduced, and whether there should be a separate static fallback
+  when the renderer cannot carry the experience at all.
+- Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - context-loss recovery is user-visible, but only synthetic proof landed in this browser run
+
+- The shell wires `webglcontextlost` and `webglcontextrestored` handling on the
+  canvas.
+- A synthetic browser probe that dispatched those events directly produced:
+  - `Graphics context lost. Waiting for restore.`
+  - `Graphics context restored. Recovered on developer profile standard.`
+- That shows the recovery envelope is user-visible and stateful, but it does
+  **not** prove a real GPU loss/recovery event because this browser run did not
+  expose the `WEBGL_lose_context` extension.
+- For budget work, the important implication is that the current fallback
+  envelope is still renderer-scoped; there is still no separate non-render
+  outage surface.
+- Evidence depth: Tier 4 synthetic browser inspection plus Tier 1 source
+  inspection.
+
+## Addendum (2026-07-28) - the no-render outage surface is now visible and user-actionable
+
+- The formerly hidden boot error panel is now the canonical no-render fallback surface.
+- It is surfaced as an `alertdialog` with a title, description, and retry
+  action.
+- The acceptance/developer hook can reveal it, and the live browser proof shows
+  the shell enters `data-renderer-state="fallback"` while hiding the canvas.
+- This matters for the budget envelope because it turns the renderer-scoped
+  outage into a user-facing degraded mode rather than a dead-end error note.
+- Evidence depth: Tier 4 live browser inspection plus Tier 2 helper coverage.
+
 ## Addendum (2026-07-26) - episode grammar depends on this envelope to stay readable under pressure
 
 - The new [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
@@ -437,3 +499,32 @@ explicit benchmark decision outside the adaptive fallback controller.
   resource observability exists, and broader budget governance stays future
   work until a measured trigger proves one of these non-render domains needs its
   own degradation policy.
+
+## Addendum (2026-07-29) - renderer policy now reads as a route-gated summary, not a public-shell control
+
+A fresh route comparison on the live shell clarifies where the renderer policy
+is allowed to speak:
+
+- the public shell keeps `#runtime-diagnostics` hidden;
+- the `?acceptance=field-02` route exposes the renderer/backend summary;
+- `rendererPolicy=off` and `rendererPolicy=stable` change the acceptance
+  diagnostics text but leave the public bootstrap/profile contract intact.
+
+That means the fallback envelope now has a cleaner separation of concerns:
+public players get the loading/progress and quality state, while acceptance and
+developer routes carry the lower-level budget / backend reasoning.
+
+## Addendum (2026-07-29) - ADR-0039 explains the public HUD boundary this contract relies on
+
+The resource-budget contract now fits the same browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` and `#profile-status` readable to
+  the player;
+- acceptance/developer surfaces carry the deeper diagnostic summary;
+- the operator-facing budget/fallback reasoning does not need to become a
+  public HUD panel to remain observable.
+
+That keeps this envelope aligned with the rest of the browser contract trail:
+player trust stays in the public shell, while fallback diagnostics remain
+available in the reviewer/operator lane.

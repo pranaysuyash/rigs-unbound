@@ -6,7 +6,12 @@
  * is idempotent because the progression deed is the durable reward marker.
  */
 
-import type { ActiveMissionState, GameState, RigCapability } from "./contracts";
+import {
+  effectiveProfile,
+  type ActiveMissionState,
+  type GameState,
+  type RigCapability,
+} from "./contracts";
 import type { MissionProposition } from "./mission-propositions";
 import { applyMissionRewards } from "./mission-resolver";
 import type { RigId } from "./rig-ids";
@@ -35,18 +40,16 @@ function missingCapability(
   rigId: RigId,
   required: readonly RigCapability[],
 ): RigCapability | null {
-  const capabilities = state.rigs[rigId]?.modules.length
-    ? state.rigs[rigId]!.modules
-    : [];
-  const profileCapabilities = state.rigs[rigId]
-    ? (state.rigs[rigId]!.id === "marsh-skimmer"
-        ? ["tow", "survey", "hover"]
-        : state.rigs[rigId]!.id === "toy-buggy"
-          ? ["tow", "jump"]
-          : ["plough", "tow"]) as readonly RigCapability[]
-    : [];
-  void capabilities;
-  return required.find((capability) => !profileCapabilities.includes(capability)) ?? null;
+  const rig = state.rigs[rigId];
+  if (!rig) return required[0] ?? null;
+  const profileCapabilities = effectiveProfile(
+    rig.id,
+    rig.modules,
+  ).capabilities;
+  return (
+    required.find((capability) => !profileCapabilities.includes(capability)) ??
+    null
+  );
 }
 
 export function acceptMission(
@@ -64,7 +67,11 @@ export function acceptMission(
   if (hasCompletedDeed(state, mission.id)) {
     return { ok: false, state, reason: "mission-already-completed" };
   }
-  const missing = missingCapability(state, actorId, mission.requiredCapabilities);
+  const missing = missingCapability(
+    state,
+    actorId,
+    mission.requiredCapabilities,
+  );
   if (missing !== null) {
     return { ok: false, state, reason: "missing-capability" };
   }
@@ -130,4 +137,17 @@ export function completeMission(
   state.activeMission = null;
   state.lastDiagnostic = `Mission complete: ${missionId}. +${rewardResult.reward.salvage} salvage.`;
   return { ok: true, state, diagnostic: state.lastDiagnostic };
+}
+
+export function failMission(
+  state: GameState,
+  missionId: string,
+  diagnostic: string,
+): MissionTransitionResult {
+  if (!state.activeMission || state.activeMission.id !== missionId) {
+    return { ok: false, state, reason: "mission-not-active" };
+  }
+  state.activeMission = null;
+  state.lastDiagnostic = diagnostic;
+  return { ok: true, state, diagnostic };
 }

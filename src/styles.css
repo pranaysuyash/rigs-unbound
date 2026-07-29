@@ -1105,7 +1105,11 @@ kbd {
   gap: 0.4rem;
 }
 
-.masthead__buttons button {
+.masthead__buttons button,
+.masthead__buttons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.3rem 0.6rem;
   font-size: 0.62rem;
   letter-spacing: 0.08em;
@@ -1113,9 +1117,11 @@ kbd {
   color: var(--workshop-bone);
   background: var(--panel-soft);
   border: 1px solid var(--hairline);
+  text-decoration: none;
 }
 
-.masthead__buttons button:hover {
+.masthead__buttons button:hover,
+.masthead__buttons a:hover {
   border-color: var(--harvest-gold);
 }
 

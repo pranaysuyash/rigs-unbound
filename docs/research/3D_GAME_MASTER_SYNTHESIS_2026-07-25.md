@@ -140,3 +140,17 @@ The long-term first-principles exploration note at
 is the broader horizon for this synthesis. This document still owns the
 research map and durable decision frame; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public shell concise while diagnostics stay in the review lane
+
+This synthesis now sits alongside the browser-policy split named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split,
+  so the public shell remains the player’s concise story while operators keep
+  a fuller evidence lane.
+
+That keeps the synthesis aligned with the long-term architecture frame: one
+player-facing shell, one reviewer-facing diagnostics trail, and no parallel
+truth source.

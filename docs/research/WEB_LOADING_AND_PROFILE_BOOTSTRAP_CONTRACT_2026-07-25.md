@@ -218,6 +218,78 @@ internal tuning language while operators retain an audit trail.
 
 ## Anything else? (hysteresis)
 
+## Addendum (2026-07-29) - the shell is truthful, but the player still lacks a clearly named progress affordance
+
+- Re-checked the loading/profile bootstrap contract against the current live-shell analysis trail.
+- The shell already does the important truth-preserving work:
+  - it is not a dead black box,
+  - it exposes bootstrap text,
+  - it exposes save state,
+  - it exposes the active quality/profile line in the public shell.
+- The remaining browser-delivery gap is narrower than a general loading problem:
+  - the player still does not get a clearly named progress affordance that is distinct from ordinary status text,
+  - the profile signal is still more readable in the operator/evidence trail than in a dedicated public comfort indicator.
+- The next proof slice should therefore be one of two things, not both:
+  - a visibly named progress affordance that is honest about warmup state, or
+  - a clearly named public comfort/profile indicator that survives the player surface.
+- Evidence depth: Tier 1 static synthesis from the current loading contract and accessibility/profile visibility notes. No new runtime/browser pass was run in this update.
+
+## Addendum (2026-07-28) - live shell still prefers textual bootstrap over a visible loading meter
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The live page now exposes a concrete textual bootstrap surface:
+  - `#bootstrap-status` reads `Field systems ready. Restored session controls are active.`
+  - `#save-status` remains a live `status` region with `Saved locally just now`
+  - `#profile-status` remains a live `status` region with `Quality: standard.`
+- The shell `aria-busy` flag is false after load, which is correct for the
+  playable ready state.
+- What is still missing is the separately named loading-progress affordance
+  this contract calls for:
+  - no dedicated progress bar,
+  - no percentage meter,
+  - no visible warmup progress state distinct from the ready shell.
+- So the contract is now in a sharper state:
+  - bootstrap is real and readable,
+  - profile and save state are visible,
+  - explicit loading progress remains implicit rather than first-class.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - live browser probe shows a measured bootstrap state, not a blank loader
+
+- Re-checked the live public shell with the browser-focused probe at
+  `http://localhost:4173/?acceptance=field-02` in a 390 x 844 viewport.
+- The page now exposes a more specific bootstrap narrative than the older
+  addendum recorded:
+  - `#bootstrap-status` reads `Measuring device performance… Choose Enter the field to begin.`
+  - `#profile-status` reads `Quality: measuring. Still measuring frame performance.`
+  - `#save-status` reads `New field ready · progress saves locally`
+- The page is not advertising a dedicated progress bar or progress element
+  yet:
+  - `progress` / `role="progressbar"` elements were absent in the probe,
+  - `aria-busy` was `null`,
+  - the visible state is textual rather than percentage-based.
+- That means the browser is now clearly alive and narrating its warmup, but
+  the loading contract is still textual rather than a first-class progress
+  affordance.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - the visible profile line is present, so the contract gap is strictly loading-progress explicitness
+
+- Re-checked the live field against the current shell after the accessibility
+  pass.
+- The player can already read the quality/profile line in-session:
+  - `Quality: standard.`
+  - `Saved locally just now`
+  - `Field systems ready. Restored session controls are active.`
+- The loading contract is therefore not missing a profile/status signal anymore.
+  The remaining gap is a named loading-progress affordance that is separate
+  from the ready-state shell.
+- This is a narrower and better-defined policy question than the earlier note:
+  preserve the current truthful bootstrap text, but decide whether the public
+  surface also needs a real progress meter or a separate warmup state before
+  broader public delivery.
+- Evidence depth: Tier 4 runtime/manual observation.
+
 The controller is intentionally scoped to existing visibility work. It does not
 invent adaptive physics, AI, audio, or save-rate changes from render pressure.
 
@@ -274,14 +346,29 @@ invent adaptive physics, AI, audio, or save-rate changes from render pressure.
   - `mapProgress` reports survey progress and sight range.
 - The remaining browser-facing gap is still the same first-class affordance
   problem:
-  - `mapProgress` is not startup loading progress,
-  - the public surface still has no dedicated loading percentage or bar,
-  - there is still no visible profile chooser for the player.
+- `mapProgress` is not startup loading progress,
+- the public surface still has no dedicated loading percentage or bar,
+- there is still no visible profile chooser for the player.
 - So the 3D web-experience lane now has a sharper conclusion:
   the app is trustworthy during boot, but the browser story remains shell-led
   rather than progress-led.
 - Evidence depth: Tier 1 static source inspection on the current browser entry
   and stylesheet.
+
+## Addendum (2026-07-29) - the browser story is now progress-led on bootstrap, but the loading narrative is still split
+
+A live browser probe of the current shell changed the earlier loading
+description in an important way:
+
+- `#bootstrap-status` now exposes a semantic `progressbar` while the shell is
+  measuring device performance;
+- `#profile-status` is visibly present and continues to narrate the active
+  quality state;
+- `#runtime-diagnostics` is hidden from the public HUD.
+
+So the shell no longer lacks a first-class loading affordance. The remaining
+question is whether the bootstrap, profile, and ready states read as one
+cohesive narrative for players, rather than three separate surfaces.
 
 ## Addendum (2026-07-26) - episode grammar depends on truthful bootstrap, not a fake start state
 
@@ -295,3 +382,55 @@ invent adaptive physics, AI, audio, or save-rate changes from render pressure.
   shell becomes ready.
 - Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static code
   inspection.
+
+## Addendum (2026-07-29) - the old shell-led loading note is superseded by a semantic progressbar
+
+A current live probe of the browser shell shows the loading contract has moved
+past the older shell-led framing:
+
+- `#bootstrap-status` exposes a semantic `progressbar` while measuring;
+- `#profile-status` remains visible with the quality state;
+- `#runtime-diagnostics` is hidden from the public HUD.
+
+The remaining question is now cohesion and phrasing across bootstrap/profile,
+not whether the browser has a first-class loading affordance at all.
+
+## Addendum (2026-07-29) - the loading contract is now split by route, not by capability
+
+A current route comparison on the live shell clarifies the real policy:
+
+- the public shell hides `#runtime-diagnostics`;
+- the `?acceptance=field-02` route exposes `#runtime-diagnostics` with the
+  renderer/backend summary;
+- both routes keep `#bootstrap-status` as the semantic status line and
+  `#profile-status` as the visible quality line.
+
+That means the loading/policy question is not whether diagnostics exist. They
+do. The question is whether the bootstrap/profile narrative is coherent enough
+on the public shell while the deeper summary remains acceptance-only.
+
+## Addendum (2026-07-29) - ADR-0039 is the policy anchor for the current route split
+
+The live bootstrap/profile/diagnostics split now has an explicit decision home:
+
+- ADR-0039 keeps `#bootstrap-status` public and semantic;
+- ADR-0039 keeps `#profile-status` public and visible;
+- ADR-0039 route-gates `#runtime-diagnostics` to acceptance/developer surfaces.
+
+That makes this bootstrap contract the evidence trail, while ADR-0039 is the
+policy trail.
+
+## Addendum (2026-07-29) - the live shell is readable, but it is still status-only rather than a true progressbar
+
+A fresh browser check on `http://127.0.0.1:4173/?surface=developer` showed:
+
+- `#bootstrap-status`: `Field systems ready with standard scenery detail.`
+- `#profile-status`: `Quality: measuring. Still measuring frame performance.`
+- `#save-status`: `New field ready · progress saves locally`
+- `#bootstrap-status` has `role="status"` and `aria-live="polite"`
+- no `progress` element exists in the live DOM
+- no `[role=progressbar]` element exists in the live DOM
+
+That means the current shell is truthful and readable, but the progress story
+is still text/status-based rather than a dedicated progress affordance.
+Evidence depth: Tier 4 runtime/manual observation.

@@ -22,6 +22,11 @@ evidence registers that keep the analysis grounded.
 - [3D Game Optimization Gaps - Second Pass](3D_GAME_OPTIMIZATION_GAPS_SECOND_PASS_2026-07-25.md)
 - [3D Game Optimization and More - Execution Roadmap](3D_GAME_OPTIMIZATION_AND_MORE_EXECUTION_ROADMAP_2026-07-25.md)
 - [3D Game Skill-to-Repository Execution Ledger](3D_GAME_SKILL_TO_REPO_EXECUTION_LEDGER_2026-07-26.md)
+- [3D Web Platform Accessibility and Deliverability Audit](3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md)
+- [Accessibility and Profile Visibility Live Repo Analysis](ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md)
+- [Accessibility Statement and Public Promise Contract](ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md)
+- [Shell Accessibility Evidence](SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md)
+- [Asset Pipeline and Provenance Contract](ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
 - [Additional ChatGPT Research Ingestion](ADDITIONAL_CHATGPT_RESEARCH_INGESTION_2026-07-25.md)
 
 ## Suggested order
@@ -39,6 +44,12 @@ evidence registers that keep the analysis grounded.
 - [Asset Provenance Register](ASSET_PROVENANCE_REGISTER.md)
 - [Asset Pipeline and Provenance Contract](ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
 - [Asset Authority and Shipped Mesh Contract](ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md)
+- [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Runtime Reachability Dispositions](../exploration/RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md)
+- [Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
+- [Browser Loading Progress Issue Review](../reviews/BROWSER_LOADING_PROGRESS_ISSUE_REVIEW_2026-07-28.md)
+- [Browser Policy Surface Split](BROWSER_POLICY_SURFACE_SPLIT_2026-07-29.md)
+- [Browser Runtime Parallel-State Integration Blocker](../reviews/BROWSER_RUNTIME_PARALLEL_STATE_INTEGRATION_BLOCKER_2026-07-26.md)
 - [Web Asset Ingest and Compression Contract](WEB_ASSET_INGEST_AND_COMPRESSION_CONTRACT_2026-07-25.md)
 - [WebGPU Readiness and Web Performance Analysis](WEBGPU_AND_WEB_PERFORMANCE_ANALYSIS_2026-07-25.md)
 - [3D Web Platform Accessibility and Deliverability Audit](3D_WEB_PLATFORM_ACCESSIBILITY_AND_DELIVERABILITY_AUDIT_2026-07-25.md)
@@ -66,10 +77,12 @@ evidence registers that keep the analysis grounded.
 
 - [Visibility Stage and LOD Contract](VISIBILITY_STAGE_AND_LOD_CONTRACT_2026-07-25.md)
 - [Collision Category and Mask Contract](COLLISION_CATEGORY_AND_MASK_CONTRACT_2026-07-25.md)
+- [Dynamic World Collision Exploration](DYNAMIC_WORLD_COLLISION_EXPLORATION_2026-07-28.md)
 - [Camera Feel Contract](CAMERA_FEEL_CONTRACT_2026-07-25.md)
 - [Shader and Material Strategy Contract](SHADER_AND_MATERIAL_STRATEGY_CONTRACT_2026-07-25.md)
 - [Lighting and Atmosphere Strategy Contract](LIGHTING_AND_ATMOSPHERE_STRATEGY_CONTRACT_2026-07-25.md)
 - [Renderer, Performance, and Accessibility Contract for First Public Smoke Test](RENDERER_PERFORMANCE_AND_ACCESSIBILITY_CONTRACT_2026-07-25.md)
+- [3D Game Skill App Analysis and Current Surface Gaps](3D_GAME_SKILL_APP_ANALYSIS_2026-07-28.md)
 
 ## Evidence, metrics, and thresholds
 
@@ -87,6 +100,8 @@ evidence registers that keep the analysis grounded.
 
 - [Accessibility Runtime Findings](ACCESSIBILITY_RUNTIME_FINDINGS_2026-07-25.md)
 - [Render Accessibility Checklist](RENDER_ACCESSIBILITY_CHECKLIST_2026-07-25.md)
+- [Accessibility Statement and Public Promise Contract](ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md)
+- [Browser Policy Surface Split](BROWSER_POLICY_SURFACE_SPLIT_2026-07-29.md)
 - [Browser Vehicle Physics Technique Catalog](BROWSER_VEHICLE_PHYSICS_TECHNIQUE_CATALOG_2026-07-25.md)
 - [Game Reference Atlas](GAME_REFERENCE_ATLAS_2026-07-25.md)
 - [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)

@@ -15,7 +15,6 @@
 
 import {
   DEFAULT_TIRE_PRESSURE_PSI,
-  effectiveProfile,
   MAX_TIRE_PRESSURE_PSI,
   MIN_TIRE_PRESSURE_PSI,
   type GameState,
@@ -44,7 +43,6 @@ export function deriveRigToolProjections(
   state: GameState,
 ): readonly RigToolProjection[] {
   const rig = state.rigs[state.activeRigId];
-  const profile = effectiveProfile(rig.id, rig.modules);
   const tools = rig.tools;
 
   // Hover rigs have no tyres and no axle. Presenting these entries greyed out
@@ -94,18 +92,6 @@ export function deriveRigToolProjections(
       command: { type: "cycle-differential" },
     });
   }
-
-  // The winch is a fitted module, so its absence is a real, explainable block
-  // rather than a hidden entry — the player should learn the part exists.
-  const hasWinch = profile.capabilities.includes("winch");
-  projections.push({
-    id: "winch",
-    label: "Winch",
-    detail: "Pull the rig, or another rig, out of trouble.",
-    status: hasWinch ? "available" : "blocked",
-    blockedReason: hasWinch ? null : "No winch fitted.",
-    command: null,
-  });
 
   return projections;
 }

@@ -207,3 +207,44 @@ and exited without ambiguity.
 - So the runtime currently provides a passive announcement hint, not the live
   row-and-announcement surface.
 - Evidence depth: Tier 4 live browser inspection plus Tier 1 source inspection.
+
+## Addendum (2026-07-28): the runtime has survey status plus hidden controls, but still no visible row set
+
+- A later browser probe found the latent controls `#mission-board-button`,
+  `#mission-board-close`, and `#mission-briefing-accept` in the DOM.
+- Those controls were not visible in the ready shell, so the row-and-announcement
+  surface remains inaccessible to the player even though the plumbing exists.
+- The most precise current reading is:
+  - survey contract = passive status hint,
+  - hidden controls = latent acceptance plumbing,
+  - row contract = still not mounted as a player-visible, keyboard-safe set.
+- That keeps the row contract honest about its current shape and avoids
+  overstating the current runtime as a finished board.
+
+## Addendum (2026-07-28): the row set is visible on desktop, not on the compact shell
+
+- A desktop probe opened the board and confirmed the row set is already
+  mounted in the runtime.
+- The visible board includes a selectable row list plus briefing content, which
+  means the row model is not purely speculative anymore.
+- The compact/mobile shell still hides the trigger cluster, so the row
+  contract remains a desktop-visible player surface rather than a universally
+  discoverable one.
+- The most useful current distinction is:
+  - row model = present and mounted on desktop,
+  - row model = hidden behind viewport policy on the compact shell,
+  - announcement contract = still needed to make the row selection legible.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the row contract on the public-shell side of the split
+
+This row-and-announcement contract now sits alongside the browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split,
+  so row announcements do not need to turn the public HUD into an operator
+  console.
+
+That keeps row selection, announcement, and focus handling centered on the
+player-facing shell.

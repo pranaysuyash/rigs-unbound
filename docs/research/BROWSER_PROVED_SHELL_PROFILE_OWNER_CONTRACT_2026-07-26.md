@@ -136,3 +136,15 @@ Yes: this contract is the bridge between the state-shell visual-language work an
   preserving the separate operator/evidence lane.
 - Evidence depth: Tier 4 live browser observation plus Tier 1 static contract
   inspection.
+
+## Addendum (2026-07-29) - ADR-0039 is the policy name for this ownership split
+
+The browser-proved profile owner now maps cleanly onto ADR-0039:
+
+- `#bootstrap-status` stays semantic and player-facing;
+- `#profile-status` remains the public profile owner;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split.
+
+That keeps this contract focused on ownership and presentation: one public
+owner for the player-facing profile, one separate diagnostics lane for deeper
+reasoning.

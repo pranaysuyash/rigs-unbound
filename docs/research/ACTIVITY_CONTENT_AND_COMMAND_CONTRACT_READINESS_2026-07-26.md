@@ -306,3 +306,43 @@ and authored landmarks deliberately specific.
 - The generic `ActivityDefinition` registry should still wait until that second
   activity exists and can prove the same command/result pattern.
 - Evidence depth: Tier 1 static source inspection.
+
+## Addendum (2026-07-28) - the game-design lens keeps tow-plus-repair as the right next player loop
+
+- Re-read the `game-design` skill against the activity/command readiness note.
+- The useful design takeaway is not to expand the system first. It is to make
+  the next playable loop clear enough that the three-activity boundary earns
+  itself.
+- Tow-plus-repair remains the strongest next candidate because it gives the
+  player a clear 30-second design loop:
+  action -> feedback -> recovery -> repeat.
+- That loop is different enough from cargo relay to prove a third activity
+  without demanding a generic plugin layer prematurely:
+  - different objective shape,
+  - different failure mode,
+  - different recovery story,
+  - same command/result seam.
+- The refactor boundary therefore stays the same: do not generalize the activity
+  registry until tow-plus-repair or another third activity proves the same
+  command and validation pattern in real play.
+- Evidence depth: Tier 1 static design synthesis from the existing contract
+  notes. No runtime or test command was run in this addendum.
+
+## Addendum (2026-07-29) - tow-plus-repair remains the next coherent proof slice
+
+- Re-read the `game-design` skill and the current loop/progression contract
+  after the earlier addenda.
+- The design answer is unchanged: the next useful proof is still a tow-plus-
+  repair rescue flow, because it exercises the same command/result seam while
+  giving the player a distinct objective shape, failure mode, and recovery
+  story.
+- That makes it a better next slice than a generic activity registry or a
+  broader planner:
+  - the player can feel the 30-second loop,
+  - the command/validation seam is reused,
+  - the three-activity boundary earns itself instead of being assumed.
+- The mission acceptance surface remains the player-facing choice layer, but it
+  should still feed a single activity contract path rather than becoming a
+  second authority.
+- Evidence depth: Tier 1 static synthesis from the current design and activity
+  contracts.

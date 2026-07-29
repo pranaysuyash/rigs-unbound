@@ -19,7 +19,11 @@
  * record.
  */
 
-import { ObstacleField } from "./collision";
+import {
+  ObstacleField,
+  type PlanarPoint,
+  type WorldCollisionContact,
+} from "./collision";
 import {
   ExplorationField,
   MAX_SURVEYED_CELLS,
@@ -51,6 +55,17 @@ export interface WorldMemoryRecord {
   surveyed: number[];
 }
 
+export interface CollisionTelemetrySnapshot {
+  totalContacts: number;
+  policyViolationCount: number;
+  /** Fixed steps since these contacts occurred; zero means this step. */
+  contactAgeSteps: number | null;
+  contacts: readonly WorldCollisionContact[];
+}
+
+const COLLISION_CONTACT_RETENTION_STEPS = 12;
+const MAX_RECENT_COLLISION_PAIRS = 16;
+
 function trimSet<T>(target: Set<T>, limit: number): void {
   while (target.size > limit) {
     const oldest = target.keys().next();
@@ -67,6 +82,11 @@ export class GameWorld {
   readonly felledObstacles = new Set<string>();
   readonly collectedNodes = new Set<string>();
   readonly surveyedCells = new Set<number>();
+  private totalCollisionContacts = 0;
+  private collisionPolicyViolationCount = 0;
+  private currentCollisionContacts: WorldCollisionContact[] = [];
+  private recentCollisionContacts: WorldCollisionContact[] = [];
+  private recentCollisionContactAgeSteps: number | null = null;
   /**
    * Runtime-only observation cadence.
    *
@@ -175,8 +195,71 @@ export class GameWorld {
   structureCollision(
     rig: StructureCollisionBody,
     rigRadius: number,
+    previous?: PlanarPoint,
   ): StructureCollisionOutcome {
-    return resolveRigStructureCollision(this, rig, rigRadius);
+    return resolveRigStructureCollision(this, rig, rigRadius, previous);
+  }
+
+  beginCollisionStep(): void {
+    this.currentCollisionContacts = [];
+    if (this.recentCollisionContactAgeSteps !== null) {
+      this.recentCollisionContactAgeSteps += 1;
+      if (
+        this.recentCollisionContactAgeSteps > COLLISION_CONTACT_RETENTION_STEPS
+      ) {
+        this.recentCollisionContacts = [];
+        this.recentCollisionContactAgeSteps = null;
+      }
+    }
+  }
+
+  noteCollisionContacts(
+    contacts: readonly WorldCollisionContact[],
+    policyViolationCount = 0,
+  ): void {
+    if (contacts.length > 0) {
+      this.currentCollisionContacts.push(...contacts);
+      for (const contact of contacts) {
+        const existingIndex = this.recentCollisionContacts.findIndex(
+          (recent) =>
+            recent.firstId === contact.firstId &&
+            recent.secondId === contact.secondId &&
+            recent.firstRole === contact.firstRole &&
+            recent.secondRole === contact.secondRole,
+        );
+        if (existingIndex < 0) {
+          this.recentCollisionContacts.push({ ...contact });
+        } else if (
+          contact.impactSpeed >=
+          this.recentCollisionContacts[existingIndex]!.impactSpeed
+        ) {
+          this.recentCollisionContacts[existingIndex] = { ...contact };
+        }
+      }
+      if (this.recentCollisionContacts.length > MAX_RECENT_COLLISION_PAIRS) {
+        this.recentCollisionContacts.splice(
+          0,
+          this.recentCollisionContacts.length - MAX_RECENT_COLLISION_PAIRS,
+        );
+      }
+      this.recentCollisionContactAgeSteps = 0;
+      this.totalCollisionContacts += contacts.length;
+    }
+    this.collisionPolicyViolationCount += Math.max(
+      0,
+      Math.trunc(policyViolationCount),
+    );
+  }
+
+  collisionTelemetry(): CollisionTelemetrySnapshot {
+    return {
+      totalContacts: this.totalCollisionContacts,
+      policyViolationCount: this.collisionPolicyViolationCount,
+      contactAgeSteps: this.recentCollisionContactAgeSteps,
+      contacts: this.recentCollisionContacts.map((contact) => ({
+        ...contact,
+      })),
+    };
   }
 
   reset(): void {
@@ -186,6 +269,11 @@ export class GameWorld {
     this.surveyedCells.clear();
     this.visibleSignals.clear();
     this.surveyOrigins.clear();
+    this.totalCollisionContacts = 0;
+    this.collisionPolicyViolationCount = 0;
+    this.currentCollisionContacts = [];
+    this.recentCollisionContacts = [];
+    this.recentCollisionContactAgeSteps = null;
   }
 
   snapshot(): WorldMemoryRecord {

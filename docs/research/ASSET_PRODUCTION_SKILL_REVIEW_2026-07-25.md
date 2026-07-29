@@ -141,6 +141,26 @@ remains the behavioral source of truth.
 - Existing project provenance register: [`ASSET_PROVENANCE_REGISTER.md`](ASSET_PROVENANCE_REGISTER.md)
 - Existing project asset exploration: [`EXPLORATION_MAP.md`](../exploration/EXPLORATION_MAP.md)
 
+## Addendum (2026-07-28) - the asset-production lens now maps cleanly onto the runtime bridge and approval boundary
+
+- Re-read the `3d-asset-production` skill with the current asset trail in view.
+- The repo already has the delivery contract the skill asks for:
+  - a canonical manifest and preflight path,
+  - source/provenance tracking,
+  - runtime bridge candidates that can be observed in-browser,
+  - a public-approval gate that stays separate from runtime-test success.
+- The important long-term conclusion is unchanged, but now sharper:
+  asset production does not currently need more concept art or broader scene
+  work. It needs a clean promotion path from reviewed source artifact to
+  normalized export, browser activation, and operator-approved public
+  distribution.
+- The current first public candidate remains the breakable crate; the tractor
+  preview remains developer-only bridge proof until the operator chooses to
+  promote a different asset.
+- Evidence depth for this addendum is Tier 1 static review of the canonical
+  asset notes, with Tier 4 runtime/browser bridge evidence already captured in
+  the existing addenda above.
+
 ## Addendum (2026-07-25) - current Slice A boundary and manifest posture
 
 - Re-checked the current browser daemon and repo state while continuing the

@@ -4,6 +4,11 @@
 - Status: proposed; operator approval required
 - Evidence tier: Tier 1 static synthesis plus Tier 4 live developer-surface bridge proof
 - Related workflow: [Public Asset Promotion Workflow for First Runtime Bridge Candidate](../research/PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md)
+- Related package index: [Public Asset Promotion Package Index](PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- Related checklist: [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
+- Related approval template: [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
+- Related player-gate note: [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
+- Related ADR: [ADR-0038: Public asset promotion boundary separates runtime-tested bridges from public approval](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md)
 - Related analysis:
   - [Asset Pipeline Live Repo Analysis](../research/ASSET_PIPELINE_LIVE_REPO_ANALYSIS_2026-07-26.md)
   - [Asset Authority and Shipped Mesh Contract](../research/ASSET_AUTHORITY_AND_MESH_CONTRACT_2026-07-25.md)
@@ -74,6 +79,15 @@ Promote `kenney-car-kit-breakable-crate-fixture` first, not the tractor preview.
 That keeps the approval workflow low-risk and preserves the tractor preview as a
 useful developer-scale proof.
 
+The durable boundary for that recommendation is recorded in ADR-0038:
+runtime-tested bridge proof stays separate from `publicRuntimeApproved`.
+
+The operator-facing checklist gives the actual step-by-step review path for the
+crate candidate.
+
+The player-gate evidence note is the short summary of why the player output is
+still closed even though the developer bridge is live.
+
 ## Approval boundary
 
 Approval is incomplete unless all of the following are true:
@@ -96,3 +110,12 @@ Approval is incomplete unless all of the following are true:
 Yes: the repo should keep treating public approval as boring, explicit, and
 separate from import success. That is what keeps the asset boundary honest.
 
+## Addendum (2026-07-29) - the field map makes the approval worksheet operational
+
+The approval template now has a companion worksheet: [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md). That field map answers a different question from the template itself:
+
+- the template is where the decision gets recorded;
+- the field map is where each blank gets tied back to its source evidence;
+- neither one becomes approval without operator sign-off.
+
+That makes the trail easier to use without changing the fact that the crate has not been approved yet.

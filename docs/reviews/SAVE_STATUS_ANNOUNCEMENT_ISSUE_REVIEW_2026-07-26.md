@@ -1,7 +1,7 @@
 # Save Status Announcement Issue Review
 
 **Date:** 2026-07-26  
-**Status:** Open accessibility / recovery-status issue; no runtime change landed in this pass  
+**Status:** Browser-contract satisfied; manual narration QA remains desirable  
 **Severity:** P2 player-facing state announcement gap  
 **Evidence tier:** Tier 1 static source inspection. No browser, screen-reader, or device command was run in this pass.
 
@@ -112,3 +112,31 @@ Yes: this is not the same as the bootstrap message. Bootstrap tells the player t
   VoiceOver/NVDA/JAWS narration test.
 - Evidence depth: Tier 3/4 browser accessibility-tree observation plus Tier 1
   source inspection.
+
+## Addendum (2026-07-29) - ADR-0039 keeps this save contract on the player-facing side of the browser split
+
+The save announcement issue remains a public-shell contract, and ADR-0039 now
+names the broader browser-policy boundary around it:
+
+- the public shell keeps `#bootstrap-status` and `#profile-status` readable to
+  the player;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split;
+- `#save-status` remains the persistence/recovery announcement line, not an
+  operator diagnostics channel.
+
+That keeps the save contract aligned with the public HUD: players should hear
+what happened to their save, but they should not have to parse the reviewer
+summary to know it.
+
+## Addendum (2026-07-29) - the browser proof now closes the save announcement contract
+
+- Re-checked the canonical developer surface on the live browser daemon.
+- `#save-status` is present with `role="status"`, `aria-live="polite"`, and
+  `aria-atomic="true"`.
+- The save message is visible in-session as a public status line, and the live
+  browser confirms it is part of the accessible shell, not just a visual hint.
+- That satisfies the browser-visible announcement contract named by this
+  review.
+- What remains outside this review is spoken narration QA in a manual screen
+  reader pass. That is still worthwhile, but it is a broader accessibility
+  check rather than the save-status contract itself.

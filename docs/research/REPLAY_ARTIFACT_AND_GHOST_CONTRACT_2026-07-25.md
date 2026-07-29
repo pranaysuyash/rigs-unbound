@@ -434,3 +434,41 @@ saved artifact import, cross-version replay, or ghost sharing was executed.
   and [ADR-0032](../decisions/ADR-0032-episode-runner-composes-bounded-episodes-above-the-contract-ledger.md),
   while the replay layer remains the audit and ghost substrate for what
   actually happened.
+
+## Addendum (2026-07-29) - the next replay proof is a portable artifact, not a richer validator
+
+- Re-read the replay contract against the current run-record and command/event
+  envelope notes.
+- The browser-visible validator is already useful proof, but the next durable
+  step is still a portable replay artifact that can travel outside the local
+  session:
+  - a retained input slice or exportable record,
+  - a stable compatibility classification,
+  - and a visible divergence or unsupported reason when the artifact cannot be
+    replayed safely.
+- That keeps replay on the product side of the line without pretending it is
+  already a ghost/share network feature.
+- The contract therefore still treats playback transport and ghost sharing as
+  future work, but it now sharpens the next proof slice: one exportable replay
+  artifact with a human-readable failure story.
+- Evidence depth: Tier 1 static synthesis from the replay, run-record, and
+  command-envelope notes. No new browser or playback execution was run in this
+  pass.
+
+## Addendum (2026-07-29) - live browser status confirms the developer surface, while JS exec remains the weak witness
+
+- Re-checked the live browser daemon after the replay contract update.
+- The daemon status reports `http://127.0.0.1:4173/?surface=developer` with the
+  `Rigs Unbound` title, which confirms the browser is still on the live
+  developer surface.
+- The console buffer is currently dominated by repeated Vite `connecting` /
+  `connected` messages and does not show app errors in the captured slice.
+- The `browser-client.js exec` path is currently the weak witness in this
+  snapshot: it returned an `about:blank` evaluation result even after a
+  successful navigation command. The browser itself is live, but DOM probing
+  through that IPC path is not trustworthy enough for current analysis.
+- That means the replay/shared-authority lane remains valid, but the next live
+  DOM-level proof should use a more reliable browser probe path before we claim
+  anything about rendered replay or ghost controls.
+- Evidence depth: Tier 4 for daemon status and console inspection, Tier 1 for
+  the client/daemon path inspection.

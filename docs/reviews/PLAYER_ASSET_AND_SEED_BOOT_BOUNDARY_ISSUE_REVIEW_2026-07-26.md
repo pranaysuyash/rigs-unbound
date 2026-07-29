@@ -2,6 +2,8 @@
 
 Date: 2026-07-26
 
+- Related package index: [Public Asset Promotion Package Index](PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+
 ## Scope
 
 This review closes two release blockers found during the first playable
@@ -102,3 +104,37 @@ the manifest preflight remains the admission point for that future extension.
   player-only release gate.
 - Evidence depth: Tier 4 live browser inspection plus the existing build/test
   proof from this review.
+
+## Addendum (2026-07-28) - runtime observability is not the same as player distribution
+
+- Re-checked the current browser runtime snapshot and the asset-manifest gate.
+- The runtime text can report bridge state for observability, but that does not
+  mean the player distribution boundary has moved:
+  - `runtime-tested` bridge assets are still separate from
+    `publicRuntimeApproved`;
+  - the build gate still rejects unapproved runtime files from player output;
+  - the approved public set remains empty until operator sign-off is recorded.
+- That distinction matters because the same runtime surface can be useful for
+  developer proof while the player distribution path still stays closed.
+- The durable policy boundary is now explicitly recorded in
+  [ADR-0038](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md).
+- Evidence depth: Tier 1 policy/readout synthesis plus Tier 4 runtime browser
+  observation already captured in the bridge notes.
+
+## Addendum (2026-07-28) - the developer bridge remains proof; the player gate still excludes unapproved assets
+
+- Re-checked the live developer bridge notes alongside the existing
+  player-asset build gate evidence.
+- The runtime bridge proof is visible in the developer browser surface, but the
+  player distribution path still excludes unapproved assets because
+  `publicRuntimeApproved` remains false.
+- The player gate is therefore still doing its job:
+  - proof can be visible to operators;
+  - unapproved runtime assets do not become player truth;
+  - the crate stays the first public candidate, and the tractor preview stays
+    developer-only proof.
+- This is the correct long-term separation for the repo because it lets the
+  runtime be observable without turning every visible bridge into a public
+  promise.
+- Evidence depth: Tier 1 review synthesis plus Tier 4 developer-surface bridge
+  proof and the existing player-build gate evidence in this review.

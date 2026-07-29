@@ -14,6 +14,8 @@ The runtime-reachability audit now gives the repo a measured orphan set:
 This review turns that measured set into an ownership classification so we do
 not accidentally treat parallel-owned or future-bound work as junk.
 
+See also: [Runtime Reachability Dispositions](../exploration/RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md) for the short budgeted archive/defer note that mirrors this matrix in the exploration lane.
+
 The audit is static. It proves absence of a path from current entry points. It
 does **not** prove a module is unused, dead, wrong, or safe to delete.
 

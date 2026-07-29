@@ -157,3 +157,57 @@ The long-term first-principles exploration note at
 is the broader horizon for this audit. This document still owns the browser
 delivery, accessibility, and deliverability frame; the new note carries the
 wider machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-28) - current browser-delivery lens after the 3D-games pass
+
+- Re-read the current repo against the browser-delivery lane after the 3D-games
+  skill pass.
+- The live browser shape is still intentionally canvas-first and operator-visible
+  rather than decorative:
+  - `#game-canvas` and `#map-canvas` remain the central surfaces,
+  - camera selection remains a named user action,
+  - performance snapshots and renderer text hooks remain available,
+  - the browser-facing docs still treat reduced-motion and profile choice as
+    first-class policy concerns.
+- The durable gap is not whether the app can show 3D. It is whether the public
+  browser experience can be packaged as a trustworthy, restartable, profile-
+  aware surface with explicit loading, fallback, and capture evidence.
+- The next proof bundle should bind:
+  - visible loading or a truthful indeterminate state,
+  - profile switching from `full -> standard -> mobile-safe`,
+  - reduced-motion clamping,
+  - one canonical capture bundle for public-smoke-test review.
+- Evidence depth for this addendum: Tier 1 static inspection in this pass.
+  Earlier Tier 4 runtime evidence remains owned by the earlier browser addenda.
+
+## Addendum (2026-07-28) - live Field 02 browser recheck
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The current page title is `Rigs Unbound`.
+- The public shell now shows the live trust line the contract expects:
+  - `Quality: standard.`
+  - `Saved locally just now`
+  - `Field systems ready. Restored session controls are active.`
+  - visible `#profile-status` and `#save-status` regions on the public surface
+  - `runtimeDiagnostics` is visible rather than hidden in this build
+- The current body text still does **not** expose a dedicated progress bar or
+  `aria-busy` loading marker, so the browser remains honest about the current
+  loading-policy gap rather than pretending to have a more explicit bootstrap
+  state than it really does.
+- Captured console logs were all Vite connect/connected messages; no gameplay
+  errors were present in the sampled buffer.
+- Evidence depth: Tier 4 runtime/manual observation for the live page state.
+
+## Addendum (2026-07-29) - ADR-0039 now names the public/acceptance split this audit was observing
+
+The browser-delivery split in this audit now has a durable decision anchor:
+
+- ADR-0039 keeps `#bootstrap-status` public and semantic;
+- ADR-0039 keeps `#profile-status` public and visible;
+- ADR-0039 route-gates `#runtime-diagnostics` to the acceptance/developer
+  surface.
+
+That matters here because this audit is the browser-delivery evidence trail,
+while ADR-0039 now captures the policy rule behind the public/acceptance split.
+The public shell should continue to read as player-facing, and the acceptance
+surface should continue to carry reviewer-facing diagnostics.

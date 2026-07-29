@@ -16,7 +16,8 @@
 > | Campaigns as a live system | `campaign.ts` exists but is unreachable from any entry point — see `npm run audit:reachability`. |
 >
 > For the current runtime, read `docs/exploration/EXPLORATION_MAP.md`, the ADRs in
-> `docs/decisions/`, and the reachability audit — in that order.
+> `docs/decisions/`, and the reachability classification pair — the ownership
+> matrix review plus the short disposition note — in that order.
 
 
 

@@ -44,6 +44,7 @@ import {
   RIG_SWITCH_RANGE,
   RIG_LAB_SAVE_SCHEMA_VERSION,
   RIG_PROFILES,
+  rigCollisionRadius,
   type RigCapability,
   type RigId,
   type RigState,
@@ -73,6 +74,7 @@ import {
   type ProgressionState,
 } from "./progression";
 import { applyActivityCompletionProgression } from "./mission-resolver";
+import { completeMission, failMission } from "./mission-lifecycle";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
   SURVEY_CONTRACT_AFFORDANCE,
@@ -110,6 +112,11 @@ import {
   workshopActionable as firstRungWorkshopActionable,
 } from "./first-rung";
 import type { GameWorld } from "./gameworld";
+import {
+  resolveDynamicBodyCollisions,
+  type DynamicCollisionBody,
+  type WorldCollisionContact,
+} from "./collision";
 import { clamp } from "./noise";
 import {
   createUnboundPassageState,
@@ -117,6 +124,7 @@ import {
   restoreUnboundPassage,
 } from "./unbound-passage";
 import { rigIsStable, settleRig, stepRigMotion } from "./physics";
+import { resolveTerrainTraversal } from "./terrain-traversal";
 import {
   findSite,
   HOME_SITE,
@@ -129,6 +137,8 @@ import {
 
 const FURROW_SPACING = 1.1;
 const CARGO_HITCH_DISTANCE = 2.8;
+const CARGO_COLLISION_RADIUS = 0.9;
+const CARGO_COLLISION_MASS = 1.35;
 const PHASE_ORDER: readonly WorldPhase[] = ["day", "gloam", "night"];
 
 /** Depth the plough cuts per pass, in metres. */
@@ -1193,12 +1203,167 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
       relay.bestTimeMs === null
         ? duration
         : Math.min(relay.bestTimeMs, duration);
-    state.progression = applyActivityCompletionProgression(
-      state.progression,
-      "cargo-relay",
-      rig.id,
+    if (state.activeMission?.binding === "delivery") {
+      completeMission(state, state.activeMission.id, state.elapsedMs);
+    } else {
+      state.progression = applyActivityCompletionProgression(
+        state.progression,
+        "cargo-relay",
+        rig.id,
+      );
+      state.lastDiagnostic = `Relay delivered in ${(duration / 1000).toFixed(1)} s with ${RIG_PROFILES[rig.id].displayName}.`;
+    }
+  }
+}
+
+function resolveAttachedCargoCollisions(
+  state: GameState,
+  world: GameWorld,
+  towingRig: RigState,
+  towingProfile: ReturnType<typeof effectiveProfile>,
+  previous: { x: number; z: number },
+  dt: number,
+): void {
+  const cargo = state.cargoRelay.cargo;
+  if (cargo.attachedRigId !== towingRig.id) return;
+
+  const intended = { x: cargo.x, z: cargo.z };
+  const terrainTraversal = resolveTerrainTraversal(
+    world.terrain,
+    towingProfile,
+    previous.x,
+    previous.z,
+    intended.x,
+    intended.z,
+  );
+  cargo.x = terrainTraversal.x;
+  cargo.z = terrainTraversal.z;
+
+  const cargoDeltaX = cargo.x - previous.x;
+  const cargoDeltaZ = cargo.z - previous.z;
+  const cargoForwardX = Math.sin(cargo.heading);
+  const cargoForwardZ = Math.cos(cargo.heading);
+  const cargoMotion: DynamicCollisionBody = {
+    id: cargo.id,
+    role: "cargo",
+    x: cargo.x,
+    z: cargo.z,
+    speed:
+      dt > 0
+        ? (cargoDeltaX * cargoForwardX + cargoDeltaZ * cargoForwardZ) / dt
+        : 0,
+    heading: cargo.heading,
+    mass: CARGO_COLLISION_MASS,
+    radius: CARGO_COLLISION_RADIUS,
+  };
+
+  const obstacleCollision = world.obstacles.resolve(
+    cargoMotion,
+    CARGO_COLLISION_RADIUS,
+    CARGO_COLLISION_MASS,
+    world.felledObstacles,
+    previous,
+  );
+  const structureCollision = world.structureCollision(
+    cargoMotion,
+    CARGO_COLLISION_RADIUS,
+    previous,
+  );
+  const contacts: WorldCollisionContact[] = [];
+
+  if (terrainTraversal.blocked) {
+    const movementX = intended.x - previous.x;
+    const movementZ = intended.z - previous.z;
+    const movementLength = Math.hypot(movementX, movementZ);
+    contacts.push({
+      firstId: cargo.id,
+      firstRole: "cargo",
+      secondId: "terrain-face",
+      secondRole: "terrain",
+      response: "block",
+      impactSpeed: Math.abs(cargoMotion.speed),
+      normalX: movementLength > 1e-7 ? -movementX / movementLength : 0,
+      normalZ: movementLength > 1e-7 ? -movementZ / movementLength : 0,
+      swept: true,
+      policyKnown: true,
+    });
+  }
+  const obstacle = obstacleCollision.blockedBy ?? obstacleCollision.felled;
+  if (obstacleCollision.hit && obstacle) {
+    contacts.push({
+      firstId: cargo.id,
+      firstRole: "cargo",
+      secondId: obstacle.id,
+      secondRole: "obstacle",
+      response: "block",
+      impactSpeed: obstacleCollision.impactSpeed,
+      normalX: obstacleCollision.normalX,
+      normalZ: obstacleCollision.normalZ,
+      swept: obstacleCollision.swept,
+      policyKnown: true,
+    });
+  }
+  if (structureCollision.hit && structureCollision.blockedBy) {
+    contacts.push({
+      firstId: cargo.id,
+      firstRole: "cargo",
+      secondId: structureCollision.blockedBy.id,
+      secondRole: "structure",
+      response: "block",
+      impactSpeed: structureCollision.impactSpeed,
+      normalX: structureCollision.normalX,
+      normalZ: structureCollision.normalZ,
+      swept: structureCollision.swept,
+      policyKnown: true,
+    });
+  }
+
+  const rigBodies = RIG_IDS.filter((id) => id !== towingRig.id).map((id) => {
+    const otherRig = state.rigs[id];
+    const otherProfile = effectiveProfile(id, otherRig.modules);
+    return {
+      rig: otherRig,
+      profile: otherProfile,
+      previousX: otherRig.x,
+      previousZ: otherRig.z,
+      body: {
+        id,
+        role: "rig",
+        x: otherRig.x,
+        z: otherRig.z,
+        speed: otherRig.speed,
+        heading: otherRig.heading,
+        mass: otherProfile.mass,
+        radius: rigCollisionRadius(otherProfile),
+      } satisfies DynamicCollisionBody,
+    };
+  });
+  const bodyCollision = resolveDynamicBodyCollisions(
+    cargoMotion,
+    rigBodies.map((entry) => entry.body),
+    previous,
+  );
+  contacts.push(...bodyCollision.contacts);
+  cargo.x = cargoMotion.x;
+  cargo.z = cargoMotion.z;
+  cargo.y = world.terrain.height(cargo.x, cargo.z) + 0.65;
+
+  for (const entry of rigBodies) {
+    entry.rig.x = entry.body.x;
+    entry.rig.z = entry.body.z;
+    entry.rig.speed = entry.body.speed;
+    if (entry.rig.x !== entry.previousX || entry.rig.z !== entry.previousZ) {
+      settleRig(entry.rig, entry.profile, world.terrain);
+    }
+  }
+
+  world.noteCollisionContacts(contacts, bodyCollision.policyViolationCount);
+  if (contacts.some((contact) => contact.response === "block")) {
+    towingRig.speed *= 0.22;
+    const strongest = contacts.reduce((current, contact) =>
+      contact.impactSpeed >= current.impactSpeed ? contact : current,
     );
-    state.lastDiagnostic = `Relay delivered in ${(duration / 1000).toFixed(1)} s with ${RIG_PROFILES[rig.id].displayName}.`;
+    state.lastDiagnostic = `Relay cargo contacted ${strongest.secondId} at ${strongest.impactSpeed.toFixed(1)} m/s; the hitch loaded up.`;
   }
 }
 
@@ -1211,6 +1376,7 @@ export function stepGame(
   if (state.paused || seconds <= 0 || !Number.isFinite(seconds)) return;
 
   const dt = Math.min(seconds, 0.1);
+  world.beginCollisionStep();
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
   const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
@@ -1235,6 +1401,11 @@ export function stepGame(
   // it is deterministic and replay-safe. It reaches the motion model here — the
   // simulation gets wetter ground *before* any mission copy claims it is harder.
   const weather = deriveWeatherState(state.worldTimeMinutes);
+  const previousRigPosition = { x: rig.x, z: rig.z };
+  const previousCargoPosition = {
+    x: state.cargoRelay.cargo.x,
+    z: state.cargoRelay.cargo.z,
+  };
   const motion = stepRigMotion(rig, profile, input, world.terrain, dt, {
     towing,
     ramp: BUGGY_RAMP,
@@ -1247,14 +1418,144 @@ export function stepGame(
   // Collision. Resolved after motion so the push-out is the final word on
   // position, and the rig is re-settled if a tree came down under it.
   // ---------------------------------------------------------------------------
-  const rigRadius = profile.track * 0.5 + 0.25;
+  const rigRadius = rigCollisionRadius(profile);
   const collision = world.obstacles.resolve(
     rig,
     rigRadius,
     profile.mass,
     world.felledObstacles,
+    previousRigPosition,
   );
-  const structureCollision = world.structureCollision(rig, rigRadius);
+  const structureCollision = world.structureCollision(
+    rig,
+    rigRadius,
+    previousRigPosition,
+  );
+
+  const staticContacts: WorldCollisionContact[] = [];
+  if (motion.traversalBlockReason === "terrain-face") {
+    const movementX = rig.x - previousRigPosition.x;
+    const movementZ = rig.z - previousRigPosition.z;
+    const movementLength = Math.hypot(movementX, movementZ);
+    staticContacts.push({
+      firstId: rig.id,
+      firstRole: "rig",
+      secondId: "terrain-face",
+      secondRole: "terrain",
+      response: "block",
+      impactSpeed: Math.abs(rig.speed),
+      normalX: movementLength > 1e-7 ? -movementX / movementLength : 0,
+      normalZ: movementLength > 1e-7 ? -movementZ / movementLength : 0,
+      swept: true,
+      policyKnown: true,
+    });
+  }
+  if (collision.hit) {
+    const obstacle = collision.blockedBy ?? collision.felled;
+    if (obstacle) {
+      staticContacts.push({
+        firstId: rig.id,
+        firstRole: "rig",
+        secondId: obstacle.id,
+        secondRole: "obstacle",
+        response: "block",
+        impactSpeed: collision.impactSpeed,
+        normalX: collision.normalX,
+        normalZ: collision.normalZ,
+        swept: collision.swept,
+        policyKnown: true,
+      });
+    }
+  }
+  if (structureCollision.hit && structureCollision.blockedBy) {
+    staticContacts.push({
+      firstId: rig.id,
+      firstRole: "rig",
+      secondId: structureCollision.blockedBy.id,
+      secondRole: "structure",
+      response: "block",
+      impactSpeed: structureCollision.impactSpeed,
+      normalX: structureCollision.normalX,
+      normalZ: structureCollision.normalZ,
+      swept: structureCollision.swept,
+      policyKnown: true,
+    });
+  }
+  world.noteCollisionContacts(staticContacts);
+
+  const activeBody: DynamicCollisionBody = {
+    id: rig.id,
+    role: "rig",
+    x: rig.x,
+    z: rig.z,
+    speed: rig.speed,
+    heading: rig.heading,
+    mass: profile.mass,
+    radius: rigRadius,
+  };
+  const fleetBodies = RIG_IDS.filter((id) => id !== rig.id).map((id) => {
+    const otherRig = state.rigs[id];
+    const otherProfile = effectiveProfile(id, otherRig.modules);
+    return {
+      rig: otherRig,
+      profile: otherProfile,
+      previousX: otherRig.x,
+      previousZ: otherRig.z,
+      body: {
+        id,
+        role: "rig",
+        x: otherRig.x,
+        z: otherRig.z,
+        speed: otherRig.speed,
+        heading: otherRig.heading,
+        mass: otherProfile.mass,
+        radius: rigCollisionRadius(otherProfile),
+      } satisfies DynamicCollisionBody,
+    };
+  });
+  const relayCargo = state.cargoRelay.cargo;
+  const cargoBody =
+    relayCargo.attachedRigId === rig.id
+      ? null
+      : ({
+          id: relayCargo.id,
+          role: "cargo",
+          x: relayCargo.x,
+          z: relayCargo.z,
+          speed: 0,
+          heading: relayCargo.heading,
+          mass: CARGO_COLLISION_MASS,
+          radius: CARGO_COLLISION_RADIUS,
+        } satisfies DynamicCollisionBody);
+  const dynamicCollision = resolveDynamicBodyCollisions(
+    activeBody,
+    [
+      ...fleetBodies.map((entry) => entry.body),
+      ...(cargoBody ? [cargoBody] : []),
+    ],
+    previousRigPosition,
+  );
+  rig.x = activeBody.x;
+  rig.z = activeBody.z;
+  rig.speed = activeBody.speed;
+  for (const entry of fleetBodies) {
+    entry.rig.x = entry.body.x;
+    entry.rig.z = entry.body.z;
+    entry.rig.speed = entry.body.speed;
+    if (entry.rig.x !== entry.previousX || entry.rig.z !== entry.previousZ) {
+      settleRig(entry.rig, entry.profile, world.terrain);
+    }
+  }
+  if (cargoBody) {
+    relayCargo.x = cargoBody.x;
+    relayCargo.z = cargoBody.z;
+    relayCargo.y = world.terrain.height(relayCargo.x, relayCargo.z) + 0.65;
+  }
+  world.noteCollisionContacts(
+    dynamicCollision.contacts,
+    dynamicCollision.policyViolationCount,
+  );
+
   if (collision.felled) {
     world.fell(collision.felled.id);
     state.lastDiagnostic = `${profile.fieldName} pushed a tree over. The clearing stays open.`;
@@ -1281,6 +1582,26 @@ export function stepGame(
     if (damage > 1.5) {
       state.lastDiagnostic = `${profile.fieldName} struck ${structureCollision.blockedBy?.id ?? "an authored structure"} · condition ${Math.round(rig.condition)}%.`;
     }
+  }
+  if (dynamicCollision.hit) {
+    const contact = dynamicCollision.contacts.reduce((strongest, current) =>
+      current.impactSpeed >= strongest.impactSpeed ? current : strongest,
+    );
+    if (dynamicCollision.impactSpeed > 3.2) {
+      const damage = Math.min(
+        12,
+        (dynamicCollision.impactSpeed - 3.2) *
+          1.4 *
+          (profile.landingTolerance > 8 ? 0.55 : 1),
+      );
+      rig.condition = clamp(rig.condition - damage, 0, 100);
+    }
+    const otherName =
+      contact.secondRole === "rig"
+        ? (RIG_PROFILES[contact.secondId as RigId]?.fieldName ??
+          contact.secondId)
+        : "relay cargo";
+    state.lastDiagnostic = `${profile.fieldName} contacted ${otherName} at ${contact.impactSpeed.toFixed(1)} m/s.`;
   }
 
   // ---------------------------------------------------------------------------
@@ -1515,18 +1836,27 @@ export function stepGame(
     );
     state.surveyRoute = evaluation.state;
     if (evaluation.completed) {
-      const reward = activityDefinition("survey-route").reward.salvage;
-      state.salvage += reward;
-      state.salvageCollected += reward;
-      state.progression = applyActivityCompletionProgression(
-        state.progression,
-        "survey-route",
-        rig.id,
-      );
-      state.lastDiagnostic = `Survey contract filed from sight alone. ${reward} salvage.`;
+      if (state.activeMission?.binding === "survey") {
+        completeMission(state, state.activeMission.id, state.elapsedMs);
+      } else {
+        const reward = activityDefinition("survey-route").reward.salvage;
+        state.salvage += reward;
+        state.salvageCollected += reward;
+        state.progression = applyActivityCompletionProgression(
+          state.progression,
+          "survey-route",
+          rig.id,
+        );
+        state.lastDiagnostic = `Survey contract filed from sight alone. ${reward} salvage.`;
+      }
     } else if (evaluation.failed) {
-      state.lastDiagnostic =
+      const diagnostic =
         "Survey contract lapsed. The light went before every signal was sighted.";
+      if (state.activeMission?.binding === "survey") {
+        failMission(state, state.activeMission.id, diagnostic);
+      } else {
+        state.lastDiagnostic = diagnostic;
+      }
     } else if (evaluation.newlySighted.length > 0) {
       const remaining =
         surveyRouteTargets().length - evaluation.state.sighted.length;
@@ -1538,6 +1868,14 @@ export function stepGame(
   }
 
   updateCargo(state, world, rig);
+  resolveAttachedCargoCollisions(
+    state,
+    world,
+    rig,
+    profile,
+    previousCargoPosition,
+    dt,
+  );
 
   // Idle rigs recover strain, so parking a machine is a real choice.
   for (const id of RIG_IDS) {
@@ -1640,6 +1978,7 @@ export function publicState(state: GameState, world: GameWorld): object {
   // the acceptance harness all read this — none of them re-derives whether a
   // recovery is possible, so they cannot drift apart.
   const publicWeather = deriveWeatherState(state.worldTimeMinutes);
+  const collisionTelemetry = world.collisionTelemetry();
   const fleetRecovery = fleetRecoveryProjection(
     deriveFleetRecoveryAssessment(state, world, publicWeather),
   );
@@ -1754,6 +2093,27 @@ export function publicState(state: GameState, world: GameWorld): object {
       deliveryPosition: { x: CARGO_DELIVERY.x, z: CARGO_DELIVERY.z },
       rampPosition: { x: BUGGY_RAMP.x, z: BUGGY_RAMP.z },
     },
+    collision: {
+      totalContacts: collisionTelemetry.totalContacts,
+      policyViolationCount: collisionTelemetry.policyViolationCount,
+      contactAgeSteps: collisionTelemetry.contactAgeSteps,
+      contacts: collisionTelemetry.contacts.map((contact) => ({
+        ...contact,
+        impactSpeed: fixedNumber(contact.impactSpeed, 3),
+        normalX: fixedNumber(contact.normalX, 4),
+        normalZ: fixedNumber(contact.normalZ, 4),
+      })),
+    },
+    mission: state.activeMission
+      ? {
+          id: state.activeMission.id,
+          binding: state.activeMission.binding,
+          targetSiteId: state.activeMission.targetSiteId,
+          activeRigId: state.activeMission.activeRigId,
+          progressIndex: state.activeMission.progressIndex,
+          waypointCount: state.activeMission.waypointIds.length,
+        }
+      : null,
     // The authored world layout, so external tools (acceptance runs, the trailer
     // capture) can target a named place instead of hardcoding coordinates that
     // drift whenever `WORLD_SITES` is retuned.

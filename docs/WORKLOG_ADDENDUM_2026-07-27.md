@@ -427,6 +427,19 @@ Furrow` returns `attempt-route` instead of `sight-destination`).
   pick up from the exact proof boundary rather than re-establishing the same
   browser facts.
 
+## 2026-07-28 — public asset promotion package index added
+
+- Added `docs/reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md` as
+  the canonical navigation page for the public-asset promotion trail.
+- Wired `docs/reviews/README.md` to point at the new package index so the
+  reviews package now has an explicit public-gate counterpart to the comms
+  package index.
+- The package keeps the approval review, promotion workflow, authority
+  contract, provenance register, and runtime evidence on one durable trail
+  without turning the review pages into a second source of truth.
+- The asset-specific research notes now point back to the package index too,
+  so the trail is bidirectional instead of only top-down.
+
 ## Suggested order
 
 1. Read the comms package first for launch and build-in-public work.

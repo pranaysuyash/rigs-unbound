@@ -1,12 +1,14 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-07-28 (Authoritative Reclamation Route Lifecycle, Fleet Inheritance, Map Fidelity, and Evidence Integrity: PASS ✓)
+- Last Updated: 2026-07-29 (Mission authority, Pegboard commitments, persistence, reachability disposition, and asset-approval navigation: PASS pending final browser gate / operator sign-off)
 - Owner: project owner; agents update evidence and status in the same change
 - Product source of truth: [Exploration Map](../exploration/EXPLORATION_MAP.md)
 - Quick lane index: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - Public launch package: [Comms package](../comms/README.md)
 - Evidence index: [Reviews index](../reviews/README.md)
+- Asset public-gate package:
+  [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
 - Decision source of truth: [ADRs](../decisions/)
 - Evidence source of truth: [Worklog](../WORKLOG.md) and [reviews](../reviews/)
 - Live implementation flows:
@@ -43,6 +45,27 @@ browser steps with zero console errors. The verified flow includes the first
 meaningful spend (`lug-tires`) and first-cut furrow creation. Next evidence is
 player comprehension plus save/reload continuity before expanding progression
 surfaces.
+
+## Mission acceptance completion tranche (2026-07-28)
+
+The mission-board implementation gate is now wired through one authoritative
+runtime boundary:
+
+- `mission-propositions.ts` remains derived and excludes completed mission deeds;
+- `mission-lifecycle.ts` owns acceptance, completion, failure, exclusivity, and
+  reward idempotency;
+- `GameState.activeMission` is the only persisted in-flight contract;
+- delivery and survey bindings route completion through the lifecycle;
+- the public text contract exposes the active mission for replay/browser proof;
+- reachability dispositions are recorded in the short
+  [Runtime Reachability Dispositions](../exploration/RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md)
+  note and the fuller [Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md).
+
+Evidence: `npm run typecheck` passed; `npm test` passed with 432 Vitest tests
+and 7 deterministic kernel probes; the current reachability classification is
+captured in the ownership matrix and disposition artifacts. Final browser,
+accessibility, format, build, and diff evidence remains required before this
+tranche is marked fully closed.
 
 ## Overlay accessibility seam recheck (2026-07-28)
 
@@ -172,10 +195,30 @@ canonical scope and acceptance contracts.
 |     7 | `[ ]`  | RU-0206 + RU-0405: mastery and schema v7                          | Progression must reward varied rig verbs without grind or save drift                          | Effective-profile composition, anti-grind tests, v6→v7 migration and recovery summary                                         |
 |     8 | `[ ]`  | RU-0207 + RU-0208: presentation and fresh-eyes validation         | Kernel completion is not player comprehension or fun evidence                                 | Desktop/narrow acceptance, save/reload, three simulated personas, at least one human                                          |
 |     9 | `[ ]`  | RU-0502–RU-0506 + RU-0603: production assets and public hardening | Replace proof meshes only after the first loop proves what assets and budgets matter          | Selective Kenney pipeline, representative-device profile, boot/readiness, streaming, accessibility                            |
-|    10 | `[ ]`  | RU-0304–RU-0307: deeper capability/physics proofs                 | Let real activities pose the next controller and collision questions                          | Shared roles, rescue activity, obstruction query, then one genuinely different motion family                                  |
+|    10 | `[-]`  | RU-0304–RU-0307: deeper capability/physics proofs                 | Let real activities pose the next controller and collision questions                          | Shared roles, rescue activity, obstruction query, then one genuinely different motion family                                  |
 |    11 | `[ ]`  | RU-0701–RU-0703: replay, guest identity, optional account link    | Sharing starts with inspectable local artifacts, not real-time authority                      | Ghost artifact, export/import, then accepted auth/conflict ADR                                                                |
 |    12 | `[>]`  | RU-0704–RU-0707: social, co-op, AI proposals, creator ladder      | High-leverage but depends on stable state, authority, moderation, and recovery                | Named dependencies and operational safety gates close first                                                                   |
 |    13 | `[~]`  | RU-0801–RU-0808: continuous research/skill coverage               | Research continues in parallel but must produce decisions or probes                           | Each recommendation is accepted, rejected, deferred, or linked to measured evidence                                           |
+
+### Evidence and exploration note (2026-07-28)
+
+The public asset promotion package index now links the live manifest/runtime
+gate and its tests, so the public-approval trail is readable from one place.
+The runtime reachability ownership matrix review now gives the measured orphan
+set an explicit ownership classification, while the disposition note keeps the
+budgeted archive/defer list visible from the exploration map. The dynamic
+collision authority exploration and ADR-0037 now anchor the collision-contact
+seam in the canonical decision and exploration maps. These are documentation
+and evidence updates only; the parallel-owned runtime implementation remains
+untouched.
+
+#### Correction addendum (2026-07-28)
+
+The preceding statement is a time-stamped pre-implementation checkpoint. The
+operator subsequently cleared the collision runtime for direct work. ADR-0037
+is now implemented and locally verified: semantic roles, CCD, dynamic rig/cargo
+response, footprint-aware proxies, and operator contact telemetry are live.
+See [Dynamic World Collision Acceptance](../reviews/DYNAMIC_WORLD_COLLISION_ACCEPTANCE_2026-07-28.md).
 
 ### Active work package checklist
 
@@ -663,11 +706,18 @@ with permanent instructions.
     acceptance, and zero console problems.
   - Boundary: evidence compares controller families; it does not select a final
     physics engine.
-- [ ] **RU-0304 — Shared collision-role/mask fixture.**
-  - Status: paused pending operator sign-off on ADR-0023 and a named
-    player-fantasy comparison question.
-  - Gate: Rapier and Box3D express the same project-owned blocked/fellable/
-    trigger/sensor/hazard/attachment roles without solver handles in game state.
+- [-] **RU-0304 — Shared collision-role/mask fixture.**
+  - Current-runtime slice complete: Field 02 owns solver-independent
+    terrain/rig/cargo/obstacle/structure/hazard/projectile/trigger/sensor/
+    decorative roles, fail-closed unknown handling, typed contact identity, and
+    browser-visible policy telemetry.
+  - Evidence: `collision.test.ts`, `world-collision.test.ts`,
+    [ADR-0037](../decisions/ADR-0037-solver-independent-dynamic-world-collision-authority.md),
+    and focused canonical browser acceptance.
+  - Remaining gate: Rapier and Box3D express the same project-owned
+    blocked/fellable/trigger/sensor/hazard/attachment roles without solver
+    handles in game state. This still requires ADR-0023/operator sign-off and a
+    named player-fantasy comparison question.
 - [ ] **RU-0305 — Unstable trailer + lifting arm activity.**
   - Status: proposed candidate harness, not mandatory solver work; requires
     operator sign-off on ADR-0023.
@@ -699,9 +749,14 @@ with permanent instructions.
 - [>] **RU-0409 — Mission proposition and progression runtime foundation.**
   - Evidence: ADR-0033, `src/game/progression.ts`, derived mission generators,
     canonical activity reward routing, schema-v9 progression state, v8 migration,
-    public-state observability, and full local verification.
-  - Gate: reconcile ADR-0033 with ADR-0018; admit a mission-board/acceptance
-    surface and playtest the progression model before calling this product-complete.
+    public-state observability, full local verification, and a live desktop
+    `?acceptance=field-02` contract board that mounts with field-state row data
+    and the `Field contracts` header/summary pair.
+  - Gate: reconcile ADR-0033 with ADR-0018; keep the mission-board/acceptance
+    surface decision explicit, and resolve the compact/mobile exposure policy
+    separately before calling this product-complete. See
+    `docs/reviews/CONTRACT_BOARD_COMPACT_EXPOSURE_POLICY_REVIEW_2026-07-28.md`
+    for the current desktop-first recommendation and remaining compact-shell gap.
 - [ ] **RU-0403 — Canonical module slot and compatibility model.**
   - Gate: immutable blueprint slots + mutable installed instances + explicit
     incompatibilities + derived capabilities; one validator and one
@@ -737,7 +792,15 @@ with permanent instructions.
   - 2026-07-28 evidence: the manifest/runtime bridge split is now documented as
     a delivery gate rather than a second asset truth source; two imported GLBs
     remain runtime-tested developer bridges while `publicRuntimeApproved`
-    still blocks player-surface promotion.
+    still blocks player-surface promotion. The evidence index for that slice is
+    [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md),
+    and the load-bearing boundary is now recorded in
+    [ADR-0038](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md).
+    The approval record template is also available from the package index for
+    future operator sign-off, but no populated approval record exists yet. The
+    operator-facing first-candidate checklist is also linked there, alongside
+    the player-gate evidence note that summarizes why runtime bridge proof
+    still does not mean player approval.
 - [ ] **RU-0503 — Cold-cache and representative-device profile.**
   - Gate: production URL on at least one real phone and one lower-power desktop;
     first input-ready, route transfer, frame p95, memory/thermal observations,
@@ -1237,6 +1300,10 @@ reach. Current result on this checkout:
 - 78 non-test source modules, 48 entry-reachable
 - **30 unreachable modules, 2,365 lines, 28 of them with passing tests**
 
+Historical note: this 30-of-78 snapshot is the room's measurement context.
+The current module-by-module classification lives in the ownership matrix
+review and the short disposition note.
+
 ```bash
 node tools/audit-runtime-reachability.mjs
 node --test tools/audit-runtime-reachability.test.mjs
@@ -1582,3 +1649,671 @@ Yes. The orphan set has **three** classes, not two: parts bin (wires cleanly),
 mirage (needs supersession), and contraband (must never be admitted). The audit
 now enforces the third as a distinct rule. Applying the ADR-0034 discriminator
 before wiring correctly predicted every outcome so far.
+
+## Addendum (2026-07-28) — 3d-games lens: rendering optimization is implicit, not player-authored
+
+The live browser shell still presents a readable 3D play surface with named
+camera views and diagnostics, but it does not expose public culling, batching,
+or LOD tuning controls. The existing `#game-canvas` and camera/help surfaces are
+player-facing; the rendering optimizations stay behind the implementation
+boundary. Evidence came from a live probe against `http://localhost:4173/?acceptance=field-02`
+that returned no public culling/LOD terms in the DOM text, while still showing
+FPS/backend/geometry/texture/bridge/prop readouts.
+
+## Addendum (2026-07-28) — 3d-web-experience lens: accessible entry is present, fallback UI is not
+
+The shell exposes web-facing entry points such as `Skip to playable world`,
+`Fullscreen`, `Accessibility`, and touch-oriented view guidance, and the 3D
+canvas remains mounted in a mobile-sized viewport. However, the probe did not
+surface a dedicated loading skeleton, offline banner, static fallback, or low-end
+quality selector in the ready state. `prefers-reduced-motion` also did not
+register as active in the inspected session. This keeps the web-experience
+contract partial: accessible entry is there, but explicit resilience/fallback
+UI remains hidden behind implementation details.
+
+## Addendum (2026-07-28) — accessibility semantics are robust, but not fully end-to-end tested
+
+The shell already includes a skip link into the playable world, a focusable
+canvas with an accessible name, named landmarks for the main gameplay regions,
+keyboard-reachable controls, live status/alert regions, and hidden dialogs with
+`aria-modal="true"` and label wiring. That is a strong accessibility structure
+for a live game shell. The remaining unverified pieces are screen-reader output,
+contrast ratios, and full keyboard trap behavior, so the accessibility story is
+structurally good but not fully proved at runtime yet.
+
+## Addendum (2026-07-28) — Physics Lab 01 exists as a live secondary route, but it currently enters fallback mode
+
+The browser-daemon probe of `/physics-lab` showed a separate `Physics Lab 01`
+page with a real canvas, telemetry, solver/time-scale controls, camera
+selection, and a skip link. The route is clearly intended as a first-class
+simulation surface. However, the current runtime state also shows
+`Physics laboratory could not start. Return to Field 02`, so the lab is not yet
+verified as a healthy end-to-end flow. No JS exception was visible beyond the
+usual Vite connection logs, so the fallback may be deliberate rather than a
+crash.
+
+## Addendum (2026-07-28) — Box3D Probe 01 is another live simulation route, also in fallback mode
+
+The browser-daemon probe of `/box3d-lab` showed a second dedicated route,
+`Rigs Unbound — Box3D Probe 01`, with a canvas, telemetry, and solver/time
+controls similar to the Rapier lab but with its own terminology (`Debug
+contract`, `BOX3D 0.1.0 / BOX3D-WASM 0.2.0`, `BODIES / SHAPES`). The route is
+also explicitly failing fast with `Box3D probe could not start. Return to
+Rapier Physics Lab 01`. That makes the app’s physics experimentation lane real
+but currently unresolved at startup.
+
+## Addendum (2026-07-28) — accessibility statement is now a public browser pointer, not just a private doc
+
+The shell’s `Accessibility` link resolves to a real browser-facing statement
+page, and the repo also carries a mirrored `docs/ACCESSIBILITY_STATEMENT.md`
+copy. The page names the current accessibility posture, what still needs
+validation, and how to give feedback. That creates a durable public promise
+surface for browser accessibility rather than relying on hidden notes alone.
+
+## Addendum (2026-07-28) — loading/progress remains an open issue, and the statement now reflects that more accurately
+
+The browser-loading progress review remains open: startup still relies on a
+textual measuring/ready state rather than a dedicated visible progress or
+warmup affordance. The accessibility statement now avoids overstating reduced-
+motion support and keeps the loading story explicitly incomplete. This keeps
+the public promise and the issue review aligned instead of drifting into a
+false sense of closure.
+
+## Addendum (2026-07-28) — refreshed browser check confirms the public accessibility statement now matches the revised wording
+
+A fresh browser navigation to `/accessibility?refresh=1` showed the new
+statement text live after the root `accessibility.html` source was updated.
+That reestablishes alignment between the browser-facing pointer and the repo
+statement: fallback-aware browser behavior is stated plainly, reduced-motion
+handling remains a manual-validation item, and the loading story stays open.
+
+## Addendum (2026-07-28) — root shell installability is still not surfaced
+
+The canonical root shell exposes a favicon and `theme-color`, but no manifest
+link, no active service-worker controller, and no standalone display mode. The
+current browser contract remains browser-native playability rather than a
+surfaced install/offline PWA promise.
+
+## Addendum (2026-07-28) — asset bridge separation is live: developer sees GLBs, player does not
+
+The live `?surface=developer` route sets `body.dataset.surface=developer` and
+loads both bridge GLBs from `assets/runtime/`; the normal player surface sets
+`body.dataset.surface=player` and loads no `.glb` runtime assets in the
+inspected navigation. That matches the public asset-promotion boundary: the
+bridge is runtime-real, but public approval remains separate and proposed.
+
+## Addendum (2026-07-28) — mission acceptance is live as a dialog surface
+
+The `Contracts` control in the canonical browser shell opens a real dialog with
+`role="dialog"`, `aria-modal="true"`, focus landing on `#mission-board-close`,
+selected row state via `aria-pressed`, and an enabled `Accept contract` button
+once a proposition row is chosen. That makes the acceptance surface a runtime
+fact rather than a speculative doc surface, while the broader mission-authority
+design question remains separate.
+
+## Addendum (2026-07-28) — map overlay accessibility gap is closed in the live browser
+
+The canonical map overlay now opens as a true modal dialog with focus landing
+on the close control and focus returning to `#game-canvas` on close. That
+closes the earlier map-overlay focus issue in the live browser and keeps the
+player-facing overlay contract aligned with the updated review note.
+
+## Addendum (2026-07-28) — pause focus recovery is fixed, but pause announcement remains incomplete
+
+The live `KeyP` pause path now opens a real dialog with focus landing on
+`#pause-resume`, and closing the overlay returns focus to `#game-canvas`.
+However, the visible pause state still relies on `#current-prompt` text
+(`Paused.`) rather than a dedicated live-region announcement contract. The
+focus/recovery portion of the earlier review is closed, but the announcement
+surface itself remains an open browser-delivery item.
+## Addendum (2026-07-28) — the workshop remains hidden on the current player surface
+
+A live probe of the player shell found `#workshop-panel` in the DOM, but it
+was still `hidden: true` and focus remained on `#game-canvas`. The visible
+player controls did not expose a dedicated workshop trigger in the current
+state, so the workshop remains a real progression surface in the source trail
+but not yet a discoverable dialog on this player surface.
+
+## Addendum (2026-07-28) — mobile radial focus proof tightened
+
+The browser-delivery pass found a real mobile seam to keep tracking:
+
+- `#welcome-panel` is an intentional first-run modal gate on the compact shell.
+- After dismissing it, `#touch-radial-action` opens a four-item radial wheel
+  in the `390 x 844` mobile viewport.
+- The overlay is mounted, but focus stays on `#touch-radial-action` instead of
+  moving to `#radial-menu-close`.
+- `Tab` then escapes to `#control-lesson-dismiss`, so the overlay still needs
+  a stronger focus-trap story on touch-sized shells.
+
+This is a proof gap, not a boot blocker. The next step is to harden the mobile
+focus contract and keep the desktop/mobile behavior documented in one place.
+
+## Addendum (2026-07-28) — mobile radial open-state visibility remains unproven
+
+The mobile browser probe now separates the issue into two layers:
+
+- the radial overlay mounts and contains its items,
+- but the computed visibility on the live mobile probe still reports hidden,
+- and focus stays on `#touch-radial-action` instead of moving to the close
+  control.
+
+This means the next proof step is not just focus trapping. We need a clean open-
+state check that proves the wheel is visible on touch-sized shells before the
+focus claim can be considered meaningful.
+
+## Addendum (2026-07-28) — pause focus recovery is live; announcement remains textual
+
+A fresh browser probe of the pause path confirmed:
+
+- `KeyP` opens a real dialog with `role="dialog"` and `aria-modal="true"`.
+- Focus lands on `#pause-resume` when pause opens.
+- Clicking Resume closes the overlay and returns focus to `#game-canvas`.
+- The visible pause cue is still only `Paused.` in `#current-prompt`, with no
+  dedicated `role` / `aria-live` contract.
+
+That means the remaining pause gap is announcement semantics, not modal focus
+recovery.
+
+## Addendum (2026-07-28) — bootstrap status is readable, but not yet a progress contract
+
+A live browser probe of the pre-entry shell found:
+
+- `#welcome-panel` is a real modal gate with `role="dialog"` and
+  `aria-modal="true"`.
+- `#bootstrap-status` is a polite status region that says `Measuring device
+  performance… Choose Enter the field to begin.`.
+- there is no `progress` element or `role="progressbar"` in the current live
+  shell.
+- `aria-busy` is not set on the bootstrap status region.
+
+So the startup story is currently a narrated status path, not a bounded
+progress contract.
+
+## Addendum (2026-07-28) — contract board remains desktop-first on the compact shell
+
+A mobile-sized browser probe confirmed the `Contracts` trigger is present in the
+DOM but not exposed as a touch-shell box because `.masthead__buttons` is hidden
+under the compact responsive rules.
+
+This is a policy choice, not a broken click path. The current shell therefore
+lacks a touch entry point for the contract board unless one is added later.
+
+## Addendum (2026-07-28) — touch Radar is now isolated from the pause fallback
+
+The compact-shell `Radar` button had an accidental coupling: the generic tap
+handler could also route it into the pause fallback. The corrected runtime path
+now skips the generic tap fallback for `button[data-tap-action="navigator"]`,
+so the touch `Radar` action is only a navigator toggle.
+
+That keeps the live compact shell aligned with its visible labels and removes a
+cross-wire between a persistent HUD toggle and a modal overlay action.
+
+## Addendum (2026-07-28) — touch Radar fix confirmed live
+
+A live mobile browser probe confirmed the touch `Radar` action now toggles the
+navigator only:
+
+- `#navigator-panel` opens,
+- `#pause-overlay` remains closed,
+- the prompt does not shift into pause,
+- the active element stays on the `Radar` button.
+
+That closes the touch-Radar coupling bug at the runtime level.
+
+## Addendum (2026-07-28) — mobile map focus recovery is now confirmed live
+
+A fresh browser probe on a `390 x 844` mobile viewport confirmed the map
+overlay now lands focus on `#map-close` after the delayed open assertion.
+That closes the earlier mobile map-focus gap and gives the compact shell a
+working touch-exposed modal with a proper close target.
+
+## Addendum (2026-07-28) — the mobile radial wheel now stays open and focuses its close control
+
+A fresh mobile browser probe confirmed the radial quick-action overlay now
+behaves as a real modal surface:
+
+- `Quick` opens the overlay,
+- the control lesson no longer auto-closes it,
+- focus lands on `#radial-menu-close`,
+- the focus stays there,
+- the four-item wheel remains visible.
+
+This closes the earlier compact-shell radial focus/visibility gap.
+
+## Addendum (2026-07-28) — the main prompt line is now an explicit live region
+
+`#current-prompt` now carries `role="status"`, `aria-live="polite"`, and
+`aria-atomic="true"`. A live browser probe confirmed the attributes are present
+before entry and while pause is open, closing the remaining pause-announcement
+gap in the current shell.
+
+## Addendum (2026-07-28) — contract board now stays open and focuses its close control
+
+A fresh desktop browser probe confirmed the mission board now behaves like a
+proper modal overlay after the suppression fix:
+
+- `Contracts` opens `#mission-board`,
+- `#mission-board-close` receives focus and keeps it,
+- rows can be selected,
+- `Accept contract` enables,
+- the board closes cleanly.
+
+That closes the earlier contract-board overlay mismatch in the live shell.
+
+## Addendum (2026-07-28) — bootstrap loading now has a determinate progress contract in source
+
+The next browser-delivery seam now has source-level coverage:
+
+- `#bootstrap-status` is no longer just a binary measuring/ready label;
+- while the shell is measuring frame evidence, it now presents as a bounded
+  progressbar;
+- `aria-busy` tracks that warmup phase instead of remaining false during load;
+- once the bootstrap target is reached, the surface returns to a normal status
+  role.
+
+Browser verification is now complete, so this is a closed evidence claim.
+
+
+## Addendum (2026-07-28) — profile-status wording now resolves clearly across warmup and ready states
+
+The public profile line has been tightened into a stable shell contract:
+
+- warmup state: `Quality: measuring. Still measuring frame performance.`
+- post-entry ready state: `Quality: standard. Full scenery detail is active.`
+- the warmup bootstrap progressbar still stays separate from the profile line;
+- the operator diagnostics surface remains hidden from the public HUD.
+
+This is now verified in the live browser, so the tracker can record it as a
+completed accessibility/profile polish step rather than an open wording gap.
+
+## Addendum (2026-07-28) — the developer diagnostics lane now names the fallback policy
+
+The hidden developer surface now exposes the runtime profile policy in terse,
+operator-facing form. The live browser probe confirms the warmup and steady
+states, and the fallback form is exercised by the policy helper test:
+
+- warmup: `Renderer visibility warmup: standard (insufficient-frame-samples)`
+- steady: `Renderer visibility steady: standard`
+- fallback: `Renderer visibility fallback: mobile-safe (...)`
+
+That means the tracker's earlier "operator-visible summary" gap is now closed in
+practice as well as in source.
+
+## Addendum (2026-07-28) — acceptance-only visibility preview is now verified live
+
+The runtime visibility-preview seam now has live browser proof on the canonical
+4173 dev server:
+
+- developer surface exposes `window.__forceProfile("mobile-safe")`;
+- the renderer accepts the preview profile and updates visibility metrics;
+- the public HUD still reads `Quality: standard. Full scenery detail is active.`;
+- the operator lane now reports
+  `Renderer visibility fallback: mobile-safe (acceptance preview)`.
+
+Validation completed:
+
+- `npm run typecheck`
+- `npx vitest run`
+- live browser probe on `http://127.0.0.1:4173/?surface=developer`
+
+## Addendum (2026-07-28) — renderer policy fallback is now a verified live browser behavior
+
+The 3D-web-experience pass also proved the renderer policy gate is real:
+
+- `?rendererPolicy=off` keeps the renderer on `webgl`;
+- the snapshot reports `rendererBackendFallback: true`;
+- the backend reason is explicit:
+  `rendererPolicy=off blocked auto webgpu`;
+- the runtime diagnostics line shows `backend:webgl/auto (fallback)`.
+
+A companion `?rendererPolicy=stable` probe stays on the direct path:
+
+- `rendererBackendFallback: false`;
+- `rendererBackendReason: renderer=auto retained webgl for composer compatibility (stable)`;
+- runtime diagnostics show `backend:webgl/auto (direct)`.
+
+This is useful because it tells us the app already has a policy-controlled
+degradation path for the renderer, but still lacks a broader static fallback
+story for a true 3D outage.
+
+## Addendum (2026-07-28) — context-loss recovery is wired, but the browser proof was synthetic
+
+The live browser shell also confirms the renderer-loss recovery path is
+connected:
+
+- `webglcontextlost` on `#game-canvas` yields
+  `Graphics context lost. Waiting for restore.`;
+- `webglcontextrestored` yields
+  `Graphics context restored. Recovered on developer profile standard.`;
+- the diagnostics lane remains coherent while the state machine flips;
+- the browser run did not expose `WEBGL_lose_context`, so this is a synthetic
+  proof of wiring, not a true GPU-reset proof.
+
+That keeps the tracker honest: the recovery envelope is real, but a separate
+no-render outage surface is still unresolved.
+
+## Addendum (2026-07-28) — the unresolved no-render gap is now tracked explicitly
+
+The browser-3D review has been split into a dedicated issue note:
+
+- `docs/reviews/rigs_unbound_issue_review_2026-07-28.md`
+
+The tracked boundary is now explicit:
+
+- policy fallback exists,
+- context-loss recovery exists,
+- true no-render fallback now exists.
+
+## Addendum (2026-07-28) — the no-render fallback surface is now implemented
+
+The browser-3D fallback story now has a visible degraded mode:
+
+- `#error-panel` is the canonical no-render fallback surface;
+- it is surfaced as an `alertdialog` with title, description, and retry action;
+- `window.__showNoRenderFallback(...)` can reveal it on developer/acceptance
+  runs;
+- live browser proof shows the panel visible, canvas hidden, shell in fallback,
+  focus on retry, and Escape/Tab trapped while scroll is locked.
+
+That closes the remaining gap between policy fallback, recovery messaging, and
+an actual user-facing no-render state.
+
+## Addendum (2026-07-28) — the no-render fallback is keyboard-operable in the live browser
+
+A live browser probe confirmed the degraded-mode dialog behaves like a modal
+surface:
+
+- focus lands on `Try again`;
+- `Tab` and `Shift+Tab` stay pinned to the retry button;
+- `Escape` routes to the retry action;
+- page scroll remains locked while the fallback is visible.
+
+That means the no-render surface now covers both visibility and keyboard
+operability, which is the accessibility bar this shell needs for a true 3D
+outage state.
+
+## Addendum (2026-07-28) — the no-render fallback is named in the accessibility tree
+
+A Chrome accessibility-tree probe confirmed the live fallback dialog is exposed
+to assistive tech with the expected name:
+
+- `alertdialog` name: `The 3D scene is unavailable.`
+- retry button name: `Try again`
+
+That makes the degraded-mode surface a true dialog contract, not just a visual
+overlay with keyboard support.
+
+## Addendum (2026-07-28) — the fresh-load shell still lacks a dedicated loading affordance
+
+A fresh developer-surface load confirmed the ready shell is already readable,
+but the browser-delivery contract still has one visible gap:
+
+- `#bootstrap-status` reads as a ready-state message
+  (`Field systems ready. Restored session controls are active.`), not a loading
+  progress indicator;
+- `#map-progress` is world-survey progress (`0% surveyed`), not an asset or
+  scene-ingestion bar;
+- `#error-panel` remains hidden on the ready shell, which is correct, but it
+  leaves no dedicated loading/retry affordance for the asset bootstrap path.
+
+This becomes the next documented browser-delivery seam: preserve the no-render
+fallback contract, and add a truthful loading/retry surface for asset or scene
+ingestion rather than reusing the ready-state text for progress.
+
+The fresh browser probe also made the distinction sharper:
+
+- `#map-progress` exists in the DOM but is `visibility: hidden`, so it is not a
+  visible loading affordance;
+- there is still no visible `role="progressbar"` or equivalent bootstrap UI on
+  the ready shell.
+
+The accessibility probe sharpens it further:
+
+- the shell has multiple `aria-live="polite"` / `role="status"` regions, but
+  they are gameplay/session state, not bootstrap progress;
+- the live shell still exposes no loading-specific accessible name or progress
+  announcement for asset or scene ingestion.
+
+One source-side nuance matters here: `src/main.ts` already contains a
+measuring-phase `role="progressbar"` branch for bootstrap, so the gap is not a
+missing warmup contract in code. The fresh browser probe simply reaches the
+ready phase quickly enough that the loading affordance is not durable as the
+user-facing first impression.
+
+The newer live probe makes the split more explicit:
+
+- `#bootstrap-status` reads ready with standard scenery detail;
+- `#profile-status` reads measuring and still talks about frame performance;
+- `#runtime-diagnostics` carries the renderer visibility warmup detail.
+
+So the shell has the right pieces, but the loading story is distributed across
+three channels instead of being legible as one cohesive surface.
+
+The control-surface probe adds one more nuance:
+
+- `View` is already a real `<select id="camera-select" aria-label="Camera view">`;
+- the available camera modes are named options (`Chase`, `Hood`, `Side`,
+  `Tactical`, `Top-down`, `Survey`);
+- lighting is only exposed in the keyboard/help legend (`N light`) and does
+  not appear as a persistent on-screen control button in the live DOM.
+
+So the camera contract is already durable, but lighting still needs a stronger
+visible control story if we want the 3D shell to feel complete across input
+modes.
+
+
+## Addendum (2026-07-29) - renderer diagnostics are visible, but not announced
+
+A fresh accessibility probe found one more split in the shell's 3D telemetry:
+
+- `#bootstrap-status` is a proper live status region (`role="status"`,
+  `aria-live="polite"`, `aria-atomic="true");
+- `#runtime-diagnostics` is visible text, but it has no `role`, no `aria-live`,
+  and no `aria-atomic` state;
+- the renderer visibility warmup note is therefore readable on screen, but it is
+  not announced as a status update for assistive tech.
+
+So the shell still distinguishes user-facing readiness from diagnostics, but the
+renderer warmup line remains an on-screen metric rather than a narrated state.
+
+The touch/input probe adds one more clarity point:
+
+- `touch-primary-action`, `touch-blade-action`, `touch-recovery-action`, and
+  `touch-radial-action` are present in the live DOM;
+- the touch strip exposes blade, recovery, and quick actions directly;
+- those buttons carry explicit labels such as `Lower field plough` and
+  `Switch blade from cut to fill`.
+
+So the core work verbs are touch-ready, but lighting still is not:
+
+- the shell does not expose a persistent touch-visible light toggle;
+- lighting remains keyboard/help-legend only (`N light`);
+- the light control is still less discoverable on pointer and touch-first
+  surfaces than the other core rig actions.
+
+## Addendum (2026-07-29) - some toggles announce state, while radar and quick action still only change text
+
+A fresh control-state probe shows the shell already distinguishes good toggle
+semantics from weaker ones:
+
+- `mute-button` exposes `aria-pressed="false"`;
+- the map layer buttons use `aria-pressed` to show the active layer;
+- `controls-legend-toggle` exposes `aria-expanded="false"` with
+  `aria-controls="controls-legend"`.
+
+The remaining weak spots are the radar and quick-action controls:
+
+- `pause-navigator` reads `Radar off`, but it has no `aria-pressed`, so its
+  state is visible only as text;
+- `touch-radial-action` reads `Quick`, but it also has no announced toggle or
+  expanded state.
+
+So the shell already has examples of good stateful controls. The next polishing
+gap is making the radar and quick-action surfaces match that standard instead
+of relying on label text alone.
+
+## Addendum (2026-07-29) - the radial overlay is semantic, but its launcher still is not
+
+A fresh browser probe confirms one more split in the quick-action surface:
+
+- `#radial-overlay` is a proper `role="dialog"` surface with the expected
+  hidden/visible behavior;
+- `#touch-radial-action` is still just a plain button labeled `Quick`;
+- the launcher does not expose `aria-expanded`, `aria-controls`, or a similar
+  announced state contract for open/closed behavior.
+
+So the wheel itself is semantically sound, but the launcher still relies on
+label text instead of a stateful accessible contract. That makes the radial
+entry point weaker than the dialog it opens.
+
+## Addendum (2026-07-29) - two modal dialogs are still missing accessible names
+
+A fresh modal-contract probe shows most overlays are labeled correctly, but two
+dialogs are still under-specified:
+
+- `#mission-board` and `#pause-overlay` expose `aria-labelledby` and are named
+  dialogs;
+- `#map-overlay` and `#radial-overlay` expose `role="dialog"` and
+  `aria-modal="true"`, but they do not expose `aria-labelledby` or
+  `aria-describedby`;
+- both of those overlays therefore rely on visible text alone for their
+  accessible name instead of a named dialog contract.
+
+So the shell has modal behavior, but two of the overlays still need explicit
+accessible naming to match the quality of the named mission board and pause
+dialogs.
+
+## Addendum (2026-07-29) - mission board and radial overlays now show the modal focus contract
+
+Fresh browser probes confirmed the modal interaction path on two dialogs:
+
+- `#mission-board` opens from its button, moves focus to
+  `#mission-board-close`, and returns focus when closed;
+- `#radial-overlay` opens from `#touch-radial-action`, moves focus to
+  `#radial-menu-close`, and returns focus to `#game-canvas` when closed.
+
+That means the shell already has a working modal-focus pattern, not just modal
+markup.
+
+The remaining unproven seam is the map overlay trigger:
+
+- `#map-overlay` is still a hidden modal dialog in the DOM;
+- in this session its visible touch/keyboard trigger did not produce an open
+  state we could verify;
+- so map-focus behavior remains unverified here, rather than positively broken.
+
+So the modal contract is partly proven and partly still under observation. The
+named dialogs and radial sheet now show the intended focus behavior, while the
+map path needs a reliable live activation check before it can be called done.
+
+
+## Addendum (2026-07-29) - pause now shows the modal focus contract too
+
+A fresh keyboard probe confirmed the pause path works the same way as the other
+named dialogs:
+
+- pressing `P` opens `#pause-overlay`;
+- focus lands on `#pause-resume`;
+- closing the overlay returns focus to `#game-canvas`.
+
+So pause is not just a labeled modal; it also follows the shell's modal focus
+pattern.
+
+## Addendum (2026-07-29) - the map overlay also follows the modal focus contract after entering the field
+
+After entering the field, the map path became verifiable:
+
+- clicking the `Map` control opens `#map-overlay`;
+- focus lands on `#map-close`;
+- closing the overlay returns focus to `#game-canvas`.
+
+So the earlier unverified map seam was state-dependent, not broken. The map
+overlay is another working modal-focus dialog once the shell has left the
+welcome state.
+
+## Addendum (2026-07-29) - the regular modal dialogs do not have the fallback's explicit Tab trap
+
+Source inspection closes one last accessibility distinction:
+
+- the no-render fallback installs a dedicated `keydown` handler that traps
+  `Tab` and routes `Escape` to retry;
+- the regular dialogs use shared open/close focus management, but they do not
+  attach an equivalent dialog-specific `keydown` trap in source;
+- that means the shell now has verified open/close focus behavior for the
+  dialogs, but not the same explicit keyboard-trap contract the fallback
+  surface has.
+
+So the modal dialogs are usable and focus-managed, but the fallback still has a
+strictly stronger keyboard contract than the regular overlays.
+
+## Addendum (2026-07-29) - the map and radial launchers now expose open state, and pause radar is initialized too
+
+The last control-state gaps from the recent shell audit are now wired through
+source and reflected in the live browser:
+
+- the map opener now exposes `aria-controls="map-overlay"` and
+  `aria-expanded="false"`;
+- `#touch-radial-action` now exposes `aria-controls="radial-overlay"` and
+  `aria-expanded="false"`;
+- `#pause-navigator` is initialized with `aria-pressed="false"` instead of
+  relying on text alone at startup.
+
+That means the earlier state-announcement gap on the map and radial launchers
+is now closed. The remaining modal distinction is narrower: the regular dialogs
+still use open/close focus management, while the no-render fallback keeps the
+stronger explicit `Tab`/`Escape` trap.
+
+## Addendum (2026-07-29) - the regular modal dialogs now share the Tab trap too
+
+The shared modal keydown handler is now live in source, and a browser probe on
+the pause dialog confirmed it:
+
+- opening `#pause-overlay` and pressing `Tab` moved focus from
+  `#pause-resume` to `#pause-mute`;
+- the regular modal dialogs therefore now keep focus inside the dialog instead
+  of leaking it back to the page;
+- the fallback surface still keeps its dedicated retry behavior, but the
+  regular dialogs are no longer weaker on Tab containment.
+
+So the remaining difference is now mostly about fallback-specific retry
+semantics, not basic modal focus trapping.
+
+## Addendum (2026-07-29) - Shift+Tab wrap is source-backed, even though the live probe timed out
+
+A direct source check shows the shared modal handler wraps focus in both
+directions:
+
+- `Tab` advances to the next focusable control inside the active modal;
+- `Shift+Tab` wraps back through the same focusable set;
+- the handler only runs while one of the visible modal dialogs is active.
+
+The live pause probe for the reverse direction timed out, so that direction is
+source-backed here rather than live-verified in this session. The important
+part is still clear: the modal trap is intended to wrap, not just keep focus in
+one direction.
+
+## Addendum (2026-07-29) - Shift+Tab wrap is now live-verified on the pause modal
+
+A fresh browser probe confirmed the reverse wrap in the real shell:
+
+- `Tab` moved focus from `#pause-resume` to `#pause-mute`;
+- `Shift+Tab` moved focus back from `#pause-mute` to `#pause-resume`;
+- the pause modal therefore wraps focus in both directions in-browser.
+
+So the shared modal trap is now fully verified live, not just from source.
+
+## Addendum (2026-07-29) - the browser-policy split is now captured as an ADR
+
+The live browser-policy snapshot now has a durable decision record:
+
+- ADR-0039 proposes keeping `#bootstrap-status` public and semantic,
+  `#profile-status` public and visible, and `#runtime-diagnostics` route-gated
+  to acceptance/developer surfaces;
+- the canonical browser-policy note records the current route split and the
+  accessibility-tree semantics;
+- the decision register now lists the ADR so the policy is discoverable from
+  the repository decision index.
+
+That gives the browser-policy work a stable architectural anchor instead of
+only a chain of live-analysis addenda.

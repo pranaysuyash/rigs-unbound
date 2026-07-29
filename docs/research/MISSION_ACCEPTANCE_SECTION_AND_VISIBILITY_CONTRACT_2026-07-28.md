@@ -186,3 +186,17 @@ rebuilt.
 Yes. This contract is intentionally presentation-only. It does not decide what
 the player may do. It only makes sure the board stays readable enough to make
 that choice honestly.
+
+## Addendum (2026-07-28): the sectioned board is already mounted on desktop, but compact/mobile hides the trigger path
+
+- A desktop browser probe opened the acceptance board and showed a sectioned
+  ledger with the header `Field contracts` and the subtitle `Choose what pulls
+  you next`.
+- The board summary reported `3 contracts resolved from the field state.`,
+  which is exactly the kind of compact summary this contract asks for.
+- The compact/mobile shell still hides the masthead button cluster, so the
+  sectioned board is not presently exposed on the narrow ready view even
+  though it exists in the desktop path.
+- That means the visibility contract has a real implementation example now:
+  desktop shows the compact sectioned ledger, while the mobile shell preserves
+  only the textual status rail.

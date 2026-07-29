@@ -158,7 +158,114 @@ machine-keeper thesis and long-range product direction.
 
 - The concrete public-approval workflow now lives in
   [Public Asset Promotion Workflow for First Runtime Bridge Candidate](./PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md).
+- The canonical navigation page for the full trail is
+  [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md).
 - That note keeps the decision separate from the manifest entry: the first
   public candidate remains the breakable crate, while the tractor preview stays
   developer-scale proof.
 - Evidence depth: Tier 1 doc linkage.
+
+## Addendum (2026-07-28) - developer surface proves the bridge, while public approval remains separate
+
+- Re-checked the developer browser surface on `http://localhost:4173/?surface=developer`.
+- The live runtime text now exposes the bridge list directly in the current
+  shell snapshot:
+  - `kenney-car-kit-breakable-crate-fixture` shows `status: loaded` with
+    `loadedNodeCount: 1`
+  - `kenney-car-kit-tractor-preview` shows `status: loaded` with
+    `loadedNodeCount: 5`
+  - both assets report `fallbackActive: false`
+- The runtime text also keeps the asset bridge distinct from the acceptance
+  gate by continuing to report `runtimeProfileSelection` separately from the
+  loaded asset entries.
+- That means the asset-production question is now narrower and better defined:
+  runtime bridge admission is proven in the developer surface, and the next
+  question is public promotion for the first candidate, not whether imported
+  GLBs can load at all.
+- The durable decision boundary is now captured in
+  [ADR-0038](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md),
+  which keeps `runtime-tested` distinct from `publicRuntimeApproved`.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-28) - runtime observability does not weaken the player gate
+
+- Re-checked the current runtime snapshot against the player distribution
+  contract.
+- The runtime can expose bridge state for developer and operator visibility, but
+  that is intentionally separate from player distribution:
+  - bridge-loaded runtime assets can be reported in the browser;
+  - `publicRuntimeApproved` still controls player-facing admission;
+  - the build gate continues to reject unapproved runtime files from player
+    output.
+- This is the useful long-term asset shape:
+  runtime observability for proof, manifest approval for player truth, and a
+  build-time gate that enforces the difference.
+- Evidence depth: Tier 1 synthesis from the current live bridge notes and
+  player-asset boundary review.
+
+## Addendum (2026-07-28) - the player gate still excludes unapproved assets while the developer bridge stays visible
+
+- Re-checked the live developer bridge notes against the player-asset
+  distribution boundary.
+- The useful distinction is still intact:
+  - runtime bridge assets are visible and reportable in the developer surface;
+  - `publicRuntimeApproved` remains the player-distribution gate;
+  - the build/packaging path continues to reject unapproved runtime files from
+    player output.
+- The crate remains the first public candidate because it is already proved in
+  the developer surface but not yet approved for player truth.
+- The tractor preview stays developer-only bridge proof because it is the
+  clearer larger-asset test, not the first public candidate.
+- Evidence depth: Tier 1 synthesis from the current live bridge notes and the
+  player-asset boundary review.
+
+## Addendum (2026-07-29) - the remaining asset gap is rights/provenance linkage, not bridge admission
+
+The current asset trail now separates three questions cleanly:
+
+- can the runtime ingest and report the GLB? yes, the developer bridge already
+  proves that;
+- can the manifest and approval boundary keep player truth separate from
+  developer proof? yes, ADR-0038 and the promotion workflow already define
+  that separation;
+- is the rights/provenance summary tied to the promotion decision itself
+  rather than only to the registry entry? that is the remaining durable
+  question.
+
+That narrows the next asset-proof slice in a useful way: the repo does not need
+another bridge candidate to understand the current architecture. It needs the
+promotion decision to carry a compact rights/provenance summary so the public
+approval record can stand on its own.
+
+The next artifact should therefore be a promotion record that ties the asset,
+source/right status, runtime proof, and rollback path together in one findable
+decision note.
+
+## Addendum (2026-07-29) - the approval templates now force the missing linkage
+
+The public-asset promotion approval record template, candidate checklist, and
+workflow now all require a compact rights/provenance summary in the promotion
+decision record itself.
+
+That means the remaining asset gap is no longer a vague “add more provenance”
+task. The trail now knows exactly where the missing linkage belongs: in the
+decision artifact that promotes an already runtime-tested asset to public
+approval.
+
+## Addendum (2026-07-29) - the package index now points at the exact remaining asset proof
+
+The package index and workflow together make the next step explicit enough that
+the repo no longer needs another bridge candidate to explain the architecture.
+
+The remaining proof is the promotion record itself:
+
+- it must identify the asset being promoted,
+- it must carry the compact rights/provenance summary,
+- it must record the runtime proof that the developer bridge already showed,
+- it must name the rollback or replacement path,
+- and it must be findable from the package index as the operator-authored
+  approval artifact.
+
+That keeps the asset lane honest: runtime bridge admission proves the asset can
+be loaded, but the promotion decision proves whether it may become player
+truth.

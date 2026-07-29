@@ -2308,3 +2308,17 @@ long-range design direction.
 - The broader thesis still stands: machines, places, and consequences form the
   game’s long arc. The named stack is simply the mechanism that keeps episodes
   bounded, readable, and explainable while that arc grows.
+
+## Addendum (2026-07-29) - ADR-0039 keeps browser diagnostics separate from the player-facing shell
+
+This long-term analysis now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split,
+  so the player shell stays concise while the review lane remains explainable.
+
+That matters for this analysis because the long-term platform shape includes
+both player-facing readability and reviewer-facing evidence, and those should
+remain distinct.

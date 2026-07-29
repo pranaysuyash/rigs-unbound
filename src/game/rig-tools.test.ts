@@ -178,11 +178,16 @@ describe("the Pegboard is a projection, not a store", () => {
     }
   });
 
-  it("blocks the winch with a reason rather than hiding it", () => {
-    const tools = deriveRigToolProjections(createInitialState());
-    const winch = tools.find((tool) => tool.id === "winch")!;
-    expect(winch.status).toBe("blocked");
-    expect(winch.blockedReason).toMatch(/no winch/i);
+  it("does not offer a winch entry (self-recovery is not a Pegboard mechanic yet)", () => {
+    // The previous `winch` projection always had `command: null`, making it a
+    // permanently inert button — see RADIAL_QUICK_ACTION_AUTHORITY_AUDIT
+    // Finding #3. Removed rather than wired, because `winchRecover()` conflates
+    // several distinct recovery mechanics that need their own assessment
+    // before a truthful Pegboard action can be exposed.
+    const ids = deriveRigToolProjections(createInitialState()).map(
+      (tool) => tool.id,
+    );
+    expect(ids).not.toContain("winch");
   });
 
   it("offers no tyre or axle entries to a rig with neither", () => {

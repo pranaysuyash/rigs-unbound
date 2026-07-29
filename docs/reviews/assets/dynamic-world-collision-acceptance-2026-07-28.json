@@ -1,0 +1,54 @@
+{
+  "observedAt": "2026-07-28T19:19:35.490Z",
+  "url": "http://127.0.0.1:4173/?acceptance=field-02",
+  "scenario": "fast utility tractor into parked toy buggy",
+  "before": {
+    "tractor": {
+      "x": 2,
+      "z": 0,
+      "speed": 9
+    },
+    "buggy": {
+      "x": 7,
+      "z": 0,
+      "speed": 0
+    }
+  },
+  "after": {
+    "tractor": {
+      "x": 2.364,
+      "z": 0,
+      "speed": 2.012,
+      "condition": 81.8
+    },
+    "buggy": {
+      "x": 7.303,
+      "z": 0,
+      "speed": 0
+    },
+    "separation": 4.939,
+    "collision": {
+      "totalContacts": 6,
+      "policyViolationCount": 0,
+      "contactAgeSteps": 1,
+      "contacts": [
+        {
+          "firstId": "utility-tractor",
+          "firstRole": "rig",
+          "secondId": "toy-buggy",
+          "secondRole": "rig",
+          "response": "block",
+          "impactSpeed": 8.972,
+          "normalX": -1,
+          "normalZ": 0,
+          "swept": true,
+          "policyKnown": true
+        }
+      ]
+    },
+    "lastDiagnostic": "Torque contacted Spark at 2.6 m/s."
+  },
+  "consoleProblems": [],
+  "screenshotPath": "/Users/pranay/Projects/Game_dev/rigs-unbound/docs/reviews/assets/dynamic-world-collision-acceptance-2026-07-28.png",
+  "pass": true
+}

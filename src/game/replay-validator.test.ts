@@ -3,14 +3,18 @@ import {
   createInitialState,
   advanceGame,
   cycleCamera,
+  cycleDifferentialMode,
   performPrimaryAction,
   publicState,
   repairRig,
   selectCamera,
   settleWorld,
+  setTirePressure,
   stepGame,
 } from "./state";
 import { GameWorld } from "./gameworld";
+import { DEFAULT_TIRE_PRESSURE_PSI } from "./contracts";
+import { AIRED_DOWN_PSI } from "./rig-tool-projection";
 import {
   appendRunRecordEntry,
   createRunRecord,
@@ -240,6 +244,253 @@ describe("deterministic replay validator", () => {
       ok: true,
       status: "verified",
       checkpointsVerified: 1,
+    });
+  });
+
+  describe("rig-tool commands (Pegboard tyre pressure and differential lock)", () => {
+    // The replay contract is the resolved command, not the display id — see
+    // RADIAL_QUICK_ACTION_AUTHORITY_AUDIT_2026-07-28.md Finding #1. Replay
+    // must never re-derive player intent from a UI label.
+
+    it("replays an air-down command and verifies", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-AIR-DOWN", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      checkpoint(record, state, world, "boot");
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: AIRED_DOWN_PSI },
+      });
+      setTirePressure(state, AIRED_DOWN_PSI);
+      checkpoint(record, state, world, "after-air-down");
+
+      expect(state.rigs[state.activeRigId].tools.tirePressurePsi).toBe(
+        AIRED_DOWN_PSI,
+      );
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: true,
+        status: "verified",
+        commandsApplied: 1,
+        checkpointsVerified: 2,
+      });
+    });
+
+    it("replays an air-up command and verifies", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-AIR-UP", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: AIRED_DOWN_PSI },
+      });
+      setTirePressure(state, AIRED_DOWN_PSI);
+      checkpoint(record, state, world, "aired-down");
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-up-tires",
+        command: {
+          type: "set-tire-pressure",
+          psi: DEFAULT_TIRE_PRESSURE_PSI,
+        },
+      });
+      setTirePressure(state, DEFAULT_TIRE_PRESSURE_PSI);
+      checkpoint(record, state, world, "after-air-up");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: true,
+        status: "verified",
+        commandsApplied: 2,
+        checkpointsVerified: 2,
+      });
+    });
+
+    it("replays a differential-cycle command and verifies", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-DIFF", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      checkpoint(record, state, world, "boot");
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "cycle-differential",
+        command: { type: "cycle-differential" },
+      });
+      cycleDifferentialMode(state);
+      checkpoint(record, state, world, "after-cycle");
+
+      expect(state.rigs[state.activeRigId].tools.differentialMode).toBe(
+        "limited-slip",
+      );
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: true,
+        status: "verified",
+        commandsApplied: 1,
+        checkpointsVerified: 2,
+      });
+    });
+
+    it("preserves order across multiple sequential tool commands", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-SEQUENCE", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      checkpoint(record, state, world, "boot");
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: AIRED_DOWN_PSI },
+      });
+      setTirePressure(state, AIRED_DOWN_PSI);
+      checkpoint(record, state, world, "step-1-aired-down");
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "cycle-differential",
+        command: { type: "cycle-differential" },
+      });
+      cycleDifferentialMode(state);
+      checkpoint(record, state, world, "step-2-limited-slip");
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "cycle-differential",
+        command: { type: "cycle-differential" },
+      });
+      cycleDifferentialMode(state);
+      checkpoint(record, state, world, "step-3-locked");
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-up-tires",
+        command: {
+          type: "set-tire-pressure",
+          psi: DEFAULT_TIRE_PRESSURE_PSI,
+        },
+      });
+      setTirePressure(state, DEFAULT_TIRE_PRESSURE_PSI);
+      checkpoint(record, state, world, "step-4-aired-up");
+
+      // The order matters: locked differential + full pressure is a different
+      // final state than the same two commands applied in the other order
+      // would produce for any mechanic that isn't purely commutative. Every
+      // intermediate checkpoint verifying independently is what proves the
+      // sequence, not just the final one.
+      expect(state.rigs[state.activeRigId].tools).toEqual({
+        tirePressurePsi: DEFAULT_TIRE_PRESSURE_PSI,
+        differentialMode: "locked",
+      });
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: true,
+        status: "verified",
+        commandsApplied: 4,
+        checkpointsVerified: 5,
+      });
+    });
+
+    it("includes the expected final rig.tools in checkpoint state", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-CHECKPOINT-STATE", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: AIRED_DOWN_PSI },
+      });
+      setTirePressure(state, AIRED_DOWN_PSI);
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "cycle-differential",
+        command: { type: "cycle-differential" },
+      });
+      cycleDifferentialMode(state);
+      checkpoint(record, state, world, "final");
+
+      const finalPublicState = publicState(state, world) as {
+        rigs: Record<string, { tools: unknown }>;
+        activeRigId: string;
+      };
+      expect(
+        finalPublicState.rigs[finalPublicState.activeRigId]!.tools,
+      ).toEqual({
+        tirePressurePsi: AIRED_DOWN_PSI,
+        differentialMode: "limited-slip",
+      });
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: true,
+        status: "verified",
+        commandsApplied: 2,
+        checkpointsVerified: 1,
+      });
+    });
+
+    it("fails as invalid-payload on a malformed command type", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-BAD-TYPE", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "teleport-rig", psi: AIRED_DOWN_PSI },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match a known command variant.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload on a malformed (non-finite) PSI", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-BAD-PSI", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: Number.NaN },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match a known command variant.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload when toolId is missing", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-NO-ID", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        command: { type: "cycle-differential" },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message: "rig-tool command requires a toolId.",
+          }),
+        ],
+      });
     });
   });
 });

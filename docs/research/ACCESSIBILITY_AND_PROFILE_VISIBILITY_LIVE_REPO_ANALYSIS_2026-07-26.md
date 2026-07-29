@@ -259,6 +259,17 @@ That keeps the work aligned with the accessibility skill guidance:
 
 ## Addendum (2026-07-26) - the map overlay is the next missing focus-managed browser boundary
 
+## Addendum (2026-07-29) - the player-facing profile signal is still the missing browser-delivery seam
+
+- Re-checked the accessibility/profile trail against the current loading and browser-delivery notes.
+- The shell is already truthful about boot, save, and fallback state, so the problem is not basic accessibility operability.
+- The remaining gap is a public-facing comfort/profile signal that does not force the player into developer diagnostics.
+- The browser-delivery contract and the accessibility contract now point at the same narrow seam:
+  - one visibly named progress affordance, or
+  - one visibly named player-facing profile indicator.
+- That keeps the shell honest without pretending the current HUD already explains the active profile in-player.
+- Evidence depth: Tier 1 static synthesis from the current analysis notes. No new browser or assistive-tech walkthrough was run in this update.
+
 - Re-checked `index.html`, `src/main.ts`, and `src/styles.css` against the map
   overlay interaction in the current worktree.
 - The map overlay is already a meaningful mode switch:
@@ -412,3 +423,235 @@ carries the wider machine-keeper thesis and long-range product direction.
   to make the choice surface equally legible.
 - Evidence depth: Tier 1 static source inspection of `index.html`,
   `src/main.ts`, and `src/styles.css`.
+
+## Addendum (2026-07-28) - the next accessibility proof slice is the manual verification stack, not another keyboard rewrite
+
+- Re-read the `Accessibility Auditor` checklist against the current shell and
+  keep the remaining gap narrow and explicit.
+- The live repo already has the baseline keyboard, focus, and skip-link
+  primitives, so the next proof is not “make the shell operable from scratch”.
+- The missing evidence now clusters into a manual verification stack:
+  - one spoken screen-reader pass for the public shell and its named status
+    regions,
+  - one 200% zoom / narrow-reflow check that confirms the layout still reads
+    clearly,
+  - one JavaScript-disabled or core-functionality fallback check for the
+    browser surface,
+  - one explicit accessibility statement or equivalent durable pointer for the
+    public promise surface.
+- That keeps the accessibility work aligned with the browser-delivery contract:
+  the app is already structurally accessible, and the remaining question is
+  whether the public promise is complete enough for a manual inclusive QA pass.
+- Evidence depth: Tier 1 static synthesis from the current shell notes plus the
+  skill checklist; no new runtime checks were run in this pass.
+
+## Addendum (2026-07-28) - the shell source now includes the public accessibility link
+
+- Re-checked the shell source after adding the masthead accessibility link to
+  `index.html`.
+- The public statement page is now reachable from the shell source and the docs
+  navigation.
+- The remaining proof step is a refreshed live browser observation of the
+  updated shell, followed by the manual inclusive QA stack already named in
+  this note.
+- Evidence depth: Tier 1 source inspection plus pending Tier 4 browser
+  confirmation.
+
+## Addendum (2026-07-28) - the live shell now exposes the profile and save status publicly
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The public shell now shows the live trust line the contract expects:
+  - `Quality: standard.`
+  - `Saved locally just now`
+  - `Field systems ready. Restored session controls are active.`
+  - visible `#profile-status` and `#save-status` regions on the public surface
+  - `runtimeDiagnostics` is visible rather than hidden in this build
+- That means the earlier “profile signal is still mostly indirect” framing is now stale for the current browser build. The player can already read the active quality/profile line in-session.
+- The remaining browser-delivery gap is narrower: there is still no dedicated progress bar or explicit `aria-busy` bootstrap marker, so loading remains truthful but not especially explicit.
+- Evidence depth: Tier 4 runtime/manual observation for the live page state.
+
+## Addendum (2026-07-28) - the Accessibility Auditor skill confirms the next gap is manual inclusive QA, not a basic operability rewrite
+
+- Re-read the `Accessibility Auditor` checklist against the current shell and
+  the live repo notes already in this file.
+- The current browser surface already covers the basics the skill cares about:
+  semantic controls, keyboard access, visible focus, skip-link behavior,
+  announced bootstrap state, and visible profile/save state.
+- That means the remaining accessibility work is not a clean-slate WCAG fix.
+  It is the manual inclusive QA stack that can prove the public promise:
+  - one screen-reader pass against the public shell and named status regions,
+  - one zoom / narrow-reflow pass at higher magnification,
+  - one JavaScript-disabled or core-functionality fallback pass,
+  - one durable accessibility statement or equivalent public-promise pointer.
+- The current browser-delivery gap remains the same narrow one identified by
+  the 3D-web-experience pass: loading/progress should be more explicit, and
+  the player-facing story for reduced capability should be named clearly.
+- Evidence depth: Tier 1 static synthesis from the skill checklist and the
+  live repo notes, with the current public shell state already captured above
+  at Tier 4.
+
+## Addendum (2026-07-28) - the public shell and accessibility statement page now give browser-visible evidence for the inclusive QA stack
+
+- Re-checked the live public shell at `http://localhost:4173/` on a narrow
+  viewport (`390 x 844`).
+- The surface still presents the core public accessibility primitives:
+  - `main`, `header`, and `footer` landmarks are present,
+  - the skip link is focusable and points to `#game-canvas`,
+  - `#bootstrap-status`, `#save-status`, and `#profile-status` are all exposed
+    as visible status regions,
+  - the focus order includes the canvas, sound/fullscreen controls, the
+    accessibility statement link, the physics lab link, and the control
+    buttons that make the shell operable.
+- The dedicated accessibility statement page is now live at
+  `http://localhost:4173/accessibility`.
+  - Its title is `Accessibility Statement - Rigs Unbound`.
+  - Its heading is `Accessibility Statement`.
+  - It summarizes the public promise, the remaining validation work, and the
+    user-facing testing expectations.
+- This does not complete the manual inclusive QA stack, but it does turn the
+  durable pointer into a real browser surface that can be verified alongside
+  the shell itself.
+- The only remaining open pieces are still the live manual checks named in the
+  earlier addendum: screen-reader, high-zoom / narrow-reflow, and
+  JavaScript-disabled fallback confirmation.
+- Evidence depth: Tier 4 runtime/manual browser observation for the shell and
+  the statement page.
+
+## Addendum (2026-07-28) - the accessibility statement page is narrow-safe and links back to the evidence trail
+
+- Re-checked `http://localhost:4173/accessibility` on the same narrow viewport
+  used for the shell (`390 x 844`).
+- The statement page has no horizontal overflow at that width.
+- The page keeps the promise surface small and readable:
+  - `main` is present,
+  - the heading is `Accessibility Statement`,
+  - the opening copy explains the public promise and validation work,
+  - the page links back to the shell evidence, this live repo analysis, and the
+    public promise contract.
+- That means the statement page is not just a static marketing page; it is a
+  navigable evidence hub with a stable browser footprint.
+- The remaining manual inclusive QA work is still open, but now it can be
+  performed against a browser surface that already proves the statement page
+  itself is readable on mobile/narrow layouts.
+- Evidence depth: Tier 4 runtime/manual browser observation.
+
+## Addendum (2026-07-28) - the compact contract-board gap is an accessibility exposure question, not a missing control implementation
+
+- A compact-viewport probe at `390 x 844` found the following contract-related
+  controls in the DOM:
+  - `#mission-board-button` (`Contracts`)
+  - `#reset-button` (`Reset field`)
+  - `#mission-board-close` (`Close`)
+  - `#mission-briefing-accept` (`Accept contract`)
+  - `#enter-world` (`Enter the field`)
+- All of those controls were hidden at the time of the probe, so they were not
+  keyboard-reachable or exposed as a meaningful assistive-technology target in
+  the compact shell.
+- The accessibility implication is specific: the shell already has baseline
+  operability and public status regions, but compact/mobile still lacks a
+  discoverable contract-board affordance that can be reached by keyboard or
+  screen reader users.
+- That keeps this issue in the same family as the earlier exposure-policy notes:
+  it is a shell boundary decision, not a renderer-quality regression and not a
+  missing label on an otherwise visible control.
+
+## Addendum (2026-07-29) - the player-facing profile split is now clearer than the older evidence suggested
+
+A later live browser probe on the canonical shell found:
+
+- `#profile-status` visible with `Quality: measuring. Still measuring frame performance.`
+- `#runtime-diagnostics` hidden from the public HUD;
+- `#bootstrap-status` acting as a progressbar while the shell is measuring.
+
+That means the older "runtime-diagnostics visible" state is stale. The current
+browser contract is cleaner: profile state is visible, diagnostics stay
+developer-hidden, and bootstrap owns the real progress surface.
+
+## Addendum (2026-07-29) - the public/acceptance split is the real contract
+
+A route comparison on the live shell clarified the exact runtime split:
+
+- the public shell hides `#runtime-diagnostics`;
+- the `?acceptance=field-02` shell shows `#runtime-diagnostics` with the
+  renderer/backend summary;
+- both routes keep `#bootstrap-status` as the semantic loading progressbar and
+  `#profile-status` as the visible quality line.
+
+So the current browser contract is not “diagnostics are always hidden” or
+“diagnostics are always visible.” It is a two-surface policy: public shell
+stays quieter, acceptance/developer shell exposes the deeper runtime summary.
+
+## Addendum (2026-07-29) - hidden on the public shell means route-gated, not universally absent
+
+A live route comparison makes the current policy explicit:
+
+- `#runtime-diagnostics` is hidden on the public shell;
+- the `?acceptance=field-02` route reveals `#runtime-diagnostics` with the
+  renderer/backend summary;
+- `#profile-status` remains visible on both routes;
+- `#bootstrap-status` remains the semantic progressbar while measuring.
+
+So the older shorthand "hidden from the HUD" now needs that route qualifier.
+The current contract is public-shell quiet, acceptance/developer verbose.
+
+## Addendum (2026-07-29) - ADR-0039 is the decision that explains the public/acceptance split
+
+The current accessibility/profile evidence now maps cleanly onto ADR-0039:
+
+- public shell: semantic loading progressbar plus visible quality profile;
+- acceptance route: deeper renderer/backend summary as static text;
+- public shell tree: calm and readable, with no runtime diagnostics node.
+
+That gives the accessibility analysis a policy anchor instead of only a live
+snapshot.
+
+## Addendum (2026-07-29) - ADR-0039 keeps this profile analysis on the public-shell side
+
+This live accessibility/profile analysis now sits alongside the browser-policy
+split named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` stays on the acceptance/developer side of the split,
+  where fallback reasons can remain explainable without becoming public HUD
+  clutter.
+
+That keeps the analysis centered on what the player can perceive in-session,
+not on repeating the deeper diagnostics lane in the public surface.
+
+## Addendum (2026-07-29) - the live browser surface is readable, but it is still text-status based
+
+A fresh browser check on `http://127.0.0.1:4173/?surface=developer` confirmed:
+
+- `#bootstrap-status` reads `Field systems ready with standard scenery detail.`
+- `#profile-status` reads `Quality: measuring. Still measuring frame performance.`
+- `#save-status` reads `New field ready · progress saves locally`
+- `#bootstrap-status` is a live `role="status"` region with `aria-live="polite"`
+- no `progress` element exists
+- no `[role=progressbar]` element exists
+
+So the public shell is understandable and alive, but the progress story is
+still a text/status affordance rather than a dedicated progress indicator.
+Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-29) - the map overlay is already a real dialog; the remaining question is proof stability for focus entry and restore
+
+A later browser probe showed the map overlay itself is not missing its dialog
+semantics:
+
+- `#map-overlay` carries `role="dialog"`;
+- `#map-overlay` carries `aria-modal="true"`;
+- `#map-overlay` is labelled by `#map-overlay-title`;
+- the in-world overlay exposes real controls such as `Field`, `Rumor`,
+  `Journal`, and `Close`.
+
+That means the earlier shorthand “the map overlay still lacks a true dialog
+contract” was too blunt. The better reading is:
+
+- the dialog semantics exist;
+- the browser probe is still inconsistent about whether it can reliably prove
+  the open/focus path and restore path in one pass;
+- the remaining accessibility question is therefore discoverability and focus
+  stability, not basic ARIA dialog structure.
+
+Evidence depth: Tier 4 runtime/manual observation with an unstable probe path.

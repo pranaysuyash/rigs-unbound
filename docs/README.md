@@ -15,12 +15,16 @@ the real work.
 - [Three.js Interaction Implementation Flow](research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
 - [Comms package](comms/README.md)
 - [Reviews index](reviews/README.md)
+- [Accessibility statement](../accessibility.html)
+- [Public Asset Promotion Package Index](reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Runtime Reachability Ownership Matrix](reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
 - [Operations index](operations/README.md)
 - [Trailer and build-in-public release review](comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
 - [Trailer and X announcement decision](comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
 - [Trailer audio and edit production log](comms/TRAILER_AUDIO_AND_EDIT_PRODUCTION_LOG_2026-07-26.md)
 - [First post draft](comms/POST_TODAY_2026-07-26.md)
 - [Compositional Episode Grammar and Storm Relay](exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+- [Stranger at the Silo opening exploration](exploration/STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md)
 - [Master Execution Tracker](plans/MASTER_EXECUTION_TRACKER.md)
 - [Worklog](WORKLOG.md)
 
@@ -50,4 +54,6 @@ the real work.
 
 If you are continuing a 3D-game architecture pass, the contract index is the
 best quick lane map. If you are checking current status, use the exploration
-map and the tracker together.
+map and the tracker together. If you are classifying unreachable runtime
+modules, use the runtime reachability ownership matrix alongside the short
+disposition note in the exploration map.

@@ -186,6 +186,18 @@ Confidence is high in the cited browser/security/platform constraints, medium-hi
 
 The safe creative move is not to make the game timid. It is to keep imaginative content cheap and reversible while making identity, money, authority, and public interaction deliberate and auditable.
 
+## Addendum (2026-07-29) - ADR-0039 keeps the public shell distinct from the readiness/gating notes
+
+This register now sits alongside the browser-policy split named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- acceptance/developer surfaces can carry the deeper runtime readiness and
+  diagnostics notes without turning the public HUD into a planning register.
+
+That matters because the public-readiness story is a policy boundary, not a
+player-facing diagnostics dump.
+
 ## Addendum (2026-07-25) - current runtime still fits the solo-lab gate, not the public-social gate
 
 - Re-checked the readiness register against the current browser daemon snapshot

@@ -358,3 +358,15 @@ browser, or integration verification was run for this change.
 - The shared-state/server-authoritative boundary remains future-gated; the
   current local-first authority mode is still the live product reality.
 - Evidence tier: Tier 1 static inspection.
+
+
+## Addendum (2026-07-29) - multiplayer skill synthesis keeps server authority downstream of replayable local truth
+
+- Re-read the local `multiplayer` skill and compared it to the authority/replay rollout order already named in this repo.
+- The skill’s decision tree is consistent with the current product shape: competitive real-time play wants dedicated-server authority, casual co-op can start host-based, and both still depend on the same input/state separation and lag-handling rules.
+- In this repo, the local-first deterministic mode is already the live authority reality, so the next proof is still a portable replay/ghost artifact, not a networked authority layer.
+- That means the current boundary should stay explicit:
+  - local deterministic play remains canonical today;
+  - async ghosts/shared seeds are the next shareable surface;
+  - server authority remains downstream of a proven replayable command/event path.
+- Evidence depth: Tier 1 static synthesis from the local multiplayer skill plus the existing authority and replay contracts. No networked multiplayer surface was implemented or tested in this pass.

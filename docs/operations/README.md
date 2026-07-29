@@ -22,6 +22,8 @@ ordered evidence surfaces that should be read before changing release state.
 
 - [Comms package index](../comms/README.md)
 - [Reviews index](../reviews/README.md)
+- [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
 - [Execution tracker](../plans/MASTER_EXECUTION_TRACKER.md)
 - [Worklog](../WORKLOG.md)
 

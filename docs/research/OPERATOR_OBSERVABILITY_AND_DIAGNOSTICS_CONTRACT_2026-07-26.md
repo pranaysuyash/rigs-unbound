@@ -122,3 +122,15 @@ Yes: replay, asset, profile, and future streamed-content diagnostics should shar
 - That preserves the split: diagnostics own explainability and investigation,
   while the episode grammar owns the story shape that diagnostics must later
   help explain.
+
+## Addendum (2026-07-29) - ADR-0039 keeps this diagnostics lane off the public shell
+
+This observability contract now sits under the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible as shell state;
+- `#runtime-diagnostics` remains an acceptance/developer summary surface.
+
+That matters because this contract is explicitly about local evidence and
+explanation, not about moving internal tuning controls into the player HUD.

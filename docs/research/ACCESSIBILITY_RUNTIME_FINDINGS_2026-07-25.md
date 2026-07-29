@@ -113,7 +113,7 @@ accessibility shell behaving as intended:
 - headings are present and meaningful:
   - `Home Silo workshop · fit modules, 0 salvage in the bin`
   - `The ground decides.`
-  - `The field could not open.`
+  - `The 3D scene is unavailable.`
 - the skip link is present and visible in the focusable set
 - `#game-canvas` is keyboard focusable and currently receives focus after entry
 - `window.render_game_to_text()` and `window.getPerformanceSnapshot()` keep
@@ -157,3 +157,47 @@ Evidence depth: Tier 4 runtime/manual observation.
   - a readable fallback when the 3D surface is delayed or unavailable.
 - This should be documented as a policy contract before any UI redesign so the
   browser surface remains honest about what it is doing.
+
+## Addendum (2026-07-28) - profile and save status are now visible, but explicit loading progress is still absent
+
+- Re-checked the canonical browser daemon on `http://127.0.0.1:4173/?acceptance=field-02`.
+- The public shell now visibly exposes the player-facing state this note was
+  previously asking for:
+  - `#profile-status` reads `Quality: standard.`
+  - `#save-status` reads `Saved locally just now`
+  - `#bootstrap-status` reads `Field systems ready. Restored session controls are active.`
+  - `runtimeDiagnostics` is visible on the public surface in this build
+- That means the accessibility question is no longer “is the profile state
+  hidden?” It is now “is there a clearer loading-progress affordance than the
+  current truthful textual bootstrap?”
+- The answer from this pass is still no: there is no dedicated progress bar,
+  no visible percentage meter, and no separate warmup progress state distinct
+  from the ready shell.
+- Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-29) - ADR-0039 is the policy anchor for the current public/acceptance split
+
+The live accessibility findings now sit underneath the browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- acceptance/developer surfaces may carry deeper runtime diagnostics without
+  turning the public HUD into an operator lane.
+
+That keeps this note honest about what it is measuring: the public shell’s
+accessibility and loading story, not the deeper reviewer-facing summary.
+
+## Addendum (2026-07-29) - the save announcement contract is now browser-proven
+
+- Re-checked the live public shell against the save/recovery announcement
+  contract.
+- `#save-status` is present with `role="status"`, `aria-live="polite"`, and
+  `aria-atomic="true"`.
+- The save line remains visible and readable in the public shell, and the live
+  browser now confirms it is a proper announcement region rather than a purely
+  visual label.
+- That means the earlier “still missing” reading for the save announcement is
+  stale in browser-visible terms.
+- Manual VoiceOver/NVDA/JAWS narration is still a useful separate QA pass, but
+  the browser contract itself is in place.

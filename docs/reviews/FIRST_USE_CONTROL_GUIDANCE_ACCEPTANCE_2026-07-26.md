@@ -141,3 +141,16 @@ The narrow-layout assertion was also corrected to inspect the real
 coarse-pointer touch context rather than a resized desktop context. The full
 result is recorded in
 [Integrated admission matrix](INTEGRATED_ADMISSION_MATRIX_2026-07-26.md).
+
+## Addendum (2026-07-29) - ADR-0039 keeps the first-use guidance on the player-facing side
+
+The first-use guidance contract now sits under the same browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible as shell state;
+- `#runtime-diagnostics` remains hidden so the lesson surface does not become
+  a diagnostics panel.
+
+That keeps first-use guidance focused on teaching the player the shell, not on
+repeating operator-only runtime detail.

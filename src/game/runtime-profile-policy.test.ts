@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { PerformanceMonitor, type PerformanceSnapshot } from "./performance";
 import {
   RuntimeProfileController,
+  formatRuntimeProfileStatus,
+  formatRuntimeProfileOperatorSummary,
   selectRuntimeProfile,
 } from "./runtime-profile-policy";
 
@@ -102,6 +104,66 @@ describe("runtime profile policy", () => {
       reasons: [],
       reasonText: "",
     });
+  });
+
+  it("formats the player-facing profile line in plain language", () => {
+    expect(
+      formatRuntimeProfileStatus(
+        selectRuntimeProfile(snapshot({ frameSampleCount: 89 })),
+      ),
+    ).toBe("Quality: measuring. Still measuring frame performance.");
+
+    expect(
+      formatRuntimeProfileStatus(
+        selectRuntimeProfile(
+          snapshot({
+            averageFrameMs: 26,
+            p95FrameMs: 34,
+          }),
+        ),
+      ),
+    ).toBe(
+      "Quality: reduced. Scenery simplified to keep things smooth. Average frame time exceeded the comfort target. Stutter spikes exceeded the comfort target.",
+    );
+
+    expect(formatRuntimeProfileStatus(selectRuntimeProfile(snapshot()))).toBe(
+      "Quality: standard. Full scenery detail is active.",
+    );
+  });
+
+  it("formats a terse operator summary for fallback diagnostics", () => {
+    expect(
+      formatRuntimeProfileOperatorSummary(
+        selectRuntimeProfile(snapshot({ frameSampleCount: 89 })),
+      ),
+    ).toBe("Renderer visibility warmup: standard (insufficient-frame-samples)");
+
+    expect(
+      formatRuntimeProfileOperatorSummary(
+        selectRuntimeProfile(
+          snapshot({
+            averageFrameMs: 26,
+            p95FrameMs: 34,
+          }),
+        ),
+      ),
+    ).toBe(
+      "Renderer visibility fallback: mobile-safe (average-frame-budget,p95-frame-budget)",
+    );
+
+    expect(
+      formatRuntimeProfileOperatorSummary(selectRuntimeProfile(snapshot())),
+    ).toBe("Renderer visibility steady: standard");
+
+    expect(
+      formatRuntimeProfileOperatorSummary(
+        selectRuntimeProfile(snapshot()),
+        "mobile-safe",
+        true,
+      ),
+    ).toBe(
+      "Renderer visibility fallback: mobile-safe (acceptance preview)",
+    );
   });
 
   it("selects mobile-safe with every exceeded budget reason", () => {

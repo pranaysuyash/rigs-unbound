@@ -49,8 +49,9 @@ The recurring loop under investigation is:
 
 1. Use the comms package first when you are working on the launch/post package.
 2. Use the reviews index first when you are working on evidence, approval, or closure.
-3. For the live rig-local animation boundary, read the Three.js Animation Implementation Flow with ADR-0031; ADR-0030 is historical only.
-4. Use the execution tracker and worklog for the current operational sequence.
+3. Use the runtime reachability ownership matrix when you need the orphan-set classification and archive/defer rationale.
+4. For the live rig-local animation boundary, read the Three.js Animation Implementation Flow with ADR-0031; ADR-0030 is historical only.
+5. Use the execution tracker and worklog for the current operational sequence.
 
 ## Run Field 02
 
@@ -119,6 +120,9 @@ reproducible primitive geometry—not a final-engine decision.
 - [Three.js Interaction Implementation Flow](docs/research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
 - [Comms package](docs/comms/README.md)
 - [Reviews index](docs/reviews/README.md)
+- [Accessibility statement](accessibility.html)
+- [Public Asset Promotion Package Index](docs/reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Runtime Reachability Ownership Matrix](docs/reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
 - [Operations index](docs/operations/README.md)
 - [Trailer and build-in-public release review](docs/comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
 - [Trailer and X announcement decision](docs/comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)

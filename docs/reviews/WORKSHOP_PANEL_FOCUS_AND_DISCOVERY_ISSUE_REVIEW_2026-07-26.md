@@ -72,3 +72,15 @@ Yes: the workshop is not just another menu. It is the player’s capability gate
 - The workshop remains a progression gate, not a second authority, so its
   next proof should stay presentation- and focus-oriented rather than adding
   any new state path.
+## Addendum (2026-07-28): the workshop panel is still hidden in the current player surface
+
+- Re-checked the live player shell on the canonical `http://localhost:4173/`
+  surface.
+- `#workshop-panel` is present in the DOM and labeled `Workshop`, but it is
+  still `hidden: true` in the inspected player state.
+- The visible controls on the player surface do not expose a dedicated
+  workshop trigger or focus entry.
+- Focus remains on `#game-canvas` rather than entering the workshop panel.
+- That means the workshop remains a real progression surface in the source
+  and runtime contract trail, but it is not currently mounted as a discoverable
+  dialog on this player surface.

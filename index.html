@@ -29,7 +29,7 @@
           <strong>Rigs Unbound</strong>
         </div>
         <div class="masthead__right">
-          <div class="world-clock" aria-live="polite">
+          <div class="world-clock">
             <span id="phase-label">Day</span>
             <span id="time-label">06:40</span>
           </div>
@@ -39,6 +39,13 @@
             </button>
             <button id="fullscreen-button" type="button">Fullscreen</button>
             <button id="mission-board-button" type="button">Contracts</button>
+            <a
+              class="masthead__link"
+              href="/accessibility.html"
+              aria-label="Accessibility statement"
+            >
+              Accessibility
+            </a>
           </div>
         </div>
       </header>
@@ -51,21 +58,39 @@
         <p
           id="first-rung-objective"
           class="first-rung-objective"
+          role="status"
           aria-live="polite"
+          aria-atomic="true"
+          aria-label="Current objective"
         >
-          <span>First fit</span>
-          <strong id="first-rung-objective-text">Recover 5 salvage</strong>
+          <span id="first-rung-objective-label" aria-hidden="true"
+            >First fit</span
+          >
+          <strong id="first-rung-objective-text" aria-hidden="true"
+            >Recover 5 salvage</strong
+          >
         </p>
         <p
           id="survey-contract"
           class="first-rung-objective survey-contract"
+          role="status"
           aria-live="polite"
+          aria-atomic="true"
           hidden
+          aria-label="Survey contract"
         >
-          <span>Survey</span>
+          <span id="survey-contract-label">Survey</span>
           <strong id="survey-contract-text">Contract ready</strong>
         </p>
-        <h1 id="current-prompt">Drive toward anything that pulls you.</h1>
+        <h1
+          id="current-prompt"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label="Field prompt"
+        >
+          Drive toward anything that pulls you.
+        </h1>
         <button
           id="emergency-recover"
           class="emergency-recover"
@@ -129,6 +154,7 @@
           role="status"
           aria-live="polite"
           aria-atomic="true"
+          aria-label="Save status"
         >
           New field ready
         </p>
@@ -138,6 +164,7 @@
           role="status"
           aria-live="polite"
           aria-atomic="true"
+          aria-label="Quality profile"
         >
           Quality: standard
         </p>
@@ -161,6 +188,7 @@
           type="button"
           aria-expanded="false"
           aria-controls="controls-legend"
+          aria-label="Show keyboard controls"
           title="Show keyboard controls (?)"
         >
           <kbd>?</kbd><span class="controls-strip__toggle-text">Keys</span>
@@ -251,10 +279,34 @@
           >
             Lower blade
           </button>
-          <button type="button" data-tap-action="switchRig">Rig</button>
-          <button type="button" data-tap-action="camera">Cam</button>
-          <button type="button" data-tap-action="map">Map</button>
-          <button type="button" data-tap-action="navigator">Radar</button>
+          <button
+            type="button"
+            data-tap-action="switchRig"
+            aria-label="Switch rig"
+          >
+            Rig
+          </button>
+          <button
+            type="button"
+            data-tap-action="camera"
+            aria-label="Cycle camera view"
+          >
+            Cam
+          </button>
+          <button
+            type="button"
+            data-tap-action="map"
+            aria-label="Open map"
+          >
+            Map
+          </button>
+          <button
+            type="button"
+            data-tap-action="navigator"
+            aria-label="Toggle radar"
+          >
+            Radar
+          </button>
           <button id="touch-blade-action" type="button" data-tap-action="blade">
             Blade: cut
           </button>
@@ -262,10 +314,16 @@
             id="touch-recovery-action"
             type="button"
             data-tap-action="recover"
+            aria-label="Recovery unavailable"
           >
             No winch
           </button>
-          <button id="touch-radial-action" type="button" data-legend="radial">
+          <button
+            id="touch-radial-action"
+            type="button"
+            data-legend="radial"
+            aria-label="Open quick actions"
+          >
             Quick
           </button>
         </div>
@@ -331,6 +389,9 @@
                 <dd id="mission-briefing-reward"></dd>
               </div>
             </dl>
+            <button id="mission-briefing-accept" type="button">
+              Accept contract
+            </button>
           </article>
         </div>
       </section>
@@ -340,7 +401,8 @@
         class="map-overlay"
         role="dialog"
         aria-modal="true"
-        aria-label="Field map"
+        aria-labelledby="map-overlay-title"
+        aria-describedby="map-overlay-note"
         hidden
       >
         <div class="map-overlay__plate">
@@ -394,7 +456,7 @@
               <span class="swatch swatch--salvage"></span> salvage in range
             </li>
           </ul>
-          <p class="map-overlay__note">
+          <p id="map-overlay-note" class="map-overlay__note">
             The map only shows ground your rig could see. Climb for sightlines;
             a survey mast reaches further.
           </p>
@@ -422,14 +484,15 @@
             graded tracks. Spend it at the Home Silo to change what terrain you
             can cross.
           </p>
-          <p
-            id="bootstrap-status"
-            class="welcome-panel__status"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            data-state="loading"
-          >
+        <p
+          id="bootstrap-status"
+          class="welcome-panel__status"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          data-state="loading"
+          aria-label="Loading status"
+        >
             Loading field systems…
           </p>
           <button id="enter-world" type="button">Enter the field</button>
@@ -441,6 +504,8 @@
         class="control-lesson"
         role="status"
         aria-live="polite"
+        aria-atomic="true"
+        aria-label="Control lesson"
         hidden
       >
         <header>
@@ -467,7 +532,15 @@
         </dl>
       </section>
 
-      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        aria-label="Notification"
+        aria-hidden="true"
+      ></div>
 
       <section
         id="pause-overlay"
@@ -514,8 +587,16 @@
         </div>
       </section>
 
-      <section id="error-panel" class="error-panel" role="alert" hidden>
-        <h2>The field could not open.</h2>
+      <section
+        id="error-panel"
+        class="error-panel"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="error-title"
+        aria-describedby="error-message"
+        hidden
+      >
+        <h2 id="error-title">The 3D scene is unavailable.</h2>
         <p id="error-message"></p>
         <button type="button" onclick="window.location.reload()">
           Try again
@@ -527,7 +608,7 @@
         class="radial-overlay"
         role="dialog"
         aria-modal="true"
-        aria-label="Quick actions"
+        aria-labelledby="radial-overlay-index radial-overlay-title"
         hidden
       >
         <div class="radial-overlay__plate">

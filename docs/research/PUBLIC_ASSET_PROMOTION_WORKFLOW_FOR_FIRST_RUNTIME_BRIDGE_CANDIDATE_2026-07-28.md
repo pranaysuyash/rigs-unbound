@@ -9,6 +9,11 @@
   - [Asset Pipeline and Provenance Contract](./ASSET_PIPELINE_AND_PROVENANCE_CONTRACT_2026-07-25.md)
   - [Player Asset and Seed Boot Boundary Review](../reviews/PLAYER_ASSET_AND_SEED_BOOT_BOUNDARY_ISSUE_REVIEW_2026-07-26.md)
   - [Public Asset Promotion Review](../reviews/PUBLIC_ASSET_PROMOTION_REVIEW_2026-07-28.md)
+  - [Public Asset Promotion First Public Candidate Checklist](../reviews/PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
+  - [Public Asset Promotion Approval Record Template](../reviews/PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
+  - [Public Asset Promotion Player-Gate Evidence Note](../reviews/PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
+  - [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+  - [ADR-0038: Public asset promotion boundary separates runtime-tested bridges from public approval](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md)
 
 ## Purpose
 
@@ -64,11 +69,21 @@ The approval record should answer:
 
 - what asset is being promoted;
 - why it is the right first public candidate;
-- what rights/provenance evidence was checked;
+- what rights/provenance evidence was checked and what compact summary belongs
+  in the decision record;
 - what browser/runtime proof exists;
 - what player-visible risk remains;
 - what rollback or replacement path exists;
 - who approved the promotion.
+
+The blank structure for capturing that decision lives in the approval-record
+template linked above.
+
+The operator-facing checklist for deciding whether to promote the crate lives
+in the checklist linked above.
+
+The player-gate evidence note summarizes why the bridge being live in the
+developer surface still does not open player distribution.
 
 ## Validation contract
 
@@ -98,3 +113,5 @@ refactored to a different approval mechanism.
 
 Yes: the workflow should remain deliberately boring. The asset becomes public
 because a record says so, not because the developer bridge happened to load.
+ADR-0038 records the durable boundary that keeps that boring separation in
+place.

@@ -124,3 +124,53 @@ This issue closes only when the player can see the active input/accessibility or
   VoiceOver/NVDA/JAWS narration test.
 - Evidence depth: Tier 3/4 browser accessibility-tree observation plus Tier 1
   source inspection.
+
+
+## Addendum (2026-07-28) - the public profile line now resolves to a clear full-detail message after entry
+
+A follow-up live browser probe on `http://localhost:4173/?proof=1` confirmed the
+player-facing profile line now resolves cleanly after the world is entered:
+
+- while the shell is warming up, the line reads `Quality: measuring. Still measuring frame performance.`;
+- after entering the world and reaching the post-entry ready state, the line
+  becomes `Quality: standard. Full scenery detail is active.`;
+- the public HUD and the operator diagnostics surface remain separate;
+- the profile line keeps `role="status"` and `aria-live="polite"`.
+
+That is a meaningful accessibility improvement because the public profile owner
+now tells the player both when the shell is still measuring and when the full
+scene is active.
+
+## Addendum (2026-07-29) - ADR-0039 is the policy name for the public profile split
+
+The public profile signal now lives inside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic;
+- the public shell keeps `#profile-status` visible and player-facing;
+- `#runtime-diagnostics` remains the acceptance/developer summary lane.
+
+That matters because this issue is about the player-facing accessibility
+profile, not about exposing the deeper runtime diagnostics as another public
+HUD line.
+
+## Addendum (2026-07-29) - the visible profile line is browser-proven, but the input-profile layer is still separate
+
+A fresh live-browser probe on the canonical developer surface shows:
+
+- `#profile-status` reads `Quality: standard. Full scenery detail is active.`
+- `#runtime-diagnostics` remains hidden from the public HUD
+- `localStorage` contains `rigs-unbound.control-lessons.v1`
+- there is still no visible input/binding profile indicator separate from the
+  quality line
+
+That makes the browser state more precise than the original open reading:
+
+- the public quality profile is visible and readable in-session,
+- the shell still remembers first-use control lessons,
+- the reload-safe binding registry / input-profile layer is still the missing
+  durable surface.
+
+So the player can already read the active quality state, but the explicit
+input/accessibility policy layer remains open for a distinct binding profile
+and refresh-proof control state.

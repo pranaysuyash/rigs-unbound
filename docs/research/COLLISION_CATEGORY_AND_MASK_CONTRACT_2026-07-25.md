@@ -312,3 +312,15 @@ new physical roles by loading successfully.
 - This note does not introduce the category/mask matrix early; it only keeps
   the dependency visible so later episode work can rely on the current
   deterministic collision foundation.
+
+
+## Addendum (2026-07-29) - the first matrix proof should be one trigger and one sensor
+
+- Re-read the collision contract against the dynamic-world collision exploration.
+- The runtime already has a solid blocking foundation for terrain, obstacle, and authored-structure contacts. The next proof should not add another blocker.
+- The first matrix-worthy extension is one trigger and one sensor so the policy can separate: block, fire, observe, and ignore.
+- A workshop/contract pad is a strong trigger candidate because it should fire a gameplay consequence without mutating motion. A survey mast or replay/debug probe is a strong sensor candidate because it should observe or announce without blocking.
+- That makes the matrix concrete: the new roles are not just new names for obstacles; they are the first non-blocking pair that proves the policy vocabulary is doing real work.
+- Evidence depth: Tier 1 static synthesis. No runtime trigger/sensor implementation was added in this pass.
+
+Anything else? Yes: the collision policy only graduates once a non-blocking pair exists to exercise it.

@@ -79,3 +79,16 @@ serialization crash before the player can even enter the field.
 This is a small fix with a large effect: it keeps boot-time observability from
 becoming a hard failure point, which makes the rest of the runtime evidence
 much more trustworthy.
+
+## Addendum (2026-07-29) - ADR-0039 describes the public-state split this note relies on
+
+The runtime boot path now sits under the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and safe to announce;
+- the public shell keeps `#profile-status` visible and readable;
+- acceptance/developer surfaces can keep the richer runtime summary hidden
+  from the player HUD.
+
+That matters because this note is about boot-time safety in the public shell,
+not about folding every diagnostic into the same player-facing line.

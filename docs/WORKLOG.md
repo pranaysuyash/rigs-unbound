@@ -9,7 +9,9 @@
   [`docs/WORKLOG_ADDENDUM_2026-07-27.md`](WORKLOG_ADDENDUM_2026-07-27.md).
 - The current package indices are
   [`docs/comms/README.md`](comms/README.md) and
-  [`docs/reviews/README.md`](reviews/README.md).
+  [`docs/reviews/README.md`](reviews/README.md), with the public asset
+  promotion package index at
+  [`docs/reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md`](reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md).
 - Recommended order:
   1. read the comms package for launch/publication work;
   2. read the reviews index for evidence, approval, and closure work;

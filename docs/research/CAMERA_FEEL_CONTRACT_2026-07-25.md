@@ -257,3 +257,15 @@ spatial meaning, a source-of-truth owner, and a clear acceptance invariant.
 - This keeps the split clean: the camera contract owns the player-facing view
   policy, while the episode grammar owns how that view is used to tell a
   richer episode.
+
+
+## Addendum (2026-07-29) - the next camera proof is a reasoned rescue-loop recommendation, not another mode
+
+- Re-read the camera contract against the current loop, audio, and accessibility notes.
+- The camera vocabulary is already rich and durable. The next proof slice is therefore not a new mode or a second camera state machine.
+- The useful player-facing gap is smaller: one advisory camera recommendation with a readable reason string for the tow-plus-repair rescue loop, kept player-overridable and explainable through the same camera vocabulary.
+- That recommendation should help the player read the rescue loop better — for example, by preferring a mode that keeps the stuck machine, the tow target, and the recovery path legible — while still allowing the player to choose a different view when they want to.
+- The camera contract remains the right owner for this because it already owns framing, obstruction, comfort, and transition policy. The missing piece is explanation quality, not another view brain.
+- Evidence depth: Tier 1 static synthesis from the current camera contract, loop contract, and accessibility/audio notes. No new runtime camera probe was run in this addendum.
+
+Anything else? Yes: the camera lane should explain the rescue loop, not merely render it.

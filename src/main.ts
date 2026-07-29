@@ -54,10 +54,13 @@ import {
 } from "./game/performance";
 import {
   RuntimeProfileController,
+  formatRuntimeProfileOperatorSummary,
+  formatRuntimeProfileStatus,
   selectRuntimeProfile,
   type RuntimeProfileSelection,
   STANDARD_RUNTIME_PROFILE_BUDGET,
 } from "./game/runtime-profile-policy";
+import type { VisibilityProfileId } from "./game/visibility";
 import {
   appendRunRecordEntry,
   createRunRecordInitialContext,
@@ -118,15 +121,12 @@ import {
   deriveMissions,
   type MissionProposition,
 } from "./game/mission-propositions";
+import { acceptMission } from "./game/mission-lifecycle";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
 import { createHoodDashboardUI } from "./game/hood-dashboard-ui";
 import { createNavigatorUI } from "./game/navigator-ui";
-import {
-  createInitialRadialMenuState,
-  type RadialMenuState,
-} from "./game/radial-ui";
 import { deriveRigToolProjections } from "./game/rig-tool-projection";
 
 const navigationEntry = performance.getEntriesByType("navigation")[0] as
@@ -153,6 +153,10 @@ declare global {
     getCameraResolutionEvidence: () => CameraResolutionEvidence;
     getRuntimeBridgeEvidenceList: () => RuntimeAssetBridgeEvidence[];
     getRuntimeBridgeEvidence: (assetId: string) => RuntimeAssetBridgeEvidence;
+    /** Acceptance-only visibility preview hook for controlled profile evidence. */
+    __forceProfile: (profileId: VisibilityProfileId) => string;
+    /** Acceptance-only no-render fallback hook for controlled degraded-mode evidence. */
+    __showNoRenderFallback: (reason?: string) => string;
     /**
      * Acceptance-only fixture inventory. The query parameter guard keeps world
      * mutation and procedural internals out of the public player surface.
@@ -228,6 +232,63 @@ function distanceBand(metres: number): string {
   if (metres < 140) return "near";
   if (metres < 260) return "far";
   return "distant";
+}
+
+let rendererFallbackKeyboardAttached = false;
+
+function handleRendererFallbackKeydown(event: KeyboardEvent): void {
+  const panel = document.querySelector<HTMLElement>("#error-panel");
+  const retry = panel?.querySelector<HTMLButtonElement>("button");
+  if (!panel || panel.hidden || !retry) return;
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    retry.click();
+    return;
+  }
+
+  if (event.key === "Tab") {
+    event.preventDefault();
+    retry.focus();
+  }
+}
+
+function presentRendererFallback(reason: string): void {
+  const panel = document.querySelector<HTMLElement>("#error-panel");
+  const message = document.querySelector<HTMLElement>("#error-message");
+  const shell = document.querySelector<HTMLElement>("#game-shell");
+  const canvas = document.querySelector<HTMLCanvasElement>("#game-canvas");
+  const retry = panel?.querySelector<HTMLButtonElement>("button");
+
+  if (shell) {
+    shell.dataset.rendererState = "fallback";
+    shell.setAttribute("aria-busy", "false");
+  }
+
+  document.documentElement.style.overflow = "hidden";
+  if (document.body) {
+    document.body.style.overflow = "hidden";
+  }
+
+  if (canvas) {
+    canvas.hidden = true;
+  }
+
+  if (panel) {
+    panel.hidden = false;
+    panel.setAttribute("aria-hidden", "false");
+  }
+
+  if (message) {
+    message.textContent = reason;
+  }
+
+  if (panel && !rendererFallbackKeyboardAttached) {
+    panel.addEventListener("keydown", handleRendererFallbackKeydown);
+    rendererFallbackKeyboardAttached = true;
+  }
+
+  retry?.focus();
 }
 
 type RendererPolicyGateReason = string;
@@ -428,11 +489,11 @@ function boot(): void {
       updateInterface(performance.now() + 10);
       requestAnimationFrame(frame);
     } catch (error) {
-      disposeRenderer();
-      const message = "Graphics context restore failed. Reload the page.";
+      const message = "The 3D scene could not recover. Reload the page.";
       statusMessage = message;
       saveStatus.textContent = statusMessage;
       showToast(message);
+      enterNoRenderFallback(message);
       recordCheckpoint("graphicsContextRestoreFailed", {
         error: String(error),
       });
@@ -487,22 +548,62 @@ function boot(): void {
     performanceMonitor.snapshot(renderer.metrics()),
   );
   const runtimeProfileController = new RuntimeProfileController();
-  const profileStatusLabel = (selection: RuntimeProfileSelection): string => {
-    if (selection.state === "awaiting-evidence") {
-      return selection.reasonText
-        ? `Quality: measuring. ${selection.reasonText}`
-        : "Quality: measuring.";
+  let developerProfilePreview: VisibilityProfileId | null = null;
+  let bootstrapFrameCount = 0;
+  const bootstrapFrameSampleTarget =
+    STANDARD_RUNTIME_PROFILE_BUDGET.minimumFrameSamples;
+  function enterNoRenderFallback(reason: string): void {
+    active = false;
+    try {
+      renderer.dispose();
+    } catch (error) {
+      console.error("Renderer dispose failed during no-render fallback.", error);
+      if (typeof recordCheckpoint === "function") {
+        recordCheckpoint("rendererDisposeFailed", { error: String(error) });
+      }
+    }
+    presentRendererFallback(reason);
+  }
+  const syncBootstrapStatus = (
+    _metrics: PerformanceSnapshot,
+    selection: RuntimeProfileSelection,
+  ): void => {
+    const measuring =
+      !worldEntered && bootstrapFrameCount < bootstrapFrameSampleTarget;
+    gameShell.setAttribute("aria-busy", String(measuring));
+    if (measuring) {
+      const sampleCount = Math.min(
+        bootstrapFrameCount,
+        bootstrapFrameSampleTarget,
+      );
+      bootstrapStatus.dataset.state = "measuring";
+      bootstrapStatus.setAttribute("role", "progressbar");
+      bootstrapStatus.setAttribute("aria-valuemin", "0");
+      bootstrapStatus.setAttribute(
+        "aria-valuemax",
+        String(bootstrapFrameSampleTarget),
+      );
+      bootstrapStatus.setAttribute("aria-valuenow", String(sampleCount));
+      bootstrapStatus.setAttribute(
+        "aria-valuetext",
+        `${sampleCount} of ${bootstrapFrameSampleTarget} frame samples collected.`,
+      );
+      bootstrapStatus.textContent =
+        `Measuring device performance… ${sampleCount}/${bootstrapFrameSampleTarget} frame samples collected.`;
+      return;
     }
 
-    if (selection.profile === "mobile-safe") {
-      return selection.reasonText
-        ? `Quality: reduced. ${selection.reasonText}`
-        : "Quality: reduced.";
-    }
-
-    return selection.reasonText
-      ? `Quality: standard. ${selection.reasonText}`
-      : "Quality: standard.";
+    bootstrapStatus.dataset.state = "ready";
+    bootstrapStatus.setAttribute("role", "status");
+    bootstrapStatus.removeAttribute("aria-valuemin");
+    bootstrapStatus.removeAttribute("aria-valuemax");
+    bootstrapStatus.removeAttribute("aria-valuenow");
+    bootstrapStatus.removeAttribute("aria-valuetext");
+    bootstrapStatus.textContent = worldEntered
+      ? "Field systems ready. Restored session controls are active."
+      : selection.profile === "mobile-safe"
+        ? `Field systems ready with reduced scenery detail.${selection.reasonText ? ` ${selection.reasonText}` : ""}`
+        : "Field systems ready with standard scenery detail.";
   };
   const runRecord = createRunRecord(
     state.seed,
@@ -641,6 +742,9 @@ function boot(): void {
   );
   const touchRadialAction = requiredElement<HTMLButtonElement>(
     "#touch-radial-action",
+  );
+  const mapTapButton = requiredElement<HTMLButtonElement>(
+    'button[data-tap-action="map"]',
   );
   const landmarkList = requiredElement<HTMLOListElement>("#landmark-list");
   const toast = requiredElement<HTMLElement>("#toast");
@@ -788,6 +892,9 @@ function boot(): void {
   const missionBriefingReward = requiredElement<HTMLElement>(
     "#mission-briefing-reward",
   );
+  const missionBriefingAccept = requiredElement<HTMLButtonElement>(
+    "#mission-briefing-accept",
+  );
   const mapOverlay = requiredElement<HTMLElement>("#map-overlay");
   const mapProgress = requiredElement<HTMLElement>("#map-progress");
   const mapClose = requiredElement<HTMLButtonElement>("#map-close");
@@ -821,7 +928,6 @@ function boot(): void {
     | "radial"
     | "mission-board";
   let activeOverlay: OverlayKind = "none";
-  let radialMenuState: RadialMenuState = createInitialRadialMenuState(state);
   let mapLayer: "field" | "rumor" | "journal" = "field";
   let navigatorVisible =
     window.localStorage.getItem("rigs-unbound.navigator-visible") === "true";
@@ -843,6 +949,45 @@ function boot(): void {
         }, 0);
       });
     });
+  };
+
+  const MODAL_FOCUSABLE_SELECTOR =
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  const getActiveModalContainer = (): HTMLElement | null => {
+    if (!worldEntered && !welcomePanel.hidden) return welcomePanel;
+    if (activeOverlay === "map" && !mapOverlay.hidden) return mapOverlay;
+    if (activeOverlay === "pause" && !pauseOverlay.hidden) return pauseOverlay;
+    if (activeOverlay === "radial" && !radialOverlay.hidden) return radialOverlay;
+    if (activeOverlay === "mission-board" && !missionBoard.hidden) {
+      return missionBoard;
+    }
+    return null;
+  };
+
+  const handleModalTabKeydown = (event: KeyboardEvent): boolean => {
+    if (event.key !== "Tab") return false;
+    const modal = getActiveModalContainer();
+    if (!modal) return false;
+    const focusables = Array.from(
+      modal.querySelectorAll<HTMLElement>(MODAL_FOCUSABLE_SELECTOR),
+    ).filter((element) => !element.hidden && element.offsetParent !== null);
+    if (focusables.length === 0) return false;
+
+    event.preventDefault();
+    const activeElement = document.activeElement as HTMLElement | null;
+    const currentIndex = activeElement
+      ? focusables.indexOf(activeElement)
+      : -1;
+    const nextIndex =
+      currentIndex === -1
+        ? event.shiftKey
+          ? focusables.length - 1
+          : 0
+        : (currentIndex + (event.shiftKey ? -1 : 1) + focusables.length) %
+          focusables.length;
+    focusables[nextIndex]?.focus({ preventScroll: true });
+    return true;
   };
 
   const updateNavigatorVisibility = (): void => {
@@ -887,7 +1032,7 @@ function boot(): void {
           return;
         }
         markActionReady();
-        recordCommand("rig-tool", { tool: tool.id });
+        recordCommand("rig-tool", { toolId: tool.id, command: tool.command });
         const message =
           tool.command.type === "set-tire-pressure"
             ? setTirePressure(state, tool.command.psi)
@@ -919,6 +1064,7 @@ function boot(): void {
       : "No contract is visible yet. Survey more ground or fit a capability that can reach a signal.";
     missionBoardList.replaceChildren();
     missionBriefing.hidden = !selected;
+    missionBriefingAccept.disabled = !selected || state.activeMission !== null;
 
     for (const mission of missions) {
       const item = document.createElement("li");
@@ -957,7 +1103,35 @@ function boot(): void {
     missionBriefingOrigin.textContent = selected.origin;
     missionBriefingDestination.textContent = selected.destination;
     missionBriefingReward.textContent = `${selected.rewardSalvage} salvage · ${selected.requiredCapabilities.length ? selected.requiredCapabilities.join(" · ") : "no special capability"}`;
+    missionBriefingAccept.textContent =
+      state.activeMission?.id === selected.id
+        ? "Contract active"
+        : "Accept contract";
   };
+
+  missionBriefingAccept.addEventListener("click", () => {
+    const mission = currentMissions().find(
+      (item) => item.id === selectedMissionId,
+    );
+    if (!mission) return;
+    const result = acceptMission(
+      state,
+      mission,
+      state.activeRigId,
+      state.elapsedMs,
+    );
+    if (!result.ok) {
+      showToast(`Cannot accept contract: ${result.reason}.`);
+      renderMissionBoard();
+      return;
+    }
+    recordCommand("acceptMission", {
+      missionId: mission.id,
+      binding: mission.binding,
+    });
+    renderMissionBoard();
+    showToast(result.diagnostic);
+  });
 
   const toggleNavigator = (): void => {
     navigatorVisible = !navigatorVisible;
@@ -1069,6 +1243,11 @@ function boot(): void {
       mapOverlay.setAttribute("aria-hidden", "false");
       updateMapLayerUI();
       focusAfterPaint(mapClose);
+      window.setTimeout(() => {
+        if (!mapOverlay.hidden) {
+          mapClose.focus({ preventScroll: true });
+        }
+      }, 120);
     } else if (kind === "pause") {
       togglePause(state);
       pauseOverlay.hidden = false;
@@ -1080,10 +1259,6 @@ function boot(): void {
     } else if (kind === "lesson") {
       controlLesson.hidden = false;
     } else if (kind === "radial") {
-      radialMenuState = {
-        ...createInitialRadialMenuState(state),
-        isOpen: true,
-      };
       // ADR-0035: the Pegboard runs live by default, because a tool choice made
       // outside of time is inventory management. The opt-in exists so that does
       // not become a dexterity gate; it is a comfort setting, never a
@@ -1097,12 +1272,18 @@ function boot(): void {
       radialOverlay.hidden = false;
       radialOverlay.setAttribute("aria-hidden", "false");
       focusAfterPaint(radialMenuClose);
+      window.setTimeout(() => {
+        if (!radialOverlay.hidden) {
+          radialMenuClose.focus({ preventScroll: true });
+        }
+      }, 120);
     } else if (kind === "mission-board") {
       renderMissionBoard();
       missionBoard.hidden = false;
       missionBoard.setAttribute("aria-hidden", "false");
       focusAfterPaint(missionBoardClose);
     }
+    updateOverlayLauncherState();
   };
 
   const closeOverlay = (): void => {
@@ -1123,7 +1304,6 @@ function boot(): void {
     } else if (previousOverlay === "lesson") {
       controlLesson.hidden = true;
     } else if (previousOverlay === "radial") {
-      radialMenuState = { ...radialMenuState, isOpen: false };
       if (pegboardPausedWorld && state.paused) {
         togglePause(state);
       }
@@ -1134,6 +1314,7 @@ function boot(): void {
       missionBoard.hidden = true;
       missionBoard.setAttribute("aria-hidden", "true");
     }
+    updateOverlayLauncherState();
   };
 
   missionBoardButton.addEventListener("click", () =>
@@ -1156,20 +1337,18 @@ function boot(): void {
   welcomePanel.hidden = worldEntered;
   welcomePanel.setAttribute("aria-hidden", String(worldEntered));
   enterWorldButton.disabled = worldEntered;
-  gameShell.setAttribute("aria-busy", "false");
-  if (worldEntered) {
-    bootstrapStatus.dataset.state = "ready";
-    bootstrapStatus.textContent =
-      "Field systems ready. Restored session controls are active.";
-  } else {
-    bootstrapStatus.dataset.state = "measuring";
-    bootstrapStatus.textContent =
-      "Measuring device performance… Choose Enter the field to begin.";
+  syncBootstrapStatus(
+    performanceMonitor.snapshot(renderer.metrics()),
+    runtimeProfileSelection,
+  );
+  profileStatus.textContent = formatRuntimeProfileStatus(
+    runtimeProfileSelection,
+  );
+  if (!worldEntered) {
     requestAnimationFrame(() => enterWorldButton.focus());
   }
 
   saveStatus.textContent = statusMessage;
-  profileStatus.textContent = profileStatusLabel(runtimeProfileSelection);
   runtimeDiagnostics.hidden = !developerSurface;
   physicsLabLink.hidden = !developerSurface;
   const learnedControlLessons = decodeLearnedControlLessons(
@@ -1233,11 +1412,16 @@ function boot(): void {
   let firstRungCompletionUntil = 0;
   let firstRungCompletionMessage = "";
   const showToast = (message: string): void => {
+    toast.removeAttribute("aria-hidden");
     toast.textContent = message;
     toast.classList.add("toast--visible");
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(
-      () => toast.classList.remove("toast--visible"),
+      () => {
+        toast.classList.remove("toast--visible");
+        toast.setAttribute("aria-hidden", "true");
+        toast.textContent = "";
+      },
       3000,
     );
   };
@@ -1381,6 +1565,7 @@ function boot(): void {
 
   window.addEventListener("keydown", (event) => {
     if (event.repeat) return;
+    if (handleModalTabKeydown(event)) return;
     if (!worldEntered) {
       if (
         event.code === "Space" ||
@@ -1481,6 +1666,7 @@ function boot(): void {
   for (const button of document.querySelectorAll<HTMLButtonElement>(
     "[data-tap-action]",
   )) {
+    if (button.dataset.tapAction === "navigator") continue;
     button.addEventListener("click", () =>
       tap(button.dataset.tapAction as TapAction),
     );
@@ -1588,9 +1774,22 @@ function boot(): void {
     pauseNavigator.setAttribute("aria-pressed", String(navigatorVisible));
   };
 
+  const updateOverlayLauncherState = (): void => {
+    mapTapButton.setAttribute("aria-controls", "map-overlay");
+    mapTapButton.setAttribute("aria-expanded", String(activeOverlay === "map"));
+    touchRadialAction.setAttribute("aria-controls", "radial-overlay");
+    touchRadialAction.setAttribute(
+      "aria-expanded",
+      String(activeOverlay === "radial"),
+    );
+  };
+
   const updatePauseSaveStatus = (): void => {
     pauseSaveStatus.textContent = saveStatus.textContent ?? "";
   };
+
+  updatePauseNavigatorButton();
+  updateOverlayLauncherState();
 
   const resetField = (): void => {
     recordCommand("reset", {});
@@ -1823,7 +2022,11 @@ function boot(): void {
       learnedControlLessons,
     );
     const controlLessonSuppressed =
-      !worldEntered || activeOverlay === "map" || activeOverlay === "pause";
+      !worldEntered ||
+      activeOverlay === "map" ||
+      activeOverlay === "pause" ||
+      activeOverlay === "radial" ||
+      activeOverlay === "mission-board";
     if (!nextControlLesson || controlLessonSuppressed) {
       if (activeOverlay === "lesson") closeOverlay();
       controlLesson.hidden = true;
@@ -2077,11 +2280,14 @@ function boot(): void {
     let metrics = performanceMonitor.snapshot(renderer.metrics());
     const previousSubmitted = metrics.visibility?.submitted ?? 0;
     runtimeProfileSelection = runtimeProfileController.evaluate(metrics);
+    const effectiveVisibilityProfile =
+      developerProfilePreview ?? runtimeProfileSelection.profile;
     if (
-      metrics.visibility?.profile !== runtimeProfileSelection.profile &&
-      renderer.setVisibilityProfile(runtimeProfileSelection.profile, state)
+      metrics.visibility?.profile !== effectiveVisibilityProfile &&
+      renderer.setVisibilityProfile(effectiveVisibilityProfile, state)
     ) {
       metrics = performanceMonitor.snapshot(renderer.metrics());
+      const previewActive = developerProfilePreview !== null;
       const fallbackActive = runtimeProfileSelection.profile === "mobile-safe";
       const reasonText = runtimeProfileSelection.reasonText;
       const currentSubmitted = metrics.visibility?.submitted ?? 0;
@@ -2096,38 +2302,36 @@ function boot(): void {
         fallbackActive && propReductionPct > 0
           ? ` ${propReductionPct}% fewer scenery objects shown.`
           : "";
-      statusMessage = fallbackActive
+      statusMessage = previewActive
+        ? `Acceptance visibility preview active: renderer forced to ${effectiveVisibilityProfile}.`
+        : fallbackActive
         ? `Performance safeguard active: reduced scenery detail.${propNote}${reasonText ? ` ${reasonText}` : ""}`
         : "Performance safeguard cleared: standard scenery detail restored.";
       if (worldEntered) {
         showToast(statusMessage);
-      } else if (
-        bootstrapStatus.dataset.state === "measuring" &&
-        metrics.frameSampleCount >=
-          STANDARD_RUNTIME_PROFILE_BUDGET.minimumFrameSamples
-      ) {
-        // Transition from measuring to ready once the frame-sample collection
-        // window is wide enough for a meaningful profile decision.
-        bootstrapStatus.dataset.state = "ready";
-        bootstrapStatus.textContent = fallbackActive
-          ? `Field systems ready with reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
-          : "Field systems ready with standard scenery detail.";
-      } else if (bootstrapStatus.dataset.state === "ready") {
-        bootstrapStatus.textContent = fallbackActive
-          ? `Field systems ready with reduced scenery detail.${reasonText ? ` ${reasonText}` : ""}`
-          : "Field systems ready with standard scenery detail.";
+      } else {
+        syncBootstrapStatus(metrics, runtimeProfileSelection);
       }
       recordCheckpoint(
-        fallbackActive ? "runtimeProfileFallback" : "runtimeProfileRecovery",
+        previewActive
+          ? "runtimeProfilePreview"
+          : fallbackActive
+            ? "runtimeProfileFallback"
+            : "runtimeProfileRecovery",
         {
-          profile: runtimeProfileSelection.profile,
+          profile: effectiveVisibilityProfile,
           reasons: runtimeProfileSelection.reasons,
+          preview: previewActive,
         },
       );
     }
     saveStatus.textContent = statusMessage;
-    profileStatus.textContent = profileStatusLabel(runtimeProfileSelection);
+    profileStatus.textContent = formatRuntimeProfileStatus(
+      runtimeProfileSelection,
+    );
+    syncBootstrapStatus(metrics, runtimeProfileSelection);
     if (developerSurface) {
+      const previewActive = developerProfilePreview !== null;
       const heap =
         metrics.heapUsedMb === null ? "heap n/a" : `${metrics.heapUsedMb} MB`;
       const bridgeStates = renderer.runtimeBridgeEvidenceList();
@@ -2141,8 +2345,13 @@ function boot(): void {
       const visibilitySummary = visibility
         ? `props:${visibility.submitted}/${visibility.candidates} n${visibility.near}/m${visibility.mid}/f${visibility.far} c${visibility.culled} cap${visibility.capacityLimited}`
         : "props:n/a";
-      const profileSummary = `profile:${visibility?.profile ?? "n/a"} ${runtimeProfileSelection.state}${runtimeProfileSelection.reasons.length > 0 ? ` (${runtimeProfileSelection.reasons.join(",")})` : ""}`;
-      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${backendSummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${profileSummary}`;
+      const profileSummary = formatRuntimeProfileOperatorSummary(
+        runtimeProfileSelection,
+        effectiveVisibilityProfile,
+        previewActive,
+      );
+      const visibilityProfileSummary = `profile:${visibility?.profile ?? effectiveVisibilityProfile}`;
+      runtimeDiagnostics.textContent = `${metrics.framesPerSecond || "--"} fps · ${metrics.drawCalls} calls · ${graphicsContextState()} · ${rendererMemorySummary} · ${backendSummary} · ${heap} · ${bridgeSummary} · ${visibilitySummary} · ${visibilityProfileSummary} · ${profileSummary}`;
     }
 
     if (activeOverlay === "map" && now - lastMapUpdate > 260) {
@@ -2554,6 +2763,27 @@ function boot(): void {
   };
   window.getPerformanceSnapshot = () =>
     performanceMonitor.snapshot(renderer.metrics());
+  window.__forceProfile = (profileId: VisibilityProfileId) => {
+    if (!developerSurface && !acceptanceSurface) {
+      throw new Error(
+        "Visibility profile preview is only available on developer or acceptance surfaces.",
+      );
+    }
+    developerProfilePreview = profileId;
+    renderer.setVisibilityProfile(profileId, state);
+    renderer.invalidate(state);
+    updateInterface(performance.now());
+    return `Visibility profile preview set to ${profileId}.`;
+  };
+  window.__showNoRenderFallback = (reason = "The 3D scene is unavailable.") => {
+    if (!developerSurface && !acceptanceSurface) {
+      throw new Error(
+        "No-render fallback preview is only available on developer or acceptance surfaces.",
+      );
+    }
+    enterNoRenderFallback(reason);
+    return `No-render fallback shown: ${reason}`;
+  };
 
   recordCheckpoint("boot");
 
@@ -2605,6 +2835,9 @@ function boot(): void {
     const frameDurationMs = now - previousTime;
     const deltaSeconds = Math.min(frameDurationMs / 1000, 0.1);
     previousTime = now;
+    if (!worldEntered) {
+      bootstrapFrameCount += 1;
+    }
     if (worldEntered && !acceptanceManualStepping) {
       accumulator += deltaSeconds;
       saveAccumulator += deltaSeconds;
@@ -2707,12 +2940,8 @@ function boot(): void {
 try {
   boot();
 } catch (error) {
-  const panel = document.querySelector<HTMLElement>("#error-panel");
-  const message = document.querySelector<HTMLElement>("#error-message");
-  if (panel && message) {
-    panel.hidden = false;
-    message.textContent =
-      error instanceof Error ? error.message : "Unknown browser runtime error.";
-  }
+  presentRendererFallback(
+    error instanceof Error ? error.message : "Unknown browser runtime error.",
+  );
   console.error("Rigs Unbound failed to start.", error);
 }

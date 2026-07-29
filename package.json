@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit && npm --prefix experiments/deterministic-kernel-probe run typecheck",
     "test": "vitest run && npm run test:kernel-probe",
     "test:browser": "node tools/rig-lab-browser-acceptance.cjs",
+    "test:collision-browser": "node tools/collision-browser-acceptance.cjs",
     "test:physics-lab": "node tools/physics-lab-browser-acceptance.cjs",
     "test:box3d-lab": "node tools/box3d-lab-browser-acceptance.cjs",
     "test:shell-accessibility": "node tools/shell-accessibility-browser-acceptance.cjs",

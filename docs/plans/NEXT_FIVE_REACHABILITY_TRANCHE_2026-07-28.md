@@ -19,7 +19,21 @@ design.
 The tranche exists because a measured audit found 30 of 78 source modules
 unreachable from any entry point, 28 of them with passing tests, and because
 those modules are — read as a list — the tactical vocabulary this game's own
-thesis calls for.
+thesis calls for. That raw snapshot is historical context; the current
+classification for the measured unreachable set now lives in the
+[Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
+and the shorter [Runtime Reachability Dispositions](../exploration/RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md)
+note.
+
+## Addendum (2026-07-28): the measured orphan set now has a current classification
+
+The older 30-of-78 snapshot remains useful as the room's measurement context,
+but it should no longer be read as the live ownership interpretation. The
+fuller ownership matrix now classifies the measured orphan set module by
+module, while the disposition note records the current archive/defer budget in
+the exploration map. Future edits to this tranche should treat those two
+artifacts as the current operating layer and leave the original snapshot in
+place as historical evidence.
 
 ## The governing lesson from item 0
 

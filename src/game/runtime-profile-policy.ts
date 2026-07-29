@@ -87,6 +87,68 @@ export interface RuntimeProfileSelection {
   reasonText: string;
 }
 
+/**
+ * Player-facing profile line for the shell HUD.
+ *
+ * Keep this separate from operator diagnostics so the visible HUD explains the
+ * active quality state in plain language while the debug lane can keep the
+ * exact budget codes.
+ */
+export function formatRuntimeProfileStatus(
+  selection: RuntimeProfileSelection,
+): string {
+  if (selection.state === "awaiting-evidence") {
+    return selection.reasonText
+      ? `Quality: measuring. ${selection.reasonText}`
+      : "Quality: measuring.";
+  }
+
+  if (selection.profile === "mobile-safe") {
+    return selection.reasonText
+      ? `Quality: reduced. Scenery simplified to keep things smooth. ${selection.reasonText}`
+      : "Quality: reduced. Scenery simplified to keep things smooth.";
+  }
+
+  return selection.reasonText
+    ? `Quality: standard. Full scenery detail is active. ${selection.reasonText}`
+    : "Quality: standard. Full scenery detail is active.";
+}
+
+/**
+ * Operator-facing summary for the developer diagnostics lane.
+ *
+ * Keep this terse and code-oriented so the hidden evidence surface can report
+ * the active policy without duplicating the public HUD copy.
+ */
+export function formatRuntimeProfileOperatorSummary(
+  selection: RuntimeProfileSelection,
+  visibilityProfileId: VisibilityProfileId = selection.profile,
+  preview = false,
+): string {
+  if (selection.state === "awaiting-evidence") {
+    return "Renderer visibility warmup: standard (insufficient-frame-samples)";
+  }
+
+  if (visibilityProfileId === "mobile-safe") {
+    const reasonText = selection.reasons.length > 0
+      ? ` (${selection.reasons.join(",")})`
+      : "";
+    return preview
+      ? `Renderer visibility fallback: mobile-safe (acceptance preview)${reasonText}`
+      : `Renderer visibility fallback: mobile-safe${reasonText}`;
+  }
+
+  if (visibilityProfileId === "full") {
+    return preview
+      ? "Renderer visibility preview: full"
+      : "Renderer visibility steady: full";
+  }
+
+  return preview
+    ? "Renderer visibility steady: standard (acceptance preview)"
+    : "Renderer visibility steady: standard";
+}
+
 export function selectRuntimeProfile(
   snapshot: Pick<
     PerformanceSnapshot,

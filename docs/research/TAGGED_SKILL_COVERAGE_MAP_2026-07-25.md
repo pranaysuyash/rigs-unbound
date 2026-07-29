@@ -238,3 +238,22 @@ Skill coverage is not the product. The correct long-term workflow is to maintain
 this audit, activate the best skill set for each proof slice, and turn guidance
 into verified player value. Reading every overlapping wrapper before the next
 playable improvement would delay the strongest available learning.
+
+## Addendum (2026-07-28) — the skill-development lens says the audit itself is the durable artifact
+
+- Re-read the `Skill Development` guidance against the current skill-coverage
+  map and the parallel handoff trail.
+- The important repo behavior is already visible:
+  - skills are being used one at a time,
+  - the resulting docs distinguish “read,” “applied,” “proven,” and
+    “deliberately deferred,”
+  - and the parallel-runtime boundary remains explicit so another agent does
+    not have to guess where to land.
+- The skill-coverage map should therefore be treated as a provenance ledger,
+  not as a checklist to exhaust mechanically. The value is in preserving why a
+  skill was chosen, what artifact it changed, and what evidence still remains.
+- The next agent should read this map as the shortest path to the live
+  boundary, then continue from the named handoff or slice instead of redoing
+  the entire skill inventory.
+- Evidence depth: Tier 1 static review of the skill guidance and the current
+  coverage map. No runtime or code change was needed for this addendum.

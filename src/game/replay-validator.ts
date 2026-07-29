@@ -15,6 +15,7 @@ import {
   advanceGame,
   createInitialState,
   cycleCamera,
+  cycleDifferentialMode,
   cyclePhase,
   installModule,
   performPrimaryAction,
@@ -24,6 +25,7 @@ import {
   selectCamera,
   settleWorld,
   recoverState,
+  setTirePressure,
   stepGame,
   switchActiveRig,
   toggleBladeMode,
@@ -200,6 +202,30 @@ function finiteMilliseconds(value: unknown): number | null {
     : null;
 }
 
+/**
+ * Strictly parse a `rig-tool` command payload's `command` field into one of
+ * the two contract-accepted variants. Replay must call the same canonical
+ * mutation functions as live play, so this rejects anything malformed,
+ * unknown, non-finite, or out of contract shape rather than normalizing it —
+ * a corrupted or hand-edited record should fail loudly, not silently coerce
+ * into a plausible-looking action nobody actually requested.
+ */
+function parseRigToolCommand(
+  value: unknown,
+): { type: "set-tire-pressure"; psi: number } | { type: "cycle-differential" } | null {
+  if (!value || typeof value !== "object") return null;
+  const type = (value as { type?: unknown }).type;
+  if (type === "set-tire-pressure") {
+    const psi = (value as { psi?: unknown }).psi;
+    if (typeof psi !== "number" || !Number.isFinite(psi)) return null;
+    return { type: "set-tire-pressure", psi };
+  }
+  if (type === "cycle-differential") {
+    return { type: "cycle-differential" };
+  }
+  return null;
+}
+
 function replayToElapsed(
   session: ReplaySession,
   targetElapsedMs: number,
@@ -319,6 +345,22 @@ function replayCommand(
     case "repairRig":
       repairRig(session.state);
       return null;
+    case "rig-tool": {
+      const toolId = entry.payload.toolId;
+      if (typeof toolId !== "string" || toolId.length === 0) {
+        return "rig-tool command requires a toolId.";
+      }
+      const command = parseRigToolCommand(entry.payload.command);
+      if (!command) {
+        return "rig-tool command payload does not match a known command variant.";
+      }
+      if (command.type === "set-tire-pressure") {
+        setTirePressure(session.state, command.psi);
+      } else {
+        cycleDifferentialMode(session.state);
+      }
+      return null;
+    }
     case "reset":
       session.world.reset();
       session.state = createInitialState(session.state.seed);

@@ -9,6 +9,18 @@ document what changed, what was verified, and what remains open.
 - [Trailer and build-in-public release review](../comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
 - [Trailer and X announcement decision](../comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
 - [Decision Provenance and Recommendation Status Audit](DECISION_PROVENANCE_AND_RECOMMENDATION_STATUS_AUDIT_2026-07-26.md)
+- [Public Asset Promotion Package Index](PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
+- [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
+- [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md)
+- [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
+- [Runtime Reachability Ownership Matrix](RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
+- [Dynamic World Collision Acceptance](DYNAMIC_WORLD_COLLISION_ACCEPTANCE_2026-07-28.md)
+- [Parallel Runtime Integration Handoff](PARALLEL_RUNTIME_INTEGRATION_HANDOFF_2026-07-26.md)
+- [Browser Runtime Parallel-State Integration Blocker](BROWSER_RUNTIME_PARALLEL_STATE_INTEGRATION_BLOCKER_2026-07-26.md)
+- [Browser Loading Progress Issue Review](BROWSER_LOADING_PROGRESS_ISSUE_REVIEW_2026-07-28.md)
+- [Contract Board Compact Exposure Policy Review](CONTRACT_BOARD_COMPACT_EXPOSURE_POLICY_REVIEW_2026-07-28.md)
+- [Accessibility Statement and Public Promise Contract](../research/ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md)
 - [UI Shell Coherence Slice — Implementation Review](UI_SHELL_COHERENCE_SLICE_2026-07-27.md)
 - [Field Map and Home Valley Reclamation Journey Acceptance](FIELD_MAP_AND_HOME_VALLEY_RECLAMATION_JOURNEY_ACCEPTANCE_2026-07-27.md)
 - [First Rung and Unbound Passage Admission](FIRST_RUNG_AND_UNBOUND_PASSAGE_ADMISSION_2026-07-26.md)
@@ -21,6 +33,7 @@ document what changed, what was verified, and what remains open.
 3. Read the decision provenance audit before relying on any status words.
 4. Read the UI shell, field map, and passage acceptance records in the order they were closed.
 5. Keep the site deployment acceptance as the broader public-run record.
+6. Read the parallel-runtime handoff and browser blocker when a live runtime lane is shared with another agent.
 
 ## Launch and comms evidence
 
@@ -38,7 +51,15 @@ document what changed, what was verified, and what remains open.
 - launch/comms approval surfaces;
 - post-hoc clarifications that need a durable home.
 - public asset promotion reviews and approval decisions.
+- public asset promotion package indexes.
 - runtime reachability ownership matrices and orphan-classification reviews.
+- runtime reachability dispositions and budgeted unreachable-module evidence.
+- parallel-runtime handoff notes and browser runtime blocker reports when the
+  live runtime lane is shared.
+- browser loading-progress issue reviews when the shell is truthful but the
+  bootstrap story remains implicit.
+- public accessibility-statement contracts when the public shell still needs a
+  durable pointer for accessibility posture and feedback.
 
 ## Open browser-delivery trust gaps
 

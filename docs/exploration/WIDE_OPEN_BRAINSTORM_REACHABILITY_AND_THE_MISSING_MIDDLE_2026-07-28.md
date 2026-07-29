@@ -85,6 +85,21 @@ payoff of the fleet concept — `fleet-recovery.ts`.
 
 The most on-thesis code in the repository is the code the player cannot reach.
 
+## Addendum (2026-07-28): the raw reachability snapshot now has a current classification
+
+The 30-module snapshot above remains valid as the room's measured evidence
+from the time it was run. It should now be read as historical measurement, not
+as the current ownership interpretation. The live classification for the
+measured orphan set now lives in:
+
+- [Runtime Reachability Ownership Matrix](../reviews/RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
+- [Runtime Reachability Dispositions](RUNTIME_REACHABILITY_DISPOSITIONS_2026-07-28.md)
+
+Those two artifacts keep the budgeted archive/defer list and module-by-module
+rationale in the canonical navigation surfaces. Future edits should treat this
+brainstorm as the reasoning room that led to the classification, not as the
+classification itself.
+
 ### 1.2 One documentation claim is factually false
 
 [ADR-0031](../decisions/ADR-0031-renderer-delegates-rig-local-animation-to-vehicle-animation-system.md)
@@ -500,7 +515,7 @@ with three, not thirty.
 
 | Hat        | Coverage this session                                                                                                                                                                                                      |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **White**  | 30 unreachable modules / 2,365 lines / 28 tested, measured reproducibly; 2.2 : 1 docs-to-code; 3.3 : 1 docs-to-shipping commits; one false ADR wiring claim identified.                                                    |
+| **White**  | 30 unreachable modules / 2,365 lines / 28 tested, measured reproducibly (historical snapshot; live classification now lives in the ownership matrix/disposition pair); 2.2 : 1 docs-to-code; 3.3 : 1 docs-to-shipping commits; one false ADR wiring claim identified.                                                    |
 | **Yellow** | The parts bin is the correct asset for a game about parts bins; the substrate is rare; the thesis has not drifted in seven sessions; Routes-As-Save-File is reachable with existing primitives.                            |
 | **Black**  | The governance layer has begun making false runtime claims; zero external playtests; the doc corpus exceeds working-memory capacity; lists are the reflexive next artifact.                                                |
 | **Green**  | The Missing Middle, the Pegboard, The Land Is Trying To Forget, The Compliance Officer, Stranded Not Reset, Routes Are The Save File, One Machine That Changes.                                                            |

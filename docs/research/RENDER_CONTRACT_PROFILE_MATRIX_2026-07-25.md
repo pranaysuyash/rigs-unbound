@@ -116,3 +116,15 @@ fresh benchmark or browser run is claimed by this addendum.
 - This note intentionally does not promote the profile matrix into a gameplay
   system; it only keeps the dependency visible so later episode work can rely
   on the same profile policy.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public profile line separate from acceptance diagnostics
+
+The render profile matrix now maps cleanly onto ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic;
+- the public shell keeps `#profile-status` visible to the player;
+- `#runtime-diagnostics` remains the acceptance/developer summary lane.
+
+That keeps the matrix focused on quality policy and fallback behavior, while
+the public shell remains the player-facing place where the selected profile is
+named in plain language.

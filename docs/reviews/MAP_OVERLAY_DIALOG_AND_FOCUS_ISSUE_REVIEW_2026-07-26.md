@@ -76,3 +76,67 @@ The map overlay is the next a11y surface worth hardening because it already chan
 - This note is intentionally not claiming browser verification yet; the next
   proof step is to re-open the live shell and re-check the focus landing path
   after the patch.
+
+## Addendum (2026-07-28): browser recheck now closes the map-overlay focus gap
+
+- Re-opened the canonical browser shell and triggered the map overlay through
+  the live `Map` control.
+- The overlay now presents as a real modal dialog surface:
+  - `#map-overlay` is visible;
+  - `role="dialog"` is present;
+  - `aria-modal="true"` is present;
+  - the close button is the active element on open.
+- Closing the overlay restores focus to `#game-canvas` instead of leaving the
+  browser on `BODY`.
+- That satisfies the issue’s closure trigger: the map overlay is now treated as
+  an accessible modal dialog in both markup and focus flow, and the browser
+  proof is live.
+
+## Addendum (2026-07-28) - mobile focus recovery is now confirmed live
+
+A fresh browser probe on a `390 x 844` mobile viewport confirmed the map
+overlay now lands focus on `#map-close` after opening:
+
+- `#map-overlay` opens with `role="dialog"` and `aria-modal="true"`;
+- `#map-close` becomes the active element after the delayed open assertion;
+- focus remains on the close control through later checks;
+- the earlier mobile map-focus gap is now closed.
+
+Evidence depth: Tier 4 live browser inspection.
+
+## Anything else?
+
+Yes. Keep the map issue closed as a focus-recovery problem; any future work on
+that surface should focus on content, not re-opening the same accessibility bug.
+
+## Addendum (2026-07-28) - the contract board is now open/focus-safe on desktop as well
+
+The same shell hardening that fixed the map overlay also corrected the contract
+board path:
+
+- `Contracts` opens `#mission-board` as a real dialog,
+- `#mission-board-close` receives and keeps focus,
+- the board stays visible instead of getting displaced by the lesson surface,
+- selecting a row enables `Accept contract`.
+
+That is not a map issue, but it belongs in the same shell contract family: the
+major overlay stack now proves open/focus behavior on the live runtime.
+
+Evidence depth: Tier 4 live browser inspection.
+
+## Anything else?
+
+Yes. The overlay stack is now behaving as a stack, not as a set of competing
+surfaces.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public overlay stack separate from diagnostics
+
+The map overlay contract now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- acceptance/developer diagnostics stay on the non-public side of the split.
+
+That matters because the overlay stack is a player-facing shell concern, not a
+place for the deeper runtime summary to leak into the public HUD.

@@ -445,3 +445,75 @@ That keeps the shell contract clear:
 - the shell still owns the overlay boundary,
 - the loading contract owns the in-progress explanation,
 - the board still keeps a readable way back to play.
+
+## Addendum (2026-07-28) — the 2d-games lens says the shell is a clarity stack, not a second game
+
+- Re-read the `2d-games` skill against the unified shell contract and the live
+  mobile shell evidence.
+- The useful shell lesson is not to add more UI layers. It is to keep the
+  shell legible as a small number of readable bands:
+  - persistent status and prompt strip,
+  - explicit overlay planes,
+  - large touch actions,
+  - and a clear return path to play.
+- The current mobile shell already behaves in that direction:
+  status/profile/save surfaces are separate, the focus path stays obvious, and
+  the accessibility statement page gives the public promise a durable home.
+- This means the 2D shell contract should stay focused on clarity, layering,
+  and readable state transitions rather than on inventing a new desktop-like
+  navigation system.
+- The remaining shell work is refinement of the visible bands and their
+  announcements, not a new shell authority.
+- Evidence depth: Tier 1 static skill and spec inspection plus the existing
+  Tier 4 browser observations already recorded in the accessibility and shell
+  notes.
+
+## Addendum (2026-07-28) — the acceptance board is desktop-mounted while the compact shell keeps the trigger cluster hidden
+
+- A desktop browser probe confirmed that the `Contracts` button in the masthead
+  opens the acceptance board overlay and mounts the `Field contracts` surface.
+- The compact/mobile shell still hides `.masthead__buttons` through CSS, so
+  the acceptance board is not discoverable from the narrow ready view even
+  though the runtime supports it.
+- That makes the current shell policy viewport-specific rather than binary:
+  desktop exposes the contract board as a major overlay, while compact/mobile
+  preserves the status rail and keeps the board entry point out of the way.
+- The shell spec therefore already has the overlay contract it needs; the
+  remaining question is whether the compact shell should expose a smaller
+  contract entry path or continue to keep the board desktop-first.
+
+## Addendum (2026-07-28) — the compact shell still has no alternate board entry path after world entry
+
+- A follow-up compact-viewport probe after entering the field still found no
+  visible contract-board trigger path.
+- The compact shell continues to surface only passive status hints while the
+  acceptance board stays behind the hidden masthead cluster.
+- That keeps the current shell policy explicit:
+  - desktop exposes the board overlay,
+  - compact/mobile does not currently expose an alternate board entry path.
+- The shell spec should keep naming that as an intentional exposure policy
+  question instead of pretending the compact path already exists.
+
+## Addendum (2026-07-28) — the compact shell actions still do not route into contracts
+
+- A source scan of the shell actions found no compact/mobile route into the
+  contract board through pause, touch, or keyboard affordances.
+- The current shell actions cover the world's existing major overlays and core
+  verbs, but the contract board is still desktop-triggered only.
+- That makes the shell policy explicit rather than accidental:
+  - compact/mobile preserves status and play actions,
+  - desktop exposes the contracts overlay,
+  - no alternate compact contract trigger exists today.
+
+## Addendum (2026-07-29) — ADR-0039 names the public/acceptance split behind this shell policy
+
+This shell specification now sits alongside the browser-policy decision trail
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible to the player;
+- acceptance/developer surfaces may carry `#runtime-diagnostics` as readable
+  summary text without turning the public shell into an operator console.
+
+That keeps the shell spec honest about its goal: one shell over the runtime,
+with public player-facing state and reviewer-facing diagnostics held apart.

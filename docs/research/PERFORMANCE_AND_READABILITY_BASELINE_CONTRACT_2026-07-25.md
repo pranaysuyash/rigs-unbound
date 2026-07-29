@@ -221,3 +221,43 @@ measured and explained as a whole.
   table bound to final acceptance, a one-line fail-soft summary naming the
   exceeded threshold, and a single maintained mapping back to the specialized
   contract owners.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public shell readable while the umbrella policy stays operator-facing
+
+This umbrella baseline now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- acceptance/developer surfaces can carry `#runtime-diagnostics` and the
+  budget-table style reasoning without turning the public HUD into an operator
+  dashboard.
+
+That keeps the baseline contract in the right layer: one maintainable policy
+surface for operators, one clear public shell for the player.
+
+
+## Addendum (2026-07-29) - the next baseline proof is one canonical budget table plus a fail-soft summary
+
+- Re-read the umbrella baseline against the current visibility, camera, collision, accessibility, and KPI notes.
+- The runtime already exposes enough diagnostic pressure to justify the umbrella policy as a real operator artifact, but the bundle is still only a draft.
+- The next proof slice should therefore be one canonical budget table that says, for the live field snapshot, whether the app is within budget, degraded but acceptable, or fail-soft, and which threshold band is responsible when it is not within budget.
+- The table should map directly back to the specialized contract owners rather than becoming a second hidden policy layer.
+- The current KPI notes also make the remaining measurement gap explicit: actor count and active physics count still need to become first-class per-frame signals alongside the already-visible frame, draw, camera, and save metrics.
+- Evidence depth: Tier 1 static synthesis from the current baseline, KPI, and operator-bundle notes. No new browser or benchmark command was run in this pass.
+
+Anything else? Yes: the baseline is ready to be read as one policy, but not yet as one canonical operator table.
+
+## Addendum (2026-07-29) - the operator table now has a precise measurement gap and owner map
+
+- Re-read the umbrella baseline together with the operator-observability contract and the runtime KPI note.
+- The next table should not just name the budget state; it should also say which owner is responsible for the exceeded threshold, so maintainers can trace the fallback back to the specialized contract instead of a vague global alarm.
+- The current explicit measurement gap remains the same and should be called out in the table header or supporting note:
+  - actor count,
+  - active physics count.
+- The practical shape is now clear enough for the next proof slice:
+  - one canonical budget table,
+  - one fail-soft summary naming the exceeded band,
+  - one owner mapping back to the specialized contracts,
+  - one explicit note that actor/physics remain first-class only after the runtime emits them directly.
+- Evidence depth: Tier 1 static synthesis from the current baseline, KPI, and operator-observability notes.

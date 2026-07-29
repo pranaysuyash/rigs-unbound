@@ -9,6 +9,7 @@ import {
   LANDMARKS,
   MODULES,
   RIG_PROFILES,
+  rigCollisionRadius,
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
   V8_SAVE_SCHEMA_VERSION,
@@ -150,7 +151,10 @@ describe("rig gameplay kernel", () => {
       for (let right = left + 1; right < rigs.length; right += 1) {
         const a = rigs[left]!;
         const b = rigs[right]!;
-        expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeGreaterThan(5);
+        const minimum =
+          rigCollisionRadius(RIG_PROFILES[a.id]) +
+          rigCollisionRadius(RIG_PROFILES[b.id]);
+        expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeGreaterThan(minimum);
         expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeLessThan(34);
       }
     }
@@ -551,7 +555,7 @@ describe("traversal model", () => {
   });
 
   it.each(["utility-tractor", "toy-buggy", "marsh-skimmer"] as const)(
-    "turns %s toward world-left when the player holds left",
+    "turns %s toward the player's screen-left when the player holds left",
     (rigId) => {
       const { state, world } = scenario(`LEFT-STEER-${rigId}`, rigId);
       const rig = activeRig(state);
@@ -570,9 +574,16 @@ describe("traversal model", () => {
         FIXED_STEP_SECONDS,
       );
 
-      // In the canonical +Z-forward coordinate system, negative yaw turns
-      // forward toward world −X: the player's left.
-      expect(rig.heading).toBeLessThan(heading);
+      // Corrected 2026-07-28: this assertion previously required negative yaw
+      // for Left, on the claim that world −X is "the player's left". That claim
+      // was derived from a head-on view of the rig, not from the chase camera's
+      // actual seat behind it. For a chase viewer looking along +forward,
+      // Three.js `lookAt` gives right-axis = -forward × up, which resolves to
+      // world −X being screen-RIGHT when facing +Z — the opposite of what this
+      // test asserted. See `steering-direction.test.ts` for the corrected,
+      // camera-relative derivation and live-browser confirmation. Left must
+      // increase heading; Right must decrease it.
+      expect(rig.heading).toBeGreaterThan(heading);
     },
   );
 

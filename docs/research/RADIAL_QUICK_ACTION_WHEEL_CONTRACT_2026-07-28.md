@@ -235,3 +235,49 @@ than an improvement.
 - The remaining open check is a manual spoken narration pass for assistive
   technology, not the existence of a runtime announcement mechanism.
 - Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - mobile shell probe exposes a focus handoff gap
+
+- Re-checked the canonical browser surface in a `390 x 844` mobile viewport.
+- `#welcome-panel` is a real modal gate (`role="dialog"`, `aria-modal="true"`)
+  with `Enter the field` as the dismiss path.
+- After dismissal, `#touch-radial-action` is visible and opens the radial
+  overlay as expected.
+- The overlay still does not claim initial focus in this viewport: after
+  750ms, `document.activeElement` remains `#touch-radial-action` instead of
+  `#radial-menu-close`.
+- Pressing `Tab` escapes to `#control-lesson-dismiss` (`Got it`) instead of
+  staying inside the overlay, so the wheel is not yet self-contained from a
+  keyboard/focus perspective on mobile.
+- The live mobile item set is four items:
+  - Air down 16 PSI
+  - Air up 32 PSI
+  - Differential open
+  - Winch
+- This does not reopen the boot blocker. It narrows the remaining proof gap to
+  overlay focus management and focus trapping on touch-sized shells.
+- Evidence depth: Tier 4 live browser inspection.
+
+## Anything else?
+
+Yes. The wheel is mounted and usable, but the current mobile shell still needs
+one explicit focus target and one explicit focus trap story before the quick
+action path is fully trustworthy.
+
+## Addendum (2026-07-28) - the mobile failure is visibility first, then focus
+
+A later DOM probe tightened the mobile result:
+
+- `#radial-overlay` is mounted and populated,
+- but its computed `visibility` remains `hidden`,
+- `#radial-menu-close` is present and focusable in markup,
+- `document.activeElement` still stays on `#touch-radial-action`.
+
+That means the open path is not just missing a focus handoff. On the mobile
+probe, the overlay is not yet visibly surfaced, so the contract needs to be
+validated as a combined visibility-and-focus path on touch-sized shells.
+
+## Anything else?
+
+Yes. The next proof slice should check the open-state CSS/attribute contract and
+then re-run the focus check only after the overlay is visibly exposed.

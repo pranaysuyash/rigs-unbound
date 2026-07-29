@@ -115,6 +115,54 @@ export interface RampDefinition {
   z: number;
   radius: number;
   minimumSpeed: number;
+  deckWidth: number;
+  deckDepth: number;
+  deckThickness: number;
+  deckOffset: number;
+  tiltRadians: number;
+}
+
+/** Wheel-radius fudge so a tyre near the deck's geometric edge does not visibly
+ *  clip through it before the contact point crosses the exact boundary. */
+const RAMP_EDGE_MARGIN = 0.35;
+
+/**
+ * Height of the ramp's driveable deck surface at a world point, or `null` when
+ * the point is off the deck footprint.
+ *
+ * The ramp is an authored tilted platform, not a wall. A prior revision only
+ * ever fed wheel contact from flat terrain height here, so a rig without jump
+ * capability — and the jump-capable buggy below its launch speed — drove
+ * straight through the visible mesh with zero deflection: the ramp had no
+ * effect on ground contact at all, only a same-tick vertical-impulse check far
+ * below in this function. Blending this into wheel contact makes the ramp a
+ * real physical surface for every ground rig while leaving the launch impulse
+ * untouched — a fast, jump-capable rig still gets airborne off the high edge.
+ *
+ * Exact, not approximate: the deck's top surface has a fixed local Y (half its
+ * thickness), so recovering the local depth coordinate from a world Z is a
+ * plain inversion of the same rotation the renderer applies to the mesh.
+ */
+function rampSurfaceHeightAt(
+  ramp: RampDefinition,
+  terrainBaseY: number,
+  worldX: number,
+  worldZ: number,
+): number | null {
+  const localX = worldX - ramp.x;
+  if (Math.abs(localX) > ramp.deckWidth / 2 + RAMP_EDGE_MARGIN) return null;
+
+  const cosine = Math.cos(ramp.tiltRadians);
+  const sine = Math.sin(ramp.tiltRadians);
+  const halfThickness = ramp.deckThickness / 2;
+
+  const localDepth = (worldZ - ramp.z - halfThickness * sine) / cosine;
+  if (Math.abs(localDepth) > ramp.deckDepth / 2 + RAMP_EDGE_MARGIN) {
+    return null;
+  }
+
+  const surfaceOffsetY = halfThickness * cosine - localDepth * sine;
+  return terrainBaseY + ramp.deckOffset + surfaceOffsetY;
 }
 
 /**
@@ -263,6 +311,12 @@ function stepGroundMotion(
   let rightSum = 0;
   let contactSum = 0;
 
+  // Computed once, outside the per-wheel loop: the ramp's own anchor height
+  // never depends on wheel position.
+  const rampTerrainBaseY = options.ramp
+    ? terrain.height(options.ramp.x, options.ramp.z)
+    : 0;
+
   const wheelHeights: number[] = [0, 0, 0, 0];
   for (let index = 0; index < 4; index += 1) {
     const [signX, signZ] = WHEEL_LOCAL[index]!;
@@ -270,7 +324,16 @@ function stepGroundMotion(
     const localZ = signZ * halfBase;
     const worldX = rig.x + rightX * localX + forwardX * localZ;
     const worldZ = rig.z + rightZ * localX + forwardZ * localZ;
-    const groundY = terrain.height(worldX, worldZ);
+    let groundY = terrain.height(worldX, worldZ);
+    if (options.ramp) {
+      const deckY = rampSurfaceHeightAt(
+        options.ramp,
+        rampTerrainBaseY,
+        worldX,
+        worldZ,
+      );
+      if (deckY !== null) groundY = Math.max(groundY, deckY);
+    }
     wheelHeights[index] = groundY;
     contactSum += groundY;
     if (signZ > 0) frontSum += groundY;
@@ -331,7 +394,16 @@ function stepGroundMotion(
   } else {
     mobility.verticalVelocity -= GRAVITY * dt;
     rig.y += mobility.verticalVelocity * dt;
-    if (rig.y <= restY) {
+    // Landing requires actually descending onto the surface, not merely being
+    // numerically below it. Ground height was always continuous before the
+    // ramp deck existed, so "crossed below restY" and "is landing" used to be
+    // the same event. The deck's low edge is a real step discontinuity: right
+    // after a launch impulse, `restY` can jump up to the deck surface before
+    // `rig.y` has risen to meet it, which made this check fire on the same
+    // step as the launch and immediately re-ground the rig. Gating on downward
+    // velocity closes that gap without weakening genuine landings, which are
+    // always moving downward by the time they cross the contact plane.
+    if (rig.y <= restY && mobility.verticalVelocity <= 0) {
       landingSpeed = Math.abs(mobility.verticalVelocity);
       rig.y = restY;
       mobility.verticalVelocity = 0;

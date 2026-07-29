@@ -286,3 +286,18 @@ the machine -> reveal the next possibility`.
 - This addendum does not settle ADR-0033 or any universal mission-board
   authority question. It only names the interaction contract that the current
   runtime and wiring experiment are already pointing at.
+
+
+## Addendum (2026-07-29) - the next game-design proof is one tow-plus-repair rescue loop
+
+- Re-read the `game-design` skill against the current loop and progression contract.
+- The next durable proof slice is still not a generic activity registry or a broad progression system. It is one concrete loop that the player can feel in less than a minute:
+  - action: drive to a stranded machine, tow it, or attach the repair gear;
+  - feedback: camera, load, terrain, and audio make the strain obvious;
+  - reward: the machine becomes usable again and the route/problem is visibly improved;
+  - repeat: the player sees the next possibility through the workshop/garage or opportunity compass.
+- That loop is the best next proof because it exercises the current machine-centric grammar without requiring a new progression authority or a broad mode rewrite.
+- The mission acceptance surface remains the separate choice layer above this loop; the loop itself should stay readable even if acceptance moves between UI forms later.
+- Evidence depth: Tier 1 static synthesis from the design skill and the current core-loop contract. No runtime change was made in this pass.
+
+Anything else? Yes: the next proof should be one satisfying loop, not a larger system pretending to be a loop.

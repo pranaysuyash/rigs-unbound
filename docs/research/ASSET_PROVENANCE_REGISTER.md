@@ -2,6 +2,10 @@
 
 This register begins during concept exploration so provenance does not become a retroactive cleanup task.
 
+## Backlinks
+
+- [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+
 ## `tractor_patchwork_atlas_user_preference_2026-07-25.png`
 
 - Project path: `docs/exploration/assets/references/tractor_patchwork_atlas_user_preference_2026-07-25.png`
@@ -497,3 +501,21 @@ developer-bridge status. CC0 rights permit use and redistribution;
 player-surface production art and are excluded from the production artifact.
 Earlier “nothing copied” and “browser verification pending” statements above
 are historical checkpoints superseded by this addendum.
+
+## Addendum (2026-07-29) - runtime bridge admission is not public approval
+
+The current asset trail now separates two different proofs that should not be
+collapsed into one another:
+
+- runtime bridge admission proves the asset can be loaded and rendered in the
+  developer or acceptance path;
+- public approval proves the asset may become player truth in the shipped
+  surface.
+
+That distinction matters because the remaining gap is no longer whether an
+asset can enter a bridge at all. The next obligation is the promotion record
+that ties identity, compact rights/provenance, runtime proof, and rollback
+path together for a specific public-facing asset decision.
+
+Until that record exists, the provenance register should continue treating the
+candidate as reference or bridge material, not as shipped runtime truth.

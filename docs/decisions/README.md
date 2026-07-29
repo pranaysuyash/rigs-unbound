@@ -25,8 +25,9 @@ dated update log records corrections.
 
 1. Use the comms package first when you are handling launch or build-in-public work.
 2. Use the reviews index next when you need evidence, approval, or closure context.
-3. Use this decision register when you need the load-bearing policy or status source.
-4. Use the execution tracker and worklog for the active operational sequence.
+3. Use the public asset promotion package index when you need the asset-gate trail in one place.
+4. Use this decision register when you need the load-bearing policy or status source.
+5. Use the execution tracker and worklog for the active operational sequence.
 
 ## Source taxonomy
 
@@ -93,18 +94,23 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0030 | Historical / superseded by ADR-0031                          | Renderer-owned direct rig presentation was replaced by explicit delegation to `vehicleAnimationSystem`.                                                                                                                            |
 | ADR-0031 | **Superseded by ADR-0034 (2026-07-28)**                      | The ownership boundary survives; the mechanism and the implementation claim do not. Its module would have re-derived kernel-owned `wheelRotation`/compression and dropped heading/pitch/roll. Correction preserved in ADR history. |
 | ADR-0032 | Proposed — operator sign-off required                        | Episode runner composes bounded episodes above the contract ledger instead of creating a second quest ledger or hidden story machine.                                                                                              |
-| ADR-0033 | Proposed — operator sign-off required                        | Mission propositions are derived, not persisted; capability-shaped progression is canonical for current games; XP remains an optional future/hybrid policy.                                                                        |
+| ADR-0033 | Accepted                                                      | Mission propositions are derived; one active accepted contract is persisted through the authoritative lifecycle boundary; capability-shaped progression is canonical for current games; XP remains an optional future/hybrid policy. |
 | ADR-0034 | Implemented and verified for the current runtime             | Simulation owns physical truth; `vehicleAnimationSystem` owns rig-local presentation and imported clip playback. Verified by reachability audit, 382 tests, and live `visualFrontIsForward` browser evidence.                      |
 | ADR-0035 | Accepted by direct operator direction; modality implemented | Pegboard runs live with an accessibility pause opt-in. Keyboard/pointer verified; narrow-viewport and touch still open. |
 | ADR-0036 | Rejected for runtime admission; module quarantined            | Universal XP contradicts ADR-0018. `xp-progression.ts` is preserved but forbidden from the runtime; the reachability audit enforces it and the rule is proven to fail on violation. |
+| ADR-0037 | Implemented and verified for the current runtime | Solver-independent semantic roles, CCD, dynamic rig/cargo response, and observable contact identity are locally verified. Global solver selection remains unresolved. |
+| ADR-0038 | Proposed — operator sign-off required                        | Runtime-tested bridge admission stays separate from public approval; the first public candidate is the breakable crate, not the tractor preview. |
+| ADR-0039 | Proposed — operator sign-off required                        | Public shell keeps bootstrap/profile visible and route-gates diagnostics to the acceptance/developer surface. |
 
 ## Related current surfaces
 
 - [Episode Runner Specification](../research/EPISODE_RUNNER_SPEC_2026-07-27.md)
 - [Compositional Episode Grammar and Storm Relay](../exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
+- [Dynamic World Collision Exploration](../research/DYNAMIC_WORLD_COLLISION_EXPLORATION_2026-07-28.md)
 - [Vehicle Game Visual Exploration Living Catalog](../vehicle_game_visual_exploration_living_catalog.md)
 - [Comms package](../comms/README.md)
 - [Reviews index](../reviews/README.md)
+- [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
 
 For the current rig-local animation boundary, use ADR-0034 together with the
 Three.js Animation Implementation Flow; ADR-0030 is historical record only.

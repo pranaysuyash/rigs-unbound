@@ -234,3 +234,23 @@ grow as readers of the world rather than silent co-authors of state.
 - This note intentionally does not promote the planner into a second authority
   layer; it only keeps the dependency visible so later episode work can rely on
   the same deterministic choice surface.
+
+## Addendum (2026-07-29) - the next planner proof is one multi-candidate selector with explicit loser reasons
+
+- Re-read the current planner contract alongside the command/event envelope and
+  replay notes.
+- The repo already has the right single-verb boundary:
+  - commands are captured as intent,
+  - the kernel owns mutation,
+  - the run record carries the ordered history,
+  - single contextual actions can already resolve deterministically.
+- What is still missing is the first real multi-candidate decision surface:
+  - one machine/task selector or activity scorer,
+  - at least two valid candidates,
+  - deterministic ordering for equal scores,
+  - a structured reason for the losing branch,
+  - a replay-visible record of that branch choice.
+- That keeps the planner honest: it should choose among candidates, not invent a
+  second authority or a broad AI framework before the product needs it.
+- Evidence depth: Tier 1 static synthesis from the current planner, command,
+  and replay contracts. No new runtime execution was run in this pass.

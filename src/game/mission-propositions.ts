@@ -350,9 +350,24 @@ export function deriveMissions(
     }
   }
 
+  const completedMissionIds = new Set(
+    Object.values(progression.journeys).flatMap((journey) =>
+      journey.completedDeeds
+        .filter((deed) => deed.startsWith("mission:"))
+        .map((deed) => deed.slice("mission:".length)),
+    ),
+  );
+  const current = state.activeMission;
+  const lifecycleAware = all
+    .filter((mission) => !completedMissionIds.has(mission.id))
+    .map((mission) => ({
+      ...mission,
+      state: current?.id === mission.id ? ("active" as const) : mission.state,
+    }));
+
   // Sort by proximity to the active rig.
   const rig = state.rigs[state.activeRigId];
-  return all.sort((a, b) => {
+  return lifecycleAware.sort((a, b) => {
     const aDist = siteDistance(a.targetSiteId, rig.x, rig.z);
     const bDist = siteDistance(b.targetSiteId, rig.x, rig.z);
     return aDist - bDist;

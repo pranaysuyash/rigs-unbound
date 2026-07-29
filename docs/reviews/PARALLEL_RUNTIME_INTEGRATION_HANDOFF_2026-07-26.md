@@ -201,3 +201,21 @@ untracked runtime modules with matching tests. They were still parallel-owned
 implementation evidence, not passage/state tranche material, and they widened
 the live runtime lane without changing the canonical simulation/persistence
 boundary.
+
+## Addendum (2026-07-28) — the agent-development lens confirms this handoff is the canonical live-lane boundary
+
+- Re-read the `Agent Development` skill against the current repo state.
+- The useful lesson is not "add more autonomous agents". The repo already has
+  the important structure:
+  - explicit tranche boundaries,
+  - named handoff artifacts,
+  - durable docs that preserve parallel work instead of erasing it,
+  - and a canonical simulation/persistence boundary that survives runtime
+    churn.
+- The remaining agent-development gap is social/operational, not structural:
+  future agents need a single obvious handoff surface so they do not guess
+  which runtime lane is safe to edit.
+- This handoff note remains the right place for that because it already names
+  the live parallel-runtime boundary and explains what must stay untouched.
+- Evidence depth: Tier 1 static review of the agent guidance plus the existing
+  handoff trail; no runtime or code change was required for this addendum.

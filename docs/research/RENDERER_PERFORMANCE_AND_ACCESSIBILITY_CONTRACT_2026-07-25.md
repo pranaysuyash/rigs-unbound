@@ -250,3 +250,17 @@ Together they define the public-smoke-test contract without widening the product
 - The missing artifact remains the same bundled public-gate package, but the
   dependency boundary is now explicit.
 - Evidence tier: Tier 1 static inspection.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public smoke-test gate separate from diagnostics
+
+This first-public-smoke-test gate now sits alongside the browser-policy split
+named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` remains on the acceptance/developer side of the
+  split, where renderer detail can stay readable without becoming public HUD
+  clutter.
+
+That keeps the smoke-test gate focused on the player’s readable surface, while
+the deeper renderer reasoning stays in the review lane.

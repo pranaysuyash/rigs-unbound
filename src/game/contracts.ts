@@ -325,6 +325,23 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
   },
 } as const;
 
+/**
+ * Conservative simple collider enclosing the rig's authored wheel footprint.
+ *
+ * The runtime currently resolves planar circles rather than oriented compound
+ * shapes. Using only half the track width let long vehicle noses enter visible
+ * meshes before their centres touched. The half-diagonal encloses the front and
+ * rear wheel arcs, so the simple proxy remains honest until a later solver
+ * adapter can express the same blueprint as a capsule or compound collider.
+ */
+export function rigCollisionRadius(
+  profile: Pick<RigProfile, "track" | "wheelbase" | "wheelRadius">,
+): number {
+  const halfLength = profile.wheelbase * 0.5 + profile.wheelRadius;
+  const halfWidth = profile.track * 0.5 + 0.15;
+  return Math.hypot(halfLength, halfWidth);
+}
+
 // -----------------------------------------------------------------------------
 // Modules: the progression layer
 // -----------------------------------------------------------------------------
@@ -760,6 +777,20 @@ export const CARGO_DELIVERY = {
 export const BUGGY_RAMP = {
   x: 24,
   z: -26,
+  /** Proximity radius for the launch trigger; independent of the deck footprint. */
   radius: 3.6,
   minimumSpeed: 8,
+  /**
+   * Authored deck geometry. This is the single source of truth for the ramp's
+   * shape: the renderer builds its mesh from these fields and the ground
+   * adapter derives driveable surface height from the same fields, so the
+   * visible ramp and the one a rig can actually stand on can never drift apart.
+   */
+  deckWidth: 6.5,
+  deckDepth: 8,
+  deckThickness: 0.6,
+  /** Deck centre height above the terrain sample at (x, z). */
+  deckOffset: 0.85,
+  /** Tilt about the world X axis; negative pitches the far (+local Z) edge up. */
+  tiltRadians: -0.18,
 } as const;

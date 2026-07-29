@@ -187,3 +187,17 @@ The long-term first-principles exploration note at
 is the broader horizon for this renderer analysis. This document still owns
 the renderer-risk frame and closure path; the new note carries the wider
 machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-29) - ADR-0039 keeps renderer detail on the acceptance/developer side of the browser split
+
+This renderer analysis now sits alongside the browser-policy split named in
+ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic and player-facing;
+- the public shell keeps `#profile-status` visible and readable;
+- `#runtime-diagnostics` remains an acceptance/developer summary surface for
+  renderer detail.
+
+That keeps this analysis focused on renderer pressure and quality policy,
+while the public shell remains the place where the player sees the concise
+state of the world.

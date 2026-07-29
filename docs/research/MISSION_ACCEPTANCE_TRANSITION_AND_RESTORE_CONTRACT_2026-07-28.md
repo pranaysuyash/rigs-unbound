@@ -145,3 +145,16 @@ The smallest proof that satisfies this contract is:
 Yes. This contract is deliberately about motion between states, not a new
 system. It keeps the acceptance surface feeling like one tool that can be
 reopened and reused, rather than a set of different pages stitched together.
+
+## Addendum (2026-07-28): the open transition is real on desktop, but the compact shell still blocks the entry point
+
+- A desktop browser probe triggered the board and confirmed the open state
+  mounts as a single overlay with a stable `Close` path and preserved board
+  content.
+- The board can therefore open, hold a header, and present row content without
+  switching to a separate page.
+- The compact/mobile shell still hides the trigger cluster entirely, so the
+  transition contract is only partially exposed across viewport classes.
+- The next question is not whether the transition exists, but whether the
+  public compact shell should expose the same transition affordance in a
+  smaller form.

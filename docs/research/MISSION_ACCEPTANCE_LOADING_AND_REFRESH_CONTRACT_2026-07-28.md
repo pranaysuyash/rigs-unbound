@@ -96,6 +96,24 @@ The smallest proof that satisfies this contract is:
 4. one preserved context line when data refreshes,
 5. one accessible announcement that the board is still updating.
 
+## Addendum (2026-07-28): the current runtime already has truthful bootstrap text, but not a progress meter
+
+- Re-checked the live shell at `http://localhost:4173/?acceptance=field-02`
+  in a 390 x 844 viewport.
+- The shell now exposes truthful bootstrap text:
+  - `#bootstrap-status` reads `Measuring device performance… Choose Enter the field to begin.`
+  - `#profile-status` reads `Quality: measuring. Still measuring frame performance.`
+  - `#save-status` reads `New field ready · progress saves locally`
+- That means the current browser experience is already narrating warmup and
+  readiness, but it still does not expose the first-class progress affordance
+  this contract prefers:
+  - no visible `progress` element,
+  - no `role="progressbar"`,
+  - no `aria-busy` marker.
+- The correct conclusion is not “loading is missing”; it is “loading exists as
+  truthful text, but the board/loading contracts still have room for a more
+  explicit progress cue if the product wants one.”
+
 ## Open questions
 
 - Should the loading message say "Loading contracts" or "Refreshing board"?
@@ -109,3 +127,17 @@ Yes. This contract is the last obvious browser-experience guardrail for the
 board lane. A board that is loading should not look empty; a board that is
 empty should not look broken; a board that is populated should not bury the
 player in noise.
+
+## Addendum (2026-07-29) - ADR-0039 keeps the public loading story and the acceptance summary separate
+
+This loading-and-refresh contract now belongs to the same browser-policy
+family as the shell split named in ADR-0039:
+
+- the public shell keeps `#bootstrap-status` semantic while the app is
+  measuring;
+- the public shell keeps `#profile-status` visible and readable;
+- reviewer-facing runtime summary text stays on the acceptance/developer
+  surface instead of leaking into the player-facing loading story.
+
+That separation matters here because the board should remain honest about
+loading and refresh without trying to become the operator diagnostics panel.

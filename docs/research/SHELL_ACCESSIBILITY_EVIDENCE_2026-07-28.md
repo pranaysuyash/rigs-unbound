@@ -83,3 +83,91 @@ chat summary.
   selection announcement path. Spoken narration in a manual screen reader pass
   is still a separate check, but the runtime feedback mechanism itself is live.
 - Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-28) - the canonical Field 02 shell exposes its live status stack before entry
+
+- Re-checked the live browser on the canonical `http://localhost:4173/?acceptance=field-02` surface after the dev server was relaunched.
+- The shell opens in a measuring state rather than a ready state:
+  - title: `Rigs Unbound`
+  - `#bootstrap-status`: `Measuring device performance… Choose Enter the field to begin.`
+  - `#save-status`: `New field ready · progress saves locally`
+  - `#profile-status`: `Quality: measuring. Still measuring frame performance.`
+  - `#runtime-diagnostics.hidden`: `false`
+  - `main[aria-busy]`: `false`
+  - focus lands on `BUTTON#enter-world`
+  - no `[role=progressbar]` is present
+  - the live status-region set includes `save-status`, `profile-status`, `bootstrap-status`, `control-lesson`, and `toast`
+- The viewport also remained horizontally clean at the default browser size, so the public shell is still readable before entry.
+- The shell source now includes a masthead accessibility link to the statement
+  page, and the refreshed live browser surface shows that link in the rendered
+  masthead.
+- The named contract and the statement page now live at
+  [Accessibility Statement and Public Promise Contract](ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md)
+  and [Accessibility Statement](../ACCESSIBILITY_STATEMENT.md).
+- Evidence depth: Tier 4 live browser inspection.
+
+## Addendum (2026-07-29) - the earlier runtime-diagnostics visibility note is stale
+
+A later live browser probe on the canonical shell surface corrected the earlier
+profile evidence:
+
+- `#profile-status` is visible and reads `Quality: measuring. Still measuring frame performance.`
+- `#runtime-diagnostics` is hidden again on the public shell.
+- `#bootstrap-status` is the real loading affordance and currently exposes a
+  `progressbar` role while measuring.
+
+So the public shell's current split is now more precise: loading progress is
+semantic, profile state is visible, and diagnostics remain hidden from the
+player HUD.
+
+## Addendum (2026-07-29) - the earlier runtime-diagnostics visibility snapshot is stale
+
+A later live browser probe on the canonical shell corrected the old snapshot:
+
+- `#profile-status` is visible and reads `Quality: measuring. Still measuring frame performance.`
+- `#runtime-diagnostics` is hidden from the public HUD again.
+- `#bootstrap-status` is the real loading affordance and exposes a semantic
+  `progressbar` while the shell is measuring.
+
+So the current public split is: loading progress is semantic, profile state is
+visible, and diagnostics remain developer-hidden.
+
+## Addendum (2026-07-29) - the canonical shell now splits diagnostics by route
+
+A current route comparison shows the shell has a deliberate two-surface split:
+
+- the public shell hides `#runtime-diagnostics`;
+- the `?acceptance=field-02` surface shows it with the renderer/backend
+  summary;
+- both surfaces keep the semantic loading progressbar and the visible quality
+  line.
+
+That makes the earlier snapshot too broad. The live contract is now clearer:
+public shell stays concise, acceptance/developer shell exposes the deeper
+runtime summary.
+
+## Addendum (2026-07-29) - the accessibility tree follows the same route split
+
+A current route comparison shows the same policy in the browser tree:
+
+- the public shell hides `#runtime-diagnostics`;
+- the `?acceptance=field-02` shell reveals the renderer/backend summary;
+- `#bootstrap-status` remains the semantic progressbar;
+- `#profile-status` remains the visible quality line.
+
+So the earlier accessibility snapshot is still useful as a public-shell record,
+but it should now be read alongside the acceptance route rather than as a whole-
+product visibility statement.
+
+## Addendum (2026-07-29) - ADR-0039 is the policy name for this public/acceptance split
+
+The split observed in this evidence note now has a durable decision anchor:
+
+- ADR-0039 keeps `#bootstrap-status` public and semantic;
+- ADR-0039 keeps `#profile-status` public and visible;
+- ADR-0039 route-gates `#runtime-diagnostics` to the acceptance/developer
+  surface.
+
+That gives this evidence note the right framing: it records the live browser
+state, while ADR-0039 records the policy behind why the public shell stays
+concise and the acceptance shell carries the deeper summary.

@@ -9,10 +9,12 @@
 
 import {
   rockVisualHalfHeight,
+  sweepCircleAgainstCircle,
   treeCrownCenterY,
   treeCrownRadius,
   treeTrunkHeight,
   type ObstacleField,
+  type PlanarPoint,
 } from "./collision";
 import type { TerrainField } from "./terrain";
 import {
@@ -389,13 +391,115 @@ export interface StructureCollisionOutcome {
   hit: boolean;
   impactSpeed: number;
   blockedBy: WorldStructurePart | null;
+  normalX: number;
+  normalZ: number;
+  swept: boolean;
 }
 
 const NO_STRUCTURE_COLLISION: StructureCollisionOutcome = {
   hit: false,
   impactSpeed: 0,
   blockedBy: null,
+  normalX: 0,
+  normalZ: 0,
+  swept: false,
 };
+
+interface PlanarAabbSweepHit {
+  fraction: number;
+  normalX: number;
+  normalZ: number;
+  startedInside: boolean;
+}
+
+function sweepPointAgainstAabb(
+  from: PlanarPoint,
+  to: PlanarPoint,
+  extentX: number,
+  extentZ: number,
+): PlanarAabbSweepHit | null {
+  const inside = Math.abs(from.x) <= extentX && Math.abs(from.z) <= extentZ;
+  const moveX = to.x - from.x;
+  const moveZ = to.z - from.z;
+  if (inside) {
+    const penetrationX = extentX - Math.abs(from.x);
+    const penetrationZ = extentZ - Math.abs(from.z);
+    if (penetrationX < penetrationZ) {
+      return {
+        fraction: 0,
+        normalX: from.x < 0 ? -1 : 1,
+        normalZ: 0,
+        startedInside: true,
+      };
+    }
+    return {
+      fraction: 0,
+      normalX: 0,
+      normalZ: from.z < 0 ? -1 : 1,
+      startedInside: true,
+    };
+  }
+
+  let entry = 0;
+  let exit = 1;
+  let normalX = 0;
+  let normalZ = 0;
+  for (const axis of [
+    { origin: from.x, movement: moveX, extent: extentX, axis: "x" },
+    { origin: from.z, movement: moveZ, extent: extentZ, axis: "z" },
+  ] as const) {
+    if (Math.abs(axis.movement) <= EPSILON) {
+      if (axis.origin < -axis.extent || axis.origin > axis.extent) return null;
+      continue;
+    }
+    let near = (-axis.extent - axis.origin) / axis.movement;
+    let far = (axis.extent - axis.origin) / axis.movement;
+    const nearNormal = axis.movement > 0 ? -1 : 1;
+    if (near > far) {
+      [near, far] = [far, near];
+    }
+    if (near > entry) {
+      entry = near;
+      normalX = axis.axis === "x" ? nearNormal : 0;
+      normalZ = axis.axis === "z" ? nearNormal : 0;
+    }
+    exit = Math.min(exit, far);
+    if (entry > exit) return null;
+  }
+
+  if (entry < 0 || entry > 1) return null;
+  return {
+    fraction: entry,
+    normalX,
+    normalZ,
+    startedInside: false,
+  };
+}
+
+function pointToSegmentDistance(
+  pointX: number,
+  pointZ: number,
+  from: PlanarPoint,
+  to: PlanarPoint,
+): number {
+  const moveX = to.x - from.x;
+  const moveZ = to.z - from.z;
+  const lengthSquared = moveX * moveX + moveZ * moveZ;
+  if (lengthSquared <= EPSILON) {
+    return Math.hypot(pointX - from.x, pointZ - from.z);
+  }
+  const fraction = Math.max(
+    0,
+    Math.min(
+      1,
+      ((pointX - from.x) * moveX + (pointZ - from.z) * moveZ) / lengthSquared,
+    ),
+  );
+  return Math.hypot(
+    pointX - (from.x + moveX * fraction),
+    pointZ - (from.z + moveZ * fraction),
+  );
+}
 
 /**
  * Resolve a circular rig footprint against canonical authored structures.
@@ -409,14 +513,20 @@ export function resolveRigStructureCollision(
   source: Pick<SceneQuerySource, "terrain">,
   rig: StructureCollisionBody,
   rigRadius: number,
+  previous: PlanarPoint = rig,
 ): StructureCollisionOutcome {
   const radius = Math.max(0, Number.isFinite(rigRadius) ? rigRadius : 0);
   let outcome: StructureCollisionOutcome = NO_STRUCTURE_COLLISION;
+  const path = {
+    from: { x: previous.x, z: previous.z },
+    to: { x: rig.x, z: rig.z },
+  };
 
   const registerHit = (
     part: WorldStructurePart,
     normalX: number,
     normalZ: number,
+    swept: boolean,
   ): void => {
     const forwardX = Math.sin(rig.heading);
     const forwardZ = Math.cos(rig.heading);
@@ -436,13 +546,27 @@ export function resolveRigStructureCollision(
         hit: true,
         impactSpeed: Math.max(outcome.impactSpeed, closing),
         blockedBy: part,
+        normalX,
+        normalZ,
+        swept,
       };
     }
   };
 
+  type Candidate = {
+    part: WorldStructurePart;
+    centreX: number;
+    centreZ: number;
+    fraction: number;
+    normalX: number;
+    normalZ: number;
+    startedInside: boolean;
+  };
+  const candidates: Candidate[] = [];
+
   for (const group of SITE_COLLIDER_GROUPS) {
     if (
-      Math.hypot(rig.x - group.siteX, rig.z - group.siteZ) >
+      pointToSegmentDistance(group.siteX, group.siteZ, path.from, path.to) >
       group.reach + radius
     ) {
       continue;
@@ -461,50 +585,114 @@ export function resolveRigStructureCollision(
         const rotation = part.rotationY ?? 0;
         const cosine = Math.cos(rotation);
         const sine = Math.sin(rotation);
-        const deltaX = rig.x - centre.x;
-        const deltaZ = rig.z - centre.z;
-        const localX = cosine * deltaX - sine * deltaZ;
-        const localZ = sine * deltaX + cosine * deltaZ;
+        const fromDeltaX = path.from.x - centre.x;
+        const fromDeltaZ = path.from.z - centre.z;
+        const toDeltaX = path.to.x - centre.x;
+        const toDeltaZ = path.to.z - centre.z;
+        const localFrom = {
+          x: cosine * fromDeltaX - sine * fromDeltaZ,
+          z: sine * fromDeltaX + cosine * fromDeltaZ,
+        };
+        const localTo = {
+          x: cosine * toDeltaX - sine * toDeltaZ,
+          z: sine * toDeltaX + cosine * toDeltaZ,
+        };
         const extentX = part.shape.width * 0.5 + radius;
         const extentZ = part.shape.depth * 0.5 + radius;
-        if (Math.abs(localX) >= extentX || Math.abs(localZ) >= extentZ) {
-          continue;
-        }
-
-        const penetrationX = extentX - Math.abs(localX);
-        const penetrationZ = extentZ - Math.abs(localZ);
-        let localNormalX = 0;
-        let localNormalZ = 0;
-        let overlap: number;
-        if (penetrationX < penetrationZ) {
-          localNormalX = localX < 0 ? -1 : 1;
-          overlap = penetrationX;
-        } else {
-          localNormalZ = localZ < 0 ? -1 : 1;
-          overlap = penetrationZ;
-        }
-        const normalX = cosine * localNormalX + sine * localNormalZ;
-        const normalZ = -sine * localNormalX + cosine * localNormalZ;
-        rig.x += normalX * (overlap + 0.001);
-        rig.z += normalZ * (overlap + 0.001);
-        registerHit(part, normalX, normalZ);
+        const hit = sweepPointAgainstAabb(localFrom, localTo, extentX, extentZ);
+        if (!hit) continue;
+        candidates.push({
+          part,
+          centreX: centre.x,
+          centreZ: centre.z,
+          fraction: hit.fraction,
+          normalX: cosine * hit.normalX + sine * hit.normalZ,
+          normalZ: -sine * hit.normalX + cosine * hit.normalZ,
+          startedInside: hit.startedInside,
+        });
         continue;
       }
 
       const minimum = part.shape.radius + radius;
-      const deltaX = rig.x - centre.x;
-      const deltaZ = rig.z - centre.z;
-      const distance = Math.hypot(deltaX, deltaZ);
-      if (distance >= minimum) continue;
-      const normalX =
-        distance > EPSILON ? deltaX / distance : -Math.sin(rig.heading);
-      const normalZ =
-        distance > EPSILON ? deltaZ / distance : -Math.cos(rig.heading);
-      const overlap = minimum - distance;
-      rig.x += normalX * (overlap + 0.001);
-      rig.z += normalZ * (overlap + 0.001);
-      registerHit(part, normalX, normalZ);
+      const hit = sweepCircleAgainstCircle(path.from, path.to, centre, minimum);
+      if (!hit) continue;
+      candidates.push({
+        part,
+        centreX: centre.x,
+        centreZ: centre.z,
+        fraction: hit.fraction,
+        normalX: hit.normalX,
+        normalZ: hit.normalZ,
+        startedInside: hit.startedInside,
+      });
     }
+  }
+
+  candidates.sort(
+    (first, second) =>
+      first.fraction - second.fraction ||
+      first.part.id.localeCompare(second.part.id),
+  );
+
+  for (const candidate of candidates) {
+    const moveX = path.to.x - path.from.x;
+    const moveZ = path.to.z - path.from.z;
+    if (!candidate.startedInside) {
+      const movementLength = Math.hypot(moveX, moveZ);
+      const skinFraction =
+        movementLength > EPSILON
+          ? Math.min(candidate.fraction, 0.001 / movementLength)
+          : 0;
+      const resolvedFraction = Math.max(0, candidate.fraction - skinFraction);
+      rig.x = path.from.x + moveX * resolvedFraction;
+      rig.z = path.from.z + moveZ * resolvedFraction;
+    }
+
+    let normalX = candidate.normalX;
+    let normalZ = candidate.normalZ;
+    if (candidate.part.shape.kind === "box") {
+      const rotation = candidate.part.rotationY ?? 0;
+      const cosine = Math.cos(rotation);
+      const sine = Math.sin(rotation);
+      const deltaX = rig.x - candidate.centreX;
+      const deltaZ = rig.z - candidate.centreZ;
+      const localX = cosine * deltaX - sine * deltaZ;
+      const localZ = sine * deltaX + cosine * deltaZ;
+      const extentX = candidate.part.shape.width * 0.5 + radius;
+      const extentZ = candidate.part.shape.depth * 0.5 + radius;
+      if (Math.abs(localX) < extentX && Math.abs(localZ) < extentZ) {
+        const penetrationX = extentX - Math.abs(localX);
+        const penetrationZ = extentZ - Math.abs(localZ);
+        const localNormalX =
+          penetrationX < penetrationZ ? (localX < 0 ? -1 : 1) : 0;
+        const localNormalZ =
+          penetrationX < penetrationZ ? 0 : localZ < 0 ? -1 : 1;
+        const overlap = Math.min(penetrationX, penetrationZ);
+        normalX = cosine * localNormalX + sine * localNormalZ;
+        normalZ = -sine * localNormalX + cosine * localNormalZ;
+        rig.x += normalX * (overlap + 0.001);
+        rig.z += normalZ * (overlap + 0.001);
+      }
+    } else {
+      const minimum = candidate.part.shape.radius + radius;
+      const deltaX = rig.x - candidate.centreX;
+      const deltaZ = rig.z - candidate.centreZ;
+      const distance = Math.hypot(deltaX, deltaZ);
+      if (distance < minimum) {
+        normalX = distance > EPSILON ? deltaX / distance : candidate.normalX;
+        normalZ = distance > EPSILON ? deltaZ / distance : candidate.normalZ;
+        const overlap = minimum - distance;
+        rig.x += normalX * (overlap + 0.001);
+        rig.z += normalZ * (overlap + 0.001);
+      }
+    }
+    registerHit(
+      candidate.part,
+      normalX,
+      normalZ,
+      !candidate.startedInside && candidate.fraction < 1,
+    );
+    if (!candidate.startedInside) break;
   }
 
   return outcome;

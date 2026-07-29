@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createInitialState } from "./state";
+import { recoverState } from "./state";
 import {
   acceptMission,
   completeMission,
@@ -60,12 +61,21 @@ describe("mission lifecycle authority", () => {
     const completed = completeMission(accepted.state, mission.id, 2400);
     expect(completed.ok).toBe(true);
     expect(completed.state.activeMission).toBeNull();
-    expect(completed.state.progression.journeys["utility-tractor"]?.completedDeeds).toContain(
-      `mission:${mission.id}`,
-    );
+    expect(
+      completed.state.progression.journeys["utility-tractor"]?.completedDeeds,
+    ).toContain(`mission:${mission.id}`);
 
     const repeated = completeMission(completed.state, mission.id, 2500);
     expect(repeated.ok).toBe(false);
     expect(repeated.state.salvage).toBe(completed.state.salvage);
+  });
+
+  it("persists and recovers the active contract through the save-shaped state", () => {
+    const state = createInitialState();
+    const accepted = acceptMission(state, mission, "utility-tractor", 1200);
+    expect(accepted.ok).toBe(true);
+
+    const recovered = recoverState(JSON.parse(JSON.stringify(state)));
+    expect(recovered?.activeMission).toEqual(state.activeMission);
   });
 });

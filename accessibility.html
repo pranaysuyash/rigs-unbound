@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Accessibility statement for Rigs Unbound."
+    />
+    <meta name="theme-color" content="#17201c" />
+    <title>Accessibility Statement - Rigs Unbound</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Trebuchet MS", "Avenir Next", system-ui, sans-serif;
+        color: #f5ead5;
+        background: #17201c;
+        --soil-ink: #17201c;
+        --tractor-rust: #b94f32;
+        --workshop-bone: #ead8b8;
+        --harvest-gold: #d9aa52;
+        --signal-cyan: #6bc9c4;
+        --panel: rgba(23, 32, 28, 0.88);
+        --panel-soft: rgba(23, 32, 28, 0.68);
+        --hairline: rgba(234, 216, 184, 0.23);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at top, rgba(107, 201, 196, 0.08), transparent 35%),
+          linear-gradient(180deg, #0f1714 0%, #17201c 36%, #17201c 100%);
+      }
+
+      body {
+        color: #f5ead5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+
+      .hero {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 1.1rem 1.2rem;
+        border-left: 0.28rem solid var(--tractor-rust);
+        background: var(--panel);
+        box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.28);
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-family: "Avenir Next Condensed", "Arial Narrow", sans-serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: 0.02em;
+      }
+
+      .hero p,
+      .section p,
+      .section li {
+        line-height: 1.6;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.4rem;
+        color: var(--signal-cyan);
+        font:
+          700 0.72rem/1 "SFMono-Regular", Consolas, monospace;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .summary {
+        max-width: 38rem;
+        margin: 0.35rem 0 0;
+        color: var(--workshop-bone);
+      }
+
+      .pill {
+        display: inline-flex;
+        gap: 0.35rem;
+        align-items: center;
+        padding: 0.4rem 0.65rem;
+        margin-top: 0.15rem;
+        color: var(--soil-ink);
+        background: var(--harvest-gold);
+        font:
+          700 0.72rem/1 "SFMono-Regular", Consolas, monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .section {
+        grid-column: span 12;
+        padding: 1rem 1.1rem;
+        background: var(--panel-soft);
+        border: 1px solid var(--hairline);
+      }
+
+      @media (min-width: 760px) {
+        .half {
+          grid-column: span 6;
+        }
+      }
+
+      h2 {
+        margin: 0 0 0.65rem;
+        color: var(--signal-cyan);
+        font-size: 1rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      ul {
+        margin: 0.4rem 0 0;
+        padding-left: 1.1rem;
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 0.85rem;
+      }
+
+      .links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.45rem 0.7rem;
+        color: var(--workshop-bone);
+        text-decoration: none;
+        border: 1px solid var(--hairline);
+        background: rgba(23, 32, 28, 0.7);
+      }
+
+      .links a:hover,
+      .links a:focus-visible {
+        border-color: var(--harvest-gold);
+      }
+
+      .note {
+        color: rgba(245, 234, 213, 0.82);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell" aria-labelledby="page-title">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Public promise</p>
+          <h1 id="page-title">Accessibility Statement</h1>
+          <p class="summary">
+            Rigs Unbound aims to be understandable, operable, and readable in the
+            browser. This page summarizes what already works, what still needs
+            validation, and where to send feedback.
+          </p>
+        </div>
+        <span class="pill">Last updated: 2026-07-29</span>
+      </section>
+
+      <div class="grid">
+        <section class="section half" aria-labelledby="current-posture">
+          <h2 id="current-posture">Current accessibility posture</h2>
+          <ul>
+            <li>Keyboard access reaches the main flow.</li>
+            <li>A skip link jumps to the playable world.</li>
+            <li>Focus styles are visible and consistent.</li>
+            <li>Semantic buttons and live status regions are used in the shell.</li>
+            <li>The shell stays readable at narrow/mobile widths without horizontal overflow.</li>
+            <li>Bootstrap, save, and profile text are visible in the browser.</li>
+            <li>The live runtime includes fallback-aware browser behavior.</li>
+            <li>The public statement still works with JavaScript disabled.</li>
+            <li>The public statement stays readable at 200% browser scale without horizontal overflow.</li>
+            <li>Reduced-motion browser settings are honored in the shell.</li>
+            <li>The world clock stays passive text so the shell does not chatter on time updates.</li>
+            <li>Live announcement surfaces now speak as full phrases in the shell (current objective, loading, save, quality, notification, and control lesson).</li>
+            <li>Terse touch controls now expose clearer spoken names in the shell.</li>
+          </ul>
+        </section>
+
+        <section class="section half" aria-labelledby="still-improving">
+          <h2 id="still-improving">What is still being improved</h2>
+          <ul>
+            <li>Spoken screen-reader narration for the public shell.</li>
+            <li>Clearer public feedback and issue-reporting guidance.</li>
+            <li>Keeping the statement current as the evidence evolves.</li>
+          </ul>
+        </section>
+
+        <section class="section" aria-labelledby="known-gaps">
+          <h2 id="known-gaps">Known gaps</h2>
+          <p>
+            The shell is structurally accessible, but not every experience has
+            been validated with manual assistive-technology testing yet. The
+            loading story is still textual rather than a dedicated progress bar,
+            though the statement page itself remains readable when JavaScript is
+            disabled and at 200% browser scale.
+          </p>
+        </section>
+
+        <section class="section half" aria-labelledby="feedback">
+          <h2 id="feedback">Feedback</h2>
+          <p>
+            If you find an accessibility issue, please record it in the project
+            docs or open the relevant review surface so it can be tracked
+            alongside the other browser-delivery evidence.
+          </p>
+        </section>
+
+        <section class="section half" aria-labelledby="related">
+          <h2 id="related">Related evidence</h2>
+          <div class="links">
+            <a href="/docs/research/SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md"
+              >Shell evidence</a
+            >
+            <a
+              href="/docs/research/ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md"
+              >Live repo analysis</a
+            >
+            <a
+              href="/docs/research/ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md"
+              >Public promise contract</a
+            >
+          </div>
+          <p class="note">
+            The docs page mirrors this statement, but this top-level page is the
+            browser-facing public pointer.
+          </p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

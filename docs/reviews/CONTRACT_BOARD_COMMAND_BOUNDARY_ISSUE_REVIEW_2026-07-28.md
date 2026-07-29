@@ -82,3 +82,23 @@ documented, equivalent runtime surface with:
 Yes. This review intentionally stops short of claiming the board is broken in
 runtime, because the current repo evidence is still largely spec-level. The gap
 is that the board is not yet a live, focus-managed command boundary.
+
+## Addendum (2026-07-28) — the board is live on desktop, so the remaining gap is compact-shell exposure
+
+- A live browser probe in a desktop viewport (`1440 x 900`) confirmed that the
+  `Contracts` masthead button opens the `Field contracts` overlay and mounts a
+  visible row set.
+- The board therefore is not merely a spec-level projection anymore; it is a
+  real runtime overlay branch in the desktop-ready path.
+- The compact/mobile shell (`390 x 844`) still hides the masthead button
+  cluster through CSS and exposes no alternate contracts route through pause,
+  touch, or keyboard affordances.
+- That means the command boundary issue has narrowed:
+  - desktop command boundary: present and mounted,
+  - compact/mobile command boundary: still absent as an affordance.
+- The remaining decision is therefore exposure policy and compact-shell
+  discoverability, not board existence in the runtime.
+
+See also:
+
+- [Contract Board Compact Exposure Policy Review](./CONTRACT_BOARD_COMPACT_EXPOSURE_POLICY_REVIEW_2026-07-28.md)

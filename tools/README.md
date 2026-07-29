@@ -121,6 +121,30 @@ Start the game on the canonical Vite port (`4173`), then run:
 npm run test:browser
 ```
 
+## Dynamic world collision acceptance
+
+`collision-browser-acceptance.cjs` isolates the canonical fleet-body collision
+contract on the Field 02 acceptance surface:
+
+- drives Torque into a parked Spark with deterministic manual stepping;
+- proves the active rig stays on the near side and loses speed;
+- proves the parked rig is displaced by the mass-weighted response;
+- requires swept contact identity, registered semantic roles, and zero policy
+  violations in `render_game_to_text()`;
+- checks that the bounded recent-contact buffer remains observable after the
+  multi-step browser command;
+- rejects console/page errors and writes JSON plus screenshot evidence under
+  `docs/reviews/assets/`.
+
+Start the canonical server on port `4173`, then run:
+
+```bash
+npm run test:collision-browser
+```
+
+This is focused Tier 3 integration plus Tier 4 local browser evidence. It does
+not select a future rigid-body solver or claim representative-device handling.
+
 ## Shell accessibility acceptance
 
 `shell-accessibility-browser-acceptance.cjs` verifies the player-facing shell
