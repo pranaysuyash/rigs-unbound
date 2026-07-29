@@ -346,3 +346,19 @@ and authored landmarks deliberately specific.
   second authority.
 - Evidence depth: Tier 1 static synthesis from the current design and activity
   contracts.
+
+## Addendum (2026-07-29) - Grove Run is the third activity proof, not a test rig
+
+- The activity registry now has a third materially different binding: `rally`.
+- Grove Run is a voluntary place-based sport from Toy Grove through Quarry Shelf
+  to Home Silo. It uses the same route network, physics position, rig state, and
+  persistence as every other activity.
+- It has no mission acceptance, route unlock, expiry, currency reward, or forced
+  progression. Its persistent output is a per-rig local record.
+- This directly avoids the rejected “deterministic chain” framing: the player may
+  enter, withdraw, travel elsewhere, and return without changing world access.
+- The command/event seam now has three distinct uses: hauling, surveying, and
+  open-road rivalry. A generic plugin framework is still not justified until
+  multiple independently authored rally/rescue activities demand it.
+- Evidence depth: Tier 1 source integration. Runtime, save/reload, and playtest
+  evidence remain open.

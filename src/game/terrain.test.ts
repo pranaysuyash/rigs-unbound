@@ -283,8 +283,13 @@ describe("terrain field invariants", () => {
       (site) => site.id,
     );
     // Launch Ridge is intentionally roadless — reaching it is the progression
-    // gate. Anything *else* unrouted is an authoring mistake.
-    expect(unrouted).toEqual(["launch-ridge"]);
+    // gate. North Field is a bare survey site meant to be found off-road, not
+    // driven to. Marsh Depot is reached by the Sunken Flats causeway, a
+    // conditional community passage rather than an authored WORLD_ROUTE (see
+    // settlement-needs.ts) — before that passage exists the water and ground
+    // between are still the player's to read. Anything *else* unrouted is an
+    // authoring mistake.
+    expect(unrouted).toEqual(["north-field", "marsh-depot", "launch-ridge"]);
   });
 
   it("reports a signed grade that agrees with travel direction", () => {

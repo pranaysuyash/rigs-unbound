@@ -80,6 +80,9 @@ function findMudLocation(world: GameWorld): { x: number; z: number } {
 function createScenario(seed: string, rigId: RigId = "utility-tractor") {
   const state = createInitialState(seed);
   state.activeRigId = rigId;
+  // Torque narratively starts disabled awaiting restoration (see
+  // createInitialState); this proof exercises driving, not that beat.
+  state.rigs["utility-tractor"].condition = 100;
   const world = new GameWorld(seed);
   return { state, world };
 }

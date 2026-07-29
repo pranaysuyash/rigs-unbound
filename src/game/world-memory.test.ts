@@ -82,3 +82,24 @@ describe("horizon signal visibility is published once", () => {
     expect(world.claimSurveyRefresh("utility-tractor", 3, 0)).toBe(true);
   });
 });
+
+describe("persistent field-condition memory", () => {
+  it("keeps disturbed ground and its world-time response through spatial restore", () => {
+    const world = new GameWorld("FIELD-CONDITION-MEMORY");
+    const initialRevision = world.fieldConditionRevisionNumber();
+    world.noteFieldWork(18, -24, 0.72);
+    world.advanceFieldConditions(180, 0, () => 0.24);
+
+    const before = world.fieldConditionAt(18, -24);
+    const resistance = world.fieldErosionResistanceAt(18, -24);
+    const restored = new GameWorld("FIELD-CONDITION-MEMORY");
+    restored.restore(JSON.parse(JSON.stringify(world.snapshot())));
+    const after = restored.fieldConditionAt(18, -24);
+
+    expect(before).not.toBeNull();
+    expect(after).toEqual(before);
+    expect(after?.moistureRatio).toBeLessThan(0.72);
+    expect(resistance).toBeLessThan(1);
+    expect(world.fieldConditionRevisionNumber()).toBeGreaterThan(initialRevision);
+  });
+});

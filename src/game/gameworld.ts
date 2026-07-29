@@ -21,14 +21,27 @@
 
 import {
   ObstacleField,
+  type Obstacle,
   type PlanarPoint,
   type WorldCollisionContact,
 } from "./collision";
+import { calculateErosionResistanceFactor } from "./soil-ecosystem";
 import {
   ExplorationField,
   MAX_SURVEYED_CELLS,
   SURVEY_MOVE_THRESHOLD,
 } from "./exploration";
+import {
+  FIELD_CONDITION_CELL_SIZE,
+  MAX_FIELD_CONDITION_CELLS,
+  advanceFieldCondition,
+  createFieldConditionCell,
+  disturbFieldCondition,
+  fieldConditionCellOf,
+  fieldConditionKey,
+  recoverFieldConditionCell,
+  type FieldConditionCell,
+} from "./field-conditions";
 import type { RigId } from "./contracts";
 import {
   queryCameraObstruction,
@@ -40,7 +53,15 @@ import {
   type StructureCollisionOutcome,
 } from "./scene-query";
 import { TerrainField, type DeformationEntry } from "./terrain";
-import type { WorldSiteId } from "./world";
+import { findSite, type CommunityPassageId, type WorldSiteId } from "./world";
+import {
+  advanceQuarryRunout,
+  createQuarryRunout,
+  displaceQuarryRunout,
+  quarryRunoutObstacle,
+  recoverQuarryRunout,
+  type QuarryRunoutState,
+} from "./road-incidents";
 
 /** Bound on felled obstacles retained, oldest dropped first. */
 export const MAX_FELLED = 1500;
@@ -53,6 +74,10 @@ export interface WorldMemoryRecord {
   felled: string[];
   collected: string[];
   surveyed: number[];
+  /** Optional so every prior spatial-memory record remains recoverable. */
+  fieldConditions?: FieldConditionCell[];
+  /** Optional so saves made before dynamic incidents recover unchanged. */
+  quarryRunout?: QuarryRunoutState;
 }
 
 export interface CollisionTelemetrySnapshot {
@@ -74,6 +99,14 @@ function trimSet<T>(target: Set<T>, limit: number): void {
   }
 }
 
+function trimMap<K, V>(target: Map<K, V>, limit: number): void {
+  while (target.size > limit) {
+    const oldest = target.keys().next();
+    if (oldest.done) break;
+    target.delete(oldest.value);
+  }
+}
+
 export class GameWorld {
   readonly terrain: TerrainField;
   readonly obstacles: ObstacleField;
@@ -82,6 +115,11 @@ export class GameWorld {
   readonly felledObstacles = new Set<string>();
   readonly collectedNodes = new Set<string>();
   readonly surveyedCells = new Set<number>();
+  /** Slow simulation state for terrain the player has disturbed. */
+  private readonly fieldConditions = new Map<string, FieldConditionCell>();
+  private fieldConditionElapsedWorldMinutes = 0;
+  /** Monotonic signal for presentation mirrors of persistent field condition. */
+  private fieldConditionRevision = 0;
   private totalCollisionContacts = 0;
   private collisionPolicyViolationCount = 0;
   private currentCollisionContacts: WorldCollisionContact[] = [];
@@ -104,11 +142,14 @@ export class GameWorld {
    * first step rather than carrying a stale set across sessions.
    */
   readonly visibleSignals = new Set<WorldSiteId>();
+  private quarryRunout: QuarryRunoutState;
+  private roadIncidentRevision = 0;
 
   constructor(readonly seed: string) {
     this.terrain = new TerrainField(seed);
     this.obstacles = new ObstacleField(seed, this.terrain);
     this.exploration = new ExplorationField(seed, this.terrain);
+    this.quarryRunout = this.createQuarryRunout();
 
     // -----------------------------------------------------------------------
     // Authored terrain bottleneck: a deliberate gully between Home Silo and
@@ -152,6 +193,103 @@ export class GameWorld {
     }
   }
 
+  /** Reconcile settlement-derived route history into the one canonical terrain field. */
+  reconcileCommunityPassages(
+    passageIds: readonly CommunityPassageId[],
+  ): boolean {
+    const changed = this.terrain.reconcileCommunityPassages(passageIds);
+    if (changed) this.obstacles.invalidateTerrainRoutes();
+    return changed;
+  }
+
+  private createQuarryRunout(): QuarryRunoutState {
+    const quarry = findSite("quarry-shelf");
+    const grove = findSite("toy-grove");
+    if (!quarry || !grove) {
+      throw new Error("Quarry Runout requires Quarry Shelf and Toy Grove.");
+    }
+    return createQuarryRunout(
+      quarry.x + (grove.x - quarry.x) * 0.42,
+      quarry.z + (grove.z - quarry.z) * 0.42,
+    );
+  }
+
+  /** Advance optional environmental incidents from the canonical world clock. */
+  advanceRoadIncidents(worldMinutes: number, soilMoistureRatio: number) {
+    const transition = advanceQuarryRunout(
+      this.quarryRunout,
+      worldMinutes,
+      soilMoistureRatio,
+    );
+    if (transition.state !== this.quarryRunout) {
+      this.quarryRunout = transition.state;
+      this.roadIncidentRevision += 1;
+    }
+    return transition;
+  }
+
+  /** Incident boulders are collision candidates beside, never inside, natural generation. */
+  incidentObstacles(): readonly Obstacle[] {
+    const boulder = this.quarryRunout.boulder;
+    const groundY = boulder
+      ? this.terrain.height(boulder.x, boulder.z)
+      : this.terrain.height(this.quarryRunout.originX, this.quarryRunout.originZ);
+    const obstacle = quarryRunoutObstacle(this.quarryRunout, groundY);
+    return obstacle ? [obstacle] : [];
+  }
+
+  incidentObstaclesNear(x: number, z: number, range: number): readonly Obstacle[] {
+    return this.incidentObstacles().filter(
+      (obstacle) => Math.hypot(obstacle.x - x, obstacle.z - z) <= range,
+    );
+  }
+
+  /** Move a runout boulder only after a real collision identifies it. */
+  displaceRoadIncident(
+    obstacleId: string | null,
+    rigMassKg: number,
+    rigSpeedMps: number,
+    rigX: number,
+    rigZ: number,
+    worldMinutes: number,
+  ) {
+    const knownObstacle = this.incidentObstacles().find(
+      (obstacle) => obstacle.id === obstacleId,
+    );
+    if (!knownObstacle) {
+      return { moved: false, cleared: false, impulseN: 0 };
+    }
+    const transition = displaceQuarryRunout(
+      this.quarryRunout,
+      rigMassKg,
+      rigSpeedMps,
+      rigX,
+      rigZ,
+      worldMinutes,
+    );
+    if (transition.state !== this.quarryRunout) {
+      this.quarryRunout = transition.state;
+      this.roadIncidentRevision += 1;
+    }
+    return transition;
+  }
+
+  roadIncidentRevisionNumber(): number {
+    return this.roadIncidentRevision;
+  }
+
+  roadIncidentProjection() {
+    return {
+      id: this.quarryRunout.id,
+      status: this.quarryRunout.status,
+      triggeredAtWorldMinutes: this.quarryRunout.triggeredAtWorldMinutes,
+      clearedAtWorldMinutes: this.quarryRunout.clearedAtWorldMinutes,
+      boulder: this.quarryRunout.boulder
+        ? { x: this.quarryRunout.boulder.x, z: this.quarryRunout.boulder.z }
+        : null,
+    };
+  }
+
   fell(id: string): void {
     this.felledObstacles.add(id);
     trimSet(this.felledObstacles, MAX_FELLED);
@@ -167,6 +305,147 @@ export class GameWorld {
       this.surveyedCells.add(key);
     }
     trimSet(this.surveyedCells, MAX_SURVEYED_CELLS);
+  }
+
+  /**
+   * Read the persistent response of a disturbed patch, when the point has one.
+   * Untouched terrain deliberately remains procedural and weather-driven.
+   */
+  fieldConditionAt(x: number, z: number): Readonly<FieldConditionCell> | null {
+    const [cx, cz] = fieldConditionCellOf(x, z);
+    return this.fieldConditions.get(fieldConditionKey(cx, cz)) ?? null;
+  }
+
+  /** Iterate canonical field-memory cells for presentation without creating a parallel map model. */
+  *fieldConditionEntries(): IterableIterator<Readonly<FieldConditionCell>> {
+    yield* this.fieldConditions.values();
+  }
+
+  /** Increases whenever persistent field condition is created, advanced, restored, or cleared. */
+  fieldConditionRevisionNumber(): number {
+    return this.fieldConditionRevision;
+  }
+
+  /**
+   * Rooted ground resists further cutting. Untouched terrain stays governed by
+   * its authored material; only remembered player-affected ground participates
+   * in the slower biological response.
+   */
+  fieldErosionResistanceAt(x: number, z: number): number {
+    const condition = this.fieldConditionAt(x, z);
+    return condition
+      ? calculateErosionResistanceFactor(condition.rootDensity)
+      : 1;
+  }
+
+  /** Record deliberate terrain work through the same spatial-memory budget as terrain edits. */
+  noteFieldWork(x: number, z: number, moistureRatio: number): void {
+    const [cx, cz] = fieldConditionCellOf(x, z);
+    const key = fieldConditionKey(cx, cz);
+    const prior =
+      this.fieldConditions.get(key) ??
+      createFieldConditionCell(x, z, moistureRatio);
+    this.fieldConditions.set(key, disturbFieldCondition(prior, 0.32));
+    trimMap(this.fieldConditions, MAX_FIELD_CONDITION_CELLS);
+    this.fieldConditionRevision += 1;
+  }
+
+  /**
+   * Materialize a deliberate water-management outcome in the same bounded field
+   * memory that weather, traction, the map, and terrain tint already consume.
+   * Existing ecological history survives; only moisture-derived ground strength
+   * is reset to the chosen local water state.
+   */
+  applyWaterworksFieldCondition(
+    x: number,
+    z: number,
+    radius: number,
+    moistureRatio: number,
+  ): void {
+    const boundedRadius = Math.max(FIELD_CONDITION_CELL_SIZE, radius);
+    const boundedMoisture = Math.min(1, Math.max(0, moistureRatio));
+    for (
+      let sampleX = x - boundedRadius;
+      sampleX <= x + boundedRadius;
+      sampleX += FIELD_CONDITION_CELL_SIZE
+    ) {
+      for (
+        let sampleZ = z - boundedRadius;
+        sampleZ <= z + boundedRadius;
+        sampleZ += FIELD_CONDITION_CELL_SIZE
+      ) {
+        if (Math.hypot(sampleX - x, sampleZ - z) > boundedRadius) continue;
+        const [cx, cz] = fieldConditionCellOf(sampleX, sampleZ);
+        const key = fieldConditionKey(cx, cz);
+        const prior = this.fieldConditions.get(key);
+        const waterCondition = createFieldConditionCell(
+          sampleX,
+          sampleZ,
+          boundedMoisture,
+        );
+        this.fieldConditions.set(
+          key,
+          prior
+            ? {
+                ...waterCondition,
+                vegetationCoverage: prior.vegetationCoverage,
+                rootDensity: prior.rootDensity,
+                soilHealth: prior.soilHealth,
+              }
+            : waterCondition,
+        );
+      }
+    }
+    trimMap(this.fieldConditions, MAX_FIELD_CONDITION_CELLS);
+    this.fieldConditionRevision += 1;
+  }
+
+  /** Wheelspin creates a durable scar rather than a transient traction number. */
+  noteWheelspin(
+    x: number,
+    z: number,
+    moistureRatio: number,
+    disturbance: number,
+  ): void {
+    if (disturbance <= 0) return;
+    const [cx, cz] = fieldConditionCellOf(x, z);
+    const key = fieldConditionKey(cx, cz);
+    const prior =
+      this.fieldConditions.get(key) ??
+      createFieldConditionCell(x, z, moistureRatio);
+    this.fieldConditions.set(key, disturbFieldCondition(prior, disturbance));
+    trimMap(this.fieldConditions, MAX_FIELD_CONDITION_CELLS);
+    this.fieldConditionRevision += 1;
+  }
+
+  /**
+   * Advance only remembered field cells at a coarse world-time cadence. The
+   * kernel supplies local machine drainage, keeping GameWorld independent from
+   * any particular infrastructure implementation.
+   */
+  advanceFieldConditions(
+    deltaWorldMinutes: number,
+    rainIntensity: number,
+    drainageRateAt: (x: number, z: number) => number,
+  ): void {
+    this.fieldConditionElapsedWorldMinutes += Math.max(0, deltaWorldMinutes);
+    if (this.fieldConditionElapsedWorldMinutes < 5) return;
+    const deltaWorldHours = this.fieldConditionElapsedWorldMinutes / 60;
+    this.fieldConditionElapsedWorldMinutes = 0;
+    for (const [key, cell] of this.fieldConditions) {
+      const x = (cell.cx + 0.5) * FIELD_CONDITION_CELL_SIZE;
+      const z = (cell.cz + 0.5) * FIELD_CONDITION_CELL_SIZE;
+      this.fieldConditions.set(
+        key,
+        advanceFieldCondition(
+          cell,
+          deltaWorldHours,
+          rainIntensity,
+          drainageRateAt(x, z),
+        ),
+      );
+    }
+    if (this.fieldConditions.size > 0) this.fieldConditionRevision += 1;
   }
 
   /**
@@ -263,10 +542,16 @@ export class GameWorld {
   }
 
   reset(): void {
+    this.reconcileCommunityPassages([]);
     this.terrain.clearDeformations();
     this.felledObstacles.clear();
     this.collectedNodes.clear();
     this.surveyedCells.clear();
+    this.fieldConditions.clear();
+    this.quarryRunout = this.createQuarryRunout();
+    this.roadIncidentRevision += 1;
+    this.fieldConditionElapsedWorldMinutes = 0;
+    this.fieldConditionRevision += 1;
     this.visibleSignals.clear();
     this.surveyOrigins.clear();
     this.totalCollisionContacts = 0;
@@ -282,6 +567,8 @@ export class GameWorld {
       felled: [...this.felledObstacles],
       collected: [...this.collectedNodes],
       surveyed: [...this.surveyedCells],
+      fieldConditions: [...this.fieldConditions.values()],
+      quarryRunout: this.quarryRunout,
     };
   }
 
@@ -334,5 +621,19 @@ export class GameWorld {
         }
       }
     }
+
+    if (Array.isArray(record.fieldConditions)) {
+      for (const entry of record.fieldConditions.slice(-MAX_FIELD_CONDITION_CELLS)) {
+        const cell = recoverFieldConditionCell(entry);
+        if (!cell) continue;
+        this.fieldConditions.set(fieldConditionKey(cell.cx, cell.cz), cell);
+      }
+    }
+    this.quarryRunout = recoverQuarryRunout(
+      record.quarryRunout,
+      this.createQuarryRunout(),
+    );
+    this.roadIncidentRevision += 1;
+    this.fieldConditionRevision += 1;
   }
 }

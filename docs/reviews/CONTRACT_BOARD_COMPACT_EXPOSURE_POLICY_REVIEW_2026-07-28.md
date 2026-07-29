@@ -181,3 +181,16 @@ named in ADR-0039:
 
 That keeps the review focused on exposure policy rather than on whether the
 contracts board exists at all.
+
+## Addendum (2026-07-29) - compact exposure now keeps the contracts trigger reachable
+
+The compact-shell policy has shifted in code:
+
+- `#mission-board-button` is no longer hidden by the small-screen masthead rule;
+- the compact shell keeps the `Contracts` trigger visible instead of hiding the
+  whole button cluster;
+- the compact shell still trims the less essential masthead actions so the
+  header stays readable.
+
+That means the open exposure question has been answered in favor of a smaller
+compact entry path rather than desktop-only contracts access.

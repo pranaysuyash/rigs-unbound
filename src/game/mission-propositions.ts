@@ -17,6 +17,7 @@
 import { CAMPAIGN_CONTRACTS } from "./campaign";
 import type { GameState, RigCapability } from "./contracts";
 import type { ProgressionState } from "./progression";
+import { deriveSettlementNeedMissions, type SettlementNeedOutcomeId } from "./settlement-needs";
 import type { WorldSiteId } from "./world";
 import { findSite } from "./world";
 
@@ -33,6 +34,8 @@ export type MissionBinding =
   | "salvage-retrieval"
   /** Fleet recovery — another rig is disabled and needs logistical assistance. */
   | "fleet-recovery"
+  /** Place-specific field work, completed by an actual plough pass. */
+  | "cultivation"
   /** Multi-site expedition — visit several points in a loop. */
   | "expedition";
 
@@ -130,6 +133,8 @@ export interface MissionProposition {
   missionClass: MissionClass;
   /** Who asked: character/site/faction id, or null for world-derived. */
   giverId: string | null;
+  /** Persisted community consequence applied only by mission lifecycle. */
+  settlementOutcomeId?: SettlementNeedOutcomeId;
   /** Quest-graph edges that gate whether this proposition is offered. */
   prerequisites: readonly MissionPrerequisite[];
   title: string;
@@ -435,6 +440,7 @@ function generateCampaignMissions(
       binding: "delivery",
       missionClass: "main",
       giverId: CAMPAIGN_GIVER_ID,
+      settlementOutcomeId: contract.settlementOutcomeId,
       prerequisites: campaignPrerequisites(contract.id),
       title: contract.title,
       premise: contract.description,
@@ -470,6 +476,11 @@ const GENERATORS: readonly MissionGenerator[] = [
   },
   { binding: "survey" as const, generate: generateSurveyMissions },
   { binding: "expedition" as const, generate: generateExpeditionMissions },
+  {
+    binding: "cultivation" as const,
+    generate: (state, _progression, _weatherPhase, visibleSites) =>
+      deriveSettlementNeedMissions(state, visibleSites),
+  },
 ];
 
 // ---------------------------------------------------------------------------

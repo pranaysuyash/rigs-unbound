@@ -283,3 +283,149 @@ the studio operating model's "player-reachable" definition of done.
   room.
 - Anything else? No. If the 30-second loop is not obviously satisfying, the
   slice is not yet proving the game.
+
+## Addendum (2026-07-29) - field instruments reveal leads, never destinations
+
+The radio scanner now has a player-reachable home in the Rumor Map. It projects
+only the active rig's nearest undiscovered site as an anonymous carrier
+frequency, compass bearing, approximate range, and clarity band. A reading is
+not a discovery: it creates a reason to travel and investigate without adding a
+map marker, quest, save field, or route gate. Undiscovered graph nodes now show
+as question marks and cannot open the inspector; the player must survey or
+visit before the atlas can name them.
+
+This uses the existing pure `radio-scanner.ts` calculation and existing Rumor
+Map update path. The scanner does not become a second discovery authority;
+`discoveries` and surveyed world memory remain authoritative. Evidence is Tier
+1 source inspection until the canonical-port playtest confirms the readout is
+legible and non-spoiling. Seismic probing remains a separate future field action
+because it needs a physical placement and world-memory consequence, not merely
+another map label.
+
+Anything else? The map currently provides a compass-style absolute bearing,
+not a camera-relative arrow. That keeps it useful across vehicle camera modes;
+revisit only if player observation shows navigation ambiguity.
+
+## Addendum (2026-07-29) - navigation respects earned world knowledge
+
+The tactical navigator now reads the same Rumor Graph status as the field-kit
+atlas. It renders only discovered or rumored sites. An undiscovered site can
+appear only as an anonymous dashed radio trace while it is inside the scanner
+range; it never receives a name, inspector, saved waypoint, or automatic
+discovery. This closes a presentation leak in which the radar previously
+revealed every authored site at game start.
+
+The navigation panel remains presentation-only: the Rumor Graph and saved
+discovery record are still authoritative, and the scanner remains a pure
+proximity calculation. Evidence is Tier 1 source inspection pending canonical
+port observation of both a quiet radar and an in-range anonymous trace.
+
+Anything else? Player-created temporary pings remain local navigator utility
+state. They should not be promoted to persistent route knowledge without an
+explicit player-intent and world-memory decision.
+
+## Addendum (2026-07-29) - rig names are vehicle-instance history
+
+`RigState.fieldName` is now the persistent name of a player's individual rig.
+The profile name remains only an authored recovery suggestion for legacy saves;
+it is no longer the durable identity contract. The Home Silo workshop provides
+the current canonical player-intent surface, validates visible names from two
+to 28 characters, and routes the edit through `renameRig` in the simulation
+state. The primary HUD reads the saved instance name directly.
+
+The dedicated narrative naming moment is now a text-first shell surface. A
+plough mark by the restored tractor makes the persistent beat ready; the old
+man offers **Torque** as a suggestion, and the submitted name calls the same
+identity transition as the workshop. Save schema v16 preserves both instance
+identity and completion state; v15-or-earlier records recover through their
+prior authored suggestion.
+
+Anything else? Player-facing HUD, guidance, and simulation diagnostics read the
+vehicle-instance name. The naming moment needs canonical-port observation for
+timing, keyboard focus, and readability before it can be treated as first-
+playable proof.
+
+## Addendum (2026-07-29) - Water Before Night is a persistent landscape choice
+
+The Home Silo workshop now offers the Water Before Night decision after the
+tractor's first start. **Repair drain pump** commands the existing Long Furrow
+Drain Pump on and materializes firmer field conditions around the authored
+Long Furrow site. **Redirect channel** commands that pump off and materializes
+a muddy Home-to-Long-Furrow approach while securing the trough route. The
+choice is one-time and save-owned in schema v17.
+
+Neither branch invents a quest-only terrain flag. Both write bounded canonical
+`GameWorld` field cells, so the existing weather advance, local traction,
+minimap soil layer, and 3D terrain tint read the same consequence. Existing
+ecological history in a cell is preserved while water-derived soil strength is
+updated. The workshop presents the trade-off as a field decision, not an
+unlock gate.
+
+Anything else? Canonical-port observation must confirm that both seeded areas
+are reachable, visually legible, and mechanically distinct before either
+branch is treated as first-playable evidence. The first-night route and trough
+presentation remain further campaign content, not simulated claims yet.
+## Addendum (2026-07-29) -- the first playable belongs to communities, not a test chain
+
+The operator rejected a narrow Floodgate framing directly:
+
+> "looks like you are not building my open world game but a test rig?"
+
+The Road That Was remains an integrated opening, but its places must now read
+as communities with livelihoods and changing conditions, not as a sequence of
+instrument panels. Water Before Night, North Field, infrastructure repairs,
+and the old man's offer become locally meaningful when Home Valley, Long
+Furrow, Rustline Salvage, Sunken Flats, and Launch Ridge can publish needs,
+remember outcomes, and change what they ask of the player's fleet.
+
+[ADR-0043](../decisions/ADR-0043-settlement-needs-and-world-consequence.md)
+records the proposed canonical contract: community needs and favor are
+persisted state; the existing mission proposition/lifecycle authority remains
+the one path through which the player sees and accepts work; completion changes
+the owning community rather than only paying out an unlock. It is a proposal
+pending operator sign-off, so no runtime claim follows from this addendum.
+
+Anything else? Yes. The player must meet people, not just needs. Named
+characters, radio traffic, and relationship scenes are downstream of this
+stateful community layer, so their words can reflect what the player has
+actually changed instead of reciting generic mission copy.
+
+## Addendum (2026-07-29) -- Marsh Depot is now an authored destination
+
+Marsh Depot now exists in the world schema as a low, muddy marsh service pad
+beyond Sunken Flats. This activates the existing ford-capability campaign
+delivery rather than leaving a dormant contract that named a place the player
+could never discover, drive to, or see on the map. It is a world-content
+extension: the same authored-site table supplies terrain anchoring, discovery,
+navigation, rumor visibility, and mission resolution. Runtime traversal and
+play evidence remain pending.
+
+Anything else? Yes. Marsh Depot currently activates a destination and a route;
+its own crews, favors, and local needs belong in the next settlement-content
+pass so the depot is not merely a delivery terminus.
+
+## Addendum (2026-07-29) - people can point the way without playing the route for you
+
+Restoring the Sunken Flats causeway now earns the Ferrymen's Cut, a named
+channel mark to Marsh Depot. It is a social act with a spatial consequence:
+people who have reason to trust the player's fleet share a place they know.
+The Field Kit Atlas and radar can show that lead, but no system marks the depot
+as visited, starts a job, draws a mandatory route, or changes the marsh itself.
+
+This makes the next journey an invitation, not the next box in a chain. The
+player may follow the mark now, arrive by another route later, or leave it
+alone. Discovering Marsh Depot remains a physical act in the world.
+
+## Addendum (2026-07-29) - the world now names who is affected
+
+The settlement layer now gives each current place a named local voice. These
+are deliberately short, state-derived field notes rather than an abstract
+dialogue system: Sava Nune can name the condition of Long Furrow, Kellan Voss
+the condition of Rustline, Ione Vale the state of the flats, and so on. Their
+words appear on the existing Contracts board and their names own the relevant
+local work.
+
+This makes a completed haul or a restored causeway legible as help to people,
+not merely a state mutation. The player can read the notes when useful and
+continue driving; no conversation is mandatory and no social menu interrupts
+the world.

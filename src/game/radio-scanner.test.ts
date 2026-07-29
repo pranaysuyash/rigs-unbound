@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deriveRadioSignal } from "./radio-scanner";
+import { compassBearing, deriveRadioSignal } from "./radio-scanner";
 
 describe("diegetic radio signal scanner", () => {
   it("returns zero signal strength when far from any target", () => {
@@ -18,5 +18,13 @@ describe("diegetic radio signal scanner", () => {
     expect(signal.nearestTargetName).toBe("Sunken Flats");
     expect(signal.carrierFrequencyHz).toBeGreaterThanOrEqual(88.5);
     expect(signal.carrierFrequencyHz).toBeLessThanOrEqual(107.9);
+    expect(signal.bearingDegrees).toBe(36.9);
+  });
+
+  it("keeps cockpit bearings intentionally coarse", () => {
+    expect(compassBearing(0)).toBe("N");
+    expect(compassBearing(44.9)).toBe("NE");
+    expect(compassBearing(180)).toBe("S");
+    expect(compassBearing(-90)).toBe("W");
   });
 });

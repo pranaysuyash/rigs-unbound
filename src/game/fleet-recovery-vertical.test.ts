@@ -38,6 +38,11 @@ function scenario(
   const state = createInitialState();
   const world = new GameWorld(state.seed);
 
+  // Torque narratively starts disabled awaiting the campaign-opening
+  // restoration beat (see createInitialState). These tests use Torque as the
+  // healthy support rig by default, so restore it here.
+  state.rigs[TORQUE].condition = 100;
+
   if (options.strandSpark !== false) {
     state.rigs[SPARK].condition = 0;
   }

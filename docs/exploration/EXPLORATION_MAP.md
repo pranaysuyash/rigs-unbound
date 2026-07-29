@@ -35,6 +35,7 @@ acceptance record owns its specific tier.
 - [Reviews index](../reviews/README.md)
 - [Master Execution Tracker](../plans/MASTER_EXECUTION_TRACKER.md)
 - [Public Asset Promotion Package Index](../reviews/PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
+- [Asset Catalog and Reconstruction Backlog](ASSET_CATALOG_AND_RECONSTRUCTION_BACKLOG_2026-07-29.md)
 - [3D Game Skill App Analysis and Current Surface Gaps](../research/3D_GAME_SKILL_APP_ANALYSIS_2026-07-28.md)
 - [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
 - [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md)

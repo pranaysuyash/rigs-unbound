@@ -104,9 +104,19 @@ import {
   winchRecover,
   performFleetRecovery,
   workshopInReach,
+  repairServiceInReach,
   setTirePressure,
   cycleDifferentialMode,
+  diagnoseRestoration,
+  performRestorationService,
+  performFirstStart,
+  craftModule,
+  installFromPartsBin,
+  renameRig,
+  completeOpeningNaming,
+  chooseFarmWaterworks,
 } from "./game/state";
+import { CRAFTING_RECIPES, canCraftRecipe } from "./game/salvage-crafting";
 import { deriveFleetRecoveryAssessment } from "./game/fleet-recovery-assessment";
 import { fleetRecoveryProjection } from "./game/fleet-recovery-command";
 import { deriveWeatherState } from "./game/weather";
@@ -126,6 +136,7 @@ import {
   acceptMission,
   MAX_ACTIVE_SIDE_MISSIONS,
 } from "./game/mission-lifecycle";
+import { deriveSettlementFieldNotes } from "./game/settlement-needs";
 import { componentWearDeficit } from "./game/vehicle-maintenance";
 import { computeChassisMassDistribution } from "./game/workshop-lab";
 import type { Obstacle } from "./game/collision";
@@ -864,6 +875,102 @@ function boot(): void {
   const workshopPanel = requiredElement<HTMLElement>("#workshop-panel");
   const workshopSalvage = requiredElement<HTMLElement>("#workshop-salvage");
   const workshopCondition = requiredElement<HTMLElement>("#workshop-condition");
+  // The old man's tractor arrives narratively broken. This one-time beat
+  // (diagnose -> rebuild -> start) gates `isOpeningNamingReady()` in state.ts,
+  // so until it completes the naming moment and the waterworks choice can
+  // never fire — the section must render before either of those.
+  const workshopRestoration = document.createElement("section");
+  workshopRestoration.className = "workshop__waterworks workshop__restoration";
+  workshopRestoration.hidden = true;
+  workshopRestoration.innerHTML = `
+    <p>THE OLD MAN'S TRACTOR</p>
+    <span id="workshop-restoration-copy"></span>
+    <div>
+      <button type="button" id="workshop-restoration-action"></button>
+    </div>
+  `;
+  workshopCondition.insertAdjacentElement("afterend", workshopRestoration);
+  const workshopRestorationCopy = requiredElement<HTMLElement>(
+    "#workshop-restoration-copy",
+  );
+  const workshopRestorationAction = requiredElement<HTMLButtonElement>(
+    "#workshop-restoration-action",
+  );
+  workshopRestorationAction.addEventListener("click", () => {
+    markActionReady();
+    if (!state.restoration.diagnosed) {
+      diagnoseRestoration(state);
+    } else if (!state.restoration.repaired) {
+      performRestorationService(state);
+    } else if (!state.restoration.firstStart) {
+      performFirstStart(state);
+    }
+    announce();
+  });
+  const workshopIdentity = document.createElement("form");
+  workshopIdentity.className = "workshop__identity";
+  workshopIdentity.innerHTML = `
+    <label for="workshop-rig-name">Rig identity</label>
+    <input id="workshop-rig-name" name="fieldName" maxlength="28" autocomplete="off" />
+    <button type="submit">Record name</button>
+  `;
+  workshopCondition.insertAdjacentElement("afterend", workshopIdentity);
+  const workshopRigName = workshopIdentity.querySelector<HTMLInputElement>(
+    "#workshop-rig-name",
+  );
+  const workshopRecordName = workshopIdentity.querySelector<HTMLButtonElement>(
+    "button[type=submit]",
+  );
+  workshopIdentity.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!workshopRigName) return;
+    renameRig(state, state.activeRigId, workshopRigName.value);
+  });
+  const waterworksChoice = document.createElement("section");
+  waterworksChoice.className = "workshop__waterworks";
+  waterworksChoice.hidden = true;
+  waterworksChoice.innerHTML = `
+    <p>WATER BEFORE NIGHT</p>
+    <strong>The old man needs a call before the rain returns.</strong>
+    <span>Repair the Long Furrow drain for firmer cultivation, or redirect the channel to the troughs and accept a muddy low approach.</span>
+    <div>
+      <button type="button" data-waterworks-choice="repair-pump">Repair drain pump</button>
+      <button type="button" data-waterworks-choice="redirect-channel">Redirect channel</button>
+    </div>
+  `;
+  workshopIdentity.insertAdjacentElement("afterend", waterworksChoice);
+  waterworksChoice.querySelectorAll<HTMLButtonElement>("button[data-waterworks-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const choice = button.dataset.waterworksChoice;
+      if (choice === "repair-pump" || choice === "redirect-channel") {
+        chooseFarmWaterworks(state, world, choice);
+      }
+    });
+  });
+  const openingNamingMoment = document.createElement("section");
+  openingNamingMoment.className = "opening-naming-moment";
+  openingNamingMoment.hidden = true;
+  openingNamingMoment.setAttribute("role", "dialog");
+  openingNamingMoment.setAttribute("aria-labelledby", "opening-naming-title");
+  openingNamingMoment.innerHTML = `
+    <p>THE ROAD THAT WAS</p>
+    <h2 id="opening-naming-title">The old man looks over the first furrow.</h2>
+    <p>"That machine earned a name today. Torque, perhaps. Or something that belongs to you."</p>
+    <form>
+      <label for="opening-rig-name">Name the tractor</label>
+      <input id="opening-rig-name" name="fieldName" maxlength="28" autocomplete="off" value="Torque" />
+      <button type="submit">Give it a name</button>
+    </form>
+  `;
+  document.body.appendChild(openingNamingMoment);
+  const openingRigName = openingNamingMoment.querySelector<HTMLInputElement>(
+    "#opening-rig-name",
+  );
+  openingNamingMoment.querySelector("form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!openingRigName) return;
+    completeOpeningNaming(state, openingRigName.value);
+  });
   const moduleList = requiredElement<HTMLOListElement>("#module-list");
   const radialOverlay = requiredElement<HTMLElement>("#radial-overlay");
   const radialMenuList = requiredElement<HTMLElement>("#radial-menu-list");
@@ -878,6 +985,9 @@ function boot(): void {
   );
   const missionBoardSummary = requiredElement<HTMLElement>(
     "#mission-board-summary",
+  );
+  const missionBoardContext = requiredElement<HTMLElement>(
+    "#mission-board-context",
   );
   const missionBoardList = requiredElement<HTMLOListElement>(
     "#mission-board-list",
@@ -1067,9 +1177,17 @@ function boot(): void {
     const selected = missions.find(
       (mission) => mission.id === selectedMissionId,
     );
+    const fieldNotes = deriveSettlementFieldNotes(state)
+      .map((note) => `${note.speaker}: ${note.text}`)
+      .join(" · ");
     missionBoardSummary.textContent = missions.length
-      ? `${missions.length} contract${missions.length === 1 ? "" : "s"} resolved from the field state.`
-      : "No contract is visible yet. Survey more ground or fit a capability that can reach a signal.";
+      ? `${missions.length} contract${missions.length === 1 ? "" : "s"} resolved from the field state. Field notes: ${fieldNotes}.`
+      : `No contract is visible yet. Field notes: ${fieldNotes}.`;
+    missionBoardContext.textContent = selected
+      ? `Previewing ${selected.missionClass} · ${selected.binding} · ${selected.difficultyLabel}.`
+      : missions.length
+        ? "Select a contract to preview its route, reward, and acceptance state."
+        : "The board stays empty until the field resolves another signal.";
     missionBoardList.replaceChildren();
     missionBriefing.hidden = !selected;
     // Mirrors the lifecycle rules: main-class missions need the focus slot
@@ -1458,7 +1576,7 @@ function boot(): void {
   for (const moduleId of MODULE_IDS) {
     const definition = MODULES[moduleId];
     const fitsNames = definition.fits
-      .map((id) => RIG_PROFILES[id].fieldName)
+      .map((id) => state.rigs[id].fieldName)
       .join(", ");
     const item = document.createElement("li");
     item.innerHTML = `
@@ -1473,6 +1591,65 @@ function boot(): void {
     `;
     moduleList.append(item);
   }
+
+  // Crafting turns collected commodities into parts-bin modules; installing
+  // from the bin is the same compatibility gate as `fitModule` but spends no
+  // salvage. Built here, not in index.html, to match the identity/waterworks
+  // sections' pattern of owning their own markup next to their wiring.
+  const workshopCrafting = document.createElement("section");
+  workshopCrafting.className = "workshop__crafting";
+  workshopCrafting.innerHTML = `
+    <p class="workshop__crafting-heading">BLUEPRINTS</p>
+    <ol id="workshop-recipe-list"></ol>
+    <p class="workshop__crafting-heading">PARTS BIN</p>
+    <ol id="workshop-parts-bin"></ol>
+  `;
+  moduleList.insertAdjacentElement("afterend", workshopCrafting);
+  const recipeList = requiredElement<HTMLOListElement>(
+    "#workshop-recipe-list",
+  );
+  const partsBinList = requiredElement<HTMLOListElement>(
+    "#workshop-parts-bin",
+  );
+  CRAFTING_RECIPES.forEach((recipe, recipeIndex) => {
+    const item = document.createElement("li");
+    const costText = Object.entries(recipe.requiredMaterials)
+      .filter(([, quantity]) => quantity > 0)
+      .map(([commodity, quantity]) => `${quantity} ${commodity}`)
+      .join(", ");
+    item.innerHTML = `
+      <button type="button" data-recipe-index="${recipeIndex}">
+        <span class="module-copy">
+          <strong>${recipe.name}</strong>
+          <small>${costText}</small>
+        </span>
+        <span class="module-state"></span>
+      </button>
+    `;
+    recipeList.append(item);
+  });
+  recipeList.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "button[data-recipe-index]",
+    );
+    if (!button || button.disabled) return;
+    markActionReady();
+    craftModule(state, Number(button.dataset.recipeIndex));
+    announce();
+  });
+  partsBinList.addEventListener("click", (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "button[data-parts-bin-module-id]",
+    );
+    if (!button) return;
+    markActionReady();
+    installFromPartsBin(
+      state,
+      world,
+      button.dataset.partsBinModuleId as ModuleId,
+    );
+    announce();
+  });
 
   let toastTimer = 0;
   let firstRungCompletionUntil = 0;
@@ -1962,6 +2139,15 @@ function boot(): void {
 
     const rig = activeRig(state);
     const profile = effectiveProfile(rig.id, rig.modules);
+    const openingNamingReady = state.openingNaming.status === "ready";
+    openingNamingMoment.hidden = !openingNamingReady;
+    if (
+      openingNamingReady &&
+      openingRigName &&
+      document.activeElement !== openingRigName
+    ) {
+      openingRigName.value = state.rigs["utility-tractor"].fieldName;
+    }
     const plough = rig.attachments.find((item) => item.id === "field-plough");
     const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
     const telemetry = rig.telemetry;
@@ -1973,7 +2159,7 @@ function boot(): void {
       SURFACES[telemetry.surfaceId as SurfaceId]?.displayName ?? "Ground";
     biomeLabel.textContent =
       BIOMES[world.terrain.biomeAt(rig.x, rig.z)].displayName;
-    rigValue.textContent = profile.fieldName;
+    rigValue.textContent = rig.fieldName;
     speedValue.textContent = String(Math.round(Math.abs(rig.speed) * 3.6));
     capabilityValue.textContent = towing
       ? "Towing"
@@ -2011,7 +2197,7 @@ function boot(): void {
       touchBladeAction.textContent = "No blade";
       touchBladeAction.setAttribute(
         "aria-label",
-        `Blade unavailable on ${profile.fieldName}`,
+        `Blade unavailable on ${rig.fieldName}`,
       );
     }
     const recoveryLabel =
@@ -2033,7 +2219,7 @@ function boot(): void {
         ? "Emergency field recovery to Home Silo"
         : profile.capabilities.includes("winch")
           ? "Winch rig to a graded track"
-          : `Recovery winch not fitted to ${profile.fieldName}`,
+          : `Recovery winch not fitted to ${rig.fieldName}`,
     );
 
     const gripRatio = Math.min(1, telemetry.grip / 1.2);
@@ -2056,6 +2242,7 @@ function boot(): void {
 
     // Prompt: the nearest thing worth doing, phrased as a verb and a consequence.
     const workshop = workshopInReach(state);
+    const repairService = repairServiceInReach(state);
     const relay = state.cargoRelay;
     const firstRung = resolveFirstRung(state, world.collectedNodes, world);
     const anotherRigInRange = RIG_IDS.some((rigId) => {
@@ -2137,6 +2324,10 @@ function boot(): void {
     } else if (rig.condition <= 0) {
       prompt.textContent =
         "Rig disabled · press X or Winch for emergency field recovery";
+    } else if (state.roadRivalry.status === "active") {
+      const nextPlace =
+        state.roadRivalry.nextGateIndex === 0 ? "Quarry Shelf" : "Home Silo";
+      prompt.textContent = `Grove Run active · next: ${nextPlace} · the valley keeps this rig's record`;
     } else if (primaryAction.kind === "collect-salvage") {
       const node = world.exploration.nearestNode(
         rig.x,
@@ -2146,6 +2337,13 @@ function boot(): void {
       );
       const units = node?.value === 1 ? "unit" : "units";
       prompt.textContent = `Salvage in reach · press Space or Act · ${node?.value ?? 1} ${units}`;
+    } else if (
+      primaryAction.kind === "inspect-infrastructure" ||
+      primaryAction.kind === "service-infrastructure"
+    ) {
+      prompt.textContent = `${primaryAction.label} · press Space or Act`;
+    } else if (primaryAction.kind === "hear-settlement-contact") {
+      prompt.textContent = `${primaryAction.label} · press Space or Act`;
     } else if (workshop) {
       prompt.textContent =
         firstRung.stage === "choose-part"
@@ -2155,6 +2353,8 @@ function boot(): void {
             : firstRung.complete && rig.modules.includes("lug-tires")
               ? "Lug tyres fitted · grip upgraded · take the mud line toward Long Furrow"
               : `${workshop.name} workshop · fit modules, ${state.salvage} salvage in the bin`;
+    } else if (repairService) {
+      prompt.textContent = `${repairService.name} · press T to service ${rig.fieldName}`;
     } else if (relay.cargo.attachedRigId === rig.id) {
       const distance = Math.round(
         Math.hypot(rig.x - LANDMARKS[1]!.x, rig.z - LANDMARKS[1]!.z),
@@ -2283,11 +2483,18 @@ function boot(): void {
      * not already fitted, or the objective explicitly asking for a part. Otherwise a
      * new player's first sight of the game is five rows reading "Need N more".
      */
-    const workshopPanelActionable = workshopActionable(
-      workshop !== undefined,
-      state,
-      firstRung,
-    );
+    // The campaign-opening restoration beat (diagnose -> rebuild -> start)
+    // is its own precondition, separate from first-rung module affordability:
+    // a fresh arrival at Home Silo has 0 salvage and no fitted modules, so
+    // `workshopActionable()` alone would never open the panel a disabled
+    // Torque needs to be rebuilt in.
+    const restorationPending =
+      !state.restoration.diagnosed ||
+      !state.restoration.repaired ||
+      !state.restoration.firstStart;
+    const workshopPanelActionable =
+      (workshop !== undefined && restorationPending) ||
+      workshopActionable(workshop !== undefined, state, firstRung);
     if (workshopPanelActionable && activeOverlay === "none") {
       openOverlay("workshop");
     } else if (activeOverlay === "workshop" && !workshopPanelActionable) {
@@ -2295,6 +2502,34 @@ function boot(): void {
     }
     if (workshop && activeOverlay === "workshop") {
       workshopSalvage.textContent = `${state.salvage} salvage`;
+      workshopIdentity.hidden = false;
+      const restorationDone =
+        state.restoration.diagnosed &&
+        state.restoration.repaired &&
+        state.restoration.firstStart;
+      workshopRestoration.hidden = restorationDone;
+      if (!restorationDone) {
+        if (!state.restoration.diagnosed) {
+          workshopRestorationCopy.textContent =
+            "This tractor has sat since the flood. Diagnose it before touching a wrench.";
+          workshopRestorationAction.textContent = "Diagnose";
+        } else if (!state.restoration.repaired) {
+          workshopRestorationCopy.textContent =
+            "Diagnosis complete. The old man's parts are free — rebuild it.";
+          workshopRestorationAction.textContent = "Rebuild";
+        } else {
+          workshopRestorationCopy.textContent =
+            "Rebuilt and ready. Turn it over.";
+          workshopRestorationAction.textContent = "Start engine";
+        }
+      }
+      waterworksChoice.hidden =
+        !state.restoration.firstStart ||
+        state.farmWaterworks.choice !== "unresolved";
+      if (workshopRigName && document.activeElement !== workshopRigName) {
+        workshopRigName.value = rig.fieldName;
+      }
+      if (workshopRecordName) workshopRecordName.disabled = false;
       // Mechanical service readout: what a repair would fix, what the fitted
       // modules do to the chassis. Both read canonical state — the panel
       // explains, it never owns.
@@ -2342,10 +2577,46 @@ function boot(): void {
           fitted
             ? `${definition.name} is already fitted. ${definition.promise}`
             : !compatible
-              ? `${definition.name} is unavailable for ${profile.fieldName}.`
+              ? `${definition.name} is unavailable for ${rig.fieldName}.`
               : `${recommended ? "Recommended. " : ""}Fit ${definition.name} for ${definition.cost} salvage. ${definition.promise}${affordable ? "" : ` Need ${definition.cost - state.salvage} more salvage.`}`,
         );
       }
+      CRAFTING_RECIPES.forEach((recipe, recipeIndex) => {
+        const button = recipeList.querySelector<HTMLButtonElement>(
+          `button[data-recipe-index="${recipeIndex}"]`,
+        );
+        if (!button) return;
+        const craftable = canCraftRecipe(recipe, state.inventory);
+        button.disabled = !craftable;
+        button.classList.toggle("is-locked", !craftable);
+        const stateLabel = button.querySelector<HTMLElement>(".module-state");
+        if (stateLabel) stateLabel.textContent = craftable ? "Craft" : "Need materials";
+      });
+      // The parts bin is a variable-length player inventory, unlike the fixed
+      // module roster above, so it is rebuilt rather than diffed in place.
+      partsBinList.innerHTML = "";
+      if (state.partsBin.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "workshop__parts-bin-empty";
+        empty.textContent = "Empty.";
+        partsBinList.append(empty);
+      } else {
+        for (const moduleId of state.partsBin) {
+          const definition = MODULES[moduleId];
+          const item = document.createElement("li");
+          item.innerHTML = `
+            <button type="button" data-parts-bin-module-id="${moduleId}">
+              <span class="module-copy"><strong>${definition.name}</strong></span>
+              <span class="module-state">Install</span>
+            </button>
+          `;
+          partsBinList.append(item);
+        }
+      }
+    } else {
+      workshopIdentity.hidden = true;
+      workshopRestoration.hidden = true;
+      waterworksChoice.hidden = true;
     }
 
     if (state.lastDiagnostic && state.lastDiagnostic !== lastDiagnostic) {

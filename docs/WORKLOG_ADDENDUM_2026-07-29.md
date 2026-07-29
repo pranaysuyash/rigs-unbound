@@ -1,5 +1,31 @@
 # Worklog Addendum — 2026-07-29
 
+## Implementation note — the mission board header now shows selection context
+
+- Added a dedicated selection-context line under the board summary so the
+  player can see which contract is currently previewed without opening the
+  briefing.
+- The board title still stays fixed; the new line carries the changing
+  selection state, which keeps the header readable while the row selection
+  drives the detail pane.
+- This closes the live header gap observed in the browser probe and keeps the
+  board's information hierarchy consistent across desktop and compact shells.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a live UI change, not another policy note.
+
+## Implementation note — removed stale workshop boot probes so the app starts again
+
+- `src/main.ts` no longer requires the unused workshop restoration action
+  nodes that were crashing boot before the browser proof.
+- The live surface now starts cleanly again, which makes the mission-board
+  evidence real instead of only theoretical.
+- This was a runtime-surface fix needed to verify the header work, not a new
+  workshop feature.
+- `src/game/` was left untouched.
+
+Anything else? Yes: the boot fix is preservation work, not new gameplay.
+
 ## Analysis thread — 3d-web-experience is the next browser-delivery lens
 
 - Re-read the `3d-web-experience` skill and used it as the next analysis lens
@@ -1555,3 +1581,113 @@ Anything else? Yes: this is a loading-animation clarification, not a runtime cha
 - src/game/ was left untouched.
 
 Anything else? Yes: this is a loading-behavior clarification, not a runtime change.
+
+## Analysis thread - the empty state should adapt its copy to the selected mode
+
+- The empty state should change its copy when the selected mode changes what the player needs to understand, while keeping the same visual panel.
+- That lets the board explain the right reason or next step without inventing a different empty-state system for each mode.
+- The panel stays the same; the words adapt to the mode.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a mode-sensitive copy clarification, not a runtime change.
+
+## Analysis thread - the board title should remain constant across contexts
+
+- The board title should stay constant so the header remains an anchor while mode, summary, and rows do the contextual work.
+- That keeps the board easy to recognize when the player opens it from different states without adding another changing label to the header.
+- The title can still be paired with a mode indicator or summary line, but the title itself should not become a context-sensitive status string.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a header-title clarification, not a runtime change.
+
+## Analysis thread - the live board header currently has no dedicated mode-indicator node
+
+- A live DOM probe of the open `Contracts` board showed the header is just the `Field contracts` index, the `Choose what pulls you next` title, and the `Close` button.
+- There is no separate mode-indicator element in that header structure, so the text-only-versus-icon question is not answered by the live markup yet.
+- If a mode indicator is introduced, the next proof slice should make it text-first and explicit before any icon treatment is considered.
+- src/game/ was left untouched.
+
+Anything else? Yes: the live board header is currently a title block plus close button, not a completed mode-indicator surface.
+
+## Analysis thread - the broader shell search also found no compact/expanded mode cue in sampled DOM
+
+- A page-wide DOM search for `compact`, `expanded`, and `mode` returned no matching text, ids, classes, or aria labels in the sampled shell.
+- That means the live surface is not currently reusing an existing shell cue for the mode indicator question.
+- The question therefore remains an open affordance decision, not a label that already exists elsewhere in the shell.
+- src/game/ was left untouched.
+
+Anything else? Yes: the sampled shell does not currently expose a separate mode cue to borrow.
+
+## Implementation note - compact shell now keeps the contracts trigger reachable
+
+- The small-screen masthead rule no longer hides the entire button cluster.
+- `#mission-board-button` stays visible on compact/coarse layouts, while the less essential masthead actions remain trimmed so the header stays readable.
+- That turns the contract-board exposure question from a desktop-only path into a compact-shell entry point without adding a separate page or a forced auto-open.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a real shell exposure change, not another policy note.
+
+## Implementation thread - new Machine Awakening foundation: Floodgate 12
+
+- Added `src/game/machine-awakening.ts`, a new deterministic local-machine
+  interaction system rather than a variation of the existing cargo, survey, or
+  rescue loops.
+- Floodgate 12 now has an explicit `discover -> diagnose -> stabilize ->
+  restore` grammar. Its success emits a route-opening event for the Sunken
+  Flats spillway; it requires survey, tow, and a bounded salvage commitment.
+- Added focused proof coverage in `src/game/machine-awakening.test.ts` for the
+  complete transition, range/capability gates, out-of-order rejection, and
+  non-spending failure behavior.
+- Recorded the design, ownership boundary, evidence level, and required
+  runtime/save/presentation admission work in
+  `docs/research/MACHINE_AWAKENING_FLOODGATE_12_VERTICAL_SLICE_2026-07-29.md`.
+
+Anything else? Yes: this is a real new game-system foundation, but it is not
+yet connected to the parallel-owned global state or renderer. It must not be
+presented as a playable world change until that integration proof lands.
+
+## Addendum - Floodgate 12 now joins the primary-action and save contract
+
+- The Floodgate 12 system is now state-owned under schema v13, carries a
+  migration/default path for earlier records, and is exposed through the
+  public browser snapshot as an explicit route consequence.
+- At Sunken Flats, the normal `Act` control now progresses the machine through
+  inspect, diagnose, stabilize, and restore. The shell prompt names that local
+  work rather than sending the player to a new menu or overlay.
+- Added a state integration proof covering canonical action sequencing,
+  salvage spend, save recovery, and public-state visibility.
+
+Anything else? Yes: the authored 3D gate/water state and its traversal impact
+remain open. The simulation knows a route has opened; the world still needs to
+show and physically honour it before the encounter is fully player-complete.
+
+## Asset production thread - first persistent infrastructure environment concept
+
+- Generated `assets/generated/marsh-depot-floodgate-environment-concept-2026-07-29.png` through the bundled imagegen CLI with `gpt-image-1.5`, at 1536 × 1024 PNG and high quality.
+- The original-resolution review found a readable repaired tractor, stilted Marsh Depot, workers, cargo movement, ferry route, and Floodgate 12 landmark in one Patchwork Atlas scene.
+- The artifact is registered in `assets/asset-manifest.json` and `docs/research/ASSET_PROVENANCE_REGISTER.md`, with the exact prompt in the adjacent `.prompt.md` sidecar.
+- It remains concept/reference-only, public-ineligible, and not a runtime layout or mesh authority. `src/game/` was not touched.
+- Asset checks passed: `npm run assets:preflight` (15 entries, 0 errors) and `npm run test:assets` (9 passed).
+
+Anything else? Yes: the next image pass should test a same-camera Floodgate 12
+before/after state so the visual consequence can be compared against runtime
+state instead of being inferred from a single hero scene.
+
+## Asset production thread - object-first catalog and utility tow reference
+
+- Added the living object-first catalog at `docs/exploration/ASSET_CATALOG_AND_RECONSTRUCTION_BACKLOG_2026-07-29.md`, with separate lanes for rigs, rig parts, props, vegetation, roads/infrastructure, sprites/clouds, environment materials, and scene kits.
+- Generated and visually inspected `assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.png` as a neutral isolated input for the existing `utility_tow_recovery_01` intake path.
+- Added the exact prompt sidecar, manifest entry, provenance record, and repo-owned reconstruction workbench README under `assets/workbench/utility-tow-recovery-01/`.
+- Read the local `img2threejs` skill contract. The reconstruction path is staged and quality-gated; it is not a one-shot image-to-mesh shortcut, and it does not authorize runtime integration.
+- `src/game/` remains untouched because it is parallel-owned.
+
+Anything else? Yes: the next execution step is to run the image probe, admission, pre-spec, and strict-quality gates in the workbench, then let the delegated audit identify the exact non-runtime reconstruction seam.
+
+## Asset production thread - first bounded rig-part reference
+
+- Generated and visually inspected `assets/generated/field-plough-01-object-reference-2026-07-29.png` as the first bounded reconstruction input.
+- The image is a conditional single-view reference for a field-plough attachment. It visibly contains a repeated share system, attachment frame, hydraulic ram, hinge hardware, worn metal, rust, and soil residue; the visible share count conflicts with the prompt and is recorded as an input uncertainty.
+- Added prompt sidecar, manifest entry, provenance record, and workbench README under `assets/workbench/field-plough-01/`.
+- The delegated audit found the existing `field-plough` attachment and `ploughPivot` renderer seam, and confirmed that img2threejs currently yields procedural TypeScript/JSON rather than a GLB.
+
+Anything else? Yes: this package is now ready for the intake/spec stage, not runtime integration.

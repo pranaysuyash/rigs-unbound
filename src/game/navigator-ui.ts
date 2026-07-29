@@ -7,6 +7,8 @@
 
 import type { GameState, RigState } from "./contracts";
 import { WORLD_SITES } from "./world";
+import { deriveRadioSignal } from "./radio-scanner";
+import { deriveRumorGraph } from "./rumor-graph";
 
 export interface Waypoint {
   id: string;
@@ -59,6 +61,7 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
 
       <div class="nav-footer">
         <span id="nav-waypoint-info">WAYPOINT: NONE</span>
+        <span id="nav-signal-info">RADIO: QUIET</span>
         <button id="clear-waypoints-btn" class="nav-btn">CLEAR PINGS</button>
       </div>
     </div>
@@ -153,11 +156,49 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
       // Render World Sites
       const sitesGroup = panel.querySelector("#radar-sites-group");
       if (sitesGroup) {
-        sitesGroup.innerHTML = WORLD_SITES.map((site) => {
-          const sx = (site.x / 200) * 90;
-          const sz = (site.z / 200) * 90;
-          return `<circle cx="${sx}" cy="${sz}" r="2" fill="rgba(107,201,196,0.6)" />`;
-        }).join("");
+        const rumorGraph = deriveRumorGraph(state);
+        const knownSites = WORLD_SITES.flatMap((site) => {
+          const node = rumorGraph.nodes[site.id];
+          return node && node.status !== "undiscovered" ? [{ site, status: node.status }] : [];
+        });
+        const undiscoveredSites = WORLD_SITES.filter(
+          (site) => rumorGraph.nodes[site.id]?.status === "undiscovered",
+        );
+        const signal = deriveRadioSignal(
+          activeRig.x,
+          activeRig.z,
+          undiscoveredSites.map((site) => ({
+            name: site.id,
+            x: site.x,
+            z: site.z,
+          })),
+        );
+        const trace =
+          signal.nearestTargetName === null
+            ? null
+            : undiscoveredSites.find((site) => site.id === signal.nearestTargetName) ?? null;
+
+        sitesGroup.innerHTML = [
+          ...knownSites.map(({ site, status }) => {
+            const sx = (site.x / 200) * 90;
+            const sz = (site.z / 200) * 90;
+            return status === "rumored"
+              ? `<circle cx="${sx}" cy="${sz}" r="2.8" fill="none" stroke="rgba(232,157,67,0.9)" stroke-width="1.2" stroke-dasharray="2,1" />`
+              : `<circle cx="${sx}" cy="${sz}" r="2" fill="rgba(107,201,196,0.6)" />`;
+          }),
+          ...(trace
+            ? [
+                `<circle cx="${(trace.x / 200) * 90}" cy="${(trace.z / 200) * 90}" r="3" fill="none" stroke="rgba(232,157,67,0.9)" stroke-width="1.2" stroke-dasharray="2,2" />`,
+              ]
+            : []),
+        ].join("");
+
+        const signalInfo = panel.querySelector("#nav-signal-info");
+        if (signalInfo) {
+          signalInfo.textContent = trace
+            ? `RADIO: ${Math.round(signal.distanceMeters)}M TRACE`
+            : "RADIO: QUIET";
+        }
       }
 
       // Render Waypoint Markers

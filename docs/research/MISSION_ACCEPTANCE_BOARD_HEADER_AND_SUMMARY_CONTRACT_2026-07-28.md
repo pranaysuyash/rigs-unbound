@@ -235,3 +235,24 @@ repeating operator diagnostics in the visible board summary.
 - That keeps the header honest about what the player can actually inspect right now and avoids double-counting rows that are already represented by filter or recap counters.
 - If the board needs to explain hidden rows, that explanation belongs in the relevant section or filter summary, not in the header count itself.
 - Anything else? No. The header count should orient the player to the visible board state, not the entire hidden row universe.
+
+## Addendum (2026-07-29) - the board title should remain constant across contexts
+
+- The board title should stay constant so the header remains an anchor while mode, summary, and rows do the contextual work.
+- That keeps the board easy to recognize when the player opens it from different states without adding another changing label to the header.
+- The title can still be paired with a mode indicator or summary line, but the title itself should not become a context-sensitive status string.
+- Anything else? No. The board title should identify the surface, not the current situation.
+
+## Addendum (2026-07-29) - the live board header currently has no dedicated mode-indicator node
+
+- A live DOM probe of the open `Contracts` board shows the header is composed of the `Field contracts` index, the board title `Choose what pulls you next`, and the `Close` button.
+- There is no separate mode-indicator element in that live header structure, so the current surface does not answer the text-only-versus-icon question by presence alone.
+- That means the next proof slice, if a mode indicator is introduced, should be text-first and explicit before any icon treatment is considered.
+- Anything else? No. The header should not be forced into iconography when the live board does not yet expose the mode indicator as a distinct control.
+
+## Addendum (2026-07-29) - the broader shell search also found no compact/expanded mode cue in sampled DOM
+
+- A page-wide DOM search for `compact`, `expanded`, and `mode` returned no matching text, ids, classes, or aria labels in the sampled shell.
+- That means the live surface is currently relying on other labels, not a dedicated compact-versus-expanded cue, to orient the player.
+- The contract should therefore treat the mode-indicator question as an open affordance decision, not as a feature already present elsewhere in the shell.
+- Anything else? No. The shell sample does not currently expose a separate mode indicator to reuse.

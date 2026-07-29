@@ -64,6 +64,14 @@ export const SURVEY_CONTRACT_AFFORDANCE: WorldAffordanceDefinition = {
   requiredCapability: "survey",
 };
 
+/** A survey rig may pulse the buried anomaly once it reaches North Field. */
+export const NORTH_FIELD_SEISMIC_AFFORDANCE: WorldAffordanceDefinition = {
+  id: "north-field-seismic-anomaly",
+  version: AFFORDANCE_CONTRACT_VERSION,
+  owningDomain: "world",
+  requiredCapability: "survey",
+};
+
 /**
  * Resolve an offer in a fixed order.
  *

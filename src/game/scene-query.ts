@@ -13,6 +13,7 @@ import {
   treeCrownCenterY,
   treeCrownRadius,
   treeTrunkHeight,
+  type Obstacle,
   type ObstacleField,
   type PlanarPoint,
 } from "./collision";
@@ -52,6 +53,12 @@ export interface CameraObstructionOptions {
 export interface SceneQuerySource {
   terrain: TerrainField;
   obstacles: Pick<ObstacleField, "near">;
+  /** Optional persistent obstacles that are not part of procedural generation. */
+  incidentObstaclesNear?: (
+    x: number,
+    z: number,
+    range: number,
+  ) => readonly Obstacle[];
   felledObstacles: ReadonlySet<string>;
 }
 
@@ -307,11 +314,16 @@ export function queryCameraObstruction(
   if (options.includeObstacles !== false) {
     const middleX = (from.x + to.x) * 0.5;
     const middleZ = (from.z + to.z) * 0.5;
-    for (const obstacle of source.obstacles.near(
-      middleX,
-      middleZ,
-      distance * 0.5 + 8,
-    )) {
+    const queryRange = distance * 0.5 + 8;
+    const obstacles = [
+      ...source.obstacles.near(
+        middleX,
+        middleZ,
+        queryRange,
+      ),
+      ...(source.incidentObstaclesNear?.(middleX, middleZ, queryRange) ?? []),
+    ];
+    for (const obstacle of obstacles) {
       if (obstacle.kind === "tree" && source.felledObstacles.has(obstacle.id)) {
         // Once felled, a tree becomes a low traversal memory rather than a
         // camera-height wall. Terrain clearance still keeps the camera above it.

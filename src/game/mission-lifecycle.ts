@@ -18,6 +18,12 @@ import {
 import type { MissionProposition } from "./mission-propositions";
 import { applyMissionRewards } from "./mission-resolver";
 import type { RigId } from "./rig-ids";
+import {
+  applySettlementNeedOutcome,
+  deriveSettlementCommunityPassageIds,
+} from "./settlement-needs";
+import type { GameWorld } from "./gameworld";
+import { findSite } from "./world";
 
 export type MissionRuntimeState = ActiveMissionState;
 
@@ -33,7 +39,9 @@ export type MissionTransitionFailure =
   | "inactive-rig"
   | "missing-capability"
   | "mission-already-completed"
-  | "mission-not-active";
+  | "mission-not-active"
+  | "cargo-unavailable"
+  | "invalid-delivery-route";
 
 export type MissionTransitionResult =
   | { ok: true; state: GameState; diagnostic: string }
@@ -106,6 +114,48 @@ function removeActiveMission(state: GameState, missionId: string): void {
   );
 }
 
+/**
+ * Assign the existing physical crate to an accepted delivery. The old Relay
+ * haul stays legal when no mission has assigned the crate.
+ */
+function assignDeliveryCargo(
+  state: GameState,
+  mission: MissionProposition,
+): MissionTransitionFailure | null {
+  const originSiteId = mission.waypointIds[0];
+  const destinationSiteId = mission.targetSiteId;
+  const origin = originSiteId ? findSite(originSiteId) : undefined;
+  const destination = findSite(destinationSiteId);
+  if (!origin || !destination || origin.id === destination.id) {
+    return "invalid-delivery-route";
+  }
+
+  const relay = state.cargoRelay;
+  if (relay.status === "active" || relay.cargo.attachedRigId !== null) {
+    return "cargo-unavailable";
+  }
+
+  relay.assignment = {
+    missionId: mission.id,
+    originSiteId: origin.id,
+    destinationSiteId: destination.id,
+  };
+  relay.status = "ready";
+  relay.startedAt = null;
+  relay.completedAt = null;
+  relay.bestTimeMs = null;
+  relay.cargo = {
+    ...relay.cargo,
+    x: origin.x,
+    y: 0.65,
+    z: origin.z,
+    heading: 0,
+    attachedRigId: null,
+    delivered: false,
+  };
+  return null;
+}
+
 export function acceptMission(
   state: GameState,
   mission: MissionProposition,
@@ -145,11 +195,17 @@ export function acceptMission(
     }
   }
 
+  if (mission.binding === "delivery") {
+    const deliveryFailure = assignDeliveryCargo(state, mission);
+    if (deliveryFailure) return { ok: false, state, reason: deliveryFailure };
+  }
+
   const activeMission: ActiveMissionState = {
     id: mission.id,
     binding: mission.binding,
     missionClass: mission.missionClass,
     giverId: mission.giverId,
+    settlementOutcomeId: mission.settlementOutcomeId ?? null,
     targetSiteId: mission.targetSiteId,
     waypointIds: [...mission.waypointIds],
     requiredCapabilities: [...mission.requiredCapabilities],
@@ -172,6 +228,7 @@ export function completeMission(
   state: GameState,
   missionId: string,
   completedAtMs: number,
+  world?: GameWorld,
 ): MissionTransitionResult {
   const active = findActiveMission(state, missionId);
   if (!active) {
@@ -190,6 +247,7 @@ export function completeMission(
     binding: active.binding,
     missionClass: active.missionClass,
     giverId: active.giverId,
+    settlementOutcomeId: active.settlementOutcomeId ?? undefined,
     prerequisites: [],
     title: active.id,
     premise: "",
@@ -215,8 +273,17 @@ export function completeMission(
   );
   Object.assign(state, rewardResult.state);
   state.progression = rewardResult.progression;
+  const settlementSummary = applySettlementNeedOutcome(
+    state,
+    active.settlementOutcomeId,
+  );
+  if (world) {
+    world.reconcileCommunityPassages(deriveSettlementCommunityPassageIds(state));
+  }
   removeActiveMission(state, missionId);
-  state.lastDiagnostic = `Mission complete: ${missionId}. +${rewardResult.reward.salvage} salvage.`;
+  state.lastDiagnostic = settlementSummary
+    ? `Mission complete: ${missionId}. +${rewardResult.reward.salvage} salvage. ${settlementSummary}`
+    : `Mission complete: ${missionId}. +${rewardResult.reward.salvage} salvage.`;
   return { ok: true, state, diagnostic: state.lastDiagnostic };
 }
 

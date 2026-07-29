@@ -6,6 +6,7 @@
  */
 
 import type { RigCapability } from "./contracts";
+import type { SettlementNeedOutcomeId } from "./settlement-needs";
 
 export interface CampaignContract {
   id: string;
@@ -14,6 +15,7 @@ export interface CampaignContract {
   originSiteId: string;
   destinationSiteId: string;
   requiredCapability?: RigCapability;
+  settlementOutcomeId?: SettlementNeedOutcomeId;
   rewardScrap: number;
   status: "locked" | "available" | "active" | "completed";
 }
@@ -27,6 +29,7 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
     originSiteId: "home-silo",
     destinationSiteId: "sunken-flats",
     requiredCapability: "tow",
+    settlementOutcomeId: "sunken-flats-causeway",
     rewardScrap: 250,
     status: "available",
   },
@@ -38,13 +41,11 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
     originSiteId: "home-silo",
     destinationSiteId: "launch-ridge",
     requiredCapability: "jump",
+    settlementOutcomeId: "launch-ridge-repeater",
     rewardScrap: 400,
     status: "locked",
   },
   {
-    // Dormant: "marsh-depot" is not yet an authored world site. The mission
-    // generator skips contracts whose sites do not resolve, so this entry
-    // stays inert until the world-content tranche lands the Marsh Depot.
     id: "contract-marsh-ford",
     title: "Marsh Skimmer Supply Run",
     description:
@@ -52,8 +53,8 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
     originSiteId: "home-silo",
     destinationSiteId: "marsh-depot",
     requiredCapability: "ford",
+    settlementOutcomeId: "marsh-depot-relief",
     rewardScrap: 350,
     status: "locked",
   },
 ];
-

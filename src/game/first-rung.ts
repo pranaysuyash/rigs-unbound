@@ -3,7 +3,6 @@ import {
   MODULES,
   MODULE_IDS,
   RIG_IDS,
-  RIG_PROFILES,
   RIG_SWITCH_RANGE,
   type GameState,
   type ModuleId,
@@ -433,7 +432,7 @@ export function resolveSecondFit(state: GameState): FirstRungResolution {
   if (recommendedRigId !== null && recommendedRigId !== state.activeRigId) {
     const active = state.rigs[state.activeRigId];
     const compatible = state.rigs[recommendedRigId];
-    const compatibleName = RIG_PROFILES[recommendedRigId].fieldName;
+    const compatibleName = state.rigs[recommendedRigId].fieldName;
     const compatibleDistance = Math.hypot(
       compatible.x - active.x,
       compatible.z - active.z,
@@ -544,7 +543,7 @@ function resolvePostFitRung(
     const targetRigId = ploughRigs[0];
     if (targetRigId) {
       const target = state.rigs[targetRigId];
-      const name = RIG_PROFILES[targetRigId].fieldName;
+      const name = state.rigs[targetRigId].fieldName;
       const distance = Math.hypot(rig.x - target.x, rig.z - target.z);
       const inReach = distance <= RIG_SWITCH_RANGE;
       return {
@@ -714,7 +713,7 @@ export function resolveFirstRung(
     if (!activeRigCanFit && recommendedRigId !== null) {
       const active = state.rigs[state.activeRigId];
       const compatible = state.rigs[recommendedRigId];
-      const compatibleName = RIG_PROFILES[recommendedRigId].fieldName;
+      const compatibleName = state.rigs[recommendedRigId].fieldName;
       const compatibleDistance = Math.hypot(
         compatible.x - active.x,
         compatible.z - active.z,

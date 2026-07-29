@@ -12,6 +12,7 @@ import {
   type RumorGraph,
   type RumorNode,
 } from "./rumor-graph";
+import { compassBearing, deriveRadioSignal } from "./radio-scanner";
 
 export interface RumorMapController {
   element: HTMLElement;
@@ -38,8 +39,9 @@ export function createRumorMapUI(
           <h2>PATCHWORK RUMOR GRAPH</h2>
         </div>
         <div class="rumor-map-stats">
-          <span id="rumor-stat-nodes">DISCOVERIES: 0/0</span>
+          <span id="rumor-stat-nodes">ATLAS KNOWLEDGE: 0/0</span>
           <span id="rumor-stat-salvage">SALVAGE: 0</span>
+          <span id="rumor-stat-signal">RADIO: QUIET</span>
         </div>
         <button id="rumor-map-close-btn" class="rumor-map-close-btn" aria-label="Close Map">✕ CLOSE [M]</button>
       </header>
@@ -157,11 +159,34 @@ export function createRumorMapUI(
       // Update Header Stats
       const statNodes = overlay.querySelector("#rumor-stat-nodes");
       const statSalvage = overlay.querySelector("#rumor-stat-salvage");
+      const statSignal = overlay.querySelector("#rumor-stat-signal");
       if (statNodes) {
-        statNodes.textContent = `DISCOVERIES: ${currentGraph.stats.discoveredCount}/${currentGraph.stats.totalNodes}`;
+        statNodes.textContent = `ATLAS KNOWLEDGE: ${currentGraph.stats.discoveredCount}/${currentGraph.stats.totalNodes}`;
       }
       if (statSalvage) {
         statSalvage.textContent = `SALVAGE: ${state.salvage}`;
+      }
+      if (statSignal) {
+        const rig = state.rigs[state.activeRigId];
+        const signal = deriveRadioSignal(
+          rig.x,
+          rig.z,
+          Object.values(currentGraph.nodes)
+            .filter((node) => node.type === "site" && node.status === "undiscovered")
+            .map((node) => ({ name: node.id, x: node.x, z: node.z })),
+        );
+        const signalReadout =
+          signal.bearingDegrees === null
+            ? "RADIO: QUIET"
+            : signal.signalStrength >= 0.7
+              ? "LOCK"
+              : signal.signalStrength >= 0.35
+                ? "TRACE"
+                : "WHISPER";
+        statSignal.textContent =
+          signal.bearingDegrees === null
+            ? "RADIO: QUIET"
+            : `RADIO: ${signal.carrierFrequencyHz.toFixed(1)} MHz · ${compassBearing(signal.bearingDegrees)} · ${Math.round(signal.distanceMeters)} m · ${signalReadout}`;
       }
 
       // Render Edges
@@ -173,10 +198,15 @@ export function createRumorMapUI(
             const toNode = currentGraph!.nodes[edge.toId];
             if (!fromNode || !toNode) return "";
 
-            const strokeColor = edge.active
-              ? "rgba(107, 201, 196, 0.75)"
-              : "rgba(255, 255, 255, 0.15)";
-            const dashAttr = edge.active ? "" : 'stroke-dasharray="4,4"';
+            const isCommunityLead = edge.type === "community_lead";
+            const strokeColor = isCommunityLead
+              ? "rgba(232, 157, 67, 0.9)"
+              : edge.active
+                ? "rgba(107, 201, 196, 0.75)"
+                : "rgba(255, 255, 255, 0.15)";
+            const dashAttr = isCommunityLead || !edge.active
+              ? 'stroke-dasharray="4,4"'
+              : "";
 
             return `<line x1="${fromNode.x}" y1="${fromNode.z}" x2="${toNode.x}" y2="${toNode.z}" 
               stroke="${strokeColor}" stroke-width="1.8" ${dashAttr} />`;
@@ -207,18 +237,21 @@ export function createRumorMapUI(
               radius = 7;
             }
 
+            const inspectable = node.status !== "undiscovered";
+            const label = inspectable ? node.title : "?";
+
             return `
-              <g class="rumor-node-group" data-id="${node.id}" style="cursor: pointer;">
+              <g class="rumor-node-group"${inspectable ? ` data-id="${node.id}" style="cursor: pointer;"` : ""}>
                 <circle class="rumor-node-circle" cx="${node.x}" cy="${node.z}" r="${radius}" 
                   fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5" filter="${node.status !== "undiscovered" ? "url(#glow)" : ""}" />
-                <text x="${node.x}" y="${node.z + 14}" fill="rgba(255,255,255,0.85)" font-size="7" text-anchor="middle" font-family="monospace">${node.title}</text>
+                <text x="${node.x}" y="${node.z + 14}" fill="rgba(255,255,255,0.85)" font-size="7" text-anchor="middle" font-family="monospace">${label}</text>
               </g>
             `;
           })
           .join("");
 
         // Attach node click listeners to populate inspector card
-        nodesGroup.querySelectorAll(".rumor-node-group").forEach((group) => {
+        nodesGroup.querySelectorAll(".rumor-node-group[data-id]").forEach((group) => {
           group.addEventListener("click", () => {
             const nodeId = group.getAttribute("data-id");
             if (nodeId && currentGraph && currentGraph.nodes[nodeId]) {

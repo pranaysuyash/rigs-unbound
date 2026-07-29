@@ -307,6 +307,34 @@ shell assertion failure (`Field 02 welcome plate should be visible`), and
 
 ## How to maintain this tracker
 
+## Addendum (2026-07-29) - open-world infrastructure authority
+
+- `[-]` **RU-0940 - Persistent infrastructure network.** Replace the
+  singleton Floodgate chain with authored machines that persist, advance under
+  the fixed-step weather clock, and feed spatial water/soil effects into normal
+  rig physics. Current entities are Floodgate 12, Long Furrow Drain Pump, and
+  Quarry Dewatering Rig. Decision: [ADR-0042](../decisions/ADR-0042-open-world-infrastructure-network.md).
+  - Current implementation: the renderer samples the same entity operation
+    state to visually drain or darken local water, and the field atlas records
+    discovered machine influence/condition. Quarry dewatering also changes
+    material yield at the canonical salvage collection path. Long Furrow
+    drainage changes the magnitude of persistent terrain deformation produced
+    by a plough pass, without creating a field-access or route-unlock gate.
+    Disturbed ground now retains bounded moisture, shear strength, vegetation,
+    roots, and soil health in `GameWorld` memory; weather advances it and the
+    local drain changes its rate. The field atlas reads those same cells as
+    muddy, damaged, or recovering soil; root density also changes subsequent
+    cut deformation. The nearby 3D terrain mesh projects the same revision as
+    a local colour tint. Infrastructure service now consumes the canonical
+    world-affordance resolver for capability admission rather than maintaining a
+    second compatibility branch. Each machine now has a grounded low-poly
+    renderer assembly with a canonical-state beacon and semantic moving part;
+    collision authority remains intentionally separate. This is source evidence
+    only.
+  - Closure gate: save migration, headless network/physics tests, and canonical
+    4173 visual evidence that the renderer represents the same local waterline.
+  - Boundary: this is world substrate, not a mission or episode framework.
+
 Use only these states:
 
 - `[x] Done` — closure evidence is linked and the required gate passed.
@@ -2477,3 +2505,216 @@ The live browser-policy snapshot now has a durable decision record:
 
 That gives the browser-policy work a stable architectural anchor instead of
 only a chain of live-analysis addenda.
+
+## Addendum (2026-07-29) -- settlement needs become the first world-social runtime stage
+
+ADR-0043 is admitted by the operator's direct `continue` response after the
+proposed design was presented. The first source-level stage is intentionally
+inside the existing mission-proposition and mission-lifecycle authority:
+
+- `settlement-needs.ts` owns bounded, versioned community condition and favor;
+- waterworks and campaign outcomes now write the same state;
+- Long Furrow can publish a real side need only after drainage makes its soil
+  workable; it completes only when a capable rig actually ploughs the site;
+- no new jobs board, economy store, or direct UI mutation path was introduced.
+
+This addresses the open-world/social layer named by ADR-0040 without recasting
+the project as another test chain. Test and canonical-port evidence remain
+pending explicit verification approval.
+
+Anything else? Yes. The next coherent extension is generic target-aware cargo
+and field-work completion so Rustline, Sunken Flats, and Launch Ridge can issue
+their own varied physical work rather than borrowing the fixed cargo-relay
+completion route.
+
+## Addendum (2026-07-29) -- target-aware cargo replaces the fixed delivery endpoint
+
+The cargo substrate now carries an optional persisted assignment containing the
+accepted delivery mission and its authored origin/destination sites. Mission
+acceptance assigns the existing physical crate; towing resolves against that
+destination only; route rings and public-state projection read the same target.
+The legacy unassigned Relay haul remains available as a first-rung activity.
+Runtime verification is pending.
+
+## Addendum (2026-07-29) -- Marsh Depot activates a ford route and a community outcome
+
+## Addendum (2026-07-29) -- Grove Run introduces optional open-road play
+
+- `road-rivalry` is now a third activity binding with a voluntary Toy Grove ->
+  Quarry Shelf -> Home Silo course and per-rig persistent records.
+- It reuses world sites, terrain routes, authoritative post-physics position,
+  local primary-action commands, and save recovery. It does not create a mission
+  slot, route gate, currency faucet, or separate race scene.
+- ADR-0045 records the proposed product boundary. Source integration exists;
+  runtime/playtest/save-recovery evidence remains pending explicit verification.
+- The renderer now shows permanent, non-colliding Grove Run gate posts at the
+  same authored course sites. Visual identification is source-integrated only;
+  browser/playtest evidence remains pending.
+
+## Addendum (2026-07-29) -- Quarry Runout begins emergent world incidents
+
+- Storm moisture can activate one persistent Quarry Runout boulder on the
+  Quarry Shelf -> Toy Grove line. It lives in `GameWorld` snapshot/restore,
+  joins canonical collision queries, and is rendered through the existing rock
+  prop path.
+- Impact displacement uses the existing debris calculation; clearing is a
+  physical machine consequence, not a mission action. The incident is local and
+  does not lock the wider terrain.
+- ADR-0046 records the proposed authority boundary. Source integration exists;
+  trigger, save/reload, collision, clearance, and visual runtime evidence remain
+  pending explicit verification.
+- Camera-obstruction queries now consume the same dynamic incident-obstacle
+  projection as collision and rendering; browser evidence for camera avoidance
+  remains pending.
+- Rustline and Home Valley named contacts now acknowledge active and cleared
+  Runout history through read-only world knowledge. Their dialogue creates no
+  mission, route gate, or second incident-state owner.
+
+`marsh-depot` is now a canonical authored marsh site rather than dormant
+campaign data. The existing ford-capability delivery can resolve there through
+the target-aware crate assignment, and completion changes Marsh Depot from
+cut-off to supplied while recording favor for its ferrymen. Runtime verification
+remains pending.
+
+## Addendum (2026-07-29) -- settlement favor now produces optional world knowledge
+
+The first non-currency favor consequence is live at the source level. Completing
+the Sunken Flats causeway outcome makes the Ferrymen's Cut available through the
+existing Rumor Graph and tactical navigator: Marsh Depot becomes a named,
+amber-rumored location connected from Sunken Flats. It is not promoted to a
+discovery, waypoint, compulsory route, or new UI subsystem. The player retains
+agency to travel there, ignore it, or find it independently. Runtime and
+playtest evidence remain pending.
+
+## Addendum (2026-07-29) -- settlement state now has named human ownership
+
+The first local contacts are authored as settlement data and projected into the
+existing field-notes area of the Contracts board. Their current lines derive
+from durable settlement condition; local needs are issued in the appropriate
+contact's name; and settlement completion announcements now acknowledge a
+specific person. This is a compact social-world layer, not a dialogue tree or
+new mission framework. Runtime and playtest evidence remain pending.
+
+## Addendum (2026-07-29) -- community state now changes visible places
+
+The renderer now maps known settlement condition to the site-owned horizon lamp
+instead of creating a separate objective visual: cyan signals a functioning or
+connected place, amber a workable opening, and red/dim a stressed or silent
+place. Marsh Depot receives its first authored 3D identity -- a stilted
+platform, shelter, fuel drum, and lamp -- through the canonical world-structure
+table. Simulation stays authoritative; runtime and playtest evidence remain
+pending.
+
+## Addendum (2026-07-29) -- supplied Rustline now provides field maintenance
+
+Rustline's first tangible service is maintenance-only repair at its authored
+salvage-yard service area. The existing `repairRig` command, wear reset, and
+salvage tariff remain the one authority; the state merely admits Rustline when
+its community condition is `supplied`. Home Silo remains the sole full workshop
+for restoration, crafting, module fitting, and naming. Runtime and playtest
+evidence remain pending.
+
+## Addendum (2026-07-29) -- settlement state now has visible human presence
+
+Each settlement has authored crew anchors, rendered only after its site is
+known. One named contact remains at struggling places; the full small crew
+appears when the settlement is stable, workable, cultivated, supplied, or
+connected. The silhouettes are renderer-only, non-colliding world dressing;
+they do not create a hidden NPC simulation or new interaction path. Runtime and
+playtest evidence remain pending.
+
+## Addendum (2026-07-29) -- Rustline's first community job is now physical
+
+After Rustline Salvage is discovered, its crews can publish a tow-required
+parts-and-fuel run from Home Valley. The mission assigns the canonical crate to
+Home Valley -> Rustline, then completion marks Rustline supplied and adds
+favor. This is the first post-refactor community delivery and establishes the
+content pattern for Sunken Flats, Launch Ridge, and later settlements.
+
+## Addendum (2026-07-29) -- named locals now speak from the world
+
+An optional `hear-settlement-contact` primary action derives from the named
+resident anchor and the settlement's current authoritative condition. It is
+available only at a personally known place and only after immediate physical
+actions have been resolved. The result is revisitable local knowledge, not a
+dialogue system, acceptance path, reward, waypoint, or progression gate.
+Runtime and playtest evidence remain pending.
+
+## Addendum (2026-07-29) -- Sunken Flats now creates a durable raised passage
+
+The `sunken-flats-causeway` settlement outcome derives the first community
+passage: a raised, grade-limited track from Sunken Flats to Marsh Depot. The
+terrain field owns its height/material change, cached natural obstacles are
+invalidated, renderer terrain is rebuilt from the same revision, and
+`settleWorld` reapplies the passage after save recovery. The marsh is not
+blocked before completion; this is a safer lasting route, not an unlock wall.
+Runtime and playtest evidence remain pending.
+
+The active passage now has an authored deck-and-rail presentation generated
+from the same resolved terrain segment. It samples terrain height after route
+activation and remains non-colliding; no visual layer is allowed to become a
+second route or collision truth source. Runtime and driving-distance legibility
+remain pending playtest.
+
+## Addendum (2026-07-29) -- imagegen asset lane begins with infrastructure
+
+The first durable asset in the ongoing imagegen lane is now in the existing
+`assets/generated/` tree:
+
+- `marsh-depot-floodgate-environment-concept-2026-07-29.png` is a 1536 × 1024
+  Patchwork Atlas environment concept for Marsh Depot, Floodgate 12, the
+  Sunken Flats water route, and the settlement-scale consequence of machine
+  care.
+- The exact prompt and generation flags live beside the image in the `.prompt.md`
+  sidecar; the hash, intended use, rights posture, review note, and replacement
+  path live in the Asset Provenance Register.
+- The versioned asset manifest lists it as `reference` / `concept` with
+  `publicRuntimeApproved: false`. No runtime import, mesh admission, or player
+  distribution decision was made.
+- Static visual inspection is Tier 4 for the generated image's readability;
+  manifest and asset-preflight evidence is Tier 2. Runtime layout, collision,
+  before/after persistence, and public approval remain open.
+
+The durable queue is now: Floodgate 12 same-camera before/after; Marsh Depot
+close plate; Long Furrow drainage station; isolated utility-tow reconstruction
+candidate; and failure/readability fixtures. The queue is a planning instrument,
+not evidence that those assets already exist.
+
+Anything else? Yes: generated art must continue to strengthen the authored world
+without replacing simulation-owned layout, physics, or settlement state. The
+next asset should therefore be selected for a measurable visual comparison,
+not only for beauty or breadth.
+
+## Addendum (2026-07-29) -- object-first asset catalog and first reconstruction input
+
+The asset lane now has a durable long-list catalog and explicit production
+split at `docs/exploration/ASSET_CATALOG_AND_RECONSTRUCTION_BACKLOG_2026-07-29.md`.
+The first object candidate is `utility_tow_recovery_01`, with a repo-owned
+isolated reference at `assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.png`
+and a reconstruction workbench at `assets/workbench/utility-tow-recovery-01/`.
+
+Current status is reference/intake-pending, not runtime-ready. The next gates
+are image probe, reference admission, strict pre-spec/detail inventory,
+action-ready hierarchy, locked pass review, and browser/multi-angle evidence.
+Roads, trees, clouds, sprites, and scene kits remain separate queues with
+appropriate procedural or 2D build paths. `src/game/` remains untouched.
+
+Anything else? Yes: this moves the asset strategy from “generate a beautiful
+scene” to “build reusable semantic assets, then compose the scene.”
+
+## Addendum (2026-07-29) -- first bounded rig-part reference
+
+The first focused reconstruction candidate is now the field-plough rig part:
+`assets/generated/field-plough-01-object-reference-2026-07-29.png` with its
+repo-owned workbench at `assets/workbench/field-plough-01/`. This follows the
+existing `field-plough` attachment and `ploughPivot` seam identified by the
+asset audit.
+
+The next evidence is the staged img2threejs intake/spec pipeline. Runtime
+promotion remains blocked by the missing factory-to-GLB/presentation bridge,
+strict spec evidence, action hierarchy, collision separation, and browser
+review. `src/game/` remains untouched.
+
+Anything else? Yes: once this module passes, the same contract can be reused
+for the tow boom, winch, stabilizer, wheel, and beacon modules before the full
+utility tow rig is attempted.

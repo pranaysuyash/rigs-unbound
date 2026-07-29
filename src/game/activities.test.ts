@@ -19,12 +19,14 @@ describe("activity registry", () => {
     expect(validateActivityDefinitions()).toEqual([]);
   });
 
-  it("carries both activities, so there is one activity truth path", () => {
-    // The readiness contract requires the first stage to migrate the existing
-    // activity as well as the new one; a registry holding only the new activity
-    // would be the second truth path it was written to prevent.
+  it("carries every authored activity, so there is one activity truth path", () => {
+    // The readiness contract requires each new activity to join the existing
+    // registry rather than migrate to a parallel one; a registry missing an
+    // authored activity would be the second truth path it was written to
+    // prevent.
     expect(ACTIVITY_DEFINITIONS.map((entry) => entry.id).sort()).toEqual([
       "cargo-relay",
+      "road-rivalry",
       "survey-route",
     ]);
   });

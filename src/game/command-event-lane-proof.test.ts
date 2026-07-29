@@ -30,6 +30,10 @@ import type { RigId } from "./contracts";
 function scenario(seed: string, activeRigId: RigId = "utility-tractor") {
   const state = createInitialState(seed);
   state.activeRigId = activeRigId;
+  // Torque narratively starts disabled awaiting restoration (see
+  // createInitialState); this proof exercises the command/event lane, not
+  // that beat.
+  state.rigs["utility-tractor"].condition = 100;
   const world = new GameWorld(seed);
   settleWorld(state, world);
   return { state, world };

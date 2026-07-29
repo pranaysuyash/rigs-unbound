@@ -124,6 +124,16 @@ Robust means capable and structurally convincing, not clean, over-armored, or co
 - Use icon + text + state; never rely on color alone.
 - Respect reduced motion, volume categories, scalable text, remapping, hold/toggle alternatives, subtitles, and high-contrast modes.
 
+### Community field-notes treatment -- 2026-07-29
+
+The existing Contracts overlay is the field-kit surface for community state;
+it does not gain a second dashboard, a card grid, or new mobile-specific
+layout. Its summary uses short prose field notes (for example, `Long Furrow:
+workable`) drawn from canonical settlement state. Named crews appear as mission
+givers only when they have a material need the player can change. This keeps the
+world readable as places and people rather than converting it into status
+theater.
+
 ## Camera grammar
 
 - Chase/near-isometric for traversal and vehicle personality.
@@ -178,6 +188,29 @@ See the [Kenney asset library audit](docs/research/KENNEY_ASSET_LIBRARY_AUDIT_20
 ## Anything else?
 
 The design test is not “does this look like a polished game?” It is “can a player infer what this machine can do, what has happened to it, and what possibility is calling from the world?”
+
+## Addendum (2026-07-29) - places must show their changed condition
+
+Community state cannot remain only a mission result or text label. Reached
+settlements now express their condition through the one authored lamp already
+built into the place: cyan means it is working or connected, amber means an
+opening for work, red or dim means it is stressed, isolated, cut off, or silent.
+The color is a presentation projection of simulation-owned settlement state;
+it is not a marker, collision object, or gameplay authority.
+
+Marsh Depot now has a stilted platform, shelter, fuel drum, and lamp, so a
+delivery to the basin terminates at a place that can read as inhabited and
+working rather than at invisible coordinates. Asset and runtime legibility
+remain subject to play observation.
+
+## Addendum (2026-07-29) - people belong in the world before they become systems
+
+Known settlements now show their contact and local crew as simple, authored
+low-poly silhouettes. A struggling site keeps one person present; a working,
+supplied, connected, cultivated, or stable site visibly has more people at the
+same place. They have no collision, UI label, dialogue tree, combat behavior, or
+simulation authority. Their job is to make the machine work visible as human
+work without turning the world into a field of quest markers.
 
 ## Rig Lab 01 visual translation — 2026-07-25
 

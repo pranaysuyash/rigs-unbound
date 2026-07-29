@@ -1,0 +1,14 @@
+{
+  "admitted": true,
+  "reasons": [],
+  "provenance": {
+    "viewpoint": "object-reference",
+    "sourcePath": "/Users/pranay/Projects/Game_dev/rigs-unbound/assets/generated/field-plough-01-object-reference-2026-07-29.png",
+    "width": 1536,
+    "height": 1024,
+    "foregroundCoverage": 0.269,
+    "largestComponentFraction": 1.0,
+    "pHash": 13381255986510444177,
+    "duplicateOfHash": null
+  }
+}

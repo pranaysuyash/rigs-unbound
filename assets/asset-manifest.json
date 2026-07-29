@@ -210,6 +210,45 @@
       "sha256": "55bc059c474afd6e036ea2c17c7dda97645e75ee99dde567dd5c188984a9e101",
       "intendedUse": "Urban and civic lineup sheet for later cropping, comparison, and reconstruction planning; not a runtime mesh.",
       "notes": "Contains six urban and civic support rigs."
+    },
+    {
+      "id": "marsh-depot-floodgate-environment-concept",
+      "kind": "reference",
+      "status": "concept",
+      "sourceType": "generated-image",
+      "sourcePath": "assets/generated/marsh-depot-floodgate-environment-concept-2026-07-29.png",
+      "runtimePath": null,
+      "publicRuntimeApproved": false,
+      "rightsStatus": "review-required-before-distribution",
+      "sha256": "93da3e41ef0818de129f2894339ca0fd544fa680111cbb768d8ce306ed8a5b56",
+      "intendedUse": "Marsh Depot, Floodgate 12, and settlement-scale infrastructure reference for authored world composition and before/after presentation planning; not a runtime mesh.",
+      "notes": "Generated concept art inspected at original resolution. It is reference evidence for the Patchwork Atlas direction, not player-surface truth."
+    },
+    {
+      "id": "utility-tow-recovery-01-object-reference",
+      "kind": "rig-reference",
+      "status": "concept",
+      "sourceType": "generated-image",
+      "sourcePath": "assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.png",
+      "runtimePath": null,
+      "publicRuntimeApproved": false,
+      "rightsStatus": "review-required-before-distribution",
+      "sha256": "4b5e53cc655a41054850dc94a0ce539ef0b3e8dd711d28bd23664e8fedcc9014",
+      "intendedUse": "Isolated object reference for the utility tow recovery rig reconstruction workbench; not a runtime mesh.",
+      "notes": "Conditional single-view input for img2threejs. Hidden geometry, scale, sockets, collision, and multi-angle fidelity remain unverified."
+    },
+    {
+      "id": "field-plough-01-object-reference",
+      "kind": "rig-part-reference",
+      "status": "concept",
+      "sourceType": "generated-image",
+      "sourcePath": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+      "runtimePath": null,
+      "publicRuntimeApproved": false,
+      "rightsStatus": "review-required-before-distribution",
+      "sha256": "eab01f9c29140ce6015004203a22bf04dd837469969b7e4be850668b8f805dde",
+      "intendedUse": "Isolated reference for the field-plough rig-part reconstruction workbench; not a runtime mesh.",
+      "notes": "Conditional single-view input for img2threejs. The visible repeated share count conflicts with the generation prompt and must be resolved in the strict spec."
     }
   ]
 }

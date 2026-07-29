@@ -33,8 +33,13 @@ import {
 } from "./noise";
 import {
   BIOMES,
+  COMMUNITY_PASSAGE_IDS,
+  type CommunityPassageId,
+  RESOLVED_COMMUNITY_PASSAGES,
+  type ResolvedCommunityPassage,
   type BiomeId,
   RESOLVED_ROUTES,
+  type ResolvedRoute,
   RIDGE_HEIGHT,
   RIDGE_INNER_RADIUS,
   RIDGE_OUTER_RADIUS,
@@ -159,6 +164,10 @@ export class TerrainField {
    */
   private revision = 0;
 
+  /** Community routes derived from durable settlement history, not save-local terrain edits. */
+  private readonly activeCommunityPassages = new Set<CommunityPassageId>();
+  private routeRevision = 0;
+
   /**
    * Route profiles, built on first use rather than in the constructor. They are
    * derived from `naturalHeight`, and building them eagerly would make
@@ -176,6 +185,34 @@ export class TerrainField {
     this.ridgeSeed = seedFromText(`${seedText}:ridge`);
     this.microSeed = seedFromText(`${seedText}:micro`);
     this.moistureSeed = seedFromText(`${seedText}:moisture`);
+  }
+
+  /**
+   * Reconcile durable community passage history into the same profile set used
+   * by authored tracks. Returning a change signal lets GameWorld invalidate
+   * cached natural obstacles and presentation rebuild the affected terrain.
+   */
+  reconcileCommunityPassages(
+    passageIds: readonly CommunityPassageId[],
+  ): boolean {
+    const next = new Set(
+      passageIds.filter((id) => COMMUNITY_PASSAGE_IDS.includes(id)),
+    );
+    const changed =
+      next.size !== this.activeCommunityPassages.size ||
+      [...next].some((id) => !this.activeCommunityPassages.has(id));
+    if (!changed) return false;
+
+    this.activeCommunityPassages.clear();
+    for (const id of next) this.activeCommunityPassages.add(id);
+    this.routeProfiles = null;
+    this.routeRevision += 1;
+    return true;
+  }
+
+  /** Monotonic signal for route-profile changes that alter terrain and surface truth. */
+  routeRevisionNumber(): number {
+    return this.routeRevision;
   }
 
   // ---------------------------------------------------------------------------
@@ -465,7 +502,18 @@ export class TerrainField {
    * as an offline check.
    */
   private buildRouteProfiles(): RouteProfile[] {
-    return RESOLVED_ROUTES.map((route) => {
+    // Explicitly typed as a union, not inferred: a plain array-literal spread
+    // of `ResolvedRoute[]` and `ResolvedCommunityPassage[]` infers the common
+    // supertype `ResolvedRoute[]` (the passage type is structurally assignable
+    // to the route type), which silently drops `startElevation`/`endElevation`
+    // from the static type even though the values are present at runtime.
+    const routes: (ResolvedRoute | ResolvedCommunityPassage)[] = [
+      ...RESOLVED_ROUTES,
+      ...RESOLVED_COMMUNITY_PASSAGES.filter((route) =>
+        this.activeCommunityPassages.has(route.id),
+      ),
+    ];
+    return routes.map((route) => {
       const length = Math.hypot(route.bx - route.ax, route.bz - route.az);
       const samples = Math.max(
         8,
@@ -502,8 +550,14 @@ export class TerrainField {
       const endSite = WORLD_SITES.find(
         (site) => site.x === route.bx && site.z === route.bz,
       );
-      if (startSite) elevations[0] = startSite.elevation;
-      if (endSite) elevations[samples - 1] = endSite.elevation;
+      const startElevation =
+        "startElevation" in route
+          ? route.startElevation
+          : startSite?.elevation;
+      const endElevation =
+        "endElevation" in route ? route.endElevation : endSite?.elevation;
+      if (startElevation !== undefined) elevations[0] = startElevation;
+      if (endElevation !== undefined) elevations[samples - 1] = endElevation;
 
       // Grade-limit, sweeping both directions. Neither sweep may write index 0 or
       // `samples - 1`: those are the pad elevations, and letting a sweep move them

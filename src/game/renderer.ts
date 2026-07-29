@@ -30,6 +30,8 @@ import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
+  cargoDeliveryTarget,
+  cargoPickupTarget,
   BUGGY_RAMP,
   type CameraMode,
   effectiveProfile,
@@ -72,6 +74,21 @@ import {
   WORLD_STRUCTURE_PARTS,
   type WorldStructurePart,
 } from "./world";
+import {
+  INFRASTRUCTURE_DEFINITIONS,
+  INFRASTRUCTURE_ENTITY_IDS,
+  createInfrastructureNetworkState,
+  infrastructureIsOperating,
+  type InfrastructureEntityId,
+} from "./infrastructure-network";
+import { settlementLampColor } from "./settlement-needs";
+import {
+  settlementResidentAnchors,
+  settlementResidentCount,
+} from "./settlement-needs";
+import { deriveSettlementCommunityPassageIds } from "./settlement-needs";
+import { RESOLVED_COMMUNITY_PASSAGES } from "./world";
+import { roadRivalryCourseSiteIds } from "./activities";
 
 const COLORS = {
   rust: 0xb94f32,
@@ -321,6 +338,12 @@ type FXAAUniforms = {
   };
 };
 
+interface InfrastructurePropParts {
+  root: THREE.Group;
+  activity: THREE.Object3D;
+  beacon: THREE.Mesh;
+}
+
 function material(
   color: number,
   roughness = 0.76,
@@ -406,6 +429,10 @@ export class GameRenderer {
   private readonly rigs = new Map<RigId, RigParts>();
   private readonly cargo: THREE.Group;
   private readonly hitchLine: THREE.Line;
+  private readonly infrastructureProps = new Map<
+    InfrastructureEntityId,
+    InfrastructurePropParts
+  >();
 
   private terrainMesh!: THREE.Mesh;
   private terrainHeights!: Float32Array;
@@ -437,9 +464,19 @@ export class GameRenderer {
   private propAnchorZ = Number.POSITIVE_INFINITY;
   private renderedFurrows = 0;
   private lastDeformCount = 0;
+  private lastRouteRevision = 0;
+  private readonly communityPassageDecks = new Map<string, THREE.Group>();
+  private readonly roadRivalryMarkers = new Map<string, THREE.Group>();
+  private lastRoadIncidentRevision = -1;
+  private lastFieldConditionRevision = -1;
+  private fieldColourAnchorX = Number.POSITIVE_INFINITY;
+  private fieldColourAnchorZ = Number.POSITIVE_INFINITY;
   private readonly furrowCutColor = new THREE.Color(0x3a2c1e);
   private readonly furrowFillColor = new THREE.Color(0x8a7a5a);
   private readonly tempColor = new THREE.Color();
+  private readonly wetFieldColour = new THREE.Color(0x49351f);
+  private readonly damagedFieldColour = new THREE.Color(0x8f6934);
+  private readonly recoveringFieldColour = new THREE.Color(0x5f8c48);
   private currentPhase: WorldPhase | null = null;
   private lastFrameTime = performance.now();
   private shake = 0;
@@ -547,6 +584,9 @@ export class GameRenderer {
     this.buildInstancedProps();
     this.buildDust();
     this.buildSites();
+    this.buildCommunityPassageDecks();
+    this.buildRoadRivalryMarkers();
+    this.buildInfrastructureProps();
     this.buildRuntimeBridgeAssets();
     this.buildStars();
 
@@ -709,11 +749,15 @@ export class GameRenderer {
           (north - y) / TERRAIN_STEP,
         );
 
-        const surface = this.world.terrain.surfaceFor(x, z, y, slope);
-        colour.setHex(surface.color);
-        // A stable per-vertex tint keeps large single-surface regions from reading
-        // as flat paint without needing a texture.
-        const tint = 0.9 + ((ix * 7 + iz * 13) % 11) * 0.018;
+        const tint = this.resolveTerrainVertexColour(
+          x,
+          z,
+          y,
+          slope,
+          ix,
+          iz,
+          colour,
+        );
         colors[index * 3] = colour.r * tint;
         colors[index * 3 + 1] = colour.g * tint;
         colors[index * 3 + 2] = colour.b * tint;
@@ -747,6 +791,104 @@ export class GameRenderer {
     this.terrainMesh.name = "terrain";
     this.scene.add(this.terrainMesh);
     this.terrainBuildMs = performance.now() - startedAt;
+  }
+
+  /**
+   * Presentation-only terrain colour derived from canonical geometry and
+   * GameWorld field memory. No renderer value can change traction, vegetation,
+   * or terrain deformation.
+   */
+  private resolveTerrainVertexColour(
+    x: number,
+    z: number,
+    height: number,
+    slope: number,
+    ix: number,
+    iz: number,
+    target: THREE.Color,
+  ): number {
+    const surface = this.world.terrain.surfaceFor(x, z, height, slope);
+    target.setHex(surface.color);
+    const field = this.world.fieldConditionAt(x, z);
+    if (field) {
+      const wetness = Math.max(
+        0,
+        Math.min(1, (field.moistureRatio - 0.3) / 0.7),
+      );
+      const damage = Math.max(0, Math.min(1, 1 - field.soilHealth));
+      if (wetness > 0) target.lerp(this.wetFieldColour, wetness * 0.62);
+      if (damage > 0) target.lerp(this.damagedFieldColour, damage * 0.28);
+      if (wetness < 0.45 && field.soilHealth > 0.55) {
+        target.lerp(
+          this.recoveringFieldColour,
+          (field.soilHealth - 0.55) * 0.28,
+        );
+      }
+    }
+    return 0.9 + ((ix * 7 + iz * 13) % 11) * 0.018;
+  }
+
+  /** Refresh only a local terrain-colour patch from authoritative field memory. */
+  private refreshTerrainColourRegion(
+    centreX: number,
+    centreZ: number,
+    radius: number,
+  ): void {
+    const size = this.terrainCells + 1;
+    const minIx = Math.max(
+      0,
+      Math.floor((centreX - radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const maxIx = Math.min(
+      size - 1,
+      Math.ceil((centreX + radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const minIz = Math.max(
+      0,
+      Math.floor((centreZ - radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    const maxIz = Math.min(
+      size - 1,
+      Math.ceil((centreZ + radius - this.terrainOrigin) / TERRAIN_STEP),
+    );
+    if (minIx > maxIx || minIz > maxIz) return;
+    const colour = this.terrainMesh.geometry.getAttribute(
+      "color",
+    ) as THREE.BufferAttribute;
+    for (let iz = minIz; iz <= maxIz; iz += 1) {
+      for (let ix = minIx; ix <= maxIx; ix += 1) {
+        const index = iz * size + ix;
+        const x = this.terrainOrigin + ix * TERRAIN_STEP;
+        const z = this.terrainOrigin + iz * TERRAIN_STEP;
+        const height = this.terrainHeights[index]!;
+        const east = this.terrainHeights[
+          index + (ix < this.terrainCells ? 1 : -1)
+        ]!;
+        const north = this.terrainHeights[
+          index + (iz < this.terrainCells ? size : -size)
+        ]!;
+        const slope = Math.hypot(
+          (east - height) / TERRAIN_STEP,
+          (north - height) / TERRAIN_STEP,
+        );
+        const tint = this.resolveTerrainVertexColour(
+          x,
+          z,
+          height,
+          slope,
+          ix,
+          iz,
+          this.tempColor,
+        );
+        colour.setXYZ(
+          index,
+          this.tempColor.r * tint,
+          this.tempColor.g * tint,
+          this.tempColor.b * tint,
+        );
+      }
+    }
+    colour.needsUpdate = true;
   }
 
   /**
@@ -828,6 +970,7 @@ export class GameRenderer {
 
   private buildWater(): void {
     // Custom water shader with wave animation, foam, depth-based color, and specular highlights
+    const initialInfrastructure = createInfrastructureNetworkState();
     const waterUniforms = {
       time: { value: 0 },
       waterColor: { value: new THREE.Color(SURFACES.water.color) },
@@ -843,6 +986,33 @@ export class GameRenderer {
       foamStrength: { value: 0.35 },
       specularPower: { value: 40.0 },
       specularIntensity: { value: 0.6 },
+      // These inputs are presentation copies of canonical infrastructure
+      // effects. The simulation still owns condition and waterline truth.
+      infrastructureCenters: {
+        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
+          const definition = INFRASTRUCTURE_DEFINITIONS[id];
+          return new THREE.Vector2(definition.x, definition.z);
+        }),
+      },
+      infrastructureRadii: {
+        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
+          const effect = INFRASTRUCTURE_DEFINITIONS[id].effects.find(
+            (candidate) => candidate.kind === "water-level-offset",
+          );
+          return effect?.radiusM ?? 0;
+        }),
+      },
+      infrastructureWaterOffsets: {
+        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
+          const definition = INFRASTRUCTURE_DEFINITIONS[id];
+          const effect = definition.effects.find(
+            (candidate) => candidate.kind === "water-level-offset",
+          );
+          return effect && infrastructureIsOperating(definition, initialInfrastructure.entities[id])
+            ? effect.operatingValue
+            : effect?.dormantValue ?? 0;
+        }),
+      },
     };
 
     const waterMaterial = new THREE.ShaderMaterial({
@@ -924,6 +1094,9 @@ export class GameRenderer {
         uniform float foamStrength;
         uniform float specularPower;
         uniform float specularIntensity;
+        uniform vec2 infrastructureCenters[3];
+        uniform float infrastructureRadii[3];
+        uniform float infrastructureWaterOffsets[3];
 
         // Fresnel-Schlick approximation
         float fresnelSchlick(float cosTheta, float roughness) {
@@ -963,10 +1136,31 @@ export class GameRenderer {
         }
 
         void main() {
+          float drainageMask = 0.0;
+          float pressureTint = 0.0;
+          for (int index = 0; index < 3; index++) {
+            float radius = infrastructureRadii[index];
+            if (radius <= 0.0) continue;
+            float distanceToMachine = distance(vWorldPosition.xz, infrastructureCenters[index]);
+            float t = clamp(1.0 - distanceToMachine / radius, 0.0, 1.0);
+            float influence = t * t * (3.0 - 2.0 * t);
+            float offset = infrastructureWaterOffsets[index];
+            if (offset < 0.0) {
+              drainageMask = max(drainageMask, influence * clamp(-offset / 2.6, 0.0, 1.0));
+            } else {
+              pressureTint = max(pressureTint, influence * clamp(offset / 1.1, 0.0, 1.0));
+            }
+          }
+          // The terrain remains present behind a drained basin. This is a visual
+          // consequence of the simulation's local waterline, not a new terrain
+          // or collision shape owned by the renderer.
+          if (drainageMask > 0.72) discard;
+
           // Depth-based color blending
           float depth = max(0.0, waterLevel - vWorldPosition.y);
           float depthFactor = smoothstep(0.0, 8.0, depth);
           vec3 baseColor = mix(shallowColor, deepColor, depthFactor);
+          baseColor = mix(baseColor, deepColor, pressureTint * 0.55);
 
           // Fresnel effect for surface reflection
           vec3 viewDir = normalize(cameraPosition - vWorldPosition);
@@ -1007,6 +1201,7 @@ export class GameRenderer {
           // Final opacity based on depth and angle
           float opacity = 0.75;
           opacity *= 1.0 - fresnel * 0.3;
+          opacity *= 1.0 - drainageMask * 0.88;
           
           gl_FragColor = vec4(color, opacity);
         }
@@ -1024,6 +1219,48 @@ export class GameRenderer {
     this.scene.add(this.water);
 
     this.waterMaterial = waterMaterial;
+  }
+
+  /**
+   * Presentation consumes network-owned state once per frame. The shader has
+   * the same authored centres/radii as the effect resolver, but cannot mutate
+   * an entity or decide whether a machine is operating.
+   */
+  private updateInfrastructureWater(state: GameState): void {
+    const uniforms = this.waterMaterial.uniforms as {
+      infrastructureCenters: { value: THREE.Vector2[] };
+      infrastructureRadii: { value: number[] };
+      infrastructureWaterOffsets: { value: number[] };
+    };
+    for (let index = 0; index < INFRASTRUCTURE_ENTITY_IDS.length; index += 1) {
+      const id = INFRASTRUCTURE_ENTITY_IDS[index]!;
+      const definition = INFRASTRUCTURE_DEFINITIONS[id];
+      const effect = definition.effects.find(
+        (candidate) => candidate.kind === "water-level-offset",
+      );
+      const centre = uniforms.infrastructureCenters.value[index]!;
+      centre.set(definition.x, definition.z);
+      uniforms.infrastructureRadii.value[index] = effect?.radiusM ?? 0;
+      uniforms.infrastructureWaterOffsets.value[index] =
+        effect && infrastructureIsOperating(definition, state.infrastructure.entities[id])
+          ? effect.operatingValue
+          : effect?.dormantValue ?? 0;
+    }
+  }
+
+  /** Keep machine motion and status light strictly downstream of network state. */
+  private updateInfrastructureProps(state: GameState, delta: number): void {
+    for (const id of INFRASTRUCTURE_ENTITY_IDS) {
+      const parts = this.infrastructureProps.get(id);
+      if (!parts) continue;
+      const definition = INFRASTRUCTURE_DEFINITIONS[id];
+      const entity = state.infrastructure.entities[id];
+      const operating = infrastructureIsOperating(definition, entity);
+      parts.activity.rotation.z += operating ? delta * 2.4 : delta * 0.08;
+      (parts.beacon.material as THREE.MeshBasicMaterial).color.setHex(
+        !entity.known ? COLORS.gold : operating ? COLORS.cyan : 0xe45b4f,
+      );
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -1116,7 +1353,10 @@ export class GameRenderer {
     const rig = state.rigs[state.activeRigId];
     const profile = visibilityProfile(this.activeVisibilityProfileId);
     const propRadius = profile.farMeters;
-    const obstacles = this.world.obstacles.near(rig.x, rig.z, propRadius);
+    const obstacles = [
+      ...this.world.obstacles.near(rig.x, rig.z, propRadius),
+      ...this.world.incidentObstaclesNear(rig.x, rig.z, propRadius),
+    ];
     const nodes = this.world.exploration.nodesNear(
       rig.x,
       rig.z,
@@ -1461,6 +1701,86 @@ export class GameRenderer {
     return object;
   }
 
+  /**
+   * Build compact, authored machine silhouettes from canonical infrastructure
+   * definitions. Visible mesh is not collision authority.
+   */
+  private buildInfrastructureProps(): void {
+    for (const id of INFRASTRUCTURE_ENTITY_IDS) {
+      const definition = INFRASTRUCTURE_DEFINITIONS[id];
+      const root = new THREE.Group();
+      root.name = `infrastructure:${id}`;
+      const beacon = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 8, 6),
+        new THREE.MeshBasicMaterial({ color: COLORS.gold }),
+      );
+      let activity: THREE.Object3D;
+
+      if (id === "floodgate-12") {
+        const leftPillar = box(0.72, 3.4, 0.82, 0x6d7379);
+        leftPillar.position.set(-2.55, 1.7, 0);
+        const rightPillar = box(0.72, 3.4, 0.82, 0x6d7379);
+        rightPillar.position.set(2.55, 1.7, 0);
+        const gate = box(4.5, 2.05, 0.28, 0x3f535e);
+        gate.position.set(0, 1.25, 0);
+        const bridge = box(6.1, 0.36, 1.05, 0x875e3c);
+        bridge.position.set(0, 3.35, 0);
+        const wheel = new THREE.Mesh(
+          new THREE.TorusGeometry(0.62, 0.11, 6, 12),
+          material(0xb6a88e, 0.48, 0.56),
+        );
+        wheel.position.set(0, 2.35, 0.25);
+        beacon.position.set(0, 3.75, 0);
+        root.add(leftPillar, rightPillar, gate, bridge, wheel, beacon);
+        activity = wheel;
+      } else if (id === "long-furrow-drain-pump") {
+        const pad = box(5.6, 0.38, 3.1, 0x514e47);
+        pad.position.set(0, 0.19, 0);
+        const housing = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.82, 0.94, 3.7, 10),
+          material(0x9a4931, 0.62, 0.26),
+        );
+        housing.rotation.z = Math.PI / 2;
+        housing.position.set(0, 1.15, 0);
+        const intake = cylinder(0.22, 0.22, 3.2, 8, 0x6c777c);
+        intake.rotation.z = Math.PI / 2;
+        intake.position.set(2.3, 0.68, 0);
+        const rotor = new THREE.Mesh(
+          new THREE.TorusGeometry(0.68, 0.1, 6, 12),
+          material(0xd9aa52, 0.42, 0.5),
+        );
+        rotor.rotation.y = Math.PI / 2;
+        rotor.position.set(-1.95, 1.15, 0);
+        beacon.position.set(0, 2.32, 0);
+        root.add(pad, housing, intake, rotor, beacon);
+        activity = rotor;
+      } else {
+        const pad = box(6.2, 0.42, 4.2, 0x4e4f4a);
+        pad.position.set(0, 0.21, 0);
+        const tower = box(0.74, 4.5, 0.74, 0x63717b);
+        tower.position.set(-1.75, 2.25, 0);
+        const boom = box(4.7, 0.42, 0.55, 0x8f6b42);
+        boom.position.set(0.4, 4.15, 0);
+        const drum = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.72, 0.72, 1.3, 10),
+          material(0x9a4931, 0.58, 0.28),
+        );
+        drum.rotation.z = Math.PI / 2;
+        drum.position.set(0.95, 3.55, 0);
+        const hose = cylinder(0.2, 0.2, 3.1, 8, 0x536c72);
+        hose.rotation.z = Math.PI / 2;
+        hose.position.set(1.15, 0.75, 0.65);
+        beacon.position.set(-1.75, 4.9, 0);
+        root.add(pad, tower, boom, drum, hose, beacon);
+        activity = drum;
+      }
+
+      this.groundAt(root, definition.x, definition.z);
+      this.infrastructureProps.set(id, { root, activity, beacon });
+      this.scene.add(root);
+    }
+  }
+
   private buildSites(): void {
     for (const site of WORLD_SITES) {
       const group = new THREE.Group();
@@ -1479,6 +1799,33 @@ export class GameRenderer {
         group.add(object);
       }
 
+      const residentAnchors = settlementResidentAnchors(site.id);
+      if (residentAnchors.length > 0) {
+        const residents = new THREE.Group();
+        residents.name = `settlement-residents:${site.id}`;
+        residentAnchors.forEach((anchor, index) => {
+          const resident = new THREE.Group();
+          resident.name = `settlement-resident:${site.id}:${index}`;
+          resident.position.set(anchor.x, 0, anchor.z);
+          resident.rotation.y = anchor.heading;
+          const body = box(0.52, 1.15, 0.34, index === 0 ? COLORS.rust : COLORS.bone);
+          body.position.y = 0.86;
+          const head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.28, 8, 6),
+            material(0xc99872, 0.82, 0.08),
+          );
+          head.position.y = 1.67;
+          const hat = new THREE.Mesh(
+            new THREE.ConeGeometry(0.36, 0.28, 6),
+            material(index === 0 ? COLORS.gold : 0x46535a, 0.62, 0.3),
+          );
+          hat.position.y = 1.98;
+          resident.add(body, head, hat);
+          residents.add(resident);
+        });
+        group.add(residents);
+      }
+
       this.groundAt(group, site.x, site.z);
       this.scene.add(group);
     }
@@ -1489,6 +1836,7 @@ export class GameRenderer {
       new THREE.MeshBasicMaterial({ color: COLORS.gold }),
     );
     pickupRing.rotation.x = Math.PI / 2;
+    pickupRing.name = "relay-pickup-ring";
     pickupRing.position.set(
       CARGO_PICKUP.x,
       this.world.terrain.height(CARGO_PICKUP.x, CARGO_PICKUP.z) + 0.2,
@@ -1536,6 +1884,134 @@ export class GameRenderer {
     rampStripe.rotation.x = BUGGY_RAMP.tiltRadians;
 
     this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
+  }
+
+  /**
+   * Terrain owns the actual raised route and all collision. These sparse deck
+   * boards and rails only make a restored community causeway readable from the
+   * driver's seat; their vertical placement is re-sampled from that terrain.
+   */
+  private buildCommunityPassageDecks(): void {
+    for (const passage of RESOLVED_COMMUNITY_PASSAGES) {
+      const group = new THREE.Group();
+      group.name = `community-passage:${passage.id}`;
+      group.visible = false;
+
+      const length = Math.hypot(passage.bx - passage.ax, passage.bz - passage.az);
+      const segments = Math.max(1, Math.ceil(length / 4));
+      const directionX = length > 0 ? (passage.bx - passage.ax) / length : 0;
+      const directionZ = length > 0 ? (passage.bz - passage.az) / length : 1;
+      const heading = Math.atan2(directionX, directionZ);
+      const segmentLength = length / segments;
+      const deckWidth = Math.max(2, passage.halfWidth * 2 - 0.34);
+
+      for (let index = 0; index < segments; index += 1) {
+        const along = (index + 0.5) * segmentLength;
+        const x = passage.ax + directionX * along;
+        const z = passage.az + directionZ * along;
+        const deck = box(deckWidth, 0.18, Math.max(0.35, segmentLength - 0.12), 0x6e5137);
+        deck.name = `community-passage-deck:${passage.id}:${index}`;
+        deck.position.set(x, this.world.terrain.height(x, z) + 0.12, z);
+        deck.rotation.y = heading;
+        deck.userData.terrainOffsetY = 0.12;
+        group.add(deck);
+
+        for (const side of [-1, 1] as const) {
+          const rail = box(0.12, 0.72, Math.max(0.35, segmentLength - 0.12), 0x43372d);
+          rail.name = `community-passage-rail:${passage.id}:${index}:${side}`;
+          const lateralX = -directionZ * side * (deckWidth * 0.5 - 0.12);
+          const lateralZ = directionX * side * (deckWidth * 0.5 - 0.12);
+          rail.position.set(
+            x + lateralX,
+            this.world.terrain.height(x + lateralX, z + lateralZ) + 0.48,
+            z + lateralZ,
+          );
+          rail.rotation.y = heading;
+          rail.userData.terrainOffsetY = 0.48;
+          group.add(rail);
+        }
+      }
+
+      this.communityPassageDecks.set(passage.id, group);
+      this.scene.add(group);
+    }
+  }
+
+  /**
+   * Grove Run markers are permanent social geography, not race colliders. The
+   * fixed-step activity system resolves a gate from the rig's authoritative
+   * position; these posts merely make the local road culture legible in space.
+   */
+  private buildRoadRivalryMarkers(): void {
+    const course = roadRivalryCourseSiteIds();
+    const colors = [0x4ad7ff, 0xf5ca57, 0xee6d5d] as const;
+
+    for (const [index, siteId] of course.entries()) {
+      const site = WORLD_SITES.find((candidate) => candidate.id === siteId);
+      if (!site) continue;
+
+      const previous =
+        WORLD_SITES.find(
+          (candidate) => candidate.id === course[Math.max(0, index - 1)],
+        ) ?? site;
+      const next =
+        WORLD_SITES.find(
+          (candidate) =>
+            candidate.id === course[Math.min(course.length - 1, index + 1)],
+        ) ?? site;
+      const group = new THREE.Group();
+      group.name = `Grove Run ${index + 1}: ${site.name}`;
+      group.position.set(
+        site.x,
+        this.world.terrain.height(site.x, site.z),
+        site.z,
+      );
+      group.rotation.y = Math.atan2(next.x - previous.x, next.z - previous.z);
+
+      const color = colors[index] ?? colors[colors.length - 1];
+      const postMaterial = new THREE.MeshStandardMaterial({
+        color: 0x382d25,
+        roughness: 0.84,
+      });
+      const flagMaterial = new THREE.MeshStandardMaterial({
+        color,
+        emissive: color,
+        emissiveIntensity: 0.2,
+        roughness: 0.52,
+      });
+      const postGeometry = new THREE.BoxGeometry(0.18, 3.4, 0.18);
+      const flagGeometry = new THREE.BoxGeometry(1.7, 0.72, 0.05);
+
+      for (const side of [-1, 1] as const) {
+        const post = new THREE.Mesh(postGeometry, postMaterial);
+        post.position.set(side * 4.8, 1.7, 0);
+        post.castShadow = true;
+        post.receiveShadow = true;
+        group.add(post);
+
+        const flag = new THREE.Mesh(flagGeometry, flagMaterial);
+        flag.position.set(side * 4.0, 2.85, 0);
+        flag.castShadow = true;
+        group.add(flag);
+      }
+
+      this.roadRivalryMarkers.set(siteId, group);
+      this.scene.add(group);
+    }
+  }
+
+  private syncCommunityPassageDecks(state: GameState): void {
+    const activePassages = new Set(deriveSettlementCommunityPassageIds(state));
+    for (const [id, group] of this.communityPassageDecks) {
+      group.visible = activePassages.has(id as typeof activePassages extends Set<infer T> ? T : never);
+      if (!group.visible) continue;
+      group.children.forEach((part) => {
+        const offsetY = part.userData.terrainOffsetY as number | undefined;
+        if (offsetY === undefined) return;
+        part.position.y =
+          this.world.terrain.height(part.position.x, part.position.z) + offsetY;
+      });
+    }
   }
 
   private buildRuntimeBridgeAssets(): void {
@@ -2453,6 +2929,8 @@ export class GameRenderer {
 
     this.updatePhase(state.phase);
     this.updateFurrows(state);
+    this.updateInfrastructureWater(state);
+    this.updateInfrastructureProps(state, delta);
 
     const activeRigState = state.rigs[state.activeRigId];
     const profile = effectiveProfile(activeRigState.id, activeRigState.modules);
@@ -2471,6 +2949,40 @@ export class GameRenderer {
       // frame rather than waiting for the rig to travel PROP_REBUILD_DISTANCE.
       this.propAnchorX = Number.POSITIVE_INFINITY;
       this.propAnchorZ = Number.POSITIVE_INFINITY;
+    }
+
+    // A community passage changes terrain height, surface material, and the
+    // obstacle admissibility corridor over a large area. Rebuild once from the
+    // same terrain authority rather than layering a visual-only bridge on top.
+    const routeRevision = this.world.terrain.routeRevisionNumber();
+    if (routeRevision !== this.lastRouteRevision) {
+      this.lastRouteRevision = routeRevision;
+      this.rebuildTerrainHeights();
+      this.syncCommunityPassageDecks(state);
+      this.propAnchorX = Number.POSITIVE_INFINITY;
+      this.propAnchorZ = Number.POSITIVE_INFINITY;
+    }
+    const roadIncidentRevision = this.world.roadIncidentRevisionNumber();
+    if (roadIncidentRevision !== this.lastRoadIncidentRevision) {
+      this.lastRoadIncidentRevision = roadIncidentRevision;
+      this.propAnchorX = Number.POSITIVE_INFINITY;
+      this.propAnchorZ = Number.POSITIVE_INFINITY;
+    }
+
+    const fieldConditionRevision = this.world.fieldConditionRevisionNumber();
+    const fieldColourMoved =
+      Math.hypot(
+        activeRigState.x - this.fieldColourAnchorX,
+        activeRigState.z - this.fieldColourAnchorZ,
+      ) >= 14;
+    if (
+      fieldConditionRevision !== this.lastFieldConditionRevision ||
+      fieldColourMoved
+    ) {
+      this.lastFieldConditionRevision = fieldConditionRevision;
+      this.fieldColourAnchorX = activeRigState.x;
+      this.fieldColourAnchorZ = activeRigState.z;
+      this.refreshTerrainColourRegion(activeRigState.x, activeRigState.z, 18);
     }
 
     if (
@@ -2568,22 +3080,79 @@ export class GameRenderer {
 
     const deliveryRing = this.scene.getObjectByName("relay-delivery-ring");
     if (deliveryRing) {
+      const destination = cargoDeliveryTarget(state.cargoRelay);
+      deliveryRing.position.set(
+        destination.x,
+        this.world.terrain.height(destination.x, destination.z) + 0.24,
+        destination.z,
+      );
       deliveryRing.rotation.z += delta * 0.42;
-      deliveryRing.visible = state.cargoRelay.status !== "complete";
+      deliveryRing.visible = !cargo.delivered;
+    }
+    const pickupRing = this.scene.getObjectByName("relay-pickup-ring");
+    if (pickupRing) {
+      const pickup = cargoPickupTarget(state.cargoRelay);
+      pickupRing.position.set(
+        pickup.x,
+        this.world.terrain.height(pickup.x, pickup.z) + 0.2,
+        pickup.z,
+      );
+      pickupRing.visible = !cargo.delivered && cargo.attachedRigId === null;
     }
 
     for (const site of WORLD_SITES) {
       const group = this.scene.getObjectByName(`site:${site.id}`);
       const lamp = group?.userData.signalLamp as THREE.Mesh | undefined;
       if (!lamp) continue;
-      const discovered = state.discoveries.some((item) => item.id === site.id);
+      const siteKnown =
+        site.id === "home-silo" ||
+        state.discoveries.some((item) => item.id === site.id);
+      const settlementColor = siteKnown
+        ? settlementLampColor(state, site.id)
+        : null;
+      const residents = group?.getObjectByName(
+        `settlement-residents:${site.id}`,
+      );
+      if (residents) {
+        const residentCount = siteKnown ? settlementResidentCount(state, site.id) : 0;
+        residents.visible = siteKnown && residentCount > 0;
+        residents.children.forEach((resident, index) => {
+          resident.visible = index < residentCount;
+          resident.position.y = index < residentCount
+            ? Math.sin(state.elapsedMs / 820 + index * 1.7) * 0.035
+            : 0;
+        });
+      }
+      const infrastructure = INFRASTRUCTURE_ENTITY_IDS.map(
+        (id) => INFRASTRUCTURE_DEFINITIONS[id],
+      ).find((definition) => definition.siteId === site.id);
+      if (infrastructure) {
+        const entity = state.infrastructure.entities[infrastructure.id];
+        const operating = infrastructureIsOperating(infrastructure, entity);
+        // One authored lamp changes role once the player understands the
+        // machine beneath it. This is a property of the landmark, not a new HUD
+        // marker: amber calls the player toward an unknown place, cyan confirms
+        // flow, and red makes a failed world service readable from the road.
+        (lamp.material as THREE.MeshBasicMaterial).color.setHex(
+          !entity.known
+            ? siteKnown
+              ? SIGNAL_LAMP_DARK
+              : ((group?.userData.signalLitColor as number | undefined) ??
+                  SIGNAL_LAMP_DARK)
+            : operating
+              ? (settlementColor ?? COLORS.cyan)
+              : 0xe45b4f,
+        );
+        continue;
+      }
       // The housing stays: a dead lamp on a real structure still reads as a place
       // you have already been, where a vanished marker reads as a bug.
       (lamp.material as THREE.MeshBasicMaterial).color.setHex(
-        discovered
-          ? SIGNAL_LAMP_DARK
+        settlementColor ??
+          (siteKnown
+            ? SIGNAL_LAMP_DARK
           : ((group?.userData.signalLitColor as number | undefined) ??
-              SIGNAL_LAMP_DARK),
+              SIGNAL_LAMP_DARK)),
       );
     }
 
@@ -3176,10 +3745,16 @@ export class GameRenderer {
   invalidate(state: GameState): void {
     this.renderedFurrows = 0;
     this.lastDeformCount = -1;
+    this.lastRouteRevision = -1;
+    this.lastRoadIncidentRevision = -1;
+    this.lastFieldConditionRevision = -1;
+    this.fieldColourAnchorX = Number.POSITIVE_INFINITY;
+    this.fieldColourAnchorZ = Number.POSITIVE_INFINITY;
     this.propAnchorX = Number.POSITIVE_INFINITY;
     this.propAnchorZ = Number.POSITIVE_INFINITY;
     this.refreshProps(state);
     this.rebuildTerrainHeights();
+    this.syncCommunityPassageDecks(state);
   }
 
   /** Re-sample the whole terrain mesh. Used after a reset clears deformation. */
@@ -3199,6 +3774,7 @@ export class GameRenderer {
     }
     position.needsUpdate = true;
     this.terrainMesh.geometry.computeVertexNormals();
+    this.refreshTerrainColourRegion(0, 0, WORLD_RADIUS + 12);
   }
 
   dispose(): void {

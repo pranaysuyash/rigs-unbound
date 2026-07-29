@@ -15,6 +15,7 @@ import {
   type GameState,
   type RigCapability,
 } from "./contracts";
+import { deriveSettlementWorldLeads } from "./settlement-needs";
 
 export type RumorNodeType = "site" | "module" | "cargo_route" | "hazard_gate";
 export type RumorNodeStatus =
@@ -37,7 +38,11 @@ export interface RumorNode {
 }
 
 export type RumorEdgeType =
-  "leads_to" | "requires_capability" | "unlocks_module" | "cargo_route";
+  | "leads_to"
+  | "requires_capability"
+  | "unlocks_module"
+  | "cargo_route"
+  | "community_lead";
 
 export interface RumorEdge {
   id: string;
@@ -200,6 +205,10 @@ const GRAPH_EDGES_DEF: Omit<RumorEdge, "active">[] = [
  */
 export function deriveRumorGraph(state: GameState): RumorGraph {
   const discoveredSet = new Set<string>(state.discoveries.map((d) => d.id));
+  const communityLeads = deriveSettlementWorldLeads(state);
+  const communityLeadByTarget = new Map(
+    communityLeads.map((lead) => [lead.targetSiteId, lead]),
+  );
 
   const nodes: Record<string, RumorNode> = {};
 
@@ -224,6 +233,12 @@ export function deriveRumorGraph(state: GameState): RumorGraph {
       if (isNeighborVisited) {
         status = "rumored";
       }
+
+      // A community may name a real place without claiming that the player has
+      // seen it. This is earned local knowledge, not a discovery or route gate.
+      if (communityLeadByTarget.has(def.id)) {
+        status = "rumored";
+      }
     }
 
     // Special status logic for cargo relay route
@@ -243,8 +258,12 @@ export function deriveRumorGraph(state: GameState): RumorGraph {
     if (status !== "undiscovered") discoveredCount++;
     if (status === "completed") completedCount++;
 
+    const communityLead = communityLeadByTarget.get(def.id);
     nodes[def.id] = {
       ...def,
+      ...(communityLead && status === "rumored"
+        ? { description: communityLead.description }
+        : {}),
       status,
     };
   }
@@ -264,9 +283,27 @@ export function deriveRumorGraph(state: GameState): RumorGraph {
     };
   });
 
+  const communityLeadEdges: RumorEdge[] = communityLeads.map((lead) => {
+    const fromNode = nodes[lead.sourceSiteId];
+    const toNode = nodes[lead.targetSiteId];
+    return {
+      id: lead.id,
+      fromId: lead.sourceSiteId,
+      toId: lead.targetSiteId,
+      type: "community_lead",
+      label: lead.mapLabel,
+      active: Boolean(
+        fromNode &&
+        toNode &&
+        fromNode.status !== "undiscovered" &&
+        toNode.status !== "undiscovered",
+      ),
+    };
+  });
+
   return {
     nodes,
-    edges,
+    edges: [...edges, ...communityLeadEdges],
     stats: {
       totalNodes: Object.keys(nodes).length,
       discoveredCount,

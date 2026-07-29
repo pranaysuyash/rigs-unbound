@@ -549,6 +549,15 @@ export class ObstacleField {
   }
 
   /**
+   * Terrain route profiles decide which natural obstacles may exist. A newly
+   * restored community corridor therefore invalidates this pure memo; felled
+   * history remains owned separately by GameWorld.
+   */
+  invalidateTerrainRoutes(): void {
+    this.cache.clear();
+  }
+
+  /**
    * Resolve the obstacle in a given cell slot, or null when the slot is empty.
    *
    * Rejection rules matter as much as placement: nothing grows in standing water,
@@ -664,15 +673,19 @@ export class ObstacleField {
     mass: number,
     felledIds: ReadonlySet<string>,
     previous: PlanarPoint = rig,
+    extraObstacles: readonly Obstacle[] = [],
   ): CollisionOutcome {
     const middleX = (previous.x + rig.x) * 0.5;
     const middleZ = (previous.z + rig.z) * 0.5;
     const movementRadius = Math.hypot(rig.x - previous.x, rig.z - previous.z);
-    const candidates = this.near(
-      middleX,
-      middleZ,
-      movementRadius * 0.5 + rigRadius + 3.2,
-    );
+    const queryRange = movementRadius * 0.5 + rigRadius + 3.2;
+    const candidates = [
+      ...this.near(middleX, middleZ, queryRange),
+      ...extraObstacles.filter(
+        (obstacle) =>
+          Math.hypot(obstacle.x - middleX, obstacle.z - middleZ) <= queryRange,
+      ),
+    ];
     if (candidates.length === 0) return NO_COLLISION;
 
     let outcome: CollisionOutcome = NO_COLLISION;

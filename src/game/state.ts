@@ -17,8 +17,9 @@ import {
   BUGGY_RAMP,
   CAMERA_MODES,
   type CameraMode,
-  CARGO_DELIVERY,
   CARGO_PICKUP,
+  cargoDeliveryTarget,
+  cargoPickupTarget,
   effectiveProfile,
   FIELD_CLOCK_SAVE_SCHEMA_VERSION,
   FIELD_02_SAVE_SCHEMA_VERSION,
@@ -28,14 +29,20 @@ import {
   type FleetInheritanceRecord,
   type FurrowMark,
   type ActiveMissionState,
+  type FarmWaterworksChoice,
+  type FarmWaterworksState,
   type GameState,
   type GroundMobilityState,
+  type NorthFieldInvestigationState,
+  type RoadRivalryState,
   IDLE_INPUT,
   type InputFrame,
   LANDMARKS,
   LEGACY_SAVE_SCHEMA_VERSION,
   MAX_FURROWS,
   MODULES,
+  MODULE_IDS,
+  type EffectiveRig,
   type ModuleId,
   NIGHT_START_MINUTE,
   phaseForWorldTime,
@@ -51,6 +58,15 @@ import {
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
+  V18_SAVE_SCHEMA_VERSION,
+  V17_SAVE_SCHEMA_VERSION,
+  V12_SAVE_SCHEMA_VERSION,
+  V13_SAVE_SCHEMA_VERSION,
+  V14_SAVE_SCHEMA_VERSION,
+  V15_SAVE_SCHEMA_VERSION,
+  V16_SAVE_SCHEMA_VERSION,
+  V11_SAVE_SCHEMA_VERSION,
+  V10_SAVE_SCHEMA_VERSION,
   V9_SAVE_SCHEMA_VERSION,
   V8_SAVE_SCHEMA_VERSION,
   type SurveyRouteState,
@@ -62,7 +78,23 @@ import {
   WORLD_LIMIT,
   WORLD_MINUTES_PER_REAL_SECOND,
   worldMinuteOfDay,
+  type RestorationState,
+  type OpeningNamingState,
 } from "./contracts";
+import {
+  CRAFTING_RECIPES,
+  canCraftRecipe,
+  craftRecipe,
+} from "./salvage-crafting";
+import {
+  componentWearDeficit,
+  createComponentHealth,
+  formatWearDiagnostic,
+  serviceSurchargeSalvage,
+  updateComponentWear,
+  WEAR_FLUSH_INTERVAL_M,
+  type ComponentHealthState,
+} from "./vehicle-maintenance";
 import {
   createInitialProgressionState,
   moduleSlotsForJourney,
@@ -81,26 +113,35 @@ import {
   failMission,
 } from "./mission-lifecycle";
 import {
-  componentWearDeficit,
-  createComponentHealth,
-  serviceSurchargeSalvage,
-  updateComponentWear,
-  WEAR_FLUSH_INTERVAL_M,
-  type ComponentHealthState,
-} from "./vehicle-maintenance";
+  applyFarmWaterworksSettlementOutcome,
+  canFulfillCultivationNeed,
+  createSettlementState,
+  deriveSettlementCommunityPassageIds,
+  isSettlementNeedOutcomeId,
+  nearbySettlementContact,
+  recoverSettlementState,
+  SETTLEMENTS,
+} from "./settlement-needs";
 import { MISSION_CLASSES, type MissionClass } from "./mission-propositions";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
+  NORTH_FIELD_SEISMIC_AFFORDANCE,
   SURVEY_CONTRACT_AFFORDANCE,
   resolveAffordance,
   type AffordanceResolution,
 } from "./affordances";
 import {
   activityDefinition,
+  createRoadRivalryState,
   createSurveyRouteState,
+  evaluateRoadRivalry,
   evaluateSurveyRoute,
+  roadRivalryGateIds,
+  roadRivalryStartInReach,
+  startRoadRivalry,
   surveyRouteMinutesRemaining,
   surveyRouteTargets,
+  withdrawRoadRivalry,
 } from "./activities";
 import {
   DEFAULT_TIRE_PRESSURE_PSI,
@@ -127,6 +168,15 @@ import {
 } from "./first-rung";
 import type { GameWorld } from "./gameworld";
 import {
+  advanceInfrastructure,
+  createInfrastructureNetworkState,
+  deriveInfrastructureEffects,
+  performInfrastructureAction,
+  publicInfrastructureNetwork,
+  recoverInfrastructureNetwork,
+  resolveInfrastructureAction,
+} from "./infrastructure-network";
+import {
   resolveDynamicBodyCollisions,
   type DynamicCollisionBody,
   type WorldCollisionContact,
@@ -143,11 +193,13 @@ import {
   findSite,
   HOME_SITE,
   isWithinSiteServiceArea,
+  NORTH_FIELD_SEISMIC_CACHE,
   RESOLVED_ROUTES,
   RIG_HOME_BERTHS,
   SITE_SIGNALS,
   WORLD_SITES,
 } from "./world";
+import { fireSeismicPulse } from "./seismic-probe";
 
 const FURROW_SPACING = 1.1;
 const CARGO_HITCH_DISTANCE = 2.8;
@@ -235,6 +287,7 @@ function createRig(
 ): RigState {
   return {
     id,
+    fieldName: RIG_PROFILES[id].fieldName,
     x,
     y: 0,
     z,
@@ -274,6 +327,36 @@ function createRig(
 }
 
 export function createInitialState(seed = "UNBOUND-260725"): GameState {
+  const rigs = {
+    "utility-tractor": createRig(
+      "utility-tractor",
+      RIG_HOME_BERTHS["utility-tractor"].x,
+      RIG_HOME_BERTHS["utility-tractor"].z,
+      RIG_HOME_BERTHS["utility-tractor"].heading,
+    ),
+    "toy-buggy": createRig(
+      "toy-buggy",
+      RIG_HOME_BERTHS["toy-buggy"].x,
+      RIG_HOME_BERTHS["toy-buggy"].z,
+      RIG_HOME_BERTHS["toy-buggy"].heading,
+    ),
+    "marsh-skimmer": createRig(
+      "marsh-skimmer",
+      RIG_HOME_BERTHS["marsh-skimmer"].x,
+      RIG_HOME_BERTHS["marsh-skimmer"].z,
+      RIG_HOME_BERTHS["marsh-skimmer"].heading,
+    ),
+  };
+  // The old man's tractor in Campaign One's opening: disabled but restorable.
+  // This is the diegetic reason the workshop exists before the player can work.
+  rigs["utility-tractor"].condition = 0;
+  rigs["utility-tractor"].componentHealth = {
+    tireTreadHealthPercent: 35,
+    radiatorCleanlinessPercent: 25,
+    winchCableIntegrityPercent: 60,
+    alternatorBeltHealthPercent: 40,
+  };
+
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
     seed,
@@ -284,32 +367,14 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     paused: false,
     mapOpen: false,
     activeRigId: "utility-tractor",
-    rigs: {
-      "utility-tractor": createRig(
-        "utility-tractor",
-        RIG_HOME_BERTHS["utility-tractor"].x,
-        RIG_HOME_BERTHS["utility-tractor"].z,
-        RIG_HOME_BERTHS["utility-tractor"].heading,
-      ),
-      "toy-buggy": createRig(
-        "toy-buggy",
-        RIG_HOME_BERTHS["toy-buggy"].x,
-        RIG_HOME_BERTHS["toy-buggy"].z,
-        RIG_HOME_BERTHS["toy-buggy"].heading,
-      ),
-      "marsh-skimmer": createRig(
-        "marsh-skimmer",
-        RIG_HOME_BERTHS["marsh-skimmer"].x,
-        RIG_HOME_BERTHS["marsh-skimmer"].z,
-        RIG_HOME_BERTHS["marsh-skimmer"].heading,
-      ),
-    },
+    rigs,
     cargoRelay: {
       id: "cargo-relay",
       status: "ready",
       startedAt: null,
       completedAt: null,
       bestTimeMs: null,
+      assignment: null,
       cargo: {
         id: "relay-cargo",
         x: CARGO_PICKUP.x,
@@ -321,6 +386,15 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
       },
     },
     surveyRoute: createSurveyRouteState(),
+    roadRivalry: createRoadRivalryState(),
+    infrastructure: createInfrastructureNetworkState(),
+    farmWaterworks: { choice: "unresolved", chosenAtWorldMinutes: null },
+    northFieldInvestigation: {
+      status: "unresolved",
+      scannedAtWorldMinutes: null,
+      anomalyDepthMeters: null,
+    },
+    settlements: createSettlementState(),
     activeMission: null,
     activeSideMissions: [],
     unboundPassage: createUnboundPassageState(),
@@ -330,6 +404,18 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     discoveries: [],
     salvage: 0,
     salvageCollected: 0,
+    inventory: {
+      "steel-scrap": 0,
+      microchips: 0,
+      "fuel-cell-core": 0,
+    },
+    partsBin: [],
+    restoration: {
+      diagnosed: false,
+      repaired: false,
+      firstStart: false,
+    },
+    openingNaming: { status: "waiting" },
     recovery: {
       emergencyCount: 0,
       lastEmergencyAtMs: null,
@@ -337,6 +423,142 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     progression: createInitialProgressionState(RIG_IDS),
     lastDiagnostic: null,
   };
+}
+
+export interface RigRenameResult {
+  accepted: boolean;
+  reason: string;
+  fieldName: string | null;
+}
+
+/**
+ * Change a vehicle's player-owned field name at the canonical workshop.
+ *
+ * Names are instance state, never blueprint configuration. The workshop is the
+ * current intent surface because it already owns durable rig service; a future
+ * dialogue naming beat will call this same transition rather than add another
+ * identity write path.
+ */
+export function renameRig(
+  state: GameState,
+  rigId: RigId,
+  requestedName: string,
+  source: "workshop" | "opening-naming" = "workshop",
+): RigRenameResult {
+  const rig = state.rigs[rigId];
+  if (!rig) {
+    return { accepted: false, reason: "That rig is unavailable.", fieldName: null };
+  }
+  if (source === "workshop" && !workshopInReach(state)) {
+    const reason = "Rig names can be recorded at the Home Silo workshop.";
+    state.lastDiagnostic = reason;
+    return { accepted: false, reason, fieldName: null };
+  }
+  if (
+    source === "opening-naming" &&
+    (state.openingNaming.status !== "ready" ||
+      !isOpeningNamingReady(state, rigId))
+  ) {
+    const reason =
+      "That name is earned after the restored tractor has helped in the field.";
+    state.lastDiagnostic = reason;
+    return { accepted: false, reason, fieldName: null };
+  }
+
+  const fieldName = requestedName.trim().replace(/\s+/g, " ");
+  if (
+    fieldName.length < 2 ||
+    fieldName.length > 28 ||
+    /[\u0000-\u001F\u007F]/.test(fieldName)
+  ) {
+    const reason = "Use a name from 2 to 28 visible characters.";
+    state.lastDiagnostic = reason;
+    return { accepted: false, reason, fieldName: null };
+  }
+
+  const previousName = rig.fieldName;
+  rig.fieldName = fieldName;
+  if (source === "opening-naming") {
+    state.openingNaming.status = "complete";
+    state.lastDiagnostic = `The old man smiles. ${previousName} is now known as ${fieldName}.`;
+  } else {
+    state.lastDiagnostic = `${previousName} is now known as ${fieldName}.`;
+  }
+  return { accepted: true, reason: state.lastDiagnostic, fieldName };
+}
+
+function isOpeningNamingReady(state: GameState, rigId: RigId): boolean {
+  return (
+    rigId === "utility-tractor" &&
+    state.restoration.firstStart &&
+    state.furrows.some((furrow) => furrow.rigId === "utility-tractor")
+  );
+}
+
+/** Complete the Campaign One naming beat through the shared identity transition. */
+export function completeOpeningNaming(
+  state: GameState,
+  requestedName: string,
+): RigRenameResult {
+  return renameRig(state, "utility-tractor", requestedName, "opening-naming");
+}
+
+/**
+ * Commit the Home Valley waterworks branch once. The branch changes real field
+ * memory and the existing drain-pump operation; it is not a mission-only flag.
+ */
+export function chooseFarmWaterworks(
+  state: GameState,
+  world: GameWorld,
+  choice: Exclude<FarmWaterworksChoice, "unresolved">,
+): boolean {
+  if (!state.restoration.firstStart) {
+    state.lastDiagnostic = "Bring the restored tractor to life before deciding the farm waterworks.";
+    return false;
+  }
+  if (!workshopInReach(state)) {
+    state.lastDiagnostic = "The old man needs this waterworks decision at the Home Silo workshop.";
+    return false;
+  }
+  if (state.farmWaterworks.choice !== "unresolved") {
+    state.lastDiagnostic = "The waterworks have already been set for this valley.";
+    return false;
+  }
+  const longFurrow = findSite("long-furrow");
+  if (!longFurrow) {
+    state.lastDiagnostic = "Long Furrow is not available for waterworks planning.";
+    return false;
+  }
+
+  const pumpId = "long-furrow-drain-pump";
+  const pump = state.infrastructure.entities[pumpId];
+  if (choice === "repair-pump") {
+    world.applyWaterworksFieldCondition(longFurrow.x, longFurrow.z, 30, 0.22);
+    state.infrastructure.entities[pumpId] = {
+      ...pump,
+      known: true,
+      commandedOn: true,
+    };
+    state.lastDiagnostic =
+      "Pump repaired. Long Furrow drains and the cultivation ground begins to firm.";
+  } else {
+    const approachX = (HOME_SITE.x + longFurrow.x) / 2;
+    const approachZ = (HOME_SITE.z + longFurrow.z) / 2;
+    world.applyWaterworksFieldCondition(approachX, approachZ, 24, 0.88);
+    state.infrastructure.entities[pumpId] = {
+      ...pump,
+      known: true,
+      commandedOn: false,
+    };
+    state.lastDiagnostic =
+      "Channel redirected. The troughs are secure, but the low approach is now deep mud.";
+  }
+  state.farmWaterworks = {
+    choice,
+    chosenAtWorldMinutes: state.worldTimeMinutes,
+  };
+  applyFarmWaterworksSettlementOutcome(state, choice);
+  return true;
 }
 
 function recoverProgression(value: unknown): ProgressionState {
@@ -429,6 +651,7 @@ function recoverProgression(value: unknown): ProgressionState {
  * frames falling and register a hard landing at spawn.
  */
 export function settleWorld(state: GameState, world: GameWorld): void {
+  world.reconcileCommunityPassages(deriveSettlementCommunityPassageIds(state));
   for (const id of RIG_IDS) {
     const rig = state.rigs[id];
     settleRig(rig, effectiveProfile(id, rig.modules), world.terrain);
@@ -475,6 +698,28 @@ export function workshopInReach(state: GameState) {
   );
 }
 
+/**
+ * Places able to perform mechanical maintenance. Home Silo remains the only
+ * full workshop; Rustline becomes a maintenance yard only after the player has
+ * materially restored its crews' ability to work.
+ */
+export function repairServiceInReach(state: GameState) {
+  const workshop = workshopInReach(state);
+  if (workshop) {
+    return { site: workshop, name: "Home Silo workshop" } as const;
+  }
+  const rig = activeRig(state);
+  const rustline = findSite("salvage-yard");
+  if (
+    rustline &&
+    state.settlements["rustline-salvage"].condition === "supplied" &&
+    isWithinSiteServiceArea(rustline, rig.x, rig.z)
+  ) {
+    return { site: rustline, name: "Rustline service yard" } as const;
+  }
+  return undefined;
+}
+
 // -----------------------------------------------------------------------------
 // Player actions
 // -----------------------------------------------------------------------------
@@ -482,7 +727,13 @@ export function workshopInReach(state: GameState) {
 export type PrimaryActionKind =
   | "release-cargo"
   | "attach-cargo"
+  | "inspect-infrastructure"
+  | "service-infrastructure"
+  | "hear-settlement-contact"
   | "take-survey-contract"
+  | "start-road-rivalry"
+  | "withdraw-road-rivalry"
+  | "probe-north-field"
   | "collect-salvage"
   | "lower-plough"
   | "raise-plough"
@@ -542,7 +793,9 @@ export function resolvePrimaryAction(
 ): PrimaryActionResolution {
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
-  const cargo = state.cargoRelay.cargo;
+  const relay = state.cargoRelay;
+  const cargo = relay.cargo;
+  const pickup = cargoPickupTarget(relay);
 
   if (cargo.attachedRigId === rig.id) {
     return {
@@ -558,7 +811,7 @@ export function resolvePrimaryAction(
     {
       available: !cargo.delivered && cargo.attachedRigId === null,
       inRange:
-        Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius,
+        Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= pickup.radius,
     },
   );
 
@@ -575,13 +828,66 @@ export function resolvePrimaryAction(
     cargoAffordance.outcome === "impossible" &&
     !cargo.delivered &&
     cargo.attachedRigId === null &&
-    Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= CARGO_PICKUP.radius
+    Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= pickup.radius
   ) {
     return {
       kind: "none",
       label: "Tow required",
       ariaLabel: "Relay cargo requires a tow capability",
       affordance: cargoAffordance,
+    };
+  }
+
+  const infrastructureAction = resolveInfrastructureAction(state.infrastructure, {
+    rigId: rig.id,
+    x: rig.x,
+    z: rig.z,
+    capabilities: profile.capabilities,
+    salvage: state.salvage,
+    nowMs: state.elapsedMs,
+  });
+  if (infrastructureAction.kind === "inspect") {
+    return {
+      kind: "inspect-infrastructure",
+      label: infrastructureAction.label,
+      ariaLabel: infrastructureAction.ariaLabel,
+      affordance: infrastructureAction.affordance,
+    };
+  }
+  if (infrastructureAction.kind === "service") {
+    return {
+      kind: "service-infrastructure",
+      label: infrastructureAction.label,
+      ariaLabel: infrastructureAction.ariaLabel,
+      affordance: infrastructureAction.affordance,
+    };
+  }
+  if (infrastructureAction.entityId !== null && infrastructureAction.label) {
+    return {
+      kind: "none",
+      label: infrastructureAction.label,
+      ariaLabel: infrastructureAction.ariaLabel,
+      affordance: infrastructureAction.affordance,
+    };
+  }
+
+  const northField = findSite("north-field");
+  const northFieldAffordance = resolveAffordance(
+    NORTH_FIELD_SEISMIC_AFFORDANCE,
+    { capabilities: profile.capabilities },
+    {
+      available: state.northFieldInvestigation.status === "unresolved",
+      inRange:
+        northField !== undefined &&
+        isWithinSiteServiceArea(northField, rig.x, rig.z),
+    },
+  );
+  if (northFieldAffordance.outcome === "legal") {
+    return {
+      kind: "probe-north-field",
+      label: "Pulse ground",
+      ariaLabel: "Pulse the North Field seismic anomaly",
+      affordance: northFieldAffordance,
     };
   }
 
@@ -612,6 +918,40 @@ export function resolvePrimaryAction(
           label: "Lower blade",
           ariaLabel: "Lower field plough",
         };
+  }
+
+  // Named locals offer optional, revisitable place knowledge after immediate
+  // machine work has taken priority. This is not a quest giver branch: hearing
+  // them does not accept work, change state, or direct the player anywhere.
+  const contact = nearbySettlementContact(state, rig.x, rig.z, 3, {
+    quarryRunoutStatus: world.roadIncidentProjection().status,
+  });
+  if (contact) {
+    return {
+      kind: "hear-settlement-contact",
+      label: `Hear ${contact.speaker}`,
+      ariaLabel: `Hear ${contact.speaker} at ${contact.siteName}`,
+    };
+  }
+
+  // The Grove Run is an optional local sport, not a contract board. It is
+  // deliberately entered at the physical start line and can be withdrawn from
+  // without failing a mission or changing the world.
+  if (roadRivalryStartInReach(rig.x, rig.z)) {
+    if (state.roadRivalry.status === "active") {
+      return {
+        kind: "withdraw-road-rivalry",
+        label: "Leave Grove Run",
+        ariaLabel: "Withdraw from the active Grove Run",
+      };
+    }
+    if (profile.capabilities.includes("rally")) {
+      return {
+        kind: "start-road-rivalry",
+        label: "Run Grove line",
+        ariaLabel: "Start the Grove Run through Quarry Shelf to Home Silo",
+      };
+    }
   }
 
   /*
@@ -739,7 +1079,11 @@ export function executePrimaryActionCommand(
       relay.status = "active";
       relay.startedAt = state.elapsedMs;
     }
-    state.lastDiagnostic = `${profile.displayName} attached the relay crate. Haul it to Long Furrow.`;
+    const destination = cargoDeliveryTarget(relay);
+    const destinationName = destination.siteId
+      ? findSite(destination.siteId)?.name ?? "the destination"
+      : "Long Furrow";
+    state.lastDiagnostic = `${profile.displayName} attached the cargo. Haul it to ${destinationName}.`;
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -754,6 +1098,59 @@ export function executePrimaryActionCommand(
       bestSightedCount: state.surveyRoute.bestSightedCount,
     };
     state.lastDiagnostic = `Survey contract taken. Sight ${targets.length} signals before the light goes — you do not have to reach them.`;
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
+
+  if (resolution.kind === "start-road-rivalry") {
+    state.roadRivalry = startRoadRivalry(
+      state.roadRivalry,
+      rig.id,
+      state.elapsedMs,
+    );
+    state.lastDiagnostic = `${rig.fieldName} is on the Grove Run. Quarry Shelf first, then Home Silo. The run is yours to leave whenever you return to Toy Grove.`;
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
+
+  if (resolution.kind === "withdraw-road-rivalry") {
+    state.roadRivalry = withdrawRoadRivalry(state.roadRivalry);
+    state.lastDiagnostic = "Grove Run withdrawn. The valley keeps your completed records, not unfinished attempts.";
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
+
+  if (resolution.kind === "probe-north-field") {
+    const localMoisture =
+      world.fieldConditionAt(rig.x, rig.z)?.moistureRatio ??
+      deriveWeatherState(state.worldTimeMinutes).soilMoisture;
+    const result = fireSeismicPulse(
+      rig.x,
+      rig.z,
+      8,
+      localMoisture,
+      [NORTH_FIELD_SEISMIC_CACHE],
+    );
+    if (result.detectedAnomaly?.type !== "salvage-cache") {
+      state.lastDiagnostic =
+        "The pulse returned only ordinary strata. Reposition over the field signal.";
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
+    }
+    state.northFieldInvestigation = {
+      status: "scanned",
+      scannedAtWorldMinutes: state.worldTimeMinutes,
+      anomalyDepthMeters: result.detectedAnomaly.depthMeters,
+    };
+    if (!state.discoveries.some((discovery) => discovery.id === "north-field")) {
+      state.discoveries.push({
+        id: "north-field",
+        discoveredAt: state.elapsedMs,
+      });
+    }
+    state.progression.insight += 1;
+    state.lastDiagnostic = `Seismic return: buried cache at ${result.detectedAnomaly.depthMeters.toFixed(1)} m. The North Field signal is real. +1 Insight.`;
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -775,9 +1172,34 @@ export function executePrimaryActionCommand(
       );
     }
     world.collect(node.id);
-    state.salvage += node.value;
-    state.salvageCollected += node.value;
-    state.lastDiagnostic = `Recovered ${node.value} salvage. ${state.salvage} in the bin.`;
+    const localInfrastructure = deriveInfrastructureEffects(
+      state.infrastructure,
+      node.x,
+      node.z,
+    );
+    const recoveredValue = Math.max(
+      1,
+      Math.round(node.value * localInfrastructure.salvageYieldMultiplier),
+    );
+    state.salvage += recoveredValue;
+    state.salvageCollected += recoveredValue;
+    // Commodity awards are deterministic and tied to salvage value so crafting
+    // reads as a consequence of exploration, not a separate economy.
+    const steel = recoveredValue;
+    const chips = Math.floor(recoveredValue / 2);
+    const cores = Math.floor(recoveredValue / 3);
+    state.inventory["steel-scrap"] += steel;
+    state.inventory["microchips"] += chips;
+    state.inventory["fuel-cell-core"] += cores;
+    const commodityPart =
+      chips > 0 || cores > 0
+        ? ` (+${steel} steel${chips > 0 ? `, +${chips} chips` : ""}${cores > 0 ? `, +${cores} cores` : ""})`
+        : "";
+    const infrastructurePart =
+      localInfrastructure.salvageYieldMultiplier === 1
+        ? ""
+        : ` Quarry network yield x${localInfrastructure.salvageYieldMultiplier.toFixed(2)}.`;
+    state.lastDiagnostic = `Recovered ${recoveredValue} salvage${commodityPart}. ${state.salvage} in the bin.${infrastructurePart}`;
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -802,6 +1224,53 @@ export function executePrimaryActionCommand(
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
+  if (
+    resolution.kind === "inspect-infrastructure" ||
+    resolution.kind === "service-infrastructure"
+  ) {
+    const outcome = performInfrastructureAction(
+      state.infrastructure,
+      {
+        rigId: rig.id,
+        x: rig.x,
+        z: rig.z,
+        capabilities: profile.capabilities,
+        salvage: state.salvage,
+        nowMs: state.elapsedMs,
+      },
+      resolution.kind === "inspect-infrastructure" ? "inspect" : "service",
+    );
+    state.infrastructure = outcome.network;
+    state.salvage += outcome.salvageDelta;
+    state.lastDiagnostic = outcome.explanation;
+    return primaryActionEvent(
+      command,
+      resolution.kind,
+      outcome.accepted ? "accepted" : "rejected",
+      outcome.accepted
+        ? undefined
+        : "no-contextual-action",
+    );
+  }
+
+  if (resolution.kind === "hear-settlement-contact") {
+    const contact = nearbySettlementContact(state, rig.x, rig.z, 3, {
+      quarryRunoutStatus: world.roadIncidentProjection().status,
+    });
+    if (!contact) {
+      state.lastDiagnostic =
+        "The local has stepped away. Move closer to someone at the settlement.";
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
+    }
+    state.lastDiagnostic = `${contact.speaker}: ${contact.text}`;
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
+
   const reasonCode =
     resolution.affordance?.reasonCode === "missing-capability"
       ? "missing-capability"
@@ -809,8 +1278,8 @@ export function executePrimaryActionCommand(
   state.lastDiagnostic =
     reasonCode === "missing-capability"
       ? resolution.affordance?.affordanceId === "survey-contract-board"
-        ? `${profile.fieldName} cannot take this contract: survey capability required.`
-        : `${profile.fieldName} cannot attach this relay cargo: tow capability required.`
+        ? `${rig.fieldName} cannot take this contract: survey capability required.`
+        : `${rig.fieldName} cannot attach this relay cargo: tow capability required.`
       : "Nothing in reach. Salvage sits off the graded tracks — leave the road.";
   return primaryActionEvent(command, resolution.kind, "rejected", reasonCode);
 }
@@ -863,7 +1332,7 @@ export function winchRecover(state: GameState, world: GameWorld): void {
       state.recovery.emergencyCount + 1,
     );
     state.recovery.lastEmergencyAtMs = state.elapsedMs;
-    state.lastDiagnostic = `Emergency field recovery returned ${profile.fieldName} to Home Silo with a ${EMERGENCY_RECOVERY_CONDITION}% limp-home patch. No salvage awarded.`;
+    state.lastDiagnostic = `Emergency field recovery returned ${rig.fieldName} to Home Silo with a ${EMERGENCY_RECOVERY_CONDITION}% limp-home patch. No salvage awarded.`;
     return;
   }
 
@@ -973,7 +1442,7 @@ export function installModule(
     return;
   }
   if (!definition.fits.includes(rig.id)) {
-    state.lastDiagnostic = `${definition.name} does not fit ${RIG_PROFILES[rig.id].fieldName}.`;
+    state.lastDiagnostic = `${definition.name} does not fit ${rig.fieldName}.`;
     return;
   }
   if (rig.modules.includes(moduleId)) {
@@ -993,8 +1462,9 @@ export function installModule(
 
 export function repairRig(state: GameState): void {
   const rig = activeRig(state);
-  if (!workshopInReach(state)) {
-    state.lastDiagnostic = "Repairs need the Home Silo workshop pad.";
+  const service = repairServiceInReach(state);
+  if (!service) {
+    state.lastDiagnostic = "Repairs need the Home Silo workshop pad or a supplied Rustline service yard.";
     return;
   }
   const wearDeficit = componentWearDeficit(rig.componentHealth);
@@ -1017,8 +1487,146 @@ export function repairRig(state: GameState): void {
   rig.componentHealth = createComponentHealth();
   state.lastDiagnostic =
     surcharge > 0
-      ? `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}% and serviced — tread, radiator, cable, and belt back to spec.`
-      : `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}%.`;
+      ? `${service.name} rebuilt ${rig.fieldName} to ${Math.round(rig.condition)}% — tread, radiator, cable, and belt back to spec.`
+      : `${service.name} rebuilt ${rig.fieldName} to ${Math.round(rig.condition)}%.`;
+}
+
+/**
+ * Read the tractor's mechanical state and record that diagnosis has happened.
+ *
+ * This is the visible half of `vehicle-maintenance.ts`: it turns hidden wear
+ * percentages into a player-facing report.
+ */
+export function diagnoseRestoration(state: GameState): void {
+  const rig = activeRig(state);
+  if (!workshopInReach(state)) {
+    state.lastDiagnostic = "Diagnosis needs the Home Silo workshop pad.";
+    return;
+  }
+  state.restoration.diagnosed = true;
+  state.lastDiagnostic = formatWearDiagnostic(
+    rig.condition,
+    rig.componentHealth,
+  );
+}
+
+/**
+ * The one-time restoration of the old man's tractor.
+ *
+ * The first call is free — the old man's parts and tools — and brings the
+ * machine from disabled to fully serviceable. After that, the workshop charges
+ * the normal repair tariff.
+ */
+export function performRestorationService(state: GameState): void {
+  const rig = activeRig(state);
+  if (!workshopInReach(state)) {
+    state.lastDiagnostic = "Restoration needs the Home Silo workshop pad.";
+    return;
+  }
+  if (!state.restoration.repaired) {
+    rig.condition = 100;
+    rig.strain = 0;
+    rig.componentHealth = createComponentHealth();
+    state.restoration.repaired = true;
+    state.lastDiagnostic = `${rig.fieldName} rebuilt from the old man's parts — first start is yours.`;
+    return;
+  }
+  repairRig(state);
+}
+
+/** Acknowledge the first successful engine start after restoration. */
+export function performFirstStart(state: GameState): void {
+  const rig = activeRig(state);
+  if (!state.restoration.repaired) {
+    state.lastDiagnostic = "The tractor needs rebuilding before it will start.";
+    return;
+  }
+  if (rig.condition <= 0) {
+    state.lastDiagnostic =
+      "The engine turns over but the rig is disabled. Restore it first.";
+    return;
+  }
+  if (state.restoration.firstStart) {
+    state.lastDiagnostic = "The engine is already running.";
+    return;
+  }
+  state.restoration.firstStart = true;
+  state.lastDiagnostic = `${rig.fieldName} starts. The old man nods — work can begin.`;
+}
+
+/**
+ * Craft a module from commodities at the workshop.
+ *
+ * Crafted modules go to the parts bin and can be fitted without spending
+ * salvage, wiring `salvage-crafting.ts` into the shell economy.
+ */
+export function craftModule(
+  state: GameState,
+  recipeIndex: number,
+): ModuleId | null {
+  const recipe = CRAFTING_RECIPES[recipeIndex];
+  if (!recipe) {
+    state.lastDiagnostic = "Unknown blueprint.";
+    return null;
+  }
+  if (!workshopInReach(state)) {
+    state.lastDiagnostic = "Crafting needs the Home Silo workshop.";
+    return null;
+  }
+  if (!canCraftRecipe(recipe, state.inventory)) {
+    state.lastDiagnostic = `${recipe.name} needs more materials.`;
+    return null;
+  }
+  const result = craftRecipe(recipe, state.inventory);
+  if (!result.success) {
+    state.lastDiagnostic = `${recipe.name} could not be assembled.`;
+    return null;
+  }
+  state.inventory = result.updatedInventory;
+  state.partsBin.push(recipe.outputModuleId as ModuleId);
+  state.lastDiagnostic = `${recipe.name} crafted and moved to the parts bin.`;
+  return recipe.outputModuleId as ModuleId;
+}
+
+/**
+ * Install a module from the parts bin.
+ *
+ * Same compatibility rules as `installModule`, but consumes a crafted part
+ * instead of salvage.
+ */
+export function installFromPartsBin(
+  state: GameState,
+  world: GameWorld,
+  moduleId: ModuleId,
+): void {
+  const rig = activeRig(state);
+  const definition = MODULES[moduleId];
+  if (!definition) {
+    state.lastDiagnostic = "Unknown module.";
+    return;
+  }
+  if (!workshopInReach(state)) {
+    state.lastDiagnostic = `${definition.name} needs the Home Silo workshop. Drive back to the pad.`;
+    return;
+  }
+  const binIndex = state.partsBin.indexOf(moduleId);
+  if (binIndex === -1) {
+    state.lastDiagnostic = `${definition.name} is not in the parts bin.`;
+    return;
+  }
+  if (!definition.fits.includes(rig.id)) {
+    state.lastDiagnostic = `${definition.name} does not fit ${rig.fieldName}.`;
+    return;
+  }
+  if (rig.modules.includes(moduleId)) {
+    state.lastDiagnostic = `${definition.name} is already fitted.`;
+    return;
+  }
+
+  state.partsBin.splice(binIndex, 1);
+  rig.modules.push(moduleId);
+  settleRig(rig, effectiveProfile(rig.id, rig.modules), world.terrain);
+  state.lastDiagnostic = `${definition.name} fitted from the parts bin. ${definition.promise}`;
 }
 
 /** Versioned local intent contract for the second command/event proof slice. */
@@ -1144,7 +1752,7 @@ export function toggleBladeMode(state: GameState): void {
   const plough = attachment(rig, "field-plough");
   const profile = effectiveProfile(rig.id, rig.modules);
   if (!plough || !profile.capabilities.includes("plough")) {
-    state.lastDiagnostic = `${profile.fieldName} carries no blade. Torque does.`;
+    state.lastDiagnostic = `${rig.fieldName} carries no blade. Torque does.`;
     return;
   }
   plough.mode = plough.mode === "fill" ? "cut" : "fill";
@@ -1212,14 +1820,15 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
     Math.max(world.terrain.height(cargo.x, cargo.z), rig.y - 1.2) + 0.65;
   cargo.heading = rig.heading;
 
+  const destination = cargoDeliveryTarget(relay);
   if (
-    Math.hypot(cargo.x - CARGO_DELIVERY.x, cargo.z - CARGO_DELIVERY.z) <=
-    CARGO_DELIVERY.radius
+    Math.hypot(cargo.x - destination.x, cargo.z - destination.z) <=
+    destination.radius
   ) {
     cargo.attachedRigId = null;
     cargo.delivered = true;
-    cargo.x = CARGO_DELIVERY.x;
-    cargo.z = CARGO_DELIVERY.z;
+    cargo.x = destination.x;
+    cargo.z = destination.z;
     cargo.y = world.terrain.height(cargo.x, cargo.z) + 0.65;
     attachment(rig, "tow-hook")!.engaged = false;
     relay.status = "complete";
@@ -1230,9 +1839,16 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
       relay.bestTimeMs === null
         ? duration
         : Math.min(relay.bestTimeMs, duration);
-    const deliveryMission = activeMissionMatching(state, "delivery");
+    const assignedMissionId = relay.assignment?.missionId;
+    const deliveryMission = assignedMissionId
+      ? state.activeMission?.id === assignedMissionId
+        ? state.activeMission
+        : state.activeSideMissions.find(
+            (mission) => mission.id === assignedMissionId,
+          ) ?? null
+      : activeMissionMatching(state, "delivery");
     if (deliveryMission) {
-      completeMission(state, deliveryMission.id, state.elapsedMs);
+      completeMission(state, deliveryMission.id, state.elapsedMs, world);
     } else {
       state.progression = applyActivityCompletionProgression(
         state.progression,
@@ -1291,6 +1907,7 @@ function resolveAttachedCargoCollisions(
     CARGO_COLLISION_MASS,
     world.felledObstacles,
     previous,
+    world.incidentObstacles(),
   );
   const structureCollision = world.structureCollision(
     cargoMotion,
@@ -1395,6 +2012,67 @@ function resolveAttachedCargoCollisions(
   }
 }
 
+/**
+ * Discovery, survey sweep, and horizon-signal visibility.
+ *
+ * Runs regardless of whether the rig can currently drive: a disabled rig
+ * parked at a site can still see it, and the survey sweep is bound to
+ * position, not motion.
+ */
+function updateDiscoveryAndVisibility(
+  state: GameState,
+  world: GameWorld,
+  rig: RigState,
+  profile: EffectiveRig,
+): void {
+  for (const landmark of LANDMARKS) {
+    if (state.discoveries.some((item) => item.id === landmark.id)) continue;
+    if (Math.hypot(rig.x - landmark.x, rig.z - landmark.z) <= landmark.radius) {
+      state.discoveries.push({
+        id: landmark.id,
+        discoveredAt: state.elapsedMs,
+      });
+      state.lastDiagnostic = `${landmark.name} discovered: ${landmark.verb}.`;
+    }
+  }
+
+  if (world.claimSurveyRefresh(rig.id, rig.x, rig.z)) {
+    const result = world.exploration.survey(
+      rig.x,
+      rig.y + profile.camera.focusHeight + 1.4,
+      rig.z,
+      profile.surveyRange,
+      world.surveyedCells,
+    );
+    if (result.revealed.length > 24) {
+      state.lastDiagnostic = `Mapped ${result.revealed.length} new cells from this vantage.`;
+    }
+
+    // A horizon signal is on the horizon or it is not. Recomputing it from the same
+    // eye and the same sightline policy as the survey sweep is what makes climbing a
+    // rise reveal a place, rather than a range check pretending to be sight.
+    const eyeX = rig.x;
+    const eyeY = rig.y + profile.camera.focusHeight + 1.4;
+    const eyeZ = rig.z;
+    world.visibleSignals.clear();
+    for (const signal of SITE_SIGNALS) {
+      const targetY = world.terrain.height(signal.x, signal.z) + signal.localY;
+      if (
+        world.exploration.sightlineClear(
+          eyeX,
+          eyeY,
+          eyeZ,
+          signal.x,
+          targetY,
+          signal.z,
+        )
+      ) {
+        world.visibleSignals.add(signal.siteId);
+      }
+    }
+  }
+}
+
 export function stepGame(
   state: GameState,
   world: GameWorld,
@@ -1408,27 +2086,53 @@ export function stepGame(
   const rig = activeRig(state);
   const profile = effectiveProfile(rig.id, rig.modules);
   const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
+  const weather = deriveWeatherState(state.worldTimeMinutes);
+  advanceInfrastructure(state.infrastructure, weather, dt);
   const disabled = rig.condition <= 0;
   if (
     disabled &&
     (input.accelerate || input.brake || input.steerLeft || input.steerRight)
   ) {
-    state.lastDiagnostic = `${profile.fieldName} is disabled. Press X or Winch for emergency field recovery.`;
+    state.lastDiagnostic = `${rig.fieldName} is disabled. Press X or Winch for emergency field recovery.`;
   }
   if (disabled) {
     rig.speed = 0;
     rig.steering = 0;
     settleRig(rig, profile, world.terrain);
+    // A stalled rig can still be looked out from — sight is not the engine's
+    // job. Without this, a player parked at Home Silo before the restoration
+    // beat would see nothing on the horizon, including the site they are
+    // standing on.
+    updateDiscoveryAndVisibility(state, world, rig, profile);
     state.elapsedMs += dt * 1000;
     state.worldTimeMinutes += dt * WORLD_MINUTES_PER_REAL_SECOND;
     state.phase = phaseForWorldTime(state.worldTimeMinutes);
     return;
   }
 
-  // Weather is derived from the same monotonic world clock the phase uses, so
-  // it is deterministic and replay-safe. It reaches the motion model here — the
-  // simulation gets wetter ground *before* any mission copy claims it is harder.
-  const weather = deriveWeatherState(state.worldTimeMinutes);
+  // Weather and infrastructure share the same monotonic world clock. The world
+  // changes before presentation can describe the consequence.
+  world.advanceFieldConditions(
+    dt * WORLD_MINUTES_PER_REAL_SECOND,
+    weather.rainIntensity,
+    (x, z) =>
+      deriveInfrastructureEffects(state.infrastructure, x, z)
+        .soilDrainageRatePerHour,
+  );
+  const roadIncident = world.advanceRoadIncidents(
+    state.worldTimeMinutes,
+    weather.soilMoisture,
+  );
+  if (roadIncident.triggered) {
+    state.lastDiagnostic =
+      "Storm runoff has brought stone down across the Quarry Run. The road is still open country, but the old line has changed.";
+  }
+  const localInfrastructure = deriveInfrastructureEffects(
+    state.infrastructure,
+    rig.x,
+    rig.z,
+  );
+  const localFieldCondition = world.fieldConditionAt(rig.x, rig.z);
   const previousRigPosition = { x: rig.x, z: rig.z };
   const previousCargoPosition = {
     x: state.cargoRelay.cargo.x,
@@ -1438,7 +2142,9 @@ export function stepGame(
     towing,
     ramp: BUGGY_RAMP,
     canJump: profile.capabilities.includes("jump"),
-    soilMoisture: weather.soilMoisture,
+    soilMoisture: localFieldCondition?.moistureRatio ?? weather.soilMoisture,
+    soilMoistureOffset: localInfrastructure.soilMoistureOffset,
+    waterLevelOffsetM: localInfrastructure.waterLevelOffsetM,
     tools: rig.tools,
   });
 
@@ -1472,7 +2178,22 @@ export function stepGame(
     profile.mass,
     world.felledObstacles,
     previousRigPosition,
+    world.incidentObstacles(),
   );
+  const displacedIncident = world.displaceRoadIncident(
+    collision.blockedBy?.id ?? null,
+    profile.mass * 1000,
+    Math.abs(collision.impactSpeed),
+    rig.x,
+    rig.z,
+    state.worldTimeMinutes,
+  );
+  if (displacedIncident.cleared) {
+    state.lastDiagnostic =
+      "The runout has shifted clear. Quarry Shelf has its old line back, marked by fresh stone scars.";
+  } else if (displacedIncident.moved) {
+    state.lastDiagnostic = "The runout shifts under the machine. Keep working it clear.";
+  }
   const structureCollision = world.structureCollision(
     rig,
     rigRadius,
@@ -1605,7 +2326,7 @@ export function stepGame(
 
   if (collision.felled) {
     world.fell(collision.felled.id);
-    state.lastDiagnostic = `${profile.fieldName} pushed a tree over. The clearing stays open.`;
+    state.lastDiagnostic = `${rig.fieldName} pushed a tree over. The clearing stays open.`;
   } else if (collision.hit && collision.impactSpeed > 3.2) {
     const damage = Math.min(
       12,
@@ -1615,7 +2336,7 @@ export function stepGame(
     );
     rig.condition = clamp(rig.condition - damage, 0, 100);
     if (damage > 1.5) {
-      state.lastDiagnostic = `${profile.fieldName} struck ${collision.blockedBy?.kind ?? "an obstacle"} · condition ${Math.round(rig.condition)}%.`;
+      state.lastDiagnostic = `${rig.fieldName} struck ${collision.blockedBy?.kind ?? "an obstacle"} · condition ${Math.round(rig.condition)}%.`;
     }
   }
   if (structureCollision.hit && structureCollision.impactSpeed > 3.2) {
@@ -1627,7 +2348,7 @@ export function stepGame(
     );
     rig.condition = clamp(rig.condition - damage, 0, 100);
     if (damage > 1.5) {
-      state.lastDiagnostic = `${profile.fieldName} struck ${structureCollision.blockedBy?.id ?? "an authored structure"} · condition ${Math.round(rig.condition)}%.`;
+      state.lastDiagnostic = `${rig.fieldName} struck ${structureCollision.blockedBy?.id ?? "an authored structure"} · condition ${Math.round(rig.condition)}%.`;
     }
   }
   if (dynamicCollision.hit) {
@@ -1645,10 +2366,10 @@ export function stepGame(
     }
     const otherName =
       contact.secondRole === "rig"
-        ? (RIG_PROFILES[contact.secondId as RigId]?.fieldName ??
+        ? (state.rigs[contact.secondId as RigId]?.fieldName ??
           contact.secondId)
         : "relay cargo";
-    state.lastDiagnostic = `${profile.fieldName} contacted ${otherName} at ${contact.impactSpeed.toFixed(1)} m/s.`;
+    state.lastDiagnostic = `${rig.fieldName} contacted ${otherName} at ${contact.impactSpeed.toFixed(1)} m/s.`;
   }
 
   // ---------------------------------------------------------------------------
@@ -1671,7 +2392,7 @@ export function stepGame(
       Math.floor(state.elapsedMs / 1500) !==
       Math.floor((state.elapsedMs + dt * 1000) / 1500)
     ) {
-      state.lastDiagnostic = `Water over ${profile.fordDepth.toFixed(1)} m is drowning ${profile.fieldName}. Pontoons would cross this.`;
+      state.lastDiagnostic = `Water over ${profile.fordDepth.toFixed(1)} m is drowning ${rig.fieldName}. Pontoons would cross this.`;
     }
   } else if (motion.stalled) {
     if (
@@ -1687,6 +2408,19 @@ export function stepGame(
   } else if (motion.traversalBlockReason === "terrain-face") {
     state.lastDiagnostic =
       "A near-vertical terrain face blocks this rig. Reverse or turn downhill to escape.";
+  }
+
+  if (motion.distance > 0.04 && rig.telemetry.slip > 0.35) {
+    world.noteWheelspin(
+      rig.x,
+      rig.z,
+      clamp(
+        weather.soilMoisture + localInfrastructure.soilMoistureOffset,
+        0,
+        1,
+      ),
+      Math.min(0.08, rig.telemetry.slip * motion.distance * 0.015),
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -1710,8 +2444,38 @@ export function stepGame(
       ? Math.hypot(markX - last.x, markZ - last.z)
       : Infinity;
     if (distanceFromLast >= FURROW_SPACING) {
-      const bladeDelta = plough.mode === "fill" ? PLOUGH_FILL : PLOUGH_DEPTH;
+      // Drainage changes the ground's response to the same machine work. This
+      // is not a route gate: the terrain always remains deformable, but a
+      // maintained local drainage system lets the plough cut or grade more
+      // effectively through the canonical terrain-memory authority.
+      const groundInfrastructure = deriveInfrastructureEffects(
+        state.infrastructure,
+        markX,
+        markZ,
+      );
+      const baseBladeDelta =
+        plough.mode === "fill" ? PLOUGH_FILL : PLOUGH_DEPTH;
+      const rootResistance =
+        plough.mode === "cut"
+          ? world.fieldErosionResistanceAt(markX, markZ)
+          : 1;
+      const bladeDelta = Number(
+        (
+          baseBladeDelta *
+          groundInfrastructure.terrainWorkabilityMultiplier *
+          rootResistance
+        ).toFixed(3),
+      );
       if (world.terrain.deform(markX, markZ, bladeDelta, 1)) {
+        world.noteFieldWork(
+          markX,
+          markZ,
+          clamp(
+            weather.soilMoisture + groundInfrastructure.soilMoistureOffset,
+            0,
+            1,
+          ),
+        );
         const mode = plough.mode === "fill" ? "fill" : "cut";
         state.furrows.push({
           x: markX,
@@ -1721,6 +2485,21 @@ export function stepGame(
           rigId: rig.id,
           mode,
         } satisfies FurrowMark);
+        const cultivationMission = activeMissionMatching(state, "cultivation");
+        if (
+          cultivationMission &&
+          canFulfillCultivationNeed(cultivationMission, markX, markZ)
+        ) {
+          completeMission(state, cultivationMission.id, state.elapsedMs, world);
+        }
+        if (
+          state.openingNaming.status === "waiting" &&
+          isOpeningNamingReady(state, rig.id)
+        ) {
+          state.openingNaming.status = "ready";
+          state.lastDiagnostic =
+            "The old man watches the first furrow settle. He says the tractor has earned a name.";
+        }
         if (state.furrows.length > MAX_FURROWS) {
           state.furrows.splice(0, state.furrows.length - MAX_FURROWS);
         }
@@ -1811,62 +2590,14 @@ export function stepGame(
             crossedAtMs: state.elapsedMs,
             persisted: true,
           });
-          const authorName = RIG_PROFILES[authorRigId].fieldName;
-          state.lastDiagnostic = `${profile.fieldName} is benefiting from the route opened by ${authorName}!`;
+          const authorName = state.rigs[authorRigId].fieldName;
+          state.lastDiagnostic = `${rig.fieldName} is benefiting from the route opened by ${authorName}!`;
         }
       }
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Discovery and survey.
-  // ---------------------------------------------------------------------------
-  for (const landmark of LANDMARKS) {
-    if (state.discoveries.some((item) => item.id === landmark.id)) continue;
-    if (Math.hypot(rig.x - landmark.x, rig.z - landmark.z) <= landmark.radius) {
-      state.discoveries.push({
-        id: landmark.id,
-        discoveredAt: state.elapsedMs,
-      });
-      state.lastDiagnostic = `${landmark.name} discovered: ${landmark.verb}.`;
-    }
-  }
-
-  if (world.claimSurveyRefresh(rig.id, rig.x, rig.z)) {
-    const result = world.exploration.survey(
-      rig.x,
-      rig.y + profile.camera.focusHeight + 1.4,
-      rig.z,
-      profile.surveyRange,
-      world.surveyedCells,
-    );
-    if (result.revealed.length > 24) {
-      state.lastDiagnostic = `Mapped ${result.revealed.length} new cells from this vantage.`;
-    }
-
-    // A horizon signal is on the horizon or it is not. Recomputing it from the same
-    // eye and the same sightline policy as the survey sweep is what makes climbing a
-    // rise reveal a place, rather than a range check pretending to be sight.
-    const eyeX = rig.x;
-    const eyeY = rig.y + profile.camera.focusHeight + 1.4;
-    const eyeZ = rig.z;
-    world.visibleSignals.clear();
-    for (const signal of SITE_SIGNALS) {
-      const targetY = world.terrain.height(signal.x, signal.z) + signal.localY;
-      if (
-        world.exploration.sightlineClear(
-          eyeX,
-          eyeY,
-          eyeZ,
-          signal.x,
-          targetY,
-          signal.z,
-        )
-      ) {
-        world.visibleSignals.add(signal.siteId);
-      }
-    }
-  }
+  updateDiscoveryAndVisibility(state, world, rig, profile);
 
   /*
    * Score from the same published sightline set the rail reads, but evaluate
@@ -1885,7 +2616,7 @@ export function stepGame(
     if (evaluation.completed) {
       const surveyMission = activeMissionMatching(state, "survey");
       if (surveyMission) {
-        completeMission(state, surveyMission.id, state.elapsedMs);
+        completeMission(state, surveyMission.id, state.elapsedMs, world);
       } else {
         const reward = activityDefinition("survey-route").reward.salvage;
         state.salvage += reward;
@@ -1913,6 +2644,29 @@ export function stepGame(
         remaining > 0
           ? `Signal sighted. ${remaining} left on the contract.`
           : "Signal sighted.";
+    }
+  }
+
+  if (state.roadRivalry.status === "active") {
+    const evaluation = evaluateRoadRivalry(
+      state.roadRivalry,
+      rig.id,
+      rig.x,
+      rig.z,
+      state.elapsedMs,
+    );
+    state.roadRivalry = evaluation.state;
+    if (evaluation.completed) {
+      const seconds = (evaluation.completed.elapsedMs / 1000).toFixed(2);
+      state.lastDiagnostic = evaluation.personalBest
+        ? `${rig.fieldName} set a Grove Run personal best: ${seconds}s.`
+        : `${rig.fieldName} finished the Grove Run in ${seconds}s. The record still stands.`;
+    } else if (evaluation.checkpoint) {
+      const remaining = roadRivalryGateIds().length - evaluation.state.nextGateIndex;
+      state.lastDiagnostic =
+        remaining > 0
+          ? "Quarry Shelf crossed. Home Silo is the finish."
+          : "Grove Run gate crossed.";
     }
   }
 
@@ -2033,6 +2787,7 @@ export function publicState(state: GameState, world: GameWorld): object {
     deriveFleetRecoveryAssessment(state, world, publicWeather),
   );
   const workshop = workshopInReach(state);
+  const repairService = repairServiceInReach(state);
   const workshopActionable = firstRungWorkshopActionable(
     workshop !== undefined,
     state,
@@ -2103,6 +2858,7 @@ export function publicState(state: GameState, world: GameWorld): object {
       firstRung,
       unboundPassage: readUnboundPassage(state.unboundPassage, currentRig.id),
       workshopInReach: workshop?.id ?? null,
+      repairServiceInReach: repairService?.site.id ?? null,
       workshopActionable,
       nearestSalvage:
         nearestSalvage === null
@@ -2122,6 +2878,25 @@ export function publicState(state: GameState, world: GameWorld): object {
             },
       recovery: { ...state.recovery },
     },
+    infrastructure: {
+      entities: publicInfrastructureNetwork(
+        state.infrastructure,
+        currentRig.x,
+        currentRig.z,
+      ),
+      localEffects: deriveInfrastructureEffects(
+        state.infrastructure,
+        currentRig.x,
+        currentRig.z,
+      ),
+    },
+    settlements: SETTLEMENTS.map((definition) => ({
+      id: definition.id,
+      name: definition.name,
+      people: definition.people,
+      condition: state.settlements[definition.id].condition,
+      favor: state.settlements[definition.id].favor,
+    })),
     activity: {
       id: state.cargoRelay.id,
       status: state.cargoRelay.status,
@@ -2140,9 +2915,27 @@ export function publicState(state: GameState, world: GameWorld): object {
         y: fixedNumber(state.cargoRelay.cargo.y, 3),
         z: fixedNumber(state.cargoRelay.cargo.z, 3),
       },
-      deliveryPosition: { x: CARGO_DELIVERY.x, z: CARGO_DELIVERY.z },
+      deliveryPosition: (() => {
+        const destination = cargoDeliveryTarget(state.cargoRelay);
+        return {
+          x: destination.x,
+          z: destination.z,
+          siteId: destination.siteId,
+        };
+      })(),
       rampPosition: { x: BUGGY_RAMP.x, z: BUGGY_RAMP.z },
     },
+    roadRivalry: {
+      id: state.roadRivalry.id,
+      status: state.roadRivalry.status,
+      activeRigId: state.roadRivalry.activeRigId,
+      nextGateIndex: state.roadRivalry.nextGateIndex,
+      gateCount: roadRivalryGateIds().length,
+      completedRuns: state.roadRivalry.completedRuns,
+      bestTimeMsByRig: { ...state.roadRivalry.bestTimeMsByRig },
+      lastRun: state.roadRivalry.lastRun,
+    },
+    roadIncident: world.roadIncidentProjection(),
     collision: {
       totalContacts: collisionTelemetry.totalContacts,
       policyViolationCount: collisionTelemetry.policyViolationCount,
@@ -2277,6 +3070,9 @@ function recoverActiveMission(candidate: unknown): ActiveMissionState | null {
       ? (source.missionClass as MissionClass)
       : "local",
     giverId: typeof source.giverId === "string" ? source.giverId : null,
+    settlementOutcomeId: isSettlementNeedOutcomeId(source.settlementOutcomeId)
+      ? source.settlementOutcomeId
+      : null,
     targetSiteId: source.targetSiteId,
     waypointIds: source.waypointIds.filter(
       (id): id is string => typeof id === "string",
@@ -2439,6 +3235,19 @@ function recoverComponentHealth(candidate: unknown): ComponentHealthState {
   };
 }
 
+function recoverRigFieldName(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const fieldName = value.trim().replace(/\s+/g, " ");
+  if (
+    fieldName.length < 2 ||
+    fieldName.length > 28 ||
+    /[\u0000-\u001F\u007F]/.test(fieldName)
+  ) {
+    return fallback;
+  }
+  return fieldName;
+}
+
 function recoverRig(
   value: unknown,
   id: RigId,
@@ -2507,6 +3316,7 @@ function recoverRig(
 
   return {
     id,
+    fieldName: recoverRigFieldName(candidate.fieldName, profile.fieldName),
     x: candidate.x * scale,
     y: isFiniteNumber(candidate.y) ? clamp(candidate.y, -12, 200) : 0,
     z: candidate.z * scale,
@@ -2650,6 +3460,74 @@ function recoverSurveyRoute(
   };
 }
 
+/**
+ * A missing road-rivalry record is a safe additive migration: it represented no
+ * accepted work in earlier saves. Present records are still checked so a broken
+ * run never restores with an impossible gate or a rig identity that does not
+ * exist.
+ */
+function recoverRoadRivalry(value: unknown): RoadRivalryState {
+  if (value === undefined || value === null) return createRoadRivalryState();
+  if (typeof value !== "object") return createRoadRivalryState();
+  const candidate = value as Record<string, unknown>;
+  const status = candidate.status === "active" ? "active" : "ready";
+  const startedAtMs = isFiniteNumber(candidate.startedAtMs)
+    ? Math.max(0, candidate.startedAtMs)
+    : null;
+  const activeRigId = isRigId(candidate.activeRigId)
+    ? candidate.activeRigId
+    : null;
+  const validActive =
+    status === "active" && startedAtMs !== null && activeRigId !== null;
+  const rawBest =
+    candidate.bestTimeMsByRig && typeof candidate.bestTimeMsByRig === "object"
+      ? (candidate.bestTimeMsByRig as Partial<Record<RigId, unknown>>)
+      : {};
+  const bestTimeMsByRig: Partial<Record<RigId, number>> = {};
+  for (const rigId of RIG_IDS) {
+    const valueForRig = rawBest[rigId];
+    if (isFiniteNumber(valueForRig) && valueForRig >= 0) {
+      bestTimeMsByRig[rigId] = Math.round(valueForRig);
+    }
+  }
+  const rawLastRun =
+    candidate.lastRun && typeof candidate.lastRun === "object"
+      ? (candidate.lastRun as Record<string, unknown>)
+      : null;
+  const lastRun =
+    rawLastRun &&
+    isRigId(rawLastRun.rigId) &&
+    isFiniteNumber(rawLastRun.elapsedMs) &&
+    rawLastRun.elapsedMs >= 0 &&
+    isFiniteNumber(rawLastRun.completedAtMs) &&
+    rawLastRun.completedAtMs >= 0
+      ? {
+          rigId: rawLastRun.rigId,
+          elapsedMs: Math.round(rawLastRun.elapsedMs),
+          completedAtMs: Math.round(rawLastRun.completedAtMs),
+        }
+      : null;
+  const gateCount = roadRivalryGateIds().length;
+  const nextGateIndex =
+    isFiniteNumber(candidate.nextGateIndex) && candidate.nextGateIndex >= 0
+      ? Math.min(Math.floor(candidate.nextGateIndex), Math.max(0, gateCount - 1))
+      : 0;
+
+  return {
+    id: "road-rivalry",
+    status: validActive ? "active" : "ready",
+    startedAtMs: validActive ? startedAtMs : null,
+    activeRigId: validActive ? activeRigId : null,
+    nextGateIndex: validActive ? nextGateIndex : 0,
+    completedRuns:
+      isFiniteNumber(candidate.completedRuns) && candidate.completedRuns >= 0
+        ? Math.floor(candidate.completedRuns)
+        : 0,
+    bestTimeMsByRig,
+    lastRun,
+  };
+}
+
 function recoverShared(
   candidate: Record<string, unknown>,
   rigs: Record<RigId, RigState>,
@@ -2681,6 +3559,23 @@ function recoverShared(
   const relayBest = relay.bestTimeMs as number | null;
   const cargoAttachedRigId = cargo.attachedRigId as RigId | null;
   const cargoDelivered = cargo.delivered;
+  const rawAssignment =
+    relay.assignment && typeof relay.assignment === "object"
+      ? (relay.assignment as Record<string, unknown>)
+      : null;
+  const assignment = rawAssignment
+    ? typeof rawAssignment.missionId === "string" &&
+      typeof rawAssignment.originSiteId === "string" &&
+      typeof rawAssignment.destinationSiteId === "string" &&
+      findSite(rawAssignment.originSiteId) !== undefined &&
+      findSite(rawAssignment.destinationSiteId) !== undefined
+      ? {
+          missionId: rawAssignment.missionId,
+          originSiteId: rawAssignment.originSiteId,
+          destinationSiteId: rawAssignment.destinationSiteId,
+        }
+      : null
+    : null;
 
   // The relay is a small state machine; an inconsistent combination means the
   // record was hand-edited or a migration went wrong, and silently accepting it
@@ -2822,6 +3717,7 @@ function recoverShared(
     allowMissingSurveyRoute,
   );
   if (!surveyRoute) return null;
+  const roadRivalry = recoverRoadRivalry(candidate.roadRivalry);
   const unboundPassage = restoreUnboundPassage(candidate.unboundPassage);
 
   const cargoRadius = Math.hypot(cargo.x as number, cargo.z as number);
@@ -2833,6 +3729,96 @@ function recoverShared(
     candidate.recovery && typeof candidate.recovery === "object"
       ? (candidate.recovery as Record<string, unknown>)
       : null;
+
+  const rawInventory =
+    candidate.inventory && typeof candidate.inventory === "object"
+      ? (candidate.inventory as Record<string, unknown>)
+      : null;
+  const inventory: GameState["inventory"] = {
+    "steel-scrap":
+      rawInventory && isFiniteNumber(rawInventory["steel-scrap"])
+        ? Math.max(0, Math.floor(rawInventory["steel-scrap"] as number))
+        : 0,
+    microchips:
+      rawInventory && isFiniteNumber(rawInventory["microchips"])
+        ? Math.max(0, Math.floor(rawInventory["microchips"] as number))
+        : 0,
+    "fuel-cell-core":
+      rawInventory && isFiniteNumber(rawInventory["fuel-cell-core"])
+        ? Math.max(0, Math.floor(rawInventory["fuel-cell-core"] as number))
+        : 0,
+  };
+
+  const rawPartsBin = Array.isArray(candidate.partsBin)
+    ? candidate.partsBin
+    : [];
+  const partsBin: ModuleId[] = rawPartsBin.filter(
+    (item): item is ModuleId =>
+      typeof item === "string" && MODULE_IDS.includes(item as ModuleId),
+  );
+
+  const rawRestoration =
+    candidate.restoration && typeof candidate.restoration === "object"
+      ? (candidate.restoration as Record<string, unknown>)
+      : null;
+  const restoration: RestorationState = {
+    diagnosed: rawRestoration?.diagnosed === true,
+    repaired: rawRestoration?.repaired === true,
+    firstStart: rawRestoration?.firstStart === true,
+  };
+  const rawFarmWaterworks =
+    candidate.farmWaterworks && typeof candidate.farmWaterworks === "object"
+      ? (candidate.farmWaterworks as Record<string, unknown>)
+      : null;
+  const farmWaterworks: FarmWaterworksState = {
+    choice:
+      rawFarmWaterworks?.choice === "repair-pump" ||
+      rawFarmWaterworks?.choice === "redirect-channel"
+        ? rawFarmWaterworks.choice
+        : "unresolved",
+    chosenAtWorldMinutes:
+      rawFarmWaterworks && isFiniteNumber(rawFarmWaterworks.chosenAtWorldMinutes)
+        ? Math.max(0, rawFarmWaterworks.chosenAtWorldMinutes)
+        : null,
+  };
+  const rawNorthFieldInvestigation =
+    candidate.northFieldInvestigation &&
+    typeof candidate.northFieldInvestigation === "object"
+      ? (candidate.northFieldInvestigation as Record<string, unknown>)
+      : null;
+  const northFieldInvestigation: NorthFieldInvestigationState = {
+    status:
+      rawNorthFieldInvestigation?.status === "scanned"
+        ? "scanned"
+        : "unresolved",
+    scannedAtWorldMinutes:
+      rawNorthFieldInvestigation &&
+      isFiniteNumber(rawNorthFieldInvestigation.scannedAtWorldMinutes)
+        ? Math.max(0, rawNorthFieldInvestigation.scannedAtWorldMinutes)
+        : null,
+    anomalyDepthMeters:
+      rawNorthFieldInvestigation &&
+      isFiniteNumber(rawNorthFieldInvestigation.anomalyDepthMeters)
+        ? clamp(rawNorthFieldInvestigation.anomalyDepthMeters, 0, 50)
+        : null,
+  };
+  const settlements = recoverSettlementState(
+    candidate.settlements,
+    farmWaterworks.choice,
+  );
+  const rawOpeningNaming =
+    candidate.openingNaming && typeof candidate.openingNaming === "object"
+      ? (candidate.openingNaming as Record<string, unknown>)
+      : null;
+  const openingNaming: OpeningNamingState = {
+    status:
+      rawOpeningNaming?.status === "complete"
+        ? "complete"
+        : restoration.firstStart &&
+            furrows.some((furrow) => furrow.rigId === "utility-tractor")
+          ? "ready"
+          : "waiting",
+  };
 
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
@@ -2853,6 +3839,7 @@ function recoverShared(
       startedAt: relayStarted,
       completedAt: relayCompleted,
       bestTimeMs: relayBest,
+      assignment,
       cargo: {
         id: "relay-cargo",
         x: (cargo.x as number) * cargoScale,
@@ -2864,6 +3851,14 @@ function recoverShared(
       },
     },
     surveyRoute,
+    roadRivalry,
+    infrastructure: recoverInfrastructureNetwork(
+      candidate.infrastructure,
+      candidate.floodgate12,
+    ),
+    farmWaterworks,
+    northFieldInvestigation,
+    settlements,
     activeMission: recoverActiveMission(candidate.activeMission),
     activeSideMissions: recoverActiveMissionList(candidate.activeSideMissions),
     unboundPassage,
@@ -2879,6 +3874,10 @@ function recoverShared(
       : isFiniteNumber(candidate.salvage)
         ? clamp(Math.floor(candidate.salvage), 0, 999_999)
         : 0,
+    inventory,
+    partsBin,
+    restoration,
+    openingNaming,
     recovery: {
       emergencyCount:
         recovery && isFiniteNumber(recovery.emergencyCount)
@@ -3197,7 +4196,11 @@ function migratePriorSchema(
 ): GameState | null {
   const recovered = recoverCurrent(candidate, true);
   if (!recovered) return null;
-  recovered.lastDiagnostic = `Schema v${sourceSchemaVersion} record migrated. Progression state is now tracked alongside the field.`;
+  const message =
+    sourceSchemaVersion === V13_SAVE_SCHEMA_VERSION
+      ? "Schema v13 record migrated. World infrastructure now owns the former Floodgate state."
+      : `Schema v${sourceSchemaVersion} record migrated. Progression state is now tracked alongside the field.`;
+  recovered.lastDiagnostic = message;
   return recovered;
 }
 
@@ -3217,6 +4220,33 @@ export function recoverState(value: unknown): GameState | null {
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V18_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V18_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V17_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V17_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V16_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V16_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V15_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V15_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V14_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V14_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V13_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V13_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V12_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V12_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V11_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V11_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V10_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V10_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V9_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, V9_SAVE_SCHEMA_VERSION);

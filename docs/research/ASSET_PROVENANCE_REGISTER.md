@@ -519,3 +519,164 @@ path together for a specific public-facing asset decision.
 
 Until that record exists, the provenance register should continue treating the
 candidate as reference or bridge material, not as shipped runtime truth.
+
+## Addendum (2026-07-29) - first persistent infrastructure environment concept
+
+### `marsh-depot-floodgate-environment-concept-2026-07-29.png`
+
+- Project path: `assets/generated/marsh-depot-floodgate-environment-concept-2026-07-29.png`
+- Stable ID: `marsh-depot-floodgate-environment-concept`
+- SHA-256: `93da3e41ef0818de129f2894339ca0fd544fa680111cbb768d8ce306ed8a5b56`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-29
+- Tool/provider: bundled `imagegen` CLI using OpenAI Image API, model `gpt-image-1.5`
+- Use case: `stylized-concept`
+- Asset type: Rigs Unbound game environment concept art
+- Intended use: make the persistent infrastructure network legible as a place
+  where route access, machine care, cargo movement, and human work visibly
+  meet; specifically supports Marsh Depot, Floodgate 12, Sunken Flats, and the
+  Patchwork Atlas environment grammar
+- Production status: **concept/reference only; not approved as runtime art,
+  mesh input, or public distribution**
+- Human review: inspected at original resolution after generation. The tractor
+  reads as the protagonist, the stilted depot and workers make the settlement
+  consequence visible, and Floodgate 12 reads as a route-scale infrastructure
+  landmark. It remains a single atmospheric view; exact layout, collision
+  envelopes, structural measurements, before/after state, and runtime budgets
+  are unverified.
+- Rights/terms status: generated in the project workspace; provider terms and
+  any public reuse or marketing use require review before distribution
+- Replacement path: replace or supplement with an authored multi-view
+  environment package, measured landmark/collision spec, and canonical-port
+  runtime proof before any asset admission
+- Linked manifest entry: [`assets/asset-manifest.json`](../../assets/asset-manifest.json)
+- Exact prompt and flags: [`assets/generated/marsh-depot-floodgate-environment-concept-2026-07-29.prompt.md`](../../assets/generated/marsh-depot-floodgate-environment-concept-2026-07-29.prompt.md)
+
+### Generation record
+
+The generation used `--size 1536x1024`, `--quality high`,
+`--output-format png`, and wrote the result directly into the repo's existing
+`assets/generated/` tree after the initial CLI output was relocated from the
+skill's default output location. No input/reference image was used.
+
+Prompt intent: an original Patchwork Atlas marsh settlement after rain, with a
+weathered rust-and-bone utility tractor and broad plough in the foreground, a
+stilted depot with shelter, fuel drum, ferry ramp, cargo float, workers, and a
+restored flood-control gate channel in the middle distance. The scene should
+show working infrastructure and human consequence rather than an empty test
+arena; it should use warm work lights, cool marsh shadows, readable gameplay
+landmarks, no logos, no readable text, no watermark, no real-world markings,
+and no militarised styling.
+
+### Imagegen queue — next durable candidates
+
+This is a backlog, not a claim that the assets exist. Each item stays reference
+only until it has a prompt record, hash, inspection note, and an explicit
+runtime/public decision:
+
+1. Floodgate 12 before/after composition: failed red/dim gate versus cyan
+   working flow, with identical camera and terrain so the world-memory delta is
+   testable rather than implied by a new scene.
+2. Marsh Depot close environment plate: shelter, ferry ramp, fuel drum,
+   ferrymen, cargo staging, and low-poly landmark silhouettes readable at the
+   canonical chase distance.
+3. Long Furrow drainage station: field pump, wet-to-workable soil transition,
+   cultivation traces, and a readable connection to the community rather than a
+   standalone quest prop.
+4. Utility tow recovery candidate: isolated three-quarter reference with front
+   tow eyes, rear winch, boom, service drawers, and explicit uncertainty notes,
+   continuing the existing `utility_tow_recovery_01` admission path.
+5. Failure/readability fixtures: bogged track, overloaded cargo, blocked lamp,
+   damaged attachment, and a confusing silhouette to exercise recovery and
+   player-comprehension review rather than generating only hero art.
+
+### Anything else?
+
+Yes: this asset is useful because it gives the infrastructure and settlement
+systems a shared visual target, but it must not be allowed to silently become
+the runtime layout. The next acceptance step is a canonical-port observation
+of the existing authored assemblies against this reference, with any mismatch
+recorded as a design or runtime gap rather than hidden by replacing the
+procedural truth with a concept image.
+
+## Addendum (2026-07-29) - object-first catalog and utility tow reconstruction input
+
+The asset lane now has a durable object-first catalog:
+[`docs/exploration/ASSET_CATALOG_AND_RECONSTRUCTION_BACKLOG_2026-07-29.md`](../exploration/ASSET_CATALOG_AND_RECONSTRUCTION_BACKLOG_2026-07-29.md).
+It separates isolated `img2threejs` candidates from vegetation, roads,
+sprites/clouds, environment materials, and scene kits that need different
+production paths.
+
+### `utility-tow-recovery-01-object-reference-2026-07-29.png`
+
+- Project path: `assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.png`
+- Stable ID: `utility-tow-recovery-01-object-reference`
+- SHA-256: `4b5e53cc655a41054850dc94a0ce539ef0b3e8dd711d28bd23664e8fedcc9014`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-29
+- Tool/provider: bundled `imagegen` CLI using OpenAI Image API, model `gpt-image-1.5`
+- Use case: isolated object reference for `utility_tow_recovery_01`
+- Production status: **conditional reference only; reconstruction and runtime
+  admission not started**
+- Human review: the rig is fully visible on a neutral background with a clear
+  chassis, cab, recovery boom, hinge, cable, winch, wheel, beacon, tow-eye,
+  and service-drawer read. Hidden geometry, scale, orthographic consistency,
+  collision decomposition, and runtime budget remain unknown.
+- Rights/terms status: generated in the project workspace; provider terms and
+  public reuse require review before distribution
+- Replacement path: authored multi-view/orthographic package or a reviewed
+  procedural candidate with explicit uncertainty records
+- Linked manifest entry: [`assets/asset-manifest.json`](../../assets/asset-manifest.json)
+- Exact prompt and flags: [`assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.prompt.md`](../../assets/generated/utility-tow-recovery-01-object-reference-2026-07-29.prompt.md)
+- Reconstruction workbench: [`assets/workbench/utility-tow-recovery-01/README.md`](../../assets/workbench/utility-tow-recovery-01/README.md)
+
+### Pipeline decision
+
+The first subagent seam is the local `img2threejs` skill package at
+`/Users/pranay/Projects/external-skills/img2threejs__img2threejs/`. Its staged
+gates require reference admission, a strict quality contract, mapped detail
+inventory, action-ready pivots/sockets/colliders, locked pass reviews, and
+multi-angle browser evidence. No callable MCP `img2threejs` tool was present;
+the repo-owned workbench therefore records script outputs and generated source
+without treating them as runtime truth.
+
+### Anything else?
+
+Yes: the prior environment plate remains useful as a composition reference,
+but this object plate is the correct next input for proving reusable asset
+production. A road tile, tree family, and cloud/sprite atlas will be queued
+through their own appropriate lanes rather than misclassified as single-object
+mesh reconstructions.
+
+## Addendum (2026-07-29) - first bounded rig-part reference
+
+### `field-plough-01-object-reference-2026-07-29.png`
+
+- Project path: `assets/generated/field-plough-01-object-reference-2026-07-29.png`
+- Stable ID: `field-plough-01-object-reference`
+- SHA-256: `eab01f9c29140ce6015004203a22bf04dd837469969b7e4be850668b8f805dde`
+- Dimensions: 1536 × 1024 RGB PNG
+- Date generated: 2026-07-29
+- Tool/provider: bundled `imagegen` CLI using OpenAI Image API, model `gpt-image-1.5`
+- Use case: isolated field-plough rig-part reference for the first bounded
+  `img2threejs` reconstruction package
+- Production status: **conditional reference only; reconstruction pending**
+- Human review: the attachment frame, top link, lower hitch areas, repeated
+  plough shares, hydraulic ram, hinge hardware, painted metal, rust, and soil
+  residue are visually readable. The prompt requested three shares, while the
+  image appears to show four; the spec must follow visible evidence and record
+  the uncertainty rather than silently forcing the prompt.
+- Rights/terms status: generated in the project workspace; provider terms and
+  public reuse require review before distribution
+- Replacement path: reviewed multi-view object-part package or an authored
+  procedural module with explicit attachment dimensions and state limits
+- Linked manifest entry: [`assets/asset-manifest.json`](../../assets/asset-manifest.json)
+- Exact prompt and flags: [`assets/generated/field-plough-01-object-reference-2026-07-29.prompt.md`](../../assets/generated/field-plough-01-object-reference-2026-07-29.prompt.md)
+- Reconstruction workbench: [`assets/workbench/field-plough-01/README.md`](../../assets/workbench/field-plough-01/README.md)
+
+### Anything else?
+
+Yes: this smaller package is intentionally the first reconstruction probe. The
+repository already has a `field-plough` attachment and `ploughPivot` seam, so
+it can test action-ready attachment semantics without prematurely promoting a
+whole vehicle or turning a concept plate into runtime truth.

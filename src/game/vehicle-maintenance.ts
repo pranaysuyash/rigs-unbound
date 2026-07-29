@@ -96,3 +96,25 @@ export function performFieldRepair(
     [componentKey]: Math.min(100, current[componentKey] + repairAmountPercent),
   };
 }
+
+/**
+ * Format the current mechanical condition into a single player-facing sentence.
+ *
+ * Used by the workshop diagnosis readout so the shell never invents its own
+ * description of wear.
+ */
+export function formatWearDiagnostic(
+  condition: number,
+  health: ComponentHealthState,
+): string {
+  const wearDeficit = componentWearDeficit(health);
+  const base =
+    condition <= 0
+      ? "Disabled — engine will not turn over."
+      : `Condition ${Math.round(condition)}%.`;
+  const wearText =
+    wearDeficit < 0.5
+      ? "All components at spec."
+      : `Tread ${health.tireTreadHealthPercent}%, radiator ${health.radiatorCleanlinessPercent}%, cable ${health.winchCableIntegrityPercent}%, belt ${health.alternatorBeltHealthPercent}%.`;
+  return `${base} ${wearText}`;
+}

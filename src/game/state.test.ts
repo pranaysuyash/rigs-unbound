@@ -69,6 +69,17 @@ const IDLE = {
 function scenario(seed: string, activeRigId: RigId = "utility-tractor") {
   const state = createInitialState(seed);
   state.activeRigId = activeRigId;
+  // Kernel/physics tests exercise driving capability, not the campaign-opening
+  // restoration beat (see createInitialState: the tractor narratively starts
+  // disabled). Restore it here so the shared scenario helper hands back a
+  // machine every other test can assume is drivable.
+  state.rigs["utility-tractor"].condition = 100;
+  state.rigs["utility-tractor"].componentHealth = {
+    tireTreadHealthPercent: 100,
+    radiatorCleanlinessPercent: 100,
+    winchCableIntegrityPercent: 100,
+    alternatorBeltHealthPercent: 100,
+  };
   const world = new GameWorld(seed);
   settleWorld(state, world);
   return { state, world };
@@ -619,7 +630,11 @@ describe("world memory", () => {
     const { state, world } = scenario("PLOUGH");
     const rig = activeRig(state);
     rig.x = field.x - 12;
-    rig.z = field.z;
+    // Offset away from the authored Long Furrow Drain Pump (local offset
+    // (-11, 6) from the site centre; see infrastructure-network.ts), which
+    // otherwise sits inside primary-action range of the drive path and wins
+    // priority over the plough engage this test is exercising.
+    rig.z = field.z - 16;
     rig.heading = Math.PI / 2;
     settleWorld(state, world);
 

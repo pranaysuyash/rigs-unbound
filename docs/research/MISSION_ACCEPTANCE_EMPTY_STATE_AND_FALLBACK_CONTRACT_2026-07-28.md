@@ -139,3 +139,10 @@ honest part of the game’s discovery loop.
 - That keeps the empty board focused on explaining its immediate absence and recovery path instead of becoming a second tutorial panel.
 - The board can still point the player back to play, but the more general discovery guidance should live outside the empty surface.
 - Anything else? No. Empty state should explain the board; the shell can explain the wider discovery loop.
+
+## Addendum (2026-07-29) - the empty state should adapt its copy to the selected mode
+
+- The empty state should change its copy when the selected mode changes what the player needs to understand, while keeping the same visual panel.
+- That lets the board explain the right reason or next step without inventing a different empty-state system for each mode.
+- The panel stays the same; the words adapt to the mode.
+- Anything else? No. Mode should change the explanation, not the fact that the board is empty.

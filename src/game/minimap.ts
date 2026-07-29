@@ -9,6 +9,11 @@
 import type { GameState } from "./contracts";
 import { SURVEY_CELL, unpackSurveyKey } from "./exploration";
 import type { GameWorld } from "./gameworld";
+import {
+  INFRASTRUCTURE_DEFINITIONS,
+  INFRASTRUCTURE_ENTITY_IDS,
+  infrastructureIsOperating,
+} from "./infrastructure-network";
 import { WATER_LEVEL, WORLD_RADIUS, WORLD_SITES } from "./world";
 
 /** Resolution of the precomputed world image (384x384 for sub-metre topographical detail). */
@@ -316,7 +321,71 @@ export class FieldMap {
       }
     }
 
-    // 7. Salvage Beacon Markers
+    // 7. Remembered field condition. These are the same bounded GameWorld cells
+    // that affect traction and recover under weather; the atlas does not keep a
+    // decorative parallel soil layer.
+    for (const cell of this.world.fieldConditionEntries()) {
+      const x = (cell.cx + 0.5) * 6;
+      const z = (cell.cz + 0.5) * 6;
+      const [px, py] = this.toPixel(x, z, size);
+      const muddy = cell.moistureRatio >= 0.62;
+      const damaged = cell.soilHealth < 0.5;
+      context.fillStyle = muddy
+        ? "rgba(110, 69, 42, 0.72)"
+        : damaged
+          ? "rgba(190, 135, 62, 0.7)"
+          : "rgba(90, 163, 93, 0.62)";
+      context.beginPath();
+      context.arc(px, py, Math.max(1.8, size * 0.008), 0, Math.PI * 2);
+      context.fill();
+    }
+
+    // 8. Persistent infrastructure. A known machine is a place condition, not
+    // a task marker: its ring shows the local water/soil influence that rigs
+    // will actually feel in the kernel.
+    for (const id of INFRASTRUCTURE_ENTITY_IDS) {
+      const definition = INFRASTRUCTURE_DEFINITIONS[id];
+      const entity = state.infrastructure.entities[id];
+      if (!entity.known) continue;
+      const waterEffect = definition.effects.find(
+        (effect) => effect.kind === "water-level-offset",
+      );
+      const [px, py] = this.toPixel(definition.x, definition.z, size);
+      const operating = infrastructureIsOperating(definition, entity);
+      const radius = Math.max(
+        7,
+        ((waterEffect?.radiusM ?? definition.interactionRadiusM) / MAP_SPAN) * size,
+      );
+      const color = operating
+        ? "rgba(45, 212, 191, 0.72)"
+        : "rgba(244, 114, 94, 0.78)";
+
+      context.fillStyle = operating
+        ? "rgba(45, 212, 191, 0.08)"
+        : "rgba(244, 114, 94, 0.13)";
+      context.beginPath();
+      context.arc(px, py, radius, 0, Math.PI * 2);
+      context.fill();
+
+      context.strokeStyle = color;
+      context.lineWidth = operating ? 1.8 : 1.2;
+      context.setLineDash(operating ? [] : [3, 3]);
+      context.beginPath();
+      context.arc(px, py, radius, 0, Math.PI * 2);
+      context.stroke();
+      context.setLineDash([]);
+
+      context.fillStyle = color;
+      context.fillRect(px - 3.5, py - 3.5, 7, 7);
+      context.fillStyle = "rgba(234, 216, 184, 0.94)";
+      context.fillText(
+        `${definition.name} ${Math.round(entity.condition)}%`,
+        px + 9,
+        py + 12,
+      );
+    }
+
+    // 9. Salvage Beacon Markers
     for (const node of this.world.exploration.nodesNear(
       rig.x,
       rig.z,
@@ -332,7 +401,7 @@ export class FieldMap {
       context.restore();
     }
 
-    // 8. Cargo Relay Objective
+    // 10. Cargo Relay Objective
     const cargo = state.cargoRelay.cargo;
     if (!cargo.delivered) {
       const [cx, cy] = this.toPixel(cargo.x, cargo.z, size);
@@ -343,7 +412,7 @@ export class FieldMap {
       context.stroke();
     }
 
-    // 9. Active Rig Indicator (Heading Arrowhead & Direction Vector)
+    // 11. Active Rig Indicator (Heading Arrowhead & Direction Vector)
     context.save();
     context.translate(rx, ry);
 

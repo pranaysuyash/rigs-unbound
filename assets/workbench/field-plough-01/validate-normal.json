@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "errors": [],
+  "warnings": [
+    "quality: replace generic starter featureReviewTargets with object-specific identity-defining semantic systems before strict validation",
+    "quality: material-pass needs local overrides, AO, dirt, wear, stains, moss, chips, scratches, or equivalent masks",
+    "quality: material 'base' needs usable referencePbr extracted from source pixels",
+    "quality: lighting-pass needs concrete key/fill/rim or environment light entries",
+    "quality: component 'root' is missing colorMaterialRecipe",
+    "only one component found; this is likely still blockout quality",
+    "quality: macroComponents below qualityContract minimum (1 < 3)",
+    "quality: mesoComponents below qualityContract minimum (0 < 8)",
+    "quality: microFeatureGroups below qualityContract minimum (0 < 5)",
+    "quality: materialLayers below qualityContract minimum (1 < 3)",
+    "quality: repetitionSystems below qualityContract minimum (0 < 1)",
+    "quality: reviewViewpoints below qualityContract minimum (3 < 4)",
+    "quality: detailInventory has 0 details but targetMinDetails is 10; enumerate identity-defining details (gloss, bevel, fasteners, linework, stains) before code generation"
+  ],
+  "summary": {
+    "targetName": "Field Plough 01",
+    "suitability": "conditional",
+    "components": 1,
+    "materials": 1
+  }
+}

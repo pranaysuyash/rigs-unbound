@@ -150,6 +150,7 @@ export const WORLD_SITE_VERBS = [
   "shrink",
   "wade",
   "ascend",
+  "survey",
 ] as const;
 
 export type WorldSiteVerb = (typeof WORLD_SITE_VERBS)[number];
@@ -282,6 +283,20 @@ export const WORLD_SITES: readonly WorldSite[] = [
     serviceRadius: 30,
   },
   {
+    id: "north-field",
+    name: "North Field",
+    verb: "survey",
+    x: -28,
+    z: -34,
+    discoverRadius: 18,
+    anchorRadius: 24,
+    elevation: 2.4,
+    anchorStrength: 0.94,
+    biome: "farmland",
+    padSurface: "grass",
+    serviceRadius: 16,
+  },
+  {
     id: "quarry-shelf",
     name: "Quarry Shelf",
     verb: "haul",
@@ -336,6 +351,20 @@ export const WORLD_SITES: readonly WorldSite[] = [
     biome: "marsh",
   },
   {
+    id: "marsh-depot",
+    name: "Marsh Depot",
+    verb: "wade",
+    x: -182,
+    z: -82,
+    discoverRadius: 22,
+    anchorRadius: 26,
+    elevation: 0.65,
+    anchorStrength: 0.97,
+    biome: "marsh",
+    padSurface: "mud",
+    serviceRadius: 18,
+  },
+  {
     id: "launch-ridge",
     name: "Launch Ridge",
     verb: "ascend",
@@ -357,6 +386,13 @@ export type WorldSiteId = (typeof WORLD_SITES)[number]["id"];
 export function findSite(id: string): WorldSite | undefined {
   return WORLD_SITES.find((site) => site.id === id);
 }
+
+/** The optional buried cache is spatial data owned by its authored field site. */
+export const NORTH_FIELD_SEISMIC_CACHE = (() => {
+  const site = findSite("north-field");
+  if (!site) throw new Error("North Field seismic cache needs an authored site.");
+  return { x: site.x, z: site.z, depthMeters: 6.5 } as const;
+})();
 
 /** Canonical service-area predicate shared by workshop and guidance queries. */
 export function isWithinSiteServiceArea(
@@ -1349,6 +1385,69 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     discoverySignal: true,
   },
 
+  // Marsh Depot: a working marsh stop needs a visible place to tie up, dry
+  // supplies, and see a lamp from across bad ground. The platform is authored
+  // world furniture, not a mission marker; settlement state only changes its
+  // existing lamp after the player has reached the place.
+  {
+    id: "marsh-depot-platform",
+    siteId: "marsh-depot",
+    localX: 0,
+    localY: 1.15,
+    localZ: 0,
+    shape: { kind: "box", width: 12.4, height: 0.7, depth: 8.2 },
+    color: 0x6f5942,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "marsh-depot-shelter",
+    siteId: "marsh-depot",
+    localX: -1.8,
+    localY: 3.5,
+    localZ: 0.8,
+    shape: { kind: "box", width: 5.8, height: 4.0, depth: 4.6 },
+    color: 0x6f3930,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "marsh-depot-roof",
+    siteId: "marsh-depot",
+    localX: -1.8,
+    localY: 6.1,
+    localZ: 0.8,
+    shape: { kind: "cone", radius: 4.3, height: 1.8, radialSegments: 4, scaleZ: 0.75 },
+    color: 0x303438,
+    roughness: 0.92,
+    rotationY: Math.PI / 4,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+  {
+    id: "marsh-depot-fuel-drum",
+    siteId: "marsh-depot",
+    localX: 3.9,
+    localY: 2.05,
+    localZ: -1.7,
+    shape: { kind: "cylinder", radius: 0.72, height: 1.8, radialSegments: 10 },
+    color: 0x8f5530,
+    cameraOccluder: false,
+    rigCollider: true,
+  },
+  {
+    id: "marsh-depot-lamp",
+    siteId: "marsh-depot",
+    localX: 4.5,
+    localY: 10.6,
+    localZ: -2.2,
+    shape: { kind: "cylinder", radius: 0.46, height: 1.1, radialSegments: 10 },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
   // The two sites that already had authored structures need only the signal.
   {
     id: "home-silo-lamp",
@@ -1381,6 +1480,28 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
       radiusTop: 0.44,
       radiusBottom: 0.44,
       height: 1.0,
+      radialSegments: 10,
+    },
+    color: 0xffb347,
+    cameraOccluder: false,
+    rigCollider: false,
+    discoverySignal: true,
+  },
+
+  // North Field carries no other structure yet; a survey mast is enough to
+  // mark the site on the horizon and give it a discovery signal.
+  {
+    id: "north-field-survey-mast",
+    siteId: "north-field",
+    localX: 0,
+    localY: 12.1,
+    localZ: 6,
+    shape: {
+      kind: "cylinder",
+      radius: 0.42,
+      radiusTop: 0.42,
+      radiusBottom: 0.42,
+      height: 0.9,
       radialSegments: 10,
     },
     color: 0xffb347,
@@ -1526,6 +1647,65 @@ export const RESOLVED_ROUTES: readonly ResolvedRoute[] = WORLD_ROUTES.flatMap(
     ];
   },
 );
+
+/**
+ * Community-built passages are not static geography. They enter the terrain
+ * authority only after the settlement history that made them possible exists.
+ * Players may still cross the surrounding land; a passage makes one durable,
+ * readable, lower-risk way through it.
+ */
+export const COMMUNITY_PASSAGE_IDS = ["sunken-flats-causeway"] as const;
+export type CommunityPassageId = (typeof COMMUNITY_PASSAGE_IDS)[number];
+
+export interface CommunityPassageDefinition {
+  id: CommunityPassageId;
+  from: WorldSiteId;
+  to: WorldSiteId;
+  halfWidth: number;
+  /** Raised deck elevation, expressed in the terrain's metre coordinate system. */
+  startElevation: number;
+  endElevation: number;
+}
+
+export const COMMUNITY_PASSAGES: readonly CommunityPassageDefinition[] = [
+  {
+    id: "sunken-flats-causeway",
+    from: "sunken-flats",
+    to: "marsh-depot",
+    halfWidth: 4.6,
+    // The Flats centre is below the waterline. A repaired causeway must lift
+    // the approach above standing water rather than merely smooth submerged mud.
+    startElevation: 0.65,
+    endElevation: 0.65,
+  },
+] as const;
+
+export interface ResolvedCommunityPassage extends ResolvedRoute {
+  id: CommunityPassageId;
+  startElevation: number;
+  endElevation: number;
+}
+
+export const RESOLVED_COMMUNITY_PASSAGES: readonly ResolvedCommunityPassage[] =
+  COMMUNITY_PASSAGES.flatMap((passage) => {
+    const from = findSite(passage.from);
+    const to = findSite(passage.to);
+    if (!from || !to) {
+      throw new Error(
+        `Community passage references an unknown site: ${passage.from} -> ${passage.to}.`,
+      );
+    }
+    return [{
+      id: passage.id,
+      ax: from.x,
+      az: from.z,
+      bx: to.x,
+      bz: to.z,
+      halfWidth: passage.halfWidth,
+      startElevation: passage.startElevation,
+      endElevation: passage.endElevation,
+    }];
+  });
 
 /** Squared distance from a point to a finite segment. Hot path; no allocation. */
 export function distanceToSegment(

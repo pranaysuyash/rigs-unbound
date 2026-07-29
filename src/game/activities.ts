@@ -1,11 +1,14 @@
 import {
   RIG_CAPABILITIES,
+  type RigId,
   type RigCapability,
+  type RoadRivalryState,
+  type RoadRivalryRunRecord,
   type SurveyRouteState,
 } from "./contracts";
 import { WORLD_SITES, type WorldSiteId } from "./world";
 
-export type { SurveyRouteState };
+export type { RoadRivalryState, SurveyRouteState };
 
 /**
  * Typed activity definitions.
@@ -18,7 +21,7 @@ export type { SurveyRouteState };
  */
 export const ACTIVITY_CONTRACT_VERSION = 1 as const;
 
-export type ActivityId = "cargo-relay" | "survey-route";
+export type ActivityId = "cargo-relay" | "survey-route" | "road-rivalry";
 
 /**
  * What the ground *means* while an activity is running.
@@ -37,7 +40,7 @@ export type ActivityId = "cargo-relay" | "survey-route";
  * scene. Naming it here is what stops the second activity from quietly becoming a
  * second game with its own world, its own physics and its own save format.
  */
-export type ActivityBinding = "haul" | "survey";
+export type ActivityBinding = "haul" | "survey" | "rally";
 
 export interface ActivityDefinition {
   id: ActivityId;
@@ -85,6 +88,18 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     requiredCapabilities: ["survey"],
     worldRefs: ["quarry-shelf", "toy-grove", "launch-ridge"],
     reward: { salvage: 5, insight: 5, journeyInvestment: 4 },
+  },
+  {
+    id: "road-rivalry",
+    version: ACTIVITY_CONTRACT_VERSION,
+    name: "Grove Run",
+    premise: "Take a machine from Toy Grove through Quarry Shelf to Home Silo. The land keeps the record.",
+    binding: "rally",
+    requiredCapabilities: ["rally"],
+    worldRefs: ["toy-grove", "quarry-shelf", "home-silo"],
+    // The record is the reward. A repeatable open-road activity must not turn
+    // into a salvage faucet simply because a player improves a machine.
+    reward: { salvage: 0, insight: 0, journeyInvestment: 0 },
   },
 ];
 
@@ -157,10 +172,10 @@ export function validateActivityDefinitions(
       }
     }
 
-    if (definition.reward.salvage <= 0) {
+    if (definition.reward.salvage < 0) {
       problems.push({
         activityId: definition.id,
-        problem: "reward must be positive",
+        problem: "reward cannot be negative",
       });
     }
   }
@@ -264,4 +279,154 @@ export function surveyRouteMinutesRemaining(
     0,
     SURVEY_ROUTE_WINDOW_MINUTES - (worldMinutes - state.startedAtMinutes),
   );
+}
+
+// -----------------------------------------------------------------------------
+// Open-road rivalry rules
+// -----------------------------------------------------------------------------
+
+/** Course-entry radius. Crossing a gate is deliberately generous, not precise. */
+export const ROAD_RIVALRY_GATE_RADIUS = 12;
+
+/**
+ * The first world reference is the voluntary start line. Every later reference
+ * is a gate in order. The course uses sites and their existing track network;
+ * it does not own terrain, colliders, or a second scene.
+ */
+export function roadRivalryCourseSiteIds(): readonly WorldSiteId[] {
+  return activityDefinition("road-rivalry").worldRefs;
+}
+
+export function roadRivalryStartSiteId(): WorldSiteId {
+  const [start] = roadRivalryCourseSiteIds();
+  if (!start) throw new Error("Road rivalry requires an authored start site.");
+  return start;
+}
+
+export function roadRivalryGateIds(): readonly WorldSiteId[] {
+  return roadRivalryCourseSiteIds().slice(1);
+}
+
+function roadRivalrySite(id: WorldSiteId) {
+  const site = WORLD_SITES.find((candidate) => candidate.id === id);
+  if (!site) throw new Error(`Road rivalry references an unknown site: ${id}`);
+  return site;
+}
+
+export function roadRivalryStartInReach(x: number, z: number): boolean {
+  const start = roadRivalrySite(roadRivalryStartSiteId());
+  return Math.hypot(x - start.x, z - start.z) <= ROAD_RIVALRY_GATE_RADIUS;
+}
+
+export function createRoadRivalryState(): RoadRivalryState {
+  return {
+    id: "road-rivalry",
+    status: "ready",
+    startedAtMs: null,
+    activeRigId: null,
+    nextGateIndex: 0,
+    completedRuns: 0,
+    bestTimeMsByRig: {},
+    lastRun: null,
+  };
+}
+
+export function startRoadRivalry(
+  state: RoadRivalryState,
+  rigId: RigId,
+  startedAtMs: number,
+): RoadRivalryState {
+  if (state.status === "active") return state;
+  return {
+    ...state,
+    status: "active",
+    startedAtMs,
+    activeRigId: rigId,
+    nextGateIndex: 0,
+  };
+}
+
+export function withdrawRoadRivalry(state: RoadRivalryState): RoadRivalryState {
+  if (state.status !== "active") return state;
+  return {
+    ...state,
+    status: "ready",
+    startedAtMs: null,
+    activeRigId: null,
+    nextGateIndex: 0,
+  };
+}
+
+export interface RoadRivalryEvaluation {
+  state: RoadRivalryState;
+  checkpoint: WorldSiteId | null;
+  completed: RoadRivalryRunRecord | null;
+  personalBest: boolean;
+}
+
+/**
+ * Score the run from the authoritative machine position after physics. This is
+ * intentionally a pure state transition: visual flags and UI prompts can
+ * observe the result, but cannot declare a gate crossed.
+ */
+export function evaluateRoadRivalry(
+  state: RoadRivalryState,
+  rigId: RigId,
+  x: number,
+  z: number,
+  elapsedMs: number,
+): RoadRivalryEvaluation {
+  if (
+    state.status !== "active" ||
+    state.activeRigId !== rigId ||
+    state.startedAtMs === null
+  ) {
+    return { state, checkpoint: null, completed: null, personalBest: false };
+  }
+
+  const gates = roadRivalryGateIds();
+  const gateId = gates[state.nextGateIndex];
+  if (!gateId) {
+    return { state, checkpoint: null, completed: null, personalBest: false };
+  }
+  const gate = roadRivalrySite(gateId);
+  if (Math.hypot(x - gate.x, z - gate.z) > ROAD_RIVALRY_GATE_RADIUS) {
+    return { state, checkpoint: null, completed: null, personalBest: false };
+  }
+
+  const nextGateIndex = state.nextGateIndex + 1;
+  if (nextGateIndex < gates.length) {
+    return {
+      state: { ...state, nextGateIndex },
+      checkpoint: gateId,
+      completed: null,
+      personalBest: false,
+    };
+  }
+
+  const elapsed = Math.max(0, Math.round(elapsedMs - state.startedAtMs));
+  const previousBest = state.bestTimeMsByRig[rigId];
+  const personalBest = previousBest === undefined || elapsed < previousBest;
+  const completed: RoadRivalryRunRecord = {
+    rigId,
+    elapsedMs: elapsed,
+    completedAtMs: Math.round(elapsedMs),
+  };
+  return {
+    state: {
+      ...state,
+      status: "ready",
+      startedAtMs: null,
+      activeRigId: null,
+      nextGateIndex: 0,
+      completedRuns: state.completedRuns + 1,
+      bestTimeMsByRig: personalBest
+        ? { ...state.bestTimeMsByRig, [rigId]: elapsed }
+        : state.bestTimeMsByRig,
+      lastRun: completed,
+    },
+    checkpoint: gateId,
+    completed,
+    personalBest,
+  };
 }

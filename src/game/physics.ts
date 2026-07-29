@@ -180,6 +180,10 @@ export interface MotionOptions {
   canJump: boolean;
   /** 0..1 ground saturation from the deterministic weather clock. */
   soilMoisture?: number;
+  /** Spatial infrastructure contribution, sampled by the authoritative kernel. */
+  soilMoistureOffset?: number;
+  /** Local waterline displacement from the persistent infrastructure network. */
+  waterLevelOffsetM?: number;
   /** Kernel-owned tool commitments. Omitted means "neutral, nothing committed". */
   tools?: RigToolState;
 }
@@ -463,7 +467,11 @@ function stepGroundMotion(
       profile.lugBonus,
     ),
     ground.surface.id,
-    options.soilMoisture ?? 0,
+    clamp(
+      (options.soilMoisture ?? 0) + (options.soilMoistureOffset ?? 0),
+      0,
+      1,
+    ),
   );
   // Airing down and locking the diff only help where grip is actually scarce.
   // On hardpan they are pure cost, which is what makes them a decision rather
@@ -483,7 +491,10 @@ function stepGroundMotion(
   const slopeAcceleration =
     -GRAVITY * (grade / Math.sqrt(1 + grade * grade)) * contactFraction;
 
-  const waterDepth = Math.max(0, WATER_LEVEL - ground.height);
+  const waterDepth = Math.max(
+    0,
+    WATER_LEVEL + (options.waterLevelOffsetM ?? 0) - ground.height,
+  );
   const hydroState = calculateRiverHydroState(
     waterDepth,
     rig.speed,
@@ -704,7 +715,7 @@ function stepHoverMotion(
   input: InputFrame,
   terrain: TerrainField,
   dt: number,
-  options: { towing: boolean },
+  options: MotionOptions,
 ): MotionOutcome {
   if (profile.mobilityAdapter !== "hover" || rig.mobility.kind !== "hover") {
     throw new Error(
@@ -718,10 +729,11 @@ function stepHoverMotion(
   const forwardX = Math.sin(rig.heading);
   const forwardZ = Math.cos(rig.heading);
   const ground = terrain.sample(rig.x, rig.z);
-  const waterDepth = Math.max(0, WATER_LEVEL - ground.height);
+  const localWaterLevel = WATER_LEVEL + (options.waterLevelOffsetM ?? 0);
+  const waterDepth = Math.max(0, localWaterLevel - ground.height);
   const supportY = Math.max(
     ground.height,
-    waterDepth > 0 ? WATER_LEVEL : -Infinity,
+    waterDepth > 0 ? localWaterLevel : -Infinity,
   );
   const targetY = supportY + profile.rideHeight;
 

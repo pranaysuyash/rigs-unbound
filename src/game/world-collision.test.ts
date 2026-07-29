@@ -26,6 +26,9 @@ function collisionScenario(target: RigId | "relay-cargo") {
   const world = new GameWorld(state.seed);
   state.activeRigId = "utility-tractor";
   const tractor = state.rigs["utility-tractor"];
+  // Torque narratively starts disabled awaiting restoration (see
+  // createInitialState); this proof exercises collision, not that beat.
+  tractor.condition = 100;
   const startX = CARGO_PICKUP.x - 6;
   const startZ = CARGO_PICKUP.z;
   tractor.x = startX;
@@ -140,6 +143,7 @@ describe("fixed-step dynamic world collision", () => {
     const world = new GameWorld(state.seed);
     state.activeRigId = "utility-tractor";
     const tractor = state.rigs["utility-tractor"];
+    tractor.condition = 100;
     const buggy = state.rigs["toy-buggy"];
     const cargo = state.cargoRelay.cargo;
     tractor.x = CARGO_PICKUP.x;

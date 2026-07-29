@@ -4,9 +4,21 @@ import type { ProgressionState } from "./progression";
 import type { UnboundPassageState } from "./unbound-passage";
 import type { MissionBinding, MissionClass } from "./mission-propositions";
 import type { ComponentHealthState } from "./vehicle-maintenance";
+import type { CommodityType } from "./expedition-economy";
+import type { InfrastructureNetworkState } from "./infrastructure-network";
+import type { SettlementNeedOutcomeId, SettlementState } from "./settlement-needs";
 
-export const SAVE_SCHEMA_VERSION = 11 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 10 as const;
+export const SAVE_SCHEMA_VERSION = 22 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 21 as const;
+export const V18_SAVE_SCHEMA_VERSION = 18 as const;
+export const V17_SAVE_SCHEMA_VERSION = 17 as const;
+export const V16_SAVE_SCHEMA_VERSION = 16 as const;
+export const V15_SAVE_SCHEMA_VERSION = 15 as const;
+export const V14_SAVE_SCHEMA_VERSION = 14 as const;
+export const V13_SAVE_SCHEMA_VERSION = 13 as const;
+export const V12_SAVE_SCHEMA_VERSION = 12 as const;
+export const V11_SAVE_SCHEMA_VERSION = 11 as const;
+export const V10_SAVE_SCHEMA_VERSION = 10 as const;
 export const V9_SAVE_SCHEMA_VERSION = 9 as const;
 export const V8_SAVE_SCHEMA_VERSION = 8 as const;
 export const V7_SAVE_SCHEMA_VERSION = 7 as const;
@@ -79,6 +91,7 @@ export const RIG_CAPABILITIES = [
   "survey",
   "ford",
   "hover",
+  "rally",
 ] as const;
 export type RigCapability = (typeof RIG_CAPABILITIES)[number];
 export type AttachmentId = "field-plough" | "tow-hook";
@@ -216,7 +229,7 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     displayName: "Utility Tractor",
     fieldName: "Torque",
     mobilityAdapter: "ground",
-    capabilities: ["plough", "tow"],
+    capabilities: ["plough", "tow", "rally"],
     enginePower: 11,
     lowSpeedTorque: 1,
     lugSpeed: 4,
@@ -253,7 +266,7 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     displayName: "Toy Buggy",
     fieldName: "Spark",
     mobilityAdapter: "ground",
-    capabilities: ["tow", "jump"],
+    capabilities: ["tow", "jump", "rally"],
 
     enginePower: 22,
     lowSpeedTorque: 0.22,
@@ -291,7 +304,7 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     displayName: "Marsh Skimmer",
     fieldName: "Drift",
     mobilityAdapter: "hover",
-    capabilities: ["tow", "survey", "hover"],
+    capabilities: ["tow", "survey", "hover", "rally"],
     enginePower: 9.5,
     lowSpeedTorque: 1,
     lugSpeed: 1,
@@ -572,6 +585,11 @@ export type RigMobilityState = GroundMobilityState | HoverMobilityState;
 
 export interface RigState {
   id: RigId;
+  /**
+   * Persistent, player-owned vehicle identity. The matching profile's field
+   * name is only the authored suggestion used when recovering older saves.
+   */
+  fieldName: string;
   x: number;
   /** Body origin elevation in world space, in metres. */
   y: number;
@@ -642,12 +660,20 @@ export interface CargoState {
   delivered: boolean;
 }
 
+/** The one physical crate's mission route; null preserves the Relay-haul fallback. */
+export interface CargoAssignment {
+  missionId: string;
+  originSiteId: string;
+  destinationSiteId: string;
+}
+
 export interface CargoRelayState {
   id: "cargo-relay";
   status: ActivityStatus;
   startedAt: number | null;
   completedAt: number | null;
   bestTimeMs: number | null;
+  assignment: CargoAssignment | null;
   cargo: CargoState;
 }
 
@@ -668,6 +694,34 @@ export interface SurveyRouteState {
   bestSightedCount: number;
 }
 
+/**
+ * One completed open-road run. The run belongs to a machine, not a player
+ * level, so the world can remember how different machines meet the same land.
+ */
+export interface RoadRivalryRunRecord {
+  rigId: RigId;
+  elapsedMs: number;
+  completedAtMs: number;
+}
+
+/**
+ * Persistent state for a voluntary, repeatable local road run.
+ *
+ * Unlike a mission, a road run has no acceptance slot, reward gate, expiry, or
+ * world unlock. It only remembers the active attempt and the machines' local
+ * records. The course geometry remains authored world data in `activities.ts`.
+ */
+export interface RoadRivalryState {
+  id: "road-rivalry";
+  status: "ready" | "active";
+  startedAtMs: number | null;
+  activeRigId: RigId | null;
+  nextGateIndex: number;
+  completedRuns: number;
+  bestTimeMsByRig: Partial<Record<RigId, number>>;
+  lastRun: RoadRivalryRunRecord | null;
+}
+
 /** The single authoritative accepted mission contract. Propositions remain derived. */
 export interface ActiveMissionState {
   id: string;
@@ -676,6 +730,8 @@ export interface ActiveMissionState {
   missionClass: MissionClass;
   /** Character/site/faction that issued the mission, or null for world-derived. */
   giverId: string | null;
+  /** Durable reference to a community consequence, never a UI-only callback. */
+  settlementOutcomeId: SettlementNeedOutcomeId | null;
   targetSiteId: string;
   waypointIds: readonly string[];
   requiredCapabilities: readonly RigCapability[];
@@ -722,6 +778,15 @@ export interface GameState {
   rigs: Record<RigId, RigState>;
   cargoRelay: CargoRelayState;
   surveyRoute: SurveyRouteState;
+  roadRivalry: RoadRivalryState;
+  /** Persistent world machinery; activities may observe it but never own it. */
+  infrastructure: InfrastructureNetworkState;
+  /** One lasting player choice for the Home Valley waterworks. */
+  farmWaterworks: FarmWaterworksState;
+  /** Optional North Field subsurface investigation. */
+  northFieldInvestigation: NorthFieldInvestigationState;
+  /** Community condition, favor, and completed work across the current region. */
+  settlements: SettlementState;
   activeMission: ActiveMissionState | null;
   /**
    * Concurrent non-main missions. The focus slot above stays the single
@@ -737,6 +802,20 @@ export interface GameState {
   salvage: number;
   /** Lifetime salvage collected, for the progress readout. */
   salvageCollected: number;
+  /**
+   * Commodity inventory for workshop crafting. Bounded to the three scrap
+   * commodities; awards are deterministic and tied to salvage collection.
+   */
+  inventory: Record<CommodityType, number>;
+  /**
+   * Crafted modules awaiting installation. A part in the bin can be fitted
+   * without spending salvage.
+   */
+  partsBin: ModuleId[];
+  /** Restoration progress for the opening tractor beat. */
+  restoration: RestorationState;
+  /** Persistent completion state for the first player-authored rig name. */
+  openingNaming: OpeningNamingState;
   /** Emergency recovery is exceptional, persisted, and operator-auditable. */
   recovery: {
     emergencyCount: number;
@@ -746,6 +825,40 @@ export interface GameState {
   progression: ProgressionState;
   saveStatus?: "saved" | "pending" | "restored" | "migrated";
   lastDiagnostic: string | null;
+}
+
+/**
+ * Restoration progress for the old man's tractor in Campaign One's opening.
+ *
+ * Kept deliberately small: three booleans carry the diagnose → repair → first
+ * start beat without inventing a parallel quest state machine.
+ */
+export interface RestorationState {
+  diagnosed: boolean;
+  repaired: boolean;
+  firstStart: boolean;
+}
+
+/** The old man's naming beat is one-time world memory, not dialogue-local UI. */
+export interface OpeningNamingState {
+  status: "waiting" | "ready" | "complete";
+}
+
+export type FarmWaterworksChoice =
+  | "unresolved"
+  | "repair-pump"
+  | "redirect-channel";
+
+/** Save-owned water outcome; field cells and infrastructure provide its effects. */
+export interface FarmWaterworksState {
+  choice: FarmWaterworksChoice;
+  chosenAtWorldMinutes: number | null;
+}
+
+export interface NorthFieldInvestigationState {
+  status: "unresolved" | "scanned";
+  scannedAtWorldMinutes: number | null;
+  anomalyDepthMeters: number | null;
 }
 
 export interface LandmarkDefinition {
@@ -793,6 +906,40 @@ export const CARGO_DELIVERY = {
   z: cargoDeliverySite.z,
   radius: 6,
 } as const;
+
+export interface CargoRouteTarget {
+  siteId: string | null;
+  x: number;
+  z: number;
+  radius: number;
+}
+
+/** Assigned mission origin or the legacy Relay-haul pickup. */
+export function cargoPickupTarget(relay: CargoRelayState): CargoRouteTarget {
+  const site = relay.assignment
+    ? WORLD_SITES.find((item) => item.id === relay.assignment?.originSiteId)
+    : undefined;
+  return site
+    ? { siteId: site.id, x: site.x, z: site.z, radius: CARGO_PICKUP.radius }
+    : { siteId: null, ...CARGO_PICKUP };
+}
+
+/** Assigned mission destination or the legacy Relay-haul finish. */
+export function cargoDeliveryTarget(relay: CargoRelayState): CargoRouteTarget {
+  const site = relay.assignment
+    ? WORLD_SITES.find(
+        (item) => item.id === relay.assignment?.destinationSiteId,
+      )
+    : undefined;
+  return site
+    ? {
+        siteId: site.id,
+        x: site.x,
+        z: site.z,
+        radius: Math.min(8, site.serviceRadius ?? CARGO_DELIVERY.radius),
+      }
+    : CARGO_DELIVERY;
+}
 export const BUGGY_RAMP = {
   x: 24,
   z: -26,

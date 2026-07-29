@@ -8,6 +8,9 @@ describe("experimental rig emission source", () => {
   it("derives deterministic bounded channels without mutating the rig", () => {
     const state = createInitialState("SIGNATURE-DETERMINISM");
     const rig = state.rigs["utility-tractor"];
+    // Torque narratively starts disabled awaiting restoration (see
+    // createInitialState); this test exercises operating emission, not that.
+    rig.condition = 100;
     rig.speed = 4;
     rig.strain = 0.45;
     rig.attachments[0]!.engaged = true;
@@ -29,6 +32,7 @@ describe("experimental rig emission source", () => {
   it("keeps channel causes distinct across motion, strain, tools, and load", () => {
     const state = createInitialState("SIGNATURE-CAUSES");
     const rig = state.rigs["utility-tractor"];
+    rig.condition = 100;
     const idle = deriveRigSignature(rig, idleContext);
 
     rig.speed = 5;

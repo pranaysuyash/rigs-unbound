@@ -1210,6 +1210,105 @@ kbd {
   display: none;
 }
 
+.workshop__waterworks {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding: 0.85rem;
+  border-left: 3px solid var(--workshop-cyan, #7ed9d0);
+  background: color-mix(in srgb, var(--workshop-cyan, #7ed9d0) 9%, transparent);
+}
+
+.workshop__waterworks[hidden] {
+  display: none;
+}
+
+.workshop__waterworks > p {
+  margin: 0;
+  color: var(--workshop-cyan, #7ed9d0);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.workshop__waterworks > span {
+  font-size: 0.9rem;
+}
+
+.workshop__waterworks > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.opening-naming-moment {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: clamp(1.25rem, 5vh, 3.5rem);
+  width: min(34rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  padding: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--workshop-bone) 70%, transparent);
+  border-radius: 0.8rem;
+  background:
+    linear-gradient(145deg, rgba(17, 28, 30, 0.97), rgba(25, 22, 17, 0.97)),
+    var(--ink);
+  box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.45);
+  color: var(--workshop-bone);
+}
+
+.opening-naming-moment[hidden] {
+  display: none;
+}
+
+.opening-naming-moment > p:first-child {
+  margin: 0 0 0.35rem;
+  color: var(--workshop-cyan, #7ed9d0);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.opening-naming-moment h2 {
+  margin: 0;
+  font-family: var(--display-font, serif);
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
+}
+
+.opening-naming-moment form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.opening-naming-moment label {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+}
+
+.opening-naming-moment input,
+.opening-naming-moment button {
+  min-height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--workshop-bone) 60%, transparent);
+  border-radius: 0.35rem;
+  padding: 0 0.7rem;
+  font: inherit;
+}
+
+.opening-naming-moment input {
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+}
+
+.opening-naming-moment button {
+  background: var(--workshop-bone);
+  color: var(--ink);
+  cursor: pointer;
+}
+
 .workshop header {
   display: flex;
   gap: 0.5rem;
@@ -1532,6 +1631,17 @@ kbd {
   align-items: center;
 }
 
+.swatch--infrastructure {
+  background: #2dd4bf;
+  border: 1px solid rgba(234, 216, 184, 0.72);
+  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.16);
+}
+
+.swatch--soil {
+  background: linear-gradient(135deg, #6e452a 0 36%, #be873e 36% 68%, #5aa35d 68%);
+  border: 1px solid rgba(234, 216, 184, 0.72);
+}
+
 .swatch {
   width: 0.6rem;
   height: 0.6rem;
@@ -1592,7 +1702,21 @@ kbd {
   }
 
   .masthead__buttons {
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: min(100%, 14rem);
+  }
+
+  .masthead__buttons > #mute-button,
+  .masthead__buttons > #fullscreen-button {
     display: none;
+  }
+
+  .masthead__buttons button,
+  .masthead__buttons a {
+    padding: 0.25rem 0.45rem;
+    font-size: 0.58rem;
   }
 
   .traction__row {
@@ -2225,6 +2349,17 @@ kbd {
 .mission-board__summary,
 .mission-briefing p {
   color: rgba(234, 216, 184, 0.78);
+}
+
+.mission-board__context {
+  margin: 0.35rem 0 0;
+  color: rgba(82, 193, 217, 0.92);
+  font:
+    700 0.68rem/1.35 "SFMono-Regular",
+    Consolas,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .mission-board__list {
