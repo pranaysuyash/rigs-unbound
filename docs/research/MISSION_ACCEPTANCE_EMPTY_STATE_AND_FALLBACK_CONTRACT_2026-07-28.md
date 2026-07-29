@@ -125,3 +125,17 @@ honest part of the game’s discovery loop.
   the shell is small.
 - Anything else? No. A blank board is still not neutral; it should be an
   explicit, recoverable state on every viewport that can open the board.
+
+## Addendum (2026-07-29) - the empty state should distinguish no active rows from nothing yet discovered
+
+- The empty state should use different copy for "no active rows" versus "nothing yet discovered" because those are different player situations with different next-step guidance.
+- That keeps the board honest without adding a new system: the player should know whether the board is empty because nothing is available right now or because discovery has not yet unlocked anything to show.
+- The visual shell can stay the same, but the explanation should match the cause of the empty state.
+- Anything else? No. Empty state should explain the specific absence, not just say the board is empty.
+
+## Addendum (2026-07-29) - the broader discovery hint should stay on the shell, not inside the empty board
+
+- Keep the concise empty-board message in the board itself, and keep the broader discovery hint on the shell or other outer guidance surface.
+- That keeps the empty board focused on explaining its immediate absence and recovery path instead of becoming a second tutorial panel.
+- The board can still point the player back to play, but the more general discovery guidance should live outside the empty surface.
+- Anything else? No. Empty state should explain the board; the shell can explain the wider discovery loop.

@@ -2807,3 +2807,20 @@ condition: update prior work in place, never delete it):
 Status vocabulary note: "Proposed" areas above that the spine now covers
 (core fantasy, open world, long arc) should be re-pointed at the spine when
 next touched instead of growing new local hypotheses here.
+
+## Addendum — 2026-07-29 quest semantics are live: the mission system now knows who asked and why
+
+Tranche 1 of The Road That Was landed in the runtime. The mission system is no
+longer pure transaction plumbing: propositions carry a quest class, a giver,
+and a prerequisite graph; the campaign generator derives the Sunken Flats
+relay contract from `campaign.ts` as an acceptable main-class quest with the
+Launch Ridge contract chained behind its completion deed; and save schema v11
+supports one main quest plus up to three concurrent side missions through the
+same lifecycle authority. Reachability moved 25 → 24 (campaign.ts wired), and
+the new `npm run test:campaign-browser` probe proves the loop end to end in
+the live shell. Discovery for the wider structure: `campaign.ts` carried
+stale site ids from an older world (`home-farm`, `marsh-depot`) — the first
+was corrected to `home-silo`, the second is now an explicit dormant contract
+awaiting the Marsh Depot site in the world-content tranche. See the slice
+spec ([First Playable — The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md))
+tranche log and the Master Execution Tracker's tranche-1 record.

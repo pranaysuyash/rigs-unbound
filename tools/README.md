@@ -322,3 +322,26 @@ Pick `minutes` from the script's realistic worst case, not its typical case — 
 deadline is there to bound a hang, not to enforce a performance budget. Add it to
 any new browser script; a script that cannot exit is worse than one that fails,
 because a failure is visible.
+
+## Campaign contract browser acceptance
+
+`campaign-contract-browser-acceptance.cjs` proves the quest-semantics tranche
+end to end in the live shell:
+
+- bootstraps a clean state and enters the world;
+- opens the mission board and asserts the campaign root contract
+  ("Sunken Flats Submerged Relay", derived from `src/game/campaign.ts`) is
+  listed as an acceptable main-class quest;
+- asserts the chained Launch Ridge contract stays hidden until the relay
+  completion deed exists;
+- selects and accepts the relay contract and verifies it becomes the
+  persisted active mission through the public text contract;
+- fails on any application console error (headless-GPU driver performance
+  warnings are filtered as environmental noise).
+
+Start the canonical dev server (`node tools/start-canonical-dev-server.cjs`),
+then run:
+
+```bash
+npm run test:campaign-browser
+```

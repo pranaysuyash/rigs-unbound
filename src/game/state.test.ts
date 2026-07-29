@@ -47,6 +47,8 @@ import {
   toggleBladeMode,
   winchRecover,
 } from "./state";
+import { acceptMission } from "./mission-lifecycle";
+import type { MissionProposition } from "./mission-propositions";
 import { HOME_SITE, RIG_HOME_BERTHS, SURFACES, findSite } from "./world";
 
 const ACCELERATE = {
@@ -1663,5 +1665,84 @@ describe("rig switching is a place, not a menu", () => {
     const { state } = scenario("SWITCH-SPAWN");
     switchActiveRig(state);
     expect(state.activeRigId).not.toBe("utility-tractor");
+  });
+});
+
+describe("public state mission surface", () => {
+  const mainMission: MissionProposition = {
+    id: "delivery-home-long-furrow",
+    binding: "delivery",
+    missionClass: "main",
+    giverId: "old-man",
+    prerequisites: [],
+    title: "Home → Long Furrow",
+    premise: "Transport supplies.",
+    briefing: "A delivery under pressure.",
+    origin: "Home",
+    destination: "Long Furrow",
+    targetSiteId: "long-furrow",
+    waypointIds: ["home-silo", "long-furrow"],
+    minInsight: 0,
+    requiredCapabilities: ["tow"],
+    rewardSalvage: 5,
+    difficultyLabel: "standard",
+    state: "available",
+  };
+
+  const sideMission: MissionProposition = {
+    ...mainMission,
+    id: "side-salvage",
+    missionClass: "side",
+    giverId: null,
+  };
+
+  it("exposes the focus mission with class and giver", () => {
+    const { state, world } = scenario("MISSION-PUBLIC-STATE");
+    const accepted = acceptMission(
+      state,
+      mainMission,
+      "utility-tractor",
+      1000,
+    );
+    expect(accepted.ok).toBe(true);
+
+    const exposed = publicState(state, world) as {
+      mission: {
+        id: string;
+        missionClass: string;
+        giverId: string | null;
+      } | null;
+      activeSideMissions: { id: string; missionClass: string }[];
+    };
+
+    expect(exposed.mission).toMatchObject({
+      id: mainMission.id,
+      missionClass: "main",
+      giverId: "old-man",
+    });
+    expect(exposed.activeSideMissions).toHaveLength(0);
+  });
+
+  it("exposes concurrent side missions separately from the focus mission", () => {
+    const { state, world } = scenario("SIDE-MISSION-PUBLIC-STATE");
+    expect(acceptMission(state, mainMission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+    expect(
+      acceptMission(state, sideMission, "utility-tractor", 1100).ok,
+    ).toBe(true);
+
+    const exposed = publicState(state, world) as {
+      mission: { id: string } | null;
+      activeSideMissions: { id: string; missionClass: string; giverId: null }[];
+    };
+
+    expect(exposed.mission?.id).toBe(mainMission.id);
+    expect(exposed.activeSideMissions).toHaveLength(1);
+    expect(exposed.activeSideMissions[0]).toMatchObject({
+      id: sideMission.id,
+      missionClass: "side",
+      giverId: null,
+    });
   });
 });

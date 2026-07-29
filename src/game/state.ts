@@ -80,6 +80,14 @@ import {
   completeMission,
   failMission,
 } from "./mission-lifecycle";
+import {
+  componentWearDeficit,
+  createComponentHealth,
+  serviceSurchargeSalvage,
+  updateComponentWear,
+  WEAR_FLUSH_INTERVAL_M,
+  type ComponentHealthState,
+} from "./vehicle-maintenance";
 import { MISSION_CLASSES, type MissionClass } from "./mission-propositions";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
@@ -238,6 +246,8 @@ function createRig(
     distanceTravelled: 0,
     condition: 100,
     strain: 0,
+    componentHealth: createComponentHealth(),
+    componentWearFlushedAtM: 0,
     mobility: createMobility(id),
     attachments:
       id === "utility-tractor"
@@ -987,18 +997,28 @@ export function repairRig(state: GameState): void {
     state.lastDiagnostic = "Repairs need the Home Silo workshop pad.";
     return;
   }
-  if (rig.condition >= 99.5 && rig.strain < 0.05) {
+  const wearDeficit = componentWearDeficit(rig.componentHealth);
+  if (rig.condition >= 99.5 && rig.strain < 0.05 && wearDeficit < 0.5) {
     state.lastDiagnostic = "Nothing to repair.";
     return;
   }
-  if (state.salvage < REPAIR_COST) {
-    state.lastDiagnostic = `Repairs cost ${REPAIR_COST} salvage; ${state.salvage} in the bin.`;
+  // Mechanical service is a surcharge on the base repair, so a pure condition
+  // repair costs exactly what it always did and worn components make the bill
+  // honest instead of hidden.
+  const surcharge = serviceSurchargeSalvage(rig.componentHealth);
+  const cost = REPAIR_COST + surcharge;
+  if (state.salvage < cost) {
+    state.lastDiagnostic = `Repairs cost ${cost} salvage; ${state.salvage} in the bin.`;
     return;
   }
-  state.salvage -= REPAIR_COST;
+  state.salvage -= cost;
   rig.condition = Math.min(100, rig.condition + REPAIR_AMOUNT);
   rig.strain = 0;
-  state.lastDiagnostic = `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}%.`;
+  rig.componentHealth = createComponentHealth();
+  state.lastDiagnostic =
+    surcharge > 0
+      ? `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}% and serviced — tread, radiator, cable, and belt back to spec.`
+      : `${RIG_PROFILES[rig.id].fieldName} rebuilt to ${Math.round(rig.condition)}%.`;
 }
 
 /** Versioned local intent contract for the second command/event proof slice. */
@@ -1421,6 +1441,25 @@ export function stepGame(
     soilMoisture: weather.soilMoisture,
     tools: rig.tools,
   });
+
+  // Mechanical wear accrues in odometer batches because the wear maths rounds
+  // to 0.1% and per-step deltas would vanish. The surface at flush time stands
+  // in for the whole batch, which is accurate enough at 250 m granularity.
+  if (
+    rig.distanceTravelled - rig.componentWearFlushedAtM >=
+    WEAR_FLUSH_INTERVAL_M
+  ) {
+    const batchM = rig.distanceTravelled - rig.componentWearFlushedAtM;
+    const fordingMud =
+      rig.telemetry.surfaceId === "mud" || rig.telemetry.surfaceId === "water";
+    rig.componentHealth = updateComponentWear(
+      rig.componentHealth,
+      batchM / 1000,
+      fordingMud,
+      0,
+    );
+    rig.componentWearFlushedAtM = rig.distanceTravelled;
+  }
 
   // ---------------------------------------------------------------------------
   // Collision. Resolved after motion so the push-out is the final word on
@@ -1960,6 +1999,7 @@ export function publicState(state: GameState, world: GameWorld): object {
       mobility,
       condition: fixedNumber(rig.condition, 1),
       strain: fixedNumber(rig.strain, 3),
+      componentHealth: { ...rig.componentHealth },
       distanceTravelled: fixedNumber(rig.distanceTravelled, 2),
       attachments: rig.attachments.map((item) => ({ ...item })),
       modules: [...rig.modules],
@@ -2118,12 +2158,24 @@ export function publicState(state: GameState, world: GameWorld): object {
       ? {
           id: state.activeMission.id,
           binding: state.activeMission.binding,
+          missionClass: state.activeMission.missionClass,
+          giverId: state.activeMission.giverId,
           targetSiteId: state.activeMission.targetSiteId,
           activeRigId: state.activeMission.activeRigId,
           progressIndex: state.activeMission.progressIndex,
           waypointCount: state.activeMission.waypointIds.length,
         }
       : null,
+    activeSideMissions: state.activeSideMissions.map((mission) => ({
+      id: mission.id,
+      binding: mission.binding,
+      missionClass: mission.missionClass,
+      giverId: mission.giverId,
+      targetSiteId: mission.targetSiteId,
+      activeRigId: mission.activeRigId,
+      progressIndex: mission.progressIndex,
+      waypointCount: mission.waypointIds.length,
+    })),
     // The authored world layout, so external tools (acceptance runs, the trailer
     // capture) can target a named place instead of hardcoding coordinates that
     // drift whenever `WORLD_SITES` is retuned.
@@ -2361,6 +2413,32 @@ function recoverMobility(
   };
 }
 
+function recoverComponentHealth(candidate: unknown): ComponentHealthState {
+  const fresh = createComponentHealth();
+  if (!candidate || typeof candidate !== "object") return fresh;
+  const source = candidate as Partial<ComponentHealthState>;
+  const percent = (value: unknown, fallback: number): number =>
+    isFiniteNumber(value) ? clamp(value, 0, 100) : fallback;
+  return {
+    tireTreadHealthPercent: percent(
+      source.tireTreadHealthPercent,
+      fresh.tireTreadHealthPercent,
+    ),
+    radiatorCleanlinessPercent: percent(
+      source.radiatorCleanlinessPercent,
+      fresh.radiatorCleanlinessPercent,
+    ),
+    winchCableIntegrityPercent: percent(
+      source.winchCableIntegrityPercent,
+      fresh.winchCableIntegrityPercent,
+    ),
+    alternatorBeltHealthPercent: percent(
+      source.alternatorBeltHealthPercent,
+      fresh.alternatorBeltHealthPercent,
+    ),
+  };
+}
+
 function recoverRig(
   value: unknown,
   id: RigId,
@@ -2448,6 +2526,17 @@ function recoverRig(
     strain: isFiniteNumber(candidate.strain)
       ? clamp(candidate.strain, 0, 1)
       : 0,
+    componentHealth: recoverComponentHealth(candidate.componentHealth),
+    // Pre-wear saves have no flush marker. Defaulting to the recovered
+    // odometer means a migrated rig takes no retroactive wear dump for the
+    // kilometres it drove before the wear system existed.
+    componentWearFlushedAtM: isFiniteNumber(candidate.componentWearFlushedAtM)
+      ? clamp(
+          candidate.componentWearFlushedAtM,
+          0,
+          Math.max(0, candidate.distanceTravelled),
+        )
+      : Math.max(0, candidate.distanceTravelled),
     mobility,
     attachments,
     modules: recoverModules(candidate.modules, id),

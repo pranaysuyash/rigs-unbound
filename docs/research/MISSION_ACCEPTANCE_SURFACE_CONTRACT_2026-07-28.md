@@ -238,6 +238,22 @@ rows to show.
 The loading and refresh behavior now lives in
 [Mission Acceptance Loading and Refresh Contract](./MISSION_ACCEPTANCE_LOADING_AND_REFRESH_CONTRACT_2026-07-28.md).
 
+## Compact-view follow-through
+
+The compact presentation rule now needs to stay explicit so the board can
+adapt without becoming a second authority:
+
+- compact view may reduce visible density, not the underlying choice set;
+- compact view may collapse explanation, not the accept/dismiss semantics;
+- compact view must still preserve one reachable focus path to the active row;
+- compact view must still keep the visible reason string available somewhere
+  perceivable;
+- compact view must not hide the current acceptance state behind an icon-only
+  summary.
+
+This keeps the compact board as a presentation mode, not a lesser mission
+surface.
+
 That note keeps the board from looking empty while rows are still being
 rebuilt or refreshed.
 
@@ -411,3 +427,50 @@ Anything else? Yes: the board is a real surface already; the next durable decisi
 - Anything else? No. The compact shell should either surface the board in a
   smaller form or clearly remain board-free by policy, but it should no longer
   be left in a vague hidden state.
+
+## Addendum (2026-07-29) - compact/mobile exposure needs one explicit product decision, not a hidden compromise
+
+- Re-read the surface through the game-design lens: a player-facing choice surface
+  needs one obvious action path, not a buried affordance.
+- The compact/mobile question should therefore be decided explicitly:
+  - either the compact shell stays board-free and desktop-first by policy;
+  - or it gets one small, discoverable, focus-safe entry path that opens the
+    same choice semantics as desktop.
+- What cannot remain is the current vague middle state where the trigger path
+  exists in the DOM but is not reachable enough to count as a player affordance.
+- That keeps the exposure policy honest and avoids creating a second hidden
+  board just to satisfy the shell.
+- Anything else? No. The compact shell should either stay intentionally board-
+  free or surface one obvious contract action; it should not imply a choice
+  surface that the player cannot reach.
+
+## Addendum (2026-07-29) - the compact shell does expose a visible contract entry point
+
+- A live compact-viewport probe at 390 x 844 shows the Contracts button visible and focusable in the shell.
+- In the same probe, the mission-board close button and accept action are also present in the DOM, so the narrow shell is not board-free; it already exposes the same choice surface through a smaller entry path.
+- That means the product decision is now clearer:
+  - compact shell keeps a real contract entry point;
+  - the entry remains the same choice semantics as desktop;
+  - the board still must remain accessible and explicit rather than hidden behind inert status text.
+- Anything else? No. The compact shell already has a visible entry point, so the contract now needs to describe and preserve it rather than invent one.
+
+## Addendum (2026-07-29) - the acceptance-route comparison is temporarily blocked by browser IPC storage exhaustion
+
+- A follow-up route probe for `?acceptance=field-02` could not be completed because the browser client cannot write its `.browser-command` file right now (`ENOSPC`).
+- That means the acceptance-route question remains open, but not because the app contract changed: the local evidence channel is blocked by storage pressure.
+- The next proof slice should revisit the acceptance route once the browser IPC path is writable again, so the route-specific chooser question can be answered from live state rather than guesswork.
+- Anything else? No. This is a blocked evidence lane, not a solved product gap.
+
+## Addendum (2026-07-29) - the selected row should remain the choice surface, with detail kept secondary
+
+- The acceptance surface should keep the selected row itself as the primary choice surface.
+- Any deeper detail pane should stay secondary to the row, not replace the row as the place where the player makes the decision.
+- That keeps the contract aligned with the existing row model: selection, reason, accept, and back all stay on the row path the player can reach directly.
+- Anything else? No. The row stays the choice surface; detail can support it, but it should not become a second board within the board.
+
+## Addendum (2026-07-29) - deferred propositions should stay visible in the same list
+
+- Deferred propositions should remain visible in the same list as available ones, with a clear reason string, rather than moving to a separate unavailable section.
+- That keeps the player's choice surface in one place and makes the why not yet answer easy to find.
+- The row can be deferred, but it should still be part of the same board context so the player does not have to hunt for it in a second location.
+- Anything else? No. Deferred means not ready, not hidden.

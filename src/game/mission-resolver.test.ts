@@ -28,6 +28,9 @@ describe("mission reward resolver", () => {
     const mission: MissionProposition = {
       id: "delivery-home-launch",
       binding: "delivery",
+      missionClass: "local",
+      giverId: null,
+      prerequisites: [],
       title: "Home to Launch",
       premise: "Move cargo up the ridge.",
       briefing: "A hard haul.",

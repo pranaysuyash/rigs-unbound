@@ -566,3 +566,18 @@ available in the reviewer/operator lane.
   together later.
 - Anything else? No. The budget lane should explain the shell, not just record
   it.
+
+## Addendum (2026-07-29) - the browser funnel still needs an installable shell and a bounded offline cache story
+
+- Re-read the `web-games` lens against the current browser-budget notes.
+- The browser build is still the free demo funnel, so the resource envelope now
+  needs one explicit PWA/offline boundary:
+  - the shell may cache itself and a small safe asset set for installable use;
+  - offline or cached state must never masquerade as authoritative simulation
+    truth for progress, contracts, or sync-sensitive data;
+  - the visible shell should be able to explain whether it is online,
+    installable, cached, or degraded.
+- That keeps the browser channel useful on slower networks and installable on
+  user devices without turning cached state into a second source of truth.
+- Anything else? No. The browser funnel can be durable and installable only if
+  the offline envelope stays bounded and explicit.

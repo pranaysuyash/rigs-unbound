@@ -55,22 +55,40 @@ close an already-open acceptance gate. Every package below this section must
 name the spine layer it serves when it is next touched; packages that cannot
 are deferred by default per ADR-0040.
 
+**Tranche 1 (quest semantics) — DONE 2026-07-29.** Quest classes, giver ids,
+and a prerequisite graph landed on `MissionProposition`; the campaign
+generator derives main-class contracts from `campaign.ts` (stale `home-farm`
+site id corrected to `home-silo`; the marsh contract stays dormant until its
+site is authored); `mission-lifecycle.ts` enforces one `main` focus mission
+and up to three concurrent non-main side missions; binding-driven completion
+hooks route through `activeMissionMatching` so side missions complete via the
+same authority; the mission board groups rows by class, shows giver/status,
+and explains disabled accept states. Removed the parallel
+`deriveCampaignContracts`/`activeContractCount` engine from `campaign.ts`.
+Evidence: `npm run typecheck` PASS; `npx vitest run --pool=forks
+--poolOptions.forks.singleFork` PASS 76 files / 487 tests (new concurrency,
+public-state, and campaign-chaining cases). Browser acceptance for the board
+remains pending. Next: tranche 2 (restoration loop — wire
+`vehicle-maintenance.ts`, `workshop-lab.ts`, `salvage-crafting.ts` into the
+shell).
+
 ## Quest-semantics tranche note (2026-07-29)
 
-- The first tranche is now explicitly narrowed to a versioned proposition
+- The first tranche is complete and narrowed to a versioned proposition
   contract:
-  - `MissionProposition.class`
-  - `MissionProposition.giver`
+  - `MissionProposition.missionClass`
+  - `MissionProposition.giverId`
   - `MissionProposition.prerequisites`
-  - `MissionProposition.outcomes`
-- The target behavior remains the same as the slice doc: one `main` quest may
-  stay active while multiple `side` / `local` propositions coexist, and
-  `campaign.ts` should route through the mission lifecycle instead of keeping a
-  parallel campaign engine.
-- Because `src/game/` still has parallel-owned uncommitted runtime work, the
-  safe preparation boundary for this tranche remains documentation and
-  non-`src/game/` scaffolding until the operator explicitly clears the
-  collision.
+- `MissionProposition.outcomes` is intentionally deferred: the prerequisite
+  graph already handles campaign unlocking, and outcome consumers (favor,
+  world-memory deltas) land with Tranches 2–3.
+- The target behavior matches the slice doc: one `main` quest in the focus
+  slot, up to three concurrent `side` / `local` / `hidden` / `repeatable`
+  missions in `activeSideMissions`, and `campaign.ts` now routes through the
+  mission lifecycle with no parallel campaign engine.
+- The parallel-owned `src/game/` collision was cleared by committing the
+  pending runtime work; Tranche 1 edits to `src/game/` are now landed and
+  verified.
 - The tracker should keep future tranche updates tied to the slice document so
   the design spine and execution order stay aligned.
 

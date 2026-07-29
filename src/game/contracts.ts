@@ -3,6 +3,7 @@ import type { RigId } from "./rig-ids";
 import type { ProgressionState } from "./progression";
 import type { UnboundPassageState } from "./unbound-passage";
 import type { MissionBinding, MissionClass } from "./mission-propositions";
+import type { ComponentHealthState } from "./vehicle-maintenance";
 
 export const SAVE_SCHEMA_VERSION = 11 as const;
 export const PREVIOUS_SAVE_SCHEMA_VERSION = 10 as const;
@@ -586,6 +587,14 @@ export interface RigState {
   condition: number;
   /** Fuel-free proxy for mechanical strain; rises under load, recovers at rest. */
   strain: number;
+  /**
+   * Mechanical wear per component — the layer beneath structural `condition`.
+   * Kernel-owned: tread wear feeds effective grip, so it must survive reload
+   * and replay.
+   */
+  componentHealth: ComponentHealthState;
+  /** Odometer reading (m) at the last wear flush; see WEAR_FLUSH_INTERVAL_M. */
+  componentWearFlushedAtM: number;
   mobility: RigMobilityState;
   attachments: AttachmentState[];
   modules: ModuleId[];

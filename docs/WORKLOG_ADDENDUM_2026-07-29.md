@@ -1090,3 +1090,468 @@ Anything else? Yes: one of the older accessibility gaps can now be retired as a 
   the explicit ceiling hedge — if the product ever outgrows web tech, the
   shell is what gets replaced, not the game. Consoles remain a far-future
   port decision.
+
+
+## Analysis thread — the browser daemon can re-anchor, but the DOM witness is still not dependable
+
+- Re-checked the live daemon after the browser-daemon lens pass.
+- The canonical developer route is reachable again and reports the expected
+  `Rigs Unbound` title.
+- The current `status` and `exec` probe path is still not a trustworthy DOM
+  witness: the page-state fields came back empty before re-anchoring, and the
+  direct execution probe returned `undefined`/timed out instead of a stable
+  snapshot.
+- That keeps the browser-delivery gap explicit in the docs: the route exists,
+  but the player-facing fidelity witness still needs its own on-screen surface.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a probe-path reliability note, not a runtime fix.
+
+## Analysis thread — audio still needs a reload-safe preference trail behind the rescue cue
+
+- Re-read the updated audio contract after the browser-daemon pass.
+- The live surface still confirms the useful half of the audio trust feature:
+  sound can toggle in-session from the visible pause/menu control.
+- The missing half is still the same one the contract has been naming: a
+  visible persisted preference trail that survives reload instead of resetting
+  to session state.
+- That keeps the next audio proof narrow and honest: the rescue-loop cue is
+  still the target, but it now needs to sit on top of a reload-safe
+  preference layer to be a durable affordance.
+- `src/game/` was left untouched.
+
+Anything else? Yes: the audio lane remains a documentation and contract
+alignment pass, not a runtime change.
+
+## Analysis thread — the browser witness must be perceivable and keyboard-reachable
+
+- Re-read the accessibility/input contract alongside the browser-delivery
+  witness note.
+- The named fidelity witness cannot be treated as complete if it is only a
+  visible badge. It also needs a focusable route and a keyboard path into the
+  same state.
+- The next proof slice therefore needs to announce mode, readiness, and the
+  rescue cue through an accessible status surface or live region, not just as
+  a visual treatment.
+- That keeps the shell aligned across pointer, keyboard, and assistive-tech
+  users.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still contract alignment, not a runtime
+implementation change.
+
+## Analysis thread — compact mission-board view can reduce density, not choice
+
+- Re-read the mission acceptance surface contract with the compact-view gap
+  in mind.
+- The next note is now explicit: compact presentation may reduce visible
+  density, but it must not reduce the underlying choice set or the
+  accept/dismiss semantics.
+- The active row still needs a reachable focus path and a perceivable reason
+  string, even when the board is collapsed or sectioned.
+- That keeps compact mode as a presentation choice instead of a second,
+  weaker mission surface.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a board-shape contract note, not a UI rewrite.
+
+## Analysis thread — compact sectioned board can shrink density without shrinking authority
+
+- Re-read the section-and-visibility contract after the acceptance-surface
+  compact-view note.
+- The compact-shell boundary is now explicit: compact mode may collapse space,
+  but it must not collapse the choice model, the active row, or the reason
+  string.
+- The same four sections still need to exist in both density modes, with one
+  announced toggle state and one focus path that survives the switch.
+- That keeps compact view as a layout decision instead of a different mission
+  board.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still documentation and analysis, not a runtime
+change.
+
+
+## Analysis thread — browser loading also has to respect tab visibility and first interaction
+
+- Re-read the loading/profile contract through the `web-games` lens.
+- The shell can be progress-led and truthful, but browser rules still matter:
+  hidden tabs should pause or visibly suspend simulation work, and audio
+  should wait for the first real user interaction instead of assuming autoplay.
+- Progressive loading still wins on mobile and low-bandwidth surfaces; the
+  loading story is not just a text narrative, it is also a browser-behavior
+  contract.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is browser-policy analysis, not a runtime change.
+
+
+## Analysis thread — the browser funnel also needs a bounded offline and installable shell story
+
+- Re-read the browser-game lens against the resource-envelope note.
+- The browser build is the free demo funnel, so the next contract boundary is
+  PWA/offline: the shell may cache a small safe asset set, but offline state
+  must never masquerade as authoritative simulation truth.
+- The visible shell should be able to tell the player whether it is online,
+  installable, cached, or degraded instead of leaving that status implicit.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still browser-policy analysis, not a runtime
+implementation change.
+
+
+## Analysis thread — compact/mobile mission-board exposure needs an explicit product decision
+
+- Re-read the mission acceptance surface through the game-design lens.
+- The compact shell can’t stay in the vague middle: either it is intentionally
+  board-free and desktop-first, or it exposes one small, discoverable entry
+  path that reaches the same choice semantics as the desktop board.
+- Hidden DOM affordances are not enough; the player-facing action path has to
+  be obvious enough to count as a real affordance.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a contract decision note, not a UI implementation.
+
+
+## Analysis thread — the bootstrap narrative still needs an explicit profile choice moment
+
+- Re-read the loading/profile contract after the browser-game and accessibility
+  passes.
+- The shell already explains measuring and readiness, but it still needs one
+  explicit first-choice moment for the player profile itself.
+- The next proof slice should answer, in order: what mode am I in, which
+  profile is active or being measured, and do I need to choose or can I
+  proceed?
+- That keeps the loading narrative from collapsing into passive status text.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a bootstrap-story note, not a runtime change.
+
+
+## Analysis thread — first visit should surface a chooser or a reasoned default
+
+- Re-read the loading/profile bootstrap contract one more time.
+- The profile state needs one more explicit boundary: if the shell is not on a
+  known profile, the player should see a visible chooser or a plain-language
+  reason for the default that was applied.
+- That makes the first visit actionable instead of leaving the profile implied
+  by the status line.
+- The shell can remain compact, but the player should not have to guess whether
+  profile choice is settled, measured, or waiting for input.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still a contract note, not a runtime change.
+
+## Analysis thread — live DOM shows profile status but not a dedicated first-visit chooser
+
+- A live DOM probe on the canonical developer surface now shows
+  `#bootstrap-status`, `#profile-status`, and `#camera-select`.
+- In that slice there is still no dedicated profile-chooser control, which
+  means the shell can narrate profile state but not yet present the first-visit
+  choice as its own affordance.
+- The next proof slice should separate status, chooser, and default
+  explanation instead of letting the status line stand in for first-time input.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still browser-surface analysis, not a runtime
+change.
+
+## Analysis thread - compact shell already exposes a visible contract entry point
+
+- A live compact-viewport probe at 390 x 844 shows the Contracts button visible and focusable, along with the board close and accept actions in the DOM.
+- That means compact mode is not board-free; it already exposes the same choice surface through a smaller entry path.
+- The next documentation step is preservation: keep the visible entry path, keep the choice semantics, and keep the focus path explicit.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is still browser-surface analysis, not a runtime change.
+
+## Analysis thread - clearing local browser state still does not surface a dedicated profile chooser
+
+- A first-visit simulation cleared localStorage and sessionStorage before reloading the canonical developer surface.
+- After reload, the shell still reported the same ready/profile status pair and the only obvious choice control in the sampled DOM remained `#camera-select`.
+- That means the current browser surface can explain profile state, but it still does not expose a dedicated first-visit profile chooser even when remembered browser state is removed.
+- The next proof slice should keep the distinction explicit: status line, visible chooser, and reasoned default are not the same thing.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is still browser-surface analysis, not a runtime change.
+
+## Execution thread — tranche 1 (quest semantics) landed and browser-proven
+
+- The mission system now has quest semantics inside the existing authority,
+  not beside it: `MissionClass` (main/side/local/hidden/repeatable/emergent),
+  `giverId`, and a `MissionPrerequisite` graph (mission-completed, discovery,
+  capability, insight) on `MissionProposition`; derivation filters unmet
+  prerequisites so the quest graph gates visibility.
+- `campaign.ts` is wired and entry-reachable: a campaign generator derives
+  main-class contracts from `CAMPAIGN_CONTRACTS` with deed-based chaining
+  (Launch Ridge unlocks after the Sunken Flats relay deed). Stale data was
+  corrected against the live world graph (`home-farm` → `home-silo`); the
+  marsh contract is explicitly dormant until the `marsh-depot` site is
+  authored, pinned by a derivation test.
+- Save schema v10 → v11: `activeSideMissions` joins the persisted state (one
+  main-class focus mission, up to `MAX_ACTIVE_SIDE_MISSIONS = 3` concurrent
+  non-main missions); pre-v11 records migrate with an empty list and default
+  class "local"/null giver on in-flight missions. Completion/failure search
+  both slots; binding-driven hooks in `state.ts` use `activeMissionMatching`.
+- The mission-board accept button now mirrors the authority rules instead of
+  disabling on any active mission (side quests stay acceptable alongside the
+  main quest).
+- Evidence: `npx tsc --noEmit` PASS; `npx vitest run` 479 tests / 75 files
+  PASS; `npm run audit:reachability` 25 → 24 unreachable with budget green;
+  new reusable probe `tools/campaign-contract-browser-acceptance.cjs`
+  (`npm run test:campaign-browser`) PASS: board lists the relay contract as
+  an acceptable main-class quest, the chained contract stays hidden, and
+  acceptance persists through the public text contract with zero app console
+  errors. Documented in `tools/README.md`.
+- Environment note: a full disk (Chrome code_sign_clone cache, 122GB)
+  interrupted the wrap-up; operator is handling cleanup. All evidence above
+  re-verified after the interruption where affected (typecheck).
+
+## Analysis thread - acceptance-route probe is currently blocked by browser IPC storage exhaustion
+
+- I attempted a route comparison for `?acceptance=field-02` after the compact-shell probe.
+- The browser daemon is still running, but `browser-client.js status` now fails with `ENOSPC: no space left on device` when trying to write `.browser-command`.
+- Because of that local storage pressure, the acceptance-route comparison is inconclusive right now: I cannot claim the chooser is present or absent on that route from this run.
+- The current product-level gap stays the same, but the evidence lane is temporarily blocked by the environment, not by the app contract itself.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is an environment blocker note, not a product conclusion.
+
+## Analysis thread - the camera selector is not the profile chooser
+
+- The live DOM gives us one useful clarification: `#camera-select` is a real
+  choice control, but it should not be treated as the first-visit profile
+  chooser.
+- The bootstrap story still needs a profile-specific default or chooser
+  explanation even if the shell already exposes camera mode selection.
+- That keeps the browser narrative from collapsing distinct decisions into one
+  control.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a contract clarification, not a runtime change.
+
+
+## Analysis thread - runtime quality profile is not the same as player profile setup
+
+- The shell's  is a runtime quality indicator, not a player-setup or identity profile chooser.
+- Keeping those meanings separate explains why the chooser gap can remain real even when the browser already shows a visible profile line.
+- That distinction should prevent future notes from collapsing renderer quality and player setup into one control.
+-  was left untouched.
+
+Anything else? Yes: this is a terminology clarification, not a runtime change.
+
+## Analysis thread - runtime quality profile is not the same as player profile setup
+
+- The shell status line `#profile-status` is a runtime quality indicator, not a player-setup or identity profile chooser.
+- Keeping those meanings separate explains why the chooser gap can remain real even when the browser already shows a visible profile line.
+- That distinction should prevent future notes from collapsing renderer quality and player setup into one control.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a terminology clarification, not a runtime change.
+
+## Analysis thread - the board header is not desktop-only after the compact probe
+
+- A compact-viewport probe at `390 x 844` already showed the `Contracts`
+  button visible and focusable, so the header/summary contract should no
+  longer describe the board as desktop-only.
+- The durable rule is now preservation: compact mode still needs a visible
+  entry point, readable header text, and the same close/back path.
+- This corrects an older assumption in the header contract without changing
+  the actual board behavior.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is a contract correction, not a runtime change.
+
+## Analysis thread - section headings should be navigable landmarks for screen readers
+
+- The section/visibility contract already depends on visible headings and short
+  summaries, so the next accessibility rule is to make those headings useful to
+  assistive tech as well.
+- Treating the four section headings as navigable landmarks or equivalent
+  semantic anchors keeps screen-reader users from having to guess where the
+  active, available, deferred, or history rows begin.
+- That preserves the compact/expanded board as a multi-modal choice surface
+  instead of a visual-only layout.
+- `src/game/` was left untouched.
+
+Anything else? Yes: this is an accessibility clarification, not a runtime change.
+
+## Analysis thread - compact versus expanded state should remember the session preference
+
+- The board already offers a compact/expanded density choice, so the most useful policy is to remember that choice for the current session instead of making the user rediscover it each time.
+- That keeps the board stable and respectful of presentation preference without turning layout into a separate save or profile authority.
+- The remembered state should remain presentation-only: it can restore the last chosen density, but it should not change which rows exist or what the player can choose.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a layout preference decision, not a runtime change.
+
+## Analysis thread - history should collapse into a recap once it starts competing with the current choice
+
+- The best history threshold is not a fixed archive count by itself. The trigger should be when history starts crowding out the active and available rows on the board.
+- In practice, that means older history should collapse into a recap once it exceeds the compact board budget for the current viewport or once it would push decision-relevant rows below the visible decision area.
+- The recap should keep a count and a path to detail, while notable milestone rows can remain expanded when they still teach the current decision.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a board-density decision, not a runtime change.
+
+## Analysis thread - filtered-out rows should be summarized in a counter, not hidden entirely
+
+- The board should keep filtered-out rows visible as a short summary count rather than removing them from the players awareness.
+- That keeps the board honest about the existence of additional rows while preserving a compact choice surface.
+- The counter should make the filter state clear and still leave a path to reveal the suppressed rows when the player asks for them.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a density-policy clarification, not a runtime change.
+
+## Analysis thread - the selected row should remain the choice surface, with detail kept secondary
+
+- The acceptance surface should keep the selected row itself as the primary choice surface.
+- Any deeper detail pane should stay secondary to the row, not replace the row as the place where the player makes the decision.
+- That keeps the contract aligned with the existing row model: selection, reason, accept, and back all stay on the row path the player can reach directly.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a choice-surface clarification, not a runtime change.
+
+## Analysis thread - notable milestones should stay expanded by default
+
+- Milestones are the history items most likely to teach the current decision, so they should remain expanded unless the user explicitly collapses them.
+- That keeps the recap count focused on older or less decision-relevant history while preserving the few events that still matter at a glance.
+- The rule is presentation-only: milestone expansion should not change the underlying history data, only how much of it is shown by default.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a history-display policy clarification, not a runtime change.
+
+## Analysis thread - filtering should not erase the history recap
+
+- When the player filters the board, the filtered-out rows should stay
+  summarized as a counter and the history recap should remain its own summary.
+- That lets the board show both kinds of compactness at once: filter summary
+  for nonmatching rows, history recap for older rows that still exist.
+- The two summaries should stay distinct so the player can tell whether the
+  board is hiding rows because of a filter or compressing history because the
+  section is crowded.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a board-density clarification, not a runtime
+change.
+
+## Analysis thread - history entries should be grouped primarily by contract
+
+- History should be grouped first by contract, with outcome type as the useful
+  secondary label inside that grouping.
+- That keeps the recap tied to the choice context that created it instead of
+  drifting into session bookkeeping.
+- Session-level grouping can still exist as a fallback for long-running play,
+  but it should not be the primary shape of the history section.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a history grouping policy clarification, not a
+runtime change.
+
+## Analysis thread - the recap count should stay in the history section, not the board header
+
+- The board header already has its own title and summary responsibilities, so the recap count should remain inside the history section where it belongs.
+- That keeps the header small and the history recap local to the memory it is summarizing.
+- The board can still show a short section-level history summary, but the dedicated recap count should not become another header-level counter.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a history-layout clarification, not a runtime change.
+
+## Tranche 1 — Quest semantics implemented (2026-07-29)
+
+- Implemented the first tranche of the First Playable — The Road That Was slice.
+- Fixed `src/game/mission-lifecycle.ts` `acceptMission` so the focus slot is
+  reserved for `main`-class missions; non-main missions always enter the side
+  slot and respect `MAX_ACTIVE_SIDE_MISSIONS`.
+- Updated `src/game/state.ts` `publicState()` to expose `mission` with
+  `missionClass`/`giverId` and a new `activeSideMissions` array.
+- Enhanced `src/main.ts` contract board: missions are grouped by class, each
+  row shows giver and active state, and the accept button explains why it is
+  disabled (focus slot full, side limit, etc.). Added matching CSS in
+  `src/styles.css`.
+- Removed the parallel `CampaignContract` engine from `src/game/campaign.ts`
+  (`deriveCampaignContracts`, `activeContractCount`); campaign content now
+  flows exclusively through `mission-propositions.ts` → `mission-lifecycle.ts`.
+- Rewrote `src/game/campaign.test.ts` to verify campaign missions surface in
+  `deriveMissions`, stay locked until prerequisites are met, and unlock after
+  the root relay contract completes.
+- Added tests in `src/game/mission-lifecycle.test.ts` for standalone side
+  mission acceptance.
+- Added tests in `src/game/state.test.ts` for the public mission surface.
+- Verification: `npm run typecheck` passes; `npx vitest run --pool=forks
+  --poolOptions.forks.singleFork` passes 76 files / 487 tests.
+- Note: outcomes (world-memory deltas, favor, relationship deltas) are still
+  deferred until Tranche 2/3 consumers exist; the prerequisite graph already
+  handles campaign unlocking.
+
+## Analysis thread - deferred propositions should stay visible in the same list
+
+- Deferred propositions should remain visible in the same list as available ones, with a clear reason string, rather than moving to a separate unavailable section.
+- That keeps the player's choice surface in one place and makes the why not yet answer easy to find.
+- The row can be deferred, but it should still be part of the same board context so the player does not have to hunt for it in a second location.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a board-structure clarification, not a runtime change.
+
+## Analysis thread - the empty state should distinguish no active rows from nothing yet discovered
+
+- The empty state should use different copy for "no active rows" versus "nothing yet discovered" because those are different player situations with different next-step guidance.
+- That keeps the board honest without adding a new system: the player should know whether the board is empty because nothing is available right now or because discovery has not yet unlocked anything to show.
+- The visual shell can stay the same, but the explanation should match the cause of the empty state.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is an empty-state copy policy, not a runtime change.
+
+## Analysis thread - the board summary count should reflect visible rows
+
+- The header summary count should describe the rows currently visible in the board, not the hidden or filtered rows that are summarized elsewhere.
+- That keeps the header honest about what the player can inspect right now and avoids double-counting rows that are already represented by filter or recap counters.
+- If the board needs to explain hidden rows, that explanation belongs in the relevant section or filter summary, not in the header count itself.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a header-count clarification, not a runtime change.
+
+## Analysis thread - loading should say loading on initial entry and refreshing on in-place updates
+
+- Use "Loading contracts" for the initial load and "Refreshing board" for an in-place refresh.
+- During refresh, keep the last known row list visible until the update completes so the board does not flicker into an empty state.
+- If the board is rebuilt synchronously, do not show a loading state at all; move straight to the ready board.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a loading-behavior clarification, not a runtime change.
+
+## Analysis thread - the broader discovery hint should stay on the shell, not inside the empty board
+
+- Keep the concise empty-board message in the board itself, and keep the broader discovery hint on the shell or other outer guidance surface.
+- That keeps the empty board focused on explaining its immediate absence and recovery path instead of becoming a second tutorial panel.
+- The board can still point the player back to play, but the more general discovery guidance should live outside the empty surface.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is an empty-state guidance clarification, not a runtime change.
+
+## Analysis thread - loading should preserve the last row list until refresh completes
+
+- During refresh, keep the last known row list visible until the update completes so the board does not flicker into an empty state.
+- That preserves context while the board is waiting and keeps loading distinct from empty state.
+- The loading message can say the board is refreshing, but the rows should still anchor the user until the new data arrives.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a loading-refresh policy clarification, not a runtime change.
+
+## Analysis thread - refresh should stay text-based rather than animated
+
+- Refresh should remain text-based rather than animated so the board stays calm, readable, and easy to understand while it updates.
+- If any motion exists elsewhere in the shell, it should belong to explicit content or transition rules, not to the loading state itself.
+- That keeps the loading/refresh experience honest: the board says what it is doing instead of trying to perform a separate animation language.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a loading-animation clarification, not a runtime change.
+
+## Analysis thread - synchronous board rebuilds should skip loading entirely
+
+- If the board is rebuilt synchronously, do not show a loading state at all; move straight to the ready board.
+- That keeps loading reserved for cases where the player truly has to wait and prevents a zero-duration rebuild from becoming meaningless status noise.
+- The board should still preserve its title, close/back path, and ready copy, but it should not pretend to load when it is already ready.
+- src/game/ was left untouched.
+
+Anything else? Yes: this is a loading-behavior clarification, not a runtime change.

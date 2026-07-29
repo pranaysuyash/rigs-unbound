@@ -43,6 +43,7 @@ import {
   WORLD_LIMIT,
 } from "./contracts";
 import { applyWeatherGripPenalty } from "./weather";
+import { treadGripFactor } from "./vehicle-maintenance";
 import { calculateTirePressureState } from "./tire-pressure";
 import { computeAxleTorque } from "./differential-lock";
 import type { RigToolState } from "./contracts";
@@ -451,8 +452,16 @@ function stepGroundMotion(
   // not. `deriveFleetRecoveryAssessment()` reads grip through this same helper
   // so the board can never promise traction the rig does not have.
   const toolModifiers = toolTractionModifiers(options.tools);
+  // Worn tread surrenders grip before any surface or weather effect applies.
+  // The factor is exactly 1 at full health, so unworn rigs are bit-identical
+  // to the pre-wear simulation.
   const weatheredGrip = applyWeatherGripPenalty(
-    effectiveGrip(ground.surface.grip, profile.tireGrip, profile.lugBonus),
+    effectiveGrip(
+      ground.surface.grip,
+      profile.tireGrip *
+        treadGripFactor(rig.componentHealth.tireTreadHealthPercent),
+      profile.lugBonus,
+    ),
     ground.surface.id,
     options.soilMoisture ?? 0,
   );

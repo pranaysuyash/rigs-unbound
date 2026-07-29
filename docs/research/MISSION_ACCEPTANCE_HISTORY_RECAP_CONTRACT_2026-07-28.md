@@ -167,3 +167,34 @@ next thing.
   disguised as a choice surface.
 - Anything else? No. History should teach the current decision, not compete
   with it.
+## Addendum (2026-07-29) - history should collapse into a recap once it starts competing with the current choice
+
+- The most useful threshold is not a fixed archive count by itself. The trigger should be when history begins to crowd out the active and available rows on the board.
+- In practice that means the board should collapse older history into a recap once it exceeds the compact board budget for the current viewport or once it would push decision-relevant rows below the visible decision area.
+- The recap should keep a count and a path to detail, while notable milestone rows can remain expanded when they still teach the current decision.
+- Anything else? No. History should compress when it stops helping the next choice.
+
+## Addendum (2026-07-29) - notable milestones should stay expanded by default
+
+- Milestones are the history items most likely to teach the current decision, so they should remain expanded unless the player explicitly collapses them.
+- That keeps the recap count focused on older or less decision-relevant history while preserving the few events that still matter at a glance.
+- The rule is still presentation-only: milestone expansion should not change the underlying history data, only how much of it is shown by default.
+- Anything else? No. Milestones should stay readable when they are still doing useful work for the board.
+
+## Addendum (2026-07-29) - history entries should be grouped primarily by contract
+
+- History should be grouped first by contract, with outcome type as the useful
+  secondary label inside that grouping.
+- That keeps the recap tied to the choice context that created it instead of
+  drifting into session bookkeeping.
+- Session-level grouping is still allowed as a fallback for long-running play,
+  but it should not be the primary shape of the history section.
+- Anything else? No. The board should remember choices by the contract that
+  made them matter.
+
+## Addendum (2026-07-29) - the recap count should stay in the history section, not the board header
+
+- The board header already has its own title and summary responsibilities, so the recap count should remain inside the history section where it belongs.
+- That keeps the header small and the history recap local to the memory it is summarizing.
+- The board can still show a short section-level history summary, but the dedicated recap count should not become another header-level counter.
+- Anything else? No. The history recap should explain the history section, not compete with the header.

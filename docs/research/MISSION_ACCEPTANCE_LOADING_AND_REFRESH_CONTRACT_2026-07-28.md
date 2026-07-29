@@ -156,3 +156,31 @@ loading and refresh without trying to become the operator diagnostics panel.
   it avoids turning the board into a second diagnostics surface.
 - Anything else? No. The loading story should explain waiting, not invent a new
   board mode.
+
+## Addendum (2026-07-29) - loading should say loading on initial entry and refreshing on in-place updates
+
+- Use "Loading contracts" for the initial load and "Refreshing board" for an in-place refresh.
+- During refresh, keep the last known row list visible until the update completes so the board does not flicker into an empty state.
+- If the board is rebuilt synchronously, do not show a loading state at all; just move straight to the ready board.
+- Anything else? No. Loading should explain waiting, refreshing should explain re-fetching, and synchronous rebuilds should stay honest by skipping the loading phase.
+
+## Addendum (2026-07-29) - loading should preserve the last row list until refresh completes
+
+- During refresh, keep the last known row list visible until the update completes so the board does not flicker into an empty state.
+- That preserves context while the board is waiting and keeps loading distinct from empty state.
+- The loading message can say the board is refreshing, but the rows should still anchor the user until the new data arrives.
+- Anything else? No. Refresh should update the board, not briefly erase it.
+
+## Addendum (2026-07-29) - refresh should stay text-based rather than animated
+
+- Refresh should remain text-based rather than animated so the board stays calm, readable, and easy to understand while it updates.
+- If any motion exists elsewhere in the shell, it should belong to explicit content or transition rules, not to the loading state itself.
+- That keeps the loading/refresh experience honest: the board says what it is doing instead of trying to perform a separate animation language.
+- Anything else? No. Loading should explain waiting, and refresh should do it plainly.
+
+## Addendum (2026-07-29) - synchronous rebuilds should skip loading entirely
+
+- If the board is rebuilt synchronously, do not show a loading state at all; move straight to the ready board.
+- That keeps loading reserved for cases where the player truly has to wait and prevents a zero-duration rebuild from becoming meaningless status noise.
+- The board should still preserve its title, close/back path, and ready copy, but it should not pretend to load when it is already ready.
+- Anything else? No. Synchronous rebuilds should be honest enough to skip the loading phase entirely.

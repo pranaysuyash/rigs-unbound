@@ -119,9 +119,15 @@ import {
 import { BIOMES, SURFACES, WORLD_SITES, type SurfaceId } from "./game/world";
 import {
   deriveMissions,
+  type MissionClass,
   type MissionProposition,
 } from "./game/mission-propositions";
-import { acceptMission } from "./game/mission-lifecycle";
+import {
+  acceptMission,
+  MAX_ACTIVE_SIDE_MISSIONS,
+} from "./game/mission-lifecycle";
+import { componentWearDeficit } from "./game/vehicle-maintenance";
+import { computeChassisMassDistribution } from "./game/workshop-lab";
 import type { Obstacle } from "./game/collision";
 import { resolveTerrainTraversal } from "./game/terrain-traversal";
 import { createRumorMapUI } from "./game/rumor-map-ui";
@@ -857,6 +863,7 @@ function boot(): void {
   const cameraSelect = requiredElement<HTMLSelectElement>("#camera-select");
   const workshopPanel = requiredElement<HTMLElement>("#workshop-panel");
   const workshopSalvage = requiredElement<HTMLElement>("#workshop-salvage");
+  const workshopCondition = requiredElement<HTMLElement>("#workshop-condition");
   const moduleList = requiredElement<HTMLOListElement>("#module-list");
   const radialOverlay = requiredElement<HTMLElement>("#radial-overlay");
   const radialMenuList = requiredElement<HTMLElement>("#radial-menu-list");
@@ -1065,49 +1072,107 @@ function boot(): void {
       : "No contract is visible yet. Survey more ground or fit a capability that can reach a signal.";
     missionBoardList.replaceChildren();
     missionBriefing.hidden = !selected;
-    missionBriefingAccept.disabled = !selected || state.activeMission !== null;
-
-    for (const mission of missions) {
-      const item = document.createElement("li");
-      item.className = mission.id === selectedMissionId ? "is-selected" : "";
-      const button = document.createElement("button");
-      button.type = "button";
-      button.setAttribute(
-        "aria-pressed",
-        String(mission.id === selectedMissionId),
+    // Mirrors the lifecycle rules: main-class missions need the focus slot
+    // free; every other class needs a side slot free.
+    const selectedIsActive =
+      !!selected &&
+      (state.activeMission?.id === selected.id ||
+        state.activeSideMissions.some((m) => m.id === selected.id));
+    const sideSlotsFull =
+      state.activeSideMissions.length >= MAX_ACTIVE_SIDE_MISSIONS;
+    const acceptBlockedReason = !selected
+      ? "Select a contract first."
+      : selectedIsActive
+        ? "This contract is already active."
+        : selected.missionClass === "main" && state.activeMission !== null
+          ? "Finish the current main contract before taking another."
+          : selected.missionClass !== "main" && sideSlotsFull
+            ? `At most ${MAX_ACTIVE_SIDE_MISSIONS} side contracts at once.`
+            : null;
+    missionBriefingAccept.disabled = acceptBlockedReason !== null;
+    if (selected) {
+      missionBriefingAccept.setAttribute(
+        "aria-description",
+        acceptBlockedReason ?? "Accept the selected contract.",
       );
-      const copy = document.createElement("span");
-      const title = document.createElement("strong");
-      title.textContent = mission.title;
-      const premise = document.createElement("small");
-      premise.textContent = mission.premise;
-      copy.append(title, premise);
-      const reward = document.createElement("em");
-      reward.textContent = `${mission.rewardSalvage} salvage`;
-      button.append(copy, reward);
-      button.addEventListener("click", () => {
-        selectedMissionId = mission.id;
-        renderMissionBoard();
-        recordCheckpoint("missionSelected", {
-          missionId: mission.id,
-          binding: mission.binding,
+    }
+
+    const classOrder: MissionClass[] = ["main", "side", "local", "hidden", "repeatable", "emergent"];
+    const byClass = new Map<MissionClass, MissionProposition[]>();
+    for (const mission of missions) {
+      const list = byClass.get(mission.missionClass) ?? [];
+      list.push(mission);
+      byClass.set(mission.missionClass, list);
+    }
+
+    for (const cls of classOrder) {
+      const group = byClass.get(cls);
+      if (!group || group.length === 0) continue;
+      const section = document.createElement("li");
+      section.className = "mission-board__section";
+      const heading = document.createElement("h3");
+      heading.textContent = cls.charAt(0).toUpperCase() + cls.slice(1);
+      section.appendChild(heading);
+      const groupList = document.createElement("ol");
+      groupList.className = "mission-board__group";
+
+      for (const mission of group) {
+        const isActive =
+          state.activeMission?.id === mission.id ||
+          state.activeSideMissions.some((m) => m.id === mission.id);
+        const item = document.createElement("li");
+        item.className = [
+          mission.id === selectedMissionId ? "is-selected" : "",
+          isActive ? "is-active" : "",
+        ]
+          .filter(Boolean)
+          .join(" ");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.setAttribute(
+          "aria-pressed",
+          String(mission.id === selectedMissionId),
+        );
+        const copy = document.createElement("span");
+        const title = document.createElement("strong");
+        title.textContent = mission.title;
+        const meta = document.createElement("small");
+        const giverLabel = mission.giverId
+          ? `from ${mission.giverId}`
+          : "world-derived";
+        meta.textContent = `${giverLabel} · ${mission.premise}`;
+        copy.append(title, meta);
+        const reward = document.createElement("em");
+        reward.textContent = `${mission.rewardSalvage} salvage`;
+        const statusBadge = document.createElement("span");
+        statusBadge.textContent = isActive ? "active" : mission.state;
+        button.append(copy, reward, statusBadge);
+        button.addEventListener("click", () => {
+          selectedMissionId = mission.id;
+          renderMissionBoard();
+          recordCheckpoint("missionSelected", {
+            missionId: mission.id,
+            binding: mission.binding,
+          });
         });
-      });
-      item.appendChild(button);
-      missionBoardList.appendChild(item);
+        item.appendChild(button);
+        groupList.appendChild(item);
+      }
+
+      section.appendChild(groupList);
+      missionBoardList.appendChild(section);
     }
 
     if (!selected) return;
-    missionBriefingKicker.textContent = `${selected.binding} · ${selected.difficultyLabel}`;
+    missionBriefingKicker.textContent = `${selected.missionClass} · ${selected.binding} · ${selected.difficultyLabel}`;
     missionBriefingTitle.textContent = selected.title;
     missionBriefingCopy.textContent = selected.briefing;
     missionBriefingOrigin.textContent = selected.origin;
     missionBriefingDestination.textContent = selected.destination;
     missionBriefingReward.textContent = `${selected.rewardSalvage} salvage · ${selected.requiredCapabilities.length ? selected.requiredCapabilities.join(" · ") : "no special capability"}`;
-    missionBriefingAccept.textContent =
-      state.activeMission?.id === selected.id
-        ? "Contract active"
-        : "Accept contract";
+    missionBriefingAccept.textContent = selectedIsActive
+      ? "Contract active"
+      : "Accept contract";
   };
 
   missionBriefingAccept.addEventListener("click", () => {
@@ -2230,6 +2295,19 @@ function boot(): void {
     }
     if (workshop && activeOverlay === "workshop") {
       workshopSalvage.textContent = `${state.salvage} salvage`;
+      // Mechanical service readout: what a repair would fix, what the fitted
+      // modules do to the chassis. Both read canonical state — the panel
+      // explains, it never owns.
+      const wearDeficit = componentWearDeficit(rig.componentHealth);
+      const massReport = computeChassisMassDistribution(
+        RIG_PROFILES[rig.id],
+        rig.modules,
+      );
+      const wearText =
+        wearDeficit < 0.5
+          ? "All components at spec."
+          : `Service due — tread ${rig.componentHealth.tireTreadHealthPercent}%, radiator ${rig.componentHealth.radiatorCleanlinessPercent}%, cable ${rig.componentHealth.winchCableIntegrityPercent}%, belt ${rig.componentHealth.alternatorBeltHealthPercent}%.`;
+      workshopCondition.textContent = `${wearText} Chassis ${(massReport.totalMassKg / 1000).toFixed(1)} t · rollover risk ${Math.round(massReport.rolloverRisk * 100)}%.`;
       for (const moduleId of MODULE_IDS) {
         const button = moduleList.querySelector<HTMLButtonElement>(
           `button[data-module-id="${moduleId}"]`,

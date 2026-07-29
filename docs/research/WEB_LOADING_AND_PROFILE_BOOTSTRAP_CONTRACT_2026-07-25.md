@@ -450,3 +450,102 @@ Evidence depth: Tier 4 runtime/manual observation.
   model.
 - Anything else? No. The current gap is narrative cohesion, not raw loading
   presence.
+
+## Addendum (2026-07-29) - browser-game constraints make hidden tabs and first interaction part of the loading story
+
+- Re-read the browser-game lens against the current bootstrap/profile narrative.
+- The shell can be progress-led and truthful, but it still has to respect the
+  browser's own constraints:
+  - hidden tabs should pause or visibly suspend simulation work instead of
+    pretending to keep running;
+  - audio should not assume autoplay, because the first user interaction still
+    owns the audio context;
+  - mobile and low-bandwidth modes should continue to prefer progressive
+    loading over a single giant upfront fetch.
+- That means the loading contract is not only about what the player sees when
+  the field becomes ready. It is also about what the browser is allowed to do
+  while the page is hidden, muted, or still waiting for the first click.
+- Anything else? No. The browser loading story stays trustworthy only if it
+  honors visibility and interaction rules, not just bootstrap text.
+
+## Addendum (2026-07-29) - the bootstrap narrative still needs an explicit profile choice moment
+
+- Re-read the bootstrap/profile story after the browser-game and accessibility
+  passes.
+- The shell can already say it is measuring, and it can already say it is
+  ready. What is still not named clearly enough is the first-choice moment for
+  the player profile itself.
+- The next proof slice should therefore make the bootstrap story answer three
+  questions in order:
+  1. what mode am I in now?
+  2. which profile is active or being measured?
+  3. do I need to choose or can I proceed?
+- That keeps the loading narrative from becoming a passive status rail. The
+  player should understand whether the shell is still deciding, has chosen for
+  them, or is waiting for their explicit profile choice.
+- Anything else? No. A truthful bootstrap story still needs one visible choice
+  moment, not just a readout.
+
+## Addendum (2026-07-29) - the first visit should surface a chooser or a reasoned default, not an implied profile
+
+- Re-read the bootstrap narrative with the first-choice moment in mind.
+- A truthful loading story still needs one more decision boundary: if the
+  shell is not already on a known profile, the player should see a visible
+  chooser or a plain-language reason for the default that was applied.
+- That makes the profile state actionable instead of merely descriptive.
+- It also keeps the first visit honest on small screens: the shell can still
+  be compact, but the player should not have to guess whether profile choice is
+  already settled, still being measured, or waiting on explicit input.
+- Anything else? No. A bootstrap story that hides the first profile decision
+  is still only half a story.
+
+## Addendum (2026-07-29) - live DOM shows profile status but not a dedicated first-visit profile chooser
+
+- A live DOM probe on the canonical developer surface now shows:
+  - `#bootstrap-status` as a readable ready line;
+  - `#profile-status` as a visible quality line;
+  - `#camera-select` as the only obvious choice control in the sampled shell;
+  - no dedicated profile-chooser control surfaced in the current DOM slice.
+- That means the current browser story can narrate profile state, but it still
+  does not present a clear first-visit profile selection moment as its own
+  affordance.
+- The next proof slice should therefore distinguish between:
+  - a status line that says which profile is active or being measured;
+  - a chooser that lets the player make that first profile decision;
+  - and a default explanation when the shell has already made the choice for
+    them.
+- Anything else? No. A status line alone does not count as a profile chooser.
+
+## Addendum (2026-07-29) - clearing local browser state still does not surface a dedicated profile chooser
+
+- A first-visit simulation cleared localStorage and sessionStorage before reloading the canonical developer surface.
+- After reload, the shell still reported the same ready/profile status pair and the only obvious choice control in the sampled DOM remained `#camera-select`.
+- That means the current browser surface can explain profile state, but it still does not expose a dedicated first-visit profile chooser even when remembered browser state is removed.
+- The next proof slice should keep the distinction explicit: status line, visible chooser, and reasoned default are not the same thing.
+- Anything else? No. Clearing local state did not reveal a separate profile-choice affordance.
+
+## Addendum (2026-07-29) - the camera selector is a choice control, but it is not the profile chooser
+
+- The live DOM now makes one thing easy to confuse: `#camera-select` is a real
+  choice control, but it is not the same decision as a first-visit profile
+  chooser.
+- The contract should keep those surfaces separate so future work does not
+  accidentally treat camera perspective as a proxy for profile setup.
+- That means the bootstrap narrative still needs a profile-specific default or
+  chooser explanation even if the shell already offers a visible camera mode
+  control.
+- Anything else? No. A camera choice is useful, but it does not satisfy the
+  profile-choice requirement by itself.
+
+## Addendum (2026-07-29) - runtime quality profile is not the same as player profile setup
+
+- The live shell uses `#profile-status` to narrate the runtime quality mode
+  (for example, standard or measuring), which is useful but not the same thing
+  as a player-setup or identity profile chooser.
+- The contract should keep those meanings separate so future work does not
+  accidentally treat renderer/profile quality as a proxy for first-visit
+  profile setup.
+- That separation also explains why the chooser gap can remain real even while
+  the browser already shows a visible profile status line.
+- Anything else? No. A runtime quality profile is a status; a player profile
+  chooser is a first-choice affordance.

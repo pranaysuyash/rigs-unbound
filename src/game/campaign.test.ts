@@ -1,41 +1,72 @@
 import { describe, expect, it } from "vitest";
-import { activeContractCount, deriveCampaignContracts } from "./campaign";
+import { CAMPAIGN_CONTRACTS } from "./campaign";
+import { deriveMissions, type MissionProposition } from "./mission-propositions";
+import { acceptMission, completeMission } from "./mission-lifecycle";
 import { createInitialState } from "./state";
 
 describe("campaign contracts engine", () => {
-  it("derives available initial campaign contracts at Home Farm", () => {
+  it("surfaces campaign missions through the unified proposition pipeline", () => {
     const state = createInitialState("CAMPAIGN-TEST");
-    const contracts = deriveCampaignContracts(state);
-    expect(contracts.length).toBeGreaterThan(0);
+    const missions = deriveMissions(state, state.progression, "clear", new Set());
 
-    const initialContract = contracts.find(
-      (c) => c.id === "contract-sunken-relay",
+    const campaignMissions = missions.filter(
+      (m): m is MissionProposition & { missionClass: "main" } =>
+        m.missionClass === "main",
+    );
+    expect(campaignMissions.length).toBeGreaterThan(0);
+
+    const initialContract = campaignMissions.find(
+      (m) => m.id === "contract-sunken-relay",
     );
     expect(initialContract).toBeDefined();
-    expect(initialContract?.status).toBe("available");
+    expect(initialContract?.giverId).toBe("old-man");
+    expect(initialContract?.requiredCapabilities).toContain("tow");
   });
 
-  it("updates contract status to active when cargo relay is active", () => {
+  it("locks follow-up campaign contracts until the relay route is completed", () => {
     const state = createInitialState("CAMPAIGN-TEST");
-    state.cargoRelay.status = "active";
-    state.cargoRelay.cargo.attachedRigId = "utility-tractor";
+    const missions = deriveMissions(state, state.progression, "clear", new Set());
 
-    const contracts = deriveCampaignContracts(state);
-    const initialContract = contracts.find(
-      (c) => c.id === "contract-sunken-relay",
-    );
-    expect(initialContract?.status).toBe("active");
-    expect(activeContractCount(state)).toBe(1);
+    expect(
+      missions.some((m) => m.id === "contract-sunken-relay"),
+    ).toBe(true);
+    expect(
+      missions.some((m) => m.id === "contract-ridge-ascent"),
+    ).toBe(false);
   });
 
-  it("marks contract completed upon cargo delivery completion", () => {
+  it("unlocks chained campaign contracts after the root contract completes", () => {
     const state = createInitialState("CAMPAIGN-TEST");
-    state.cargoRelay.status = "complete";
+    const missions = deriveMissions(state, state.progression, "clear", new Set());
+    const relay = missions.find((m) => m.id === "contract-sunken-relay")!;
 
-    const contracts = deriveCampaignContracts(state);
-    const initialContract = contracts.find(
-      (c) => c.id === "contract-sunken-relay",
+    const accepted = acceptMission(
+      state,
+      relay,
+      state.activeRigId,
+      state.elapsedMs,
     );
-    expect(initialContract?.status).toBe("completed");
+    expect(accepted.ok).toBe(true);
+
+    const completed = completeMission(
+      state,
+      relay.id,
+      state.elapsedMs + 1000,
+    );
+    expect(completed.ok).toBe(true);
+
+    const after = deriveMissions(state, state.progression, "clear", new Set());
+    expect(
+      after.some((m) => m.id === "contract-ridge-ascent"),
+    ).toBe(true);
+  });
+
+  it("keeps authored campaign data in sync with proposition expectations", () => {
+    expect(CAMPAIGN_CONTRACTS.some((c) => c.id === "contract-sunken-relay")).toBe(
+      true,
+    );
+    expect(CAMPAIGN_CONTRACTS.some((c) => c.id === "contract-ridge-ascent")).toBe(
+      true,
+    );
   });
 });

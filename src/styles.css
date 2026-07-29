@@ -2300,6 +2300,46 @@ kbd {
   font-weight: 700;
 }
 
+.mission-board__section {
+  margin: 0 0 1rem;
+}
+
+.mission-board__section h3 {
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  color: var(--harvest-gold);
+  font:
+    700 0.75rem/1 "SFMono-Regular",
+    Consolas,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.mission-board__group {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.mission-board__list li.is-active button {
+  border-color: var(--signal-cyan);
+  background: rgba(82, 193, 217, 0.12);
+}
+
+.mission-board__list li button span:last-child {
+  color: rgba(234, 216, 184, 0.8);
+  font:
+    700 0.65rem/1 "SFMono-Regular",
+    Consolas,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 @media (max-width: 560px) {
   .mission-board__list li button {
     align-items: flex-start;

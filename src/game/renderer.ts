@@ -335,6 +335,26 @@ function material(
   });
 }
 
+/**
+ * Free every mesh's GPU-side geometry and material under `root`, including
+ * `root` itself. `Object3D.remove()`/`.clear()` only detach from the scene
+ * graph — they never call `.dispose()` — so anything taken out of the scene
+ * this way (a superseded fallback prop, a torn-down runtime bridge asset)
+ * must be disposed explicitly or its VRAM is held for the rest of the page
+ * session with nothing left referencing it.
+ */
+export function disposeObjectGraph(root: THREE.Object3D): void {
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    child.geometry.dispose();
+    if (Array.isArray(child.material)) {
+      child.material.forEach((m) => m.dispose());
+    } else {
+      child.material.dispose();
+    }
+  });
+}
+
 function box(
   width: number,
   height: number,
@@ -432,6 +452,8 @@ export class GameRenderer {
     string,
     RuntimeAssetBridgeEvidence
   >();
+  /** Loaded GLTF roots, kept so `dispose()` can free their GPU resources. */
+  private readonly loadedRuntimeBridgeRoots = new Map<string, THREE.Object3D>();
   private activeVisibilityProfileId: VisibilityProfileId =
     DEFAULT_VISIBILITY_PROFILE;
   private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
@@ -1567,8 +1589,13 @@ export class GameRenderer {
             -center.z * scale,
           );
 
+          // The fallback box is about to be replaced by the real asset.
+          // `clear()` only detaches it from the scene graph — its geometry
+          // and material are still GPU-resident until disposed explicitly.
+          disposeObjectGraph(fallback);
           bridge.clear();
           bridge.add(root);
+          this.loadedRuntimeBridgeRoots.set(spec.assetId, root);
 
           // An imported asset may ship authored clips. Before this, nothing
           // advanced them and the prop stood frozen; binding them to the
@@ -3177,14 +3204,14 @@ export class GameRenderer {
   dispose(): void {
     window.removeEventListener("resize", this.resize);
     vehicleAnimationSystem.dispose();
-    // Dispose runtime bridge assets (GLTF models)
-    this.runtimeBridgeEvidence.forEach((evidence) => {
-      if (evidence.status === "loaded") {
-        // The GLTFLoader creates meshes that need disposal
-        // We can't easily access them here without storing references,
-        // but the renderer.dispose() below will clean up the WebGL resources.
-      }
-    });
+    // `WebGLRenderer.dispose()` (below) only clears the renderer's own
+    // internal WeakMap-based bookkeeping (see WebGLProperties.dispose() in
+    // three's source) — it never calls gl.deleteBuffer()/gl.deleteTexture()
+    // on a geometry or material that isn't disposed itself. GLTF-loaded
+    // runtime bridge roots must be disposed explicitly, or their GPU buffers
+    // are simply abandoned rather than freed.
+    this.loadedRuntimeBridgeRoots.forEach((root) => disposeObjectGraph(root));
+    this.loadedRuntimeBridgeRoots.clear();
     this.renderer.dispose();
   }
 }

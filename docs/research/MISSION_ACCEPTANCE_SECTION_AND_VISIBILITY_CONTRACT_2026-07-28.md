@@ -218,3 +218,66 @@ that choice honestly.
   layer into a generic management dashboard.
 - Anything else? No. Sectioning should help the player choose, not hide the
   decision surface behind a second layout system.
+
+## Addendum (2026-07-29) - compact view may reduce density, not choice semantics
+
+- The compact-shell rule now needs one explicit boundary: compact mode may
+  collapse space, but it must not collapse the choice model.
+- The next proof slice should therefore preserve:
+  - the same four sections in compact and expanded modes;
+  - one explicit toggle state that announces which density is active;
+  - the active row and its reason string as perceivable content;
+  - one focus path that survives the compact/expanded switch.
+- This keeps compact view as a presentation density change rather than a
+  different mission board.
+- Anything else? No. The board can be smaller on screen without becoming
+  smaller in authority or explanation.
+
+## Addendum (2026-07-29) - compact shell already exposes the board entry point
+
+- A compact-viewport probe at 390 x 844 shows the Contracts button visible and focusable, so compact mode is not board-free in practice.
+- The same probe shows the close and accept actions in the DOM as well, which means the sectioned board remains a real choice surface on narrow screens instead of collapsing into passive status.
+- The next visibility rule is therefore preservation, not invention: compact mode should keep the visible entry path, keep the sectioned choice semantics, and keep the focus path readable.
+- Anything else? No. Compact sectioning should stay a smaller presentation of the same board, not a different board.
+
+## Addendum (2026-07-29) - section headings should be navigable landmarks for screen readers
+
+- The sectioned board already needs visible headings and short summaries, so the
+  next accessibility rule should make those headings useful to assistive tech
+  too.
+- The contract should therefore treat the four section headings as navigable
+  landmarks or equivalent semantic anchors so screen-reader users can move
+  through the board without guessing where the active, available, deferred, or
+  history rows begin.
+- That keeps the compact/expanded board readable in more than one modality and
+  prevents the section summaries from becoming visual-only ornament.
+- Anything else? No. If the sections are meant to organize the player’s choice,
+  they should also organize the reader’s navigation.
+## Addendum (2026-07-29) - compact versus expanded state should remember the session preference
+
+- The board already offers a compact/expanded density choice, so the most useful policy is to remember that choice for the current session instead of making the user rediscover it each time.
+- That keeps the board stable and respectful of presentation preference without turning layout into a separate save or profile authority.
+- The remembered state should remain presentation-only: it can restore the last chosen density, but it should not change which rows exist or what the player can choose.
+- Anything else? No. Compact state persistence should be a convenience, not a new source of truth.
+
+## Addendum (2026-07-29) - filtered-out rows should be summarized in a counter, not hidden entirely
+
+- The board should keep filtered-out rows visible as a short summary count rather than removing them from the players awareness.
+- That lets the board stay honest about the existence of additional rows while preserving a compact choice surface.
+- The counter should make the filter state clear and still leave a path to reveal the suppressed rows when the player asks for them.
+- Anything else? No. Filtered rows should be compressed, not erased.
+
+## Addendum (2026-07-29) - filtering should not erase the history recap
+
+- When the player filters the board, the filtered-out rows should stay
+  summarized as a counter, and the history recap should remain its own
+  summary.
+- That means the board can show both kinds of compactness at once:
+  - filter summary for rows that do not match;
+  - history recap for older rows that still exist but no longer need full
+    detail.
+- The two summaries should stay distinct so the player can tell whether the
+  board is hiding rows because of a filter or compressing history because the
+  section is crowded.
+- Anything else? No. Filtering should narrow the board, not erase how the
+  board remembers.

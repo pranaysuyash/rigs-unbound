@@ -213,3 +213,25 @@ repeating operator diagnostics in the visible board summary.
   the small shell as a different board.
 - Anything else? No. The board should stay the same tool, just scaled to the
   shell that is using it.
+
+## Addendum (2026-07-29) - the compact shell already exposes the board entry point, so the header is not desktop-only
+
+- A compact-viewport probe at `390 x 844` showed the `Contracts` button visible
+  and focusable, which means the board header is not limited to desktop-sized
+  shells.
+- The earlier compact-shell assumption in this contract should therefore be
+  read as historical context, not current truth.
+- The durable rule is now:
+  - compact mode still preserves a visible entry point to the same board;
+  - the header title, summary line, and close/back path should remain
+    readable in that smaller presentation;
+  - the board stays the same tool, just scaled to the shell that is using it.
+- Anything else? No. The header contract should describe the compact entry
+  point the runtime already has, not the one it used to lack.
+
+## Addendum (2026-07-29) - the board summary count should reflect visible rows
+
+- The summary count should describe the rows currently visible in the board, not the hidden or filtered rows that are summarized elsewhere.
+- That keeps the header honest about what the player can actually inspect right now and avoids double-counting rows that are already represented by filter or recap counters.
+- If the board needs to explain hidden rows, that explanation belongs in the relevant section or filter summary, not in the header count itself.
+- Anything else? No. The header count should orient the player to the visible board state, not the entire hidden row universe.

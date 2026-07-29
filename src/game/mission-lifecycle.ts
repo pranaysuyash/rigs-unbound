@@ -134,12 +134,15 @@ export function acceptMission(
   }
 
   const focusFree = state.activeMission === null;
-  if (!focusFree && mission.missionClass === "main") {
-    // One main-class mission at a time; the focus slot is its only home.
-    return { ok: false, state, reason: "mission-already-active" };
-  }
-  if (!focusFree && state.activeSideMissions.length >= MAX_ACTIVE_SIDE_MISSIONS) {
-    return { ok: false, state, reason: "side-mission-limit" };
+  if (mission.missionClass === "main") {
+    if (!focusFree) {
+      // One main-class mission at a time; the focus slot is its only home.
+      return { ok: false, state, reason: "mission-already-active" };
+    }
+  } else {
+    if (state.activeSideMissions.length >= MAX_ACTIVE_SIDE_MISSIONS) {
+      return { ok: false, state, reason: "side-mission-limit" };
+    }
   }
 
   const activeMission: ActiveMissionState = {
@@ -156,7 +159,7 @@ export function acceptMission(
     acceptedAtMs: Math.max(0, acceptedAtMs),
     progressIndex: 0,
   };
-  if (focusFree) {
+  if (mission.missionClass === "main") {
     state.activeMission = activeMission;
   } else {
     state.activeSideMissions = [...state.activeSideMissions, activeMission];

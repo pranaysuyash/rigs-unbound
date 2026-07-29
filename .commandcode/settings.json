@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(pkill -9 -f vitest 2>/dev/null; pkill -9 -f \"vite --host\" 2>/dev/null; sleep 3; ps aux | grep -iE \"vitest\" | grep -v grep | wc -l)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

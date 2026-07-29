@@ -521,3 +521,20 @@ inspection.
   input rather than letting each channel drift toward a separate story.
 - Anything else? No. A state cue that cannot be heard or announced is still
   incomplete as a player-facing contract.
+
+## Addendum (2026-07-29) - the browser witness must be perceivable and keyboard-reachable
+
+- Re-read the browser-delivery witness note through the accessibility lens.
+- The named fidelity witness is not complete if it is only visible; it also
+  needs a focusable route and a keyboard path into the same state.
+- The next proof slice should therefore expose the witness as an accessible
+  live region or equivalent status surface that can announce:
+  - current mode;
+  - loading or readiness;
+  - whether the current 3D is essential or decorative;
+  - the rescue cue when tow/recover/repair state changes.
+- That keeps the shell honest about what the player can perceive without
+  pointer input, and it keeps the browser witness aligned with the rest of the
+  control model instead of becoming a visual-only badge.
+- Anything else? No. If the witness cannot be focused and announced, it is
+  not yet a full accessibility proof.

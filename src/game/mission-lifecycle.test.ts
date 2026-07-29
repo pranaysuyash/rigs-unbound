@@ -11,6 +11,9 @@ import type { MissionProposition } from "./mission-propositions";
 const mission: MissionProposition = {
   id: "delivery-home-long-furrow",
   binding: "delivery",
+  missionClass: "main",
+  giverId: "old-man",
+  prerequisites: [],
   title: "Home → Long Furrow",
   premise: "Transport supplies.",
   briefing: "A delivery under pressure.",
@@ -34,6 +37,8 @@ describe("mission lifecycle authority", () => {
     expect(result.state.activeMission).toEqual<MissionRuntimeState>({
       id: mission.id,
       binding: mission.binding,
+      missionClass: mission.missionClass,
+      giverId: mission.giverId,
       targetSiteId: mission.targetSiteId,
       waypointIds: mission.waypointIds,
       requiredCapabilities: mission.requiredCapabilities,
@@ -77,5 +82,126 @@ describe("mission lifecycle authority", () => {
 
     const recovered = recoverState(JSON.parse(JSON.stringify(state)));
     expect(recovered?.activeMission).toEqual(state.activeMission);
+  });
+});
+
+describe("per-class mission concurrency", () => {
+  const sideMission = (id: string): MissionProposition => ({
+    ...mission,
+    id,
+    missionClass: "side",
+    giverId: null,
+  });
+
+  it("runs a side mission alongside the active main mission", () => {
+    const state = createInitialState();
+    expect(acceptMission(state, mission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+
+    const side = acceptMission(state, sideMission("side-1"), "utility-tractor", 1100);
+    expect(side.ok).toBe(true);
+    expect(state.activeMission?.id).toBe(mission.id);
+    expect(state.activeSideMissions.map((m) => m.id)).toEqual(["side-1"]);
+  });
+
+  it("rejects a second main-class mission while one is in the focus slot", () => {
+    const state = createInitialState();
+    expect(acceptMission(state, mission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+
+    const secondMain = acceptMission(
+      state,
+      { ...mission, id: "main-2" },
+      "utility-tractor",
+      1100,
+    );
+    expect(secondMain.ok).toBe(false);
+    if (!secondMain.ok) {
+      expect(secondMain.reason).toBe("mission-already-active");
+    }
+  });
+
+  it("bounds concurrent side missions at the named limit", () => {
+    const state = createInitialState();
+    expect(acceptMission(state, mission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+    for (let i = 1; i <= 3; i++) {
+      expect(
+        acceptMission(state, sideMission(`side-${i}`), "utility-tractor", 1000 + i)
+          .ok,
+      ).toBe(true);
+    }
+
+    const overflow = acceptMission(
+      state,
+      sideMission("side-4"),
+      "utility-tractor",
+      2000,
+    );
+    expect(overflow.ok).toBe(false);
+    if (!overflow.ok) expect(overflow.reason).toBe("side-mission-limit");
+  });
+
+  it("completes a side mission without disturbing the focus mission", () => {
+    const state = createInitialState();
+    expect(acceptMission(state, mission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+    expect(
+      acceptMission(state, sideMission("side-1"), "utility-tractor", 1100).ok,
+    ).toBe(true);
+
+    const completed = completeMission(state, "side-1", 2200);
+    expect(completed.ok).toBe(true);
+    expect(state.activeSideMissions).toHaveLength(0);
+    expect(state.activeMission?.id).toBe(mission.id);
+    expect(
+      state.progression.journeys["utility-tractor"]?.completedDeeds,
+    ).toContain("mission:side-1");
+  });
+
+  it("persists and recovers concurrent side missions through the save shape", () => {
+    const state = createInitialState();
+    expect(acceptMission(state, mission, "utility-tractor", 1000).ok).toBe(
+      true,
+    );
+    expect(
+      acceptMission(state, sideMission("side-1"), "utility-tractor", 1100).ok,
+    ).toBe(true);
+
+    const recovered = recoverState(JSON.parse(JSON.stringify(state)));
+    expect(recovered?.activeSideMissions).toEqual(state.activeSideMissions);
+  });
+
+  it("recovers a pre-v11 record without side missions as an empty list", () => {
+    const state = createInitialState();
+    const payload = JSON.parse(JSON.stringify(state)) as Record<
+      string,
+      unknown
+    >;
+    payload.schemaVersion = 10;
+    delete payload.activeSideMissions;
+
+    const recovered = recoverState(payload);
+    expect(recovered).not.toBeNull();
+    expect(recovered?.activeSideMissions).toEqual([]);
+  });
+
+  it("accepts a side mission into the side slot even when no main is active", () => {
+    const state = createInitialState();
+    const side = acceptMission(
+      state,
+      sideMission("side-standalone"),
+      "utility-tractor",
+      1000,
+    );
+    expect(side.ok).toBe(true);
+    expect(state.activeMission).toBeNull();
+    expect(state.activeSideMissions.map((m) => m.id)).toEqual([
+      "side-standalone",
+    ]);
   });
 });

@@ -5,7 +5,7 @@
  * regional berths, module blueprints, and scrap rewards upon completion.
  */
 
-import type { GameState, RigCapability } from "./contracts";
+import type { RigCapability } from "./contracts";
 
 export interface CampaignContract {
   id: string;
@@ -23,8 +23,8 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
     id: "contract-sunken-relay",
     title: "Sunken Flats Submerged Relay",
     description:
-      "Transport heavy relay equipment from Home Farm to the Sunken Flats causeway.",
-    originSiteId: "home-farm",
+      "Transport heavy relay equipment from the Home Silo to the Sunken Flats causeway.",
+    originSiteId: "home-silo",
     destinationSiteId: "sunken-flats",
     requiredCapability: "tow",
     rewardScrap: 250,
@@ -35,18 +35,21 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
     title: "Launch Ridge Beacon Delivery",
     description:
       "Deliver high-gain antenna components to the summit of Launch Ridge.",
-    originSiteId: "home-farm",
+    originSiteId: "home-silo",
     destinationSiteId: "launch-ridge",
     requiredCapability: "jump",
     rewardScrap: 400,
     status: "locked",
   },
   {
+    // Dormant: "marsh-depot" is not yet an authored world site. The mission
+    // generator skips contracts whose sites do not resolve, so this entry
+    // stays inert until the world-content tranche lands the Marsh Depot.
     id: "contract-marsh-ford",
     title: "Marsh Skimmer Supply Run",
     description:
       "Ford the flooded basin to deliver emergency field rations to the Marsh Depot.",
-    originSiteId: "home-farm",
+    originSiteId: "home-silo",
     destinationSiteId: "marsh-depot",
     requiredCapability: "ford",
     rewardScrap: 350,
@@ -54,38 +57,3 @@ export const CAMPAIGN_CONTRACTS: readonly CampaignContract[] = [
   },
 ];
 
-export function deriveCampaignContracts(state: GameState): CampaignContract[] {
-  const discoveredSiteIds = new Set(state.discoveries.map((d) => d.id));
-
-  return CAMPAIGN_CONTRACTS.map((contract) => {
-    // Contract is available if origin site is discovered
-    const originDiscovered =
-      discoveredSiteIds.has(contract.originSiteId) ||
-      contract.originSiteId === "home-farm";
-    const isCompleted =
-      state.cargoRelay.status === "complete" &&
-      contract.id === "contract-sunken-relay";
-
-    let status: CampaignContract["status"] = "locked";
-    if (isCompleted) {
-      status = "completed";
-    } else if (
-      state.cargoRelay.status === "active" &&
-      contract.id === "contract-sunken-relay"
-    ) {
-      status = "active";
-    } else if (originDiscovered) {
-      status = "available";
-    }
-
-    return {
-      ...contract,
-      status,
-    };
-  });
-}
-
-export function activeContractCount(state: GameState): number {
-  return deriveCampaignContracts(state).filter((c) => c.status === "active")
-    .length;
-}

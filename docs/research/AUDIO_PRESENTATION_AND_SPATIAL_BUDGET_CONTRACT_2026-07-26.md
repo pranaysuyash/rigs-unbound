@@ -270,3 +270,17 @@ Evidence depth: Tier 4 runtime/manual observation.
   the trust path around comfort and repeatability.
 - Anything else? No. If the cue cannot survive reload, it is only session
   behavior, not a durable player affordance.
+
+## Addendum (2026-07-29) - the browser daemon confirms in-session mute, but the reload-safe trail is still missing
+
+- Re-checked the live browser daemon after the browser-delivery pass.
+- The current surface still shows the useful half of the trust feature: the
+  visible pause/menu mute control toggles sound in-session.
+- The missing half remains the same: there is still no visible persisted
+  preference trail in `localStorage`, so audio comfort does not yet survive a
+  reload as a documented player affordance.
+- That means the next audio proof is still the same cue-sized rescue signal,
+  but it must also sit on top of a reload-safe preference layer instead of a
+  session-only toggle.
+- Anything else? No. The audio lane is still a trust contract, not just a
+  sound effect contract.

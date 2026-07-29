@@ -145,3 +145,18 @@ reduced, and fallback states needing their own named contract.
 - Anything else? No. The policy remains useful only if the player can tell
   which parts of the 3D experience are load-bearing and which ones are
   allowed to soften.
+
+## Addendum (2026-07-29) - the daemon can re-anchor, but the DOM witness is still not dependable
+
+- In this session the browser daemon was successfully re-anchored to
+  `http://127.0.0.1:4173/?surface=developer` and the page title reported
+  `Rigs Unbound`.
+- The `status` and `console` probes still did not produce a stable, structured
+  DOM witness for the current page state: `status` returned empty page fields
+  before re-anchoring, and `exec` still resolved to `undefined`/timeout rather
+  than a trustworthy page snapshot.
+- That means the browser-delivery contract still needs a named on-screen
+  witness surface, not just a reachable route and a daemon that can be
+  re-anchored on demand.
+- Anything else? No. This is still the same contract gap: route reachability is
+  not the same thing as a reliable browser-delivery witness.

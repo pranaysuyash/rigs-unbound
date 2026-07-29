@@ -31,9 +31,13 @@ contract would have saved it.
   is the authored suggestion and the current runtime default
   (`fieldName: "Torque"` in `src/game/contracts.ts`), which this slice moves
   into per-save state.
-- **Home Farm / Sunken Flats / Launch Ridge / Marsh Depot** — the four world
-  sites already present in the runtime world graph and
-  [campaign.ts](../../src/game/campaign.ts).
+- **Home Silo / Sunken Flats / Launch Ridge / Marsh Depot** — Home Silo,
+  Sunken Flats, and Launch Ridge are live world-graph sites;
+  [campaign.ts](../../src/game/campaign.ts) originally referenced a stale
+  `home-farm` id (corrected to `home-silo` in tranche 1). **Marsh Depot is
+  not yet an authored site** — its campaign contract stays dormant in the
+  data until the world-content tranche lands it (a derivation test pins this
+  so landing the site forces a conscious update).
 
 ## 3. Quest structure
 
@@ -145,6 +149,16 @@ seed), `fleet-recovery.ts` + `expedition-economy.ts` (Campaign One mid-game),
 1. **Quest semantics** — extend `MissionProposition`/`mission-lifecycle` with
    class, giver, prerequisites, outcomes; relax exclusivity per class; wire
    `campaign.ts` through it. Tests extend existing lifecycle suites.
+   **DONE 2026-07-29:** `MissionClass` + `MissionPrerequisite` graph landed;
+   campaign generator derives main-class contracts from `campaign.ts` with
+   deed-based chaining; save schema v11 adds `activeSideMissions` (one main
+   in the focus slot, up to 3 concurrent non-main) with v10 migration; the
+   mission-board accept button mirrors the authority rules. Evidence:
+   typecheck PASS, 479 vitest tests PASS, reachability 25 → 24
+   (`campaign.ts` wired), and `npm run test:campaign-browser` PASS
+   (board lists the relay contract, chained ridge contract hidden,
+   acceptance persists through the public text contract, zero app console
+   errors).
 2. **Restoration loop** — wire maintenance/workshop/salvage into the shell
    (workshop overlay already specced in Garage/Fleet roster spec).
 3. **Water Before Night** — pump circuit + hydrology branch + world-memory
