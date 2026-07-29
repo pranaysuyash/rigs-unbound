@@ -528,3 +528,41 @@ ADR-0039:
 That keeps this envelope aligned with the rest of the browser contract trail:
 player trust stays in the public shell, while fallback diagnostics remain
 available in the reviewer/operator lane.
+
+## Addendum (2026-07-29) - the envelope is measurable, but the named low-budget capture is still the missing review artifact
+
+- Re-read the resource-budget contract after the KPI, loading/profile, and
+  browser-delivery passes.
+- The runtime already measures pressure, and the live browser surface is still
+  reachable on the canonical developer route with the current title and a
+  non-empty console-log buffer.
+- The operator summary is explicit enough to describe warmup, steady, and
+  fallback states. So the missing piece is not “can we see a fallback?” The
+  missing piece is a named capture bundle that binds:
+  - the measured budget state,
+  - the selected fallback or steady profile,
+  - the observed render/load pressure,
+  - and a short operator note about what changed under pressure.
+- That makes the envelope actionable as a review artifact instead of just a
+  runtime metric stream.
+- Evidence depth: Tier 4 runtime/browser status plus Tier 1 static synthesis
+  from the budget, KPI, loading/profile, and browser-delivery notes.
+
+## Addendum (2026-07-29) - the next budget proof is one capture bundle that binds pressure to the visible shell story
+
+- The browser now has enough public state to explain itself at three levels:
+  - the bootstrap narrative,
+  - the active profile state,
+  - and the fallback/degrade reasoning.
+- The next proof slice should therefore be one named low-budget capture bundle
+  that combines:
+  - the measured budget state,
+  - the selected profile or fallback state,
+  - the operator-visible bootstrap narrative,
+  - and the pressure source summary that explains why the shell is in that
+    state.
+- That keeps the resource envelope reviewable as a single evidence object
+  instead of as separate runtime facts that have to be mentally stitched
+  together later.
+- Anything else? No. The budget lane should explain the shell, not just record
+  it.

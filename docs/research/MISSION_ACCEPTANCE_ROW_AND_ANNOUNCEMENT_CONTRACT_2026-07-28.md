@@ -248,3 +248,18 @@ named in ADR-0039:
 
 That keeps row selection, announcement, and focus handling centered on the
 player-facing shell.
+
+## Addendum (2026-07-29) - the next row proof is a compact-shell-safe visible row set with announcement
+
+- The row contract already knows what it wants: selected rows, announcement on
+  change, explicit accept/dismiss actions, and restored focus on close.
+- The next proof slice should therefore be one compact-shell-safe row set that
+  preserves:
+  - one visible selected-state indicator;
+  - one announcement path for selection changes;
+  - one accept action and one dismiss/back action;
+  - one keyboard-only path through rows and actions.
+- That keeps the row layer usable on the small shell without turning selection
+  into a hidden or pointer-only behavior.
+- Anything else? No. Row selection should stay legible before it becomes
+  actionable.

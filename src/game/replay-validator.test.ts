@@ -439,7 +439,7 @@ describe("deterministic replay validator", () => {
           expect.objectContaining({
             sequence: 0,
             message:
-              "rig-tool command payload does not match a known command variant.",
+              "rig-tool command payload does not match the known toolId/command contract.",
           }),
         ],
       });
@@ -464,7 +464,7 @@ describe("deterministic replay validator", () => {
           expect.objectContaining({
             sequence: 0,
             message:
-              "rig-tool command payload does not match a known command variant.",
+              "rig-tool command payload does not match the known toolId/command contract.",
           }),
         ],
       });
@@ -488,6 +488,191 @@ describe("deterministic replay validator", () => {
           expect.objectContaining({
             sequence: 0,
             message: "rig-tool command requires a toolId.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload on an empty toolId", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-EMPTY-ID", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "",
+        command: { type: "cycle-differential" },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message: "rig-tool command requires a toolId.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload on an unknown toolId", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-UNKNOWN-ID", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "eject-seat",
+        command: { type: "cycle-differential" },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload when the toolId and command are mismatched", () => {
+      // Right shape, right type, wrong tool: "air-down-tires" only ever
+      // resolves to AIRED_DOWN_PSI. A record claiming it resolved to the
+      // default (air-up) pressure did not describe a real historical action.
+      const record = createRunRecord("REPLAY-RIG-TOOL-MISMATCHED", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: {
+          type: "set-tire-pressure",
+          psi: DEFAULT_TIRE_PRESSURE_PSI,
+        },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload on a finite but unexpected PSI", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-UNEXPECTED-PSI", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        // 20 is a plausible, finite, in-range PSI — just not the one
+        // "air-down-tires" actually resolves to.
+        command: { type: "set-tire-pressure", psi: 20 },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload on a PSI outside the valid physical range", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-OUT-OF-RANGE-PSI", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure", psi: 9999 },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload when the command is missing a required field", () => {
+      const record = createRunRecord("REPLAY-RIG-TOOL-MISSING-FIELD", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "air-down-tires",
+        command: { type: "set-tire-pressure" },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
+          }),
+        ],
+      });
+    });
+
+    it("fails as invalid-payload when the command carries extra fields", () => {
+      // Exact-shape parsing means a well-formed command with an unrecognized
+      // extra field is rejected, not silently accepted with the extra field
+      // ignored — a hand-edited or corrupted record should fail loudly.
+      const record = createRunRecord("REPLAY-RIG-TOOL-EXTRA-FIELD", 0);
+      const state = createInitialState(record.seed);
+      const world = new GameWorld(record.seed);
+
+      appendRunRecordEntry(record, "command", "rig-tool", state.elapsedMs, {
+        toolId: "cycle-differential",
+        command: { type: "cycle-differential", force: true },
+      });
+      checkpoint(record, state, world, "unreached");
+
+      expect(validateDeterministicReplay(record)).toMatchObject({
+        ok: false,
+        status: "invalid-payload",
+        commandsApplied: 0,
+        issues: [
+          expect.objectContaining({
+            sequence: 0,
+            message:
+              "rig-tool command payload does not match the known toolId/command contract.",
           }),
         ],
       });

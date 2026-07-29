@@ -570,3 +570,18 @@ Quality: High (desktop/powerful mobile)
   presentation profile.
 - Evidence depth: Tier 1 static source inspection. No new browser/device proof
   was run in this update.
+
+## Addendum (2026-07-29) - the next shell proof is one browser-proved profile, not a style fork
+
+- The shell lane already has the core ingredients:
+  - a state-shell mesh and shader envelope;
+  - live integrity and impact data from feedback;
+  - profile-dependent quality policy elsewhere in the render stack.
+- The next proof slice should be one browser-proved shell profile that owns the
+  visible rig-state language for a single quality band, with a clear public
+  approval boundary.
+- That means no separate shell style forks for the same quality level. The
+  contract should prove one owned profile first, then let later variation build
+  on that owner.
+- Anything else? No. The shell lane only becomes shippable when one profile can
+  explain itself clearly in the browser.

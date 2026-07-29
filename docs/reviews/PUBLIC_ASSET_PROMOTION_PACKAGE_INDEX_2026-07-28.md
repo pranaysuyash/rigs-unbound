@@ -12,9 +12,12 @@ and evidence surfaces that keep the promotion gate honest.
 ## Start here
 
 - [Public Asset Promotion Review](PUBLIC_ASSET_PROMOTION_REVIEW_2026-07-28.md)
+- [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md)
 - [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
 - [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
 - [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md)
+- [Public Asset Promotion Pre-Signoff Record](PUBLIC_ASSET_PROMOTION_PRE_SIGNOFF_RECORD_2026-07-29.md)
+- [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md)
 - [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
 - [Public Asset Promotion Workflow for First Runtime Bridge Candidate](../research/PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md)
 - [ADR-0038: Public asset promotion boundary separates runtime-tested bridges from public approval](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md)
@@ -58,9 +61,12 @@ and rollback path for the promoted asset.
 ## Provenance
 
 - [Public Asset Promotion Review](PUBLIC_ASSET_PROMOTION_REVIEW_2026-07-28.md)
+- [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md)
 - [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
 - [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
 - [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md)
+- [Public Asset Promotion Pre-Signoff Record](PUBLIC_ASSET_PROMOTION_PRE_SIGNOFF_RECORD_2026-07-29.md)
+- [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md)
 - [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
 - [Public Asset Promotion Workflow for First Runtime Bridge Candidate](../research/PUBLIC_ASSET_PROMOTION_WORKFLOW_FOR_FIRST_RUNTIME_BRIDGE_CANDIDATE_2026-07-28.md)
 - [ADR-0038: Public asset promotion boundary separates runtime-tested bridges from public approval](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md)

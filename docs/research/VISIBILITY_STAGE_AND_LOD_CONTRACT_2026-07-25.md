@@ -240,3 +240,20 @@ geometric LOD until representation variants have passed the asset gate.
 - This preserves the boundary: visibility/LOD remains the legibility layer,
   while the named composition stack remains the layer that uses that
   legibility.
+
+## Addendum (2026-07-29) - the next visibility proof is a representation-tier summary, not another cull counter
+
+- The current visibility seam is already useful as accounting: near/mid/far/
+  culled counts, submitted-vs-candidate pressure, and capacity pressure are all
+  explicit enough to explain renderer load.
+- That still leaves representation LOD unresolved. The next proof slice should
+  not be another distance shortcut; it should be one imported-asset
+  representation example plus one operator-visible tier summary that names the
+  chosen representation rather than only the visibility bucket.
+- In other words: `near`, `mid`, and `far` are currently visibility budgets.
+  The next contract needs one durable bridge from those budgets to an actual
+  asset variant decision so the docs can distinguish "hidden by distance" from
+  "rendered with a lower-fidelity representation."
+- Anything else? The answer here is no: the current seam should stay narrow
+  until that representation bridge exists, because widening the contract again
+  would blur the distinction we still need to prove.

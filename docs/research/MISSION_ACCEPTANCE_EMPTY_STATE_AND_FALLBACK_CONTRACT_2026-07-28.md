@@ -110,3 +110,18 @@ The smallest proof that satisfies this contract is:
 Yes. This contract exists because a blank board is not neutral. Without an
 explicit empty state, the browser surface looks broken; with one, it becomes an
 honest part of the game’s discovery loop.
+
+## Addendum (2026-07-29) - the next empty-state proof is a compact-shell-safe recovery hint
+
+- The current empty-state contract already has the right core shape:
+  - an explicit empty-state message;
+  - a visible close/back path;
+  - a stable header summary;
+  - a readable reason or next step.
+- The next proof slice should be a compact-shell-safe empty state that keeps
+  that same recovery hint visible without pretending the board is loading.
+- In other words: loading should explain waiting, and empty should explain
+  absence. The next contract slice should preserve that distinction even when
+  the shell is small.
+- Anything else? No. A blank board is still not neutral; it should be an
+  explicit, recoverable state on every viewport that can open the board.

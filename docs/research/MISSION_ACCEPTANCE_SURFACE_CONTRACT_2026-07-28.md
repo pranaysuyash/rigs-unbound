@@ -396,3 +396,18 @@ diagnostics lane remains separate for operators and reviewers.
 - Evidence depth: Tier 1 static synthesis from the current contract trail. No new runtime probe was run in this addendum.
 
 Anything else? Yes: the board is a real surface already; the next durable decision is how much of it compact/mobile should expose.
+
+## Addendum (2026-07-29) - the next surface proof is a compact-shell-visible entry path, not another desktop overlay
+
+- The desktop board already proves the choice layer is real.
+- The next proof slice should therefore be a compact-shell-visible entry path
+  that preserves the same choice semantics:
+  - discoverable from the ready shell;
+  - focus-safe;
+  - readable in the same terms as the desktop board;
+  - and still not a second mission authority or progression ledger.
+- That keeps the surface contract focused on exposure policy rather than on
+  inventing a second board.
+- Anything else? No. The compact shell should either surface the board in a
+  smaller form or clearly remain board-free by policy, but it should no longer
+  be left in a vague hidden state.

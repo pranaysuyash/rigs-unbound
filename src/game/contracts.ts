@@ -2,10 +2,11 @@ import { WORLD_SITES } from "./world";
 import type { RigId } from "./rig-ids";
 import type { ProgressionState } from "./progression";
 import type { UnboundPassageState } from "./unbound-passage";
-import type { MissionBinding } from "./mission-propositions";
+import type { MissionBinding, MissionClass } from "./mission-propositions";
 
-export const SAVE_SCHEMA_VERSION = 10 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 9 as const;
+export const SAVE_SCHEMA_VERSION = 11 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 10 as const;
+export const V9_SAVE_SCHEMA_VERSION = 9 as const;
 export const V8_SAVE_SCHEMA_VERSION = 8 as const;
 export const V7_SAVE_SCHEMA_VERSION = 7 as const;
 export const V6_SAVE_SCHEMA_VERSION = 6 as const;
@@ -662,6 +663,10 @@ export interface SurveyRouteState {
 export interface ActiveMissionState {
   id: string;
   binding: MissionBinding;
+  /** Quest class; "main" claims the focus slot exclusively. */
+  missionClass: MissionClass;
+  /** Character/site/faction that issued the mission, or null for world-derived. */
+  giverId: string | null;
   targetSiteId: string;
   waypointIds: readonly string[];
   requiredCapabilities: readonly RigCapability[];
@@ -709,6 +714,11 @@ export interface GameState {
   cargoRelay: CargoRelayState;
   surveyRoute: SurveyRouteState;
   activeMission: ActiveMissionState | null;
+  /**
+   * Concurrent non-main missions. The focus slot above stays the single
+   * main-class authority; side/local missions may run alongside it.
+   */
+  activeSideMissions: ActiveMissionState[];
   unboundPassage: UnboundPassageState;
   furrows: FurrowMark[];
   semanticEdits: CutFillEditRecord[];

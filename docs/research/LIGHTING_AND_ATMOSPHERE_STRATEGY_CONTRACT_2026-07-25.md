@@ -223,3 +223,17 @@ budgets still preserve clarity, mood, and terrain legibility.
 - This note is intentionally narrow. It does not turn lighting into a story
   system or a mission system; it only keeps the visual policy surface explicit
   so later episode work can rely on it.
+
+## Addendum (2026-07-29) - the next lighting proof is a named tier matrix, not another rendered mood
+
+- The runtime already shows that lighting can simplify responsibly while
+  preserving readability.
+- The next proof slice should make that policy explicit in contract form:
+  - one named lighting tier matrix keyed to phase or budget,
+  - one operator/debug field that reports the active lighting strategy,
+  - one formal fallback rule that says exactly when atmosphere yields to
+    clarity.
+- That is still a policy note, not a renderer rewrite. The goal is to make the
+  lighting choice queryable and reviewable, not to add more visual effects.
+- Anything else? No. More mood without a named envelope would only repeat what
+  the runtime already does well.

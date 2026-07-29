@@ -11,6 +11,7 @@ import {
   type TapAction,
 } from "./contracts";
 import { GameWorld } from "./gameworld";
+import { parseStrictRigToolCommand } from "./rig-tool-projection";
 import {
   advanceGame,
   createInitialState,
@@ -202,30 +203,6 @@ function finiteMilliseconds(value: unknown): number | null {
     : null;
 }
 
-/**
- * Strictly parse a `rig-tool` command payload's `command` field into one of
- * the two contract-accepted variants. Replay must call the same canonical
- * mutation functions as live play, so this rejects anything malformed,
- * unknown, non-finite, or out of contract shape rather than normalizing it —
- * a corrupted or hand-edited record should fail loudly, not silently coerce
- * into a plausible-looking action nobody actually requested.
- */
-function parseRigToolCommand(
-  value: unknown,
-): { type: "set-tire-pressure"; psi: number } | { type: "cycle-differential" } | null {
-  if (!value || typeof value !== "object") return null;
-  const type = (value as { type?: unknown }).type;
-  if (type === "set-tire-pressure") {
-    const psi = (value as { psi?: unknown }).psi;
-    if (typeof psi !== "number" || !Number.isFinite(psi)) return null;
-    return { type: "set-tire-pressure", psi };
-  }
-  if (type === "cycle-differential") {
-    return { type: "cycle-differential" };
-  }
-  return null;
-}
-
 function replayToElapsed(
   session: ReplaySession,
   targetElapsedMs: number,
@@ -350,9 +327,9 @@ function replayCommand(
       if (typeof toolId !== "string" || toolId.length === 0) {
         return "rig-tool command requires a toolId.";
       }
-      const command = parseRigToolCommand(entry.payload.command);
+      const command = parseStrictRigToolCommand(toolId, entry.payload.command);
       if (!command) {
-        return "rig-tool command payload does not match a known command variant.";
+        return "rig-tool command payload does not match the known toolId/command contract.";
       }
       if (command.type === "set-tire-pressure") {
         setTirePressure(session.state, command.psi);

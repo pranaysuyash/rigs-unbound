@@ -557,7 +557,10 @@ function boot(): void {
     try {
       renderer.dispose();
     } catch (error) {
-      console.error("Renderer dispose failed during no-render fallback.", error);
+      console.error(
+        "Renderer dispose failed during no-render fallback.",
+        error,
+      );
       if (typeof recordCheckpoint === "function") {
         recordCheckpoint("rendererDisposeFailed", { error: String(error) });
       }
@@ -588,8 +591,7 @@ function boot(): void {
         "aria-valuetext",
         `${sampleCount} of ${bootstrapFrameSampleTarget} frame samples collected.`,
       );
-      bootstrapStatus.textContent =
-        `Measuring device performance… ${sampleCount}/${bootstrapFrameSampleTarget} frame samples collected.`;
+      bootstrapStatus.textContent = `Measuring device performance… ${sampleCount}/${bootstrapFrameSampleTarget} frame samples collected.`;
       return;
     }
 
@@ -958,7 +960,8 @@ function boot(): void {
     if (!worldEntered && !welcomePanel.hidden) return welcomePanel;
     if (activeOverlay === "map" && !mapOverlay.hidden) return mapOverlay;
     if (activeOverlay === "pause" && !pauseOverlay.hidden) return pauseOverlay;
-    if (activeOverlay === "radial" && !radialOverlay.hidden) return radialOverlay;
+    if (activeOverlay === "radial" && !radialOverlay.hidden)
+      return radialOverlay;
     if (activeOverlay === "mission-board" && !missionBoard.hidden) {
       return missionBoard;
     }
@@ -976,9 +979,7 @@ function boot(): void {
 
     event.preventDefault();
     const activeElement = document.activeElement as HTMLElement | null;
-    const currentIndex = activeElement
-      ? focusables.indexOf(activeElement)
-      : -1;
+    const currentIndex = activeElement ? focusables.indexOf(activeElement) : -1;
     const nextIndex =
       currentIndex === -1
         ? event.shiftKey
@@ -1416,14 +1417,11 @@ function boot(): void {
     toast.textContent = message;
     toast.classList.add("toast--visible");
     window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(
-      () => {
-        toast.classList.remove("toast--visible");
-        toast.setAttribute("aria-hidden", "true");
-        toast.textContent = "";
-      },
-      3000,
-    );
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove("toast--visible");
+      toast.setAttribute("aria-hidden", "true");
+      toast.textContent = "";
+    }, 3000);
   };
 
   const announce = (): void => {
@@ -2305,8 +2303,8 @@ function boot(): void {
       statusMessage = previewActive
         ? `Acceptance visibility preview active: renderer forced to ${effectiveVisibilityProfile}.`
         : fallbackActive
-        ? `Performance safeguard active: reduced scenery detail.${propNote}${reasonText ? ` ${reasonText}` : ""}`
-        : "Performance safeguard cleared: standard scenery detail restored.";
+          ? `Performance safeguard active: reduced scenery detail.${propNote}${reasonText ? ` ${reasonText}` : ""}`
+          : "Performance safeguard cleared: standard scenery detail restored.";
       if (worldEntered) {
         showToast(statusMessage);
       } else {

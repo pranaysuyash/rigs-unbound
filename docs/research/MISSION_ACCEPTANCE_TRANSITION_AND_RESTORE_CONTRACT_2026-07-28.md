@@ -158,3 +158,20 @@ reopened and reused, rather than a set of different pages stitched together.
 - The next question is not whether the transition exists, but whether the
   public compact shell should expose the same transition affordance in a
   smaller form.
+
+## Addendum (2026-07-29) - the next transition proof is compact-shell-safe open/reconfigure/close continuity
+
+- The transition contract already names the right choreography: open,
+  reconfigure, close.
+- The next proof slice should therefore be one compact-shell-safe transition
+  path that preserves:
+  - one explicit open action;
+  - one explicit close action;
+  - one mode toggle that preserves selection;
+  - one focus restore path after close;
+  - one preserved selected row across reopen when context has not changed;
+  - one readable transition summary for reconfiguration.
+- That keeps the board feeling like one recoverable tool instead of a new page
+  every time the shell changes shape.
+- Anything else? No. The contract should explain how the board moves, not add
+  another board state.

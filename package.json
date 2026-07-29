@@ -15,6 +15,7 @@
     "test:box3d-lab": "node tools/box3d-lab-browser-acceptance.cjs",
     "test:shell-accessibility": "node tools/shell-accessibility-browser-acceptance.cjs",
     "test:shell-accessibility:summary": "node tools/shell-accessibility-summary.cjs",
+    "test:radial-pegboard-browser": "node tools/radial-pegboard-browser-acceptance.cjs",
     "assets:preflight": "node tools/asset-preflight.mjs assets/asset-manifest.json",
     "assets:assert-player-build": "node tools/assert-player-build-assets.mjs assets/asset-manifest.json dist/client",
     "test:assets": "node --test tools/asset-preflight.test.mjs",

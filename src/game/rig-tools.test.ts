@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { effectiveProfile, type RigId } from "./contracts";
+import {
+  DEFAULT_TIRE_PRESSURE_PSI,
+  effectiveProfile,
+  type RigId,
+} from "./contracts";
 import { GameWorld } from "./gameworld";
 import { stepRigMotion, toolTractionModifiers } from "./physics";
 import {
   AIRED_DOWN_PSI,
   deriveRigToolProjections,
+  expectedRigToolCommand,
+  parseStrictRigToolCommand,
 } from "./rig-tool-projection";
 import {
   createInitialState,
@@ -264,5 +270,106 @@ describe("tool state survives the real storage path", () => {
       tirePressurePsi: 32,
       differentialMode: "open",
     });
+  });
+});
+
+describe("the toolId -> command contract is the single source of truth", () => {
+  it("resolves each known toolId to exactly one command", () => {
+    expect(expectedRigToolCommand("air-down-tires")).toEqual({
+      type: "set-tire-pressure",
+      psi: AIRED_DOWN_PSI,
+    });
+    expect(expectedRigToolCommand("air-up-tires")).toEqual({
+      type: "set-tire-pressure",
+      psi: DEFAULT_TIRE_PRESSURE_PSI,
+    });
+    expect(expectedRigToolCommand("cycle-differential")).toEqual({
+      type: "cycle-differential",
+    });
+  });
+
+  it("returns null for an unknown toolId", () => {
+    expect(expectedRigToolCommand("eject-seat")).toBeNull();
+    expect(expectedRigToolCommand("")).toBeNull();
+  });
+
+  it("accepts only the exact contract-matching command for each toolId", () => {
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+        psi: AIRED_DOWN_PSI,
+      }),
+    ).toEqual({ type: "set-tire-pressure", psi: AIRED_DOWN_PSI });
+    expect(
+      parseStrictRigToolCommand("air-up-tires", {
+        type: "set-tire-pressure",
+        psi: DEFAULT_TIRE_PRESSURE_PSI,
+      }),
+    ).toEqual({ type: "set-tire-pressure", psi: DEFAULT_TIRE_PRESSURE_PSI });
+    expect(
+      parseStrictRigToolCommand("cycle-differential", {
+        type: "cycle-differential",
+      }),
+    ).toEqual({ type: "cycle-differential" });
+  });
+
+  it("rejects every malformed or mismatched shape rather than normalizing it", () => {
+    // Unknown / empty toolId.
+    expect(
+      parseStrictRigToolCommand("eject-seat", { type: "cycle-differential" }),
+    ).toBeNull();
+    expect(
+      parseStrictRigToolCommand("", { type: "cycle-differential" }),
+    ).toBeNull();
+    // Mismatched toolId and command (right shape, wrong tool).
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+        psi: DEFAULT_TIRE_PRESSURE_PSI,
+      }),
+    ).toBeNull();
+    // Non-finite PSI.
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+        psi: Number.NaN,
+      }),
+    ).toBeNull();
+    // Finite but unexpected PSI.
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+        psi: 20,
+      }),
+    ).toBeNull();
+    // PSI outside the physical range entirely.
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+        psi: 9999,
+      }),
+    ).toBeNull();
+    // Unknown command variant.
+    expect(
+      parseStrictRigToolCommand("air-down-tires", { type: "teleport-rig" }),
+    ).toBeNull();
+    // Missing required field.
+    expect(
+      parseStrictRigToolCommand("air-down-tires", {
+        type: "set-tire-pressure",
+      }),
+    ).toBeNull();
+    // Extra field on an otherwise-valid command.
+    expect(
+      parseStrictRigToolCommand("cycle-differential", {
+        type: "cycle-differential",
+        force: true,
+      }),
+    ).toBeNull();
+    // Non-object command.
+    expect(parseStrictRigToolCommand("cycle-differential", null)).toBeNull();
+    expect(
+      parseStrictRigToolCommand("cycle-differential", "cycle-differential"),
+    ).toBeNull();
   });
 });

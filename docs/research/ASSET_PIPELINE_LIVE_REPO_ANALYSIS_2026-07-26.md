@@ -252,6 +252,20 @@ task. The trail now knows exactly where the missing linkage belongs: in the
 decision artifact that promotes an already runtime-tested asset to public
 approval.
 
+## Addendum (2026-07-29) - the approval worksheet is now explicit, but the manifest is still not the decision
+
+The new approval field map makes the operator workflow easier to use:
+
+- the manifest continues to carry identity, runtime path, hash, and
+  `publicRuntimeApproved` state;
+- the approval template stays the durable decision artifact;
+- the field map now tells the operator which proof feeds each blank in that
+  template.
+
+That keeps the manifest from drifting into a second approval surface while
+still making the public-approval path easier to execute when the operator is
+ready.
+
 ## Addendum (2026-07-29) - the package index now points at the exact remaining asset proof
 
 The package index and workflow together make the next step explicit enough that
@@ -269,3 +283,21 @@ The remaining proof is the promotion record itself:
 That keeps the asset lane honest: runtime bridge admission proves the asset can
 be loaded, but the promotion decision proves whether it may become player
 truth.
+
+## Addendum (2026-07-29) - the next asset-production proof is a source-to-runtime representation chain
+
+- The current analysis now separates two different problems cleanly:
+  - visibility/LOD still needs a representation-tier proof slice;
+  - public asset approval still needs a durable rights/provenance-linked
+    promotion record.
+- The next asset-production proof should therefore be a source-to-runtime chain
+  for one asset family, not another bridge candidate:
+  - one named source file or source package;
+  - one documented runtime derivative or export target;
+  - one explicit rights/provenance summary carried into the promotion note;
+  - one visible representation choice or LOD-variant summary tied to the
+    exported asset.
+- That keeps asset production grounded in deliverable consumer contracts rather
+  than in generator-side output alone.
+- Anything else? No. The current gap is already specific enough to avoid
+  widening the lane into a generic asset-management rewrite.

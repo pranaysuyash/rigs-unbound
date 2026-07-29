@@ -239,3 +239,34 @@ That means the current audio lane has the useful half of the trust feature:
 comfort can be toggled in-session. What is still missing is a visible persisted
 preference trail that survives reload instead of resetting the session state.
 Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-29) - the next audio slice is a cue-level rescue signal, not a broader music layer
+
+- Re-read the `game-audio` skill against the current loop, accessibility, and
+  browser-witness notes.
+- The contract already says audio should help the player read machine state,
+  speed, strain, and success. The next useful proof therefore stays narrow:
+  one readable cue that changes when the tow/recover/repair state changes in
+  the rescue loop.
+- The cue should be tied to a specific state source or signature path, not to
+  a generic ambient change. That keeps audio as support for machine feel, not a
+  second HUD or a replacement for narration.
+- The mute/persistence gap remains separate: in-session comfort is real, but a
+  visible persisted preference trail is still missing.
+- Evidence depth: Tier 1 static synthesis from the current audio contract,
+  game-design loop, accessibility notes, and live browser observations.
+
+## Addendum (2026-07-29) - the next audio proof should survive mute reloads and remain cue-sized
+
+- The current audio lane is already narrow in the right way: one rescue-loop
+  cue, one comfort preference, one suppression rule.
+- The next proof slice should therefore not broaden into a general soundscape
+  layer. It should be one browser-visible machine-state cue that:
+  - survives mute persistence across reload;
+  - remains readable when burst suppression is active;
+  - changes with the tow/recover/repair state rather than with unrelated
+    ambience.
+- That keeps audio as a support channel for machine feel while still proving
+  the trust path around comfort and repeatability.
+- Anything else? No. If the cue cannot survive reload, it is only session
+  behavior, not a durable player affordance.

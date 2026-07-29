@@ -134,3 +134,20 @@ ADR-0039:
 
 That matters because this contract is explicitly about local evidence and
 explanation, not about moving internal tuning controls into the player HUD.
+
+## Addendum (2026-07-29) - the next observability proof is one named actor/physics summary in the existing diagnostics lane
+
+- Re-read the operator-observability contract after the KPI and shell/profile
+  passes.
+- The local diagnostics lane already has enough structure to explain the app:
+  snapshot, run record, performance data, profile policy, and acceptance-only
+  DOM diagnostics.
+- The next proof slice should therefore not be a new telemetry system. It
+  should be one named diagnostics extension that reports:
+  - per-frame actor count;
+  - active physics count;
+  - and the profile/fixture pair those counts belong to.
+- That keeps the operator lane useful for comparing scenes and budgets without
+  turning diagnostics into authority or public HUD clutter.
+- Anything else? No. The point is explanation with the current local evidence
+  surfaces, not a broader telemetry claim.

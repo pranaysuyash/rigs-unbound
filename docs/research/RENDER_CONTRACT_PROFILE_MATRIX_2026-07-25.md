@@ -128,3 +128,16 @@ The render profile matrix now maps cleanly onto ADR-0039:
 That keeps the matrix focused on quality policy and fallback behavior, while
 the public shell remains the player-facing place where the selected profile is
 named in plain language.
+
+## Addendum (2026-07-29) - the next render proof is a human-readable profile summary, not another hidden rule row
+
+- The matrix already has the policy shape it needs:
+  - full, standard, and mobile-safe tiers;
+  - visible profile state in the shell;
+  - acceptance-only diagnostics for deeper rationale.
+- The next proof slice should therefore be one human-readable summary that ties
+  the active profile to its visible tradeoffs in the live shell, rather than a
+  second policy table or a new hidden rules layer.
+- That keeps the render lane understandable to players and reviewers without
+  duplicating the matrix as a second authority surface.
+- Anything else? No. The point is explanation, not another policy fork.

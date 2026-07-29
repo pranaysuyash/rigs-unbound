@@ -20,6 +20,7 @@ the accessibility story durable and discoverable.
 
 - Live shell evidence:
   - [Shell Accessibility Evidence](SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md)
+- [Screen Reader Narration Pass](SCREEN_READER_NARRATION_PASS_2026-07-29.md)
 - Live repo accessibility analysis:
   - [Accessibility and Profile Visibility Live Repo Analysis](ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md)
 - Browser-delivery policy trail:
@@ -86,6 +87,7 @@ been run against it.
 - [Browser Loading Progress Issue Review](../reviews/BROWSER_LOADING_PROGRESS_ISSUE_REVIEW_2026-07-28.md)
 - [Accessibility and Profile Visibility Live Repo Analysis](ACCESSIBILITY_AND_PROFILE_VISIBILITY_LIVE_REPO_ANALYSIS_2026-07-26.md)
 - [Shell Accessibility Evidence](SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md)
+- [Screen Reader Narration Pass](SCREEN_READER_NARRATION_PASS_2026-07-29.md)
 
 ## Anything else?
 
@@ -284,3 +286,11 @@ and where to report gaps.
 - Evidence depth: Tier 1 static synthesis from the current public-promise and loop notes. No new screen-reader run was executed in this addendum.
 
 Anything else? Yes: the statement page is durable; the remaining work is narration quality on the live shell.
+
+## Addendum (2026-07-29) - screen reader narration pass is the last manual boundary
+
+The public accessibility contract now has a concrete manual QA artifact for
+the remaining spoken narration check: [Screen Reader Narration Pass](SCREEN_READER_NARRATION_PASS_2026-07-29.md).
+
+That keeps the contract honest about what is still unverified while making the
+last manual step easy to find from the promise page itself.

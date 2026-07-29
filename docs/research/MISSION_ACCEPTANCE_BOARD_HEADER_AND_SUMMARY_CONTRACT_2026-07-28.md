@@ -196,3 +196,20 @@ in ADR-0039:
 
 That keeps the header contract focused on player orientation rather than on
 repeating operator diagnostics in the visible board summary.
+
+## Addendum (2026-07-29) - the next header proof is the compact-shell entry point, not another desktop summary
+
+- The desktop runtime already proves the board header and summary can exist as
+  a readable overlay.
+- The remaining gap is the compact shell, which still suppresses the trigger
+  cluster that opens the board in smaller viewports.
+- The next proof slice should therefore be one compact-shell-visible entry
+  point that preserves:
+  - the board title,
+  - the short summary line,
+  - the explicit mode indicator,
+  - and the close/back path.
+- That keeps the contract aligned across viewport classes instead of treating
+  the small shell as a different board.
+- Anything else? No. The board should stay the same tool, just scaled to the
+  shell that is using it.

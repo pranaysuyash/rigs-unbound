@@ -13,11 +13,14 @@ document what changed, what was verified, and what remains open.
 - [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
 - [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
 - [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md)
+- [Public Asset Promotion Pre-Signoff Record](PUBLIC_ASSET_PROMOTION_PRE_SIGNOFF_RECORD_2026-07-29.md)
+- [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md)
 - [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
 - [Runtime Reachability Ownership Matrix](RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
 - [Dynamic World Collision Acceptance](DYNAMIC_WORLD_COLLISION_ACCEPTANCE_2026-07-28.md)
 - [Parallel Runtime Integration Handoff](PARALLEL_RUNTIME_INTEGRATION_HANDOFF_2026-07-26.md)
 - [Browser Runtime Parallel-State Integration Blocker](BROWSER_RUNTIME_PARALLEL_STATE_INTEGRATION_BLOCKER_2026-07-26.md)
+- [Radial Menu Boot Failure Snapshot](../research/RADIAL_MENU_BOOT_FAILURE_SNAPSHOT_2026-07-29.md)
 - [Browser Loading Progress Issue Review](BROWSER_LOADING_PROGRESS_ISSUE_REVIEW_2026-07-28.md)
 - [Contract Board Compact Exposure Policy Review](CONTRACT_BOARD_COMPACT_EXPOSURE_POLICY_REVIEW_2026-07-28.md)
 - [Accessibility Statement and Public Promise Contract](../research/ACCESSIBILITY_STATEMENT_AND_PUBLIC_PROMISE_CONTRACT_2026-07-28.md)
@@ -31,9 +34,10 @@ document what changed, what was verified, and what remains open.
 1. Read the trailer and build-in-public release review first.
 2. Read the trailer and X announcement decision next.
 3. Read the decision provenance audit before relying on any status words.
-4. Read the UI shell, field map, and passage acceptance records in the order they were closed.
-5. Keep the site deployment acceptance as the broader public-run record.
-6. Read the parallel-runtime handoff and browser blocker when a live runtime lane is shared with another agent.
+4. Read the public asset promotion package index, checklist, template, field map, pre-signoff record, and decision packet in that order before touching the approval decision.
+5. Read the UI shell, field map, and passage acceptance records in the order they were closed.
+6. Keep the site deployment acceptance as the broader public-run record.
+7. Read the parallel-runtime handoff and browser blocker when a live runtime lane is shared with another agent.
 
 ## Launch and comms evidence
 

@@ -101,6 +101,8 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0037 | Implemented and verified for the current runtime | Solver-independent semantic roles, CCD, dynamic rig/cargo response, and observable contact identity are locally verified. Global solver selection remains unresolved. |
 | ADR-0038 | Proposed — operator sign-off required                        | Runtime-tested bridge admission stays separate from public approval; the first public candidate is the breakable crate, not the tractor preview. |
 | ADR-0039 | Proposed — operator sign-off required                        | Public shell keeps bootstrap/profile visible and route-gates diagnostics to the acceptance/developer surface. |
+| ADR-0040 | Accepted by explicit operator sign-off                       | Canonical vision is the open vehicle-universe; the Game Design Spine is the authoritative design surface; ADR-0029 becomes Campaign One's identity, not the umbrella. Operator condition: update prior work in place, never delete it. |
+| ADR-0041 | Implemented and verified for the current runtime | Terrain region refresh scopes vertex-normal recompute to the changed patch instead of the whole mesh; equivalence-tested (471/471 regression suite green), ~30-66x faster per ploughing tick on the real grid size, and live in-browser ploughing observed with zero console/server errors and no visible seam at a grazing dusk light angle. |
 
 ## Related current surfaces
 

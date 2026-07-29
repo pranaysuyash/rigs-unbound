@@ -12,6 +12,8 @@ export interface RendererMetrics {
   textures: number;
   /** One-time cost of building the terrain mesh, in ms. */
   terrainBuildMs?: number;
+  /** Cost of the most recent ploughing-triggered terrain patch refresh, in ms. */
+  terrainRegionRefreshMs?: number;
   /** Logical prop visibility selected during the latest renderer rebuild. */
   visibility?: PropVisibilityMetrics;
   /** Estimated GPU memory usage in MB (geometries + textures). */
@@ -39,6 +41,7 @@ export interface PerformanceSnapshot {
   lastSaveDurationMs: number;
   saveBytes: number;
   terrainBuildMs: number | null;
+  terrainRegionRefreshMs: number | null;
   visibility: PropVisibilityMetrics | null;
   /** Estimated GPU memory usage in MB. */
   gpuMemoryMb: number | null;
@@ -290,6 +293,7 @@ export class PerformanceMonitor {
       geometries: renderer.geometries,
       textures: renderer.textures,
       terrainBuildMs: renderer.terrainBuildMs ?? null,
+      terrainRegionRefreshMs: renderer.terrainRegionRefreshMs ?? null,
       rendererBackend: renderer.rendererBackend ?? "webgl",
       rendererRequestedBackend: renderer.rendererRequestedBackend ?? "auto",
       rendererBackendFallback: renderer.rendererBackendFallback ?? false,

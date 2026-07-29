@@ -346,3 +346,19 @@ does not claim fresh runtime or performance evidence.
   - the world substrate itself remains the canonical truth for what exists.
 - This note intentionally keeps streaming future-bound; it only makes the
   dependency visible so later episode work can rely on the same world truth.
+
+## Addendum (2026-07-29) - the next streaming proof is one deterministic chunk key plus one measured lifecycle
+
+- Re-read the streaming contract after the world-scaling and observability
+  passes.
+- The world is still intentionally single-residency, so the next proof should
+  not try to become a full streamer. It should make the residency boundary
+  first-class by naming:
+  - one deterministic chunk key derived from fixed grid coordinates;
+  - one manifest-validated request/validate/activate/unload lifecycle;
+  - one active-residency budget counter;
+  - one operator-visible churn or activation-latency summary.
+- That keeps world truth canonical while making residency measurable instead of
+  implicit.
+- Evidence depth: Tier 1 static synthesis from the streaming contract and the
+  world-scaling notes. No runtime streamer was added in this pass.

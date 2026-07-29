@@ -29,6 +29,7 @@ function snapshot(
     lastSaveDurationMs: 0,
     saveBytes: 0,
     terrainBuildMs: null,
+    terrainRegionRefreshMs: null,
     visibility: null,
     gpuMemoryMb: null,
     rendererBackend: "webgl",

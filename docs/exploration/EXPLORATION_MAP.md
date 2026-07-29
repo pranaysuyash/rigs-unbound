@@ -39,6 +39,9 @@ acceptance record owns its specific tier.
 - [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
 - [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md)
 - [Stranger at the Silo — Opening Narrative Exploration](STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md)
+- [Game Design Spine](../design/GAME_DESIGN_SPINE.md) — proposed canonical whole-game design surface
+- [ADR-0040 — Open vehicle-universe and design-spine hierarchy](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
+- [First Playable — The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md)
 - [Worklog](../WORKLOG.md)
 
 ## Suggested order
@@ -2766,3 +2769,41 @@ absent from the accessibility tree, while the visible tree exposes the skip
 link, warmup dialog, live status regions, and Enter the field. That keeps the
 contract-board question squarely in exposure-policy territory rather than in
 basic accessibility-label territory.
+
+## Addendum — 2026-07-29 whole-game correction: the vision hierarchy was inverted
+
+Operator review found the repository's recorded vision *narrower* than the
+pitched open vehicle-universe: ADR-0029's machine-keeper odyssey had become
+the de-facto umbrella, and story, quests, exploration design, marketplaces,
+multiplayer, and plural world topologies were treated as out of scope rather
+than as gated execution. Measured state agreed with the critique rather than
+with the doc corpus: 25 unreachable modules (1,836 lines) of tested gameplay,
+and a 41 docs / 13 chore / 4 feat / 2 test histogram over the last 60 commits.
+
+Correction (ADR-0040 accepted by operator sign-off 2026-07-29; operator
+condition: update prior work in place, never delete it):
+
+- the **[Game Design Spine](../design/GAME_DESIGN_SPINE.md)** is now the
+  proposed canonical whole-game design surface: open vehicle-universe vision,
+  persistence ladder, systemic (not thematic) coherence pillars,
+  world-of-worlds topology, layered story architecture with a
+  campaign-candidate registry, quest architecture extending the existing
+  mission lifecycle, exploration architecture, four separate marketplace
+  decisions, multiplayer as vision-first-class/execution-gated, and seven
+  vehicle-continuity models;
+- **ADR-0029 is reclassified** as Campaign One's identity (Living Atlas
+  Odyssey, Sleeping Atlas, and Stranger at the Silo all become campaign
+  candidates rather than universe canon);
+- the next playable is the **integrated opening**
+  ([The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md)):
+  main quest, two branching side quests, hidden exploration, one consequential
+  customization choice, night consequence, and the ridge-top open-world
+  promise — bound module-by-module to the existing runtime so it wires 12–14
+  of the 25 unreachable modules and drops the reachability budget to ≤ 13;
+- this map remains the research/status surface feeding the spine; decisions
+  now land in the spine and ADRs, and new exploration docs need a named
+  consumer (spine §11 doc budget).
+
+Status vocabulary note: "Proposed" areas above that the spine now covers
+(core fantasy, open world, long arc) should be re-pointed at the spine when
+next touched instead of growing new local hypotheses here.

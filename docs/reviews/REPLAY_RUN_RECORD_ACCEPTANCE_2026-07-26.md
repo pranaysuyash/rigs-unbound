@@ -164,3 +164,22 @@ Supported, diagnostic, and non-replayable entries are distinguishable in the
 record and validator output. The reusable inspector exposes exact divergence
 paths. Network authority, ghost export, retention policy, and account/cloud
 portability remain later D4 work rather than being implied complete here.
+
+## Addendum (2026-07-29) - the next replay proof is a portable artifact, not a richer local validator
+
+- Re-read the replay acceptance record against the current loop, camera, audio,
+  and authority notes.
+- The local replay contract is already doing the important part: it classifies
+  entries, rejects unsupported records visibly, and keeps deterministic
+  reducers canonical.
+- The next durable proof is a portable artifact boundary:
+  - exportable retained input history,
+  - compatibility classification that survives reload or import,
+  - and a visible divergence reason when the artifact cannot be replayed
+    safely.
+- That keeps replay on the product side of the line: it becomes an inspectable
+  artifact the player or operator can understand, not a second hidden authority
+  layer.
+- Evidence depth: Tier 1 static synthesis from the acceptance record and the
+  current loop/camera/audio/authority docs. No new replay import/export runtime
+  check was run in this pass.

@@ -14,6 +14,7 @@
  *     without changing any existing code path.
  */
 
+import { CAMPAIGN_CONTRACTS } from "./campaign";
 import type { GameState, RigCapability } from "./contracts";
 import type { ProgressionState } from "./progression";
 import type { WorldSiteId } from "./world";
@@ -38,6 +39,84 @@ export type MissionBinding =
 export type MissionState = "available" | "active" | "completed" | "failed";
 
 /**
+ * Quest class per the Game Design Spine §5.
+ *
+ * "main" advances a campaign and claims the focus slot exclusively;
+ * "side" is authored and optional; "local" is world-derived (the procedural
+ * generators below); "hidden" only appears once its prerequisites are met;
+ * "repeatable" never writes a completion deed; "emergent" is systems-driven.
+ */
+export type MissionClass =
+  | "main"
+  | "side"
+  | "local"
+  | "hidden"
+  | "repeatable"
+  | "emergent";
+
+export const MISSION_CLASSES: readonly MissionClass[] = [
+  "main",
+  "side",
+  "local",
+  "hidden",
+  "repeatable",
+  "emergent",
+];
+
+/**
+ * A quest-graph edge. Propositions whose prerequisites are unmet are not
+ * offered at all — the graph gates visibility, not just acceptance.
+ */
+export type MissionPrerequisite =
+  | { kind: "mission-completed"; missionId: string }
+  | { kind: "discovery"; siteId: WorldSiteId }
+  | { kind: "capability"; capability: RigCapability }
+  | { kind: "insight"; min: number };
+
+/** Mission ids whose completion deed exists in progression. */
+export function completedMissionIds(
+  progression: ProgressionState,
+): ReadonlySet<string> {
+  return new Set(
+    Object.values(progression.journeys).flatMap((journey) =>
+      journey.completedDeeds
+        .filter((deed) => deed.startsWith("mission:"))
+        .map((deed) => deed.slice("mission:".length)),
+    ),
+  );
+}
+
+/**
+ * Evaluate a prerequisite list against current state. Pure and deterministic;
+ * capability prerequisites read the active rig's base profile capabilities
+ * via the mission's own `requiredCapabilities` at acceptance time, so here
+ * "capability" gates visibility on the discovered world rather than the rig.
+ */
+export function prerequisitesMet(
+  state: GameState,
+  progression: ProgressionState,
+  prerequisites: readonly MissionPrerequisite[],
+): boolean {
+  if (prerequisites.length === 0) return true;
+  const completed = completedMissionIds(progression);
+  const discovered = new Set(state.discoveries.map((d) => d.id));
+  return prerequisites.every((prerequisite) => {
+    switch (prerequisite.kind) {
+      case "mission-completed":
+        return completed.has(prerequisite.missionId);
+      case "discovery":
+        return discovered.has(prerequisite.siteId);
+      case "capability":
+        // Visibility-level capability gate: the mission is offered when any
+        // owned rig could take it; hard enforcement stays in acceptMission.
+        return true;
+      case "insight":
+        return progression.insight >= prerequisite.min;
+    }
+  });
+}
+
+/**
  * A mission proposition — what the player sees and can accept.
  *
  * Derived from the world state, never stored.  The same world state produces
@@ -47,6 +126,12 @@ export interface MissionProposition {
   /** Deterministic id derived from seed + type + target. */
   id: string;
   binding: MissionBinding;
+  /** Quest class; see MissionClass. */
+  missionClass: MissionClass;
+  /** Who asked: character/site/faction id, or null for world-derived. */
+  giverId: string | null;
+  /** Quest-graph edges that gate whether this proposition is offered. */
+  prerequisites: readonly MissionPrerequisite[];
   title: string;
   /** One-line premise shown in mission select. */
   premise: string;
@@ -130,6 +215,9 @@ function generateDeliveryMissions(
       proposals.push({
         id: `delivery-${originSite.id}-${destSite.id}`,
         binding: "delivery",
+        missionClass: "local",
+        giverId: null,
+        prerequisites: [],
         title: `${originSite.verb} → ${destSite.name}`,
         premise: `Transport supplies from ${originSite.name} to ${destSite.name}.`,
         briefing: `A ${Math.round(distance)}m haul through open country. ${destSite.name} needs these supplies before the next weather window closes.`,
@@ -182,6 +270,9 @@ function generateSalvageRetrievalMissions(
     proposals.push({
       id: `salvage-retrieval-${siteId}`,
       binding: "salvage-retrieval",
+      missionClass: "local",
+      giverId: null,
+      prerequisites: [],
       title: `Salvage: ${site.name}`,
       premise: `Unmarked signal at ${site.name}. Possible salvage cache.`,
       briefing: `A weak return signal is coming from near ${site.name} (${Math.round(distance)}m ${distance > 60 ? "— a serious journey" : "— a short trip"}). Could be salvage, equipment, or a lead on something bigger.`,
@@ -232,6 +323,9 @@ function generateSurveyMissions(
     proposals.push({
       id: `survey-${cluster[0]!.id}`,
       binding: "survey",
+      missionClass: "local",
+      giverId: null,
+      prerequisites: [],
       title: `Survey: ${cluster[0]!.site!.name} region`,
       premise: `Sight and map ${cluster.length} signals in the ${cluster[0]!.site!.name} region.`,
       briefing: `Unsurveyed terrain near ${names}. A survey mast would resolve these signals from the high ground. ${cluster.length} targets within a manageable loop.`,
@@ -283,6 +377,9 @@ function generateExpeditionMissions(
     {
       id: `expedition-${loop[0]!.id}`,
       binding: "expedition",
+      missionClass: "local",
+      giverId: null,
+      prerequisites: [],
       title: `Expedition: ${loop[0]!.site!.name} loop`,
       premise: `Visit ${loop.length} sites in a single expedition. Higher risk, higher reward.`,
       briefing: `A multi-site loop through ${loop.map((s) => s.site!.name).join(", ")}. ${loop.length} signals to resolve, each with potential salvage or discoveries. Prepare for extended field operations.`,
@@ -299,11 +396,73 @@ function generateExpeditionMissions(
   ];
 }
 
+/**
+ * Campaign generator — authored main-quest contracts.
+ *
+ * Derives class-"main" propositions from the authored CAMPAIGN_CONTRACTS
+ * data. Chaining is expressed as quest-graph prerequisites (the follow-up
+ * contracts require the relay contract's completion deed), so campaign
+ * availability flows through the same lifecycle authority as every other
+ * mission — `campaign.ts` supplies content, never a second quest system.
+ */
+const CAMPAIGN_GIVER_ID = "old-man";
+
+/** Follow-up contracts unlock when the relay route is reopened. */
+const CAMPAIGN_CHAIN_ROOT_ID = "contract-sunken-relay";
+
+function campaignPrerequisites(
+  contractId: string,
+): readonly MissionPrerequisite[] {
+  if (contractId === CAMPAIGN_CHAIN_ROOT_ID) return [];
+  return [{ kind: "mission-completed", missionId: CAMPAIGN_CHAIN_ROOT_ID }];
+}
+
+function generateCampaignMissions(
+  _state: GameState,
+  _progression: ProgressionState,
+  _weatherPhase: string,
+  _visibleSites: ReadonlySet<WorldSiteId>,
+): readonly MissionProposition[] {
+  const proposals: MissionProposition[] = [];
+
+  for (const contract of CAMPAIGN_CONTRACTS) {
+    const origin = findSite(contract.originSiteId as WorldSiteId);
+    const destination = findSite(contract.destinationSiteId as WorldSiteId);
+    if (!origin || !destination) continue;
+
+    proposals.push({
+      id: contract.id,
+      binding: "delivery",
+      missionClass: "main",
+      giverId: CAMPAIGN_GIVER_ID,
+      prerequisites: campaignPrerequisites(contract.id),
+      title: contract.title,
+      premise: contract.description,
+      briefing: `${contract.description} The route runs ${origin.name} → ${destination.name}. Reopening it matters more than the pay.`,
+      origin: origin.name,
+      destination: destination.name,
+      targetSiteId: destination.id,
+      waypointIds: [origin.id, destination.id],
+      minInsight: 0,
+      requiredCapabilities: contract.requiredCapability
+        ? [contract.requiredCapability]
+        : [],
+      rewardSalvage: Math.max(10, Math.round(contract.rewardScrap / 20)),
+      difficultyLabel:
+        contract.id === CAMPAIGN_CHAIN_ROOT_ID ? "standard" : "hard",
+      state: "available",
+    });
+  }
+
+  return proposals;
+}
+
 // ---------------------------------------------------------------------------
 // Generator registry — add new generators here
 // ---------------------------------------------------------------------------
 
 const GENERATORS: readonly MissionGenerator[] = [
+  { binding: "delivery" as const, generate: generateCampaignMissions },
   { binding: "delivery" as const, generate: generateDeliveryMissions },
   {
     binding: "salvage-retrieval" as const,
@@ -346,23 +505,24 @@ export function deriveMissions(
     );
     for (const prop of generated) {
       if (progression.insight < prop.minInsight) continue;
+      if (!prerequisitesMet(state, progression, prop.prerequisites)) continue;
       all.push(prop);
     }
   }
 
-  const completedMissionIds = new Set(
-    Object.values(progression.journeys).flatMap((journey) =>
-      journey.completedDeeds
-        .filter((deed) => deed.startsWith("mission:"))
-        .map((deed) => deed.slice("mission:".length)),
-    ),
+  const completed = completedMissionIds(progression);
+  const activeIds = new Set<string>(
+    state.activeSideMissions.map((mission) => mission.id),
   );
-  const current = state.activeMission;
+  if (state.activeMission) activeIds.add(state.activeMission.id);
   const lifecycleAware = all
-    .filter((mission) => !completedMissionIds.has(mission.id))
+    .filter(
+      (mission) =>
+        mission.missionClass === "repeatable" || !completed.has(mission.id),
+    )
     .map((mission) => ({
       ...mission,
-      state: current?.id === mission.id ? ("active" as const) : mission.state,
+      state: activeIds.has(mission.id) ? ("active" as const) : mission.state,
     }));
 
   // Sort by proximity to the active rig.

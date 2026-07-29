@@ -51,6 +51,7 @@ import {
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
+  V9_SAVE_SCHEMA_VERSION,
   V8_SAVE_SCHEMA_VERSION,
   type SurveyRouteState,
   V7_SAVE_SCHEMA_VERSION,
@@ -74,7 +75,12 @@ import {
   type ProgressionState,
 } from "./progression";
 import { applyActivityCompletionProgression } from "./mission-resolver";
-import { completeMission, failMission } from "./mission-lifecycle";
+import {
+  activeMissionMatching,
+  completeMission,
+  failMission,
+} from "./mission-lifecycle";
+import { MISSION_CLASSES, type MissionClass } from "./mission-propositions";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
   SURVEY_CONTRACT_AFFORDANCE,
@@ -306,6 +312,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     },
     surveyRoute: createSurveyRouteState(),
     activeMission: null,
+    activeSideMissions: [],
     unboundPassage: createUnboundPassageState(),
     furrows: [],
     semanticEdits: [],
@@ -1203,8 +1210,9 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
       relay.bestTimeMs === null
         ? duration
         : Math.min(relay.bestTimeMs, duration);
-    if (state.activeMission?.binding === "delivery") {
-      completeMission(state, state.activeMission.id, state.elapsedMs);
+    const deliveryMission = activeMissionMatching(state, "delivery");
+    if (deliveryMission) {
+      completeMission(state, deliveryMission.id, state.elapsedMs);
     } else {
       state.progression = applyActivityCompletionProgression(
         state.progression,
@@ -1836,8 +1844,9 @@ export function stepGame(
     );
     state.surveyRoute = evaluation.state;
     if (evaluation.completed) {
-      if (state.activeMission?.binding === "survey") {
-        completeMission(state, state.activeMission.id, state.elapsedMs);
+      const surveyMission = activeMissionMatching(state, "survey");
+      if (surveyMission) {
+        completeMission(state, surveyMission.id, state.elapsedMs);
       } else {
         const reward = activityDefinition("survey-route").reward.salvage;
         state.salvage += reward;
@@ -1852,8 +1861,9 @@ export function stepGame(
     } else if (evaluation.failed) {
       const diagnostic =
         "Survey contract lapsed. The light went before every signal was sighted.";
-      if (state.activeMission?.binding === "survey") {
-        failMission(state, state.activeMission.id, diagnostic);
+      const lapsedSurvey = activeMissionMatching(state, "survey");
+      if (lapsedSurvey) {
+        failMission(state, lapsedSurvey.id, diagnostic);
       } else {
         state.lastDiagnostic = diagnostic;
       }
@@ -2209,6 +2219,12 @@ function recoverActiveMission(candidate: unknown): ActiveMissionState | null {
   return {
     id: source.id,
     binding: source.binding,
+    // Pre-v11 records carry no quest class or giver; default to the
+    // world-derived shape so migrated in-flight missions stay valid.
+    missionClass: MISSION_CLASSES.includes(source.missionClass as MissionClass)
+      ? (source.missionClass as MissionClass)
+      : "local",
+    giverId: typeof source.giverId === "string" ? source.giverId : null,
     targetSiteId: source.targetSiteId,
     waypointIds: source.waypointIds.filter(
       (id): id is string => typeof id === "string",
@@ -2223,6 +2239,17 @@ function recoverActiveMission(candidate: unknown): ActiveMissionState | null {
     acceptedAtMs: Math.max(0, source.acceptedAtMs),
     progressIndex: Math.max(0, Math.floor(source.progressIndex)),
   };
+}
+
+function recoverActiveMissionList(candidate: unknown): ActiveMissionState[] {
+  if (!Array.isArray(candidate)) return [];
+  const recovered: ActiveMissionState[] = [];
+  for (const entry of candidate) {
+    const mission = recoverActiveMission(entry);
+    // The focus slot owns main-class missions; drop any that leaked here.
+    if (mission && mission.missionClass !== "main") recovered.push(mission);
+  }
+  return recovered;
 }
 
 function recoverModules(value: unknown, rigId: RigId): ModuleId[] {
@@ -2749,6 +2776,7 @@ function recoverShared(
     },
     surveyRoute,
     activeMission: recoverActiveMission(candidate.activeMission),
+    activeSideMissions: recoverActiveMissionList(candidate.activeSideMissions),
     unboundPassage,
     furrows,
     semanticEdits,
@@ -3100,6 +3128,9 @@ export function recoverState(value: unknown): GameState | null {
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V9_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V9_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V8_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, V8_SAVE_SCHEMA_VERSION);

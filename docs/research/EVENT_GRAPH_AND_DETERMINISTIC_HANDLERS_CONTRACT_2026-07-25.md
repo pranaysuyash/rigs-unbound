@@ -271,3 +271,38 @@ consumers reference the same ordered truth.
   not proof that the graph itself is already canonical.
 - Evidence depth: Tier 1 static inspection. No execution or runtime proof was
   added in this pass.
+
+## Addendum (2026-07-29) - the event graph still needs a named handler ownership map
+
+- Re-read the event graph contract after the replay, observability, and browser
+  delivery passes.
+- The runtime already records ordered outcomes in the bounded run record, so
+  the missing piece is no longer "did something happen?" The missing piece is
+  the shared dispatch graph:
+  - one explicit handler ownership map;
+  - one replay-safe consumer and one diagnostics-only consumer;
+  - one traceable fan-out order for a canonical event kind;
+  - one rule that keeps presentation from mutating state through the event
+    path.
+- That keeps simulation, presentation, replay, and diagnostics aligned without
+  pretending the current record flow is already a full event bus.
+- Evidence depth: Tier 1 static synthesis from the event-graph contract and the
+  existing run-record/replay notes. No new runtime event bus was added in this
+  pass.
+
+## Addendum (2026-07-29) - the next event proof is one owned handler map, not another record field
+
+- The current record substrate is good enough to keep ordered truth, but the
+  event graph still lacks an explicit ownership boundary.
+- The next proof slice should be one canonical event kind routed through:
+  - one named owner in the handler map,
+  - one replay-safe consumer,
+  - one diagnostics-only consumer,
+  - one traceable fan-out order,
+  - one rule that keeps presentation from mutating state through the event
+    path.
+- That makes the event lane reviewable as reusable dispatch policy instead of
+  as ad hoc local command handling.
+- Anything else? No. The point here is to keep the graph small enough that
+  replay, diagnostics, and simulation all still agree on the same ordered fact
+  stream.

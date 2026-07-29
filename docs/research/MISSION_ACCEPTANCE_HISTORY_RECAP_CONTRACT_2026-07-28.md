@@ -149,3 +149,21 @@ still refreshing.
 Yes. This contract keeps history honest. The board should remember enough to
 teach the player, but not so much that it stops being a place to choose the
 next thing.
+
+## Addendum (2026-07-29) - the next history proof is a compact recap with a path to detail
+
+- The history contract already has the right shape:
+  - recent outcomes stay visible inline;
+  - older outcomes can collapse into a short recap;
+  - notable milestones remain readable;
+  - there is a path to more detail when the player asks for it.
+- The next proof slice should therefore be one compact-shell-safe recap that
+  keeps:
+  - a visible history section;
+  - one recap count or summary line;
+  - one preserved path to expand more history;
+  - and one stable selection path back to active or available rows.
+- That keeps the board’s memory useful without turning it into an archive page
+  disguised as a choice surface.
+- Anything else? No. History should teach the current decision, not compete
+  with it.

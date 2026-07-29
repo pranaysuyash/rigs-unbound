@@ -97,6 +97,136 @@ const MAX_FELLED_INSTANCES = 220;
 const MAX_NODE_INSTANCES = 260;
 const MAX_DUST = 260;
 
+/**
+ * Recompute vertex normals for a grid-mesh terrain patch instead of the whole
+ * mesh, so a small plough deformation doesn't pay for the untouched 99%+.
+ *
+ * `THREE.BufferGeometry.computeVertexNormals()` has no partial mode — it
+ * always walks every triangle. Ploughing already scopes the *height* update
+ * to a small vertex box (`refreshTerrainRegion`'s `minIx..maxIx`,
+ * `minIz..maxIz`); this function scopes the *normal* update to match, using
+ * the exact same unnormalized-cross-product accumulation Three.js's own
+ * `computeVertexNormals()` uses (see `BufferGeometry.js`'s indexed-element
+ * branch), so a partial run and a full run produce identical results — this
+ * is a scoping change, not an approximation.
+ *
+ * A vertex's accumulated normal depends on every triangle that touches it, so
+ * the recompute region must extend one ring of vertices beyond the changed
+ * box: a vertex just outside `[minIx..maxIx] x [minIz..maxIz]` didn't move,
+ * but it shares a triangle with one that did, so its face-normal contribution
+ * changed too. Skipping that ring would leave a lighting seam at the patch
+ * boundary even though every height value is correct.
+ *
+ * There are therefore two nested regions, not one:
+ * - the **write region** (`vertMin.../vertMax...`): vertices whose normal is
+ *   zeroed and rewritten — the changed box plus its one-vertex padding ring;
+ * - the **source region**: the cells read to rebuild those normals, which
+ *   must extend one ring of *cells* further still, because a write-region
+ *   boundary vertex needs the contribution of its one neighbouring cell that
+ *   didn't change, not only the cells that did. Reading that outer ring
+ *   without gating the write would double-count onto vertices outside the
+ *   write region that already hold a correct value — so the accumulate step
+ *   below only ever writes to a vertex inside the write region, regardless of
+ *   which cell in the source region it is currently processing.
+ *
+ * `position` and `normal` must be the terrain mesh's own attributes — this
+ * mutates `normal` in place and does not resize or reallocate it.
+ */
+export function refreshTerrainNormalsInRegion(
+  position: THREE.BufferAttribute,
+  normal: THREE.BufferAttribute,
+  cells: number,
+  minIx: number,
+  maxIx: number,
+  minIz: number,
+  maxIz: number,
+): void {
+  const size = cells + 1;
+  const vertMinIx = Math.max(0, minIx - 1);
+  const vertMaxIx = Math.min(size - 1, maxIx + 1);
+  const vertMinIz = Math.max(0, minIz - 1);
+  const vertMaxIz = Math.min(size - 1, maxIz + 1);
+
+  for (let iz = vertMinIz; iz <= vertMaxIz; iz += 1) {
+    for (let ix = vertMinIx; ix <= vertMaxIx; ix += 1) {
+      normal.setXYZ(iz * size + ix, 0, 0, 0);
+    }
+  }
+
+  // Source region: cells that touch any write-region vertex. A cell at
+  // column/row `ix`/`iz` spans vertex columns `ix..ix+1` / rows `iz..iz+1`,
+  // so the cell range is the write-vertex range widened by one more cell.
+  const cellMinIx = Math.max(0, vertMinIx - 1);
+  const cellMaxIx = Math.min(cells - 1, vertMaxIx);
+  const cellMinIz = Math.max(0, vertMinIz - 1);
+  const cellMaxIz = Math.min(cells - 1, vertMaxIz);
+
+  const inWriteRegion = (ix: number, iz: number): boolean =>
+    ix >= vertMinIx && ix <= vertMaxIx && iz >= vertMinIz && iz <= vertMaxIz;
+
+  const pA = new THREE.Vector3();
+  const pB = new THREE.Vector3();
+  const pC = new THREE.Vector3();
+  const nA = new THREE.Vector3();
+  const cb = new THREE.Vector3();
+  const ab = new THREE.Vector3();
+
+  const accumulate = (
+    vA: number,
+    vB: number,
+    vC: number,
+    writeA: boolean,
+    writeB: boolean,
+    writeC: boolean,
+  ): void => {
+    if (!writeA && !writeB && !writeC) return;
+    pA.fromBufferAttribute(position, vA);
+    pB.fromBufferAttribute(position, vB);
+    pC.fromBufferAttribute(position, vC);
+    cb.subVectors(pC, pB);
+    ab.subVectors(pA, pB);
+    cb.cross(ab);
+    if (writeA) {
+      nA.fromBufferAttribute(normal, vA).add(cb);
+      normal.setXYZ(vA, nA.x, nA.y, nA.z);
+    }
+    if (writeB) {
+      nA.fromBufferAttribute(normal, vB).add(cb);
+      normal.setXYZ(vB, nA.x, nA.y, nA.z);
+    }
+    if (writeC) {
+      nA.fromBufferAttribute(normal, vC).add(cb);
+      normal.setXYZ(vC, nA.x, nA.y, nA.z);
+    }
+  };
+
+  for (let iz = cellMinIz; iz <= cellMaxIz; iz += 1) {
+    for (let ix = cellMinIx; ix <= cellMaxIx; ix += 1) {
+      // Same winding as buildTerrain's index buffer: (a, c, b), (b, c, d).
+      const a = iz * size + ix;
+      const b = a + 1;
+      const c = a + size;
+      const d = c + 1;
+      const wA = inWriteRegion(ix, iz);
+      const wB = inWriteRegion(ix + 1, iz);
+      const wC = inWriteRegion(ix, iz + 1);
+      const wD = inWriteRegion(ix + 1, iz + 1);
+      accumulate(a, c, b, wA, wC, wB);
+      accumulate(b, c, d, wB, wC, wD);
+    }
+  }
+
+  for (let iz = vertMinIz; iz <= vertMaxIz; iz += 1) {
+    for (let ix = vertMinIx; ix <= vertMaxIx; ix += 1) {
+      const i = iz * size + ix;
+      nA.fromBufferAttribute(normal, i).normalize();
+      normal.setXYZ(i, nA.x, nA.y, nA.z);
+    }
+  }
+
+  normal.needsUpdate = true;
+}
+
 export interface RigParts {
   root: THREE.Group;
   /** Named local-space mount authored on the rendered rig silhouette. */
@@ -315,6 +445,8 @@ export class GameRenderer {
 
   /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
   terrainBuildMs = 0;
+  /** Cost of the most recent ploughing-triggered terrain patch refresh, in ms. */
+  terrainRegionRefreshMs = 0;
 
   private readonly backendPolicy: RendererBackendPolicyConfig;
   private readonly rendererRequestedBackend: RendererBackendRequest;
@@ -601,12 +733,20 @@ export class GameRenderer {
    * Ploughing writes into the height field, so the mesh has to be told. Only the
    * neighbourhood of the cut is rebuilt — without this the ground would deform
    * for physics while looking untouched, which is the worst of both.
+   *
+   * Normals are rebuilt with `refreshTerrainNormalsInRegion` (scoped to the
+   * changed box plus one vertex ring), not `computeVertexNormals()` (whole
+   * mesh). Ploughing fires on every deformation tick while a player holds the
+   * plough control, and a full recompute costs ~10ms on a 102x102 grid to
+   * update the ~130 triangles (0.6% of the mesh) that could have changed —
+   * see ADR-0040.
    */
   private refreshTerrainRegion(
     centreX: number,
     centreZ: number,
     radius: number,
   ): void {
+    const startedAt = performance.now();
     const size = this.terrainCells + 1;
     const minIx = Math.max(
       0,
@@ -641,7 +781,27 @@ export class GameRenderer {
       }
     }
     position.needsUpdate = true;
-    this.terrainMesh.geometry.computeVertexNormals();
+
+    const normal = this.terrainMesh.geometry.getAttribute("normal") as
+      | THREE.BufferAttribute
+      | undefined;
+    if (normal === undefined || normal.count !== position.count) {
+      // Defensive fallback only: buildTerrain() always creates a matching
+      // normal attribute before any refreshTerrainRegion call is reachable,
+      // so this path is not expected to run in the live game.
+      this.terrainMesh.geometry.computeVertexNormals();
+    } else {
+      refreshTerrainNormalsInRegion(
+        position,
+        normal,
+        this.terrainCells,
+        minIx,
+        maxIx,
+        minIz,
+        maxIz,
+      );
+    }
+    this.terrainRegionRefreshMs = performance.now() - startedAt;
   }
 
   private buildWater(): void {
@@ -2876,6 +3036,7 @@ export class GameRenderer {
     geometries: number;
     textures: number;
     terrainBuildMs: number;
+    terrainRegionRefreshMs: number;
     visibility: PropVisibilityMetrics;
     gpuMemoryMb: number;
     rendererBackend: RendererBackend;
@@ -2889,6 +3050,7 @@ export class GameRenderer {
       geometries: this.renderer.info.memory.geometries,
       textures: this.renderer.info.memory.textures,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
+      terrainRegionRefreshMs: Number(this.terrainRegionRefreshMs.toFixed(2)),
       visibility: { ...this.propVisibility },
       gpuMemoryMb: this.estimateGpuMemoryMb(),
       rendererBackend: this.rendererBackend,

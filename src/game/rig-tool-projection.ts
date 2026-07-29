@@ -23,6 +23,10 @@ import {
 export type RigToolCommand =
   { type: "set-tire-pressure"; psi: number } | { type: "cycle-differential" };
 
+/** The set of Pegboard entries that record a `rig-tool` replay command. */
+export type RigToolId =
+  "air-down-tires" | "air-up-tires" | "cycle-differential";
+
 export type RigToolStatus = "available" | "engaged" | "blocked";
 
 export interface RigToolProjection {
@@ -38,6 +42,71 @@ export interface RigToolProjection {
 
 /** Pressure the "air down" entry commits to. Deep enough to feel in mud. */
 export const AIRED_DOWN_PSI = 16;
+
+/**
+ * The stable tool-id -> command contract.
+ *
+ * This is the single source of truth for what a Pegboard entry resolves to.
+ * Both the live click handler (via `deriveRigToolProjections` below) and
+ * replay validation (`replay-validator.ts`) read this same mapping, so a
+ * recorded `{ toolId, command }` payload and a freshly-derived projection
+ * can never drift into two different ideas of what "air-down-tires" means.
+ */
+export function expectedRigToolCommand(toolId: string): RigToolCommand | null {
+  switch (toolId as RigToolId) {
+    case "air-down-tires":
+      return { type: "set-tire-pressure", psi: AIRED_DOWN_PSI };
+    case "air-up-tires":
+      return { type: "set-tire-pressure", psi: DEFAULT_TIRE_PRESSURE_PSI };
+    case "cycle-differential":
+      return { type: "cycle-differential" };
+    default:
+      return null;
+  }
+}
+
+/**
+ * Strictly parse a recorded `{ toolId, command }` replay payload against the
+ * contract above. Accepts only the exact known toolId/command pairing —
+ * not merely a well-typed command — so a corrupted or hand-edited record
+ * (right shape, wrong psi; right psi, wrong toolId; extra fields) fails
+ * loudly instead of silently reproducing an action nobody actually
+ * requested. Live play may defensively clamp an out-of-range value; a
+ * replayed command must reproduce the exact accepted historical intent or
+ * be rejected.
+ */
+export function parseStrictRigToolCommand(
+  toolId: unknown,
+  command: unknown,
+): RigToolCommand | null {
+  if (typeof toolId !== "string" || toolId.length === 0) return null;
+  const expected = expectedRigToolCommand(toolId);
+  if (!expected) return null;
+  if (!command || typeof command !== "object") return null;
+
+  const keys = Object.keys(command as Record<string, unknown>).sort();
+  if (expected.type === "set-tire-pressure") {
+    if (keys.length !== 2 || keys[0] !== "psi" || keys[1] !== "type") {
+      return null;
+    }
+    const candidate = command as { type?: unknown; psi?: unknown };
+    if (candidate.type !== "set-tire-pressure") return null;
+    if (typeof candidate.psi !== "number" || !Number.isFinite(candidate.psi)) {
+      return null;
+    }
+    // Exact match, not "in range": a replayed command reproduces the exact
+    // historical intent, and this contract only ever resolves to one of two
+    // literal PSI values per toolId — anything else is not this tool's
+    // command, whether or not it is a physically plausible pressure.
+    if (candidate.psi !== expected.psi) return null;
+    return expected;
+  }
+
+  if (keys.length !== 1 || keys[0] !== "type") return null;
+  const candidate = command as { type?: unknown };
+  if (candidate.type !== "cycle-differential") return null;
+  return expected;
+}
 
 export function deriveRigToolProjections(
   state: GameState,
@@ -59,9 +128,7 @@ export function deriveRigToolProjections(
       detail: "More float in mud. Slower on hardpan.",
       status: airedDown ? "engaged" : "available",
       blockedReason: null,
-      command: airedDown
-        ? null
-        : { type: "set-tire-pressure", psi: AIRED_DOWN_PSI },
+      command: airedDown ? null : expectedRigToolCommand("air-down-tires"),
     });
     projections.push({
       id: "air-up-tires",
@@ -75,7 +142,7 @@ export function deriveRigToolProjections(
       command:
         tools.tirePressurePsi >= DEFAULT_TIRE_PRESSURE_PSI
           ? null
-          : { type: "set-tire-pressure", psi: DEFAULT_TIRE_PRESSURE_PSI },
+          : expectedRigToolCommand("air-up-tires"),
     });
 
     projections.push({
@@ -89,7 +156,7 @@ export function deriveRigToolProjections(
             : "Open: turns freely, spins a wheel in mud.",
       status: tools.differentialMode === "open" ? "available" : "engaged",
       blockedReason: null,
-      command: { type: "cycle-differential" },
+      command: expectedRigToolCommand("cycle-differential"),
     });
   }
 

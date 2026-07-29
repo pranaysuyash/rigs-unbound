@@ -492,3 +492,32 @@ That is a useful distinction for the contract:
 
 Evidence depth: Tier 4 runtime/manual observation plus Tier 1 static contract
 inspection.
+
+## Addendum (2026-07-29) - the browser witness needs an accessible narration twin
+
+- The browser-delivery pass now asks for one named fidelity witness in the
+  visible shell.
+- Accessibility makes that witness incomplete unless it also has a perceivable
+  twin:
+  - one narrated status or mode change;
+  - one focusable route into the same state;
+  - one keyboard path that reaches the witness without requiring pointer input.
+- In practice, that means the next proof slice should not be just "show a
+  badge." It should prove the same mode/load/readiness state is readable by
+  assistive tech and operable from the keyboard.
+- Anything else? No. If the witness is not perceivable, it is only a visual
+  promise, not an accessible one.
+
+## Addendum (2026-07-29) - the next accessibility proof should announce the same rescue cue audio uses
+
+- Re-read the accessibility and audio notes together.
+- The next proof slice should make the tow/recover/repair state readable in
+  more than one channel:
+  - the audio cue survives mute persistence and stays cue-sized;
+  - the same state change is announced in an accessible live region or
+    equivalent perceivable path;
+  - keyboard users can reach the same state without pointer-only interaction.
+- That keeps the player trust contract aligned across sound, narration, and
+  input rather than letting each channel drift toward a separate story.
+- Anything else? No. A state cue that cannot be heard or announced is still
+  incomplete as a player-facing contract.

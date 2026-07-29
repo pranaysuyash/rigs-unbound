@@ -141,3 +141,18 @@ family as the shell split named in ADR-0039:
 
 That separation matters here because the board should remain honest about
 loading and refresh without trying to become the operator diagnostics panel.
+
+## Addendum (2026-07-29) - the next loading proof is compact-shell-safe context preservation
+
+- The current contract already knows the board should say when it is loading
+  or refreshing instead of looking empty by accident.
+- The next proof slice should be one compact-shell-safe loading/refresh state
+  that preserves:
+  - the board title,
+  - the last known selection or section context when available,
+  - a short honest loading or refreshing message,
+  - and the visible close/back path.
+- That keeps loading distinct from empty state even on smaller viewports, and
+  it avoids turning the board into a second diagnostics surface.
+- Anything else? No. The loading story should explain waiting, not invent a new
+  board mode.

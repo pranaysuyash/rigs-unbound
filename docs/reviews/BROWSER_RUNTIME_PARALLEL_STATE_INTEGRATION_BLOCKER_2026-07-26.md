@@ -159,3 +159,21 @@ Do not integrate the passage into the shared runtime or announce browser
 readiness from this state. Continue with isolated documentation and
 non-conflicting preparation, then re-enter runtime integration after the
 parallel agent reports its surfaces are stable.
+
+## Addendum (2026-07-29) - current developer route still fails on a radial-menu startup reference
+
+A fresh live browser probe on the canonical developer route
+`http://127.0.0.1:4173/?surface=developer` now reports a different runtime
+failure than the older visibility/signature notes:
+
+- `ReferenceError: createInitialRadialMenuState is not defined`
+- a follow-on module load failure for `src/game/radial-ui.ts`
+
+The browser daemon still reports the developer surface as the current URL, so
+this is a live runtime failure rather than a stale document-only concern.
+
+This addendum does **not** assign ownership or propose a fix. It simply records
+the current console evidence so the active parallel runtime lane can be
+re-entered with an accurate starting point once ownership is clear.
+
+See also: [Radial Menu Boot Failure Snapshot](../research/RADIAL_MENU_BOOT_FAILURE_SNAPSHOT_2026-07-29.md).

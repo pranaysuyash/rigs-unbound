@@ -171,3 +171,15 @@ The split observed in this evidence note now has a durable decision anchor:
 That gives this evidence note the right framing: it records the live browser
 state, while ADR-0039 records the policy behind why the public shell stays
 concise and the acceptance shell carries the deeper summary.
+
+## Addendum (2026-07-29) - screen reader narration pass is now the remaining manual step
+
+The browser-visible accessibility work is now in good shape: the shell has
+readable status lines, semantic loading progress, a coherent tree, and the
+statement page is browser-reachable. The remaining open step is the manual
+screen-reader narration pass captured in
+[Screen Reader Narration Pass](SCREEN_READER_NARRATION_PASS_2026-07-29.md).
+
+That note is the next concrete QA artifact for the public shell and statement
+page. It keeps the narration gap explicit without pretending it is already
+closed.

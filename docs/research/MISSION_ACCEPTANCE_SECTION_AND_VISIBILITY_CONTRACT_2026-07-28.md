@@ -200,3 +200,21 @@ that choice honestly.
 - That means the visibility contract has a real implementation example now:
   desktop shows the compact sectioned ledger, while the mobile shell preserves
   only the textual status rail.
+
+## Addendum (2026-07-29) - the next visibility proof is a compact-shell-safe four-section layout
+
+- The section contract already names the right shape:
+  - Active;
+  - Available;
+  - Deferred;
+  - History.
+- The next proof slice should therefore be one compact-shell-safe board layout
+  that keeps:
+  - one visible heading and short summary per section;
+  - compact mode showing the current decision-relevant rows;
+  - expanded mode revealing the fuller readable ledger;
+  - a visible toggle that remains explicit and accessible.
+- That keeps the board readable on small screens without turning the section
+  layer into a generic management dashboard.
+- Anything else? No. Sectioning should help the player choose, not hide the
+  decision surface behind a second layout system.

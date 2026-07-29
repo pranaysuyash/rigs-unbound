@@ -217,3 +217,23 @@ branching logic.
   becoming a framework.
 - Evidence level: Tier 1 static source inspection. The focused resolver tests
   were authored but not executed in this pass.
+
+## Addendum (2026-07-29) - the next capability proof is a versioned definition plus one owned adapter boundary
+
+- Re-read the capability contract after the event, streaming, and observability
+  passes.
+- The repo already has structured admissions and composition-backed capability
+  claims. The missing piece is no longer “can the game tell me yes or no?”
+  The missing piece is the contract surface that says what a capability is and
+  which adapter owns it.
+- The next proof slice should therefore be the smallest versioned boundary that
+  makes the capability lane explicit:
+  - one versioned capability definition record,
+  - one owned adapter registration boundary,
+  - one explicit denial reason code path for an unsupported claim,
+  - one world-affordance example tied to a real rig/action pair.
+- That keeps the current composition model intact while making future machines,
+  tools, and motion families easier to validate and explain.
+- Evidence depth: Tier 1 static synthesis from the capability contract and the
+  existing structured-admission notes. No new capability registry was added in
+  this pass.

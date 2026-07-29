@@ -226,3 +226,23 @@ The long-term first-principles exploration note at
 is the broader horizon for this rendering-economy note. This document still
 owns the frame-budget and camera/readability frame; the new note carries the
 wider machine-keeper thesis and long-range product direction.
+
+## Addendum (2026-07-29) - the budget economy is measurable, but the public comparison bundle still needs one named capture
+
+- Re-read the rendering-economy note against the current KPI and browser
+  loading/profile notes.
+- The runtime already exposes useful budget signals, and the live browser
+  surface still reports the canonical developer route at
+  `http://127.0.0.1:4173/?surface=developer` with the `Rigs Unbound` title and
+  a non-empty console-log buffer.
+- That means the missing step is not observability in the abstract. The missing
+  step is one named comparison artifact that binds:
+  - load / first-controllable timing,
+  - profile or fallback state,
+  - draw-call / triangle pressure,
+  - and an operator note about what changed under pressure.
+- The artifact should be small enough to review quickly and specific enough to
+  survive reload, so it can serve as the durable explanation of what the budget
+  economy looks like in the public shell.
+- Evidence depth: Tier 4 runtime/browser daemon status plus Tier 1 static
+  synthesis from the budget and KPI notes.

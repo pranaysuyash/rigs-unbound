@@ -269,3 +269,15 @@ spatial meaning, a source-of-truth owner, and a clear acceptance invariant.
 - Evidence depth: Tier 1 static synthesis from the current camera contract, loop contract, and accessibility/audio notes. No new runtime camera probe was run in this addendum.
 
 Anything else? Yes: the camera lane should explain the rescue loop, not merely render it.
+
+## Addendum (2026-07-29) - the next camera proof is a visible recommendation summary, not a forced mode
+
+- The current camera lane already has the right mechanics and evidence hooks.
+- The next proof slice should therefore be one advisory recommendation plus one
+  browser-visible reason summary that explains why the current mode helps the
+  tow-plus-repair loop.
+- That summary should live in the same local evidence lane as the existing
+  camera evidence, but it must stay player-overridable and must not become a
+  second camera brain.
+- Anything else? No. The contract should explain the rescue loop in plain
+  terms, not add another mode to chase the same readability problem.

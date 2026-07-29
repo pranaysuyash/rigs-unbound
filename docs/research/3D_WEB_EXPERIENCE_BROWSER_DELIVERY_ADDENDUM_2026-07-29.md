@@ -90,6 +90,23 @@ tell what is essential, what can degrade, and what must stay trustworthy.
 - Tier 4: prior browser observations are already recorded in the linked live
   repo analysis
 
+## Addendum (2026-07-29) - the canonical surface reappears, but the exec witness still drops the DOM payload
+
+A later probe re-anchored the daemon to the canonical developer route again:
+
+- URL: `http://127.0.0.1:4173/?surface=developer`
+- Title: `Rigs Unbound`
+- Console log count: `45`
+
+The direct `browser-client.js exec` check still did not return a usable DOM
+payload for the sampled page-state object. The route itself is live, but the
+probe path still cannot be treated as a stable browser-delivery witness for
+rendered content. That keeps the same architectural implication in force:
+we need an explicitly named fidelity witness, not just a reachable route.
+
+This addendum does not change the earlier conclusion about full-fidelity,
+reduced, and fallback states needing their own named contract.
+
 
 ## Addendum (2026-07-29) - live browser evidence confirms the developer surface, but not a trustworthy DOM probe path
 
@@ -99,3 +116,32 @@ tell what is essential, what can degrade, and what must stay trustworthy.
 - The current daemon `exec` probe path is not trustworthy enough for browser-delivery claims in this session: after a successful navigation command, it still returned an `about:blank` evaluation result for DOM inspection.
 - That means the browser-delivery contract should not depend on this probe path as its source of truth. The contract needs a named, reliable witness for rendered fidelity, reduced mode, and fallback state so the player and reviewer can tell what is actually on-screen.
 - Evidence depth: Tier 4 for daemon status and console inspection, Tier 1 for the probe-path diagnosis.
+
+## Addendum (2026-07-29) - the next browser-delivery proof is one named fidelity witness
+
+- The current browser-delivery trail already distinguishes full-fidelity,
+  reduced, and fallback states in principle.
+- The next proof slice should be one explicit witness surface that names the
+  current mode and loading state in the browser itself, instead of another route
+  probe or console-only observation.
+- That witness should make the browser story legible to the player and reviewer:
+  what is intentionally degraded, what is still interactive, and what still
+  needs time to become ready.
+- Anything else? No. This contract stays useful only if it remains small and
+  visible, because a browser-delivery promise that cannot be seen on-screen is
+  not yet a delivery promise.
+
+## Addendum (2026-07-29) - gameplay-critical 3D stays essential; decorative 3D can degrade
+
+- The browser-delivery policy now needs one more explicit distinction:
+  gameplay-critical 3D is part of the contract, while decorative 3D may
+  degrade if the surface needs to protect accessibility, performance, or
+  mobile stability.
+- That distinction keeps the browser story honest. It prevents the shell from
+  treating wonder as mandatory when the actual requirement is trust, clarity,
+  and playability.
+- The witness surface should therefore say not only what mode is active, but
+  also whether the current 3D is essential to play or merely embellishment.
+- Anything else? No. The policy remains useful only if the player can tell
+  which parts of the 3D experience are load-bearing and which ones are
+  allowed to soften.

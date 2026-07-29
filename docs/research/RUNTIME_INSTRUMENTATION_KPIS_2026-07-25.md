@@ -246,3 +246,22 @@ It exists to make the render policy measurable under realistic profile condition
   - save/load pressure is observable,
   - but the actor/physics dimension remains implicit rather than a first-class field.
 - Evidence depth: Tier 1 static inspection. No fresh browser or benchmark capture was run in this pass.
+
+## Addendum (2026-07-29) - the next observability proof is first-class actor and physics counts
+
+- Re-read the KPI note after the operator-observability and resource-budget
+  passes.
+- The runtime already exposes enough pressure information to justify the
+  current profile/fallback policy. What remains implicit is the actor and
+  physics dimension that the rubric names but the snapshot still does not
+  expose directly.
+- The next durable proof slice is therefore not a broader profiler. It is a
+  first-class summary field or snapshot extension that names:
+  - per-frame actor count,
+  - active physics count,
+  - and which profile/fixture pair the counts belong to.
+- That gives operators a simpler way to compare scenes and budgets without
+  guessing whether the visible pressure came from renderer load or simulation
+  load.
+- Evidence depth: Tier 1 static synthesis from the KPI note and the operator
+  observability contract. No new runtime capture was run in this pass.

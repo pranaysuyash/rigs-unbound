@@ -3,7 +3,10 @@
 - Status: canonical living task list
 - Last Updated: 2026-07-29 (Mission authority, Pegboard commitments, persistence, reachability disposition, and asset-approval navigation: PASS pending final browser gate / operator sign-off)
 - Owner: project owner; agents update evidence and status in the same change
-- Product source of truth: [Exploration Map](../exploration/EXPLORATION_MAP.md)
+- Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
+  ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
+  accepted by operator sign-off 2026-07-29)
+- Product research map: [Exploration Map](../exploration/EXPLORATION_MAP.md)
 - Quick lane index: [3D Game Contract Index](../research/3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - Public launch package: [Comms package](../comms/README.md)
 - Evidence index: [Reviews index](../reviews/README.md)
@@ -21,6 +24,118 @@
   remains explicit for future clip-backed rigs.
 - Focused current board:
   [Next Execution Board](NEXT_EXECUTION_BOARD_2026-07-26.md)
+
+## Vision-hierarchy correction and whole-game execution order (2026-07-29)
+
+Operator review (2026-07-29) found the recorded vision narrower than the
+pitched open vehicle-universe, and found no authoritative story, quest,
+exploration, or marketplace architecture despite heavy contract output.
+Measured state agreed: 25 unreachable modules (1,836 lines) and a 41:4
+docs-to-features ratio over the last 60 commits.
+
+Correction landed this session and **accepted by operator sign-off the same
+day** (condition: prior work is updated in place, never deleted):
+
+- [Game Design Spine](../design/GAME_DESIGN_SPINE.md) — canonical whole-game
+  design surface (vision, world-of-worlds topology, story layers, quest
+  architecture, exploration architecture, economy/marketplace stances,
+  multiplayer posture, continuity models, studio operating model);
+- [ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
+  — establishes the hierarchy and reclassifies ADR-0029 as Campaign One's
+  identity rather than the umbrella vision;
+- [First Playable — The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md)
+  — the integrated opening slice with module-by-module runtime bindings and a
+  reachability gate of ≤ 13 unreachable modules.
+
+**Execution order consequence:** the top of the queue is now the slice's six
+tranches (quest semantics → restoration loop → Water Before Night → north
+field/night variants → dialogue surface → ridge finale + acceptance). Existing
+technical lanes continue only where a slice tranche needs them or where they
+close an already-open acceptance gate. Every package below this section must
+name the spine layer it serves when it is next touched; packages that cannot
+are deferred by default per ADR-0040.
+
+## Quest-semantics tranche note (2026-07-29)
+
+- The first tranche is now explicitly narrowed to a versioned proposition
+  contract:
+  - `MissionProposition.class`
+  - `MissionProposition.giver`
+  - `MissionProposition.prerequisites`
+  - `MissionProposition.outcomes`
+- The target behavior remains the same as the slice doc: one `main` quest may
+  stay active while multiple `side` / `local` propositions coexist, and
+  `campaign.ts` should route through the mission lifecycle instead of keeping a
+  parallel campaign engine.
+- Because `src/game/` still has parallel-owned uncommitted runtime work, the
+  safe preparation boundary for this tranche remains documentation and
+  non-`src/game/` scaffolding until the operator explicitly clears the
+  collision.
+- The tracker should keep future tranche updates tied to the slice document so
+  the design spine and execution order stay aligned.
+
+## Restoration-loop tranche note (2026-07-29)
+
+- The second tranche is the restoration loop: maintenance, workshop, and
+  salvage as one recoverable player surface.
+- The next proof slice should preserve the workshop overlay as the visible home
+  for repair / restore actions, salvage as a bounded source of parts and
+  provenance, and maintenance as a readable state change rather than a hidden
+  stat bump.
+- Because `src/game/` still has parallel-owned uncommitted runtime work, safe
+  preparation for this tranche remains documentation and non-`src/game/`
+  scaffolding until the operator explicitly clears the collision.
+- The tracker should continue to use the slice document as the canonical
+  tranche description so the execution order stays aligned with the design
+  spine.
+
+## Water Before Night tranche note (2026-07-29)
+
+- The third tranche is Water Before Night: the pump circuit, the repair versus
+  redirect branch, and the first-night consequence as one causal loop.
+- The next proof slice should preserve the consequence chain through
+  `surface-moisture.ts`, `soil-ecosystem.ts`, `river-hydrology.ts`, and
+  `world-memory.ts` so the field changes because of the player’s choice.
+- Because `src/game/` still has parallel-owned uncommitted runtime work, safe
+  preparation for this tranche remains documentation and non-`src/game/`
+  scaffolding until the operator explicitly clears the collision.
+- The tracker should continue to use the slice document as the canonical
+  tranche description so the execution order stays aligned with the design
+  spine.
+
+## North-field/night-variants tranche note (2026-07-29)
+
+- The fourth tranche is north field + night variants: scanner/probe/topo
+  wiring, hazard pressure, and the way the workshop choice changes the first
+  night.
+- The next proof slice should preserve the consequence chain through
+  `seismic-probe.ts`, `radio-scanner.ts`, `topo-map.ts`, `landslide-hazard.ts`,
+  `debris-physics.ts`, and `world-memory.ts` so the field changes because of
+  the player’s choice.
+- Because `src/game/` still has parallel-owned uncommitted runtime work, safe
+  preparation for this tranche remains documentation and non-`src/game/`
+  scaffolding until the operator explicitly clears the collision.
+- The tracker should continue to use the slice document as the canonical
+  tranche description so the execution order stays aligned with the design
+  spine.
+
+## Dialogue/narration tranche note (2026-07-29)
+
+- The fifth tranche is the dialogue and narration surface: a minimal,
+  accessible, text-first conversation layer for the opening session.
+- The next proof slice should preserve:
+  - the arrival-and-bargain exchange as a readable conversation beat;
+  - the naming moment as a player-authored decision surfaced through
+    dialogue, not a hidden state edit;
+  - shell narration as the announcement layer that frames the action;
+  - one accessible text-first route rather than a second story engine or
+    narrative system.
+- Because `src/game/` still has parallel-owned uncommitted runtime work, safe
+  preparation for this tranche remains documentation and non-`src/game/`
+  scaffolding until the operator explicitly clears the collision.
+- The tracker should continue to use the slice document as the canonical
+  tranche description so the execution order stays aligned with the design
+  spine.
 
 ## Progression model reconciliation addendum (2026-07-28)
 
@@ -134,6 +249,14 @@ comprehension or save/reload closure until that gate is resolved.
   [Shell Accessibility Evidence](../research/SHELL_ACCESSIBILITY_EVIDENCE_2026-07-28.md)
   and the wheel contract note at
   [Radial Quick-Action Wheel Contract](../research/RADIAL_QUICK_ACTION_WHEEL_CONTRACT_2026-07-28.md).
+
+### Browser witness stability note (2026-07-29)
+
+The canonical developer route is reachable again at
+`http://127.0.0.1:4173/?surface=developer`, but the browser-client DOM probe
+still returned `undefined` after navigation. Treat the live browser as present
+but the current IPC exec path as an unstable witness until a stronger DOM
+inspection route is available.
 
 ## Browser/build gate addendum (2026-07-28)
 
@@ -799,8 +922,8 @@ with permanent instructions.
     The approval record template is also available from the package index for
     future operator sign-off, but no populated approval record exists yet. The
     operator-facing first-candidate checklist is also linked there, alongside
-    the player-gate evidence note that summarizes why runtime bridge proof
-    still does not mean player approval.
+    the player-gate evidence note and pre-signoff draft that summarize why
+    runtime bridge proof still does not mean player approval.
 - [ ] **RU-0503 — Cold-cache and representative-device profile.**
   - Gate: production URL on at least one real phone and one lower-power desktop;
     first input-ready, route transfer, frame p95, memory/thermal observations,
@@ -1582,6 +1705,25 @@ Evidence: focused XP tests passed (4/4); `npm run typecheck` passed for root and
 ### Anything else?
 
 The old XP model is now both documented and executable as an optional policy, but it is not yet a player-facing feature and must not be described as campaign behavior.
+
+## Addendum (2026-07-29) — live radial boot failure is now tracked separately from the static audit
+
+The current developer route is still failing on the radial-menu startup
+reference, and the live browser failure now has its own snapshot in the
+evidence trail:
+
+- [Radial Menu Boot Failure Snapshot](../research/RADIAL_MENU_BOOT_FAILURE_SNAPSHOT_2026-07-29.md)
+- [Browser Runtime Parallel-State Integration Blocker](../reviews/BROWSER_RUNTIME_PARALLEL_STATE_INTEGRATION_BLOCKER_2026-07-26.md)
+- [Radial Quick-Action Wheel Authority Audit](../reviews/RADIAL_QUICK_ACTION_AUTHORITY_AUDIT_2026-07-28.md)
+
+Current live console evidence:
+
+- `ReferenceError: createInitialRadialMenuState is not defined`
+- follow-on module-load failure for `src/game/radial-ui.ts`
+
+This is a runtime blocker snapshot, not a code fix. It keeps the live browser
+failure separate from the older static dead-code analysis until the owning
+runtime lane is stable again.
 
 ## Addendum (2026-07-28) — external-review sequence executed
 

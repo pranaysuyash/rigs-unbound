@@ -434,3 +434,19 @@ A fresh browser check on `http://127.0.0.1:4173/?surface=developer` showed:
 That means the current shell is truthful and readable, but the progress story
 is still text/status-based rather than a dedicated progress affordance.
 Evidence depth: Tier 4 runtime/manual observation.
+
+## Addendum (2026-07-29) - the next loading proof is one cohesive bootstrap narrative
+
+- The browser now has enough pieces to tell the player that the shell is
+  measuring, the profile is active, and the field is ready.
+- The next proof slice should therefore not be another progress control. It
+  should be one cohesive bootstrap narrative that binds:
+  - the measuring state,
+  - the selected profile state,
+  - the ready state,
+  - and one plain-language transition reason that explains why the shell is
+    still waiting or has already settled.
+- That keeps the public surface readable without creating a second loading
+  model.
+- Anything else? No. The current gap is narrative cohesion, not raw loading
+  presence.

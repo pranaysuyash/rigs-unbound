@@ -472,3 +472,21 @@ saved artifact import, cross-version replay, or ghost sharing was executed.
   anything about rendered replay or ghost controls.
 - Evidence depth: Tier 4 for daemon status and console inspection, Tier 1 for
   the client/daemon path inspection.
+
+## Addendum (2026-07-29) - the next replay proof is one exportable artifact with a human-readable verdict
+
+- The replay lane already has the right local ingredients:
+  - bounded run record;
+  - admitted initial context;
+  - validator verdicts for verified, unsupported, invalid, diverged, and
+    truncated records;
+  - browser-visible validation access.
+- The next proof slice should therefore be one portable replay artifact that
+  carries:
+  - a retained input slice or exportable record;
+  - the compatibility classification;
+  - the validation verdict;
+  - and a human-readable reason when replay is unsupported or diverged.
+- That keeps replay on the product side of the line without turning it into a
+  ghost/share transport or a richer validator layer.
+- Anything else? No. The artifact should explain itself, not just exist.

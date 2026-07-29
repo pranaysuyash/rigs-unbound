@@ -7,6 +7,7 @@
 - Related package index: [Public Asset Promotion Package Index](PUBLIC_ASSET_PROMOTION_PACKAGE_INDEX_2026-07-28.md)
 - Related checklist: [Public Asset Promotion First Public Candidate Checklist](PUBLIC_ASSET_PROMOTION_FIRST_PUBLIC_CANDIDATE_CHECKLIST_2026-07-28.md)
 - Related approval template: [Public Asset Promotion Approval Record Template](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_TEMPLATE_2026-07-28.md)
+- Related field map: [Public Asset Promotion Approval Record Field Map](PUBLIC_ASSET_PROMOTION_APPROVAL_RECORD_FIELD_MAP_2026-07-29.md)
 - Related player-gate note: [Public Asset Promotion Player-Gate Evidence Note](PUBLIC_ASSET_PROMOTION_PLAYER_GATE_EVIDENCE_NOTE_2026-07-28.md)
 - Related ADR: [ADR-0038: Public asset promotion boundary separates runtime-tested bridges from public approval](../decisions/ADR-0038-public-asset-promotion-boundary-separates-runtime-tested-bridges-from-public-approval.md)
 - Related analysis:
@@ -83,7 +84,9 @@ The durable boundary for that recommendation is recorded in ADR-0038:
 runtime-tested bridge proof stays separate from `publicRuntimeApproved`.
 
 The operator-facing checklist gives the actual step-by-step review path for the
-crate candidate.
+crate candidate, the field map turns each blank in the approval template into
+a specific source-evidence lookup, and the decision packet is the quickest
+one-sit review path.
 
 The player-gate evidence note is the short summary of why the player output is
 still closed even though the developer bridge is live.
@@ -119,3 +122,9 @@ The approval template now has a companion worksheet: [Public Asset Promotion App
 - neither one becomes approval without operator sign-off.
 
 That makes the trail easier to use without changing the fact that the crate has not been approved yet.
+
+## Addendum (2026-07-29) - the decision packet is the quickest one-sit review path
+
+The new [Public Asset Promotion Decision Packet](PUBLIC_ASSET_PROMOTION_DECISION_PACKET_2026-07-29.md) compresses the crate candidate trail into one operator-facing page. It is not approval; it is the shortest route to the approval context.
+
+That keeps the review honest: the packet points to the pre-signoff record, the field map, and ADR-0038, but the actual approval decision still has to be recorded separately.
