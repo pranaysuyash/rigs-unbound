@@ -1,7 +1,7 @@
 # Implementation Direction Decision Log
 
 - Date: 2026-07-31
-- Status: **operator direction recorded; implementation pending explicit go-ahead on scope boundaries**
+- Status: **dialogue surface implementation complete; evidence recorded**
 - Context: follow-up to `docs/reviews/GAME_DESIGN_AUDIT_VISION_CORRECTION_AND_FULL_RECHECK_2026-07-31.md`
 
 ## Operator preferences expressed

@@ -8,8 +8,9 @@ import type { CommodityType } from "./expedition-economy";
 import type { InfrastructureNetworkState } from "./infrastructure-network";
 import type { SettlementNeedOutcomeId, SettlementState } from "./settlement-needs";
 
-export const SAVE_SCHEMA_VERSION = 26 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 25 as const;
+export const SAVE_SCHEMA_VERSION = 27 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 26 as const;
+export const V26_SAVE_SCHEMA_VERSION = 26 as const;
 export const V24_SAVE_SCHEMA_VERSION = 24 as const;
 export const V18_SAVE_SCHEMA_VERSION = 18 as const;
 export const V17_SAVE_SCHEMA_VERSION = 17 as const;
@@ -820,6 +821,8 @@ export interface GameState {
   restoration: RestorationState;
   /** Persistent completion state for the first player-authored rig name. */
   openingNaming: OpeningNamingState;
+  /** Persistent state for the old man's arrival and shelter bargain. */
+  arrivalBargain: ArrivalBargainState;
   /** Emergency recovery is exceptional, persisted, and operator-auditable. */
   recovery: {
     emergencyCount: number;
@@ -846,6 +849,16 @@ export interface RestorationState {
 /** The old man's naming beat is one-time world memory, not dialogue-local UI. */
 export interface OpeningNamingState {
   status: "waiting" | "ready" | "complete";
+}
+
+/**
+ * The arrival & bargain beat is durable world memory, not dialogue-local UI.
+ *
+ * It tracks whether the old man's shelter-for-repair offer has been seen,
+ * accepted, or refused. A refused offer can be re-presented later.
+ */
+export interface ArrivalBargainState {
+  status: "unseen" | "accepted" | "refused";
 }
 
 export type FarmWaterworksChoice =

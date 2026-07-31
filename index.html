@@ -554,6 +554,36 @@
       ></div>
 
       <section
+        id="dialogue-panel"
+        class="dialogue-panel"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="dialogue-speaker dialogue-body"
+        hidden
+      >
+        <div class="dialogue-panel__plate">
+          <span id="dialogue-speaker" class="dialogue-panel__speaker"></span>
+          <p id="dialogue-body" class="dialogue-panel__body"></p>
+          <div id="dialogue-choices" class="dialogue-panel__choices"></div>
+          <form
+            id="dialogue-input-form"
+            class="dialogue-panel__input"
+            hidden
+          >
+            <label for="dialogue-input">Name the tractor</label>
+            <input
+              id="dialogue-input"
+              name="fieldName"
+              type="text"
+              maxlength="28"
+              autocomplete="off"
+            />
+            <button type="submit">Give it a name</button>
+          </form>
+        </div>
+      </section>
+
+      <section
         id="pause-overlay"
         class="pause-overlay"
         role="dialog"

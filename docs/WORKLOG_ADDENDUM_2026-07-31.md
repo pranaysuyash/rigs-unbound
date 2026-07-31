@@ -56,7 +56,23 @@
 - Updated `docs/plans/MASTER_EXECUTION_TRACKER.md` with implementation evidence.
 - Commit staged selectively because the working tree contains parallel-owned uncommitted work; full `git add -A` would have captured that work.
 
+## Dialogue surface implementation (2026-07-31)
+
+- Implemented the hybrid dialogue/narration surface planned in `docs/reviews/IMPLEMENTATION_DIRECTION_DECISION_LOG_2026-07-31.md`.
+- Added `GameState.arrivalBargain` (save schema v27) and migration from v26.
+- Built shared `#dialogue-panel` in `index.html`/`src/styles.css`: non-modal, bottom-mounted, accessible.
+- Wired arrival/bargain beat and migrated the naming beat from the old centered modal into the shared panel.
+- Shell narration remains the channel for action/world beats.
+- Added unit tests in `src/game/state.test.ts` for arrival-bargain transitions and migration.
+- Added browser acceptance probe `tools/dialogue-surface-browser-acceptance.cjs`.
+- Verification:
+  - `npm run typecheck` PASS;
+  - `npx vitest run --pool=forks --poolOptions.forks.singleFork` PASS 87 files / 533 tests;
+  - `node tools/restoration-loop-ghost-acceptance.cjs` PASS (regression);
+  - `node tools/dialogue-surface-browser-acceptance.cjs` PASS.
+- Wrote implementation plan `docs/design/DIALOGUE_SURFACE_IMPLEMENTATION_PLAN_2026-07-31.md` and evidence report `docs/reviews/DIALOGUE_SURFACE_EVIDENCE_2026-07-31.md`.
+
 ## Next step
 
-Operator review of the implementation and evidence. Once accepted, the next slice gaps are the dialogue/narration surface (arrival/bargain/naming) and the Water Before Night branch.
+Operator review of the dialogue surface implementation and evidence. Once accepted, the next slice gap is Water Before Night.
 

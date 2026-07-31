@@ -58,6 +58,7 @@ import {
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
+  V26_SAVE_SCHEMA_VERSION,
   V18_SAVE_SCHEMA_VERSION,
   V24_SAVE_SCHEMA_VERSION,
   V17_SAVE_SCHEMA_VERSION,
@@ -81,6 +82,7 @@ import {
   worldMinuteOfDay,
   type RestorationState,
   type OpeningNamingState,
+  type ArrivalBargainState,
 } from "./contracts";
 import {
   CRAFTING_RECIPES,
@@ -433,6 +435,7 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
       firstStart: false,
     },
     openingNaming: { status: "waiting" },
+    arrivalBargain: { status: "unseen" },
     recovery: {
       emergencyCount: 0,
       lastEmergencyAtMs: null,
@@ -518,6 +521,30 @@ export function completeOpeningNaming(
   requestedName: string,
 ): RigRenameResult {
   return renameRig(state, "utility-tractor", requestedName, "opening-naming");
+}
+
+/**
+ * Accept the old man's shelter-for-repair bargain.
+ *
+ * This is the canonical transition that makes the restoration loop available.
+ * It is idempotent: accepting again leaves the state unchanged.
+ */
+export function acceptArrivalBargain(state: GameState): void {
+  if (state.arrivalBargain.status === "accepted") return;
+  state.arrivalBargain.status = "accepted";
+  state.lastDiagnostic =
+    "The old man nods. Fix the tractor, earn the bed. The workshop is open.";
+}
+
+/**
+ * Refuse the old man's bargain without blocking future play.
+ *
+ * The offer can be presented again when the player opens the workshop.
+ */
+export function refuseArrivalBargain(state: GameState): void {
+  if (state.arrivalBargain.status !== "unseen") return;
+  state.arrivalBargain.status = "refused";
+  state.lastDiagnostic = "The old man shrugs. The offer stands if you change your mind.";
 }
 
 /**
@@ -2877,6 +2904,7 @@ export function publicState(state: GameState, world: GameWorld): object {
           };
     return {
       id: rig.id,
+      fieldName: rig.fieldName,
       x: fixedNumber(rig.x, 3),
       y: fixedNumber(rig.y, 3),
       z: fixedNumber(rig.z, 3),
@@ -3197,6 +3225,9 @@ export function publicState(state: GameState, world: GameWorld): object {
       ),
       bestSightedCount: state.surveyRoute.bestSightedCount,
     },
+    restoration: { ...state.restoration },
+    arrivalBargain: { ...state.arrivalBargain },
+    openingNaming: { ...state.openingNaming },
     lastDiagnostic: state.lastDiagnostic,
   };
 }
@@ -4015,6 +4046,20 @@ function recoverShared(
           ? "ready"
           : "waiting",
   };
+  const rawArrivalBargain =
+    candidate.arrivalBargain && typeof candidate.arrivalBargain === "object"
+      ? (candidate.arrivalBargain as Record<string, unknown>)
+      : null;
+  const arrivalBargain: ArrivalBargainState = {
+    status:
+      rawArrivalBargain?.status === "accepted"
+        ? "accepted"
+        : rawArrivalBargain?.status === "refused"
+          ? "refused"
+          : restoration.firstStart
+            ? "accepted"
+            : "unseen",
+  };
 
   return {
     schemaVersion: SAVE_SCHEMA_VERSION,
@@ -4076,6 +4121,7 @@ function recoverShared(
     partsBin,
     restoration,
     openingNaming,
+    arrivalBargain,
     recovery: {
       emergencyCount:
         recovery && isFiniteNumber(recovery.emergencyCount)
@@ -4418,6 +4464,9 @@ export function recoverState(value: unknown): GameState | null {
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V26_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V26_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V24_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, V24_SAVE_SCHEMA_VERSION);

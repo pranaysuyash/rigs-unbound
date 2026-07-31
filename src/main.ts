@@ -117,6 +117,8 @@ import {
   installFromPartsBin,
   renameRig,
   completeOpeningNaming,
+  acceptArrivalBargain,
+  refuseArrivalBargain,
   chooseFarmWaterworks,
 } from "./game/state";
 import { CRAFTING_RECIPES, canCraftRecipe } from "./game/salvage-crafting";
@@ -1179,6 +1181,14 @@ function boot(): void {
   const controlLessonDismiss = requiredElement<HTMLButtonElement>(
     "#control-lesson-dismiss",
   );
+  const dialoguePanel = requiredElement<HTMLElement>("#dialogue-panel");
+  const dialogueSpeaker = requiredElement<HTMLElement>("#dialogue-speaker");
+  const dialogueBody = requiredElement<HTMLElement>("#dialogue-body");
+  const dialogueChoices = requiredElement<HTMLElement>("#dialogue-choices");
+  const dialogueInputForm = requiredElement<HTMLFormElement>(
+    "#dialogue-input-form",
+  );
+  const dialogueInput = requiredElement<HTMLInputElement>("#dialogue-input");
   const enterWorldButton = requiredElement<HTMLButtonElement>("#enter-world");
   const resetButton = requiredElement<HTMLButtonElement>("#reset-button");
   const muteButton = requiredElement<HTMLButtonElement>("#mute-button");
@@ -1352,30 +1362,6 @@ function boot(): void {
         chooseFarmWaterworks(state, world, choice);
       }
     });
-  });
-  const openingNamingMoment = document.createElement("section");
-  openingNamingMoment.className = "opening-naming-moment";
-  openingNamingMoment.hidden = true;
-  openingNamingMoment.setAttribute("role", "dialog");
-  openingNamingMoment.setAttribute("aria-labelledby", "opening-naming-title");
-  openingNamingMoment.innerHTML = `
-    <p>THE ROAD THAT WAS</p>
-    <h2 id="opening-naming-title">The old man looks over the first furrow.</h2>
-    <p>"That machine earned a name today. Torque, perhaps. Or something that belongs to you."</p>
-    <form>
-      <label for="opening-rig-name">Name the tractor</label>
-      <input id="opening-rig-name" name="fieldName" maxlength="28" autocomplete="off" value="Torque" />
-      <button type="submit">Give it a name</button>
-    </form>
-  `;
-  document.body.appendChild(openingNamingMoment);
-  const openingRigName = openingNamingMoment.querySelector<HTMLInputElement>(
-    "#opening-rig-name",
-  );
-  openingNamingMoment.querySelector("form")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (!openingRigName) return;
-    completeOpeningNaming(state, openingRigName.value);
   });
   const moduleList = requiredElement<HTMLOListElement>("#module-list");
   const radialOverlay = requiredElement<HTMLElement>("#radial-overlay");
@@ -2079,6 +2065,119 @@ function boot(): void {
     if (state.lastDiagnostic) showToast(state.lastDiagnostic);
   };
 
+  let currentDialogueInputHandler: ((value: string) => void) | null = null;
+
+  const hideDialoguePanel = (): void => {
+    dialoguePanel.hidden = true;
+    dialogueChoices.innerHTML = "";
+    dialogueInputForm.hidden = true;
+    dialogueInput.value = "";
+    currentDialogueInputHandler = null;
+    if (document.activeElement && dialoguePanel.contains(document.activeElement)) {
+      canvas.focus();
+    }
+  };
+
+  interface DialogueChoice {
+    label: string;
+    action: () => void;
+  }
+
+  interface DialogueInputOptions {
+    label: string;
+    value: string;
+    onSubmit: (value: string) => void;
+  }
+
+  const showDialoguePanel = (
+    speaker: string,
+    body: string,
+    choices: DialogueChoice[],
+    input?: DialogueInputOptions,
+  ): void => {
+    dialogueSpeaker.textContent = speaker;
+    dialogueBody.textContent = body;
+    dialogueChoices.innerHTML = "";
+    currentDialogueInputHandler = null;
+
+    if (input) {
+      dialogueInputForm.hidden = false;
+      const inputLabel = dialogueInputForm.querySelector("label");
+      if (inputLabel) inputLabel.textContent = input.label;
+      dialogueInput.value = input.value;
+      currentDialogueInputHandler = input.onSubmit;
+    } else {
+      dialogueInputForm.hidden = true;
+    }
+
+    choices.forEach((choice) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = choice.label;
+      button.addEventListener("click", () => {
+        choice.action();
+      });
+      dialogueChoices.appendChild(button);
+    });
+
+    dialoguePanel.hidden = false;
+    if (input) {
+      dialogueInput.focus();
+    } else if (choices.length > 0) {
+      dialogueChoices.querySelector("button")?.focus();
+    }
+  };
+
+  dialogueInputForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (currentDialogueInputHandler) {
+      currentDialogueInputHandler(dialogueInput.value);
+    }
+  });
+
+  const showArrivalBargain = (): void => {
+    showDialoguePanel(
+      "Old Man",
+      "You walked a long way to find this valley. My tractor is dead in the barn, and I have a bed going cold. Fix her, and you can sleep under my roof. Refuse, and the road keeps going.",
+      [
+        {
+          label: "Take the deal",
+          action: () => {
+            acceptArrivalBargain(state);
+            announce();
+            hideDialoguePanel();
+          },
+        },
+        {
+          label: "Not now",
+          action: () => {
+            refuseArrivalBargain(state);
+            announce();
+            hideDialoguePanel();
+          },
+        },
+      ],
+    );
+  };
+
+  const showNamingBeat = (): void => {
+    const currentName = state.rigs["utility-tractor"].fieldName;
+    showDialoguePanel(
+      "Old Man",
+      "That machine earned a name today. Torque, perhaps. Or something that belongs to you.",
+      [],
+      {
+        label: "Name the tractor",
+        value: currentName,
+        onSubmit: (value) => {
+          completeOpeningNaming(state, value);
+          announce();
+          hideDialoguePanel();
+        },
+      },
+    );
+  };
+
   const fitModule = (
     moduleId: ModuleId,
     source: "keyboard" | "workshop-panel" | "acceptance",
@@ -2448,6 +2547,7 @@ function boot(): void {
     settleWorld(state, world);
     fieldMap.clear();
     ghostRecorder.clear();
+    namingBeatPresented = false;
     renderer.invalidate(state);
     statusMessage = "Local field reset.";
     saveStatus.textContent = statusMessage;
@@ -2561,6 +2661,7 @@ function boot(): void {
   let lastDiagnostic: string | null = state.lastDiagnostic;
   let lastUiUpdate = 0;
   let lastMapUpdate = 0;
+  let namingBeatPresented = false;
 
   const updateInterface = (now: number): void => {
     if (now - lastUiUpdate < 100) return;
@@ -2572,14 +2673,20 @@ function boot(): void {
     const weather = deriveWeatherState(state.worldTimeMinutes);
     const speedKmh = Math.abs(rig.speed) * 3.6;
     const motionEnergy = Math.min(1, speedKmh / 26);
-    const openingNamingReady = state.openingNaming.status === "ready";
-    openingNamingMoment.hidden = !openingNamingReady;
     if (
-      openingNamingReady &&
-      openingRigName &&
-      document.activeElement !== openingRigName
+      state.arrivalBargain.status === "unseen" &&
+      worldEntered &&
+      dialoguePanel.hidden
     ) {
-      openingRigName.value = state.rigs["utility-tractor"].fieldName;
+      showArrivalBargain();
+    }
+    if (
+      state.openingNaming.status === "ready" &&
+      !namingBeatPresented &&
+      dialoguePanel.hidden
+    ) {
+      namingBeatPresented = true;
+      showNamingBeat();
     }
     const plough = rig.attachments.find((item) => item.id === "field-plough");
     const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
@@ -2955,6 +3062,12 @@ function boot(): void {
       closeOverlay();
     }
     if (workshop && activeOverlay === "workshop") {
+      if (
+        state.arrivalBargain.status === "refused" &&
+        dialoguePanel.hidden
+      ) {
+        showArrivalBargain();
+      }
       workshopSalvage.textContent = `${state.salvage} salvage`;
       workshopIdentity.hidden = false;
       const restorationDone =

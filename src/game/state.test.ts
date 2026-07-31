@@ -47,6 +47,8 @@ import {
   selectActiveRig,
   toggleBladeMode,
   winchRecover,
+  acceptArrivalBargain,
+  refuseArrivalBargain,
 } from "./state";
 import { acceptMission } from "./mission-lifecycle";
 import type { MissionProposition } from "./mission-propositions";
@@ -1349,6 +1351,49 @@ describe("save recovery and migration", () => {
     saved.cameraMode = "top-down";
 
     expect(recoverState(saved)?.cameraMode).toBe("top-down");
+  });
+
+  it("tracks arrival bargain acceptance and refusal", () => {
+    const state = createInitialState("ARRIVAL-BARGAIN");
+    expect(state.arrivalBargain.status).toBe("unseen");
+
+    acceptArrivalBargain(state);
+    expect(state.arrivalBargain.status).toBe("accepted");
+    expect(state.lastDiagnostic).toContain("Fix the tractor");
+
+    const fresh = createInitialState("ARRIVAL-BARGAIN-REFUSE");
+    refuseArrivalBargain(fresh);
+    expect(fresh.arrivalBargain.status).toBe("refused");
+    expect(fresh.lastDiagnostic).toContain("offer stands");
+  });
+
+  it("defaults arrival bargain to accepted for saves that already started the tractor", () => {
+    const legacy = JSON.parse(JSON.stringify(createInitialState("V26-ARRIVAL-MIGRATION"))) as {
+      schemaVersion: number;
+      restoration: { firstStart: boolean };
+      arrivalBargain?: { status: string };
+    };
+    legacy.schemaVersion = PREVIOUS_SAVE_SCHEMA_VERSION;
+    legacy.restoration.firstStart = true;
+    delete legacy.arrivalBargain;
+
+    const recovered = recoverState(legacy);
+    expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+    expect(recovered?.arrivalBargain.status).toBe("accepted");
+  });
+
+  it("defaults arrival bargain to unseen for fresh-looking legacy saves", () => {
+    const legacy = JSON.parse(JSON.stringify(createInitialState("V26-ARRIVAL-FRESH"))) as {
+      schemaVersion: number;
+      restoration: { firstStart: boolean };
+      arrivalBargain?: { status: string };
+    };
+    legacy.schemaVersion = PREVIOUS_SAVE_SCHEMA_VERSION;
+    legacy.restoration.firstStart = false;
+    delete legacy.arrivalBargain;
+
+    const recovered = recoverState(legacy);
+    expect(recovered?.arrivalBargain.status).toBe("unseen");
   });
 
   it("migrates predecessor schemas and filters unknown persisted capabilities", () => {
