@@ -8,8 +8,9 @@ import type { CommodityType } from "./expedition-economy";
 import type { InfrastructureNetworkState } from "./infrastructure-network";
 import type { SettlementNeedOutcomeId, SettlementState } from "./settlement-needs";
 
-export const SAVE_SCHEMA_VERSION = 22 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 21 as const;
+export const SAVE_SCHEMA_VERSION = 26 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 25 as const;
+export const V24_SAVE_SCHEMA_VERSION = 24 as const;
 export const V18_SAVE_SCHEMA_VERSION = 18 as const;
 export const V17_SAVE_SCHEMA_VERSION = 17 as const;
 export const V16_SAVE_SCHEMA_VERSION = 16 as const;
@@ -662,7 +663,10 @@ export interface CargoState {
 
 /** The one physical crate's mission route; null preserves the Relay-haul fallback. */
 export interface CargoAssignment {
-  missionId: string;
+  /** Null when a player voluntarily loaded a community shipment. */
+  missionId: string | null;
+  /** Content-owned shipment semantics, never a second cargo physics model. */
+  manifestId?: string;
   originSiteId: string;
   destinationSiteId: string;
 }
@@ -914,14 +918,24 @@ export interface CargoRouteTarget {
   radius: number;
 }
 
-/** Assigned mission origin or the legacy Relay-haul pickup. */
+/**
+ * The physical relay crate is the pickup authority.
+ *
+ * An assignment supplies the semantic origin site, but a voluntary shipment
+ * may stage the crate at an explicit stock bay inside that site. Returning the
+ * crate coordinates keeps interaction rings and any caller that needs a pickup
+ * target aligned with the rendered and colliding object.
+ */
 export function cargoPickupTarget(relay: CargoRelayState): CargoRouteTarget {
   const site = relay.assignment
     ? WORLD_SITES.find((item) => item.id === relay.assignment?.originSiteId)
     : undefined;
-  return site
-    ? { siteId: site.id, x: site.x, z: site.z, radius: CARGO_PICKUP.radius }
-    : { siteId: null, ...CARGO_PICKUP };
+  return {
+    siteId: site?.id ?? null,
+    x: relay.cargo.x,
+    z: relay.cargo.z,
+    radius: CARGO_PICKUP.radius,
+  };
 }
 
 /** Assigned mission destination or the legacy Relay-haul finish. */

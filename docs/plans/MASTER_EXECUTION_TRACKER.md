@@ -1,7 +1,7 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-07-29 (Mission authority, Pegboard commitments, persistence, reachability disposition, and asset-approval navigation: PASS pending final browser gate / operator sign-off)
+- Last Updated: 2026-07-31 (Restoration loop + ghost-replay universe proof implemented and verified; commit pending)
 - Owner: project owner; agents update evidence and status in the same change
 - Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
   ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
@@ -24,6 +24,161 @@
   remains explicit for future clip-backed rigs.
 - Focused current board:
   [Next Execution Board](NEXT_EXECUTION_BOARD_2026-07-26.md)
+
+## Browser-shell visual polish evidence (2026-07-30)
+
+The shell-focused AAA polish slice was implemented and rechecked on the
+canonical local port. The current evidence is the pair of browser captures in
+`/.codex-visual-polish-after-desktop-inworld.png` and
+`/.codex-visual-polish-after-mobile-inworld.png`, alongside the approval pack
+in [`docs/reviews/GAME_VISUAL_POLISH_APPROVAL_PACKAGE_2026-07-30.md`](../reviews/GAME_VISUAL_POLISH_APPROVAL_PACKAGE_2026-07-30.md).
+
+Observed gains:
+
+- shell framing now reads like a deliberate premium layer around the world;
+- the header, field kit, and bottom strip feel more composited and less flat;
+- the mobile horizon rail compresses into a broader, less crowded strip;
+- the opening plate still lands strongly without overwhelming the frame.
+- the shell now inherits world phase and weather into its presentation mood, so the page feels tied to live game state instead of staying visually static.
+- Browser relaunch check on 2026-07-30 found and fixed a startup-order bug in the new pointer-atmosphere wiring, then confirmed the canonical page loads cleanly again at `http://localhost:4173/` with the game shell present.
+- The same pass also added an active-rig accent layer, so the HUD trim now shifts with the selected machine. Browser state readback confirmed the accent update on the active rig, with the field-kit border matching the selected palette.
+- Camera posture is now part of the same presentation layer. Browser readback confirmed the live camera variable swap between chase and top-down, and the shell restored cleanly back to chase after the check.
+- A short presentation pulse now marks shell state changes. Browser readback confirmed a temporary `data-presentation-pulse` token when camera mode changed to `hood`, then the token cleared again after the transition and the browser was restored to chase.
+
+## Game-design principles audit — whole app (2026-07-31)
+
+Applied the `game-design` skill across source, design docs, exploration docs, and decision registers. Produced `docs/reviews/GAME_DESIGN_AUDIT_AND_RECOMMENDATIONS_2026-07-31.md` with:
+
+- 30-second core-loop audit: opening is UI-gated before motion (three workshop clicks before the tractor moves).
+- GDD completeness audit: all sections exist across docs, but audio direction is the thinnest surface and there is no single-page GDD summary.
+- Player-psychology audit: Achiever and Explorer strong; Socializer and Killer under-served in the first playable.
+- Difficulty/flow audit: front-loaded difficulty curve; no explicit difficulty or flow-state owner in the execution queue.
+- Progression audit: skill/power/content/story present, but story progression needs the dialogue surface.
+- Anti-pattern audit: strong guards, but documentation-to-features ratio and unreachable-module debt remain.
+- Proposed six implementation tranches ordered by game-design leverage, starting with proving the 30-second loop.
+
+Status: operator discussion stage. No implementation until the operator selects a path.
+
+## Vision-hierarchy correction and full re-check (2026-07-31)
+
+The previous game-design audit stopped at the machine-keeper odyssey (ADR-0029)
+and did not treat the canonical open vehicle-universe vision as the governing
+frame. This session corrected that frame and produced
+[`docs/reviews/GAME_DESIGN_AUDIT_VISION_CORRECTION_AND_FULL_RECHECK_2026-07-31.md`](../reviews/GAME_DESIGN_AUDIT_VISION_CORRECTION_AND_FULL_RECHECK_2026-07-31.md).
+
+Key corrections:
+
+- The canonical vision is the **open vehicle universe** (`docs/design/GAME_DESIGN_SPINE.md` §1, ADR-0040 accepted 2026-07-29).
+- ADR-0029 is reclassified as **Campaign One's identity/tone**, not the umbrella vision.
+- The first playable slice is **The Road That Was**, governed by `docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md`.
+
+Current runtime metrics:
+
+- 92 non-test source modules, 77 reachable, **14 unreachable** (down from 25).
+- Reachability budget ≤ 25 — PASS.
+- Tranche 1 (quest semantics) — DONE.
+- Tranche 2 (restoration/crafting loop) — wired but not yet felt as a game loop.
+- Tranches 3–6 (Water Before Night, north field/night variants, dialogue/narration, ridge finale) — not yet complete.
+
+Highest gaps against the canonical vision:
+
+- No second campaign candidate or second world-class proof.
+- No shareable/replayable player record (`ghost.ts` unreachable).
+- No economic loop (Scrap/Parts/marketplace not wired).
+- No social/multiplayer layer.
+
+Highest gaps against the slice:
+
+- First 30 seconds are UI-gated (three workshop clicks before motion).
+- No player-facing customization decision with consequence.
+- No Water Before Night branch or world-memory consequence.
+- No dialogue/narration surface for arrival, bargain, or naming.
+- No end-to-end browser acceptance for the slice.
+
+Four implementation options are offered, from narrowest (prove the 30-second
+loop) to broadest (complete one slice loop plus one universe proof point). The
+document recommends Option 1 or Option 2, depending on operator preference.
+
+Status: operator discussion stage. No `src/game/` edits proposed until the
+operator selects a scope and clears the parallel-owned runtime work.
+
+## Implementation direction selected (2026-07-31)
+
+Operator direction recorded in
+[`docs/reviews/IMPLEMENTATION_DIRECTION_DECISION_LOG_2026-07-31.md`](../reviews/IMPLEMENTATION_DIRECTION_DECISION_LOG_2026-07-31.md)
+and restoration-loop design in
+[`docs/design/RESTORATION_LOOP_DESIGN_NOTE_2026-07-31.md`](../design/RESTORATION_LOOP_DESIGN_NOTE_2026-07-31.md).
+
+**Universe-level gap to close:** shareable run record / ghost replay.
+- Serves Game Design Spine Pillar 5 (inspectable/shareable) and the Social
+  history persistence layer.
+- Uses existing `src/game/ghost.ts`, `src/game/replay-validator.ts`, and the
+  deterministic run-record contract.
+- Smallest universe proof: no new art, world class, or campaign needed.
+
+**Slice-level focus:** restoration loop (Tranche 2 of The Road That Was).
+- Move from three text buttons (`Diagnose`, `Rebuild`, `Start engine`) to a
+  direct inspect-and-act loop on the machine.
+- Add immediate sound, vibration, and visual feedback.
+- Target: player is in motion within 60 seconds.
+
+**Dialogue surface:** hybrid.
+- Dedicated dialogue panel for arrival/bargain and naming beats.
+- Shell narration for action/world beats.
+
+**Audio:** defer comprehensive `AUDIO_DIRECTION.md`; add only targeted sound
+feedback for the restoration loop in this window.
+
+**Commit route:** `git add -A` → `git commit` → full hook-gate → `git push`.
+
+**Boundaries:**
+- In scope: restoration-loop feel, ghost-replay wiring, tests, browser
+  acceptance, documentation.
+- Out of scope: Water Before Night, north field/night variants, ridge finale,
+  settlement/community/ecology integration, comprehensive audio direction, new
+  art assets or world classes.
+
+Status: **implementation complete and verified**. Evidence is in
+[`docs/reviews/RESTORATION_LOOP_AND_GHOST_REPLAY_EVIDENCE_2026-07-31.md`](../reviews/RESTORATION_LOOP_AND_GHOST_REPLAY_EVIDENCE_2026-07-31.md).
+Commit is pending due to parallel-owned uncommitted changes in the working tree.
+
+## Restoration loop + ghost-replay implementation evidence (2026-07-31)
+
+Implemented the selected direction and closed both the slice-level restoration
+loop and the universe-level shareable run-record/ghost-replay proof point.
+
+Runtime changes:
+
+- `src/main.ts`: restoration actions now emit immediate audio, panel pulse,
+  camera shake, and an engine-start headlight flare; the workshop auto-closes
+  on first start; restoration commands are recorded for deterministic replay;
+  `GhostTrailRecorder` samples the active rig each frame; `window.getGhostTrail()`
+  exposes the trail; a pause-overlay button copies the combined session record.
+- `src/game/run-record.ts`: `diagnoseRestoration`, `performRestorationService`,
+  `performFirstStart` added to the replayable command set.
+- `src/game/replay-validator.ts`: implements the three restoration commands in
+  deterministic replay.
+- `src/game/renderer.ts`: `flashHeadlights(rigId)` for diegetic first-start
+  response.
+- `src/styles.css` + `index.html`: restoration pulse animation and session-record
+  copy button.
+
+Tests:
+
+- `npm run typecheck` PASS.
+- `npx vitest run --pool=forks --poolOptions.forks.singleFork` PASS 87 files /
+  530 tests.
+- `node tools/restoration-loop-ghost-acceptance.cjs` PASS using system Chrome
+  channel (Playwright binary not installed in this environment).
+
+New/updated docs:
+
+- `docs/reviews/RESTORATION_LOOP_AND_GHOST_REPLAY_EVIDENCE_2026-07-31.md`
+- `tools/restoration-loop-ghost-acceptance.cjs`
+
+Boundaries respected: no edits to parallel-owned settlement/community/ecology
+modules; no new art/audio assets, world classes, or campaign content;
+comprehensive audio direction remains deferred.
 
 ## Vision-hierarchy correction and whole-game execution order (2026-07-29)
 
@@ -1530,6 +1685,23 @@ now in external-player comprehension and release-completion evidence, not owners
   - Gate: operator decision. It changes Act I and therefore RU-0404, RU-0606,
     and the first-rung guidance shape.
 
+- [?] **RU-0913 — Single-rig disablement and recovery policy.**
+  - Exploration: [Single-Rig Disablement and Recovery Exploration](../exploration/SINGLE_RIG_DISABLEMENT_AND_RECOVERY_EXPLORATION_2026-07-29.md).
+  - Vision design space: [Recovery Web and Player Continuity Design Space](../exploration/RECOVERY_WEB_AND_PLAYER_CONTINUITY_DESIGN_SPACE_2026-07-29.md).
+  - Proposed ADR: [ADR-0048](../decisions/ADR-0048-single-rig-failure-recovery-and-continuity.md).
+  - Decision needed: if Act I begins with one rig, ordinary disablement should
+    open a recovery constellation rather than a single current-runtime escape:
+    home recall/teleport, reserved 25% Home Limp, character/vehicle switching,
+    NPC or multiplayer help, earned rescue capacity, repair/mechanic calls,
+    advanced self-repair, and physical stranded-rig recovery.
+  - Gate: operator choice on which continuity paths are available at each
+    campaign layer, what resource powers them, how social/multiplayer help
+    enters, and whether true total loss exists outside a declared hard mode.
+  - Runtime dependency: future changes touch `src/game/state.ts`, recovery
+    command/result surfaces, save/reload, cargo/attachment state, world time,
+    and accessible shell announcements. No implementation was made in this
+    exploration pass because the runtime collision remains active.
+
 ### Anything else?
 
 Yes. The measured docs-to-shipping commit ratio over the last 100 commits is
@@ -1742,6 +1914,7 @@ favours the Executioner.
 ## Addendum (2026-07-28) - Progression gate disposition
 
 The capability-first progression gate is closed for this slice. Evidence: `npm run typecheck && npx vitest run` passed with 65 files / 383 tests; `npm run build` passed; canonical port 4173 browser acceptance passed for desktop/touch first-rung flow, save/reload, recovery input paths, radial controls, replay, relay, camera/readability, and zero console problems. Next bounded work is the optional XP-mode ledger prototype, namespaced outside campaign `ProgressionState`, with explicit reward routing and no implicit conversion to Journey, Mastery, or Insight.
+
 ## Addendum (2026-07-28) - Optional XP policy seam implemented
 
 The capability-first campaign remains canonical. The optional Universal XP exploration now has an executable, isolated policy kernel in `src/game/xp-progression.ts`: mode and ruleset identity, account XP, derived level/rung, per-rig restoration XP, explicit source/event routing, cross-mode rejection, and idempotent retries. `src/game/xp-progression.test.ts` covers XP-only and hybrid-relevant boundaries without changing `GameState.progression` or the campaign mission resolver.
@@ -1775,18 +1948,18 @@ runtime lane is stable again.
 
 The 2026-07-28 external review's ten-item sequence, worked in order.
 
-| # | Item | Status | Evidence |
-| -: | --- | :-: | --- |
-| 1 | P0: `publicState()` mutation | `[x]` | `selector-purity.test.ts`; guard proven by re-introducing the defect (2 fail / 3 pass), then removing it (5 pass) |
-| 2 | Route passage through its command | `[x]` | `syncUnboundPassageFromCorridor()` uses `resolveUnboundPassageCommand()`; called from `stepGame()`, not a selector |
-| 3 | Rename `recovery` -> `salvage-retrieval` | `[x]` | `mission-propositions.ts`; `fleet-recovery` reserved |
-| 4 | Pure `deriveFleetRecoveryAssessment()` | `[x]` | `fleet-recovery-assessment.ts`; 12 vertical tests |
-| 5 | Weather -> actual traction | `[x]` | `MotionOptions.soilMoisture` into `stepGame()`; `weather-traction.test.ts`; `weather.ts` now reachable |
-| 6 | Board/radial as projections | `[-]` | `publicState().fleetRecovery` projection landed and browser-verified; `radial-ui.ts` still holds local booleans |
-| 7 | Authoritative command + event | `[x]` | `resolveFleetRecoveryCommand()` / `applyFleetRecovery()` / `performFleetRecovery()` |
-| 8 | Vertical browser acceptance | `[x]` | Live `?acceptance=field-02` chain, all cases, reload persistence, zero console errors |
-| 9 | Enforced `verify:head` | `[x]` | `npm run verify:head` and `verify:head:browser` |
-| 10 | Docs reconciled with runtime | `[x]` | Architecture status-correction table; README current-runtime-facts table |
+|   # | Item                                     | Status | Evidence                                                                                                           |
+| --: | ---------------------------------------- | :----: | ------------------------------------------------------------------------------------------------------------------ |
+|   1 | P0: `publicState()` mutation             | `[x]`  | `selector-purity.test.ts`; guard proven by re-introducing the defect (2 fail / 3 pass), then removing it (5 pass)  |
+|   2 | Route passage through its command        | `[x]`  | `syncUnboundPassageFromCorridor()` uses `resolveUnboundPassageCommand()`; called from `stepGame()`, not a selector |
+|   3 | Rename `recovery` -> `salvage-retrieval` | `[x]`  | `mission-propositions.ts`; `fleet-recovery` reserved                                                               |
+|   4 | Pure `deriveFleetRecoveryAssessment()`   | `[x]`  | `fleet-recovery-assessment.ts`; 12 vertical tests                                                                  |
+|   5 | Weather -> actual traction               | `[x]`  | `MotionOptions.soilMoisture` into `stepGame()`; `weather-traction.test.ts`; `weather.ts` now reachable             |
+|   6 | Board/radial as projections              | `[-]`  | `publicState().fleetRecovery` projection landed and browser-verified; `radial-ui.ts` still holds local booleans    |
+|   7 | Authoritative command + event            | `[x]`  | `resolveFleetRecoveryCommand()` / `applyFleetRecovery()` / `performFleetRecovery()`                                |
+|   8 | Vertical browser acceptance              | `[x]`  | Live `?acceptance=field-02` chain, all cases, reload persistence, zero console errors                              |
+|   9 | Enforced `verify:head`                   | `[x]`  | `npm run verify:head` and `verify:head:browser`                                                                    |
+|  10 | Docs reconciled with runtime             | `[x]`  | Architecture status-correction table; README current-runtime-facts table                                           |
 
 ### Blocked on parallel work
 
@@ -1812,13 +1985,13 @@ has tests.
 
 ## Addendum (2026-07-28) — tranche items 2 and 3 closed; XP quarantined
 
-| Tranche item | Status | Evidence |
-| --- | :-: | --- |
-| 1. Reachability budget | `[x]` | Enforced, ratcheted 29 -> 28 -> 25 |
-| 2. The Pegboard | `[x]` | ADR-0035 validation; keyboard parity added, live confirmed, projections replace stored booleans |
-| 3. Tyre pressure + differential lock | `[x]` | `rig-tools.test.ts` (15 tests); both tradeoffs proven end-to-end; persists across reload |
-| 4. Stranded, Not Reset | `[x]` | Landed with the recovery vertical |
-| 5. `world-memory.ts` | `[ ]` | Last named item; highest supersession risk |
+| Tranche item                         | Status | Evidence                                                                                        |
+| ------------------------------------ | :----: | ----------------------------------------------------------------------------------------------- |
+| 1. Reachability budget               | `[x]`  | Enforced, ratcheted 29 -> 28 -> 25                                                              |
+| 2. The Pegboard                      | `[x]`  | ADR-0035 validation; keyboard parity added, live confirmed, projections replace stored booleans |
+| 3. Tyre pressure + differential lock | `[x]`  | `rig-tools.test.ts` (15 tests); both tradeoffs proven end-to-end; persists across reload        |
+| 4. Stranded, Not Reset               | `[x]`  | Landed with the recovery vertical                                                               |
+| 5. `world-memory.ts`                 | `[ ]`  | Last named item; highest supersession risk                                                      |
 
 ### New decision
 
@@ -1954,6 +2127,7 @@ However, the visible pause state still relies on `#current-prompt` text
 (`Paused.`) rather than a dedicated live-region announcement contract. The
 focus/recovery portion of the earlier review is closed, but the announcement
 surface itself remains an open browser-delivery item.
+
 ## Addendum (2026-07-28) — the workshop remains hidden on the current player surface
 
 A live probe of the player shell found `#workshop-panel` in the DOM, but it
@@ -2010,7 +2184,7 @@ A live browser probe of the pre-entry shell found:
 - `#welcome-panel` is a real modal gate with `role="dialog"` and
   `aria-modal="true"`.
 - `#bootstrap-status` is a polite status region that says `Measuring device
-  performance… Choose Enter the field to begin.`.
+performance… Choose Enter the field to begin.`.
 - there is no `progress` element or `role="progressbar"` in the current live
   shell.
 - `aria-busy` is not set on the bootstrap status region.
@@ -2101,7 +2275,6 @@ The next browser-delivery seam now has source-level coverage:
   role.
 
 Browser verification is now complete, so this is a closed evidence claim.
-
 
 ## Addendum (2026-07-28) — profile-status wording now resolves clearly across warmup and ready states
 
@@ -2290,7 +2463,6 @@ So the camera contract is already durable, but lighting still needs a stronger
 visible control story if we want the 3D shell to feel complete across input
 modes.
 
-
 ## Addendum (2026-07-29) - renderer diagnostics are visible, but not announced
 
 A fresh accessibility probe found one more split in the shell's 3D telemetry:
@@ -2394,7 +2566,6 @@ The remaining unproven seam is the map overlay trigger:
 So the modal contract is partly proven and partly still under observation. The
 named dialogs and radial sheet now show the intended focus behavior, while the
 map path needs a reliable live activation check before it can be called done.
-
 
 ## Addendum (2026-07-29) - pause now shows the modal focus contract too
 
@@ -2560,9 +2731,11 @@ Runtime verification is pending.
 - Impact displacement uses the existing debris calculation; clearing is a
   physical machine consequence, not a mission action. The incident is local and
   does not lock the wider terrain.
-- ADR-0046 records the proposed authority boundary. Source integration exists;
-  trigger, save/reload, collision, clearance, and visual runtime evidence remain
-  pending explicit verification.
+- ADR-0046 records the proposed authority boundary. Typecheck and the full
+  Vitest suite pass; isolated desktop runtime evidence now covers storm trigger
+  while the active rig is disabled, save/reload persistence, canonical boulder
+  collision, and physical tractor displacement. Clearance, visual prop refresh,
+  and terrain-bypass play evidence remain open.
 - Camera-obstruction queries now consume the same dynamic incident-obstacle
   projection as collision and rendering; browser evidence for camera avoidance
   remains pending.
@@ -2718,3 +2891,351 @@ review. `src/game/` remains untouched.
 Anything else? Yes: once this module passes, the same contract can be reused
 for the tow boom, winch, stabilizer, wheel, and beacon modules before the full
 utility tow rig is attempted.
+
+## Addendum (2026-07-29) -- field-plough reconstruction gate remains blocked
+
+The field-plough workbench has completed intake evidence but not reconstruction
+promotion. Probe, reference admission, detail inventory, and painted-steel PBR
+extraction passed; normal spec validation passed with warnings. Strict-quality
+still reports 12 errors in the embedded sculpt spec, so no procedural factory,
+GLB, runtime adapter, or public approval was created.
+
+The closure criteria are explicit: embed the mapped details, replace generic
+feature targets, author the macro/meso/micro hierarchy, add independent material
+layers/local overrides and lighting entries, add the repeated-share system and
+root material recipe, reach four viewpoints, then rerun normal and strict
+validation before code generation.
+
+Anything else? Yes: this is the first durable evidence that the object-first
+catalog is enforcing quality rather than multiplying unreviewed placeholders.
+
+## Addendum (2026-07-29) -- canonical semantic asset definition established
+
+The field-plough package now has a canonical definition at
+`assets/specs/field-plough-01.asset.json`, governed by ADR-0047. It is the
+source of truth for asset semantics; image references, img2threejs specs, PBR
+maps, factories, GLBs, and runtime adapters are derived stages.
+
+Manifest preflight now validates linked canonical specs and the asset test suite
+includes a structural grounding check. The field-plough remains blocked at
+strict img2threejs quality and has no runtime promotion. This is an additive
+architecture change with no `src/game/` edits.
+
+Anything else? Yes: future families must add their canonical definitions before
+the catalog multiplies derived outputs.
+
+## Addendum (2026-07-29) -- derived blockout factory now exists
+
+The field-plough canonical definition now compiles into a strict-quality-passing
+img2threejs spec through `tools/derive-img2threejs-spec.mjs`. The current
+blockout factory is at `assets/workbench/field-plough-01/generated/` and passes
+isolated TypeScript compilation.
+
+Remaining gates are browser render/comparison review, multi-angle visual
+acceptance, action/collision separation review, factory-to-GLB packaging, and
+runtime admission. The factory is still a derived workbench artifact.
+
+Anything else? Yes: this is the first asset that has crossed from reference
+image to canonical definition to validated procedural source, with the rest of
+the production chain explicitly visible.
+
+## Addendum (2026-07-29) -- reproducibility and repository health closure
+
+The field-plough compiler lane now has a package-level rebuild command at
+`assets:derive-field-plough`, plus an asset regression that checks the derived
+spec and generated blockout factory remain present and linked to the canonical
+definition. Asset preflight and asset tests pass (`11/11`), both img2threejs
+spec gates pass with zero errors and warnings, and the factory compiles in
+isolation.
+
+The repository-wide typecheck passed and the current full Vitest run passed
+(`80` files, `497` tests). The asset lane did not edit `src/game/`; parallel
+runtime work remains separate. Visual/multi-angle review, factory-to-GLB
+packaging, collision review, and runtime admission remain explicit open gates.
+
+## Addendum (2026-07-29) -- open-world procedural candidate availability
+
+The field-plough lane now records a `procedural-candidate` lifecycle. The
+candidate factory and browser review harness are available for development and
+open-world exploration. Refinement, optional GLB delivery, runtime adapter
+integration, simulation-owned collision, and public provenance are tracked as
+separate evidence and ownership work, rather than being combined into an
+agent-imposed stop condition. The canonical spec, schema, preflight, README,
+ADR-0047, and asset regression now encode this distinction.
+
+## Addendum (2026-07-29) -- open-world settlement contribution stage
+
+`ADR-0049` introduces a save-owned, bounded contribution history for community
+responses. The first proof makes Long Furrow support genuinely partial: physical
+plough cuts can improve field capacity, while tow work can protect stores. Both
+remain voluntary, capability-specific, and non-gating. Rustline, Sunken Flats,
+Marsh Depot, and Launch Ridge have response definitions ready for the same
+projection model.
+
+Current evidence includes `npm run typecheck` and the full Vitest suite: `84`
+test files and `506` tests passed. Browser playtests, physical props for every
+response, longer-lived resident knowledge, and migration away from legacy
+`settlementOutcomeId` campaign contracts remain open.
+
+## Addendum (2026-07-29) -- runtime contribution proof and visible consequences
+
+The canonical browser surface at `4173` now proves the actual Long Furrow tow
+response through the normal runtime command path: favor becomes `1`, Stores
+exchange opens, Field exchange remains sheltered, the plough response remains
+available, no mission is accepted, and no application console error appears.
+
+Response history now projects grounded, authored consequence props. This is
+renderer-only evidence of simulation-owned history, never another source of
+world state. The next evidence is a human visual review of the changed prop and
+resident arrangement, followed by delayed/ignored consequence behavior and the
+legacy campaign-outcome migration.
+
+## Addendum (2026-07-29) -- after-dark settlement rhythm proof
+
+At the canonical browser's observed night boundary (`worldMinuteOfDay: 1366.6`),
+Long Furrow entered `after-dark`: the unpressured Stores exchange became
+`off-shift`, its seed keeper rested, and waterlogged field work remained
+sheltered. No mission or side mission was created, and the browser console was
+clean. The clock therefore changes social presentation and ordinary service
+rhythm, not player permission or a failure deadline.
+
+## Addendum (2026-07-29) -- Sunken causeway now derives from a shipment material fact
+
+The terrain-owned Sunken Flats causeway no longer derives from the legacy
+`sunken-flats-causeway` mission completion alone. A separate physical Home
+Silo stock bay loads a causeway kit into the existing crate, and its voluntary
+delivery records `sunken-flats:raised-causeway`. That material fact alone
+derives the raised terrain route, its deck, and Sunken Flats connection state.
+The surrounding marsh remains traversable without it. Cargo manifest ownership
+is now schema v26; the current canonical browser migrated its v25 history
+cleanly with no mission or cargo assignment created. Typecheck, the kernel
+probe, and all 86 files/522 tests passed. A dedicated disposable-save shipment
+playthrough remains open. See
+`docs/reviews/OPEN_WORLD_SUNKEN_CAUSEWAY_MATERIAL_EVIDENCE_2026-07-29.md`.
+
+## Addendum (2026-07-29) -- Rustline service stock now proves the first material-first migration
+
+Rustline repair capacity no longer depends on directly writing `condition:
+supplied` from mission completion. A player who knows Rustline can voluntarily
+load the existing physical crate at Home Silo, tow it to the real yard, and
+record `rustline-salvage:service-stocked`. The same material fact is added when
+the legacy `rustline-parts-run` outcome recovers or completes, preserving old
+history without retaining a second authority. The cargo, collision, and
+primary-command systems remain canonical; there is no new quest system,
+mission requirement, discovery change, or route permission. Typecheck, the
+kernel probe, and the 86-file/520-test suite passed. Browser proof remains
+open on a dedicated prepared save. See
+`docs/reviews/OPEN_WORLD_RUSTLINE_MATERIAL_EXCHANGE_EVIDENCE_2026-07-29.md`.
+
+## Addendum (2026-07-29) -- legacy mission authority is now an explicit open-world migration target
+
+The current source has two conflicting settlement paths: material effects drive
+newer service and resident projections, while legacy `settlementOutcomeId`
+mission completion still directly changes settlement condition, favor,
+passages, and repair capacity. ADR-0050 records a proposed material-first
+supersession: Rustline's physical service stock becomes the first migration,
+with optional missions retained only as narrative framing during compatibility.
+No operator acceptance is claimed. See
+`docs/decisions/ADR-0050-material-first-settlement-authority-migration.md`.
+
+## Addendum (2026-07-29) -- material facts now produce visible, non-gating community traffic
+
+The settlement-life material-effect registry now carries two optional,
+presentation-only traffic affordances: a Sunken Flats sounding can support a
+small skiff toward Marsh Depot, and a marked Rustline bypass can support a
+freight cart toward Quarry Shelf. `community-traffic.ts` derives position from
+saved material history plus the canonical world clock; it introduces no route
+permission, discovery, task, collision, AI authority, or mutable traffic
+state. `state.ts` exposes the result, while `renderer.ts` only places the
+corresponding low-detail mesh. Typecheck, the deterministic-kernel probe, the
+full 85-file/515-test suite, and a clean canonical browser reload on port 4173
+all passed. The browser preserved a sounded-crossing skiff with no active
+mission or side mission. See
+`docs/reviews/OPEN_WORLD_COMMUNITY_TRAFFIC_EVIDENCE_2026-07-29.md`.
+
+## Addendum (2026-07-29) -- Sunken causeway carries local machine knowledge, not a defined flow
+
+The Sunken causeway delivery proof exposed that a ground tractor correctly
+disables in the flooded destination. The content correction does not exempt the
+tractor or introduce a hand-authored transfer sequence: the existing Marsh
+Skimmer already combines `tow` with `hover`, so it can take the existing crate
+across standing water through the canonical physics and cargo paths. The
+causeway manifest now tells the player this practical fact after loading while
+remaining voluntary and usable as ordinary cargo.
+
+The result is a machine-driven possibility, not a task gate. The player can
+ignore, stage, or move the kit by different means; the shared crossing appears
+only after real delivery and remains a safer route rather than a permission
+wall. `npm run typecheck && npx vitest run` passed with 86 files and 523 tests.
+Dedicated disposable-save browser proof remains open; the existing player save
+is preserved. See
+`docs/reviews/OPEN_WORLD_SUNKEN_CAUSEWAY_MATERIAL_EVIDENCE_2026-07-29.md`.
+
+## Addendum (2026-07-29) -- spatial settlement interaction correction
+
+Settlement contribution authority now requires a relevant machine at a
+specific local material affordance rather than choosing a response from the
+whole settlement radius. Targeted coverage must prove both rejection away from
+the affordance and acceptance at it, while preserving the existing no-mission,
+no-route-unlock contract.
+
+## Addendum (2026-07-29) -- field-plough visual reconstruction correction
+
+The original generated field-plough preview failed controlled comparison. It
+did not preserve the reference's four independent shares, three-point hitch
+structure, hydraulic load path, or mechanical attachment hierarchy. It is now
+retained only as compiler evidence.
+
+The canonical development visual is
+`assets/workbench/field-plough-01/authored/createFieldPloughModel.ts`. It
+contains four named, depth-staggered share units, curved handed moldboards,
+cutting points, clamps, pins, a crossbeam, triangulated top-link frame, lower
+hitches, hydraulic assembly, and explicit sockets. Raw WebGL canvas captures,
+multi-angle views, the latest controlled comparison, and a machine-readable
+review are under `assets/workbench/field-plough-01/review/`.
+
+The honest current classification is development-ready procedural blockout,
+not photoreal production art. Independent audit scores are `6/10` for
+development blockout utility, `3.5/10` for reference-faithful production use,
+and `2/10` for photoreal use. The next highest-value work is stronger
+helicoidal moldboards, integrated cutting shares, credible linkage and clamp
+geometry, bevelled fabricated edges, and layered PBR wear. These are refinement
+work items, not reasons to suppress development availability.
+
+## Addendum (2026-07-29) -- img2threejs governing workflow correction
+
+The earlier field-plough work used individual img2threejs scripts but did not
+follow the `img2threejs` skill as the governing locked-pass workflow. That was
+incorrect. The complete skill is now loaded and its required state is recorded
+in the repository.
+
+The skill-driven audit found that the original spec's phrase `curved profile
+extrude` was too weak to prevent symmetric paddle-like shares, the reference
+camera remained unsolved, the repeated-share critical feature was not gated at
+blockout, and the derivation script erased review history. The canonical
+definition and derivation path now require four handed helicoidal moldboards,
+integrated forward cutting shares, depth staggering, camera occupancy and
+silhouette targets, and preserved review evidence.
+
+The refined spec passes normal and strict validation with zero errors and
+warnings. The generated current-pass factory compiles. The locked pipeline
+nevertheless remains at `blockout`: Tier 1 reports silhouette IoU `0.470 <
+0.85` and aspect-ratio delta `0.1001 > 0.05`; scale delta now passes at `0.0611
+<= 0.08`. Divine Eye returns `probe` at `0.714` with reconstruction mode
+suspected, and the multi-angle degeneration check passes. The skill-owned
+review history records `refine-spec` followed by `refine-code`. No later pass
+is unlocked.
+
+## Addendum (2026-07-29) -- living-frontier presentation now has place ownership
+
+The habitat layer remains derived-only and non-gating, but its renderer no
+longer creates fauna around the active rig. `GameWorld` now exposes fixed
+terrain-cell patches whose environmental result and visual placement belong to
+world coordinates. The renderer selects only nearby cells for streaming. This
+preserves deterministic environmental cause without converting it into a
+player-directed flow, mission, route gate, or ecological side system. Focused
+world coverage proves a shared patch keeps its identity and coordinates while
+the player changes observation position. General machine-noise disturbance is
+explicitly deferred until it has a clear simulation owner and playtest proof.
+
+## Addendum (2026-07-29) -- ecology becomes a persistent world actor
+
+The living-frontier path no longer stops at deterministic ambient fauna. The
+first runtime stage stores autonomous regional ecology groups in `GameWorld`
+world memory, advances them from the shared environmental clock, and lets
+machine-altered land affect their migration and population. Grazing creates a
+small but real change to vegetation, roots, and soil health through the
+canonical field-condition cells. The renderer mirrors groups rather than
+spawning wildlife around the active rig. No task acceptance, route permission,
+reward loop, or defined response was added. ADR-0051 is Proposed pending
+operator sign-off; focused simulation and desktop runtime verification remain
+open.
+
+## Addendum (2026-07-29) -- field-plough becomes a customizable developer part
+
+The previous placeholder-only posture was insufficient for a customizable rig
+system. The authored field-plough factory now exposes 3-share and 4-share
+variants, normalized wear and paint controls, stable attachment sockets,
+replaceable share and cutting-edge sockets, and material-slot metadata. The
+part package contract is
+`assets/workbench/field-plough-01/package/field-plough-01.part-package.json`.
+
+The authored factory was exported through the canonical browser harness and
+Three `GLTFExporter` into `assets/runtime/field-plough-01.glb`. The derivative
+is retained as a repo-local developer derivative pending the parallel-owned
+runtime lane, has 78 nodes, 60 meshes, 22 materials, zero GLB preflight findings,
+and digest
+`fa3681d96758b4808d84061858dd999b79dcc58307f574d2bf248896f356dc20`.
+
+This establishes the reusable part seam without falsifying visual readiness:
+the img2threejs Tier 1 silhouette gate remains below threshold, so public
+approval, hero reference fidelity, and simulation collision authority remain
+closed. `src/game/` was not edited because its runtime ownership is parallel.
+
+## Addendum (2026-07-29) -- persistent ecology has focused runtime evidence
+
+The first ecology stage now has source, focused simulation, and isolated
+browser evidence. Regional actor state persists through world memory; field
+impact and recovery tests pass; a live survey-camera observation shows the
+Long Furrow herd beside a player-controlled Skimmer with no mission or side
+mission. `npm run typecheck` and 6 focused ecology/habitat tests pass. The
+reusable `npm run test:ecology-browser` passes with zero browser errors. A
+known unrelated full-suite failure remains in the parallel field-plough
+runtime-asset expectation (524/525 total), preserved outside this lane.
+
+## Addendum (2026-07-29) -- machine presence produces voluntary ecology response
+
+Ecology is now bidirectional at the player-vehicle boundary. Speed and slip
+write a bounded decaying disturbance into canonical world memory; nearby groups
+relocate, while weather and time let the system recover. Browser acceptance
+proved a real Skimmer encounter displaced the Long Furrow herd `27.93m` after
+`34.62m` of normal fixed-step movement, retained full rig condition, and
+created no mission or side mission. Focused TypeScript and simulation checks
+pass. The unrelated parallel runtime-assets full-suite expectation remains the
+only known broad-suite failure.
+
+## 2026-07-29 addendum: Ecology is socially legible, not task-shaped
+
+Long Furrow, Sunken Flats, and Rustline field notes now derive from the shared
+persistent ecology actors. The notes report local observation only: they create
+no mission, acceptance flow, route gate, or expected machine response.
+
+- Ecology acceptance, 2026-07-29: Typecheck and four targeted ecology tests
+  pass. Canonical-browser evidence confirms a moving Skimmer displaces the
+  herd while no mission exists. Resident notes now expose this as local
+  knowledge only; the broad-suite asset fixture mismatch remains separately
+  preserved.
+
+## Addendum (2026-07-29): Sunken Flats is regional infrastructure
+
+ADR-0052 proposes the current canonical identity: `sunken-flats-waterworks`.
+The former Floodgate singleton is recovery-only historical input. The
+infrastructure keeps its independent weather, condition, and spatial hydrology
+authority; it no longer frames the place as one named objective. Targeted
+migration, source, and browser evidence are required before runtime completion
+claims.
+
+- Sunken Flats Waterworks evidence, 2026-07-29: canonical identity, legacy
+  entity recovery, spatial hydrology, optional inspection, reload persistence,
+  and visible regional assembly are verified by typecheck, six focused tests,
+  and the 4173 browser route. Final art, collision, and multi-capability service
+  remain intentionally open rather than implied by this proof.
+
+## Addendum (2026-07-29): game visuals discovery is complete, implementation awaits approval
+
+The existing-project visual prompt has been applied through Part 0. The
+project-specific discovery and approval package is
+`docs/reviews/GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md`.
+It reconstructs the current Patchwork Atlas direction, renderer and asset
+ownership, visual, performance, and readability gaps, and a bounded execution
+brief.
+
+The recommended first slice is a Sunken Flats / Marsh Depot before-and-after
+visual consequence plus one traceable source-to-runtime asset representation
+chain. This remains proposed. No implementation files were changed by the
+discovery pass, and `src/game/` remains protected until the operator explicitly
+clears the current parallel runtime ownership boundary.
+
+Anything else? Yes. The package records that visual polish must be judged by
+machine capability, place consequence, voluntary possibility, fallback
+readability, and provenance, not by screenshot novelty alone.

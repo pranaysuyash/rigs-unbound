@@ -41,19 +41,31 @@
   "sourceImage": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
   "referenceCamera": {
     "solved": false,
-    "fovDegrees": 40.0,
-    "aspect": 1.0,
+    "method": "heuristic default-guess camera, not solved from image content; image dimensions give an exact aspect ratio, everything else is a starting point for agent refinement",
+    "fovDegrees": 32,
+    "aspect": 1.5,
     "orientation": {
-      "yaw": 0.0,
-      "pitch": 0.0,
-      "roll": 0.0
+      "yaw": -24,
+      "pitch": 10,
+      "roll": 0
     },
     "positionHint": [
-      0.0,
-      0.0,
-      3.0
+      0,
+      0,
+      8
     ],
-    "note": "For likeness work, solve the reference camera (forge/stage1_intake/solve_camera_pose.py) so the review render aligns with the photo and the reference can be projected. Confirm by overlay review."
+    "confidence": 0.35,
+    "agentFill": {
+      "orientation": true,
+      "framing": true
+    },
+    "silhouetteAlignmentTargets": {
+      "subjectOccupancy": "match reference crop before geometry acceptance",
+      "scaleDeltaMax": 0.08,
+      "aspectRatioDeltaMax": 0.05,
+      "silhouetteIoUMin": 0.85
+    },
+    "note": "Heuristic starting camera only. The blockout remains refine-spec until overlay review aligns the crop, scale, and identity landmarks."
   },
   "suitability": "conditional",
   "scores": {
@@ -67,38 +79,38 @@
   },
   "preSpecAssessment": {
     "objectClass": {
-      "primaryType": "agricultural plough implement",
+      "primaryType": "object",
       "primaryDomain": "object",
       "formLanguage": [
-        "assembled hard-surface",
-        "worn fabricated steel",
-        "repeated blade modules"
+        "hard-surface",
+        "mechanical",
+        "agricultural"
       ],
       "structureKind": [
-        "three-point hitch frame",
-        "repeated mouldboard shares",
-        "central hydraulic linkage"
+        "compound object",
+        "articulated assembly",
+        "repeated modules"
       ],
       "motionPotential": [
-        "raised/lowered linkage",
-        "hydraulic ram extension",
-        "share penetration/deployment"
+        "articulated",
+        "detachable",
+        "whole-object transform"
       ],
       "materialFamilies": [
-        "painted aged steel",
-        "abraded cutting steel",
-        "dark oxidized hardware",
-        "soil-stained metal"
+        "painted metal",
+        "bare metal",
+        "rust",
+        "soil-like residue"
       ],
-      "notes": "Single isolated three-quarter reference. The front frame, hydraulic linkage, four repeated mouldboard shares, fasteners, and soil-contact edges are visible; hidden rear and underside geometry remain inferred."
+      "notes": "Derived from canonical field-plough asset definition and isolated reference."
     },
     "complexity": {
       "tier": "complex",
       "scores": {
-        "silhouetteComplexity": 3,
+        "silhouetteComplexity": 2,
         "componentCount": 3,
         "hierarchyDepth": 3,
-        "repetitionDensity": 3,
+        "repetitionDensity": 2,
         "materialLayerCount": 3,
         "localDetailDensity": 3,
         "occlusionRisk": 2,
@@ -107,14 +119,12 @@
       "estimatedCounts": {
         "macroComponents": 3,
         "mesoComponents": 8,
-        "microFeatureGroups": 12,
+        "microFeatureGroups": 5,
         "materialLayers": 4,
-        "repetitionSystems": 1
+        "repetitionSystems": 2
       },
       "reasoning": [
-        "The silhouette is dominated by a rectangular cross-beam, three-point hitch tower, hydraulic ram, and four repeated curved mouldboard shares.",
-        "Bolted hinge plates, repeated share fasteners, chamfered cutting edges, weld seams, rust patches, and soil residue require explicit meso/micro and material-local systems.",
-        "The implement must remain action-ready for raised/lowered linkage, hydraulic extension, attachment sockets, and separate visual/collider roles."
+        "Wide attachment frame, hydraulic actuator, repeated shares, fasteners, and localized wear require a deep action-ready hierarchy."
       ]
     },
     "specDepthDecision": {
@@ -132,34 +142,294 @@
     },
     "unknownsToResolveBeforeImplementation": [],
     "detailInventory": {
-      "scanMethod": "component-zones",
+      "scanMethod": "grid-3x3",
       "targetMinDetails": 10,
-      "note": "Enumerate every identity-defining small detail before authoring the spec. Each detail must map to a component.localFeatures entry or material.localOverrides entry, never prose only. Use forge/stage1_intake/build_detail_inventory.py to scan zones.",
-      "details": []
+      "details": [
+        {
+          "id": "cross-beam-edge-bevel",
+          "kind": "bevel",
+          "description": "The long rectangular cross-beam has chamfered upper and lower edges that catch the light across the rusted paint.",
+          "region": {
+            "x": 0.06,
+            "y": 0.31,
+            "width": 0.88,
+            "height": 0.31,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "cross-beam",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "cross-beam"
+          },
+          "evidenceRef": "assets/workbench/field-plough-01/detail-zones/zone-r1c1.png",
+          "confidence": 0.92
+        },
+        {
+          "id": "top-link-pivot-bolts",
+          "kind": "fastener",
+          "description": "Paired circular bolt heads and dark hinge barrels anchor the top-link plates at the highest point.",
+          "region": {
+            "x": 0.35,
+            "y": 0.08,
+            "width": 0.29,
+            "height": 0.25,
+            "units": "normalized"
+          },
+          "scale": "micro",
+          "affects": "top-link",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "attachment-frame"
+          },
+          "evidenceRef": "assets/workbench/field-plough-01/detail-zones/zone-r0c1.png",
+          "confidence": 0.91
+        },
+        {
+          "id": "lift-arm-weld-seams",
+          "kind": "seam",
+          "description": "Two diagonal lift arms meet the top linkage with visible dark weld seams and overlapping plates.",
+          "region": {
+            "x": 0.27,
+            "y": 0.18,
+            "width": 0.49,
+            "height": 0.37,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "left-lift-arm/right-lift-arm",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-steel"
+          },
+          "evidenceRef": "detail-zones/zone-r0c1.png",
+          "confidence": 0.84
+        },
+        {
+          "id": "hydraulic-ram-barrel-seam",
+          "kind": "groove",
+          "description": "The central vertical hydraulic ram reads as a dark cylindrical barrel with a collar seam and exposed polished rod.",
+          "region": {
+            "x": 0.42,
+            "y": 0.23,
+            "width": 0.17,
+            "height": 0.36,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "hydraulic-ram",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "hydraulic-ram"
+          },
+          "evidenceRef": "detail-zones/zone-r1c1.png",
+          "confidence": 0.9
+        },
+        {
+          "id": "share-repeat-count",
+          "kind": "contour",
+          "description": "Four repeated mouldboard shares create the dominant lower rhythm, each with a consistent curved outer contour.",
+          "region": {
+            "x": 0.08,
+            "y": 0.45,
+            "width": 0.84,
+            "height": 0.42,
+            "units": "normalized"
+          },
+          "scale": "macro",
+          "affects": "share-array",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "share-assembly"
+          },
+          "evidenceRef": "detail-zones/zone-r1c1.png",
+          "confidence": 0.96
+        },
+        {
+          "id": "share-bolt-pairs",
+          "kind": "fastener",
+          "description": "Small paired bolt heads repeat on each mouldboard side plate where the share meets its support.",
+          "region": {
+            "x": 0.11,
+            "y": 0.52,
+            "width": 0.79,
+            "height": 0.29,
+            "units": "normalized"
+          },
+          "scale": "micro",
+          "affects": "share-array",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "share-assembly"
+          },
+          "evidenceRef": "detail-zones/zone-r2c1.png",
+          "confidence": 0.88
+        },
+        {
+          "id": "cutting-edge-gloss",
+          "kind": "gloss",
+          "description": "The exposed triangular cutting edges are brighter and lower-roughness than the dark mouldboard paint.",
+          "region": {
+            "x": 0.08,
+            "y": 0.66,
+            "width": 0.84,
+            "height": 0.22,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "soil-edge",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-steel"
+          },
+          "evidenceRef": "detail-zones/zone-r2c1.png",
+          "confidence": 0.93
+        },
+        {
+          "id": "mouldboard-rust-patina",
+          "kind": "stain",
+          "description": "Orange-brown oxidation collects in broad irregular patches across the lower mouldboards and beam corners.",
+          "region": {
+            "x": 0.09,
+            "y": 0.47,
+            "width": 0.83,
+            "height": 0.34,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "painted-steel",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-steel"
+          },
+          "evidenceRef": "detail-zones/zone-r2c0.png",
+          "confidence": 0.9
+        },
+        {
+          "id": "soil-contact-residue",
+          "kind": "stain",
+          "description": "Dark brown soil residue clings to the lower share transitions and collects beneath the mouldboards.",
+          "region": {
+            "x": 0.12,
+            "y": 0.71,
+            "width": 0.75,
+            "height": 0.18,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "soil-edge",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "share-assembly"
+          },
+          "evidenceRef": "detail-zones/zone-r2c2.png",
+          "confidence": 0.88
+        },
+        {
+          "id": "beam-edge-chips",
+          "kind": "chip",
+          "description": "Bright steel-colored chips break the paint along the cross-beam corners and hitch brackets.",
+          "region": {
+            "x": 0.08,
+            "y": 0.32,
+            "width": 0.86,
+            "height": 0.25,
+            "units": "normalized"
+          },
+          "scale": "micro",
+          "affects": "painted-steel",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-steel"
+          },
+          "evidenceRef": "detail-zones/zone-r1c2.png",
+          "confidence": 0.82
+        },
+        {
+          "id": "hardware-head-gloss",
+          "kind": "gloss",
+          "description": "Hitch and hinge bolt heads carry small bright highlights against the darker oxidized plates.",
+          "region": {
+            "x": 0.22,
+            "y": 0.28,
+            "width": 0.56,
+            "height": 0.33,
+            "units": "normalized"
+          },
+          "scale": "micro",
+          "affects": "hardware",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "root"
+          },
+          "evidenceRef": "detail-zones/zone-r1c0.png",
+          "confidence": 0.86
+        },
+        {
+          "id": "share-side-scratches",
+          "kind": "scratch",
+          "description": "Fine directional scratches follow the travel direction on the dark side plates and cutting edges.",
+          "region": {
+            "x": 0.12,
+            "y": 0.53,
+            "width": 0.76,
+            "height": 0.27,
+            "units": "normalized"
+          },
+          "scale": "micro",
+          "affects": "cutting-steel",
+          "mapsTo": {
+            "type": "material.localOverrides",
+            "ref": "painted-steel"
+          },
+          "evidenceRef": "detail-zones/zone-r2c0.png",
+          "confidence": 0.79
+        },
+        {
+          "id": "hitch-socket-openings",
+          "kind": "hole",
+          "description": "The upper and lower hitch plates terminate in visible circular openings for tractor-side attachment pins.",
+          "region": {
+            "x": 0.35,
+            "y": 0.08,
+            "width": 0.31,
+            "height": 0.42,
+            "units": "normalized"
+          },
+          "scale": "meso",
+          "affects": "left-hitch/right-hitch",
+          "mapsTo": {
+            "type": "component.localFeatures",
+            "ref": "attachment-frame"
+          },
+          "evidenceRef": "detail-zones/zone-r0c1.png",
+          "confidence": 0.9
+        }
+      ]
     },
     "anatomy": {
       "applies": false,
-      "styleHeads": 0.0,
+      "styleHeads": 0,
       "proportions": {
-        "headUnit": 0.0,
-        "torso": 0.0,
-        "legs": 0.0,
-        "shoulderWidth": 0.0,
-        "hipWidth": 0.0
+        "headUnit": 0,
+        "torso": 0,
+        "legs": 0,
+        "shoulderWidth": 0,
+        "hipWidth": 0
       },
       "pose": {
         "type": "unassessed",
         "jointAngles": {}
       },
       "faceLandmarks": {
-        "eyeLine": 0.0,
-        "eyeSpacing": 0.0,
-        "noseBase": 0.0,
-        "mouthLine": 0.0,
-        "hairline": 0.0
+        "eyeLine": 0,
+        "eyeSpacing": 0,
+        "noseBase": 0,
+        "mouthLine": 0,
+        "hairline": 0
       },
       "features": [],
-      "confidence": 0.0,
+      "confidence": 0,
       "note": "Only meaningful when objectClass.primaryDomain is character or hybrid. Set applies=true and fill from forge/stage1_intake/extract_landmarks.py. See grimoire/character/reconstruction.md and grimoire/character/likeness_maximization.md."
     },
     "sourceImage": "assets/generated/field-plough-01-object-reference-2026-07-29.png"
@@ -167,126 +437,90 @@
   "qualityContract": {
     "qualityBar": "complex",
     "definitionOfDone": [
-      "The rendered model matches the reference silhouette, primary proportions, visible component hierarchy, material response, and most recognizable local features for the selected fidelity tier."
+      "The field-plough reads as the observed attachment frame, hydraulic actuator, repeated share system, cutting edges, and worn-soil material assembly from all required review viewpoints."
     ],
     "minimumSpecDepth": {
       "macroComponents": 3,
       "mesoComponents": 8,
       "microFeatureGroups": 5,
-      "materialLayers": 3,
+      "materialLayers": 4,
       "repetitionSystems": 1,
       "reviewViewpoints": 4
     },
     "featureGroups": [
       {
-        "id": "overall-silhouette",
-        "name": "Overall silhouette and proportions",
+        "id": "attachment-system",
+        "name": "Three-point attachment and pivot system",
         "required": true,
         "qualityCriteria": [
-          "Bounding shape, dominant curves, negative spaces, and scale relationships are explicitly described."
+          "Top link, lower hitch points, pins, and sockets remain separately addressable and physically connected."
         ],
         "evidenceRefs": [
-          "full-object"
+          "primary-reference"
         ],
         "failureModes": [
-          "model reads as a generic placeholder instead of the reference object",
-          "major proportions are guessed without evidence"
+          "floating hitch, merged attachment, or missing socket"
         ]
       },
       {
-        "id": "primary-structure",
-        "name": "Primary structure and hierarchy",
+        "id": "share-system",
+        "name": "Repeated share and cutting-edge system",
         "required": true,
         "qualityCriteria": [
-          "Major parts, joints, seams, contact points, and parent-child relationships are named before code generation."
+          "Exactly four depth-staggered share assemblies preserve the observed lower rhythm.",
+          "Each moldboard is a handed helicoidal shell with a narrow standard connection, broader swept trailing edge, concave soil-turning face, and consistent soil-throw direction.",
+          "Each narrow forward-projecting cutting share transitions continuously into its moldboard lower edge without a detached centered triangle."
         ],
         "evidenceRefs": [
-          "full-object"
+          "primary-reference"
         ],
         "failureModes": [
-          "large visible parts are merged into one mesh",
-          "component hierarchy is too shallow for the observed complexity"
+          "generic blade bar or wrong repetition count",
+          "bilaterally symmetric paddle moldboards",
+          "flat plates without longitudinal twist",
+          "detached centered cutting triangles",
+          "four identical ornaments suspended without depth staggering or load paths"
         ]
       },
       {
-        "id": "attachment-joint-correctness",
-        "name": "Attachment and joint correctness",
+        "id": "worn-material-system",
+        "name": "Worn painted steel, exposed metal, rust, and soil",
         "required": true,
         "qualityCriteria": [
-          "Every visible child appendage, branch, limb, handle, connector, tube, cable, horn, wing, leg, or hinged part has an attachment contract with parent socket, localStart/localEnd, contact type, embed/overlap, and gap tolerance."
+          "Independent PBR response and localized wear remain readable under neutral and grazing light."
         ],
         "evidenceRefs": [
-          "full-object"
+          "painted-steel-pbr",
+          "primary-reference"
         ],
         "failureModes": [
-          "child part root floats away from the parent",
-          "branch/limb/tube is centered in space instead of pivoting from its root",
-          "parent-child transform mixes world and local coordinates"
-        ]
-      },
-      {
-        "id": "surface-material-response",
-        "name": "Surface material response",
-        "required": true,
-        "qualityCriteria": [
-          "Albedo zones, roughness, normal/bump/displacement intent, cavity dirt, edge wear, and local overrides are specified where visible.",
-          "Important materials define independent albedo, roughness, height/normal, and AO responses instead of reusing one texture for unrelated PBR channels.",
-          "Surface response is decomposed into macro, meso, and micro frequency bands with scale and amplitude tied to object scale."
-        ],
-        "evidenceRefs": [
-          "full-object"
-        ],
-        "failureModes": [
-          "surface looks like flat plastic",
-          "local material variation is missing or not tied to image evidence"
-        ]
-      },
-      {
-        "id": "reference-lookdev",
-        "name": "Reference color, material, and lighting response",
-        "required": true,
-        "qualityCriteria": [
-          "Material-pass names the reference-derived albedo palette, roughness variation, tactile normal/bump/displacement response, and local masks.",
-          "When a source image is available, run reference PBR extraction and require confidence >= 0.7 before treating maps as implementation-ready.",
-          "Lighting-pass names key/fill/rim or environment light, exposure, tone mapping, background, and contact shadow behavior.",
-          "Neutral, grazing-angle, and reference-matched renders prove that surface relief survives relighting and is not painted into albedo."
-        ],
-        "evidenceRefs": [
-          "full-object"
-        ],
-        "failureModes": [
-          "model has acceptable shape but reads as flat shaded or plastic",
-          "colors are a generic average instead of reference-observed local color zones",
-          "lighting is evenly ambient and cannot reproduce the source value range"
+          "flat plastic material or globally painted grime"
         ]
       }
     ],
     "visualDeltaChecks": [
-      "silhouette and negative-space delta",
-      "component hierarchy depth delta",
-      "repetition density and distribution delta",
-      "material albedo/roughness/normal response delta",
-      "local feature placement and scale delta"
+      "attachment silhouette and negative space",
+      "share count and spacing",
+      "handed helicoidal moldboard profile and twist",
+      "integrated cutting-share transition",
+      "reference-camera crop, subject occupancy, and landmark alignment",
+      "hydraulic endpoint alignment",
+      "independent material response",
+      "soil-contact and wear locality"
     ],
     "antiShallowSpecRules": [
-      "Do not proceed to code if qualityContract.qualityBar is unassessed.",
-      "Do not proceed to code if the spec only contains a root component for a moderate or complex object.",
-      "Do not proceed to code if required featureGroups are not represented by componentTree, materials, or repetitionSystems.",
-      "Do not proceed to code if visible local features are described only in prose and not attached to components/materials/evidenceRefs.",
-      "Do not proceed past structural-pass if attached child parts lack attachment.parentSocket, localStart, localEnd, embedDepth/overlap, and gapTolerance.",
-      "Do not pass material look-dev when albedo is reused as roughness, height, normal, or AO.",
-      "Do not pass material look-dev without macro, meso, and micro surface frequency bands for close-up materials.",
-      "Do not pass reference-fidelity material look-dev from a source image without usable referencePbr maps or an explicit documented limitation.",
-      "Do not patch a spec with extracted PBR maps when extraction confidence is below the target threshold unless the user explicitly accepts lower fidelity."
+      "Every image-derived detail must map to a component or material override.",
+      "No factory generation before strict validation."
     ]
   },
   "qualityTargets": {
     "targetFidelity": 0.7,
     "mustMatch": [
-      "macro silhouette and proportions",
-      "primary material albedo/roughness response",
-      "reference-derived PBR material response at or above 0.7 confidence when source pixels are usable",
-      "most recognizable local features"
+      "attachment silhouette and sockets",
+      "repeated share system",
+      "hydraulic pivot",
+      "independent painted-steel PBR response",
+      "soil and wear locality"
     ],
     "niceToHave": [
       "micro scratches, stains, chips, and dirt masks",
@@ -294,9 +528,10 @@
     ],
     "fpsTarget": 60,
     "reviewViewpoints": [
-      "front",
-      "three-quarter",
-      "side"
+      "front-three-quarter",
+      "rear-three-quarter",
+      "side",
+      "underside-attachment-close-up"
     ]
   },
   "selfCorrectLoop": {
@@ -381,8 +616,8 @@
   },
   "featureReviewTargets": [
     {
-      "id": "overall-silhouette",
-      "name": "Overall silhouette and proportion system",
+      "id": "field-plough-silhouette",
+      "name": "Field plough silhouette and negative-space system",
       "tier": "critical",
       "passIds": [
         "blockout"
@@ -390,15 +625,39 @@
       "minimumScore": 0.8,
       "mustPass": true,
       "componentRefs": [
-        "root"
+        "root",
+        "attachment-frame",
+        "share-assembly"
       ],
       "evidenceRefs": [
-        "full-object"
+        "primary-reference"
       ]
     },
     {
-      "id": "primary-structure",
-      "name": "Primary identity-defining structure",
+      "id": "three-point-attachment",
+      "name": "Three-point attachment, hitch pins, and hydraulic alignment",
+      "tier": "critical",
+      "passIds": [
+        "blockout",
+        "structural-pass",
+        "form-refinement"
+      ],
+      "minimumScore": 0.8,
+      "mustPass": true,
+      "componentRefs": [
+        "attachment-frame",
+        "top-link-bracket",
+        "lower-left-hitch",
+        "lower-right-hitch",
+        "hydraulic-ram"
+      ],
+      "evidenceRefs": [
+        "primary-reference"
+      ]
+    },
+    {
+      "id": "repeated-share-system",
+      "name": "Repeated curved shares and bright cutting edges",
       "tier": "critical",
       "passIds": [
         "structural-pass",
@@ -407,27 +666,35 @@
       "minimumScore": 0.8,
       "mustPass": true,
       "componentRefs": [
-        "root"
+        "share-assembly",
+        "share-left",
+        "share-center",
+        "share-right",
+        "cutting-edge-group"
       ],
       "evidenceRefs": [
-        "full-object"
+        "primary-reference"
       ]
     },
     {
-      "id": "reference-material-system",
-      "name": "Primary reference material and surface response",
+      "id": "worn-material-system",
+      "name": "Worn painted steel, rust, exposed metal, and soil residue",
       "tier": "critical",
       "passIds": [
         "material-pass",
-        "surface-pass"
+        "surface-pass",
+        "lighting-pass"
       ],
       "minimumScore": 0.75,
       "mustPass": true,
       "componentRefs": [
-        "root"
+        "root",
+        "rust-wear-group",
+        "soil-residue-group"
       ],
       "evidenceRefs": [
-        "full-object"
+        "primary-reference",
+        "painted-steel-pbr"
       ]
     }
   ],
@@ -446,13 +713,16 @@
     "currentPass": "blockout",
     "completedPasses": [],
     "lastCompletedPass": "",
-    "blockedReason": "blockout requires a browser screenshot and self-correction review before structural-pass unlocks",
+    "blockedReason": "",
     "nextRequiredEvidence": [
-      "blockout browser render screenshot from your agent's browser/screenshot tool",
-      "side-by-side reference/render comparison sheet",
-      "AI vision score >= 0.7 with layer scores and mismatch critique",
-      "critical semantic feature scores from the same image pair meeting their individual thresholds",
-      "reviewHistory entry for blockout with action=continue"
+      "Silhouette reads correctly without materials.",
+      "Quality contract has named all required macro feature groups before code generation.",
+      "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
+      "browser render screenshot from your agent's browser/screenshot tool",
+      "side-by-side reference/render comparison sheet for AI vision review",
+      "AI vision score at or above the visual acceptance threshold",
+      "all critical semantic feature scores from the shared image pair at or above their thresholds",
+      "self-correction review appended with action=continue before the next pass"
     ]
   },
   "lookDevTargets": {
@@ -522,47 +792,47 @@
     ]
   },
   "actionReadiness": {
-    "contract": "Every macro/meso component should be generated as a stable named Object3D pivot node with a mesh child, action metadata, optional sockets, collider proxy, and destruction metadata.",
-    "defaultRigType": "action-ready-static-rig",
+    "contract": "Every action-critical plough component is a named pivot with sockets, attachment metadata, simplified collider intent, and state metadata.",
+    "defaultRigType": "action-ready-rig-part",
     "rootMotionNode": "root",
     "requiredComponentFields": [
       "id",
       "parent",
       "transform",
-      "attachment for child appendages, connectors, limbs, tubes, handles, legs, horns, wings, branches, or cables",
-      "actionProfile.animationRole",
+      "attachment",
       "actionProfile.pivot",
-      "actionProfile.collider",
-      "actionProfile.destruction"
+      "actionProfile.sockets",
+      "actionProfile.collider"
     ],
     "transformChannels": [
-      "translate",
       "rotate",
-      "scale",
-      "bend",
-      "twist",
-      "detach",
       "visibility",
-      "material-state"
+      "material-state",
+      "detach"
     ],
     "authoringRules": [
-      "Do not collapse independently movable parts into one mesh.",
-      "Put transforms on component pivot groups, not only on raw meshes.",
-      "For attached child parts, put the pivot at the semantic root/socket and build visible geometry from localStart to localEnd.",
-      "Represent hinge, socket, detachable, and breakable intent even when no animation is implemented yet.",
-      "Use simplified collider proxies for runtime physics instead of visual mesh colliders by default."
+      "Simulation owns collision and terrain-tool authority.",
+      "Visual components remain separate from gameplay colliders.",
+      "Attached parts use endpoint-based local geometry."
     ],
     "destructionPolicy": {
       "defaultBreakable": false,
-      "fractureGroupNaming": "Use stable semantic names such as body-shell, left-hinge, glass-panel, branch-segment.",
-      "debrisStrategy": "Prefer detachable component groups and a small number of procedural fragments over random mesh explosion."
+      "fractureGroupNaming": "semantic component IDs",
+      "debrisStrategy": "detachable groups only"
     }
   },
-  "assumptions": [],
+  "assumptions": [
+    "The generated prompt requested three shares, while the image appears to show four; the visible reference currently wins, but count needs authored confirmation.",
+    "Rear and underside geometry are inferred rather than observed.",
+    "Actual hitch dimensions, hydraulic stroke, mass, and soil-contact limits are unknown.",
+    "The reference is stylized and cannot establish manufacturing-grade dimensions."
+  ],
   "coordinateFrame": {
-    "front": "camera-facing side in the reference image",
-    "up": "image up direction",
-    "scaleReference": "unit scale; adjust after first browser render"
+    "front": "toward the tractor and three-point hitch",
+    "up": "world positive Y",
+    "right": "implement right when facing the tractor",
+    "units": "meters for authored runtime estimates; all provisional measurements carry confidence",
+    "origin": "center of the attachment frame at the raised-state pivot envelope"
   },
   "silhouette": {
     "boundingShape": "",
@@ -574,49 +844,75 @@
   },
   "viewEvidence": [
     {
-      "id": "full-object",
-      "view": "primary",
+      "id": "primary-reference",
+      "view": "front-left-three-quarter",
       "imageRegion": {
-        "x": 0.0,
-        "y": 0.0,
-        "width": 1.0,
-        "height": 1.0,
+        "x": 0,
+        "y": 0,
+        "width": 1,
+        "height": 1,
         "units": "normalized"
       },
-      "observations": [],
-      "confidence": 0.5
+      "observations": [
+        "three-point attachment frame",
+        "repeated share system",
+        "central hydraulic ram",
+        "bright cutting edges",
+        "dark worn steel with soil residue"
+      ],
+      "confidence": 0.82
+    },
+    {
+      "id": "painted-steel-pbr",
+      "view": "material-crop-grid",
+      "imageRegion": {
+        "x": 0.05,
+        "y": 0.3,
+        "width": 0.9,
+        "height": 0.55,
+        "units": "normalized"
+      },
+      "observations": [
+        "worn painted steel",
+        "rust patches",
+        "soil residue",
+        "exposed cutting edges"
+      ],
+      "confidence": 0.86
     }
   ],
   "componentTree": [
     {
       "id": "root",
-      "name": "Field Plough 01",
+      "name": "whole implement presentation root",
       "level": "macro",
-      "role": "body",
-      "importance": 1.0,
-      "confidence": 0.5,
+      "semanticLevel": "macro",
+      "role": "whole implement presentation root",
+      "importance": 0.95,
+      "confidence": 0.72,
       "primitive": "box",
       "topologyClass": "assembled-solid",
-      "topologyRationale": "Placeholder root blockout; reclassify per Workstream A's decision tree (grimoire/intake/surface_topology.md) once real geometry is authored.",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; named child pivots and compound primitives.",
       "geometryDescriptor": {
-        "topologyIntent": "low-poly blockout with bevel-ready edges",
+        "topologyIntent": "named child pivots and compound primitives",
         "edgeTreatment": {
-          "type": "none",
-          "bevelRadius": 0.0,
-          "segments": 1
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
         },
         "deformationStack": [],
-        "uvStrategy": "generated procedural coordinates",
-        "normalStrategy": "vertex normals from generated geometry"
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
       },
+      "semanticParent": null,
       "parent": null,
       "attachment": null,
       "dimensions": {
-        "width": 1.0,
-        "height": 1.0,
-        "depth": 1.0,
+        "width": 3.8,
+        "height": 1.8,
+        "depth": 1.35,
         "units": "relative",
-        "confidence": 0.5
+        "confidence": 0.3
       },
       "transform": {
         "position": [
@@ -636,32 +932,349 @@
         ]
       },
       "actionProfile": {
-        "animationRole": "root",
+        "animationRole": "whole-implement-state",
         "pivot": {
-          "mode": "center",
+          "mode": "custom-attachment-origin",
           "localPosition": [
             0,
             0,
             0
           ],
           "axis": [
-            0,
             1,
+            0,
             0
           ],
-          "confidence": 0.5
+          "confidence": 0.65
         },
+        "attachmentContract": null,
         "transformChannels": {
-          "translate": true,
+          "translate": false,
           "rotate": true,
-          "scale": true,
+          "scale": false,
           "bend": false,
           "twist": false,
-          "detach": false,
+          "detach": true,
           "visibility": true,
           "materialState": true
         },
-        "sockets": [],
+        "sockets": [
+          {
+            "id": "root-attachment-envelope",
+            "localPosition": [
+              0,
+              0,
+              0
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "adapter alignment"
+          }
+        ],
+        "collider": {
+          "type": "compound-proxy",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned; visual mesh is not a collider"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "detached",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "root",
+          "seamRefs": [
+            "root-edge-wear",
+            "root-contact-shadow"
+          ],
+          "detachableFragments": [
+            "root"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "painted-steel"
+        }
+      },
+      "material": "painted-steel",
+      "materialLayers": [
+        "painted-steel",
+        "bare-steel",
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "root-attachment-envelope",
+          "type": "hinge-or-socket",
+          "parent": "root"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "root-edge-wear",
+        "root-contact-shadow"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(62, 74, 77, 1.0)",
+        "secondaryAlbedo": "rgba(86, 99, 101, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(62, 74, 77, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(41, 48, 51, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "root-edge-wear",
+        "root-contact-shadow"
+      ],
+      "fidelityTier": "blockout"
+    },
+    {
+      "id": "attachment-frame",
+      "name": "three-point attachment frame",
+      "level": "macro",
+      "semanticLevel": "macro",
+      "role": "three-point attachment frame",
+      "importance": 0.95,
+      "confidence": 0.72,
+      "primitive": "curve-sweep",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; beveled box beams and pin cylinders.",
+      "geometryDescriptor": {
+        "topologyIntent": "beveled box beams and pin cylinders",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "curveSweep": {
+          "spine": [
+            [
+              -0.5,
+              0,
+              0
+            ],
+            [
+              0,
+              0.9,
+              0
+            ],
+            [
+              0.5,
+              0,
+              0
+            ]
+          ],
+          "crossSection": {
+            "points": [
+              [
+                -0.045,
+                -0.045
+              ],
+              [
+                0.045,
+                -0.045
+              ],
+              [
+                0.045,
+                0.045
+              ],
+              [
+                -0.045,
+                0.045
+              ]
+            ]
+          },
+          "closed": false
+        }
+      },
+      "semanticParent": "root",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-socket",
+        "localStart": [
+          0,
+          0.55,
+          0.18
+        ],
+        "localEnd": [
+          0,
+          0.65,
+          0.07999999999999999
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 2.8,
+        "height": 1.4,
+        "depth": 0.5,
+        "units": "relative",
+        "confidence": 0.5
+      },
+      "transform": {
+        "position": [
+          0,
+          0.55,
+          0.18
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "attachment-root",
+        "pivot": {
+          "mode": "custom",
+          "localPosition": [
+            0,
+            0.55,
+            0.18
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "root",
+          "parentSocket": "root-socket",
+          "localStart": [
+            0,
+            0.55,
+            0.18
+          ],
+          "localEnd": [
+            0,
+            0.65,
+            0.07999999999999999
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "top-link-socket",
+            "localPosition": [
+              0,
+              1.55,
+              0.1
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor upper link"
+          },
+          {
+            "id": "lower-left-hitch",
+            "localPosition": [
+              -1.25,
+              0.55,
+              0.2
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor lower link"
+          },
+          {
+            "id": "lower-right-hitch",
+            "localPosition": [
+              1.25,
+              0.55,
+              0.2
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor lower link"
+          }
+        ],
         "collider": {
           "type": "box",
           "offset": [
@@ -675,158 +1288,4674 @@
             1
           ],
           "isTrigger": false,
-          "notes": "Replace with sphere/capsule/compound proxy when the object shape demands it."
+          "notes": "simulation-owned proxy"
         },
-        "constraints": [],
+        "constraints": [
+          {
+            "state": "attached",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "detached",
+            "source": "canonical asset definition"
+          }
+        ],
         "destruction": {
-          "breakable": false,
-          "fractureGroup": "root",
-          "seamRefs": [],
-          "detachableFragments": [],
-          "breakImpulse": 0.0,
-          "debrisMaterial": "base"
+          "breakable": true,
+          "fractureGroup": "attachment-frame",
+          "seamRefs": [
+            "attachment-bevels",
+            "hitch-fasteners",
+            "rust-at-pin-seams"
+          ],
+          "detachableFragments": [
+            "attachment-frame"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "painted-steel"
         }
       },
-      "material": "base",
+      "material": "painted-steel",
       "materialLayers": [
-        "base"
+        "painted-steel",
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "top-link-socket",
+          "type": "hinge-or-socket",
+          "parent": "attachment-frame"
+        },
+        {
+          "id": "lower-left-hitch",
+          "type": "hinge-or-socket",
+          "parent": "attachment-frame"
+        },
+        {
+          "id": "lower-right-hitch",
+          "type": "hinge-or-socket",
+          "parent": "attachment-frame"
+        }
+      ],
+      "seams": [
+        "rust-at-pin-seams"
+      ],
+      "localFeatures": [
+        "attachment-bevels",
+        "hitch-fasteners",
+        "rust-at-pin-seams"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(62, 74, 77, 1.0)",
+        "secondaryAlbedo": "rgba(86, 99, 101, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(62, 74, 77, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(41, 48, 51, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "attachment-bevels",
+        "hitch-fasteners",
+        "rust-at-pin-seams"
+      ],
+      "fidelityTier": "blockout"
+    },
+    {
+      "id": "share-assembly",
+      "name": "soil-cutting repeated system",
+      "level": "macro",
+      "semanticLevel": "macro",
+      "role": "soil-cutting repeated system",
+      "importance": 0.95,
+      "confidence": 0.72,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "Observed continuous-sculpt evidence in the isolated field-plough reference; four handed helicoidal moldboard shells with section-by-section twist, depth staggering, and integrated forward cutting-share transitions.",
+      "geometryDescriptor": {
+        "topologyIntent": "four handed helicoidal moldboard shells with section-by-section twist, depth staggering, and integrated forward cutting-share transitions",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [
+          "curved-profile",
+          "edge-wear"
+        ],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "profile2D": {
+          "points": [
+            [
+              -0.5,
+              -0.42
+            ],
+            [
+              -0.43,
+              0.35
+            ],
+            [
+              -0.16,
+              0.5
+            ],
+            [
+              0.35,
+              0.38
+            ],
+            [
+              0.5,
+              0.04
+            ],
+            [
+              0.25,
+              -0.2
+            ],
+            [
+              -0.1,
+              -0.44
+            ]
+          ],
+          "depth": 0.24
+        },
+        "helicoidalSurface": {
+          "handedness": "consistent soil throw toward implement left",
+          "sectionCount": 9,
+          "longitudinalSegments": 28,
+          "transverseSegments": 24,
+          "sectionProfiles": [
+            {
+              "station": 0,
+              "width": 0.52,
+              "sweep": -0.12,
+              "concavity": 0.22,
+              "twistDegrees": -8
+            },
+            {
+              "station": 0.5,
+              "width": 0.76,
+              "sweep": -0.02,
+              "concavity": 0.3,
+              "twistDegrees": 10
+            },
+            {
+              "station": 1,
+              "width": 0.48,
+              "sweep": 0.16,
+              "concavity": 0.2,
+              "twistDegrees": 24
+            }
+          ],
+          "lowerTransition": "continuous tangent into the forward cutting-share plate without a visible air gap",
+          "failureModes": [
+            "bilaterally symmetric paddle silhouette",
+            "flat extruded plate",
+            "detached centered cutting triangle"
+          ]
+        }
+      },
+      "semanticParent": "root",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-socket",
+        "localStart": [
+          0,
+          0.2,
+          -0.5
+        ],
+        "localEnd": [
+          0,
+          0.30000000000000004,
+          -0.6
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 3.4,
+        "height": 1.1,
+        "depth": 1,
+        "units": "relative",
+        "confidence": 0.55
+      },
+      "transform": {
+        "position": [
+          0,
+          0.2,
+          -0.5
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "lowered-tool",
+        "pivot": {
+          "mode": "base-row",
+          "localPosition": [
+            0,
+            0.2,
+            -0.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "root",
+          "parentSocket": "root-socket",
+          "localStart": [
+            0,
+            0.2,
+            -0.5
+          ],
+          "localEnd": [
+            0,
+            0.30000000000000004,
+            -0.6
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "soil-contact-row",
+            "localPosition": [
+              0,
+              -0.65,
+              -0.9
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "terrain contact envelope"
+          }
+        ],
+        "collider": {
+          "type": "compound-proxy",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned terrain-tool proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "cutting",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "share-assembly",
+          "seamRefs": [
+            "share-curvature",
+            "cutting-edge-bevel",
+            "soil-cavity-residue"
+          ],
+          "detachableFragments": [
+            "share-assembly"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "painted-steel",
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "soil-contact-row",
+          "type": "hinge-or-socket",
+          "parent": "share-assembly"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "share-curvature",
+        "cutting-edge-bevel",
+        "soil-cavity-residue"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "share-curvature",
+        "cutting-edge-bevel",
+        "soil-cavity-residue"
+      ],
+      "fidelityTier": "blockout"
+    },
+    {
+      "id": "hydraulic-ram",
+      "name": "raise/lower actuator",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "raise/lower actuator",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "tube",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; cylinders, tube, and hinge pin.",
+      "geometryDescriptor": {
+        "topologyIntent": "cylinders, tube, and hinge pin",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "tubePath": {
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0.7,
+              0
+            ]
+          ],
+          "radius": 0.5,
+          "radialSegments": 16,
+          "closed": false
+        }
+      },
+      "semanticParent": "root",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-socket",
+        "localStart": [
+          0,
+          0.95,
+          0.12
+        ],
+        "localEnd": [
+          0,
+          1.05,
+          0.01999999999999999
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.9,
+        "height": 0.2,
+        "depth": 0.2,
+        "units": "relative",
+        "confidence": 0.4
+      },
+      "transform": {
+        "position": [
+          0,
+          0.95,
+          0.12
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "linear-actuator",
+        "pivot": {
+          "mode": "hinge",
+          "localPosition": [
+            0,
+            0.95,
+            0.12
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "root",
+          "parentSocket": "root-socket",
+          "localStart": [
+            0,
+            0.95,
+            0.12
+          ],
+          "localEnd": [
+            0,
+            1.05,
+            0.01999999999999999
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "hydraulic-upper-eye",
+            "localPosition": [
+              0,
+              1.18,
+              0.12
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "frame hinge"
+          },
+          {
+            "id": "hydraulic-lower-eye",
+            "localPosition": [
+              0,
+              0.45,
+              -0.35
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "beam hinge"
+          }
+        ],
+        "collider": {
+          "type": "capsule",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "retracted",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "extended",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "hydraulic-ram",
+          "seamRefs": [
+            "ram-polished-rod",
+            "ram-rust-collar",
+            "ram-pivot-pin"
+          ],
+          "detachableFragments": [
+            "hydraulic-ram"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "hydraulic-upper-eye",
+          "type": "hinge-or-socket",
+          "parent": "hydraulic-ram"
+        },
+        {
+          "id": "hydraulic-lower-eye",
+          "type": "hinge-or-socket",
+          "parent": "hydraulic-ram"
+        }
+      ],
+      "seams": [
+        "ram-rust-collar"
+      ],
+      "localFeatures": [
+        "ram-polished-rod",
+        "ram-rust-collar",
+        "ram-pivot-pin"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "ram-polished-rod",
+        "ram-rust-collar",
+        "ram-pivot-pin"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "top-link-bracket",
+      "name": "upper hitch bracket",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "upper hitch bracket",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "cylinder",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; paired plates and pin cylinder.",
+      "geometryDescriptor": {
+        "topologyIntent": "paired plates and pin cylinder",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          0,
+          1.5,
+          0.1
+        ],
+        "localEnd": [
+          0,
+          1.6,
+          0
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.8,
+        "height": 0.3,
+        "depth": 0.28,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          1.5,
+          0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "hinged-attachment",
+        "pivot": {
+          "mode": "hinge",
+          "localPosition": [
+            0,
+            1.5,
+            0.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            0,
+            1.5,
+            0.1
+          ],
+          "localEnd": [
+            0,
+            1.6,
+            0
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "top-link-contact",
+            "localPosition": [
+              0,
+              1.55,
+              0.1
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor top-link contact"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "attached",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "detached",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "top-link-bracket",
+          "seamRefs": [
+            "top-link-pin",
+            "top-link-bevel"
+          ],
+          "detachableFragments": [
+            "top-link-bracket"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "top-link-contact",
+          "type": "hinge-or-socket",
+          "parent": "top-link-bracket"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "top-link-pin",
+        "top-link-bevel"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "top-link-pin",
+        "top-link-bevel"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "lower-left-hitch",
+      "name": "left lower hitch clevis",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "left lower hitch clevis",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "cylinder",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; paired plates and pin cylinder.",
+      "geometryDescriptor": {
+        "topologyIntent": "paired plates and pin cylinder",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          -1.25,
+          0.55,
+          0.2
+        ],
+        "localEnd": [
+          -1.25,
+          0.65,
+          0.1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.3,
+        "height": 0.5,
+        "depth": 0.38,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          -1.25,
+          0.55,
+          0.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "attachment-clevis",
+        "pivot": {
+          "mode": "hinge",
+          "localPosition": [
+            -1.25,
+            0.55,
+            0.2
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            -1.25,
+            0.55,
+            0.2
+          ],
+          "localEnd": [
+            -1.25,
+            0.65,
+            0.1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "lower-left-contact",
+            "localPosition": [
+              -1.25,
+              0.55,
+              0.2
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor lower link"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "attached",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "detached",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "lower-left-hitch",
+          "seamRefs": [
+            "left-clevis-pin",
+            "left-clevis-wear"
+          ],
+          "detachableFragments": [
+            "lower-left-hitch"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "lower-left-contact",
+          "type": "hinge-or-socket",
+          "parent": "lower-left-hitch"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "left-clevis-pin",
+        "left-clevis-wear"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "left-clevis-pin",
+        "left-clevis-wear"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "lower-right-hitch",
+      "name": "right lower hitch clevis",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "right lower hitch clevis",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "cylinder",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; paired plates and pin cylinder.",
+      "geometryDescriptor": {
+        "topologyIntent": "paired plates and pin cylinder",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          1.25,
+          0.55,
+          0.2
+        ],
+        "localEnd": [
+          1.25,
+          0.65,
+          0.1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.3,
+        "height": 0.5,
+        "depth": 0.38,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          1.25,
+          0.55,
+          0.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "attachment-clevis",
+        "pivot": {
+          "mode": "hinge",
+          "localPosition": [
+            1.25,
+            0.55,
+            0.2
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            1.25,
+            0.55,
+            0.2
+          ],
+          "localEnd": [
+            1.25,
+            0.65,
+            0.1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "lower-right-contact",
+            "localPosition": [
+              1.25,
+              0.55,
+              0.2
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "tractor lower link"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "attached",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "detached",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "lower-right-hitch",
+          "seamRefs": [
+            "right-clevis-pin",
+            "right-clevis-wear"
+          ],
+          "detachableFragments": [
+            "lower-right-hitch"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "lower-right-contact",
+          "type": "hinge-or-socket",
+          "parent": "lower-right-hitch"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "right-clevis-pin",
+        "right-clevis-wear"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "right-clevis-pin",
+        "right-clevis-wear"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "cross-beam",
+      "name": "horizontal load beam",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "horizontal load beam",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; beveled box beam with end plates.",
+      "geometryDescriptor": {
+        "topologyIntent": "beveled box beam with end plates",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          0,
+          0.75,
+          -0.15
+        ],
+        "localEnd": [
+          0,
+          0.85,
+          -0.25
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 3,
+        "height": 0.28,
+        "depth": 0.3,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          0.75,
+          -0.15
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "beam-body",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            0.75,
+            -0.15
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            0,
+            0.75,
+            -0.15
+          ],
+          "localEnd": [
+            0,
+            0.85,
+            -0.25
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "share-row-mount",
+            "localPosition": [
+              0,
+              0.3,
+              -0.5
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "share support row"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "cross-beam",
+          "seamRefs": [
+            "beam-edge-bevel",
+            "beam-rust-streaks",
+            "beam-fastener-row"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "painted-steel"
+        }
+      },
+      "material": "painted-steel",
+      "materialLayers": [
+        "painted-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "share-row-mount",
+          "type": "hinge-or-socket",
+          "parent": "cross-beam"
+        }
+      ],
+      "seams": [
+        "beam-rust-streaks"
+      ],
+      "localFeatures": [
+        "beam-edge-bevel",
+        "beam-rust-streaks",
+        "beam-fastener-row"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(62, 74, 77, 1.0)",
+        "secondaryAlbedo": "rgba(86, 99, 101, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(62, 74, 77, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(41, 48, 51, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "beam-edge-bevel",
+        "beam-rust-streaks",
+        "beam-fastener-row"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "brace-left",
+      "name": "left triangular reinforcement",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "left triangular reinforcement",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; endpoint-aligned beveled beam.",
+      "geometryDescriptor": {
+        "topologyIntent": "endpoint-aligned beveled beam",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          -0.75,
+          0.75,
+          0.1
+        ],
+        "localEnd": [
+          -0.75,
+          0.85,
+          0
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 1,
+        "depth": 0.16,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          -0.75,
+          0.75,
+          0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "reinforcement",
+        "pivot": {
+          "mode": "custom",
+          "localPosition": [
+            -0.75,
+            0.75,
+            0.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            -0.75,
+            0.75,
+            0.1
+          ],
+          "localEnd": [
+            -0.75,
+            0.85,
+            0
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "brace-left-root",
+            "localPosition": [
+              -0.75,
+              0.75,
+              0.1
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "beam contact"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "brace-left",
+          "seamRefs": [
+            "left-brace-bevel",
+            "left-brace-rust"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "painted-steel"
+        }
+      },
+      "material": "painted-steel",
+      "materialLayers": [
+        "painted-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "brace-left-root",
+          "type": "hinge-or-socket",
+          "parent": "brace-left"
+        }
+      ],
+      "seams": [
+        "left-brace-rust"
+      ],
+      "localFeatures": [
+        "left-brace-bevel",
+        "left-brace-rust"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(62, 74, 77, 1.0)",
+        "secondaryAlbedo": "rgba(86, 99, 101, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(62, 74, 77, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(41, 48, 51, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "left-brace-bevel",
+        "left-brace-rust"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "brace-right",
+      "name": "right triangular reinforcement",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "right triangular reinforcement",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "box",
+      "topologyClass": "assembled-solid",
+      "topologyRationale": "Observed assembled-solid evidence in the isolated field-plough reference; endpoint-aligned beveled beam.",
+      "geometryDescriptor": {
+        "topologyIntent": "endpoint-aligned beveled beam",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "attachment-frame",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "attachment-frame-socket",
+        "localStart": [
+          0.75,
+          0.75,
+          0.1
+        ],
+        "localEnd": [
+          0.75,
+          0.85,
+          0
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 1,
+        "depth": 0.16,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0.75,
+          0.75,
+          0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "reinforcement",
+        "pivot": {
+          "mode": "custom",
+          "localPosition": [
+            0.75,
+            0.75,
+            0.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "attachment-frame",
+          "parentSocket": "attachment-frame-socket",
+          "localStart": [
+            0.75,
+            0.75,
+            0.1
+          ],
+          "localEnd": [
+            0.75,
+            0.85,
+            0
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "brace-right-root",
+            "localPosition": [
+              0.75,
+              0.75,
+              0.1
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "beam contact"
+          }
+        ],
+        "collider": {
+          "type": "box",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "brace-right",
+          "seamRefs": [
+            "right-brace-bevel",
+            "right-brace-rust"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "painted-steel"
+        }
+      },
+      "material": "painted-steel",
+      "materialLayers": [
+        "painted-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "brace-right-root",
+          "type": "hinge-or-socket",
+          "parent": "brace-right"
+        }
+      ],
+      "seams": [
+        "right-brace-rust"
+      ],
+      "localFeatures": [
+        "right-brace-bevel",
+        "right-brace-rust"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(62, 74, 77, 1.0)",
+        "secondaryAlbedo": "rgba(86, 99, 101, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(62, 74, 77, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(41, 48, 51, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "right-brace-bevel",
+        "right-brace-rust"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "share-left",
+      "name": "left repeated soil share instance",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "left repeated soil share instance",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "Observed continuous-sculpt evidence in the isolated field-plough reference; handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition.",
+      "geometryDescriptor": {
+        "topologyIntent": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [
+          "curved-profile",
+          "edge-wear"
+        ],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "profile2D": {
+          "points": [
+            [
+              -0.5,
+              -0.42
+            ],
+            [
+              -0.43,
+              0.35
+            ],
+            [
+              -0.16,
+              0.5
+            ],
+            [
+              0.35,
+              0.38
+            ],
+            [
+              0.5,
+              0.04
+            ],
+            [
+              0.25,
+              -0.2
+            ],
+            [
+              -0.1,
+              -0.44
+            ]
+          ],
+          "depth": 0.24
+        },
+        "helicoidalSurface": {
+          "handedness": "consistent soil throw toward implement left",
+          "sectionCount": 9,
+          "longitudinalSegments": 28,
+          "transverseSegments": 24,
+          "sectionProfiles": [
+            {
+              "station": 0,
+              "width": 0.52,
+              "sweep": -0.12,
+              "concavity": 0.22,
+              "twistDegrees": -8
+            },
+            {
+              "station": 0.5,
+              "width": 0.76,
+              "sweep": -0.02,
+              "concavity": 0.3,
+              "twistDegrees": 10
+            },
+            {
+              "station": 1,
+              "width": 0.48,
+              "sweep": 0.16,
+              "concavity": 0.2,
+              "twistDegrees": 24
+            }
+          ],
+          "lowerTransition": "continuous tangent into the forward cutting-share plate without a visible air gap",
+          "failureModes": [
+            "bilaterally symmetric paddle silhouette",
+            "flat extruded plate",
+            "detached centered cutting triangle"
+          ]
+        }
+      },
+      "semanticParent": "share-assembly",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "share-assembly-socket",
+        "localStart": [
+          -1.25,
+          0.15,
+          -0.55
+        ],
+        "localEnd": [
+          -1.25,
+          0.25,
+          -0.65
+        ],
+        "contactType": "embedded",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.82,
+        "height": 0.86,
+        "depth": 0.24,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          -1.25,
+          0.15,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "share-instance",
+        "pivot": {
+          "mode": "base",
+          "localPosition": [
+            -1.25,
+            0.15,
+            -0.55
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "share-assembly",
+          "parentSocket": "share-assembly-socket",
+          "localStart": [
+            -1.25,
+            0.15,
+            -0.55
+          ],
+          "localEnd": [
+            -1.25,
+            0.25,
+            -0.65
+          ],
+          "contactType": "embedded",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "share-left-contact",
+            "localPosition": [
+              -1.25,
+              -0.65,
+              -0.9
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "soil contact"
+          }
+        ],
+        "collider": {
+          "type": "wedge-proxy",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned terrain-tool proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "cutting",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "share-left",
+          "seamRefs": [
+            "share-left-cutting-edge",
+            "share-left-soil-stain",
+            "share-left-fasteners"
+          ],
+          "detachableFragments": [
+            "share-left"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "share-left-contact",
+          "type": "hinge-or-socket",
+          "parent": "share-left"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "share-left-cutting-edge",
+        "share-left-soil-stain",
+        "share-left-fasteners"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "share-left-cutting-edge",
+        "share-left-soil-stain",
+        "share-left-fasteners"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "share-center",
+      "name": "center repeated soil share instance",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "center repeated soil share instance",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "Observed continuous-sculpt evidence in the isolated field-plough reference; handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition.",
+      "geometryDescriptor": {
+        "topologyIntent": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [
+          "curved-profile",
+          "edge-wear"
+        ],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "profile2D": {
+          "points": [
+            [
+              -0.5,
+              -0.42
+            ],
+            [
+              -0.43,
+              0.35
+            ],
+            [
+              -0.16,
+              0.5
+            ],
+            [
+              0.35,
+              0.38
+            ],
+            [
+              0.5,
+              0.04
+            ],
+            [
+              0.25,
+              -0.2
+            ],
+            [
+              -0.1,
+              -0.44
+            ]
+          ],
+          "depth": 0.24
+        },
+        "helicoidalSurface": {
+          "handedness": "consistent soil throw toward implement left",
+          "sectionCount": 9,
+          "longitudinalSegments": 28,
+          "transverseSegments": 24,
+          "sectionProfiles": [
+            {
+              "station": 0,
+              "width": 0.52,
+              "sweep": -0.12,
+              "concavity": 0.22,
+              "twistDegrees": -8
+            },
+            {
+              "station": 0.5,
+              "width": 0.76,
+              "sweep": -0.02,
+              "concavity": 0.3,
+              "twistDegrees": 10
+            },
+            {
+              "station": 1,
+              "width": 0.48,
+              "sweep": 0.16,
+              "concavity": 0.2,
+              "twistDegrees": 24
+            }
+          ],
+          "lowerTransition": "continuous tangent into the forward cutting-share plate without a visible air gap",
+          "failureModes": [
+            "bilaterally symmetric paddle silhouette",
+            "flat extruded plate",
+            "detached centered cutting triangle"
+          ]
+        }
+      },
+      "semanticParent": "share-assembly",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "share-assembly-socket",
+        "localStart": [
+          0,
+          0.15,
+          -0.55
+        ],
+        "localEnd": [
+          0,
+          0.25,
+          -0.65
+        ],
+        "contactType": "embedded",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.82,
+        "height": 0.86,
+        "depth": 0.24,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          0.15,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "share-instance",
+        "pivot": {
+          "mode": "base",
+          "localPosition": [
+            0,
+            0.15,
+            -0.55
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "share-assembly",
+          "parentSocket": "share-assembly-socket",
+          "localStart": [
+            0,
+            0.15,
+            -0.55
+          ],
+          "localEnd": [
+            0,
+            0.25,
+            -0.65
+          ],
+          "contactType": "embedded",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "share-center-contact",
+            "localPosition": [
+              0,
+              -0.65,
+              -0.9
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "soil contact"
+          }
+        ],
+        "collider": {
+          "type": "wedge-proxy",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned terrain-tool proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "cutting",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "share-center",
+          "seamRefs": [
+            "share-center-cutting-edge",
+            "share-center-soil-stain",
+            "share-center-fasteners"
+          ],
+          "detachableFragments": [
+            "share-center"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "share-center-contact",
+          "type": "hinge-or-socket",
+          "parent": "share-center"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "share-center-cutting-edge",
+        "share-center-soil-stain",
+        "share-center-fasteners"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "share-center-cutting-edge",
+        "share-center-soil-stain",
+        "share-center-fasteners"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "share-right",
+      "name": "right repeated soil share instance",
+      "level": "meso",
+      "semanticLevel": "meso",
+      "role": "right repeated soil share instance",
+      "importance": 0.8,
+      "confidence": 0.72,
+      "primitive": "extrude",
+      "topologyClass": "continuous-sculpt",
+      "topologyRationale": "Observed continuous-sculpt evidence in the isolated field-plough reference; handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition.",
+      "geometryDescriptor": {
+        "topologyIntent": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.04,
+          "segments": 2
+        },
+        "deformationStack": [
+          "curved-profile",
+          "edge-wear"
+        ],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "profile2D": {
+          "points": [
+            [
+              -0.5,
+              -0.42
+            ],
+            [
+              -0.43,
+              0.35
+            ],
+            [
+              -0.16,
+              0.5
+            ],
+            [
+              0.35,
+              0.38
+            ],
+            [
+              0.5,
+              0.04
+            ],
+            [
+              0.25,
+              -0.2
+            ],
+            [
+              -0.1,
+              -0.44
+            ]
+          ],
+          "depth": 0.24
+        },
+        "helicoidalSurface": {
+          "handedness": "consistent soil throw toward implement left",
+          "sectionCount": 9,
+          "longitudinalSegments": 28,
+          "transverseSegments": 24,
+          "sectionProfiles": [
+            {
+              "station": 0,
+              "width": 0.52,
+              "sweep": -0.12,
+              "concavity": 0.22,
+              "twistDegrees": -8
+            },
+            {
+              "station": 0.5,
+              "width": 0.76,
+              "sweep": -0.02,
+              "concavity": 0.3,
+              "twistDegrees": 10
+            },
+            {
+              "station": 1,
+              "width": 0.48,
+              "sweep": 0.16,
+              "concavity": 0.2,
+              "twistDegrees": 24
+            }
+          ],
+          "lowerTransition": "continuous tangent into the forward cutting-share plate without a visible air gap",
+          "failureModes": [
+            "bilaterally symmetric paddle silhouette",
+            "flat extruded plate",
+            "detached centered cutting triangle"
+          ]
+        }
+      },
+      "semanticParent": "share-assembly",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "share-assembly-socket",
+        "localStart": [
+          1.25,
+          0.15,
+          -0.55
+        ],
+        "localEnd": [
+          1.25,
+          0.25,
+          -0.65
+        ],
+        "contactType": "embedded",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.82,
+        "height": 0.86,
+        "depth": 0.24,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          1.25,
+          0.15,
+          -0.55
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "share-instance",
+        "pivot": {
+          "mode": "base",
+          "localPosition": [
+            1.25,
+            0.15,
+            -0.55
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "share-assembly",
+          "parentSocket": "share-assembly-socket",
+          "localStart": [
+            1.25,
+            0.15,
+            -0.55
+          ],
+          "localEnd": [
+            1.25,
+            0.25,
+            -0.65
+          ],
+          "contactType": "embedded",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [
+          {
+            "id": "share-right-contact",
+            "localPosition": [
+              1.25,
+              -0.65,
+              -0.9
+            ],
+            "localRotation": [
+              0,
+              0,
+              0
+            ],
+            "role": "soil contact"
+          }
+        ],
+        "collider": {
+          "type": "wedge-proxy",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "simulation-owned terrain-tool proxy"
+        },
+        "constraints": [
+          {
+            "state": "raised",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "lowered",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "cutting",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "share-right",
+          "seamRefs": [
+            "share-right-cutting-edge",
+            "share-right-soil-stain",
+            "share-right-fasteners"
+          ],
+          "detachableFragments": [
+            "share-right"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [
+        {
+          "id": "share-right-contact",
+          "type": "hinge-or-socket",
+          "parent": "share-right"
+        }
+      ],
+      "seams": [],
+      "localFeatures": [
+        "share-right-cutting-edge",
+        "share-right-soil-stain",
+        "share-right-fasteners"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "share-right-cutting-edge",
+        "share-right-soil-stain",
+        "share-right-fasteners"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "fastener-groups",
+      "name": "repeated visible pins and bolts",
+      "level": "micro",
+      "semanticLevel": "micro",
+      "role": "repeated visible pins and bolts",
+      "importance": 0.65,
+      "confidence": 0.72,
+      "primitive": "cylinder",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "Observed surface-relief evidence in the isolated field-plough reference; instanced cylinders and hex heads.",
+      "geometryDescriptor": {
+        "topologyIntent": "instanced cylinders and hex heads",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.01,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "cross-beam",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "cross-beam-socket",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          0,
+          0.1,
+          -0.1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.16,
+        "height": 0.16,
+        "depth": 0.16,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "surface-detail",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "cross-beam",
+          "parentSocket": "cross-beam-socket",
+          "localStart": [
+            0,
+            0,
+            0
+          ],
+          "localEnd": [
+            0,
+            0.1,
+            -0.1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "none",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "visual-only"
+        },
+        "constraints": [
+          {
+            "state": "visible",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "fastener-groups",
+          "seamRefs": [
+            "fastener-heads",
+            "fastener-cavity-darkening"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
       ],
       "deformations": [],
       "joints": [],
       "seams": [],
-      "localFeatures": [],
+      "localFeatures": [
+        "fastener-heads",
+        "fastener-cavity-darkening"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
       "surfaceDetail": {
-        "macroRoughness": 0.0,
-        "microRoughness": 0.0,
-        "bumpAmplitude": 0.0,
-        "normalPattern": "",
-        "displacementPattern": "",
-        "occlusionPattern": "",
-        "edgeWearPattern": "",
-        "notes": ""
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
       },
       "evidenceRefs": [
-        "full-object"
+        "primary-reference"
       ],
-      "details": [],
-      "fidelityTier": "blockout"
+      "details": [
+        "fastener-heads",
+        "fastener-cavity-darkening"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "cutting-edge-group",
+      "name": "bright sharpened cutting edges",
+      "level": "micro",
+      "semanticLevel": "micro",
+      "role": "bright sharpened cutting edges",
+      "importance": 0.65,
+      "confidence": 0.72,
+      "primitive": "extrude",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "Observed surface-relief evidence in the isolated field-plough reference; four narrow forward-projecting beveled shares with continuous lower cutting edges transitioning into the corresponding moldboard shells.",
+      "geometryDescriptor": {
+        "topologyIntent": "four narrow forward-projecting beveled shares with continuous lower cutting edges transitioning into the corresponding moldboard shells",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.01,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response",
+        "profile2D": {
+          "points": [
+            [
+              -0.52,
+              -0.06
+            ],
+            [
+              0.5,
+              0.01
+            ],
+            [
+              0.02,
+              0.18
+            ],
+            [
+              -0.4,
+              0.12
+            ]
+          ],
+          "depth": 0.11
+        },
+        "integration": {
+          "count": 4,
+          "projection": "forward from each moldboard lower leading edge",
+          "edgeContinuity": "lower cutting edge remains visually continuous into its moldboard",
+          "staggering": "each share follows the same depth-staggered order as the four moldboards"
+        }
+      },
+      "semanticParent": "share-assembly",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "share-assembly-socket",
+        "localStart": [
+          0,
+          -0.6,
+          -0.9
+        ],
+        "localEnd": [
+          0,
+          -0.5,
+          -1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 2.8,
+        "height": 0.08,
+        "depth": 0.12,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          -0.6,
+          -0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "cutting-edge",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            -0.6,
+            -0.9
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "share-assembly",
+          "parentSocket": "share-assembly-socket",
+          "localStart": [
+            0,
+            -0.6,
+            -0.9
+          ],
+          "localEnd": [
+            0,
+            -0.5,
+            -1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": true,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "none",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "visual-only; terrain tool role is semantic"
+        },
+        "constraints": [
+          {
+            "state": "visible",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "worn",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": true,
+          "fractureGroup": "cutting-edge-group",
+          "seamRefs": [
+            "edge-bevel",
+            "edge-polish",
+            "edge-chips"
+          ],
+          "detachableFragments": [
+            "cutting-edge-group"
+          ],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        "edge-bevel",
+        "edge-polish",
+        "edge-chips"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "edge-bevel",
+        "edge-polish",
+        "edge-chips"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "rust-wear-group",
+      "name": "paint loss and oxidation regions",
+      "level": "micro",
+      "semanticLevel": "micro",
+      "role": "paint loss and oxidation regions",
+      "importance": 0.65,
+      "confidence": 0.72,
+      "primitive": "plane-card",
+      "topologyClass": "material-only",
+      "topologyRationale": "Observed material-only evidence in the isolated field-plough reference; material masks on parent surfaces.",
+      "geometryDescriptor": {
+        "topologyIntent": "material masks on parent surfaces",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.01,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "root",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "root-socket",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          0,
+          0.1,
+          -0.1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 2.8,
+        "height": 0.12,
+        "depth": 0.32,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "wear-state",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "root",
+          "parentSocket": "root-socket",
+          "localStart": [
+            0,
+            0,
+            0
+          ],
+          "localEnd": [
+            0,
+            0.1,
+            -0.1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "none",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "visual-only"
+        },
+        "constraints": [
+          {
+            "state": "intact",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "worn",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "damaged",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "rust-wear-group",
+          "seamRefs": [
+            "rust-bloom",
+            "paint-chip-mask",
+            "edge-wear-mask"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "rust"
+        }
+      },
+      "material": "rust",
+      "materialLayers": [
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [
+        "rust-bloom"
+      ],
+      "localFeatures": [
+        "rust-bloom",
+        "paint-chip-mask",
+        "edge-wear-mask"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(138, 77, 50, 1.0)",
+        "secondaryAlbedo": "rgba(178, 106, 62, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(138, 77, 50, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(74, 48, 40, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "rust-bloom",
+        "paint-chip-mask",
+        "edge-wear-mask"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "soil-residue-group",
+      "name": "mud and soil residue in lower recesses",
+      "level": "micro",
+      "semanticLevel": "micro",
+      "role": "mud and soil residue in lower recesses",
+      "importance": 0.65,
+      "confidence": 0.72,
+      "primitive": "plane-card",
+      "topologyClass": "material-only",
+      "topologyRationale": "Observed material-only evidence in the isolated field-plough reference; localized projected mask plus optional shallow geometry.",
+      "geometryDescriptor": {
+        "topologyIntent": "localized projected mask plus optional shallow geometry",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.01,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "share-assembly",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "share-assembly-socket",
+        "localStart": [
+          0,
+          -0.4,
+          -0.75
+        ],
+        "localEnd": [
+          0,
+          -0.30000000000000004,
+          -0.85
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 2.8,
+        "height": 0.16,
+        "depth": 0.42,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          -0.4,
+          -0.75
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "soil-state",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            -0.4,
+            -0.75
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "share-assembly",
+          "parentSocket": "share-assembly-socket",
+          "localStart": [
+            0,
+            -0.4,
+            -0.75
+          ],
+          "localEnd": [
+            0,
+            -0.30000000000000004,
+            -0.85
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "none",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "visual-only"
+        },
+        "constraints": [
+          {
+            "state": "clean",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "worked",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "wet",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "soil-residue-group",
+          "seamRefs": [
+            "soil-cavity-bias",
+            "wet-soil-darkening",
+            "soil-clump-breakup"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "soil-residue"
+        }
+      },
+      "material": "soil-residue",
+      "materialLayers": [
+        "soil-residue"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        "soil-cavity-bias",
+        "wet-soil-darkening",
+        "soil-clump-breakup"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(90, 66, 48, 1.0)",
+        "secondaryAlbedo": "rgba(135, 101, 70, 1.0)",
+        "materialClass": "stone",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(90, 66, 48, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(46, 41, 37, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "soil-cavity-bias",
+        "wet-soil-darkening",
+        "soil-clump-breakup"
+      ],
+      "fidelityTier": "structural"
+    },
+    {
+      "id": "hinge-pin-group",
+      "name": "hinge and pin hardware",
+      "level": "micro",
+      "semanticLevel": "micro",
+      "role": "hinge and pin hardware",
+      "importance": 0.65,
+      "confidence": 0.72,
+      "primitive": "cylinder",
+      "topologyClass": "surface-relief",
+      "topologyRationale": "Observed surface-relief evidence in the isolated field-plough reference; instanced pin cylinders with washers.",
+      "geometryDescriptor": {
+        "topologyIntent": "instanced pin cylinders with washers",
+        "edgeTreatment": {
+          "type": "chamfer",
+          "bevelRadius": 0.01,
+          "segments": 2
+        },
+        "deformationStack": [],
+        "uvStrategy": "generated procedural coordinates with object-scale projection",
+        "normalStrategy": "vertex normals plus independent reference-derived or procedural normal response"
+      },
+      "semanticParent": "hydraulic-ram",
+      "parent": "root",
+      "attachment": {
+        "parentId": "root",
+        "parentSocket": "hydraulic-ram-socket",
+        "localStart": [
+          0,
+          0,
+          0
+        ],
+        "localEnd": [
+          0,
+          0.1,
+          -0.1
+        ],
+        "contactType": "hinge",
+        "overlap": 0.05,
+        "gapTolerance": 0.01,
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "dimensions": {
+        "width": 0.14,
+        "height": 0.14,
+        "depth": 0.55,
+        "units": "relative",
+        "confidence": 0.35
+      },
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "actionProfile": {
+        "animationRole": "hinge-hardware",
+        "pivot": {
+          "mode": "fixed",
+          "localPosition": [
+            0,
+            0,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "confidence": 0.65
+        },
+        "attachmentContract": {
+          "parentId": "hydraulic-ram",
+          "parentSocket": "hydraulic-ram-socket",
+          "localStart": [
+            0,
+            0,
+            0
+          ],
+          "localEnd": [
+            0,
+            0.1,
+            -0.1
+          ],
+          "contactType": "hinge",
+          "overlap": 0.05,
+          "gapTolerance": 0.01,
+          "evidenceRefs": [
+            "primary-reference"
+          ]
+        },
+        "transformChannels": {
+          "translate": false,
+          "rotate": true,
+          "scale": false,
+          "bend": false,
+          "twist": false,
+          "detach": false,
+          "visibility": true,
+          "materialState": true
+        },
+        "sockets": [],
+        "collider": {
+          "type": "none",
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "isTrigger": false,
+          "notes": "visual-only"
+        },
+        "constraints": [
+          {
+            "state": "visible",
+            "source": "canonical asset definition"
+          },
+          {
+            "state": "worn",
+            "source": "canonical asset definition"
+          }
+        ],
+        "destruction": {
+          "breakable": false,
+          "fractureGroup": "hinge-pin-group",
+          "seamRefs": [
+            "pin-crown",
+            "washer-ring",
+            "cavity-darkening"
+          ],
+          "detachableFragments": [],
+          "breakImpulse": 0,
+          "debrisMaterial": "bare-steel"
+        }
+      },
+      "material": "bare-steel",
+      "materialLayers": [
+        "bare-steel",
+        "rust"
+      ],
+      "deformations": [],
+      "joints": [],
+      "seams": [],
+      "localFeatures": [
+        "pin-crown",
+        "washer-ring",
+        "cavity-darkening"
+      ],
+      "colorMaterialRecipe": {
+        "dominantAlbedo": "rgba(167, 166, 160, 1.0)",
+        "secondaryAlbedo": "rgba(104, 107, 105, 1.0)",
+        "materialClass": "metal",
+        "materialClassConfidence": 0.82,
+        "colorGradient": {
+          "type": "linear",
+          "stops": [
+            {
+              "position": 0,
+              "color": "rgba(167, 166, 160, 1.0)"
+            },
+            {
+              "position": 1,
+              "color": "rgba(208, 205, 192, 1.0)"
+            }
+          ]
+        },
+        "evidenceRefs": [
+          "primary-reference"
+        ]
+      },
+      "surfaceDetail": {
+        "macroRoughness": 0.78,
+        "microRoughness": 0.18,
+        "bumpAmplitude": 0.32,
+        "normalPattern": "independent material normal",
+        "displacementPattern": "localized wear where silhouette permits",
+        "occlusionPattern": "cavity and contact AO",
+        "edgeWearPattern": "paint loss on exposed edges",
+        "notes": "Derived from the canonical material and detail definition."
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ],
+      "details": [
+        "pin-crown",
+        "washer-ring",
+        "cavity-darkening"
+      ],
+      "fidelityTier": "structural"
     }
   ],
   "materials": [
     {
-      "id": "base",
-      "name": "Base material",
+      "id": "painted-steel",
+      "name": "worn dark protective paint over steel",
       "type": "standard",
+      "qualityTier": "hero",
       "shaderModel": "MeshStandardMaterial / PBR approximation",
-      "baseColor": "#8A7A5F",
-      "color": "#8A7A5F",
+      "baseColor": "#3E4A4D",
+      "color": "#3E4A4D",
       "albedo": {
-        "dominant": "#8A7A5F",
+        "dominant": "#3E4A4D",
         "secondary": [
-          "#6E614B",
-          "#A08F70"
+          "#566365",
+          "#293033"
         ],
-        "samplingNotes": "Use image-observed local color zones, not a single averaged color."
+        "samplingNotes": "Canonical asset definition; source pixels remain evidence, not measured truth."
       },
       "colorVariation": {
         "palette": [
-          "#8A7A5F",
-          "#6E614B",
-          "#A08F70"
+          "#3E4A4D",
+          "#566365",
+          "#293033"
         ],
-        "pattern": "mottled",
-        "amplitude": 0.15,
-        "heightCorrelation": 0.3
+        "pattern": "localized procedural variation",
+        "amplitude": 0.2,
+        "heightCorrelation": 0.35
       },
       "textureResolution": 1024,
       "textureProjection": {
         "mode": "uv",
         "repeat": [
-          2.0,
-          2.0
+          2,
+          2
         ],
         "anisotropy": 8,
-        "texelDensityIntent": "Preserve stable world/object-scale detail; do not stretch micro detail with component scale."
+        "texelDensityIntent": "Stable object-scale detail"
       },
       "surfaceFrequencyBands": [
         {
           "id": "macro",
-          "frequency": 2.0,
+          "frequency": 2,
           "amplitude": 0.42,
-          "role": "broad color and height breakup"
+          "role": "broad breakup"
         },
         {
           "id": "meso",
-          "frequency": 12.0,
+          "frequency": 12,
           "amplitude": 0.22,
-          "role": "ridges, pores, grain, dents, or equivalent visible relief"
+          "role": "wear and seams"
         },
         {
           "id": "micro",
-          "frequency": 56.0,
+          "frequency": 56,
           "amplitude": 0.08,
-          "role": "highlight breakup visible under grazing light"
+          "role": "grazing-light breakup"
         }
       ],
       "roughness": {
-        "base": 0.75,
-        "variation": 0.15,
-        "map": "independent-procedural-field",
-        "localResponse": "higher roughness in cavities, lower roughness on worn edges"
+        "base": 0.78,
+        "variation": 0.18,
+        "map": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_roughness.png"
       },
       "metalness": {
-        "base": 0.0,
-        "variation": 0.0
+        "base": 0.82,
+        "variation": 0.08
       },
       "normal": {
-        "pattern": "derived-from-independent-height-field",
-        "strength": 0.35,
-        "scale": 24.0,
+        "pattern": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_normal.png",
+        "strength": 0.42,
+        "scale": 24,
         "space": "tangent"
       },
       "bump": {
-        "pattern": "none",
-        "amplitude": 0.0,
-        "scale": 1.0
+        "pattern": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_height.png",
+        "amplitude": 0.2,
+        "scale": 1
       },
       "displacement": {
-        "pattern": "none",
-        "amplitude": 0.0,
-        "scale": 1.0,
+        "pattern": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_height.png",
+        "amplitude": 0.04,
+        "scale": 1,
         "silhouetteAffects": false
       },
       "ambientOcclusion": {
-        "cavityStrength": 0.25,
+        "cavityStrength": 0.55,
         "contactShadowBias": 0.35,
-        "notes": "Darken creases, seams, intersections, and recessed local features."
+        "notes": "Independent cavity and contact response"
       },
       "wear": {
-        "edgeWear": 0.0,
+        "edgeWear": 0.45,
+        "scratches": [
+          {
+            "id": "paint-chip-mask",
+            "kind": "chip",
+            "region": "beam edges and upper hitch plates",
+            "affect": "expose bare steel and rust"
+          },
+          {
+            "id": "edge-wear-mask",
+            "kind": "scratch",
+            "region": "beam corners and share supports",
+            "affect": "lower roughness and expose warm underlayer"
+          }
+        ],
+        "chips": [
+          {
+            "id": "paint-chip-mask",
+            "kind": "chip",
+            "region": "beam edges and upper hitch plates",
+            "affect": "expose bare steel and rust"
+          }
+        ]
+      },
+      "dirt": {
+        "amount": 0.28,
+        "cavityBias": 0.7,
+        "color": "#3E4A4D"
+      },
+      "localOverrides": [
+        {
+          "id": "paint-chip-mask",
+          "kind": "chip",
+          "region": "beam edges and upper hitch plates",
+          "affect": "expose bare steel and rust"
+        },
+        {
+          "id": "edge-wear-mask",
+          "kind": "scratch",
+          "region": "beam corners and share supports",
+          "affect": "lower roughness and expose warm underlayer"
+        },
+        {
+          "id": "cavity-dirt-mask",
+          "kind": "stain",
+          "region": "pin recesses and underside joints",
+          "affect": "darken albedo and increase roughness"
+        }
+      ],
+      "referencePbr": {
+        "version": "1",
+        "sourceImage": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+        "extractor": "extract_pbr_evidence.py",
+        "method": "reference-derived pixel evidence",
+        "verdict": "usable for derived material pass",
+        "hardLimit": "not inverse rendering",
+        "usable": true,
+        "confidence": 0.86,
+        "estimatedFidelity": 0.86,
+        "targetThreshold": 0.7,
+        "maps": {
+          "albedo": {
+            "path": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_albedo.png",
+            "channel": "albedo"
+          },
+          "roughness": {
+            "path": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_roughness.png",
+            "channel": "roughness"
+          },
+          "height": {
+            "path": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_height.png",
+            "channel": "height"
+          },
+          "normal": {
+            "path": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_normal.png",
+            "channel": "normal"
+          },
+          "ao": {
+            "path": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_ao.png",
+            "channel": "ao"
+          }
+        }
+      },
+      "shaderNotes": [
+        "Keep albedo, roughness, height, normal, and AO independent.",
+        "Do not turn visual texture into collision or gameplay authority."
+      ]
+    },
+    {
+      "id": "bare-steel",
+      "name": "exposed and polished steel cutting/pin surfaces",
+      "type": "standard",
+      "qualityTier": "utility",
+      "shaderModel": "MeshStandardMaterial / PBR approximation",
+      "baseColor": "#A7A6A0",
+      "color": "#A7A6A0",
+      "albedo": {
+        "dominant": "#A7A6A0",
+        "secondary": [
+          "#686B69",
+          "#D0CDC0"
+        ],
+        "samplingNotes": "Canonical asset definition; source pixels remain evidence, not measured truth."
+      },
+      "colorVariation": {
+        "palette": [
+          "#A7A6A0",
+          "#686B69",
+          "#D0CDC0"
+        ],
+        "pattern": "localized procedural variation",
+        "amplitude": 0.2,
+        "heightCorrelation": 0.35
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2,
+          2
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Stable object-scale detail"
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 2,
+          "amplitude": 0.42,
+          "role": "broad breakup"
+        },
+        {
+          "id": "meso",
+          "frequency": 12,
+          "amplitude": 0.22,
+          "role": "wear and seams"
+        },
+        {
+          "id": "micro",
+          "frequency": 56,
+          "amplitude": 0.08,
+          "role": "grazing-light breakup"
+        }
+      ],
+      "roughness": {
+        "base": 0.36,
+        "variation": 0.22,
+        "map": "independent-procedural-metal-roughness"
+      },
+      "metalness": {
+        "base": 0.94,
+        "variation": 0.08
+      },
+      "normal": {
+        "pattern": "independent-machined-surface-normal",
+        "strength": 0.26,
+        "scale": 24,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "independent-edge-and-machining-height",
+        "amplitude": 0.2,
+        "scale": 1
+      },
+      "displacement": {
+        "pattern": "independent-edge-and-machining-height",
+        "amplitude": 0.04,
+        "scale": 1,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.48,
+        "contactShadowBias": 0.35,
+        "notes": "Independent cavity and contact response"
+      },
+      "wear": {
+        "edgeWear": 0.45,
+        "scratches": [
+          {
+            "id": "machining-scratches",
+            "kind": "scratch",
+            "region": "pin crowns and exposed plates",
+            "affect": "directional normal and roughness breakup"
+          }
+        ],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.28,
+        "cavityBias": 0.7,
+        "color": "#A7A6A0"
+      },
+      "localOverrides": [
+        {
+          "id": "cutting-edge-polish",
+          "kind": "gloss",
+          "region": "share leading edges",
+          "affect": "roughness 0.18 with grazing-light readability",
+          "roughness": 0.18,
+          "clearcoat": 0.35
+        },
+        {
+          "id": "machining-scratches",
+          "kind": "scratch",
+          "region": "pin crowns and exposed plates",
+          "affect": "directional normal and roughness breakup"
+        }
+      ],
+      "shaderNotes": [
+        "Keep albedo, roughness, height, normal, and AO independent.",
+        "Do not turn visual texture into collision or gameplay authority."
+      ]
+    },
+    {
+      "id": "rust",
+      "name": "oxidation and paint-loss overlay",
+      "type": "standard",
+      "qualityTier": "utility",
+      "shaderModel": "MeshStandardMaterial / PBR approximation",
+      "baseColor": "#8A4D32",
+      "color": "#8A4D32",
+      "albedo": {
+        "dominant": "#8A4D32",
+        "secondary": [
+          "#B26A3E",
+          "#4A3028"
+        ],
+        "samplingNotes": "Canonical asset definition; source pixels remain evidence, not measured truth."
+      },
+      "colorVariation": {
+        "palette": [
+          "#8A4D32",
+          "#B26A3E",
+          "#4A3028"
+        ],
+        "pattern": "localized procedural variation",
+        "amplitude": 0.2,
+        "heightCorrelation": 0.35
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2,
+          2
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Stable object-scale detail"
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 2,
+          "amplitude": 0.42,
+          "role": "broad breakup"
+        },
+        {
+          "id": "meso",
+          "frequency": 12,
+          "amplitude": 0.22,
+          "role": "wear and seams"
+        },
+        {
+          "id": "micro",
+          "frequency": 56,
+          "amplitude": 0.08,
+          "role": "grazing-light breakup"
+        }
+      ],
+      "roughness": {
+        "base": 0.92,
+        "variation": 0.2,
+        "map": "independent-rust-roughness"
+      },
+      "metalness": {
+        "base": 0.18,
+        "variation": 0.08
+      },
+      "normal": {
+        "pattern": "independent-rust-bloom-normal",
+        "strength": 0.3,
+        "scale": 24,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "rust-bloom-height",
+        "amplitude": 0.2,
+        "scale": 1
+      },
+      "displacement": {
+        "pattern": "rust-bloom-height",
+        "amplitude": 0.04,
+        "scale": 1,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.65,
+        "contactShadowBias": 0.35,
+        "notes": "Independent cavity and contact response"
+      },
+      "wear": {
+        "edgeWear": 0.45,
         "scratches": [],
         "chips": []
       },
       "dirt": {
-        "amount": 0.0,
-        "cavityBias": 0.0,
-        "color": "#2F2A22"
+        "amount": 0.28,
+        "cavityBias": 0.7,
+        "color": "#8A4D32"
       },
-      "localOverrides": [],
-      "shaderNotes": [
-        "Prefer MeshPhysicalMaterial when clearcoat, sheen, transmission, or thin-surface response is observed; otherwise use MeshStandardMaterial-compatible PBR channels.",
-        "Generate albedo, roughness, height/normal, and AO independently; never alias albedo into roughness.",
-        "Use normal/bump/displacement only when they map to observed surface relief.",
-        "Use displacement geometry when the observed relief changes the close-up silhouette; texture-only relief is insufficient there."
+      "localOverrides": [
+        {
+          "id": "rust-bloom",
+          "kind": "stain",
+          "region": "pin seams, lower share plates, beam scratches",
+          "affect": "warm oxidation with cavity bias"
+        },
+        {
+          "id": "sun-fade",
+          "kind": "stain",
+          "region": "upper exposed beam",
+          "affect": "desaturate and raise roughness"
+        }
       ],
-      "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes."
+      "shaderNotes": [
+        "Keep albedo, roughness, height, normal, and AO independent.",
+        "Do not turn visual texture into collision or gameplay authority."
+      ]
+    },
+    {
+      "id": "soil-residue",
+      "name": "mud and worked-soil residue",
+      "type": "standard",
+      "qualityTier": "utility",
+      "shaderModel": "MeshStandardMaterial / PBR approximation",
+      "baseColor": "#5A4230",
+      "color": "#5A4230",
+      "albedo": {
+        "dominant": "#5A4230",
+        "secondary": [
+          "#876546",
+          "#2E2925"
+        ],
+        "samplingNotes": "Canonical asset definition; source pixels remain evidence, not measured truth."
+      },
+      "colorVariation": {
+        "palette": [
+          "#5A4230",
+          "#876546",
+          "#2E2925"
+        ],
+        "pattern": "localized procedural variation",
+        "amplitude": 0.2,
+        "heightCorrelation": 0.35
+      },
+      "textureResolution": 1024,
+      "textureProjection": {
+        "mode": "uv",
+        "repeat": [
+          2,
+          2
+        ],
+        "anisotropy": 8,
+        "texelDensityIntent": "Stable object-scale detail"
+      },
+      "surfaceFrequencyBands": [
+        {
+          "id": "macro",
+          "frequency": 2,
+          "amplitude": 0.42,
+          "role": "broad breakup"
+        },
+        {
+          "id": "meso",
+          "frequency": 12,
+          "amplitude": 0.22,
+          "role": "wear and seams"
+        },
+        {
+          "id": "micro",
+          "frequency": 56,
+          "amplitude": 0.08,
+          "role": "grazing-light breakup"
+        }
+      ],
+      "roughness": {
+        "base": 0.97,
+        "variation": 0.12,
+        "map": "independent-wet-dry-soil-roughness"
+      },
+      "metalness": {
+        "base": 0,
+        "variation": 0.08
+      },
+      "normal": {
+        "pattern": "independent-soil-clump-normal",
+        "strength": 0.38,
+        "scale": 24,
+        "space": "tangent"
+      },
+      "bump": {
+        "pattern": "shallow-soil-clump-height",
+        "amplitude": 0.2,
+        "scale": 1
+      },
+      "displacement": {
+        "pattern": "shallow-soil-clump-height",
+        "amplitude": 0.04,
+        "scale": 1,
+        "silhouetteAffects": false
+      },
+      "ambientOcclusion": {
+        "cavityStrength": 0.7,
+        "contactShadowBias": 0.35,
+        "notes": "Independent cavity and contact response"
+      },
+      "wear": {
+        "edgeWear": 0.45,
+        "scratches": [],
+        "chips": []
+      },
+      "dirt": {
+        "amount": 0.9,
+        "cavityBias": 0.7,
+        "color": "#5A4230"
+      },
+      "localOverrides": [
+        {
+          "id": "soil-cavity-bias",
+          "kind": "stain",
+          "region": "lower share recesses and backs",
+          "affect": "darken with gravity/cavity bias"
+        },
+        {
+          "id": "wet-soil-gloss",
+          "kind": "gloss",
+          "region": "freshly worked lower edges",
+          "affect": "roughness 0.62 with restrained specular response",
+          "roughness": 0.18,
+          "clearcoat": 0.35
+        }
+      ],
+      "shaderNotes": [
+        "Keep albedo, roughness, height, normal, and AO independent.",
+        "Do not turn visual texture into collision or gameplay authority."
+      ]
     }
   ],
-  "repetitionSystems": [],
+  "repetitionSystems": [
+    {
+      "id": "plough-share-row",
+      "semanticLevel": "meso",
+      "level": "macro",
+      "parent": "share-assembly",
+      "primitive": "extrude",
+      "material": "bare-steel",
+      "count": 4,
+      "placement": {
+        "mode": "linear",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "radius": 0,
+        "startAngleDeg": 0
+      },
+      "instanceScale": [
+        0.55,
+        0.65,
+        0.18
+      ],
+      "distribution": {
+        "pattern": "linear-across-cross-beam",
+        "spacingMeters": 0.92,
+        "orientationRule": "shared profile with small authored yaw/tilt variation",
+        "instanceIds": [
+          "share-left",
+          "share-center",
+          "share-right",
+          "share-fourth-observed"
+        ]
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ]
+    },
+    {
+      "id": "visible-fastener-rows",
+      "semanticLevel": "meso",
+      "level": "macro",
+      "parent": "cross-beam",
+      "primitive": "cylinder",
+      "material": "rust",
+      "count": 12,
+      "placement": {
+        "mode": "linear",
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "radius": 0,
+        "startAngleDeg": 0
+      },
+      "instanceScale": [
+        0.08,
+        0.08,
+        0.08
+      ],
+      "distribution": {
+        "pattern": "paired-linear-and-radial",
+        "spacingMeters": 0.18,
+        "headStyle": "hex-and-round-mixed"
+      },
+      "evidenceRefs": [
+        "primary-reference"
+      ]
+    }
+  ],
   "buildPasses": [
     {
       "id": "blockout",
       "goal": "Match macro silhouette and proportions.",
       "componentRefs": [
-        "root"
+        "root",
+        "attachment-frame",
+        "share-assembly",
+        "hydraulic-ram",
+        "top-link-bracket",
+        "lower-left-hitch",
+        "lower-right-hitch",
+        "cross-beam",
+        "brace-left",
+        "brace-right",
+        "share-left",
+        "share-center",
+        "share-right",
+        "fastener-groups",
+        "cutting-edge-group",
+        "rust-wear-group",
+        "soil-residue-group",
+        "hinge-pin-group"
       ],
       "acceptance": [
         "Silhouette reads correctly without materials.",
@@ -927,8 +6056,205 @@
       ]
     }
   ],
-  "visualEvidence": [],
-  "reviewHistory": [],
+  "visualEvidence": [
+    {
+      "timestamp": "2026-07-29T16:58:14.060584+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.6,
+      "aiVisionScore": 0.6,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.6,
+        "componentStructure": 0.7,
+        "formDetail": 0.5,
+        "materialSurface": 0.4,
+        "lightingCamera": 0.6
+      },
+      "featureReviews": [
+        {
+          "id": "field-plough-silhouette",
+          "score": 0.6,
+          "visible": true,
+          "tier": "critical",
+          "notes": "The render now reads as a four-share field plough with the correct broad component families, but the moldboards remain too rounded and uniformly suspended, the cutting shares do not yet integrate into the moldboards like the reference, and the camera-normalized outer contour does not clear the critical 0.80 threshold."
+        }
+      ],
+      "referenceScreenshot": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+      "renderScreenshot": "assets/workbench/field-plough-01/review/front-three-quarter-neutral-open-world.png",
+      "comparisonImage": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v14.png",
+      "cameraView": "front-three-quarter",
+      "notes": "Controlled raw WebGL canvas capture. Development-useful blockout only, not an accepted img2threejs blockout pass.",
+      "aiVisionNotes": "The object class and macro hierarchy are recognizable. The critical silhouette system fails because the repeated shares read as simplified suspended paddles rather than handed plough bodies with integrated cutting edges, and the render framing does not match the reference crop closely enough for the Tier 1 gate."
+    },
+    {
+      "timestamp": "2026-07-29T17:04:07.074722+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.65,
+      "aiVisionScore": 0.65,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.68,
+        "componentStructure": 0.72,
+        "formDetail": 0.55,
+        "materialSurface": 0.42,
+        "lightingCamera": 0.68
+      },
+      "featureReviews": [
+        {
+          "id": "field-plough-silhouette",
+          "score": 0.68,
+          "visible": true,
+          "tier": "critical",
+          "notes": "The shorter attachment frame and closer camera improve the reference-normalized mass distribution, and the scale delta now passes. The silhouette remains below its 0.80 feature threshold because the share row and negative spaces still diverge from the reference."
+        },
+        {
+          "id": "repeated-share-system",
+          "score": 0.6,
+          "visible": true,
+          "tier": "critical",
+          "notes": "Four handed, depth-staggered moldboards and forward cutting points are visible. They remain too uniform and plate-like, with insufficient lower-edge continuity, sweep, and mechanical attachment detail for the 0.80 critical threshold."
+        }
+      ],
+      "referenceScreenshot": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+      "renderScreenshot": "assets/workbench/field-plough-01/review/front-three-quarter-neutral-open-world.png",
+      "comparisonImage": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v16.png",
+      "cameraView": "front-three-quarter",
+      "notes": "Diagnostic comparison only because Tier 1 has not passed. Do not advance the blockout pass.",
+      "aiVisionNotes": "The camera and A-frame correction improved the global read and deterministic scale metric. The blockout still fails because the repeated moldboards remain more uniform and suspended than the reference, and the aspect-normalized silhouette has not converged."
+    }
+  ],
+  "reviewHistory": [
+    {
+      "timestamp": "2026-07-29T16:58:14.060584+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.6,
+      "aiVisionScore": 0.6,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.6,
+        "componentStructure": 0.7,
+        "formDetail": 0.5,
+        "materialSurface": 0.4,
+        "lightingCamera": 0.6
+      },
+      "featureReviews": [
+        {
+          "id": "field-plough-silhouette",
+          "score": 0.6,
+          "visible": true,
+          "tier": "critical",
+          "notes": "The render now reads as a four-share field plough with the correct broad component families, but the moldboards remain too rounded and uniformly suspended, the cutting shares do not yet integrate into the moldboards like the reference, and the camera-normalized outer contour does not clear the critical 0.80 threshold."
+        }
+      ],
+      "action": "refine-spec",
+      "summary": "Authored rebuild is a recognizable four-share field-plough blockout, but the img2threejs blockout gate remains failed on camera-normalized silhouette and identity-defining share geometry.",
+      "matched": [
+        "four repeated share assemblies are present",
+        "crossbeam, triangular hitch frame, top-link clevis, lower hitches, and central hydraulic assembly are present",
+        "multi-angle renders remain volumetric"
+      ],
+      "mismatches": [
+        "Tier 1 silhouette IoU is 0.409 below 0.85",
+        "aspect-ratio delta is 0.168 above 0.05",
+        "scale delta is 0.295 above 0.08",
+        "moldboards remain too rounded and insufficiently helicoidal",
+        "cutting points do not integrate continuously into the moldboards"
+      ],
+      "specFixes": [
+        "add explicit handed helicoidal moldboard section profiles and twist constraints",
+        "add integrated cutting-share profile and transition constraints",
+        "add reference-camera crop, subject occupancy, and landmark alignment targets",
+        "add depth staggering and mechanical load-path constraints for each share standard"
+      ],
+      "codeFixes": [
+        "do not advance code pass until the refined spec strict-validates",
+        "after spec repair rebuild the currently unlocked blockout only"
+      ],
+      "evidence": [
+        "assets/workbench/field-plough-01/review/browser-review-state.json",
+        "assets/workbench/field-plough-01/review/correction-history.json",
+        "multi-angle diagnostic degenerate=false",
+        "Divine Eye action=probe fidelity=0.63 reconstructionModeSuspected=true"
+      ],
+      "visualEvidence": {
+        "referenceScreenshot": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+        "renderScreenshot": "assets/workbench/field-plough-01/review/front-three-quarter-neutral-open-world.png",
+        "comparisonImage": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v14.png",
+        "cameraView": "front-three-quarter",
+        "notes": "Controlled raw WebGL canvas capture. Development-useful blockout only, not an accepted img2threejs blockout pass.",
+        "aiVisionNotes": "The object class and macro hierarchy are recognizable. The critical silhouette system fails because the repeated shares read as simplified suspended paddles rather than handed plough bodies with integrated cutting edges, and the render framing does not match the reference crop closely enough for the Tier 1 gate."
+      }
+    },
+    {
+      "timestamp": "2026-07-29T17:04:07.074722+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.65,
+      "aiVisionScore": 0.65,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.68,
+        "componentStructure": 0.72,
+        "formDetail": 0.55,
+        "materialSurface": 0.42,
+        "lightingCamera": 0.68
+      },
+      "featureReviews": [
+        {
+          "id": "field-plough-silhouette",
+          "score": 0.68,
+          "visible": true,
+          "tier": "critical",
+          "notes": "The shorter attachment frame and closer camera improve the reference-normalized mass distribution, and the scale delta now passes. The silhouette remains below its 0.80 feature threshold because the share row and negative spaces still diverge from the reference."
+        },
+        {
+          "id": "repeated-share-system",
+          "score": 0.6,
+          "visible": true,
+          "tier": "critical",
+          "notes": "Four handed, depth-staggered moldboards and forward cutting points are visible. They remain too uniform and plate-like, with insufficient lower-edge continuity, sweep, and mechanical attachment detail for the 0.80 critical threshold."
+        }
+      ],
+      "action": "refine-code",
+      "summary": "Post-spec blockout improves camera scale and A-frame proportions, but remains locked on silhouette, aspect ratio, and repeated-share critical features.",
+      "matched": [
+        "four handed depth-staggered share assemblies remain visible",
+        "scale delta passes at 0.0611",
+        "Divine Eye diagnostic fidelity improved to 0.714",
+        "multi-angle degenerate-view check passes"
+      ],
+      "mismatches": [
+        "Tier 1 silhouette IoU is 0.470 below 0.85",
+        "aspect-ratio delta is 0.1001 above 0.05",
+        "field-plough-silhouette feature score 0.68 is below 0.80",
+        "repeated-share-system feature score 0.60 is below 0.80"
+      ],
+      "specFixes": [
+        "none required before the next code iteration",
+        "the refined helicoidal, cutting-share, camera, and repetition constraints strict-validate"
+      ],
+      "codeFixes": [
+        "reduce remaining vertical aspect mismatch",
+        "increase moldboard lower-edge sweep and concavity",
+        "make cutting-share transitions continuous",
+        "strengthen standards, clamps, and load paths without changing the canonical spec"
+      ],
+      "evidence": [
+        "assets/workbench/field-plough-01/reference-camera.json",
+        "assets/workbench/field-plough-01/review/correction-history-post-spec.json",
+        "Tier 1 render hash 56853d31f8b5c83f",
+        "Divine Eye action=probe fidelity=0.714",
+        "multi-angle diagnostic degenerate=false"
+      ],
+      "visualEvidence": {
+        "referenceScreenshot": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+        "renderScreenshot": "assets/workbench/field-plough-01/review/front-three-quarter-neutral-open-world.png",
+        "comparisonImage": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v16.png",
+        "cameraView": "front-three-quarter",
+        "notes": "Diagnostic comparison only because Tier 1 has not passed. Do not advance the blockout pass.",
+        "aiVisionNotes": "The camera and A-frame correction improved the global read and deterministic scale metric. The blockout still fails because the repeated moldboards remain more uniform and suspended than the reference, and the aspect-normalized silhouette has not converged."
+      }
+    }
+  ],
   "lodPlan": [
     {
       "tier": "near",
@@ -949,14 +6275,29 @@
     "fpsTarget": 30,
     "optimizationPolicy": "Reach accepted visual fidelity first, then optimize without removing reference-critical geometry or surface layers."
   },
-  "lightingFromPhoto": [],
+  "lightingFromPhoto": [
+    {
+      "role": "key light",
+      "description": "large warm upper-left studio key defining beam and share bevels"
+    },
+    {
+      "role": "fill light",
+      "description": "soft cool frontal fill preserving dark cavities and hitch separation"
+    },
+    {
+      "role": "rim light",
+      "description": "subtle rear rim separating the top-link triangle and share silhouettes"
+    },
+    {
+      "role": "environment",
+      "description": "warm light-gray background, ACES tone mapping, exposure near neutral, grounded contact shadow and ambient occlusion"
+    }
+  ],
   "proceduralStrategy": [
-    "Block out macro silhouette first.",
-    "Add component hierarchy and joints.",
-    "Create stable pivot groups, sockets, collider proxies, and destruction metadata before visual polish.",
-    "Refine forms with bevels, tapers, bends, and procedural noise.",
-    "Run reference PBR extraction for important source-image materials and stop when confidence is below the target threshold.",
-    "Add material variation before adding expensive micro-geometry."
+    "Build named macro pivots first.",
+    "Use profile extrudes or curve sweeps for curved shares, never box stacks.",
+    "Use instanced systems for repeated shares and fasteners.",
+    "Keep visual meshes, sockets, and collision metadata separate."
   ],
   "animationAnchors": [
     "root pivot node supports whole-object translation, rotation, scale, and visibility changes",
@@ -966,5 +6307,291 @@
     "actionProfile.destruction.fractureGroup marks detachable or breakable component sets",
     "component seams and sockets define plausible break points instead of random explosions"
   ],
-  "risks": []
+  "risks": [],
+  "tier1Results": [
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.4085,
+        "aspectRatioDelta": 0.1679,
+        "scaleDelta": 0.2954,
+        "bilateralSymmetryError": 0.1105,
+        "colorDelta": {
+          "checked": 18,
+          "maxDeltaE": 24.59,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 5.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 24.59
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.409 is below threshold 0.85",
+        "aspect-ratio delta 0.168 exceeds threshold 0.05",
+        "scale delta 0.295 exceeds threshold 0.08"
+      ],
+      "renderHash": "112f445152e69a60",
+      "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.4287,
+        "aspectRatioDelta": 0.1704,
+        "scaleDelta": 0.151,
+        "bilateralSymmetryError": 0.1931,
+        "colorDelta": {
+          "checked": 18,
+          "maxDeltaE": 24.15,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 6.02
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.02
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.02
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.02
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.02
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 24.15
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.05
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.76
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.429 is below threshold 0.85",
+        "aspect-ratio delta 0.170 exceeds threshold 0.05",
+        "scale delta 0.151 exceeds threshold 0.08"
+      ],
+      "renderHash": "5dc02ec318a945e1",
+      "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.47,
+        "aspectRatioDelta": 0.1001,
+        "scaleDelta": 0.0611,
+        "bilateralSymmetryError": 0.1808,
+        "colorDelta": {
+          "checked": 18,
+          "maxDeltaE": 24.35,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            },
+            {
+              "componentId": null,
+              "deltaE": 24.35
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.72
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.71
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.470 is below threshold 0.85",
+        "aspect-ratio delta 0.100 exceeds threshold 0.05"
+      ],
+      "renderHash": "56853d31f8b5c83f",
+      "passId": "blockout"
+    }
+  ]
 }

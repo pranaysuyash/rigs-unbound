@@ -20,11 +20,14 @@ import { findSite } from "./world";
 export const INFRASTRUCTURE_NETWORK_VERSION = 1 as const;
 
 export const INFRASTRUCTURE_ENTITY_IDS = [
-  "floodgate-12",
+  "sunken-flats-waterworks",
   "long-furrow-drain-pump",
   "quarry-dewatering-rig",
 ] as const;
 export type InfrastructureEntityId = (typeof INFRASTRUCTURE_ENTITY_IDS)[number];
+
+/** Save-only alias for the retired singleton identity. */
+const LEGACY_FLOODGATE_ENTITY_ID = "floodgate-12";
 
 export const INFRASTRUCTURE_COMPONENTS = [
   "hydraulic",
@@ -154,9 +157,9 @@ const quarryShelf = locationAt("quarry-shelf", 10.5, 0);
 export const INFRASTRUCTURE_DEFINITIONS: Readonly<
   Record<InfrastructureEntityId, InfrastructureDefinition>
 > = {
-  "floodgate-12": {
-    id: "floodgate-12",
-    name: "Floodgate 12",
+  "sunken-flats-waterworks": {
+    id: "sunken-flats-waterworks",
+    name: "Sunken Flats Waterworks",
     siteId: "sunken-flats",
     ...sunkenFlats,
     interactionRadiusM: 10,
@@ -309,7 +312,9 @@ export function createInfrastructureNetworkState(): InfrastructureNetworkState {
   return {
     version: INFRASTRUCTURE_NETWORK_VERSION,
     entities: {
-      "floodgate-12": entityState(INFRASTRUCTURE_DEFINITIONS["floodgate-12"]),
+      "sunken-flats-waterworks": entityState(
+        INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"],
+      ),
       "long-furrow-drain-pump": entityState(
         INFRASTRUCTURE_DEFINITIONS["long-furrow-drain-pump"],
       ),
@@ -586,7 +591,7 @@ function legacyFloodgateCondition(value: unknown): InfrastructureEntityState | n
   if (!value || typeof value !== "object") return null;
   const legacy = value as Record<string, unknown>;
   const status = String(legacy.status ?? "dormant");
-  const definition = INFRASTRUCTURE_DEFINITIONS["floodgate-12"];
+  const definition = INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"];
   const condition =
     status === "restored"
       ? 100
@@ -620,8 +625,8 @@ function legacyFloodgateCondition(value: unknown): InfrastructureEntityState | n
 }
 
 /**
- * Recovers v14 records and upgrades the prior v13 Floodgate singleton without
- * preserving it as a second authoritative state shape.
+ * Recovers prior records without preserving the retired Floodgate singleton as
+ * a second authoritative state shape.
  */
 export function recoverInfrastructureNetwork(
   value: unknown,
@@ -640,7 +645,11 @@ export function recoverInfrastructureNetwork(
   }
   for (const id of INFRASTRUCTURE_ENTITY_IDS) {
     const definition = INFRASTRUCTURE_DEFINITIONS[id];
-    const raw = entities[id];
+    const raw = entities[id] ?? (
+      id === "sunken-flats-waterworks"
+        ? entities[LEGACY_FLOODGATE_ENTITY_ID]
+        : undefined
+    );
     if (!raw || typeof raw !== "object") continue;
     const record = raw as Record<string, unknown>;
     const components = { ...network.entities[id].components };

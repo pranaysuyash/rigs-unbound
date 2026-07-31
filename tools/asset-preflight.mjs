@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const VALID_STATUSES = new Set([
   "concept",
   "proposed",
+  "procedural-candidate",
   "approved",
   "runtime-tested",
   "blocked",
@@ -51,6 +52,171 @@ function readUInt32(buffer, offset) {
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
+}
+
+function validateCanonicalSpec(spec, entry) {
+  const findings = [];
+  const assetId = entry?.id ?? null;
+  const expectedAssetId =
+    typeof assetId === "string"
+      ? assetId.replace(/-object-reference$/, "")
+      : null;
+  if (!spec || typeof spec !== "object" || Array.isArray(spec)) {
+    return [
+      finding(
+        "spec-shape-invalid",
+        "Canonical asset spec root must be an object.",
+        assetId,
+      ),
+    ];
+  }
+  if (spec.schemaVersion !== 1) {
+    findings.push(
+      finding(
+        "spec-version-invalid",
+        "Canonical asset spec schemaVersion must be 1.",
+        assetId,
+      ),
+    );
+  }
+  if (expectedAssetId && spec.assetId !== expectedAssetId) {
+    findings.push(
+      finding(
+        "spec-asset-id-mismatch",
+        `Canonical asset spec ${spec.assetId ?? "<missing>"} does not match ${expectedAssetId}.`,
+        assetId,
+      ),
+    );
+  }
+  const components = Array.isArray(spec.components) ? spec.components : [];
+  const componentIds = new Set();
+  for (const component of components) {
+    if (!component || typeof component.id !== "string") continue;
+    if (componentIds.has(component.id)) {
+      findings.push(
+        finding(
+          "spec-component-duplicate",
+          `Canonical asset spec repeats component ${component.id}.`,
+          assetId,
+        ),
+      );
+    }
+    componentIds.add(component.id);
+  }
+  for (const component of components) {
+    if (component?.parent && !componentIds.has(component.parent)) {
+      findings.push(
+        finding(
+          "spec-parent-missing",
+          `Component ${component.id} references missing parent ${component.parent}.`,
+          assetId,
+        ),
+      );
+    }
+  }
+  const materials = Array.isArray(spec.materials) ? spec.materials : [];
+  const materialIds = new Set(
+    materials.map((material) => material?.id).filter(Boolean),
+  );
+  for (const component of components) {
+    for (const materialId of component?.materials ?? []) {
+      if (!materialIds.has(materialId)) {
+        findings.push(
+          finding(
+            "spec-material-missing",
+            `Component ${component.id} references missing material ${materialId}.`,
+            assetId,
+          ),
+        );
+      }
+    }
+  }
+  for (const repetition of spec.repetitionSystems ?? []) {
+    if (
+      repetition?.prototypeComponent &&
+      !componentIds.has(repetition.prototypeComponent)
+    ) {
+      findings.push(
+        finding(
+          "spec-repetition-prototype-missing",
+          `Repetition ${repetition.id} references missing prototype ${repetition.prototypeComponent}.`,
+          assetId,
+        ),
+      );
+    }
+  }
+  const requiredObjects = [
+    "lifecycle",
+    "identity",
+    "coordinateFrame",
+    "behaviour",
+    "runtime",
+    "compiler",
+    "validation",
+    "provenance",
+  ];
+  for (const field of requiredObjects) {
+    if (!spec[field] || typeof spec[field] !== "object") {
+      findings.push(
+        finding(
+          "spec-object-missing",
+          `Canonical asset spec is missing object ${field}.`,
+          assetId,
+        ),
+      );
+    }
+  }
+  if (
+    typeof spec.runtime?.visualAuthority !== "string" ||
+    typeof spec.runtime?.collisionAuthority !== "string"
+  ) {
+    findings.push(
+      finding(
+        "spec-authority-missing",
+        "Canonical asset spec must name visual and collision authority.",
+        assetId,
+      ),
+    );
+  }
+  if (
+    !Array.isArray(spec.compiler?.stages) ||
+    spec.compiler.stages.length < 2
+  ) {
+    findings.push(
+      finding(
+        "spec-compiler-stages-missing",
+        "Canonical asset spec must list compiler stages.",
+        assetId,
+      ),
+    );
+  }
+  if (
+    !Array.isArray(spec.validation?.evidenceRoadmap) ||
+    spec.validation.evidenceRoadmap.length < 3
+  ) {
+    findings.push(
+      finding(
+        "spec-evidence-roadmap-missing",
+        "Canonical asset spec must list an evidence roadmap.",
+        assetId,
+      ),
+    );
+  }
+  if (spec.assetFamily === "rig" || spec.assetFamily === "rig-part") {
+    const levels = new Set(components.map((component) => component?.level));
+    for (const level of ["macro", "meso", "micro"]) {
+      if (!levels.has(level)) {
+        findings.push(
+          finding(
+            "spec-component-level-missing",
+            `Rig asset spec must include a ${level} component level.`,
+            assetId,
+          ),
+        );
+      }
+    }
+  }
+  return findings;
 }
 
 function parseJsonChunk(buffer, filePath) {
@@ -306,6 +472,30 @@ function validateEntry(entry, index, repoRoot, assetRoot) {
         );
     }
   }
+  if (entry.specPath !== undefined) {
+    if (
+      !safeRelativePath(entry.specPath) ||
+      !entry.specPath.toLowerCase().endsWith(".json")
+    ) {
+      findings.push(
+        finding(
+          "spec-path-unsafe",
+          `${prefix}.specPath must be a safe repository-relative JSON path.`,
+          entry.id ?? null,
+        ),
+      );
+    } else {
+      const specPath = path.resolve(repoRoot, entry.specPath);
+      if (!isPathInside(repoRoot, specPath))
+        findings.push(
+          finding(
+            "spec-path-outside-root",
+            `${prefix}.specPath escapes the repository root.`,
+            entry.id ?? null,
+          ),
+        );
+    }
+  }
   if (entry.runtimePath !== null && entry.runtimePath !== undefined) {
     if (
       !safeRelativePath(entry.runtimePath) ||
@@ -500,6 +690,42 @@ export async function preflightManifestFile(manifestPath) {
           finding(
             "source-file-missing",
             `Source file is missing: ${entry.sourcePath}.`,
+            entry.id ?? null,
+          ),
+        );
+      }
+    }
+    if (entry?.specPath && safeRelativePath(entry.specPath)) {
+      const specPath = path.resolve(repoRoot, entry.specPath);
+      try {
+        const spec = JSON.parse(await readFile(specPath, "utf8"));
+        const requiredSpecFields = [
+          "schemaVersion",
+          "assetId",
+          "assetFamily",
+          "lifecycle",
+          "components",
+          "materials",
+          "runtime",
+          "validation",
+        ];
+        for (const field of requiredSpecFields) {
+          if (!(field in spec)) {
+            findings.push(
+              finding(
+                "spec-field-missing",
+                `Canonical asset spec is missing ${field}: ${entry.specPath}.`,
+                entry.id ?? null,
+              ),
+            );
+          }
+        }
+        findings.push(...validateCanonicalSpec(spec, entry));
+      } catch (error) {
+        findings.push(
+          finding(
+            "spec-file-invalid",
+            `Canonical asset spec cannot be parsed: ${entry.specPath}: ${error.message}`,
             entry.id ?? null,
           ),
         );

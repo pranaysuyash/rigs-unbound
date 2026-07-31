@@ -18,8 +18,11 @@ import {
   cycleCamera,
   cycleDifferentialMode,
   cyclePhase,
+  diagnoseRestoration,
   installModule,
   performPrimaryAction,
+  performFirstStart,
+  performRestorationService,
   publicState,
   repairRig,
   selectActiveRig,
@@ -321,6 +324,15 @@ function replayCommand(
       return null;
     case "repairRig":
       repairRig(session.state);
+      return null;
+    case "diagnoseRestoration":
+      diagnoseRestoration(session.state);
+      return null;
+    case "performRestorationService":
+      performRestorationService(session.state);
+      return null;
+    case "performFirstStart":
+      performFirstStart(session.state);
       return null;
     case "rig-tool": {
       const toolId = entry.payload.toolId;

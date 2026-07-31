@@ -59,6 +59,7 @@ import {
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
   V18_SAVE_SCHEMA_VERSION,
+  V24_SAVE_SCHEMA_VERSION,
   V17_SAVE_SCHEMA_VERSION,
   V12_SAVE_SCHEMA_VERSION,
   V13_SAVE_SCHEMA_VERSION,
@@ -117,11 +118,27 @@ import {
   canFulfillCultivationNeed,
   createSettlementState,
   deriveSettlementCommunityPassageIds,
+  deriveSettlementWorldLeads,
   isSettlementNeedOutcomeId,
   nearbySettlementContact,
+  recordSettlementAdaptation,
+  recordSettlementContribution,
   recoverSettlementState,
-  SETTLEMENTS,
+  rustlineServiceStocked,
 } from "./settlement-needs";
+import {
+  availableSettlementCargoManifest,
+  completeSettlementCargoDelivery,
+  prepareSettlementCargo,
+} from "./settlement-cargo";
+import {
+  deriveSettlementLife,
+  communityAdaptationCandidates,
+  resolveSettlementContribution,
+  settlementContactSpeech,
+  type SettlementResponseDefinition,
+} from "./settlement-life";
+import { deriveCommunityTraffic } from "./community-traffic";
 import { MISSION_CLASSES, type MissionClass } from "./mission-propositions";
 import {
   RELAY_CARGO_TOW_AFFORDANCE,
@@ -712,7 +729,7 @@ export function repairServiceInReach(state: GameState) {
   const rustline = findSite("salvage-yard");
   if (
     rustline &&
-    state.settlements["rustline-salvage"].condition === "supplied" &&
+    rustlineServiceStocked(state) &&
     isWithinSiteServiceArea(rustline, rig.x, rig.z)
   ) {
     return { site: rustline, name: "Rustline service yard" } as const;
@@ -726,6 +743,7 @@ export function repairServiceInReach(state: GameState) {
 
 export type PrimaryActionKind =
   | "release-cargo"
+  | "prepare-settlement-cargo"
   | "attach-cargo"
   | "inspect-infrastructure"
   | "service-infrastructure"
@@ -737,6 +755,7 @@ export type PrimaryActionKind =
   | "collect-salvage"
   | "lower-plough"
   | "raise-plough"
+  | "contribute-settlement"
   | "none";
 
 /** Versioned local intent contract for the first command/event proof slice. */
@@ -778,6 +797,7 @@ export interface PrimaryActionResolution {
   ariaLabel: string;
   /** Structured compatibility evidence when a contextual offer is denied. */
   affordance?: AffordanceResolution;
+  settlementResponse?: SettlementResponseDefinition;
 }
 
 /**
@@ -795,6 +815,15 @@ export function resolvePrimaryAction(
   const profile = effectiveProfile(rig.id, rig.modules);
   const relay = state.cargoRelay;
   const cargo = relay.cargo;
+  const settlementCargo = availableSettlementCargoManifest(state, rig.x, rig.z);
+
+  if (settlementCargo) {
+    return {
+      kind: "prepare-settlement-cargo",
+      label: settlementCargo.label,
+      ariaLabel: settlementCargo.label,
+    };
+  }
   const pickup = cargoPickupTarget(relay);
 
   if (cargo.attachedRigId === rig.id) {
@@ -917,7 +946,21 @@ export function resolvePrimaryAction(
           kind: "lower-plough",
           label: "Lower blade",
           ariaLabel: "Lower field plough",
-        };
+      };
+  }
+
+  const settlementResponse = resolveSettlementContribution(
+    state,
+    { quarryRunoutStatus: world.roadIncidentProjection().status },
+    { x: rig.x, z: rig.z, capabilities: profile.capabilities, interaction: "context" },
+  );
+  if (settlementResponse) {
+    return {
+      kind: "contribute-settlement",
+      label: settlementResponse.label,
+      ariaLabel: `${settlementResponse.label} at the local settlement`,
+      settlementResponse,
+    };
   }
 
   // Named locals offer optional, revisitable place knowledge after immediate
@@ -1059,6 +1102,15 @@ export function executePrimaryActionCommand(
   const relay = state.cargoRelay;
   const cargo = relay.cargo;
   const resolution = resolvePrimaryAction(state, world);
+
+  if (resolution.kind === "prepare-settlement-cargo") {
+    const manifest = availableSettlementCargoManifest(state, rig.x, rig.z);
+    if (!manifest || !prepareSettlementCargo(state, manifest)) {
+      return primaryActionEvent(command, resolution.kind, "rejected", "offer-unavailable");
+    }
+    state.lastDiagnostic = manifest.loadedDiagnostic;
+    return primaryActionEvent(command, resolution.kind, "accepted");
+  }
 
   if (resolution.kind === "release-cargo") {
     cargo.attachedRigId = null;
@@ -1224,6 +1276,28 @@ export function executePrimaryActionCommand(
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
+  if (resolution.kind === "contribute-settlement") {
+    const response = resolveSettlementContribution(
+      state,
+      { quarryRunoutStatus: world.roadIncidentProjection().status },
+      { x: rig.x, z: rig.z, capabilities: profile.capabilities, interaction: "context" },
+    );
+    if (!response) {
+      state.lastDiagnostic = "The local work has changed. Read the settlement again before acting.";
+      return primaryActionEvent(command, resolution.kind, "rejected", "offer-unavailable");
+    }
+    const accepted = recordSettlementContribution(state, response.settlementId, {
+      responseId: response.id,
+      materialEffectId: response.materialEffectId,
+      capability: response.capability,
+      createdAtWorldMinutes: state.worldTimeMinutes,
+    });
+    state.lastDiagnostic = accepted
+      ? `${response.label}. ${response.explanation} The settlement remembers this help, but other pressures remain.`
+      : "That local contribution is already part of the settlement's history.";
+    return primaryActionEvent(command, resolution.kind, accepted ? "accepted" : "rejected", accepted ? undefined : "offer-unavailable");
+  }
+
   if (
     resolution.kind === "inspect-infrastructure" ||
     resolution.kind === "service-infrastructure"
@@ -1267,7 +1341,12 @@ export function executePrimaryActionCommand(
         "offer-unavailable",
       );
     }
-    state.lastDiagnostic = `${contact.speaker}: ${contact.text}`;
+    const life = deriveSettlementLife(state, {
+      quarryRunoutStatus: world.roadIncidentProjection().status,
+    }).find((settlement) => settlement.settlementId === contact.settlementId);
+    state.lastDiagnostic = `${contact.speaker}: ${
+      life ? settlementContactSpeech(life) : contact.text
+    }`;
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -1847,7 +1926,16 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
             (mission) => mission.id === assignedMissionId,
           ) ?? null
       : activeMissionMatching(state, "delivery");
-    if (deliveryMission) {
+    const settlementDelivery = completeSettlementCargoDelivery(state);
+    if (settlementDelivery) {
+      world.reconcileCommunityPassages(deriveSettlementCommunityPassageIds(state));
+      state.progression = applyActivityCompletionProgression(
+        state.progression,
+        "cargo-relay",
+        rig.id,
+      );
+      state.lastDiagnostic = settlementDelivery;
+    } else if (deliveryMission) {
       completeMission(state, deliveryMission.id, state.elapsedMs, world);
     } else {
       state.progression = applyActivityCompletionProgression(
@@ -2088,6 +2176,34 @@ export function stepGame(
   const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
   const weather = deriveWeatherState(state.worldTimeMinutes);
   advanceInfrastructure(state.infrastructure, weather, dt);
+  // Environmental authority is independent of whether the currently selected
+  // machine can move. A disabled rig must not freeze rain-fed field changes or
+  // persistent road incidents elsewhere in the open world.
+  world.advanceFieldConditions(
+    dt * WORLD_MINUTES_PER_REAL_SECOND,
+    weather.rainIntensity,
+    (x, z) =>
+      deriveInfrastructureEffects(state.infrastructure, x, z)
+        .soilDrainageRatePerHour,
+  );
+  world.advanceEcology(
+    state.worldTimeMinutes,
+    dt * WORLD_MINUTES_PER_REAL_SECOND,
+    weather.rainIntensity,
+  );
+  const mechanicalDisturbance = Math.min(
+    1,
+    Math.abs(rig.speed) * 0.08 + rig.telemetry.slip * 0.7,
+  );
+  world.noteEcologyDisturbance(rig.x, rig.z, mechanicalDisturbance);
+  const roadIncident = world.advanceRoadIncidents(
+    state.worldTimeMinutes,
+    weather.soilMoisture,
+  );
+  if (roadIncident.triggered) {
+    state.lastDiagnostic =
+      "Storm runoff has brought stone down across the Quarry Run. The road is still open country, but the old line has changed.";
+  }
   const disabled = rig.condition <= 0;
   if (
     disabled &&
@@ -2105,28 +2221,12 @@ export function stepGame(
     // standing on.
     updateDiscoveryAndVisibility(state, world, rig, profile);
     state.elapsedMs += dt * 1000;
-    state.worldTimeMinutes += dt * WORLD_MINUTES_PER_REAL_SECOND;
-    state.phase = phaseForWorldTime(state.worldTimeMinutes);
+    advanceWorldClock(state, world, dt * WORLD_MINUTES_PER_REAL_SECOND);
     return;
   }
 
   // Weather and infrastructure share the same monotonic world clock. The world
   // changes before presentation can describe the consequence.
-  world.advanceFieldConditions(
-    dt * WORLD_MINUTES_PER_REAL_SECOND,
-    weather.rainIntensity,
-    (x, z) =>
-      deriveInfrastructureEffects(state.infrastructure, x, z)
-        .soilDrainageRatePerHour,
-  );
-  const roadIncident = world.advanceRoadIncidents(
-    state.worldTimeMinutes,
-    weather.soilMoisture,
-  );
-  if (roadIncident.triggered) {
-    state.lastDiagnostic =
-      "Storm runoff has brought stone down across the Quarry Run. The road is still open country, but the old line has changed.";
-  }
   const localInfrastructure = deriveInfrastructureEffects(
     state.infrastructure,
     rig.x,
@@ -2485,6 +2585,22 @@ export function stepGame(
           rigId: rig.id,
           mode,
         } satisfies FurrowMark);
+        const physicalSettlementResponse = resolveSettlementContribution(
+          state,
+          { quarryRunoutStatus: world.roadIncidentProjection().status },
+          { x: markX, z: markZ, capabilities: profile.capabilities, interaction: "plough-cut" },
+        );
+        if (physicalSettlementResponse) {
+          const recorded = recordSettlementContribution(state, physicalSettlementResponse.settlementId, {
+            responseId: physicalSettlementResponse.id,
+            materialEffectId: physicalSettlementResponse.materialEffectId,
+            capability: physicalSettlementResponse.capability,
+            createdAtWorldMinutes: state.worldTimeMinutes,
+          });
+          if (recorded) {
+            state.lastDiagnostic = `${physicalSettlementResponse.label}. ${physicalSettlementResponse.explanation}`;
+          }
+        }
         const cultivationMission = activeMissionMatching(state, "cultivation");
         if (
           cultivationMission &&
@@ -2688,8 +2804,27 @@ export function stepGame(
   }
 
   state.elapsedMs += dt * 1000;
-  state.worldTimeMinutes += dt * WORLD_MINUTES_PER_REAL_SECOND;
+  advanceWorldClock(state, world, dt * WORLD_MINUTES_PER_REAL_SECOND);
+}
+
+function advanceWorldClock(
+  state: GameState,
+  world: GameWorld,
+  minutes: number,
+): void {
+  const previousDay = Math.floor(state.worldTimeMinutes / WORLD_DAY_MINUTES);
+  state.worldTimeMinutes += minutes;
   state.phase = phaseForWorldTime(state.worldTimeMinutes);
+  if (Math.floor(state.worldTimeMinutes / WORLD_DAY_MINUTES) === previousDay) return;
+  for (const adaptation of communityAdaptationCandidates(state, {
+    quarryRunoutStatus: world.roadIncidentProjection().status,
+  })) {
+    recordSettlementAdaptation(state, adaptation.settlementId, {
+      id: adaptation.id,
+      materialEffectId: adaptation.materialEffectId,
+      createdAtWorldMinutes: state.worldTimeMinutes,
+    });
+  }
 }
 
 export function advanceGame(
@@ -2782,6 +2917,17 @@ export function publicState(state: GameState, world: GameWorld): object {
   // the acceptance harness all read this — none of them re-derives whether a
   // recovery is possible, so they cannot drift apart.
   const publicWeather = deriveWeatherState(state.worldTimeMinutes);
+  const settlementLife = deriveSettlementLife(state, {
+    quarryRunoutStatus: world.roadIncidentProjection().status,
+  });
+  const habitat = world.habitatProjectionAt(
+    currentRig.x,
+    currentRig.z,
+    state.worldTimeMinutes,
+    publicWeather.soilMoisture,
+    publicWeather.rainIntensity,
+  );
+  const ecology = world.ecologySnapshot();
   const collisionTelemetry = world.collisionTelemetry();
   const fleetRecovery = fleetRecoveryProjection(
     deriveFleetRecoveryAssessment(state, world, publicWeather),
@@ -2848,6 +2994,8 @@ export function publicState(state: GameState, world: GameWorld): object {
       soilMoisture: fixedNumber(publicWeather.soilMoisture, 3),
       rainIntensity: fixedNumber(publicWeather.rainIntensity, 3),
     },
+    habitat,
+    ecology,
     fleetRecovery,
     progression: {
       insight: state.progression.insight,
@@ -2890,12 +3038,56 @@ export function publicState(state: GameState, world: GameWorld): object {
         currentRig.z,
       ),
     },
-    settlements: SETTLEMENTS.map((definition) => ({
-      id: definition.id,
-      name: definition.name,
-      people: definition.people,
-      condition: state.settlements[definition.id].condition,
-      favor: state.settlements[definition.id].favor,
+    settlements: settlementLife.map((settlement) => ({
+      id: settlement.settlementId,
+      name: settlement.name,
+      people: settlement.people,
+      shift: settlement.shift,
+      condition: settlement.condition,
+      favor: settlement.favor,
+      pressures: settlement.pressures.map((pressure) => ({
+        id: pressure.id,
+        kind: pressure.kind,
+        label: pressure.label,
+        severity: fixedNumber(pressure.severity, 3),
+        compatibleCapabilities: [...pressure.compatibleCapabilities],
+      })),
+      services: settlement.services.map((service) => ({ ...service })),
+      residents: settlement.residents.map((resident) => ({
+        id: resident.id,
+        role: resident.role,
+        activity: resident.activity,
+      })),
+      adaptations: settlement.adaptations.map((adaptation) => ({
+        id: adaptation.id,
+        materialEffectId: adaptation.materialEffectId,
+        label: adaptation.label,
+      })),
+      responses: settlement.responses.map((response) => ({
+        id: response.id,
+        materialEffectId: response.materialEffectId,
+        label: response.label,
+        compatibleCapabilities: [...response.compatibleCapabilities],
+        interaction: response.interaction,
+        status: response.status,
+      })),
+    })),
+    communityTraffic: deriveCommunityTraffic(state).map((traffic) => ({
+      id: traffic.id,
+      materialEffectId: traffic.materialEffectId,
+      kind: traffic.kind,
+      sourceSiteId: traffic.sourceSiteId,
+      targetSiteId: traffic.targetSiteId,
+      x: fixedNumber(traffic.x, 2),
+      z: fixedNumber(traffic.z, 2),
+      outbound: traffic.outbound,
+    })),
+    communityLeads: deriveSettlementWorldLeads(state).map((lead) => ({
+      id: lead.id,
+      sourceSiteId: lead.sourceSiteId,
+      targetSiteId: lead.targetSiteId,
+      title: lead.title,
+      mapLabel: lead.mapLabel,
     })),
     activity: {
       id: state.cargoRelay.id,
@@ -2909,6 +3101,7 @@ export function publicState(state: GameState, world: GameWorld): object {
             ),
       bestTimeMs: state.cargoRelay.bestTimeMs,
       cargoAttachedTo: state.cargoRelay.cargo.attachedRigId,
+      cargoManifestId: state.cargoRelay.assignment?.manifestId ?? null,
       delivered: state.cargoRelay.cargo.delivered,
       cargoPosition: {
         x: fixedNumber(state.cargoRelay.cargo.x, 3),
@@ -3564,13 +3757,16 @@ function recoverShared(
       ? (relay.assignment as Record<string, unknown>)
       : null;
   const assignment = rawAssignment
-    ? typeof rawAssignment.missionId === "string" &&
+    ? (typeof rawAssignment.missionId === "string" || rawAssignment.missionId === null) &&
       typeof rawAssignment.originSiteId === "string" &&
       typeof rawAssignment.destinationSiteId === "string" &&
       findSite(rawAssignment.originSiteId) !== undefined &&
       findSite(rawAssignment.destinationSiteId) !== undefined
       ? {
-          missionId: rawAssignment.missionId,
+          missionId: rawAssignment.missionId as string | null,
+          ...(typeof rawAssignment.manifestId === "string"
+            ? { manifestId: rawAssignment.manifestId }
+            : {}),
           originSiteId: rawAssignment.originSiteId,
           destinationSiteId: rawAssignment.destinationSiteId,
         }
@@ -3854,6 +4050,8 @@ function recoverShared(
     roadRivalry,
     infrastructure: recoverInfrastructureNetwork(
       candidate.infrastructure,
+      // Legacy v13 singleton state is intentionally input-only. Recovery maps
+      // it into the canonical Sunken Flats waterworks entity.
       candidate.floodgate12,
     ),
     farmWaterworks,
@@ -4220,6 +4418,9 @@ export function recoverState(value: unknown): GameState | null {
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  if (candidate.schemaVersion === V24_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V24_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V18_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, V18_SAVE_SCHEMA_VERSION);

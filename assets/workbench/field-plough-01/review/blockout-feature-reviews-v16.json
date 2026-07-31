@@ -1,0 +1,16 @@
+[
+  {
+    "id": "field-plough-silhouette",
+    "score": 0.68,
+    "visible": true,
+    "tier": "critical",
+    "notes": "The shorter attachment frame and closer camera improve the reference-normalized mass distribution, and the scale delta now passes. The silhouette remains below its 0.80 feature threshold because the share row and negative spaces still diverge from the reference."
+  },
+  {
+    "id": "repeated-share-system",
+    "score": 0.6,
+    "visible": true,
+    "tier": "critical",
+    "notes": "Four handed, depth-staggered moldboards and forward cutting points are visible. They remain too uniform and plate-like, with insufficient lower-edge continuity, sweep, and mechanical attachment detail for the 0.80 critical threshold."
+  }
+]

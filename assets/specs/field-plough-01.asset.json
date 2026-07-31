@@ -1,0 +1,1235 @@
+{
+  "$schema": "../asset-spec.schema.json",
+  "schemaVersion": 1,
+  "assetId": "field-plough-01",
+  "displayName": "Field Plough 01",
+  "assetFamily": "rig-part",
+  "lifecycle": {
+    "status": "procedural-candidate",
+    "runtimeAdmission": "available-for-development-and-open-world-review; refinement-open",
+    "publicApproved": false,
+    "owner": "Rigs Unbound asset lane"
+  },
+  "references": [
+    {
+      "path": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+      "role": "primary isolated appearance reference",
+      "evidenceTier": 1,
+      "confidence": 0.82,
+      "notes": "Strong silhouette and material evidence; hidden geometry and dimensions remain uncertain."
+    },
+    {
+      "path": "assets/workbench/field-plough-01/detail-inventory.json",
+      "role": "observed detail inventory",
+      "evidenceTier": 2,
+      "confidence": 0.86,
+      "notes": "Twelve details are mapped in the workbench; the generated img2threejs spec is derived evidence, not this definition's authority."
+    },
+    {
+      "path": "assets/workbench/field-plough-01/pbr-painted-steel-report.json",
+      "role": "reference-derived painted-steel PBR evidence",
+      "evidenceTier": 2,
+      "confidence": 0.86,
+      "notes": "Inference from source pixels, not inverse rendering or measured material truth."
+    }
+  ],
+  "identity": {
+    "role": "Three-point field implement for cutting and turning soil.",
+    "functionalVerbs": [
+      "attach",
+      "raise",
+      "lower",
+      "cut",
+      "turn-soil",
+      "detach",
+      "inspect"
+    ],
+    "silhouette": {
+      "formLanguage": "hard-surface articulated agricultural implement",
+      "dominantMasses": [
+        "wide horizontal cross-beam",
+        "triangular top-link frame",
+        "repeated curved shares"
+      ],
+      "negativeSpaces": [
+        "open triangle below top-link bracket",
+        "gaps between shares",
+        "hydraulic-ram clearance"
+      ],
+      "identityFeatures": [
+        "three-point attachment frame",
+        "repeated share system",
+        "central hydraulic ram",
+        "bright cutting edges",
+        "dark worn steel with soil residue"
+      ]
+    },
+    "dimensions": {
+      "widthMeters": {
+        "value": 3.8,
+        "confidence": 0.35,
+        "status": "provisional-authoring-hypothesis"
+      },
+      "heightMeters": {
+        "value": 1.8,
+        "confidence": 0.3,
+        "status": "provisional-authoring-hypothesis"
+      },
+      "depthMeters": {
+        "value": 1.35,
+        "confidence": 0.3,
+        "status": "provisional-authoring-hypothesis"
+      },
+      "measurementNote": "Replace with authored orthographic measurements before runtime physics or production LOD budgets."
+    },
+    "uncertainties": [
+      "The generated prompt requested three shares, while the image appears to show four; the visible reference currently wins, but count needs authored confirmation.",
+      "Rear and underside geometry are inferred rather than observed.",
+      "Actual hitch dimensions, hydraulic stroke, mass, and soil-contact limits are unknown.",
+      "The reference is stylized and cannot establish manufacturing-grade dimensions."
+    ]
+  },
+  "coordinateFrame": {
+    "front": "toward the tractor and three-point hitch",
+    "up": "world positive Y",
+    "right": "implement right when facing the tractor",
+    "units": "meters for authored runtime estimates; all provisional measurements carry confidence",
+    "origin": "center of the attachment frame at the raised-state pivot envelope"
+  },
+  "components": [
+    {
+      "id": "root",
+      "parent": null,
+      "level": "macro",
+      "role": "whole implement presentation root",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "named child pivots and compound primitives"
+      },
+      "pivot": {
+        "mode": "custom-attachment-origin",
+        "localPosition": [0, 0, 0],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "root-attachment-envelope",
+          "position": [0, 0, 0],
+          "role": "adapter alignment"
+        }
+      ],
+      "collider": {
+        "type": "compound-proxy",
+        "authority": "simulation-owned; visual mesh is not a collider",
+        "isTrigger": false
+      },
+      "materials": ["painted-steel", "bare-steel", "soil-residue"],
+      "action": {
+        "animationRole": "whole-implement-state",
+        "states": ["raised", "lowered", "detached"],
+        "detachable": true
+      },
+      "localFeatures": ["root-edge-wear", "root-contact-shadow"],
+      "dimensions": {
+        "width": 3.8,
+        "height": 1.8,
+        "depth": 1.35,
+        "confidence": 0.3
+      },
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "attachment-frame",
+      "parent": "root",
+      "level": "macro",
+      "role": "three-point attachment frame",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "beveled box beams and pin cylinders"
+      },
+      "pivot": {
+        "mode": "custom",
+        "localPosition": [0, 0.55, 0.18],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "top-link-socket",
+          "position": [0, 1.55, 0.1],
+          "role": "tractor upper link"
+        },
+        {
+          "id": "lower-left-hitch",
+          "position": [-1.25, 0.55, 0.2],
+          "role": "tractor lower link"
+        },
+        {
+          "id": "lower-right-hitch",
+          "position": [1.25, 0.55, 0.2],
+          "role": "tractor lower link"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["painted-steel", "bare-steel", "rust"],
+      "action": {
+        "animationRole": "attachment-root",
+        "states": ["attached", "detached"],
+        "detachable": true
+      },
+      "localFeatures": [
+        "attachment-bevels",
+        "hitch-fasteners",
+        "rust-at-pin-seams"
+      ],
+      "dimensions": {
+        "width": 2.8,
+        "height": 1.4,
+        "depth": 0.5,
+        "confidence": 0.5
+      },
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "share-assembly",
+      "parent": "root",
+      "level": "macro",
+      "role": "soil-cutting repeated system",
+      "topology": {
+        "class": "continuous-sculpt",
+        "primitiveStrategy": "four handed helicoidal moldboard shells with section-by-section twist, depth staggering, and integrated forward cutting-share transitions"
+      },
+      "pivot": {
+        "mode": "base-row",
+        "localPosition": [0, 0.2, -0.5],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "soil-contact-row",
+          "position": [0, -0.65, -0.9],
+          "role": "terrain contact envelope"
+        }
+      ],
+      "collider": {
+        "type": "compound-proxy",
+        "authority": "simulation-owned terrain-tool proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "painted-steel", "soil-residue"],
+      "action": {
+        "animationRole": "lowered-tool",
+        "states": ["raised", "lowered", "cutting"],
+        "detachable": true
+      },
+      "localFeatures": [
+        "share-curvature",
+        "cutting-edge-bevel",
+        "soil-cavity-residue"
+      ],
+      "dimensions": {
+        "width": 3.4,
+        "height": 1.1,
+        "depth": 1.0,
+        "confidence": 0.55
+      },
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "hydraulic-ram",
+      "parent": "root",
+      "level": "meso",
+      "role": "raise/lower actuator",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "cylinders, tube, and hinge pin"
+      },
+      "pivot": {
+        "mode": "hinge",
+        "localPosition": [0, 0.95, 0.12],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "hydraulic-upper-eye",
+          "position": [0, 1.18, 0.12],
+          "role": "frame hinge"
+        },
+        {
+          "id": "hydraulic-lower-eye",
+          "position": [0, 0.45, -0.35],
+          "role": "beam hinge"
+        }
+      ],
+      "collider": {
+        "type": "capsule",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "linear-actuator",
+        "states": ["retracted", "extended"],
+        "detachable": true
+      },
+      "localFeatures": ["ram-polished-rod", "ram-rust-collar", "ram-pivot-pin"],
+      "dimensions": { "length": 0.9, "diameter": 0.18, "confidence": 0.4 },
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "top-link-bracket",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "upper hitch bracket",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "paired plates and pin cylinder"
+      },
+      "pivot": {
+        "mode": "hinge",
+        "localPosition": [0, 1.5, 0.1],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "top-link-contact",
+          "position": [0, 1.55, 0.1],
+          "role": "tractor top-link contact"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "hinged-attachment",
+        "states": ["attached", "detached"],
+        "detachable": true
+      },
+      "localFeatures": ["top-link-pin", "top-link-bevel"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "lower-left-hitch",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "left lower hitch clevis",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "paired plates and pin cylinder"
+      },
+      "pivot": {
+        "mode": "hinge",
+        "localPosition": [-1.25, 0.55, 0.2],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "lower-left-contact",
+          "position": [-1.25, 0.55, 0.2],
+          "role": "tractor lower link"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "attachment-clevis",
+        "states": ["attached", "detached"],
+        "detachable": true
+      },
+      "localFeatures": ["left-clevis-pin", "left-clevis-wear"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "lower-right-hitch",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "right lower hitch clevis",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "paired plates and pin cylinder"
+      },
+      "pivot": {
+        "mode": "hinge",
+        "localPosition": [1.25, 0.55, 0.2],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "lower-right-contact",
+          "position": [1.25, 0.55, 0.2],
+          "role": "tractor lower link"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "attachment-clevis",
+        "states": ["attached", "detached"],
+        "detachable": true
+      },
+      "localFeatures": ["right-clevis-pin", "right-clevis-wear"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "cross-beam",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "horizontal load beam",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "beveled box beam with end plates"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, 0.75, -0.15],
+        "axis": [0, 1, 0]
+      },
+      "sockets": [
+        {
+          "id": "share-row-mount",
+          "position": [0, 0.3, -0.5],
+          "role": "share support row"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["painted-steel", "rust"],
+      "action": {
+        "animationRole": "beam-body",
+        "states": ["raised", "lowered"],
+        "detachable": false
+      },
+      "localFeatures": [
+        "beam-edge-bevel",
+        "beam-rust-streaks",
+        "beam-fastener-row"
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "brace-left",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "left triangular reinforcement",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "endpoint-aligned beveled beam"
+      },
+      "pivot": {
+        "mode": "custom",
+        "localPosition": [-0.75, 0.75, 0.1],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "brace-left-root",
+          "position": [-0.75, 0.75, 0.1],
+          "role": "beam contact"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["painted-steel", "rust"],
+      "action": {
+        "animationRole": "reinforcement",
+        "states": ["raised", "lowered"],
+        "detachable": false
+      },
+      "localFeatures": ["left-brace-bevel", "left-brace-rust"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "brace-right",
+      "parent": "attachment-frame",
+      "level": "meso",
+      "role": "right triangular reinforcement",
+      "topology": {
+        "class": "assembled-solid",
+        "primitiveStrategy": "endpoint-aligned beveled beam"
+      },
+      "pivot": {
+        "mode": "custom",
+        "localPosition": [0.75, 0.75, 0.1],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "brace-right-root",
+          "position": [0.75, 0.75, 0.1],
+          "role": "beam contact"
+        }
+      ],
+      "collider": {
+        "type": "box",
+        "authority": "simulation-owned proxy",
+        "isTrigger": false
+      },
+      "materials": ["painted-steel", "rust"],
+      "action": {
+        "animationRole": "reinforcement",
+        "states": ["raised", "lowered"],
+        "detachable": false
+      },
+      "localFeatures": ["right-brace-bevel", "right-brace-rust"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "share-left",
+      "parent": "share-assembly",
+      "level": "meso",
+      "role": "left repeated soil share instance",
+      "topology": {
+        "class": "continuous-sculpt",
+        "primitiveStrategy": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition"
+      },
+      "pivot": {
+        "mode": "base",
+        "localPosition": [-1.25, 0.15, -0.55],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "share-left-contact",
+          "position": [-1.25, -0.65, -0.9],
+          "role": "soil contact"
+        }
+      ],
+      "collider": {
+        "type": "wedge-proxy",
+        "authority": "simulation-owned terrain-tool proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "soil-residue"],
+      "action": {
+        "animationRole": "share-instance",
+        "states": ["raised", "lowered", "cutting"],
+        "detachable": true
+      },
+      "localFeatures": [
+        "share-left-cutting-edge",
+        "share-left-soil-stain",
+        "share-left-fasteners"
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "share-center",
+      "parent": "share-assembly",
+      "level": "meso",
+      "role": "center repeated soil share instance",
+      "topology": {
+        "class": "continuous-sculpt",
+        "primitiveStrategy": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition"
+      },
+      "pivot": {
+        "mode": "base",
+        "localPosition": [0, 0.15, -0.55],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "share-center-contact",
+          "position": [0, -0.65, -0.9],
+          "role": "soil contact"
+        }
+      ],
+      "collider": {
+        "type": "wedge-proxy",
+        "authority": "simulation-owned terrain-tool proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "soil-residue"],
+      "action": {
+        "animationRole": "share-instance",
+        "states": ["raised", "lowered", "cutting"],
+        "detachable": true
+      },
+      "localFeatures": [
+        "share-center-cutting-edge",
+        "share-center-soil-stain",
+        "share-center-fasteners"
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "share-right",
+      "parent": "share-assembly",
+      "level": "meso",
+      "role": "right repeated soil share instance",
+      "topology": {
+        "class": "continuous-sculpt",
+        "primitiveStrategy": "handed helicoidal shell, narrow upper standard connection, broader swept trailing edge, concave soil-turning face, and integrated lower cutting-share transition"
+      },
+      "pivot": {
+        "mode": "base",
+        "localPosition": [1.25, 0.15, -0.55],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [
+        {
+          "id": "share-right-contact",
+          "position": [1.25, -0.65, -0.9],
+          "role": "soil contact"
+        }
+      ],
+      "collider": {
+        "type": "wedge-proxy",
+        "authority": "simulation-owned terrain-tool proxy",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "soil-residue"],
+      "action": {
+        "animationRole": "share-instance",
+        "states": ["raised", "lowered", "cutting"],
+        "detachable": true
+      },
+      "localFeatures": [
+        "share-right-cutting-edge",
+        "share-right-soil-stain",
+        "share-right-fasteners"
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "fastener-groups",
+      "parent": "cross-beam",
+      "level": "micro",
+      "role": "repeated visible pins and bolts",
+      "topology": {
+        "class": "surface-relief",
+        "primitiveStrategy": "instanced cylinders and hex heads"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, 0, 0],
+        "axis": [0, 1, 0]
+      },
+      "sockets": [],
+      "collider": {
+        "type": "none",
+        "authority": "visual-only",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "surface-detail",
+        "states": ["visible"],
+        "detachable": false
+      },
+      "localFeatures": ["fastener-heads", "fastener-cavity-darkening"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "cutting-edge-group",
+      "parent": "share-assembly",
+      "level": "micro",
+      "role": "bright sharpened cutting edges",
+      "topology": {
+        "class": "surface-relief",
+        "primitiveStrategy": "four narrow forward-projecting beveled shares with continuous lower cutting edges transitioning into the corresponding moldboard shells"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, -0.6, -0.9],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [],
+      "collider": {
+        "type": "none",
+        "authority": "visual-only; terrain tool role is semantic",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel"],
+      "action": {
+        "animationRole": "cutting-edge",
+        "states": ["visible", "worn"],
+        "detachable": true
+      },
+      "localFeatures": ["edge-bevel", "edge-polish", "edge-chips"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "rust-wear-group",
+      "parent": "root",
+      "level": "micro",
+      "role": "paint loss and oxidation regions",
+      "topology": {
+        "class": "material-only",
+        "primitiveStrategy": "material masks on parent surfaces"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, 0, 0],
+        "axis": [0, 1, 0]
+      },
+      "sockets": [],
+      "collider": {
+        "type": "none",
+        "authority": "visual-only",
+        "isTrigger": false
+      },
+      "materials": ["rust"],
+      "action": {
+        "animationRole": "wear-state",
+        "states": ["intact", "worn", "damaged"],
+        "detachable": false
+      },
+      "localFeatures": ["rust-bloom", "paint-chip-mask", "edge-wear-mask"],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "soil-residue-group",
+      "parent": "share-assembly",
+      "level": "micro",
+      "role": "mud and soil residue in lower recesses",
+      "topology": {
+        "class": "material-only",
+        "primitiveStrategy": "localized projected mask plus optional shallow geometry"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, -0.4, -0.75],
+        "axis": [0, 1, 0]
+      },
+      "sockets": [],
+      "collider": {
+        "type": "none",
+        "authority": "visual-only",
+        "isTrigger": false
+      },
+      "materials": ["soil-residue"],
+      "action": {
+        "animationRole": "soil-state",
+        "states": ["clean", "worked", "wet"],
+        "detachable": false
+      },
+      "localFeatures": [
+        "soil-cavity-bias",
+        "wet-soil-darkening",
+        "soil-clump-breakup"
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "hinge-pin-group",
+      "parent": "hydraulic-ram",
+      "level": "micro",
+      "role": "hinge and pin hardware",
+      "topology": {
+        "class": "surface-relief",
+        "primitiveStrategy": "instanced pin cylinders with washers"
+      },
+      "pivot": {
+        "mode": "fixed",
+        "localPosition": [0, 0, 0],
+        "axis": [1, 0, 0]
+      },
+      "sockets": [],
+      "collider": {
+        "type": "none",
+        "authority": "visual-only",
+        "isTrigger": false
+      },
+      "materials": ["bare-steel", "rust"],
+      "action": {
+        "animationRole": "hinge-hardware",
+        "states": ["visible", "worn"],
+        "detachable": false
+      },
+      "localFeatures": ["pin-crown", "washer-ring", "cavity-darkening"],
+      "evidenceRefs": ["primary-reference"]
+    }
+  ],
+  "repetitionSystems": [
+    {
+      "id": "plough-share-row",
+      "prototypeComponent": "share-center",
+      "count": 4,
+      "distribution": {
+        "pattern": "linear-across-cross-beam",
+        "spacingMeters": 0.92,
+        "orientationRule": "shared profile with small authored yaw/tilt variation",
+        "instanceIds": [
+          "share-left",
+          "share-center",
+          "share-right",
+          "share-fourth-observed"
+        ]
+      },
+      "uncertainty": "Image evidence appears to show four shares while the generation prompt requested three; preserve four as observed until an authored orthographic package resolves the count."
+    },
+    {
+      "id": "visible-fastener-rows",
+      "prototypeComponent": "fastener-groups",
+      "count": 12,
+      "distribution": {
+        "pattern": "paired-linear-and-radial",
+        "spacingMeters": 0.18,
+        "headStyle": "hex-and-round-mixed"
+      },
+      "uncertainty": "Partial occlusion means count is an authored minimum, not a manufacturing inventory."
+    }
+  ],
+  "materials": [
+    {
+      "id": "painted-steel",
+      "layer": "worn dark protective paint over steel",
+      "pbr": {
+        "baseColor": {
+          "dominant": "#3E4A4D",
+          "secondary": ["#566365", "#293033"]
+        },
+        "roughness": {
+          "base": 0.78,
+          "variation": 0.18,
+          "map": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_roughness.png"
+        },
+        "metalness": 0.82,
+        "normal": {
+          "map": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_normal.png",
+          "strength": 0.42
+        },
+        "ao": {
+          "map": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_ao.png",
+          "strength": 0.55
+        },
+        "height": "assets/workbench/field-plough-01/pbr-painted-steel/painted-steel_height.png"
+      },
+      "localOverrides": [
+        {
+          "id": "paint-chip-mask",
+          "kind": "chip",
+          "region": "beam edges and upper hitch plates",
+          "affect": "expose bare steel and rust"
+        },
+        {
+          "id": "edge-wear-mask",
+          "kind": "scratch",
+          "region": "beam corners and share supports",
+          "affect": "lower roughness and expose warm underlayer"
+        },
+        {
+          "id": "cavity-dirt-mask",
+          "kind": "stain",
+          "region": "pin recesses and underside joints",
+          "affect": "darken albedo and increase roughness"
+        }
+      ],
+      "evidenceRefs": ["painted-steel-pbr", "primary-reference"]
+    },
+    {
+      "id": "bare-steel",
+      "layer": "exposed and polished steel cutting/pin surfaces",
+      "pbr": {
+        "baseColor": {
+          "dominant": "#A7A6A0",
+          "secondary": ["#686B69", "#D0CDC0"]
+        },
+        "roughness": {
+          "base": 0.36,
+          "variation": 0.22,
+          "map": "independent-procedural-metal-roughness"
+        },
+        "metalness": 0.94,
+        "normal": {
+          "map": "independent-machined-surface-normal",
+          "strength": 0.26
+        },
+        "ao": { "map": "parent-contact-ao", "strength": 0.48 },
+        "height": "independent-edge-and-machining-height"
+      },
+      "localOverrides": [
+        {
+          "id": "cutting-edge-polish",
+          "kind": "gloss",
+          "region": "share leading edges",
+          "affect": "roughness 0.18 with grazing-light readability"
+        },
+        {
+          "id": "machining-scratches",
+          "kind": "scratch",
+          "region": "pin crowns and exposed plates",
+          "affect": "directional normal and roughness breakup"
+        }
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "rust",
+      "layer": "oxidation and paint-loss overlay",
+      "pbr": {
+        "baseColor": {
+          "dominant": "#8A4D32",
+          "secondary": ["#B26A3E", "#4A3028"]
+        },
+        "roughness": {
+          "base": 0.92,
+          "variation": 0.2,
+          "map": "independent-rust-roughness"
+        },
+        "metalness": 0.18,
+        "normal": { "map": "independent-rust-bloom-normal", "strength": 0.3 },
+        "ao": { "map": "cavity-and-seam-ao", "strength": 0.65 },
+        "height": "rust-bloom-height"
+      },
+      "localOverrides": [
+        {
+          "id": "rust-bloom",
+          "kind": "stain",
+          "region": "pin seams, lower share plates, beam scratches",
+          "affect": "warm oxidation with cavity bias"
+        },
+        {
+          "id": "sun-fade",
+          "kind": "stain",
+          "region": "upper exposed beam",
+          "affect": "desaturate and raise roughness"
+        }
+      ],
+      "evidenceRefs": ["primary-reference"]
+    },
+    {
+      "id": "soil-residue",
+      "layer": "mud and worked-soil residue",
+      "pbr": {
+        "baseColor": {
+          "dominant": "#5A4230",
+          "secondary": ["#876546", "#2E2925"]
+        },
+        "roughness": {
+          "base": 0.97,
+          "variation": 0.12,
+          "map": "independent-wet-dry-soil-roughness"
+        },
+        "metalness": 0.0,
+        "normal": { "map": "independent-soil-clump-normal", "strength": 0.38 },
+        "ao": { "map": "soil-cavity-ao", "strength": 0.7 },
+        "height": "shallow-soil-clump-height"
+      },
+      "localOverrides": [
+        {
+          "id": "soil-cavity-bias",
+          "kind": "stain",
+          "region": "lower share recesses and backs",
+          "affect": "darken with gravity/cavity bias"
+        },
+        {
+          "id": "wet-soil-gloss",
+          "kind": "gloss",
+          "region": "freshly worked lower edges",
+          "affect": "roughness 0.62 with restrained specular response"
+        }
+      ],
+      "evidenceRefs": ["primary-reference"]
+    }
+  ],
+  "behaviour": {
+    "verbs": [
+      "attach",
+      "raise",
+      "lower",
+      "cut",
+      "turn-soil",
+      "detach",
+      "inspect"
+    ],
+    "states": [
+      {
+        "id": "raised",
+        "visualPose": "shares clear terrain; hydraulic ram retracted",
+        "terrainRole": "no-contact",
+        "transition": "tractor plough pivot stowed angle"
+      },
+      {
+        "id": "lowered",
+        "visualPose": "shares aligned to soil; hydraulic ram extended",
+        "terrainRole": "contact-capable",
+        "transition": "tractor plough pivot engaged angle"
+      },
+      {
+        "id": "worked-wet",
+        "visualPose": "lowered with increased soil residue",
+        "terrainRole": "contact-capable",
+        "transition": "material-state update only"
+      },
+      {
+        "id": "detached",
+        "visualPose": "free-standing attachment",
+        "terrainRole": "non-authoritative visual state",
+        "transition": "explicit detach interaction"
+      }
+    ],
+    "animationContracts": [
+      {
+        "id": "raise-lower",
+        "driver": "field-plough attachment engaged state",
+        "pivotComponent": "root",
+        "axis": "local X",
+        "limits": {
+          "raisedRadians": -0.22,
+          "loweredRadians": 0.3,
+          "confidence": 0.65
+        }
+      },
+      {
+        "id": "hydraulic-extension",
+        "driver": "raise-lower normalized progress",
+        "pivotComponent": "hydraulic-ram",
+        "axis": "endpoint alignment",
+        "limits": { "min": 0.0, "max": 1.0, "confidence": 0.35 }
+      },
+      {
+        "id": "share-wear",
+        "driver": "terrain work accumulation",
+        "pivotComponent": "soil-residue-group",
+        "axis": "material state",
+        "limits": { "min": 0.0, "max": 1.0, "confidence": 0.5 }
+      }
+    ],
+    "interactionSockets": [
+      "top-link-socket",
+      "lower-left-hitch",
+      "lower-right-hitch",
+      "soil-contact-row",
+      "hydraulic-upper-eye",
+      "hydraulic-lower-eye"
+    ],
+    "failureFixtures": [
+      "detached-left-hitch",
+      "hydraulic-pivot-worn",
+      "share-edge-chipped",
+      "soil-residue-wet",
+      "overloaded-attachment"
+    ]
+  },
+  "runtime": {
+    "visualAuthority": "renderer-owned presentation hierarchy; generated meshes never define physics truth",
+    "collisionAuthority": "simulation-owned terrain-tool and attachment proxies",
+    "adapter": {
+      "attachmentId": "field-plough",
+      "presentationNode": "ploughPivot",
+      "integrationStatus": "existing seam; procedural candidate available; runtime adapter integration open"
+    },
+    "lod": [
+      {
+        "id": "hero",
+        "distanceMeters": 0,
+        "triangleBudget": 18000,
+        "requirements": ["share silhouette", "hitch sockets", "material wear"]
+      },
+      {
+        "id": "gameplay",
+        "distanceMeters": 12,
+        "triangleBudget": 7000,
+        "requirements": [
+          "share silhouette",
+          "attachment readability",
+          "collision metadata"
+        ]
+      },
+      {
+        "id": "far",
+        "distanceMeters": 35,
+        "triangleBudget": 1200,
+        "requirements": [
+          "wide implement silhouette",
+          "raised/lowered readability"
+        ]
+      }
+    ],
+    "budgets": {
+      "drawCalls": 12,
+      "textureMemoryMb": 16,
+      "animationClips": 2,
+      "notes": "Provisional until browser profiling on the canonical port."
+    },
+    "generatedRuntime": {
+      "factoryPath": "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+      "glbPath": "assets/runtime/field-plough-01.glb",
+      "glbSha256": "fa3681d96758b4808d84061858dd999b79dcc58307f574d2bf248896f356dc20",
+      "manifestStatus": "repo-local developer GLB derivative available; customizable part contract exported; runtime manifest admission, public approval, and hero-production admission remain closed"
+    }
+  },
+  "compiler": {
+    "stages": [
+      {
+        "id": "reference-intake",
+        "tool": "imagegen + img2threejs stage1",
+        "status": "passed"
+      },
+      {
+        "id": "semantic-spec",
+        "tool": "canonical asset definition",
+        "status": "passed"
+      },
+      {
+        "id": "img2threejs-sculpt",
+        "tool": "img2threejs stage2/3",
+        "status": "strict-quality-passed; blockout-generated"
+      },
+      {
+        "id": "visual-review",
+        "tool": "browser + comparison sheet + multi-angle review",
+        "status": "development placeholder observed; img2threejs blockout locked at refine-code; photoreal refinement open"
+      },
+      {
+        "id": "glb-export",
+        "tool": "optional factory-to-GLB delivery derivative",
+        "status": "optional; not configured"
+      },
+      {
+        "id": "runtime-package",
+        "tool": "manifest/preflight/browser adapter",
+        "status": "procedural candidate available; adapter integration open"
+      }
+    ],
+    "derivedArtifacts": [
+      {
+        "path": "assets/workbench/field-plough-01/object-sculpt-spec.json",
+        "role": "img2threejs derived sculpt spec",
+        "status": "strict-quality-passed"
+      },
+      {
+        "path": "assets/workbench/field-plough-01/generated/createFieldPloughModel.ts",
+        "role": "generic img2threejs compiler output",
+        "status": "superseded for visual use after failed reference comparison; retained as compiler evidence"
+      },
+      {
+        "path": "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+        "role": "canonical authored development procedural factory",
+        "status": "reference-specific blockout accepted for development; photoreal refinement open"
+      },
+      {
+        "path": "assets/workbench/field-plough-01/review/visual-parity-review.json",
+        "role": "machine-readable visual fidelity review",
+        "status": "development blockout accepted; photoreal hero use rejected"
+      },
+      {
+        "path": "assets/workbench/field-plough-01/detail-inventory.json",
+        "role": "observed detail evidence",
+        "status": "passed"
+      },
+      {
+        "path": "assets/workbench/field-plough-01/pbr-painted-steel-report.json",
+        "role": "reference-derived PBR evidence",
+        "status": "passed"
+      }
+    ]
+  },
+  "validation": {
+    "evidenceRoadmap": [
+      "reference-admission",
+      "semantic-spec-complete",
+      "strict-img2threejs-spec",
+      "multi-angle-visual-review",
+      "action-hierarchy-review",
+      "collision-separation-review",
+      "factory-or-GLB-structural-validation",
+      "canonical-port-browser-proof",
+      "runtime-manifest-preflight",
+      "public-provenance-review"
+    ],
+    "currentEvidence": [
+      {
+        "gate": "reference-admission",
+        "status": "passed",
+        "evidence": "assets/workbench/field-plough-01/reference-admission.json",
+        "tier": 2
+      },
+      {
+        "gate": "detail-inventory",
+        "status": "passed",
+        "evidence": "assets/workbench/field-plough-01/detail-inventory.json",
+        "tier": 2
+      },
+      {
+        "gate": "pbr-extraction",
+        "status": "passed",
+        "evidence": "assets/workbench/field-plough-01/pbr-painted-steel-report.json",
+        "tier": 2
+      },
+      {
+        "gate": "semantic-spec-complete",
+        "status": "passed",
+        "evidence": "assets/specs/field-plough-01.asset.json",
+        "tier": 2
+      },
+      {
+        "gate": "strict-img2threejs-spec",
+        "status": "passed",
+        "evidence": "assets/workbench/field-plough-01/validate-strict-quality.json",
+        "tier": 2
+      },
+      {
+        "gate": "blockout-factory-generation",
+        "status": "passed",
+        "evidence": "assets/workbench/field-plough-01/generated/createFieldPloughModel.ts; isolated TypeScript compilation",
+        "tier": 2
+      },
+      {
+        "gate": "visual-review",
+        "status": "development-placeholder-available; img2threejs-blockout-failed; photoreal-hero-rejected",
+        "evidence": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v16.png; assets/workbench/field-plough-01/review/visual-parity-review.json; assets/workbench/field-plough-01/object-sculpt-spec.json#reviewHistory; named multi-angle captures",
+        "tier": 4,
+        "notes": "The authored factory corrects the original structural mismatch. Independent audit scores development-blockout utility at 6/10, reference fidelity at 3.5/10, and photoreal use at 2/10. Share geometry, surface fidelity, bevels, wear masks, and fine mechanical detail remain below reference quality."
+      },
+      {
+        "gate": "procedural-candidate-availability",
+        "status": "candidate",
+        "evidence": "assets/workbench/field-plough-01/review/index.html; assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+        "tier": 4,
+        "notes": "Development use is allowed through the explicit authored factory path; this does not assign collision authority or claim photoreal parity."
+      },
+      {
+        "gate": "collision-separation",
+        "status": "specified",
+        "evidence": "assets/specs/field-plough-01.asset.json#runtime.collisionAuthority",
+        "tier": 1,
+        "notes": "Simulation-owned proxy remains the source of collision truth and needs runtime integration evidence."
+      },
+      {
+        "gate": "runtime-adapter",
+        "status": "open",
+        "evidence": "existing field-plough attachment and ploughPivot seam",
+        "tier": 1,
+        "notes": "Adapter integration is an available next step, not an admission blocker for the procedural candidate."
+      },
+      {
+        "gate": "public-provenance",
+        "status": "review-required",
+        "evidence": "docs/research/ASSET_PROVENANCE_REGISTER.md",
+        "tier": 1,
+        "notes": "Distribution approval remains separate from development availability."
+      }
+    ],
+    "acceptanceDecision": "available-as-development-placeholder-only; img2threejs-blockout-remains-locked-at-refine-code; generic-generated-preview-superseded; photoreal-quality-refinement-and-runtime-integration-open"
+  },
+  "provenance": {
+    "sourceType": "generated-reference-image",
+    "rightsStatus": "review-required-before-distribution",
+    "promptRecord": "assets/generated/field-plough-01-object-reference-2026-07-29.prompt.md",
+    "manifestEntry": "field-plough-01",
+    "humanReviewRequired": true,
+    "notes": "Generated appearance is evidence and inspiration; it is not a claim of exact dimensions, hidden geometry, manufacturing origin, or runtime readiness."
+  }
+}

@@ -13,10 +13,10 @@ describe("infrastructure network kernel integration", () => {
   it("persists a generic local-machine action and publishes spatial effects", () => {
     const state = createInitialState("INFRASTRUCTURE-NETWORK");
     const world = new GameWorld(state.seed);
-    const gate = INFRASTRUCTURE_DEFINITIONS["floodgate-12"];
+    const waterworks = INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"];
     const rig = state.rigs["utility-tractor"];
-    rig.x = gate.x;
-    rig.z = gate.z;
+    rig.x = waterworks.x;
+    rig.z = waterworks.z;
     rig.condition = 100;
     state.salvage = 8;
 
@@ -29,11 +29,10 @@ describe("infrastructure network kernel integration", () => {
     expect(publicState(state, world)).toMatchObject({
       infrastructure: {
         localEffects: { waterLevelOffsetM: expect.any(Number) },
-        // arrayContaining, not an exact array: the network has grown beyond
-        // the floodgate since this proof was written, and this test only
-        // cares that the floodgate's own entry is published correctly.
+        // arrayContaining, not an exact array: the network may grow while this
+        // proof only checks that the local waterworks entry is published.
         entities: expect.arrayContaining([
-          expect.objectContaining({ id: "floodgate-12", operating: true }),
+          expect.objectContaining({ id: "sunken-flats-waterworks", operating: true }),
         ]),
       },
     });

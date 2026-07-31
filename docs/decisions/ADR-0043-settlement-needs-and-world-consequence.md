@@ -331,3 +331,45 @@ from the same resolved passage geometry. Its boards sample canonical terrain
 height after the passage activates; it has no collider, route rule, or hidden
 state. The terrain corridor remains the physical truth, while the deck makes
 the community's repaired crossing recognizable at driving distance.
+
+## Addendum (2026-07-29) - community work remains alive after completion
+
+Long Furrow's persisted `workable` or `cultivated` outcome is now the durable
+achievement, not a claim that its drainage machine can never fail. A read-only
+lived-condition projection combines that outcome with the canonical drain-pump
+operating state and current weather. If the pump is no longer operating during
+saturated weather, the place reads as waterlogged again; servicing the same
+machine restores its lived condition.
+
+This introduces no new settlement ledger, mission, reward, or save migration.
+Mission derivation continues to use durable community outcomes. Contacts,
+existing horizon lamps, crew presence, and the public state now show the lived
+condition so the visible place agrees with its machine and terrain authority.
+
+### Verification evidence (2026-07-29)
+
+`npm run typecheck && npx vitest run` passed with 80 test files and 497 tests.
+The focused lived-condition proof covers an earned cultivated Long Furrow,
+saturated weather, a failed drain pump, the resulting waterlogged condition,
+the lamp/crew projection, and restoration after the pump returns to operation.
+
+The remaining evidence boundary is a long-form player-earned browser playtest:
+choose waterworks, cultivate Long Furrow, allow drainage to fail in saturated
+weather, service the physical pump, and observe the full place transition. No
+save-state injection is being represented as that play evidence.
+
+## Addendum (2026-07-29) - weather pressure must be legible before it matters
+
+The existing masthead world clock now projects the next rain or storm from the
+same deterministic cycle used by terrain grip, infrastructure wear, Quarry
+Runout, and Long Furrow's lived condition. It is a short planning cue, not a
+weather menu or a second simulation: players can service machinery, choose a
+route, or take the risk before saturation changes the valley.
+
+### Verification evidence (2026-07-29)
+
+The pure forecast contract covers clear-to-rain, rain-to-storm, and active
+storm cases. A disposable desktop runtime at world minute 400 displayed `Rain
+in 10h 20m` beside the existing day/time readout, with matching accessible text,
+a healthy graphics context, and no browser error. The full `npm run typecheck
+&& npx vitest run` regression passed with 81 test files and 498 tests.

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "assetId": "field-plough-01",
+  "kind": "customizable-rig-part",
+  "sourceFactory": "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+  "runtimeDerivative": {
+    "format": "glb",
+    "path": "assets/runtime/field-plough-01.glb",
+    "status": "generated-repo-local-derivative",
+    "exportCommand": "node tools/export-field-plough-glb.cjs"
+  },
+  "coordinateContract": {
+    "units": "meters",
+    "up": "+Y",
+    "forward": "+Z",
+    "origin": "center of attachment frame",
+    "rootNode": "field-plough-01"
+  },
+  "attachmentContract": {
+    "sockets": [
+      "top-link-socket",
+      "lower-left-hitch",
+      "lower-right-hitch",
+      "soil-contact-row"
+    ],
+    "replaceableSubassemblies": ["share-1", "share-2", "share-3", "share-4"],
+    "simulationCollisionAuthority": "simulation-owned"
+  },
+  "materialSlots": [
+    "paintedSteel",
+    "darkSteel",
+    "moldboardSteel",
+    "cuttingEdgeSteel",
+    "fastenerSteel",
+    "soil"
+  ],
+  "variantContract": {
+    "shareCount": [3, 4],
+    "wearLevel": { "min": 0, "max": 1 },
+    "paintColor": "Three.ColorRepresentation"
+  },
+  "lodContract": {
+    "source": "authored factory",
+    "requiredNextPass": "derive LOD1 and LOD2 from the same part graph",
+    "currentStatus": "not-yet-generated"
+  },
+  "admission": {
+    "developmentPartUse": true,
+    "runtimeManifestAdmission": "deferred-to-parallel-owned-runtime-lane",
+    "publicRuntimeApproved": false,
+    "heroReferenceFidelity": false,
+    "reason": "The part graph and customization seam are now explicit, but the img2threejs Tier 1 silhouette gate remains below threshold."
+  }
+}

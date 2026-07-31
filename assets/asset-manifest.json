@@ -238,17 +238,31 @@
       "notes": "Conditional single-view input for img2threejs. Hidden geometry, scale, sockets, collision, and multi-angle fidelity remain unverified."
     },
     {
-      "id": "field-plough-01-object-reference",
+      "id": "field-plough-01-reference",
       "kind": "rig-part-reference",
-      "status": "concept",
+      "status": "procedural-candidate",
       "sourceType": "generated-image",
       "sourcePath": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
       "runtimePath": null,
       "publicRuntimeApproved": false,
       "rightsStatus": "review-required-before-distribution",
       "sha256": "eab01f9c29140ce6015004203a22bf04dd837469969b7e4be850668b8f805dde",
-      "intendedUse": "Isolated reference for the field-plough rig-part reconstruction workbench; not a runtime mesh.",
-      "notes": "Conditional single-view input for img2threejs. The visible repeated share count conflicts with the generation prompt and must be resolved in the strict spec."
+      "intendedUse": "Development procedural candidate reference and compiler input for the field-plough rig-part asset lane.",
+      "notes": "Conditional single-view input for img2threejs. The generic generated preview failed visual comparison and is retained only as compiler evidence. The authored factory preserves four shares, the triangulated hitch, hydraulic assembly, and named sockets for development placeholder use, but the real img2threejs blockout remains locked at refine-code: Tier 1 silhouette IoU 0.470 and aspect-ratio delta 0.1001 still fail."
+    },
+    {
+      "id": "field-plough-01",
+      "kind": "rig-part",
+      "status": "procedural-candidate",
+      "sourceType": "authored-procedural-factory",
+      "sourcePath": "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+      "specPath": "assets/specs/field-plough-01.asset.json",
+      "runtimePath": null,
+      "publicRuntimeApproved": false,
+      "rightsStatus": "repo-authored-internal-derivative",
+      "sha256": "fa3681d96758b4808d84061858dd999b79dcc58307f574d2bf248896f356dc20",
+      "intendedUse": "Repo-local developer derivative for validating named part boundaries, sockets, material slots, and customizable rig-part integration.",
+      "notes": "GLB export is deterministic and structurally preflighted. Runtime manifest admission remains intentionally deferred to the parallel-owned runtime lane; this derivative is not public or hero-production approved because the current img2threejs Tier 1 silhouette gate remains below threshold."
     }
   ]
 }

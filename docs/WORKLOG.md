@@ -1,3 +1,8 @@
+## 2026-07-31 — game-design audit and vision-correction moved to dated addendum
+
+- This session's game-design audit, vision-hierarchy correction, and full re-check are in
+  [`docs/WORKLOG_ADDENDUM_2026-07-31.md`](WORKLOG_ADDENDUM_2026-07-31.md).
+
 ## 2026-07-28 — mission/progression runtime foundation moved to dated addendum
 
 - This session's implementation, decision, evidence, and remaining gate are in
@@ -7422,3 +7427,5 @@ the horizon doc's six open operator questions.
   not as the active architectural boundary.
 
 2026-07-28 vehicle-family atlas expansion: see [WORKLOG_ADDENDUM_2026-07-28.md](WORKLOG_ADDENDUM_2026-07-28.md).
+2026-07-29 open-world settlement contribution history: see [WORKLOG_ADDENDUM_2026-07-29.md](WORKLOG_ADDENDUM_2026-07-29.md).
+2026-07-29 game visuals discovery and approval gate: see [GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md](reviews/GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md).

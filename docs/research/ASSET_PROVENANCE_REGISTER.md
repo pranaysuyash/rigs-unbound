@@ -648,6 +648,36 @@ production. A road tile, tree family, and cloud/sprite atlas will be queued
 through their own appropriate lanes rather than misclassified as single-object
 mesh reconstructions.
 
+## Addendum (2026-07-29) - canonical asset definition layer
+
+The field-plough slice now has a canonical semantic definition at
+[`assets/specs/field-plough-01.asset.json`](../../assets/specs/field-plough-01.asset.json).
+It records identity, uncertainty, provisional dimensions, component hierarchy,
+attachment sockets, pivots, action states, collision ownership, material
+layers, LOD, runtime adapter, compiler stages, provenance, and gate evidence.
+
+The definition is the source of truth. The `img2threejs` workbench is a derived
+compiler/evidence surface; its current strict-quality failure remains recorded
+and no factory or GLB is promoted. Manifest preflight now checks linked specs
+for required structural fields. The architectural decision is recorded in
+[ADR-0047](../decisions/ADR-0047-canonical-asset-definition-and-compiler-stages.md).
+
+### Anything else?
+
+Yes: this closes the most important production-grade gap identified in the
+quality review. A future tree, road, sprite atlas, or scene kit must follow the
+same source-of-truth pattern while using an appropriate compiler path.
+
+### Compiler correction result
+
+The canonical definition now derives the `img2threejs` spec through the
+reusable `tools/derive-img2threejs-spec.mjs` compiler. Normal and strict
+validation both pass with zero errors and zero warnings. The current unlocked
+blockout factory is preserved at
+`assets/workbench/field-plough-01/generated/createFieldPloughModel.ts`, and it
+passes isolated TypeScript compilation. Visual/browser review, GLB export,
+runtime integration, collision review, and public approval remain open.
+
 ## Addendum (2026-07-29) - first bounded rig-part reference
 
 ### `field-plough-01-object-reference-2026-07-29.png`
@@ -680,3 +710,29 @@ Yes: this smaller package is intentionally the first reconstruction probe. The
 repository already has a `field-plough` attachment and `ploughPivot` seam, so
 it can test action-ready attachment semantics without prematurely promoting a
 whole vehicle or turning a concept plate into runtime truth.
+
+### Reconstruction gate result
+
+The repo-owned `img2threejs` workbench run passed image probe, reference
+admission, pre-spec assessment, detail inventory, and painted-steel PBR
+extraction (`0.86` confidence versus `0.70` threshold). Normal spec validation
+passed with warnings. Strict validation remains blocked with 12 errors because
+the embedded `object-sculpt-spec.json` still has a shallow component/material
+hierarchy, generic feature targets, no embedded detail inventory, no lighting
+entries, no repetition system, and only three review viewpoints. No factory,
+GLB, runtime approval, or public promotion was created.
+
+The exact machine-readable evidence is retained under
+`assets/workbench/field-plough-01/`; the workbench README and
+`strict-quality-result.md` define the next correction. This is a quality gate,
+not a failure of the asset-first strategy.
+
+## Addendum (2026-07-29) - provenance separates development availability from distribution
+
+The field-plough entry is now a `procedural-candidate` in the manifest and
+canonical definition. Its generated reference, derived sculpt spec, procedural
+factory, and browser review artifacts are available for repository-local
+development and open-world exploration. This does not grant public distribution
+rights, and `publicRuntimeApproved` remains false until the separate promotion
+package is reviewed. Provenance is therefore a distribution boundary, not a
+reason to suppress useful development assets.

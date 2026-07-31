@@ -16,6 +16,50 @@ export interface WeatherState {
   windVector: { x: number; z: number };
 }
 
+/** A short, actionable horizon derived from the same deterministic weather clock. */
+export interface WeatherForecast {
+  targetPhase: "rain" | "storm";
+  minutesUntil: number;
+  label: string;
+}
+
+function forecastDurationLabel(minutes: number): string {
+  const rounded = Math.max(0, Math.round(minutes));
+  const hours = Math.floor(rounded / 60);
+  const remainder = rounded % 60;
+  if (hours === 0) return `${remainder}m`;
+  if (remainder === 0) return `${hours}h`;
+  return `${hours}h ${remainder}m`;
+}
+
+/**
+ * Forecast the next weather pressure the player can plan around. It does not
+ * predict a separate random future: rain and storm remain consequences of the
+ * same cycle used by traction, machine wear, and environmental incidents.
+ */
+export function deriveWeatherForecast(worldTimeMinutes: number): WeatherForecast {
+  const cycleMinute = ((worldTimeMinutes % 1440) + 1440) % 1440;
+  if (cycleMinute >= 1200 && cycleMinute < 1320) {
+    return { targetPhase: "storm", minutesUntil: 0, label: "Storm now" };
+  }
+  if (cycleMinute >= 1020 && cycleMinute < 1200) {
+    const minutesUntil = 1200 - cycleMinute;
+    return {
+      targetPhase: "storm",
+      minutesUntil,
+      label: `Storm in ${forecastDurationLabel(minutesUntil)}`,
+    };
+  }
+  const minutesUntil = cycleMinute < 1020
+    ? 1020 - cycleMinute
+    : 1440 - cycleMinute + 1020;
+  return {
+    targetPhase: "rain",
+    minutesUntil,
+    label: `Rain in ${forecastDurationLabel(minutesUntil)}`,
+  };
+}
+
 /**
  * Derives current weather state deterministically from world clock minutes.
  */

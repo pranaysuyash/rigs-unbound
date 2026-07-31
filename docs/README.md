@@ -11,6 +11,7 @@ the real work.
 - [Decision Register](decisions/README.md)
 - [Episode Runner Specification](research/EPISODE_RUNNER_SPEC_2026-07-27.md)
 - [Vehicle Game Visual Exploration Living Catalog](vehicle_game_visual_exploration_living_catalog.md)
+- [Game Visuals Discovery and Approval Package](reviews/GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md)
 - [Three.js Animation Implementation Flow](research/THREEJS_ANIMATION_IMPLEMENTATION_FLOW_2026-07-27.md)
 - [Three.js Interaction Implementation Flow](research/THREEJS_INTERACTION_IMPLEMENTATION_FLOW_2026-07-27.md)
 - [Comms package](comms/README.md)
@@ -25,6 +26,8 @@ the real work.
 - [First post draft](comms/POST_TODAY_2026-07-26.md)
 - [Compositional Episode Grammar and Storm Relay](exploration/COMPOSITIONAL_EPISODE_GRAMMAR_AND_STORM_RELAY_2026-07-26.md)
 - [Stranger at the Silo opening exploration](exploration/STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md)
+- [Single-rig disablement and recovery exploration](exploration/SINGLE_RIG_DISABLEMENT_AND_RECOVERY_EXPLORATION_2026-07-29.md)
+- [Recovery web and player-continuity design space](exploration/RECOVERY_WEB_AND_PLAYER_CONTINUITY_DESIGN_SPACE_2026-07-29.md)
 - [Master Execution Tracker](plans/MASTER_EXECUTION_TRACKER.md)
 - [Worklog](WORKLOG.md)
 

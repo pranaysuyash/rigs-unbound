@@ -127,6 +127,9 @@ const REPLAYABLE_COMMAND_NAMES = new Set([
   "repairRig",
   "reset",
   "rig-tool",
+  "diagnoseRestoration",
+  "performRestorationService",
+  "performFirstStart",
 ]);
 
 export function isReplayableCommandName(name: string): boolean {

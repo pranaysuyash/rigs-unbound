@@ -200,6 +200,52 @@ evidence command:
 - the detailed probe remains the source of truth;
 - the summary helper is just the fast reader.
 
+## Open-world causeway browser acceptance
+
+`open-world-causeway-browser-acceptance.cjs` proves the voluntary Sunken Flats
+material-consequence path in a new Playwright context, without reading or
+changing an interactive browser's save:
+
+- bootstraps only personal Sunken knowledge and a clear Home Silo yard position;
+- loads the causeway kit through the ordinary spatial action;
+- attaches it through the ordinary cargo action;
+- drives the Marsh Skimmer through real fixed-step water traversal until the
+  trailing crate enters the delivery radius;
+- proves material-derived Sunken capacity, no active mission, no side mission,
+  and reload persistence;
+- writes a reviewed screenshot and JSON evidence to `docs/reviews/assets/`.
+
+Run against the canonical server on port `4173`:
+
+```bash
+npm run test:causeway-browser
+```
+
+The acceptance hook does not represent an autonomous player-navigation system.
+It sets up independently testable world knowledge and bay position, then proves
+the normal load, attach, movement, delivery, and persistence authorities.
+
+## Open-world ecology browser acceptance
+
+`open-world-ecology-browser-acceptance.cjs` uses an isolated browser context
+to verify the player-facing ecology surface:
+
+- starts a fresh local world and confirms the three persistent regional groups;
+- places the Marsh Skimmer near the real Long Furrow herd without creating a
+  route permission, mission, or side mission;
+- captures a survey-camera observation of the group in the world;
+- writes a screenshot and machine-readable evidence under `docs/reviews/assets/`;
+- never reads or mutates the interactive browser profile.
+
+Run it against the canonical server on port `4173`:
+
+```bash
+npm run test:ecology-browser
+```
+
+The screenshot proves local player-surface visibility, not final art direction
+or complete individual-creature interaction design.
+
 ## Asset manifest preflight
 
 `assets/asset-manifest.json` is the canonical registry for reviewed source and
@@ -345,3 +391,21 @@ then run:
 ```bash
 npm run test:campaign-browser
 ```
+
+## Field-plough procedural candidate compiler and review
+
+`npm run assets:build-field-plough` derives the tool-specific `img2threejs`
+spec, validates its strict semantic contract, generates the procedural factory,
+and prepares the visual review factory while retaining attachment metadata for
+future adapter work. It does not alter `src/game/` or assign simulation
+collision authority.
+
+With the canonical Vite server running on port 4173, capture the named review
+viewpoints into the repository with:
+
+```bash
+node tools/capture-field-plough-review.cjs
+```
+
+The review images, browser state, and comparison sheet live under
+`assets/workbench/field-plough-01/review/`.

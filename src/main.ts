@@ -19,6 +19,7 @@ import {
   MODULES,
   RIG_IDS,
   RIG_PROFILES,
+  phaseForWorldTime,
   type ContinuousAction,
   type CameraMode,
   type GameState,
@@ -26,6 +27,7 @@ import {
   type ModuleId,
   type RigId,
   type TapAction,
+  type WorldPhase,
   worldMinuteOfDay,
 } from "./game/contracts";
 import {
@@ -70,6 +72,7 @@ import {
   stableHashText,
 } from "./game/run-record";
 import { validateDeterministicReplay } from "./game/replay-validator";
+import { GhostTrailRecorder } from "./game/ghost";
 import { GameRenderer } from "./game/renderer";
 import type {
   CameraResolutionEvidence,
@@ -119,7 +122,8 @@ import {
 import { CRAFTING_RECIPES, canCraftRecipe } from "./game/salvage-crafting";
 import { deriveFleetRecoveryAssessment } from "./game/fleet-recovery-assessment";
 import { fleetRecoveryProjection } from "./game/fleet-recovery-command";
-import { deriveWeatherState } from "./game/weather";
+import { deriveWeatherForecast, deriveWeatherState } from "./game/weather";
+import type { WeatherState } from "./game/weather";
 import {
   clearState,
   loadState,
@@ -136,7 +140,10 @@ import {
   acceptMission,
   MAX_ACTIVE_SIDE_MISSIONS,
 } from "./game/mission-lifecycle";
-import { deriveSettlementFieldNotes } from "./game/settlement-needs";
+import {
+  deriveSettlementEcologyFieldNotes,
+  deriveSettlementFieldNotes,
+} from "./game/settlement-needs";
 import { componentWearDeficit } from "./game/vehicle-maintenance";
 import { computeChassisMassDistribution } from "./game/workshop-lab";
 import type { Obstacle } from "./game/collision";
@@ -150,6 +157,12 @@ const navigationEntry = performance.getEntriesByType("navigation")[0] as
   PerformanceNavigationTiming | undefined;
 const BOOT_STARTED_AT = navigationEntry?.startTime ?? 0;
 const CONTROL_LESSON_STORAGE_KEY = "rigs-unbound.control-lessons.v1";
+const themeColorMeta = document.querySelector<HTMLMetaElement>(
+  'meta[name="theme-color"]',
+);
+let shellPointerFrame = 0;
+let shellPointerX = 50;
+let shellPointerY = 38;
 
 declare global {
   interface Window {
@@ -159,6 +172,7 @@ declare global {
     getRunRecordReplayValidation: () => ReturnType<
       typeof validateDeterministicReplay
     >;
+    getGhostTrail: () => string;
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
@@ -236,6 +250,371 @@ function headingLabel(heading: number): string {
   const labels = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"] as const;
   return labels[Math.round(degrees / 45) % labels.length] ?? "N";
 }
+
+interface PresentationMood {
+  themeColor: string;
+  glowTop: string;
+  glowLeft: string;
+  glowRight: string;
+  backdropStrong: string;
+  backdropSoft: string;
+  panelFill: string;
+  panelFillStrong: string;
+  border: string;
+  shadow: string;
+  rainOpacity: string;
+  rainSpeed: string;
+  motionEnergy: string;
+}
+
+interface RigPresentationTone {
+  accent: string;
+  accentSoft: string;
+  accentStrong: string;
+}
+
+function selectRigPresentationTone(rigId: RigId): RigPresentationTone {
+  switch (rigId) {
+    case "toy-buggy":
+      return {
+        accent: "#d9aa52",
+        accentSoft: "rgba(217, 170, 82, 0.18)",
+        accentStrong: "rgba(217, 170, 82, 0.3)",
+      };
+    case "marsh-skimmer":
+      return {
+        accent: "#6bc9c4",
+        accentSoft: "rgba(107, 201, 196, 0.2)",
+        accentStrong: "rgba(107, 201, 196, 0.32)",
+      };
+    default:
+      return {
+        accent: "#b94f32",
+        accentSoft: "rgba(185, 79, 50, 0.18)",
+        accentStrong: "rgba(185, 79, 50, 0.28)",
+      };
+  }
+}
+
+interface CameraPresentationTone {
+  depth: string;
+  energy: string;
+  tilt: string;
+}
+
+interface DrivePresentationTone {
+  band: "idle" | "rolling" | "cruising" | "fast" | "flat-out";
+  label: string;
+  energy: string;
+}
+
+function selectCameraPresentationTone(
+  cameraMode: CameraMode,
+): CameraPresentationTone {
+  switch (cameraMode) {
+    case "hood":
+      return { depth: "0.96", energy: "0.05", tilt: "0.08deg" };
+    case "side":
+      return { depth: "0.94", energy: "0.08", tilt: "-0.06deg" };
+    case "tactical":
+      return { depth: "0.9", energy: "0.14", tilt: "0.16deg" };
+    case "top-down":
+      return { depth: "0.88", energy: "0.18", tilt: "0.24deg" };
+    case "survey":
+      return { depth: "0.9", energy: "0.16", tilt: "0.12deg" };
+    case "chase":
+    default:
+      return { depth: "1", energy: "0.09", tilt: "0.04deg" };
+  }
+}
+
+function selectDrivePresentationTone(speedKmh: number): DrivePresentationTone {
+  const speed = Math.max(0, speedKmh);
+  if (speed < 1) {
+    return { band: "idle", label: "Idle", energy: "0" };
+  }
+  if (speed < 8) {
+    return { band: "rolling", label: "Rolling", energy: "0.18" };
+  }
+  if (speed < 22) {
+    return { band: "cruising", label: "Cruising", energy: "0.42" };
+  }
+  if (speed < 40) {
+    return { band: "fast", label: "Fast", energy: "0.72" };
+  }
+  return { band: "flat-out", label: "Flat out", energy: "1" };
+}
+
+function selectPresentationMood(
+  worldPhase: WorldPhase,
+  weather: WeatherState,
+  profile: VisibilityProfileId,
+  motionEnergy: number,
+): PresentationMood {
+  const mobileSafe = profile === "mobile-safe";
+  const motionLevel = Math.max(0, Math.min(1, motionEnergy));
+
+  const themeColor =
+    weather.phase === "storm"
+      ? "#111927"
+      : weather.phase === "rain"
+        ? "#14232a"
+        : worldPhase === "night"
+          ? "#0e1419"
+          : worldPhase === "gloam"
+            ? "#121b16"
+            : "#18211c";
+
+  const panelFill =
+    weather.phase === "storm"
+      ? "rgba(13, 20, 28, 0.92)"
+      : weather.phase === "rain"
+        ? "rgba(16, 25, 30, 0.9)"
+        : worldPhase === "night"
+          ? "rgba(15, 22, 23, 0.9)"
+          : "rgba(18, 26, 22, 0.9)";
+
+  const panelFillStrong =
+    weather.phase === "storm"
+      ? "rgba(11, 17, 24, 0.95)"
+      : weather.phase === "rain"
+        ? "rgba(14, 23, 28, 0.94)"
+        : worldPhase === "night"
+          ? "rgba(16, 23, 24, 0.94)"
+          : "rgba(245, 235, 214, 0.96)";
+
+  const border =
+    weather.phase === "storm"
+      ? "rgba(107, 201, 196, 0.2)"
+      : weather.phase === "rain"
+        ? "rgba(107, 201, 196, 0.18)"
+        : worldPhase === "night"
+          ? "rgba(234, 216, 184, 0.15)"
+          : "rgba(234, 216, 184, 0.14)";
+
+  const shadow =
+    weather.phase === "storm"
+      ? "0 1.4rem 3.2rem rgba(0, 0, 0, 0.4)"
+      : motionLevel > 0.55
+        ? "0 1.25rem 3.1rem rgba(0, 0, 0, 0.34)"
+        : "0 1.2rem 3rem rgba(0, 0, 0, 0.3)";
+  const rainOpacity =
+    weather.phase === "storm"
+      ? "0.12"
+      : weather.phase === "rain"
+        ? "0.06"
+        : "0";
+  const rainSpeed =
+    weather.phase === "storm"
+      ? "11s"
+      : weather.phase === "rain"
+        ? "18s"
+        : "0s";
+
+  return {
+    themeColor,
+    glowTop:
+      weather.phase === "storm"
+        ? "rgba(70, 200, 210, 0.16)"
+        : weather.phase === "rain"
+          ? "rgba(107, 201, 196, 0.14)"
+          : worldPhase === "night"
+            ? "rgba(80, 120, 170, 0.1)"
+            : "rgba(107, 201, 196, 0.14)",
+    glowLeft:
+      weather.phase === "storm"
+        ? "rgba(185, 79, 50, 0.16)"
+        : weather.phase === "rain"
+          ? "rgba(80, 145, 170, 0.14)"
+          : worldPhase === "night"
+            ? "rgba(185, 79, 50, 0.12)"
+            : "rgba(185, 79, 50, 0.16)",
+    glowRight:
+      weather.phase === "storm"
+        ? "rgba(245, 158, 11, 0.1)"
+        : weather.phase === "rain"
+          ? "rgba(107, 201, 196, 0.08)"
+          : worldPhase === "night"
+            ? "rgba(217, 170, 82, 0.06)"
+            : "rgba(217, 170, 82, 0.08)",
+    backdropStrong:
+      weather.phase === "storm"
+        ? "rgba(7, 11, 15, 0.86)"
+        : weather.phase === "rain"
+          ? "rgba(10, 16, 20, 0.84)"
+          : worldPhase === "night"
+            ? "rgba(8, 12, 15, 0.82)"
+            : "rgba(10, 15, 12, 0.84)",
+    backdropSoft:
+      weather.phase === "storm"
+        ? "rgba(7, 11, 15, 0.62)"
+        : weather.phase === "rain"
+          ? "rgba(10, 16, 20, 0.58)"
+          : worldPhase === "night"
+            ? "rgba(8, 12, 15, 0.56)"
+            : "rgba(10, 15, 12, 0.58)",
+    panelFill,
+    panelFillStrong: mobileSafe ? "rgba(18, 26, 22, 0.96)" : panelFillStrong,
+    border,
+    shadow,
+    rainOpacity,
+    rainSpeed,
+    motionEnergy: motionLevel.toFixed(3),
+  };
+}
+
+let lastPresentationMood = "";
+let lastPresentationPulse = "";
+let presentationPulseFrame = 0;
+let presentationPulseTimer = 0;
+
+function commitShellPointerStyle(): void {
+  const root = document.documentElement;
+  root.style.setProperty("--shell-pointer-x", `${shellPointerX.toFixed(2)}%`);
+  root.style.setProperty("--shell-pointer-y", `${shellPointerY.toFixed(2)}%`);
+  root.style.setProperty("--shell-pointer-glow", "0.055");
+}
+
+function syncShellPointerPosition(clientX: number, clientY: number): void {
+  if (!Number.isFinite(clientX) || !Number.isFinite(clientY)) return;
+  const viewportWidth = window.innerWidth || 1;
+  const viewportHeight = window.innerHeight || 1;
+  shellPointerX = Math.max(0, Math.min(100, (clientX / viewportWidth) * 100));
+  shellPointerY = Math.max(0, Math.min(100, (clientY / viewportHeight) * 100));
+  if (shellPointerFrame) return;
+  shellPointerFrame = window.requestAnimationFrame(() => {
+    shellPointerFrame = 0;
+    commitShellPointerStyle();
+  });
+}
+
+function centerShellPointer(): void {
+  shellPointerX = 50;
+  shellPointerY = 38;
+  if (shellPointerFrame) return;
+  shellPointerFrame = window.requestAnimationFrame(() => {
+    shellPointerFrame = 0;
+    commitShellPointerStyle();
+  });
+}
+
+function syncPresentationMood(
+  worldPhase: WorldPhase,
+  weather: WeatherState,
+  profile: VisibilityProfileId,
+  motionEnergy: number,
+  rigId: RigId,
+  cameraMode: CameraMode,
+  speedKmh: number,
+): void {
+  const mood = selectPresentationMood(worldPhase, weather, profile, motionEnergy);
+  const tone = selectRigPresentationTone(rigId);
+  const cameraTone = selectCameraPresentationTone(cameraMode);
+  const driveTone = selectDrivePresentationTone(speedKmh);
+  const signature = [
+    worldPhase,
+    weather.phase,
+    profile,
+    rigId,
+    cameraMode,
+    driveTone.band,
+    mood.themeColor,
+    mood.glowTop,
+    mood.glowLeft,
+    mood.glowRight,
+    mood.backdropStrong,
+    mood.backdropSoft,
+    mood.panelFill,
+    mood.panelFillStrong,
+    mood.border,
+    mood.shadow,
+    mood.rainOpacity,
+    mood.rainSpeed,
+    mood.motionEnergy,
+    tone.accent,
+    tone.accentSoft,
+    tone.accentStrong,
+    cameraTone.depth,
+    cameraTone.energy,
+    cameraTone.tilt,
+    driveTone.energy,
+  ].join("|");
+  if (signature === lastPresentationMood) return;
+  lastPresentationMood = signature;
+  const pulseSignature = [
+    worldPhase,
+    weather.phase,
+    profile,
+    rigId,
+    cameraMode,
+    driveTone.band,
+    tone.accent,
+    tone.accentSoft,
+    tone.accentStrong,
+    cameraTone.depth,
+    cameraTone.energy,
+    cameraTone.tilt,
+  ].join("|");
+
+  const root = document.documentElement;
+  root.dataset.worldPhase = worldPhase;
+  root.dataset.weatherPhase = weather.phase;
+  root.dataset.qualityProfile = profile;
+  root.dataset.cameraMode = cameraMode;
+  root.dataset.driveBand = driveTone.band;
+  root.style.setProperty("--shell-theme-color", mood.themeColor);
+  root.style.setProperty("--shell-glow-top", mood.glowTop);
+  root.style.setProperty("--shell-glow-left", mood.glowLeft);
+  root.style.setProperty("--shell-glow-right", mood.glowRight);
+  root.style.setProperty("--shell-backdrop-strong", mood.backdropStrong);
+  root.style.setProperty("--shell-backdrop-soft", mood.backdropSoft);
+  root.style.setProperty("--shell-panel-fill", mood.panelFill);
+  root.style.setProperty("--shell-panel-fill-strong", mood.panelFillStrong);
+  root.style.setProperty("--shell-border", mood.border);
+  root.style.setProperty("--shell-shadow", mood.shadow);
+  root.style.setProperty("--shell-rain-opacity", mood.rainOpacity);
+  root.style.setProperty("--shell-rain-speed", mood.rainSpeed);
+  root.style.setProperty("--shell-motion-energy", mood.motionEnergy);
+  root.style.setProperty("--shell-rig-accent", tone.accent);
+  root.style.setProperty("--shell-rig-accent-soft", tone.accentSoft);
+  root.style.setProperty("--shell-rig-accent-strong", tone.accentStrong);
+  root.style.setProperty("--shell-camera-depth", cameraTone.depth);
+  root.style.setProperty("--shell-camera-energy", cameraTone.energy);
+  root.style.setProperty("--shell-camera-tilt", cameraTone.tilt);
+  root.style.setProperty("--shell-drive-energy", driveTone.energy);
+  themeColorMeta?.setAttribute("content", mood.themeColor);
+
+  if (pulseSignature !== lastPresentationPulse) {
+    lastPresentationPulse = pulseSignature;
+    if (presentationPulseFrame) {
+      window.cancelAnimationFrame(presentationPulseFrame);
+      presentationPulseFrame = 0;
+    }
+    if (presentationPulseTimer) {
+      window.clearTimeout(presentationPulseTimer);
+      presentationPulseTimer = 0;
+    }
+    root.removeAttribute("data-presentation-pulse");
+    presentationPulseFrame = window.requestAnimationFrame(() => {
+      presentationPulseFrame = 0;
+      root.setAttribute("data-presentation-pulse", pulseSignature);
+      presentationPulseTimer = window.setTimeout(() => {
+        if (root.getAttribute("data-presentation-pulse") === pulseSignature) {
+          root.removeAttribute("data-presentation-pulse");
+        }
+        presentationPulseTimer = 0;
+      }, 240);
+    });
+  }
+}
+
+commitShellPointerStyle();
+window.addEventListener("pointermove", (event) => {
+  if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+  syncShellPointerPosition(event.clientX, event.clientY);
+});
+window.addEventListener("pointerleave", centerShellPointer);
+window.addEventListener("blur", centerShellPointer);
 
 /**
  * Coarse range to an unsurveyed signal.
@@ -629,6 +1008,7 @@ function boot(): void {
     BOOT_STARTED_AT,
     createRunRecordInitialContext(state, world),
   );
+  const ghostRecorder = new GhostTrailRecorder();
   let acceptanceManualStepping = false;
   document.body.dataset.surface = developerSurface ? "developer" : "player";
   const markInputReady = (): void => performanceMonitor.markInputReady();
@@ -701,6 +1081,8 @@ function boot(): void {
 
   const phaseLabel = requiredElement<HTMLElement>("#phase-label");
   const timeLabel = requiredElement<HTMLElement>("#time-label");
+  const forecastLabel = requiredElement<HTMLElement>("#forecast-label");
+  const driveStateLabel = requiredElement<HTMLElement>("#drive-state-label");
   const surfaceLabel = requiredElement<HTMLElement>("#surface-label");
   const biomeLabel = requiredElement<HTMLElement>("#biome-label");
   const surveyContract = requiredElement<HTMLElement>("#survey-contract");
@@ -775,6 +1157,9 @@ function boot(): void {
   const pauseNavigator = requiredElement<HTMLButtonElement>("#pause-navigator");
   const pauseWelcome = requiredElement<HTMLButtonElement>("#pause-welcome");
   const pauseReset = requiredElement<HTMLButtonElement>("#pause-reset");
+  const pauseCopySessionRecord = requiredElement<HTMLButtonElement>(
+    "#pause-copy-session-record",
+  );
   const pauseSaveStatus = requiredElement<HTMLElement>("#pause-save-status");
   const welcomePanel = requiredElement<HTMLElement>("#welcome-panel");
   const bootstrapStatus = requiredElement<HTMLElement>("#bootstrap-status");
@@ -898,12 +1283,33 @@ function boot(): void {
   );
   workshopRestorationAction.addEventListener("click", () => {
     markActionReady();
+    void audio.unlock();
+    workshopRestoration.classList.add("workshop__restoration--responding");
+    window.setTimeout(() => {
+      workshopRestoration.classList.remove(
+        "workshop__restoration--responding",
+      );
+    }, 460);
+    workshopRestorationAction.setAttribute("aria-busy", "true");
+    window.setTimeout(() => {
+      workshopRestorationAction.removeAttribute("aria-busy");
+    }, 360);
     if (!state.restoration.diagnosed) {
       diagnoseRestoration(state);
+      recordCommand("diagnoseRestoration");
+      audio.chirp(520);
     } else if (!state.restoration.repaired) {
       performRestorationService(state);
+      recordCommand("performRestorationService");
+      audio.impact(0.25);
     } else if (!state.restoration.firstStart) {
+      audio.chirp(180);
       performFirstStart(state);
+      recordCommand("performFirstStart");
+      audio.impact(0.35);
+      renderer.addShake(0.5);
+      renderer.flashHeadlights(state.activeRigId);
+      closeOverlay();
     }
     announce();
   });
@@ -1177,7 +1583,10 @@ function boot(): void {
     const selected = missions.find(
       (mission) => mission.id === selectedMissionId,
     );
-    const fieldNotes = deriveSettlementFieldNotes(state)
+    const fieldNotes = [
+      ...deriveSettlementFieldNotes(state),
+      ...deriveSettlementEcologyFieldNotes(world.ecologySnapshot()),
+    ]
       .map((note) => `${note.speaker}: ${note.text}`)
       .join(" · ");
     missionBoardSummary.textContent = missions.length
@@ -2038,6 +2447,7 @@ function boot(): void {
     state = createInitialState(state.seed);
     settleWorld(state, world);
     fieldMap.clear();
+    ghostRecorder.clear();
     renderer.invalidate(state);
     statusMessage = "Local field reset.";
     saveStatus.textContent = statusMessage;
@@ -2102,6 +2512,25 @@ function boot(): void {
     resetField();
   });
 
+  pauseCopySessionRecord.addEventListener("click", () => {
+    markActionReady();
+    const payload = JSON.stringify(
+      {
+        runRecord: JSON.parse(window.getRunRecord()),
+        ghostTrail: JSON.parse(window.getGhostTrail()),
+      },
+      null,
+      2,
+    );
+    try {
+      void navigator.clipboard.writeText(payload);
+      showToast("Session record copied to clipboard.");
+    } catch {
+      showToast("Clipboard not available; record is on the window object.");
+    }
+    recordEvent("sessionRecordCopied", { byteLength: payload.length });
+  });
+
   mapClose.addEventListener("click", () => {
     markInputReady();
     closeOverlay();
@@ -2139,6 +2568,10 @@ function boot(): void {
 
     const rig = activeRig(state);
     const profile = effectiveProfile(rig.id, rig.modules);
+    const worldPhase = phaseForWorldTime(state.worldTimeMinutes);
+    const weather = deriveWeatherState(state.worldTimeMinutes);
+    const speedKmh = Math.abs(rig.speed) * 3.6;
+    const motionEnergy = Math.min(1, speedKmh / 26);
     const openingNamingReady = state.openingNaming.status === "ready";
     openingNamingMoment.hidden = !openingNamingReady;
     if (
@@ -2155,6 +2588,27 @@ function boot(): void {
 
     phaseLabel.textContent = state.phase;
     timeLabel.textContent = phaseTime(state);
+    const forecast = deriveWeatherForecast(state.worldTimeMinutes);
+    const driveTone = selectDrivePresentationTone(speedKmh);
+    syncPresentationMood(
+      worldPhase,
+      weather,
+      runtimeProfileSelection.profile,
+      motionEnergy,
+      rig.id,
+      state.cameraMode,
+      speedKmh,
+    );
+    forecastLabel.textContent = forecast.label;
+    forecastLabel.setAttribute(
+      "aria-label",
+      `Weather forecast: ${forecast.label.toLowerCase()}.`,
+    );
+    driveStateLabel.textContent = driveTone.label;
+    driveStateLabel.setAttribute(
+      "aria-label",
+      `Driving state: ${driveTone.label.toLowerCase()}.`,
+    );
     surfaceLabel.textContent =
       SURFACES[telemetry.surfaceId as SurfaceId]?.displayName ?? "Ground";
     biomeLabel.textContent =
@@ -2763,6 +3217,18 @@ function boot(): void {
   window.getRunRecordVerification = () => verifyRunRecord(runRecord);
   window.getRunRecordReplayValidation = () =>
     validateDeterministicReplay(runRecord);
+  window.getGhostTrail = () =>
+    JSON.stringify(
+      {
+        schemaVersion: 1,
+        sampledAtHz: 10,
+        seed: state.seed,
+        activeRigId: state.activeRigId,
+        snapshots: ghostRecorder.getSnapshots(),
+      },
+      null,
+      2,
+    );
   window.advanceTime = (milliseconds: number) => {
     recordCommand("advanceTime", { milliseconds });
     advanceGame(state, world, milliseconds);
@@ -3244,6 +3710,7 @@ function boot(): void {
       state.phase,
       state.paused,
     );
+    ghostRecorder.record(rig, now);
     if (worldEntered) performanceMonitor.markControllable();
     updateInterface(now);
 

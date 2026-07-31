@@ -5,6 +5,7 @@ import {
   createInfrastructureNetworkState,
   deriveInfrastructureEffects,
   performInfrastructureAction,
+  recoverInfrastructureNetwork,
   resolveInfrastructureAction,
 } from "./infrastructure-network";
 import { deriveWeatherState } from "./weather";
@@ -26,20 +27,20 @@ function actorAt(
 }
 
 describe("open-world infrastructure network", () => {
-  it("turns a serviced floodgate into a local hydrology authority instead of a route flag", () => {
+  it("turns serviced Sunken Flats waterworks into a local hydrology authority instead of a route flag", () => {
     let network = createInfrastructureNetworkState();
-    const gate = INFRASTRUCTURE_DEFINITIONS["floodgate-12"];
-    const before = deriveInfrastructureEffects(network, gate.x, gate.z);
+    const waterworks = INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"];
+    const before = deriveInfrastructureEffects(network, waterworks.x, waterworks.z);
 
-    expect(resolveInfrastructureAction(network, actorAt("floodgate-12", ["tow"])).kind).toBe("inspect");
-    network = performInfrastructureAction(network, actorAt("floodgate-12", ["tow"]), "inspect").network;
-    const service = performInfrastructureAction(network, actorAt("floodgate-12", ["tow"]), "service");
+    expect(resolveInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"])).kind).toBe("inspect");
+    network = performInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"]), "inspect").network;
+    const service = performInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"]), "service");
     network = service.network;
-    const after = deriveInfrastructureEffects(network, gate.x, gate.z);
+    const after = deriveInfrastructureEffects(network, waterworks.x, waterworks.z);
 
     expect(service).toMatchObject({ accepted: true, salvageDelta: -4 });
     expect(after.waterLevelOffsetM).toBeLessThan(before.waterLevelOffsetM);
-    expect(deriveInfrastructureEffects(network, gate.x + 100, gate.z).waterLevelOffsetM).toBe(0);
+    expect(deriveInfrastructureEffects(network, waterworks.x + 100, waterworks.z).waterLevelOffsetM).toBe(0);
   });
 
   it("keeps multiple authored machines alive under the same deterministic weather clock", () => {
@@ -89,21 +90,45 @@ describe("open-world infrastructure network", () => {
 
   it("uses the shared affordance contract when a nearby rig cannot service a machine", () => {
     const network = createInfrastructureNetworkState();
-    const gate = INFRASTRUCTURE_DEFINITIONS["floodgate-12"];
-    network.entities[gate.id] = {
-      ...network.entities[gate.id],
+    const waterworks = INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"];
+    network.entities[waterworks.id] = {
+      ...network.entities[waterworks.id],
       known: true,
     };
 
-    expect(resolveInfrastructureAction(network, actorAt("floodgate-12", ["plough"]))).toMatchObject({
+    expect(resolveInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["plough"]))).toMatchObject({
       kind: "none",
       reason: "missing-capability",
       affordance: {
-        affordanceId: "infrastructure-service:floodgate-12",
+        affordanceId: "infrastructure-service:sunken-flats-waterworks",
         outcome: "impossible",
         reasonCode: "missing-capability",
         mismatchSource: "capability",
       },
+    });
+  });
+
+  it("maps a legacy floodgate entity record into the canonical regional waterworks", () => {
+    const recovered = recoverInfrastructureNetwork({
+      entities: {
+        "floodgate-12": {
+          known: true,
+          commandedOn: true,
+          components: { hydraulic: 80, mechanical: 70, power: 100, control: 75 },
+          lastInspectedAtMs: 0,
+          lastServicedAtMs: 30,
+          lastServicedByRigId: "utility-tractor",
+        },
+      },
+    }, null);
+
+    expect(recovered.entities["sunken-flats-waterworks"]).toMatchObject({
+      id: "sunken-flats-waterworks",
+      known: true,
+      commandedOn: true,
+      lastInspectedAtMs: 0,
+      lastServicedAtMs: 30,
+      lastServicedByRigId: "utility-tractor",
     });
   });
 });

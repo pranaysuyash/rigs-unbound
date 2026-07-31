@@ -32,6 +32,8 @@
           <div class="world-clock">
             <span id="phase-label">Day</span>
             <span id="time-label">06:40</span>
+            <span id="forecast-label" aria-label="Weather forecast: rain later">Rain later</span>
+            <span id="drive-state-label" aria-label="Driving state">Idle</span>
           </div>
           <div class="masthead__buttons">
             <button id="mute-button" type="button" aria-pressed="false">
@@ -581,6 +583,13 @@
             </button>
             <button id="pause-welcome" type="button" class="pause-action">
               Return to welcome
+            </button>
+            <button
+              id="pause-copy-session-record"
+              type="button"
+              class="pause-action"
+            >
+              Copy session record
             </button>
             <button
               id="pause-reset"

@@ -142,3 +142,12 @@ Open work:
 Revisit this proposal when a machine needs networked power, inventory flow,
 structural joints, or remote automation. The response should add an explicit
 effect adapter or subsystem owner, never a second per-machine quest pipeline.
+
+## Addendum (2026-07-29): Regional waterworks supersession
+
+The former `floodgate-12` identity is superseded by ADR-0052. The underlying
+infrastructure authority remains valid, but Sunken Flats is now canonically
+represented by the regional `sunken-flats-waterworks` entity. `floodgate-12`
+and `GameState.floodgate12` are recovery-only legacy inputs. Historical text in
+this ADR records the earlier implementation stage and must not be read as the
+current place identity.

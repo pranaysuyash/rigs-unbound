@@ -1,0 +1,96 @@
+{
+  "targetUrl": "http://127.0.0.1:4173/?acceptance=field-02&ecology-proof=1",
+  "actors": [
+    {
+      "id": "long-furrow-herd",
+      "kind": "grazers",
+      "x": 32,
+      "z": -56,
+      "territoryRadiusMeters": 54,
+      "population": 5,
+      "vitality": 0.68,
+      "recentDisturbance": 0
+    },
+    {
+      "id": "sunken-flats-flock",
+      "kind": "waders",
+      "x": -136,
+      "z": -118,
+      "territoryRadiusMeters": 62,
+      "population": 7,
+      "vitality": 0.72,
+      "recentDisturbance": 0
+    },
+    {
+      "id": "quarry-run-corvids",
+      "kind": "scavengers",
+      "x": 90,
+      "z": 37,
+      "territoryRadiusMeters": 70,
+      "population": 3,
+      "vitality": 0.55,
+      "recentDisturbance": 0
+    }
+  ],
+  "observed": {
+    "activeRig": {
+      "id": "marsh-skimmer",
+      "x": 32,
+      "y": 1.606,
+      "z": -20.893,
+      "heading": 0,
+      "pitch": 0.0203,
+      "roll": 0,
+      "speed": 14.538,
+      "stable": false,
+      "mobility": {
+        "kind": "hover",
+        "liftVelocity": -1.806,
+        "clearance": 1.747,
+        "cushionPressure": 0.708,
+        "skirtContact": true
+      },
+      "condition": 100,
+      "strain": 0.183,
+      "componentHealth": {
+        "tireTreadHealthPercent": 100,
+        "radiatorCleanlinessPercent": 100,
+        "winchCableIntegrityPercent": 100,
+        "alternatorBeltHealthPercent": 100
+      },
+      "distanceTravelled": 35.11,
+      "attachments": [
+        {
+          "id": "tow-hook",
+          "engaged": false
+        }
+      ],
+      "modules": [],
+      "tools": {
+        "tirePressurePsi": 32,
+        "differentialMode": "open"
+      },
+      "capabilities": [
+        "tow",
+        "survey",
+        "hover",
+        "rally"
+      ],
+      "surveyRange": 46,
+      "terrain": {
+        "surface": "water",
+        "grade": -0.145,
+        "grip": 0.56,
+        "slip": 0.44,
+        "waterDepth": 0.05,
+        "stalled": false
+      }
+    },
+    "mission": null,
+    "sideMissionCount": 0,
+    "herdPresent": true,
+    "herdDisplacementMeters": 27.932726220335965
+  },
+  "errors": [],
+  "note": "Screenshot is world-observation evidence, not a final art-composition approval."
+}

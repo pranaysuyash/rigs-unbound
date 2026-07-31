@@ -1,0 +1,81 @@
+{
+  "assetId": "field-plough-01",
+  "reviewDate": "2026-07-29",
+  "referencePath": "assets/generated/field-plough-01-object-reference-2026-07-29.png",
+  "renderPath": "assets/workbench/field-plough-01/review/front-three-quarter-neutral-open-world.png",
+  "comparisonPath": "assets/workbench/field-plough-01/review/comparison-front-three-quarter-authored-v16.png",
+  "classification": "development-ready procedural blockout",
+  "photorealProductionReady": false,
+  "overallFidelityScore": 0.65,
+  "divineEyeDiagnosticFidelity": 0.714,
+  "referenceFaithfulProductionScore": 0.35,
+  "photorealProductionScore": 0.2,
+  "scoreScale": "0.0 absent, 0.5 recognizable but materially wrong, 0.75 development-useful, 1.0 reference-level match",
+  "featureScores": {
+    "objectClassAndPurpose": 0.9,
+    "overallSilhouette": 0.6,
+    "componentHierarchy": 0.7,
+    "fourShareSilhouette": 0.68,
+    "crossBeamAndClampRhythm": 0.7,
+    "aFrameAndTopLink": 0.7,
+    "hydraulicAssembly": 0.6,
+    "moldboardCurvature": 0.5,
+    "fastenersAndWearFeatures": 0.48,
+    "materialAndSurfaceFidelity": 0.4,
+    "cameraComparability": 0.6
+  },
+  "originalRejectedRenderFailures": [
+    "A single slab replaced the four independently readable plough shares.",
+    "The frame read as an arch instead of a triangulated three-point attachment.",
+    "Cylinders and bars floated without an engineering attachment hierarchy.",
+    "The review image included UI chrome and was not a controlled render comparison.",
+    "The generated photo cutout was incorrectly treated as if it were a tileable PBR material source."
+  ],
+  "correctedInAuthoredFactory": [
+    "Four named share units with shanks, curved moldboards, cutting points, bolts, clamps, and pins.",
+    "Wide crossbeam, rear stiffener, triangular braces, top-link clevis, lower hitches, and hydraulic ram.",
+    "Named sockets and explicit separation between renderer-owned visuals and simulation-owned collision.",
+    "Raw canvas capture at named viewpoints on the canonical port.",
+    "Localized vertex wear and separate rust and soil geometry instead of the non-tileable photo cutout."
+  ],
+  "remainingProductionCorrections": [
+    "Rebuild each moldboard as a more strongly handed helicoidal surface with a broader trailing edge and one consistent soil-throw direction.",
+    "Replace the remaining simplified cutting wedges with narrow forward-projecting points and a continuous lower cutting edge into each moldboard.",
+    "Increase share depth staggering and replace ornamental-looking supports with realistic standards, brackets, clamps, and beam connections.",
+    "Add mechanically credible hydraulic clevises, pivot pins, linkage plates, reinforcement gussets, and visible load paths into the crossbeam.",
+    "Replace blockout shading with layered PBR materials for chipped paint, exposed steel, joint rust, lower-surface soil, polished cutting edges, and roughness variation."
+  ],
+  "independentAudit": {
+    "agentResult": "development-ready procedural blockout 6/10 conditionally yes; reference-faithful production asset 3.5/10 no; photoreal production asset 2/10 no",
+    "criticalDevelopmentBlocker": "none for placeholder, prop-family prototype, attachment-system test object, or procedural hierarchy foundation",
+    "highestRisk": "Share and moldboard geometry still communicate a generic four-blade implement more strongly than the exact working form of the reference."
+  },
+  "img2threejsGateState": {
+    "currentPass": "blockout",
+    "completedPasses": [],
+    "tier1Passed": false,
+    "tier1": {
+      "silhouetteIoU": 0.47,
+      "silhouetteIoUMin": 0.85,
+      "aspectRatioDelta": 0.1001,
+      "aspectRatioDeltaMax": 0.05,
+      "scaleDelta": 0.0611,
+      "scaleDeltaMax": 0.08
+    },
+    "divineEye": {
+      "action": "probe",
+      "fidelity": 0.714,
+      "objectness": 0.6173,
+      "reconstructionModeSuspected": true
+    },
+    "multiAngleDegenerate": false,
+    "decision": "refine-code",
+    "reason": "The refined spec strict-validates, but the current render still fails Tier 1 silhouette and aspect-ratio gates and both blockout critical feature thresholds."
+  },
+  "admissionDecision": {
+    "developmentProceduralUse": "accepted",
+    "photorealHeroUse": "rejected-until-remaining-production-corrections-close",
+    "simulationCollisionAuthority": "not-granted",
+    "publicDistribution": "separate-provenance-review"
+  }
+}

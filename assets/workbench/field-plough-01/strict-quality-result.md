@@ -1,45 +1,53 @@
 # Field Plough 01 — Strict Quality Result
 
-Status: `blocked-at-strict-quality`
+Status: `strict spec passed; img2threejs blockout locked at refine-code`
 
-The staged intake/spec run stopped at strict sculpt-spec validation. No Three.js
-factory was generated, no GLB was produced, and no runtime approval was inferred.
+The canonical asset definition was translated into the derived
+`ObjectSculptSpec`. The strict gate passed without weakening the validator.
 
 ## Gate results
 
 - Probe: passed; `1536x1024` PNG, technical suitability `pass`.
 - Reference admission: passed; `admitted: true`.
-- Pre-spec assessment: completed; suitability `conditional`.
-- Detail inventory: completed; grid `3x3` crops and skeleton written.
-- Normal sculpt-spec validation: passed (`ok: true`) with quality warnings.
-- Strict sculpt-spec validation: failed (`ok: false`, process exit `1`).
+- Pre-spec assessment: completed; complex articulated hard-surface rig part.
+- Detail inventory: 12 mapped observed details.
+- Painted-steel PBR extraction: passed at confidence `0.86` against threshold
+  `0.70`.
+- Normal sculpt-spec validation: passed with zero errors and zero warnings.
+- Strict sculpt-spec validation: passed with zero errors and zero warnings.
+- Generic blockout factory: generated at
+  `generated/createFieldPloughModel.ts`; retained as compiler evidence but
+  superseded for visual use after failing controlled reference comparison.
+- Canonical authored blockout factory:
+  `authored/createFieldPloughModel.ts`.
+- Isolated TypeScript compilation: passed.
+- GLB export: optional delivery derivative, not configured.
+- Browser render/comparison review: observed from raw WebGL canvas captures;
+  named viewpoints, comparison sheet, and the machine-readable fidelity review
+  are checked in under `review/`.
+- Tier 1 blockout diagnostics: failed on silhouette IoU `0.470 < 0.85` and
+  aspect-ratio delta `0.1001 > 0.05`; scale delta passes at `0.0611 <= 0.08`.
+- Divine Eye: `probe`, diagnostic fidelity `0.714`, objectness `0.6173`,
+  reconstruction mode suspected.
+- Multi-angle degeneration check: passed, `degenerate: false`.
+- Locked-pass state: `blockout`, no completed passes. Review history records
+  `refine-spec` followed by `refine-code`; no `continue` entry exists.
+- Runtime adapter: open; the procedural candidate is available through the
+  explicit review/factory path without changing simulation collision authority.
+- Public approval: review-required, separate from development availability.
 
-## Exact strict failures
+## Derived compiler command
 
-1. `preSpecAssessment.objectClass.primaryType` is unassessed.
-2. `preSpecAssessment.objectClass.formLanguage` is empty.
-3. `preSpecAssessment.objectClass.structureKind` is empty.
-4. `preSpecAssessment.objectClass.motionPotential` is empty.
-5. `preSpecAssessment.objectClass.materialFamilies` is empty.
-6. Generic starter `featureReviewTargets` must be replaced with object-specific identity systems.
-7. Material pass lacks local wear/mask overrides such as AO, dirt, stains, chips, or scratches.
-8. Material `base` lacks usable reference PBR evidence extracted from source pixels.
-9. Lighting pass lacks concrete key/fill/rim or environment-light entries.
-10. Component `root` lacks `colorMaterialRecipe`.
-11. `macroComponents` is below the contract minimum (`1 < 3`).
-12. `mesoComponents` is below the contract minimum (`0 < 8`).
-13. `microFeatureGroups` is below the contract minimum (`0 < 5`).
-14. `materialLayers` is below the contract minimum (`1 < 3`).
-15. `repetitionSystems` is below the contract minimum (`0 < 1`).
-16. `reviewViewpoints` is below the contract minimum (`3 < 4`).
-17. `detailInventory` has `0` classified details while the target is `10`.
+```bash
+npm run assets:build-field-plough
+```
 
-## Next correction
+## Next refinement pass
 
-Enrich the generated assessment/spec in this workbench only: classify the plough
-as a hard-surface articulated rig part, enumerate its frame, hitch, repeated
-shares, hydraulic ram, fastener, bevel, soil-contact, and wear systems, map each
-classified detail to a concrete component/material field, add reference PBR and
-lighting evidence, then rerun normal and strict validation. Do not generate a
-factory until strict-quality passes.
-
+The authored factory corrects the original preview's object-level failure and is
+available for development placeholder use. It is not an accepted img2threejs
+blockout. It remains below the reference in
+bevels, moldboard twist, cutting-share profiles, material layering, welds,
+hydraulic fittings, and rear-side detail. The visual parity decision is recorded
+in `review/visual-parity-review.json`. This visual factory does not claim
+photoreal hero parity, collision authority, GLB delivery, or public approval.

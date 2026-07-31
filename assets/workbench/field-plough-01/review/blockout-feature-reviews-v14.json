@@ -1,0 +1,9 @@
+[
+  {
+    "id": "field-plough-silhouette",
+    "score": 0.6,
+    "visible": true,
+    "tier": "critical",
+    "notes": "The render now reads as a four-share field plough with the correct broad component families, but the moldboards remain too rounded and uniformly suspended, the cutting shares do not yet integrate into the moldboards like the reference, and the camera-normalized outer contour does not clear the critical 0.80 threshold."
+  }
+]

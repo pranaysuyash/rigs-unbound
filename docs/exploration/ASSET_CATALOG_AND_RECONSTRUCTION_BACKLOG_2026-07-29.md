@@ -12,6 +12,12 @@ illustrations. Every candidate gets an identity, visual reference, material
 families, sockets/pivots, collision role, animation or destruction role,
 runtime budget, provenance, and a replacement path.
 
+Each admitted candidate has one canonical definition under `assets/specs/`.
+The manifest owns identity/lifecycle and points to that definition; workbench
+files, `img2threejs` sculpt specs, textures, factories, GLBs, thumbnails, and
+runtime adapters are derived artifacts. This prevents prompts, meshes, or
+tool-specific JSON from becoming parallel sources of truth.
+
 `img2threejs` is appropriate for isolated reconstructible objects and
 articulated assemblies. It produces a code-only procedural Three.js candidate;
 it does not extract a mesh from pixels, prove hidden geometry, or authorize a
@@ -115,9 +121,12 @@ being forced through object reconstruction.
    groups are separate concerns.
 5. **Review** — named browser viewpoints, comparison sheets, multi-angle
    inspection, and a recorded self-correction action.
-6. **Runtime bridge** — only after preflight, browser evidence, performance,
-   collision, and operator/readability checks; `publicRuntimeApproved` remains
-   false until the public promotion package is complete.
+6. **Runtime bridge** — remains an explicit integration track. A procedural
+   candidate may be used for open-world development once its source definition,
+   factory, evidence, and provenance are recorded. Preflight, browser,
+   performance, collision, operator/readability, and public-rights evidence
+   continue to describe readiness and ownership; `publicRuntimeApproved`
+   remains false until the public promotion package is complete.
 
 ## Current queue
 
@@ -149,3 +158,13 @@ Yes. This catalog is deliberately broad, but execution is staged: one hero rig,
 one reusable rig part, one road/infrastructure tile, one vegetation family,
 one 2D atlas, then a scene kit that composes them. That sequence tests the
 asset system's leverage before multiplying unreviewed content.
+
+## Addendum (2026-07-29) — candidate availability is not public promotion
+
+The field-plough package exposed an overly restrictive interpretation of this
+catalog: it treated visual polish, GLB packaging, runtime adapter integration,
+and public approval as a single stop sign. The long-term asset system instead
+keeps a candidate usable for open-world development while each evidence track
+advances independently. The canonical status is now
+`procedural-candidate; refinement-open`, with browser evidence recorded and
+collision/public ownership kept explicit.

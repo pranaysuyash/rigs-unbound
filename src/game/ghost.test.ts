@@ -28,4 +28,33 @@ describe("ghost trail recorder", () => {
     expect(mid?.z).toBeCloseTo(10);
     expect(mid?.heading).toBeCloseTo(0.5);
   });
+
+  it("exports a serializable trail that survives a round trip", () => {
+    const recorder = new GhostTrailRecorder();
+    const mockRig = { x: 10, y: 1, z: 20, heading: 0, speed: 5 } as RigState;
+    recorder.record(mockRig, 0);
+    recorder.record(mockRig, 100);
+
+    const exported = JSON.parse(
+      JSON.stringify({
+        schemaVersion: 1,
+        sampledAtHz: 10,
+        seed: "test-seed",
+        snapshots: recorder.getSnapshots(),
+      }),
+    );
+
+    expect(exported.schemaVersion).toBe(1);
+    expect(exported.sampledAtHz).toBe(10);
+    expect(exported.seed).toBe("test-seed");
+    expect(exported.snapshots).toHaveLength(2);
+    expect(exported.snapshots[0]).toMatchObject({
+      timestampMs: 0,
+      x: 10,
+      y: 1,
+      z: 20,
+      heading: 0,
+      speed: 5,
+    });
+  });
 });

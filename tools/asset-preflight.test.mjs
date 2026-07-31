@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -48,6 +48,149 @@ test("the checked-in manifest has no preflight findings", async () => {
   );
   assert.deepEqual(report.findings, []);
   assert.ok(report.entries > 0);
+});
+
+test("manifest-linked canonical asset specs are present and structurally grounded", async () => {
+  const report = await preflightManifestFile(
+    path.join(projectRoot, "assets/asset-manifest.json"),
+  );
+  assert.equal(
+    report.findings.some((item) => item.code.startsWith("spec-")),
+    false,
+  );
+  const fieldPlough = JSON.parse(
+    await readFile(
+      path.join(projectRoot, "assets/specs/field-plough-01.asset.json"),
+      "utf8",
+    ),
+  );
+  assert.equal(fieldPlough.assetId, "field-plough-01");
+  assert.equal(fieldPlough.lifecycle.status, "procedural-candidate");
+  assert.match(
+    fieldPlough.lifecycle.runtimeAdmission,
+    /available-for-development-and-open-world-review/,
+  );
+  assert.ok(fieldPlough.validation.evidenceRoadmap.length >= 3);
+  assert.ok(fieldPlough.components.length >= 1);
+  assert.ok(fieldPlough.behaviour.states.length >= 3);
+  assert.equal(
+    fieldPlough.runtime.generatedRuntime.glbPath,
+    "assets/runtime/field-plough-01.glb",
+  );
+  assert.equal(
+    fieldPlough.runtime.generatedRuntime.glbSha256,
+    "fa3681d96758b4808d84061858dd999b79dcc58307f574d2bf248896f356dc20",
+  );
+  assert.equal(
+    fieldPlough.runtime.generatedRuntime.factoryPath,
+    "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+  );
+});
+
+test("field-plough compiler outputs remain present and linked to the canonical definition", async () => {
+  const derivedSpec = JSON.parse(
+    await readFile(
+      path.join(
+        projectRoot,
+        "assets/workbench/field-plough-01/object-sculpt-spec.json",
+      ),
+      "utf8",
+    ),
+  );
+  const factory = await readFile(
+    path.join(
+      projectRoot,
+      "assets/workbench/field-plough-01/generated/createFieldPloughModel.ts",
+    ),
+    "utf8",
+  );
+
+  assert.equal(derivedSpec.targetId, "field-plough-01");
+  assert.equal(derivedSpec.sculptPipeline.currentPass, "blockout");
+  assert.equal(derivedSpec.repetitionSystems.length, 2);
+  assert.equal(derivedSpec.qualityTargets.reviewViewpoints.length, 4);
+  assert.match(factory, /createFieldPlough01Model/);
+  assert.match(factory, /field-plough/);
+});
+
+test("field-plough canonical authored factory preserves the reference-specific assembly", async () => {
+  const factory = await readFile(
+    path.join(
+      projectRoot,
+      "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+    ),
+    "utf8",
+  );
+  const review = JSON.parse(
+    await readFile(
+      path.join(
+        projectRoot,
+        "assets/workbench/field-plough-01/review/visual-parity-review.json",
+      ),
+      "utf8",
+    ),
+  );
+
+  assert.match(factory, /shareCount === 3/);
+  assert.match(factory, /\[-1\.68, -0\.56, 0\.56, 1\.68\]/);
+  assert.match(factory, /top-link-socket/);
+  assert.match(factory, /hydraulic-ram/);
+  assert.match(factory, /simulation-owned/);
+  assert.equal(review.classification, "development-ready procedural blockout");
+  assert.equal(review.photorealProductionReady, false);
+  assert.equal(review.admissionDecision.developmentProceduralUse, "accepted");
+  assert.equal(review.img2threejsGateState.currentPass, "blockout");
+  assert.deepEqual(review.img2threejsGateState.completedPasses, []);
+  assert.equal(review.img2threejsGateState.tier1Passed, false);
+  assert.equal(review.img2threejsGateState.decision, "refine-code");
+
+  const sculptSpec = JSON.parse(
+    await readFile(
+      path.join(
+        projectRoot,
+        "assets/workbench/field-plough-01/object-sculpt-spec.json",
+      ),
+      "utf8",
+    ),
+  );
+  assert.equal(sculptSpec.sculptPipeline.currentPass, "blockout");
+  assert.deepEqual(sculptSpec.sculptPipeline.completedPasses, []);
+  assert.equal(sculptSpec.reviewHistory.at(-1)?.action, "refine-code");
+  assert.equal(
+    sculptSpec.componentTree.find(
+      (component) => component.id === "share-center",
+    )?.geometryDescriptor.helicoidalSurface.sectionCount,
+    9,
+  );
+});
+
+test("field-plough exposes a reusable customizable part contract", async () => {
+  const factory = await readFile(
+    path.join(
+      projectRoot,
+      "assets/workbench/field-plough-01/authored/createFieldPloughModel.ts",
+    ),
+    "utf8",
+  );
+  const partPackage = JSON.parse(
+    await readFile(
+      path.join(
+        projectRoot,
+        "assets/workbench/field-plough-01/package/field-plough-01.part-package.json",
+      ),
+      "utf8",
+    ),
+  );
+
+  assert.match(factory, /export function applyFieldPlough01Variant/);
+  assert.match(factory, /shareCount\?: 3 \| 4/);
+  assert.match(factory, /share-\$\{index \+ 1\}-mount-socket/);
+  assert.deepEqual(partPackage.variantContract.shareCount, [3, 4]);
+  assert.ok(partPackage.attachmentContract.sockets.includes("top-link-socket"));
+  assert.equal(
+    partPackage.runtimeDerivative.path,
+    "assets/runtime/field-plough-01.glb",
+  );
 });
 
 test("a minimal GLB v2 is structurally accepted", () => {

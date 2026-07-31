@@ -1,0 +1,12 @@
+[
+  {
+    "iteration": "authored-v16-post-spec",
+    "fidelity": 0.714,
+    "defectTags": [
+      "moldboard-helicoidal-form",
+      "cutting-share-integration",
+      "aspect-ratio-alignment"
+    ],
+    "reverted": false
+  }
+]

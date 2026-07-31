@@ -17,7 +17,7 @@
 import { CAMPAIGN_CONTRACTS } from "./campaign";
 import type { GameState, RigCapability } from "./contracts";
 import type { ProgressionState } from "./progression";
-import { deriveSettlementNeedMissions, type SettlementNeedOutcomeId } from "./settlement-needs";
+import type { SettlementNeedOutcomeId } from "./settlement-needs";
 import type { WorldSiteId } from "./world";
 import { findSite } from "./world";
 
@@ -476,11 +476,6 @@ const GENERATORS: readonly MissionGenerator[] = [
   },
   { binding: "survey" as const, generate: generateSurveyMissions },
   { binding: "expedition" as const, generate: generateExpeditionMissions },
-  {
-    binding: "cultivation" as const,
-    generate: (state, _progression, _weatherPhase, visibleSites) =>
-      deriveSettlementNeedMissions(state, visibleSites),
-  },
 ];
 
 // ---------------------------------------------------------------------------

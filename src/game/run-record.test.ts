@@ -10,6 +10,7 @@ import {
   verifyRunRecord,
   snapshotRunRecord,
 } from "./run-record";
+import { validateDeterministicReplay } from "./replay-validator";
 
 describe("run record", () => {
   it("normalizes elapsed time and serializes its versioned contract", () => {
@@ -207,5 +208,21 @@ describe("run record", () => {
     expect(verifyRunRecord(record).issues).toContain(
       "Run record initial state hash is invalid.",
     );
+  });
+
+  it("produces a replay-validatable shareable record from its snapshot", () => {
+    const record = createRunRecord("field-02", 0);
+    appendRunRecordEntry(record, "command", "enterWorld", 0);
+
+    const snapshot = JSON.parse(snapshotRunRecord(record));
+    expect(snapshot.schemaVersion).toBe(RUN_RECORD_SCHEMA_VERSION);
+    expect(snapshot.seed).toBe("field-02");
+
+    const validation = validateDeterministicReplay(record);
+    expect(validation.ok).toBe(true);
+    expect(validation.status).toBe("verified");
+    expect(validation.commandsApplied).toBeGreaterThanOrEqual(0);
+    expect(validation.checkpointsVerified).toBe(0);
+    expect(validation.finalTickHash).not.toBeNull();
   });
 });

@@ -79,4 +79,32 @@ describe("rumor-graph kernel", () => {
     const graph = deriveRumorGraph(state);
     expect(graph.nodes["cargo-relay-route"]?.status).toBe("completed");
   });
+
+  it("spreads material knowledge from an encountered settlement without discovering its destination", () => {
+    const state = createInitialState("SOUNDER-LINE");
+    state.settlements["sunken-flats"] = {
+      ...state.settlements["sunken-flats"],
+      contributions: [{
+        responseId: "sunken-flats:sound-crossing",
+        materialEffectId: "sunken-flats:sounded-crossing",
+        capability: "survey",
+        createdAtWorldMinutes: 880,
+      }],
+    };
+
+    const unknownSourceGraph = deriveRumorGraph(state);
+    expect(unknownSourceGraph.nodes["marsh-depot"]?.status).toBe("undiscovered");
+
+    state.discoveries.push({ id: "sunken-flats", discoveredAt: 920 });
+    const graph = deriveRumorGraph(state);
+
+    expect(graph.nodes["marsh-depot"]?.status).toBe("rumored");
+    expect(graph.nodes["marsh-depot"]?.description).toContain("depth reading");
+    expect(graph.edges).toContainEqual(expect.objectContaining({
+      id: "material-effect:sunken-flats:sounded-crossing",
+      type: "community_lead",
+      active: true,
+    }));
+    expect(state.discoveries.some((entry) => entry.id === "marsh-depot")).toBe(false);
+  });
 });

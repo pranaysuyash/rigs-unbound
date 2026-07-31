@@ -205,7 +205,10 @@ const GRAPH_EDGES_DEF: Omit<RumorEdge, "active">[] = [
  */
 export function deriveRumorGraph(state: GameState): RumorGraph {
   const discoveredSet = new Set<string>(state.discoveries.map((d) => d.id));
-  const communityLeads = deriveSettlementWorldLeads(state);
+  const communityLeads = deriveSettlementWorldLeads(state).filter(
+    (lead) =>
+      lead.sourceSiteId === "home-silo" || discoveredSet.has(lead.sourceSiteId),
+  );
   const communityLeadByTarget = new Map(
     communityLeads.map((lead) => [lead.targetSiteId, lead]),
   );

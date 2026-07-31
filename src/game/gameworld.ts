@@ -27,6 +27,18 @@ import {
 } from "./collision";
 import { calculateErosionResistanceFactor } from "./soil-ecosystem";
 import {
+  deriveHabitatProjection,
+  type HabitatTerrain,
+} from "./habitat";
+import {
+  advanceEcologyActor,
+  createEcologyActor,
+  grazingPressure,
+  recoverEcologyActor,
+  type EcologyActorState,
+  type EcologyObservation,
+} from "./ecology";
+import {
   ExplorationField,
   MAX_SURVEYED_CELLS,
   SURVEY_MOVE_THRESHOLD,
@@ -78,6 +90,16 @@ export interface WorldMemoryRecord {
   fieldConditions?: FieldConditionCell[];
   /** Optional so saves made before dynamic incidents recover unchanged. */
   quarryRunout?: QuarryRunoutState;
+  /** Optional so pre-ecology spatial saves recover with seeded regional life. */
+  ecologyActors?: EcologyActorState[];
+  /** Optional so pre-disturbance spatial saves recover unchanged. */
+  ecologyDisturbance?: EcologyDisturbanceCell[];
+}
+
+interface EcologyDisturbanceCell {
+  cx: number;
+  cz: number;
+  intensity: number;
 }
 
 export interface CollisionTelemetrySnapshot {
@@ -90,6 +112,8 @@ export interface CollisionTelemetrySnapshot {
 
 const COLLISION_CONTACT_RETENTION_STEPS = 12;
 const MAX_RECENT_COLLISION_PAIRS = 16;
+const ECOLOGY_DISTURBANCE_CELL_SIZE = 18;
+const MAX_ECOLOGY_DISTURBANCE_CELLS = 180;
 
 function trimSet<T>(target: Set<T>, limit: number): void {
   while (target.size > limit) {
@@ -144,12 +168,17 @@ export class GameWorld {
   readonly visibleSignals = new Set<WorldSiteId>();
   private quarryRunout: QuarryRunoutState;
   private roadIncidentRevision = 0;
+  private ecologyActors: EcologyActorState[];
+  private ecologyElapsedWorldMinutes = 0;
+  private ecologyRevision = 0;
+  private readonly ecologyDisturbance = new Map<string, EcologyDisturbanceCell>();
 
   constructor(readonly seed: string) {
     this.terrain = new TerrainField(seed);
     this.obstacles = new ObstacleField(seed, this.terrain);
     this.exploration = new ExplorationField(seed, this.terrain);
     this.quarryRunout = this.createQuarryRunout();
+    this.ecologyActors = this.createInitialEcologyActors();
 
     // -----------------------------------------------------------------------
     // Authored terrain bottleneck: a deliberate gully between Home Silo and
@@ -212,6 +241,190 @@ export class GameWorld {
       quarry.x + (grove.x - quarry.x) * 0.42,
       quarry.z + (grove.z - quarry.z) * 0.42,
     );
+  }
+
+  private createInitialEcologyActors(): EcologyActorState[] {
+    const longFurrow = findSite("long-furrow");
+    const sunkenFlats = findSite("sunken-flats");
+    const quarryShelf = findSite("quarry-shelf");
+    if (!longFurrow || !sunkenFlats || !quarryShelf) {
+      throw new Error("Ecology requires Long Furrow, Sunken Flats, and Quarry Shelf.");
+    }
+    return [
+      createEcologyActor({
+        id: "long-furrow-herd",
+        kind: "grazers",
+        x: longFurrow.x + 14,
+        z: longFurrow.z - 10,
+        territoryRadiusMeters: 54,
+        population: 5,
+        vitality: 0.68,
+        recentDisturbance: 0,
+      }),
+      createEcologyActor({
+        id: "sunken-flats-flock",
+        kind: "waders",
+        x: sunkenFlats.x - 10,
+        z: sunkenFlats.z + 12,
+        territoryRadiusMeters: 62,
+        population: 7,
+        vitality: 0.72,
+        recentDisturbance: 0,
+      }),
+      createEcologyActor({
+        id: "quarry-run-corvids",
+        kind: "scavengers",
+        x: quarryShelf.x + 8,
+        z: quarryShelf.z - 7,
+        territoryRadiusMeters: 70,
+        population: 3,
+        vitality: 0.55,
+        recentDisturbance: 0,
+      }),
+    ];
+  }
+
+  /** Persistent regional groups. Consumers receive copies, never mutable authority. */
+  ecologySnapshot(): readonly EcologyActorState[] {
+    return this.ecologyActors.map((actor) => ({ ...actor }));
+  }
+
+  /** Observation selects nearby groups for streaming, it does not create them. */
+  ecologyActorsNear(x: number, z: number, range: number): readonly EcologyActorState[] {
+    return this.ecologyActors
+      .filter((actor) => Math.hypot(actor.x - x, actor.z - z) <= range + actor.territoryRadiusMeters)
+      .map((actor) => ({ ...actor }));
+  }
+
+  ecologyRevisionNumber(): number {
+    return this.ecologyRevision;
+  }
+
+  private ecologyDisturbanceCellOf(x: number, z: number): [number, number] {
+    return [
+      Math.floor(x / ECOLOGY_DISTURBANCE_CELL_SIZE),
+      Math.floor(z / ECOLOGY_DISTURBANCE_CELL_SIZE),
+    ];
+  }
+
+  private ecologyDisturbanceAt(x: number, z: number): number {
+    const [cx, cz] = this.ecologyDisturbanceCellOf(x, z);
+    return this.ecologyDisturbance.get(`${cx},${cz}`)?.intensity ?? 0;
+  }
+
+  /**
+   * Real machine motion can displace nearby groups without becoming a player
+   * task. The short-lived field is persisted so a reload cannot erase a recent
+   * disturbance or contradict the actor positions it caused.
+   */
+  noteEcologyDisturbance(x: number, z: number, intensity: number): void {
+    const normalized = Math.min(1, Math.max(0, intensity));
+    if (normalized < 0.04) return;
+    const [cx, cz] = this.ecologyDisturbanceCellOf(x, z);
+    const key = `${cx},${cz}`;
+    const prior = this.ecologyDisturbance.get(key)?.intensity ?? 0;
+    this.ecologyDisturbance.set(key, { cx, cz, intensity: Math.max(prior, normalized) });
+    trimMap(this.ecologyDisturbance, MAX_ECOLOGY_DISTURBANCE_CELLS);
+
+    let displaced = false;
+    this.ecologyActors = this.ecologyActors.map((actor) => {
+      const distance = Math.hypot(actor.x - x, actor.z - z);
+      if (normalized < 0.22 || distance > Math.min(actor.territoryRadiusMeters, 26)) {
+        return actor;
+      }
+      const fallbackAngle = ((actor.id.length * 0.61803398875) % 1) * Math.PI * 2;
+      const directionX = distance > 0.001 ? (actor.x - x) / distance : Math.cos(fallbackAngle);
+      const directionZ = distance > 0.001 ? (actor.z - z) / distance : Math.sin(fallbackAngle);
+      const distanceOut = Math.min(14, 4 + normalized * 12);
+      displaced = true;
+      return createEcologyActor({
+        ...actor,
+        x: actor.x + directionX * distanceOut,
+        z: actor.z + directionZ * distanceOut,
+        vitality: Math.max(0, actor.vitality - normalized * 0.06),
+        recentDisturbance: Math.max(actor.recentDisturbance, normalized),
+      });
+    });
+    if (displaced) this.ecologyRevision += 1;
+  }
+
+  private decayEcologyDisturbance(deltaWorldMinutes: number): void {
+    const decay = Math.max(0, deltaWorldMinutes) * 0.003;
+    if (decay <= 0) return;
+    for (const [key, cell] of this.ecologyDisturbance) {
+      const intensity = Math.max(0, cell.intensity - decay);
+      if (intensity < 0.02) this.ecologyDisturbance.delete(key);
+      else this.ecologyDisturbance.set(key, { ...cell, intensity });
+    }
+  }
+
+  private ecologyObservationAt(x: number, z: number): EcologyObservation {
+    const ground = this.terrain.sample(x, z);
+    const field = this.fieldConditionAt(x, z);
+    const nearActiveQuarryRunout =
+      this.quarryRunout.status === "active" &&
+      Math.hypot(x - this.quarryRunout.originX, z - this.quarryRunout.originZ) <= 38;
+    return {
+      waterDepthM: ground.waterDepth,
+      vegetationCoverage: field?.vegetationCoverage ?? (ground.waterDepth >= 0.08 ? 0.44 : 0.68),
+      rootDensity: field?.rootDensity ?? 0.62,
+      soilHealth: field?.soilHealth ?? 0.7,
+      disturbance: Math.max(
+        field
+          ? Math.min(1, Math.max(0, (1 - field.soilHealth) * 0.62 + (1 - field.vegetationCoverage) * 0.28))
+          : 0,
+        this.ecologyDisturbanceAt(x, z),
+      ),
+      nearDisruption: nearActiveQuarryRunout,
+    };
+  }
+
+  private applyEcologyPressure(actor: EcologyActorState): boolean {
+    const pressure = grazingPressure(actor);
+    if (pressure <= 0) return false;
+    const [cx, cz] = fieldConditionCellOf(actor.x, actor.z);
+    const key = fieldConditionKey(cx, cz);
+    const ground = this.terrain.sample(actor.x, actor.z);
+    const current =
+      this.fieldConditions.get(key) ??
+      createFieldConditionCell(actor.x, actor.z, Math.min(1, ground.waterDepth / 1.5));
+    const next: FieldConditionCell = {
+      ...current,
+      vegetationCoverage: Math.max(0.08, current.vegetationCoverage - pressure),
+      rootDensity: Math.max(0.12, current.rootDensity - pressure * 0.5),
+      soilHealth: Math.max(0.18, current.soilHealth - pressure * 0.22),
+    };
+    this.fieldConditions.set(key, next);
+    this.fieldConditionRevision += 1;
+    return true;
+  }
+
+  /**
+   * Advance ecological groups on the same monotonic clock as weather and
+   * infrastructure. This is a world actor, not a player action or task flow.
+   */
+  advanceEcology(
+    worldTimeMinutes: number,
+    deltaWorldMinutes: number,
+    rainIntensity: number,
+  ): void {
+    this.decayEcologyDisturbance(deltaWorldMinutes);
+    this.ecologyElapsedWorldMinutes += Math.max(0, deltaWorldMinutes);
+    let changed = false;
+    while (this.ecologyElapsedWorldMinutes >= 60) {
+      this.ecologyElapsedWorldMinutes -= 60;
+      this.ecologyActors = this.ecologyActors.map((actor) => {
+        const next = advanceEcologyActor(actor, {
+          worldTimeMinutes: worldTimeMinutes - this.ecologyElapsedWorldMinutes,
+          rainIntensity,
+          observe: (x, z) => this.ecologyObservationAt(x, z),
+        });
+        changed = changed || JSON.stringify(next) !== JSON.stringify(actor);
+        this.applyEcologyPressure(next);
+        return next;
+      });
+    }
+    if (changed) this.ecologyRevision += 1;
   }
 
   /** Advance optional environmental incidents from the canonical world clock. */
@@ -336,6 +549,109 @@ export class GameWorld {
     return condition
       ? calculateErosionResistanceFactor(condition.rootDensity)
       : 1;
+  }
+
+  /**
+   * Read-only ecological projection from terrain and remembered field state.
+   * It deliberately creates no animal entities or parallel environment clock.
+   */
+  habitatProjectionAt(
+    x: number,
+    z: number,
+    worldTimeMinutes: number,
+    soilMoisture: number,
+    rainIntensity: number,
+  ) {
+    const ground = this.terrain.sample(x, z);
+    const field = this.fieldConditionAt(x, z);
+    const nearActiveQuarryRunout =
+      this.quarryRunout.status === "active" &&
+      Math.hypot(
+        x - this.quarryRunout.originX,
+        z - this.quarryRunout.originZ,
+      ) <= 38;
+    const terrain: HabitatTerrain =
+      nearActiveQuarryRunout
+        ? "quarry-edge"
+        : ground.waterDepth >= 0.08
+          ? "floodplain"
+          : field
+            ? "field-margin"
+            : "woodland";
+    const disturbance = field
+      ? Math.min(
+          1,
+          Math.max(
+            0,
+            (1 - field.soilHealth) * 0.62 +
+              (1 - field.vegetationCoverage) * 0.28,
+          ),
+        )
+      : 0;
+
+    return deriveHabitatProjection({
+      terrain,
+      worldTimeMinutes,
+      soilMoisture: field?.moistureRatio ?? soilMoisture,
+      waterDepthM: ground.waterDepth,
+      vegetationCoverage: field?.vegetationCoverage ?? (terrain === "woodland" ? 0.82 : 0.56),
+      rootDensity: field?.rootDensity ?? (terrain === "woodland" ? 0.78 : 0.48),
+      rainIntensity,
+      disturbance,
+      recentDisruption: nearActiveQuarryRunout,
+    });
+  }
+
+  /**
+   * Returns fixed world-space habitat patches around an observation point.
+   *
+   * The point only decides which already-existing places are streamed for
+   * presentation. Patch identity and placement never follow the active rig.
+   * This preserves an open world where life belongs to terrain rather than to
+   * a player-facing spawn ring.
+   */
+  habitatPatchesNear(
+    x: number,
+    z: number,
+    worldTimeMinutes: number,
+    soilMoisture: number,
+    rainIntensity: number,
+    radius = 44,
+  ) {
+    const patchSize = 32;
+    const minCellX = Math.floor((x - radius) / patchSize);
+    const maxCellX = Math.floor((x + radius) / patchSize);
+    const minCellZ = Math.floor((z - radius) / patchSize);
+    const maxCellZ = Math.floor((z + radius) / patchSize);
+    const patches = [] as Array<{
+      id: string;
+      x: number;
+      z: number;
+      projection: ReturnType<typeof deriveHabitatProjection>;
+    }>;
+
+    for (let cellX = minCellX; cellX <= maxCellX; cellX += 1) {
+      for (let cellZ = minCellZ; cellZ <= maxCellZ; cellZ += 1) {
+        const patchX = (cellX + 0.5) * patchSize;
+        const patchZ = (cellZ + 0.5) * patchSize;
+        if (Math.hypot(patchX - x, patchZ - z) > radius) continue;
+
+        patches.push({
+          id: `habitat:${cellX}:${cellZ}`,
+          x: patchX,
+          z: patchZ,
+          projection: this.habitatProjectionAt(
+            patchX,
+            patchZ,
+            worldTimeMinutes,
+            soilMoisture,
+            rainIntensity,
+          ),
+        });
+      }
+    }
+
+    return patches;
   }
 
   /** Record deliberate terrain work through the same spatial-memory budget as terrain edits. */
@@ -548,7 +864,11 @@ export class GameWorld {
     this.collectedNodes.clear();
     this.surveyedCells.clear();
     this.fieldConditions.clear();
+    this.ecologyDisturbance.clear();
     this.quarryRunout = this.createQuarryRunout();
+    this.ecologyActors = this.createInitialEcologyActors();
+    this.ecologyElapsedWorldMinutes = 0;
+    this.ecologyRevision += 1;
     this.roadIncidentRevision += 1;
     this.fieldConditionElapsedWorldMinutes = 0;
     this.fieldConditionRevision += 1;
@@ -569,6 +889,8 @@ export class GameWorld {
       surveyed: [...this.surveyedCells],
       fieldConditions: [...this.fieldConditions.values()],
       quarryRunout: this.quarryRunout,
+      ecologyActors: this.ecologySnapshot().map((actor) => ({ ...actor })),
+      ecologyDisturbance: [...this.ecologyDisturbance.values()].map((cell) => ({ ...cell })),
     };
   }
 
@@ -627,6 +949,34 @@ export class GameWorld {
         const cell = recoverFieldConditionCell(entry);
         if (!cell) continue;
         this.fieldConditions.set(fieldConditionKey(cell.cx, cell.cz), cell);
+      }
+    }
+    if (Array.isArray(record.ecologyActors)) {
+      const recovered = record.ecologyActors
+        .slice(-24)
+        .map(recoverEcologyActor)
+        .filter((actor): actor is EcologyActorState => actor !== null);
+      if (recovered.length > 0) {
+        this.ecologyActors = recovered;
+        this.ecologyRevision += 1;
+      }
+    }
+    if (Array.isArray(record.ecologyDisturbance)) {
+      for (const value of record.ecologyDisturbance.slice(-MAX_ECOLOGY_DISTURBANCE_CELLS)) {
+        if (!value || typeof value !== "object") continue;
+        const cell = value as Partial<EcologyDisturbanceCell>;
+        if (
+          !Number.isFinite(cell.cx) ||
+          !Number.isFinite(cell.cz) ||
+          !Number.isFinite(cell.intensity)
+        ) {
+          continue;
+        }
+        const cx = Math.trunc(cell.cx as number);
+        const cz = Math.trunc(cell.cz as number);
+        const intensity = Math.min(1, Math.max(0, cell.intensity as number));
+        if (Math.abs(cx) > 100_000 || Math.abs(cz) > 100_000 || intensity < 0.02) continue;
+        this.ecologyDisturbance.set(`${cx},${cz}`, { cx, cz, intensity });
       }
     }
     this.quarryRunout = recoverQuarryRunout(

@@ -40,6 +40,7 @@ acceptance record owns its specific tier.
 - [Integration-First Design and Unification Roadmap](INTEGRATION_FIRST_DESIGN_AND_UNIFICATION_ROADMAP_2026-07-27.md)
 - [Reachability and the Missing Middle](WIDE_OPEN_BRAINSTORM_REACHABILITY_AND_THE_MISSING_MIDDLE_2026-07-28.md)
 - [Stranger at the Silo — Opening Narrative Exploration](STRANGER_AT_THE_SILO_OPENING_EXPLORATION_2026-07-29.md)
+- [Single-Rig Disablement and Recovery Exploration](SINGLE_RIG_DISABLEMENT_AND_RECOVERY_EXPLORATION_2026-07-29.md)
 - [Game Design Spine](../design/GAME_DESIGN_SPINE.md) — proposed canonical whole-game design surface
 - [ADR-0040 — Open vehicle-universe and design-spine hierarchy](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
 - [First Playable — The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md)
@@ -246,6 +247,28 @@ The working recommendation is a practical road/relay motivation on the
 surface, a buried signal as the first escalation, and the old man's machine
 history as emotional subtext. This is Tier 0–1 exploration, not accepted
 campaign canon or an implementation commitment.
+
+### Single-rig disablement and recovery
+
+The one-rig question now has a dedicated exploration and proposed decision:
+[Single-Rig Disablement and Recovery Exploration](SINGLE_RIG_DISABLEMENT_AND_RECOVERY_EXPLORATION_2026-07-29.md)
+and [ADR-0048](../decisions/ADR-0048-single-rig-failure-recovery-and-continuity.md).
+The working recommendation is a recovery ladder: preserve disablement as
+physical, world-readable consequence; guarantee one declared emergency escape;
+then add field repair, settlement help, loaners, and fleet towing as richer
+choices. Status is Proposed and operator sign-off is still required.
+
+The operator then redirected this exploration away from the current emergency
+branch and back to the vision. The effective design surface is now a recovery
+constellation: home recall/teleport, reserved Home Limp, switching into another
+character or vehicle, NPC/async/live multiplayer help, earned rescue capacity,
+mechanic calls, advanced self-repair, and physical stranded-rig continuity. The
+25% return is a candidate invariant, not the creative center. See the addendum
+in the linked exploration and ADR-0048. The deeper, vision-first design-space
+artifact is [Recovery Web and Player Continuity Design Space](RECOVERY_WEB_AND_PLAYER_CONTINUITY_DESIGN_SPACE_2026-07-29.md).
+It treats the disabled rig as one body in a wider player continuity network and
+separates teleport, body succession, help, resources, mastery, and persistent
+world consequence as distinct design families.
 
 ### Proposed next-tranche arbitration
 
@@ -2825,3 +2848,29 @@ was corrected to `home-silo`, the second is now an explicit dormant contract
 awaiting the Marsh Depot site in the world-content tranche. See the slice
 spec ([First Playable — The Road That Was](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md))
 tranche log and the Master Execution Tracker's tranche-1 record.
+
+- Addendum (2026-07-29): ecology now has a proposed persistent-world-actor
+  boundary in `docs/decisions/ADR-0051-persistent-ecology-world-actors.md`.
+  Regional groups share world memory, terrain/field authority, weather, and
+  replay rather than existing as player-centered renderer effects. The next
+  design frontier is not another ambient layer: it is meaningful individual,
+  social, material, and machine interaction without converting ecology into a
+  mandatory progression flow.
+
+## Addendum (2026-07-29): Local ecological knowledge
+
+The next living-world layer is not an ecology objective system. Named residents
+can communicate partial, place-specific readings of persistent groups, letting
+players decide whether any observation matters to them. Future work should add
+more observers and consequences through places and systems, never a required
+response chain.
+
+## Addendum (2026-07-29): Place assets, not fixture promotion
+
+The 3D asset-production review and current source search show a capable GLB
+intake/provenance path, while the normal player surface still does not stream a
+runtime place asset. This is an opportunity, not permission to promote an
+existing fixture for appearances. The next runtime asset must be selected from
+a place need, have a documented scale/pivot/material/LOD/provenance contract,
+and contribute an optional physical affordance or recognizable local condition.
+It must not become a mandatory interaction prop or a disguised tutorial gate.

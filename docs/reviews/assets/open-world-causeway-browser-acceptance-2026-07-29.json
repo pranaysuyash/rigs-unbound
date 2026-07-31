@@ -1,0 +1,139 @@
+{
+  "targetUrl": "http://127.0.0.1:4173/?acceptance=field-02&causeway-proof=1",
+  "leg": {
+    "step": 416,
+    "delivered": true,
+    "x": -121.711,
+    "z": -128.087
+  },
+  "active": {
+    "x": -121.711,
+    "z": -128.087,
+    "condition": 100,
+    "distanceTravelled": 185.35,
+    "mobility": {
+      "kind": "hover",
+      "liftVelocity": 0.004,
+      "clearance": 1.349,
+      "cushionPressure": 0.999,
+      "skirtContact": true
+    },
+    "terrain": {
+      "surface": "water",
+      "grade": -0.092,
+      "grip": 0.866,
+      "slip": 0.134,
+      "waterDepth": 1.85,
+      "stalled": false
+    }
+  },
+  "activity": {
+    "id": "cargo-relay",
+    "status": "complete",
+    "elapsedMs": 37383,
+    "bestTimeMs": 37383.333333333634,
+    "cargoAttachedTo": null,
+    "cargoManifestId": "sunken-causeway-kit",
+    "delivered": true,
+    "cargoPosition": {
+      "x": -126,
+      "y": 0.224,
+      "z": -130
+    },
+    "deliveryPosition": {
+      "x": -126,
+      "z": -130,
+      "siteId": "sunken-flats"
+    },
+    "rampPosition": {
+      "x": 24,
+      "z": -26
+    }
+  },
+  "sunken": {
+    "id": "sunken-flats",
+    "name": "Sunken Flats",
+    "people": "the Sunken Flats households",
+    "shift": "working",
+    "condition": "connected",
+    "favor": 1,
+    "pressures": [],
+    "services": [
+      {
+        "id": "sunken-flats:service:crossing",
+        "label": "Crossing watch",
+        "availability": "open",
+        "reason": "The settlement can support ordinary local work."
+      },
+      {
+        "id": "sunken-flats:service:exchange",
+        "label": "Household exchange",
+        "availability": "open",
+        "reason": "The settlement can support ordinary local work."
+      }
+    ],
+    "residents": [
+      {
+        "id": "sunken-flats:resident:0",
+        "role": "ferry caller",
+        "activity": "yard-work"
+      },
+      {
+        "id": "sunken-flats:resident:1",
+        "role": "crossing keeper",
+        "activity": "community-work"
+      }
+    ],
+    "adaptations": [],
+    "responses": []
+  },
+  "waterworks": {
+    "id": "sunken-flats-waterworks",
+    "name": "Sunken Flats Waterworks",
+    "siteId": "sunken-flats",
+    "x": -126,
+    "z": -130,
+    "distanceMeters": 4.7,
+    "known": false,
+    "condition": 18,
+    "operating": false,
+    "commandedOn": false,
+    "components": {
+      "hydraulic": 18,
+      "mechanical": 18,
+      "power": 18,
+      "control": 18
+    },
+    "lastInspectedAtMs": null,
+    "lastServicedAtMs": null,
+    "lastServicedByRigId": null
+  },
+  "restored": {
+    "delivered": true,
+    "condition": "connected",
+    "waterworks": {
+      "id": "sunken-flats-waterworks",
+      "name": "Sunken Flats Waterworks",
+      "siteId": "sunken-flats",
+      "x": -126,
+      "z": -130,
+      "distanceMeters": 4.64,
+      "known": false,
+      "condition": 18,
+      "operating": false,
+      "commandedOn": false,
+      "components": {
+        "hydraulic": 18,
+        "mechanical": 18,
+        "power": 18,
+        "control": 18
+      },
+      "lastInspectedAtMs": null,
+      "lastServicedAtMs": null,
+      "lastServicedByRigId": null
+    },
+    "mission": null,
+    "sideMissionCount": 0
+  },
+  "errors": []
+}

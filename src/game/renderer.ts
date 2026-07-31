@@ -82,13 +82,45 @@ import {
   type InfrastructureEntityId,
 } from "./infrastructure-network";
 import { settlementLampColor } from "./settlement-needs";
+import { settlementMaterialEffect } from "./settlement-material-effects";
 import {
   settlementResidentAnchors,
-  settlementResidentCount,
 } from "./settlement-needs";
 import { deriveSettlementCommunityPassageIds } from "./settlement-needs";
-import { RESOLVED_COMMUNITY_PASSAGES } from "./world";
+import {
+  deriveSettlementLife,
+  settlementAdaptationDefinitionsForSite,
+  settlementResponseDefinitionsForSite,
+  type SettlementResponseDefinition,
+} from "./settlement-life";
+import { deriveCommunityTraffic } from "./community-traffic";
+import { SETTLEMENT_MATERIAL_EFFECTS } from "./settlement-material-effects";
+import {
+  findSite,
+  RESOLVED_COMMUNITY_PASSAGES,
+} from "./world";
+import {
+  isSettlementCargoManifestAvailable,
+  SETTLEMENT_CARGO_MANIFESTS,
+} from "./settlement-cargo";
 import { roadRivalryCourseSiteIds } from "./activities";
+import type { HabitatSpecies } from "./habitat";
+import type { EcologyActorKind } from "./ecology";
+
+function stableHabitatFraction(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0) / 4294967296;
+}
+
+function habitatSpeciesForEcologyKind(kind: EcologyActorKind): HabitatSpecies {
+  if (kind === "grazers") return "small-grazer";
+  if (kind === "waders") return "wading-bird";
+  return "corvid";
+}
 
 const COLORS = {
   rust: 0xb94f32,
@@ -467,6 +499,28 @@ export class GameRenderer {
   private lastRouteRevision = 0;
   private readonly communityPassageDecks = new Map<string, THREE.Group>();
   private readonly roadRivalryMarkers = new Map<string, THREE.Group>();
+  /** Ambient life is derived from GameWorld and has no collision authority. */
+  private readonly habitatLife = new THREE.Group();
+  private readonly habitatBodyGeometry = new THREE.SphereGeometry(0.18, 8, 6);
+  private readonly habitatWingGeometry = new THREE.ConeGeometry(0.16, 0.54, 3);
+  private readonly habitatLegGeometry = new THREE.BoxGeometry(0.026, 0.28, 0.026);
+  private readonly habitatBirdMaterial = new THREE.MeshStandardMaterial({
+    color: 0xe8e0cd,
+    roughness: 0.82,
+  });
+  private readonly habitatCorvidMaterial = new THREE.MeshStandardMaterial({
+    color: 0x25272b,
+    roughness: 0.9,
+  });
+  private readonly habitatGrazerMaterial = new THREE.MeshStandardMaterial({
+    color: 0x9a7354,
+    roughness: 0.94,
+  });
+  private habitatAnchorX = Number.POSITIVE_INFINITY;
+  private habitatAnchorZ = Number.POSITIVE_INFINITY;
+  private lastHabitatFieldRevision = -1;
+  private lastHabitatEcologyRevision = -1;
+  private lastHabitatWorldHour = -1;
   private lastRoadIncidentRevision = -1;
   private lastFieldConditionRevision = -1;
   private fieldColourAnchorX = Number.POSITIVE_INFINITY;
@@ -480,6 +534,7 @@ export class GameRenderer {
   private currentPhase: WorldPhase | null = null;
   private lastFrameTime = performance.now();
   private shake = 0;
+  private readonly headlightFlareUntil = new Map<RigId, number>();
   private cameraInitialised = false;
   private cameraRigId: RigId | null = null;
   private lastCameraMode: CameraMode | null = null;
@@ -584,6 +639,8 @@ export class GameRenderer {
     this.buildInstancedProps();
     this.buildDust();
     this.buildSites();
+    this.buildSettlementCargoBays();
+    this.buildCommunityTraffic();
     this.buildCommunityPassageDecks();
     this.buildRoadRivalryMarkers();
     this.buildInfrastructureProps();
@@ -1716,23 +1773,31 @@ export class GameRenderer {
       );
       let activity: THREE.Object3D;
 
-      if (id === "floodgate-12") {
-        const leftPillar = box(0.72, 3.4, 0.82, 0x6d7379);
-        leftPillar.position.set(-2.55, 1.7, 0);
-        const rightPillar = box(0.72, 3.4, 0.82, 0x6d7379);
-        rightPillar.position.set(2.55, 1.7, 0);
-        const gate = box(4.5, 2.05, 0.28, 0x3f535e);
-        gate.position.set(0, 1.25, 0);
-        const bridge = box(6.1, 0.36, 1.05, 0x875e3c);
-        bridge.position.set(0, 3.35, 0);
-        const wheel = new THREE.Mesh(
-          new THREE.TorusGeometry(0.62, 0.11, 6, 12),
-          material(0xb6a88e, 0.48, 0.56),
-        );
-        wheel.position.set(0, 2.35, 0.25);
-        beacon.position.set(0, 3.75, 0);
-        root.add(leftPillar, rightPillar, gate, bridge, wheel, beacon);
-        activity = wheel;
+      if (id === "sunken-flats-waterworks") {
+        const deck = box(8.2, 0.38, 3.6, 0x63584b);
+        deck.position.set(0, 0.19, 0);
+        const channel = box(7.1, 1.15, 0.58, 0x3f535e);
+        channel.position.set(0, 0.76, -0.78);
+        const catwalk = box(7.7, 0.18, 0.72, 0x875e3c);
+        catwalk.position.set(0, 2.25, 0.48);
+        const axle = new THREE.Group();
+        for (const offset of [-2.35, 0, 2.35]) {
+          const pillar = box(0.64, 2.7, 0.72, 0x6d7379);
+          pillar.position.set(offset, 1.35, -0.78);
+          const rotor = new THREE.Mesh(
+            new THREE.TorusGeometry(0.46, 0.09, 6, 12),
+            material(0xb6a88e, 0.48, 0.56),
+          );
+          rotor.rotation.y = Math.PI / 2;
+          rotor.position.set(offset, 1.48, 0.58);
+          axle.add(pillar, rotor);
+        }
+        const intake = cylinder(0.18, 0.22, 6.3, 8, 0x536c72);
+        intake.rotation.z = Math.PI / 2;
+        intake.position.set(0, 0.66, 1.1);
+        beacon.position.set(0, 2.78, 0.48);
+        root.add(deck, channel, catwalk, axle, intake, beacon);
+        activity = axle;
       } else if (id === "long-furrow-drain-pump") {
         const pad = box(5.6, 0.38, 3.1, 0x514e47);
         pad.position.set(0, 0.19, 0);
@@ -1826,6 +1891,22 @@ export class GameRenderer {
         group.add(residents);
       }
 
+      const consequences = new THREE.Group();
+      consequences.name = `settlement-consequences:${site.id}`;
+      settlementResponseDefinitionsForSite(site.id).forEach((definition) => {
+        const consequence = this.createSettlementConsequence(definition);
+        if (consequence) consequences.add(consequence);
+      });
+      if (consequences.children.length > 0) group.add(consequences);
+
+      const adaptations = new THREE.Group();
+      adaptations.name = `settlement-adaptations:${site.id}`;
+      settlementAdaptationDefinitionsForSite(site.id).forEach((definition) => {
+        const consequence = this.createSettlementConsequence(definition);
+        if (consequence) adaptations.add(consequence);
+      });
+      if (adaptations.children.length > 0) group.add(adaptations);
+
       this.groundAt(group, site.x, site.z);
       this.scene.add(group);
     }
@@ -1884,6 +1965,146 @@ export class GameRenderer {
     rampStripe.rotation.x = BUGGY_RAMP.tiltRadians;
 
     this.scene.add(pickupRing, deliveryRing, ramp, rampStripe);
+  }
+
+  private buildCommunityTraffic(): void {
+    const group = new THREE.Group();
+    group.name = "community-traffic";
+
+    for (const effect of SETTLEMENT_MATERIAL_EFFECTS) {
+      if (!effect.traffic) continue;
+      const vehicle = new THREE.Group();
+      vehicle.name = `community-traffic:${effect.id}`;
+      vehicle.userData.trafficId = `community-traffic:${effect.id}`;
+      vehicle.userData.trafficKind = effect.traffic.kind;
+      vehicle.visible = false;
+
+      if (effect.traffic.kind === "skiff") {
+        const hull = box(2.65, 0.32, 1.05, COLORS.rust);
+        hull.position.y = 0.26;
+        const cargo = box(0.72, 0.38, 0.62, COLORS.bone);
+        cargo.position.set(-0.3, 0.58, 0);
+        const bow = new THREE.Mesh(
+          new THREE.ConeGeometry(0.54, 0.9, 4),
+          material(COLORS.rust, 0.7, 0.25),
+        );
+        bow.rotation.z = -Math.PI / 2;
+        bow.position.set(1.52, 0.27, 0);
+        vehicle.add(hull, cargo, bow);
+      } else {
+        const bed = box(2.4, 0.34, 1.08, 0x70513c);
+        bed.position.y = 0.62;
+        const load = box(1.05, 0.48, 0.74, COLORS.gold);
+        load.position.set(-0.22, 1.02, 0);
+        vehicle.add(bed, load);
+        for (const x of [-0.78, 0.78]) {
+          for (const z of [-0.64, 0.64]) {
+            const wheel = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.34, 0.34, 0.18, 8),
+              material(0x252321, 0.9, 0.08),
+            );
+            wheel.rotation.z = Math.PI / 2;
+            wheel.position.set(x, 0.36, z);
+            vehicle.add(wheel);
+          }
+        }
+      }
+
+      group.add(vehicle);
+    }
+
+    this.scene.add(group);
+  }
+
+  private buildSettlementCargoBays(): void {
+    const group = new THREE.Group();
+    group.name = "settlement-cargo-bays";
+    for (const manifest of SETTLEMENT_CARGO_MANIFESTS) {
+      const origin = findSite(manifest.originSiteId);
+      if (!origin) continue;
+      const bay = new THREE.Group();
+      bay.name = `settlement-cargo-bay:${manifest.id}`;
+      bay.userData.manifestId = manifest.id;
+      const x = origin.x + manifest.loadOffsetX;
+      const z = origin.z + manifest.loadOffsetZ;
+      const pallet = box(2.5, 0.18, 1.7, 0x6e5137);
+      pallet.position.y = 0.1;
+      const bundle = box(1.48, 0.82, 1.05, manifest.id === "sunken-causeway-kit" ? COLORS.cyan : COLORS.rust);
+      bundle.position.y = 0.58;
+      const marker = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.11, 0.11, 1.35, 6),
+        material(COLORS.gold, 0.7, 0.22),
+      );
+      marker.position.set(0.92, 0.77, -0.52);
+      bay.add(pallet, bundle, marker);
+      this.groundAt(bay, x, z);
+      group.add(bay);
+    }
+    this.scene.add(group);
+  }
+
+  private createSettlementConsequence(
+    definition: Pick<SettlementResponseDefinition, "id" | "materialEffectId">,
+  ): THREE.Group | null {
+    const visual = settlementMaterialEffect(definition.materialEffectId)?.consequence;
+    if (!visual) return null;
+    const root = new THREE.Group();
+    root.name = `settlement-consequence:${definition.id}`;
+    root.userData.consequenceId = definition.id;
+    root.position.set(visual.offsetX, 0, visual.offsetZ);
+    root.rotation.y = visual.heading ?? 0;
+    root.visible = false;
+
+    if (visual.kind === "raised-stores" || visual.kind === "ferry-cache") {
+      const pallet = box(2.2, 0.2, 1.7, 0x5c4330);
+      pallet.position.y = 0.1;
+      const crateA = box(0.92, 0.82, 0.86, 0x8c5236);
+      crateA.position.set(-0.42, 0.61, 0);
+      const crateB = box(0.82, 0.68, 0.78, 0x9e6840);
+      crateB.position.set(0.48, 0.54, 0.12);
+      root.add(pallet, crateA, crateB);
+    } else if (visual.kind === "yard-load") {
+      const chassis = box(2.5, 0.36, 1.15, COLORS.rust);
+      chassis.position.y = 0.36;
+      const block = box(1.25, 0.92, 0.82, 0x57544b);
+      block.position.set(-0.22, 0.92, 0);
+      const wheel = cylinder(0.37, 0.37, 0.22, 10, COLORS.tire);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(0.88, 0.38, 0.62);
+      const secondWheel = wheel.clone();
+      secondWheel.position.z = -0.62;
+      root.add(chassis, block, wheel, secondWheel);
+    } else if (visual.kind === "route-markers") {
+      for (const [index, offset] of [[0, 0], [0.9, 0.45], [-0.82, 0.7]] as const) {
+        const post = cylinder(0.06, 0.08, 1.36, 6, 0x5b432c);
+        post.position.set(offset, 0.68, index === 0 ? 0 : 0.15);
+        const flag = box(0.62, 0.35, 0.04, COLORS.gold);
+        flag.position.set(offset + 0.29, 1.12, index === 0 ? 0 : 0.15);
+        root.add(post, flag);
+      }
+    } else if (visual.kind === "ford-line") {
+      for (const offset of [-1.25, 1.25]) {
+        const post = cylinder(0.09, 0.12, 1.35, 8, 0x66513b);
+        post.position.set(offset, 0.68, 0);
+        root.add(post);
+      }
+      const line = box(2.55, 0.05, 0.05, COLORS.gold);
+      line.position.y = 1.04;
+      root.add(line);
+    } else if (visual.kind === "signal-array") {
+      const mast = cylinder(0.09, 0.13, 2.9, 8, 0x59636a);
+      mast.position.y = 1.45;
+      const receiver = new THREE.Mesh(
+        new THREE.TorusGeometry(0.58, 0.07, 6, 12),
+        material(COLORS.cyan, 0.4, 0.35),
+      );
+      receiver.rotation.x = Math.PI / 2;
+      receiver.position.y = 2.32;
+      const base = box(0.9, 0.35, 0.9, 0x4f4d48);
+      base.position.y = 0.18;
+      root.add(base, mast, receiver);
+    }
+    return root;
   }
 
   /**
@@ -2011,6 +2232,144 @@ export class GameRenderer {
         part.position.y =
           this.world.terrain.height(part.position.x, part.position.z) + offsetY;
       });
+    }
+  }
+
+  private createHabitatSilhouette(species: HabitatSpecies): THREE.Group {
+    const creature = new THREE.Group();
+    const isGrazer = species === "small-grazer";
+    const material =
+      species === "corvid"
+        ? this.habitatCorvidMaterial
+        : isGrazer
+          ? this.habitatGrazerMaterial
+          : this.habitatBirdMaterial;
+    const body = new THREE.Mesh(this.habitatBodyGeometry, material);
+
+    if (isGrazer) {
+      body.scale.set(1.5, 0.78, 0.94);
+      body.position.y = 0.38;
+      creature.add(body);
+      const head = new THREE.Mesh(this.habitatBodyGeometry, material);
+      head.scale.set(0.55, 0.55, 0.55);
+      head.position.set(0, 0.54, 0.26);
+      creature.add(head);
+      for (const x of [-0.12, 0.12]) {
+        for (const z of [-0.1, 0.1]) {
+          const leg = new THREE.Mesh(this.habitatLegGeometry, material);
+          leg.position.set(x, 0.14, z);
+          creature.add(leg);
+        }
+      }
+      return creature;
+    }
+
+    body.scale.set(0.9, 0.7, 1.35);
+    body.position.y = 0.46;
+    creature.add(body);
+    for (const side of [-1, 1] as const) {
+      const wing = new THREE.Mesh(this.habitatWingGeometry, material);
+      wing.rotation.z = side * Math.PI * 0.48;
+      wing.position.set(side * 0.19, 0.5, 0);
+      creature.add(wing);
+    }
+    const leg = new THREE.Mesh(this.habitatLegGeometry, material);
+    leg.position.set(-0.05, 0.14, 0);
+    creature.add(leg);
+    const secondLeg = leg.clone();
+    secondLeg.position.x = 0.05;
+    creature.add(secondLeg);
+    return creature;
+  }
+
+  /**
+   * Rebuild nearby persistent ecology groups. The active rig selects
+   * visibility only; groups retain their world-owned population and location.
+   */
+  private syncHabitatLife(state: GameState): void {
+    const rig = state.rigs[state.activeRigId];
+    const fieldRevision = this.world.fieldConditionRevisionNumber();
+    const ecologyRevision = this.world.ecologyRevisionNumber();
+    const worldHour = Math.floor(state.worldTimeMinutes / 60);
+    const moved = Math.hypot(rig.x - this.habitatAnchorX, rig.z - this.habitatAnchorZ) >= 18;
+    if (
+      this.habitatLife.parent &&
+      !moved &&
+      fieldRevision === this.lastHabitatFieldRevision &&
+      ecologyRevision === this.lastHabitatEcologyRevision &&
+      worldHour === this.lastHabitatWorldHour
+    ) {
+      return;
+    }
+
+    if (!this.habitatLife.parent) {
+      this.habitatLife.name = "ambient-habitat-life";
+      this.scene.add(this.habitatLife);
+    }
+    this.habitatLife.clear();
+    this.habitatAnchorX = rig.x;
+    this.habitatAnchorZ = rig.z;
+    this.lastHabitatFieldRevision = fieldRevision;
+    this.lastHabitatEcologyRevision = ecologyRevision;
+    this.lastHabitatWorldHour = worldHour;
+
+    const ecologyActors = this.world.ecologyActorsNear(
+      rig.x,
+      rig.z,
+      72,
+    );
+    let visualIndex = 0;
+    for (const actor of ecologyActors) {
+      if (visualIndex >= 18) break;
+      const species = habitatSpeciesForEcologyKind(actor.kind);
+      const count = Math.min(
+        actor.population,
+        species === "small-grazer" ? 4 : 6,
+        18 - visualIndex,
+      );
+      for (let index = 0; index < count; index += 1) {
+        const placement = stableHabitatFraction(`${actor.id}:${index}`);
+        const radius = 2.5 + stableHabitatFraction(`radius:${actor.id}:${index}`) * 7;
+        const angle = placement * Math.PI * 2;
+        const x = actor.x + Math.cos(angle) * radius;
+        const z = actor.z + Math.sin(angle) * radius;
+        const ground = this.world.terrain.sample(x, z);
+        const creature = this.createHabitatSilhouette(species);
+        creature.position.set(x, ground.height + Math.min(ground.waterDepth, 0.12), z);
+        creature.scale.setScalar(
+          species === "small-grazer" ? 3.2 : species === "wading-bird" ? 2.2 : 1.8,
+        );
+        creature.rotation.y = angle + Math.PI * 0.5;
+        creature.userData.baseHeading = creature.rotation.y;
+        creature.userData.baseX = creature.position.x;
+        creature.userData.baseY = creature.position.y;
+        creature.userData.baseZ = creature.position.z;
+        creature.userData.roamRadius =
+          species === "small-grazer" ? 1.5 + placement * 1.4 : 0.45 + placement * 0.75;
+        creature.userData.motionRate = 0.7 + (visualIndex % 4) * 0.19;
+        creature.userData.phase = placement * Math.PI * 2;
+        creature.userData.ecologyActorId = actor.id;
+        this.habitatLife.add(creature);
+        visualIndex += 1;
+      }
+    }
+  }
+
+  private animateHabitatLife(elapsedMs: number): void {
+    for (const creature of this.habitatLife.children) {
+      const rate = Number(creature.userData.motionRate ?? 1);
+      const phase = Number(creature.userData.phase ?? 0);
+      const heading = Number(creature.userData.baseHeading ?? 0);
+      const baseX = Number(creature.userData.baseX ?? creature.position.x);
+      const baseY = Number(creature.userData.baseY ?? creature.position.y);
+      const baseZ = Number(creature.userData.baseZ ?? creature.position.z);
+      const roamRadius = Number(creature.userData.roamRadius ?? 0);
+      const roamPhase = elapsedMs * 0.00016 * rate + phase;
+      creature.position.x = baseX + Math.cos(roamPhase) * roamRadius;
+      creature.rotation.y = heading + Math.sin(elapsedMs * 0.001 * rate + phase) * 0.12;
+      creature.position.y =
+        baseY + Math.sin(elapsedMs * 0.0017 * rate + phase) * 0.035;
+      creature.position.z = baseZ + Math.sin(roamPhase * 0.87) * roamRadius;
     }
   }
 
@@ -2908,6 +3267,18 @@ export class GameRenderer {
   }
 
   /**
+   * Flash a rig's headlights once, used for diegetic "machine responds" moments
+   * such as the first engine start after restoration.
+   */
+  flashHeadlights(rigId: RigId, durationMs = 350): void {
+    const parts = this.rigs.get(rigId);
+    if (!parts) return;
+    this.headlightFlareUntil.set(rigId, performance.now() + durationMs);
+    // Force the light on so the flare is visible even in daylight.
+    parts.headlights.visible = true;
+  }
+
+  /**
    * Queue a visual shell pulse for a condition-loss outcome.
    *
    * The simulation remains authoritative: this is deliberately presentation
@@ -2928,6 +3299,22 @@ export class GameRenderer {
     this.lastFrameTime = now;
 
     this.updatePhase(state.phase);
+
+    // One-off headlight flares for diegetic machine-response moments.
+    for (const [rigId, until] of this.headlightFlareUntil) {
+      const parts = this.rigs.get(rigId);
+      if (!parts || now >= until) {
+        this.headlightFlareUntil.delete(rigId);
+        continue;
+      }
+      const remaining = until - now;
+      const flare = (remaining / 350) * 520;
+      parts.headlights.intensity = Math.min(
+        1200,
+        parts.headlights.intensity + flare,
+      );
+    }
+
     this.updateFurrows(state);
     this.updateInfrastructureWater(state);
     this.updateInfrastructureProps(state, delta);
@@ -2984,6 +3371,9 @@ export class GameRenderer {
       this.fieldColourAnchorZ = activeRigState.z;
       this.refreshTerrainColourRegion(activeRigState.x, activeRigState.z, 18);
     }
+
+    this.syncHabitatLife(state);
+    this.animateHabitatLife(state.elapsedMs);
 
     if (
       Math.hypot(
@@ -3100,6 +3490,39 @@ export class GameRenderer {
       pickupRing.visible = !cargo.delivered && cargo.attachedRigId === null;
     }
 
+    const communityTrafficById = new Map(
+      deriveCommunityTraffic(state).map((traffic) => [traffic.id, traffic]),
+    );
+    const communityTraffic = this.scene.getObjectByName("community-traffic");
+    communityTraffic?.children.forEach((vehicle) => {
+      const traffic = communityTrafficById.get(vehicle.userData.trafficId as string);
+      vehicle.visible = traffic !== undefined;
+      if (!traffic) return;
+      vehicle.position.set(
+        traffic.x,
+        this.world.terrain.height(traffic.x, traffic.z) +
+          (traffic.kind === "skiff" ? 0.26 : 0.38),
+        traffic.z,
+      );
+      vehicle.rotation.y = traffic.heading;
+    });
+
+    const settlementCargoBays = this.scene.getObjectByName("settlement-cargo-bays");
+    settlementCargoBays?.children.forEach((bay) => {
+      const manifestId = bay.userData.manifestId as string;
+      const manifest = SETTLEMENT_CARGO_MANIFESTS.find(
+        (candidate) => candidate.id === manifestId,
+      );
+      bay.visible = manifest !== undefined &&
+        isSettlementCargoManifestAvailable(state, manifest);
+    });
+
+    const settlementLifeBySite = new Map(
+      deriveSettlementLife(state, {
+        quarryRunoutStatus: this.world.roadIncidentProjection().status,
+      }).map((settlement) => [settlement.siteId, settlement]),
+    );
+
     for (const site of WORLD_SITES) {
       const group = this.scene.getObjectByName(`site:${site.id}`);
       const lamp = group?.userData.signalLamp as THREE.Mesh | undefined;
@@ -3114,13 +3537,53 @@ export class GameRenderer {
         `settlement-residents:${site.id}`,
       );
       if (residents) {
-        const residentCount = siteKnown ? settlementResidentCount(state, site.id) : 0;
-        residents.visible = siteKnown && residentCount > 0;
+        const life = settlementLifeBySite.get(site.id);
+        const anchors = settlementResidentAnchors(site.id);
+        residents.visible = siteKnown && life !== undefined && life.residents.length > 0;
         residents.children.forEach((resident, index) => {
-          resident.visible = index < residentCount;
-          resident.position.y = index < residentCount
-            ? Math.sin(state.elapsedMs / 820 + index * 1.7) * 0.035
-            : 0;
+          const plan = life?.residents[index];
+          const anchor = anchors[index];
+          resident.visible = siteKnown && plan !== undefined && anchor !== undefined;
+          if (!plan || !anchor) return;
+          resident.position.set(
+            anchor.x + plan.offsetX,
+            Math.sin(state.elapsedMs / 820 + index * 1.7) * 0.035,
+            anchor.z + plan.offsetZ,
+          );
+          resident.rotation.y = anchor.heading + plan.headingOffset;
+          const body = resident.children[0] as THREE.Mesh | undefined;
+          if (body && body.material instanceof THREE.MeshStandardMaterial) {
+            body.material.color.setHex(plan.color);
+          }
+        });
+      }
+      const consequences = group?.getObjectByName(
+        `settlement-consequences:${site.id}`,
+      );
+      if (consequences) {
+        const contributed = new Set(
+          settlementLifeBySite
+            .get(site.id)
+            ?.responses.filter((response) => response.status === "contributed")
+            .map((response) => response.id) ?? [],
+        );
+        consequences.children.forEach((consequence) => {
+          consequence.visible =
+            siteKnown &&
+            contributed.has(consequence.userData.consequenceId as string);
+        });
+      }
+      const adaptations = group?.getObjectByName(
+        `settlement-adaptations:${site.id}`,
+      );
+      if (adaptations) {
+        const active = new Set(
+          settlementLifeBySite.get(site.id)?.adaptations.map((adaptation) => adaptation.id) ?? [],
+        );
+        adaptations.children.forEach((adaptation) => {
+          adaptation.visible =
+            siteKnown &&
+            active.has(adaptation.userData.consequenceId as string);
         });
       }
       const infrastructure = INFRASTRUCTURE_ENTITY_IDS.map(
@@ -3748,6 +4211,11 @@ export class GameRenderer {
     this.lastRouteRevision = -1;
     this.lastRoadIncidentRevision = -1;
     this.lastFieldConditionRevision = -1;
+    this.lastHabitatFieldRevision = -1;
+    this.lastHabitatEcologyRevision = -1;
+    this.lastHabitatWorldHour = -1;
+    this.habitatAnchorX = Number.POSITIVE_INFINITY;
+    this.habitatAnchorZ = Number.POSITIVE_INFINITY;
     this.fieldColourAnchorX = Number.POSITIVE_INFINITY;
     this.fieldColourAnchorZ = Number.POSITIVE_INFINITY;
     this.propAnchorX = Number.POSITIVE_INFINITY;
@@ -3755,6 +4223,7 @@ export class GameRenderer {
     this.refreshProps(state);
     this.rebuildTerrainHeights();
     this.syncCommunityPassageDecks(state);
+    this.syncHabitatLife(state);
   }
 
   /** Re-sample the whole terrain mesh. Used after a reset clears deformation. */
@@ -3788,6 +4257,12 @@ export class GameRenderer {
     // are simply abandoned rather than freed.
     this.loadedRuntimeBridgeRoots.forEach((root) => disposeObjectGraph(root));
     this.loadedRuntimeBridgeRoots.clear();
+    this.habitatBodyGeometry.dispose();
+    this.habitatWingGeometry.dispose();
+    this.habitatLegGeometry.dispose();
+    this.habitatBirdMaterial.dispose();
+    this.habitatCorvidMaterial.dispose();
+    this.habitatGrazerMaterial.dispose();
     this.renderer.dispose();
   }
 }

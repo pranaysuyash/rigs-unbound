@@ -13,6 +13,7 @@ import {
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
   V8_SAVE_SCHEMA_VERSION,
+  WORLD_DAY_MINUTES,
   type GameState,
   type RigId,
   worldMinuteOfDay,
@@ -145,6 +146,82 @@ describe("rig gameplay kernel", () => {
       kind: "collect-salvage",
       label: `Collect ${node.value}`,
     });
+  });
+
+  it("records voluntary local machine help without accepting a mission or unlocking a route", () => {
+    const { state, world } = scenario("SETTLEMENT-CONTRIBUTION", "toy-buggy");
+    const furrow = findSite("long-furrow")!;
+    const rig = activeRig(state);
+    state.settlements["long-furrow"] = {
+      ...state.settlements["long-furrow"],
+      condition: "waterlogged",
+    };
+    // Community help resolves at raised stores ground, not anywhere inside
+    // the settlement service radius.
+    rig.x = furrow.x + 7.4;
+    rig.z = furrow.z - 5.8;
+    settleWorld(state, world);
+
+    expect(resolvePrimaryAction(state, world)).toMatchObject({
+      kind: "contribute-settlement",
+      label: "Move soaked stores",
+    });
+    expect(performPrimaryAction(state, world)).toMatchObject({ outcome: "accepted" });
+    expect(state.activeMission).toBeNull();
+    expect(state.settlements["long-furrow"].completedNeedIds).toEqual([]);
+    expect(state.settlements["long-furrow"].contributions).toEqual([
+      expect.objectContaining({ responseId: "long-furrow:move-soaked-stores", materialEffectId: "long-furrow:staged-stores", capability: "tow" }),
+    ]);
+    expect(recoverState(JSON.parse(JSON.stringify(state)))?.settlements["long-furrow"].contributions)
+      .toEqual(state.settlements["long-furrow"].contributions);
+  });
+
+  it("lets a community adapt after a sustained world day without creating a mission or removing later help", () => {
+    const { state, world } = scenario("SETTLEMENT-ADAPTATION", "toy-buggy");
+    state.settlements["long-furrow"] = {
+      ...state.settlements["long-furrow"],
+      condition: "waterlogged",
+    };
+    state.worldTimeMinutes = WORLD_DAY_MINUTES - 0.001;
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    expect(state.settlements["long-furrow"].adaptations).toEqual([
+      expect.objectContaining({ id: "long-furrow:raise-stores-routine", materialEffectId: "long-furrow:self-raised-stores" }),
+    ]);
+    expect(state.activeMission).toBeNull();
+    expect(state.activeSideMissions).toEqual([]);
+    expect(state.settlements["long-furrow"].contributions).toEqual([]);
+  });
+
+  it("migrates v24 settlement source records into durable material effects", () => {
+    const legacy = JSON.parse(JSON.stringify(createInitialState("SETTLEMENT-EFFECT-MIGRATION"))) as {
+      schemaVersion: number;
+      settlements: {
+        "long-furrow": {
+          contributions: unknown[];
+          adaptations: unknown[];
+        };
+      };
+    };
+    legacy.schemaVersion = PREVIOUS_SAVE_SCHEMA_VERSION;
+    legacy.settlements["long-furrow"].contributions = [{
+      responseId: "long-furrow:move-soaked-stores",
+      capability: "tow",
+      createdAtWorldMinutes: 920,
+    }];
+    legacy.settlements["long-furrow"].adaptations = [{
+      id: "long-furrow:raise-stores-routine",
+      createdAtWorldMinutes: 1440,
+    }];
+
+    const recovered = recoverState(legacy);
+
+    expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
+    expect(recovered?.settlements["long-furrow"].contributions[0]?.materialEffectId)
+      .toBe("long-furrow:staged-stores");
+    expect(recovered?.settlements["long-furrow"].adaptations[0]?.materialEffectId)
+      .toBe("long-furrow:self-raised-stores");
   });
 
   it("starts every rig in a dry, stable, non-overlapping Home berth within switching range", () => {

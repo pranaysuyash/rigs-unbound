@@ -1,0 +1,22 @@
+[
+  {
+    "iteration": "authored-v13",
+    "fidelity": 0.6,
+    "defectTags": [
+      "moldboard-helicoidal-form",
+      "cutting-share-integration",
+      "camera-silhouette-alignment"
+    ],
+    "reverted": false
+  },
+  {
+    "iteration": "authored-v14",
+    "fidelity": 0.63,
+    "defectTags": [
+      "moldboard-helicoidal-form",
+      "cutting-share-integration",
+      "camera-silhouette-alignment"
+    ],
+    "reverted": false
+  }
+]

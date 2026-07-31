@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rigs-unbound.invalid/schemas/asset-spec-v1.json",
+  "title": "Rigs Unbound Canonical Asset Definition",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "assetId",
+    "displayName",
+    "assetFamily",
+    "lifecycle",
+    "references",
+    "identity",
+    "coordinateFrame",
+    "components",
+    "repetitionSystems",
+    "materials",
+    "behaviour",
+    "runtime",
+    "compiler",
+    "validation",
+    "provenance"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "assetId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "displayName": { "type": "string", "minLength": 1 },
+    "assetFamily": {
+      "enum": [
+        "rig",
+        "rig-part",
+        "prop",
+        "vegetation",
+        "road-infrastructure",
+        "sprite-atlas",
+        "environment-material",
+        "scene-kit"
+      ]
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["status", "runtimeAdmission", "publicApproved"],
+      "properties": {
+        "status": { "enum": ["concept", "workbench", "procedural-candidate", "runtime-tested", "public-approved", "blocked"] },
+        "runtimeAdmission": { "type": "string", "minLength": 1 },
+        "publicApproved": { "type": "boolean" },
+        "owner": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "role", "evidenceTier", "confidence"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "role": { "type": "string", "minLength": 1 },
+          "evidenceTier": { "type": "integer", "minimum": 0, "maximum": 5 },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "identity": { "type": "object", "minProperties": 1 },
+    "coordinateFrame": { "type": "object", "required": ["front", "up", "units"] },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/component" }
+    },
+    "repetitionSystems": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/repetition" }
+    },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/material" }
+    },
+    "behaviour": { "type": "object", "required": ["verbs", "states", "animationContracts", "interactionSockets"] },
+    "runtime": { "type": "object", "required": ["visualAuthority", "collisionAuthority", "adapter", "lod", "budgets"] },
+    "compiler": { "type": "object", "required": ["stages", "derivedArtifacts"] },
+    "validation": { "type": "object", "required": ["evidenceRoadmap", "currentEvidence"] },
+    "provenance": { "type": "object", "required": ["sourceType", "rightsStatus", "promptRecord"] }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "required": ["id", "parent", "level", "role", "topology", "pivot", "sockets", "collider", "materials", "action"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "parent": { "type": ["string", "null"] },
+        "level": { "enum": ["macro", "meso", "micro"] },
+        "role": { "type": "string", "minLength": 1 },
+        "topology": { "type": "object", "required": ["class", "primitiveStrategy"] },
+        "pivot": { "type": "object", "required": ["mode", "localPosition", "axis"] },
+        "sockets": { "type": "array", "items": { "type": "object", "required": ["id", "position", "role"] } },
+        "collider": { "type": "object", "required": ["type", "authority", "isTrigger"] },
+        "materials": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "action": { "type": "object", "required": ["animationRole", "states", "detachable"] },
+        "localFeatures": { "type": "array", "items": { "type": "string" } },
+        "dimensions": { "type": "object" },
+        "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "repetition": {
+      "type": "object",
+      "required": ["id", "prototypeComponent", "count", "distribution", "uncertainty"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "prototypeComponent": { "type": "string", "minLength": 1 },
+        "count": { "type": "integer", "minimum": 1 },
+        "distribution": { "type": "object" },
+        "uncertainty": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "material": {
+      "type": "object",
+      "required": ["id", "layer", "pbr", "localOverrides", "evidenceRefs"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "layer": { "type": "string", "minLength": 1 },
+        "pbr": { "type": "object", "required": ["baseColor", "roughness", "metalness", "normal", "ao"] },
+        "localOverrides": { "type": "array", "items": { "type": "object", "required": ["id", "kind", "region"] } },
+        "evidenceRefs": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

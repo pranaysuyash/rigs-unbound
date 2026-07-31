@@ -10,14 +10,27 @@ import type {
   ActiveMissionState,
   FarmWaterworksState,
   GameState,
+  RigCapability,
 } from "./contracts";
+import { RIG_CAPABILITIES } from "./contracts";
+import {
+  SETTLEMENT_MATERIAL_EFFECTS,
+  materialEffectIdForSourceId,
+  settlementMaterialEffect,
+} from "./settlement-material-effects";
 import type { MissionProposition } from "./mission-propositions";
+import {
+  INFRASTRUCTURE_DEFINITIONS,
+  infrastructureIsOperating,
+} from "./infrastructure-network";
+import { deriveWeatherState } from "./weather";
 import {
   findSite,
   isWithinSiteServiceArea,
   type CommunityPassageId,
   type WorldSiteId,
 } from "./world";
+import type { EcologyActorState } from "./ecology";
 
 export const SETTLEMENT_IDS = [
   "home-valley",
@@ -48,11 +61,35 @@ export interface SettlementRecord {
   favor: number;
   /** Idempotence record for permanent community outcomes. */
   completedNeedIds: readonly SettlementNeedOutcomeId[];
+  /** Material, capability-specific help that a community remembers. */
+  contributions: readonly SettlementContribution[];
+  /** Local routines a community adopted while a pressure continued. */
+  adaptations: readonly SettlementAdaptation[];
 }
+
+export interface SettlementContribution {
+  responseId: string;
+  materialEffectId: string;
+  capability: RigCapability;
+  createdAtWorldMinutes: number;
+}
+
+export interface SettlementAdaptation {
+  id: string;
+  materialEffectId: string;
+  createdAtWorldMinutes: number;
+}
+
+export const RUSTLINE_SERVICE_STOCK_RESPONSE_ID =
+  "rustline-salvage:deliver-service-stock";
+export const RUSTLINE_SERVICE_STOCK_EFFECT_ID =
+  "rustline-salvage:service-stocked";
+export const SUNKEN_CAUSEWAY_RESPONSE_ID = "sunken-flats:deliver-causeway-kit";
+export const SUNKEN_CAUSEWAY_EFFECT_ID = "sunken-flats:raised-causeway";
 
 export type SettlementState = Record<SettlementId, SettlementRecord>;
 
-interface SettlementDefinition {
+export interface SettlementDefinition {
   id: SettlementId;
   name: string;
   siteId: WorldSiteId;
@@ -171,25 +208,22 @@ const SETTLEMENT_WORLD_LEADS: readonly (SettlementWorldLead & {
  * Terrain passages are derived from completed community work. They are not a
  * second unlock ledger: settlement history remains the sole durable fact.
  */
-const SETTLEMENT_COMMUNITY_PASSAGES: readonly {
-  requiredOutcomeId: SettlementNeedOutcomeId;
-  passageId: CommunityPassageId;
-}[] = [
-  {
-    requiredOutcomeId: "sunken-flats-causeway",
-    passageId: "sunken-flats-causeway",
-  },
-] as const;
-
 export function deriveSettlementCommunityPassageIds(
   state: Pick<GameState, "settlements">,
 ): readonly CommunityPassageId[] {
-  return SETTLEMENT_COMMUNITY_PASSAGES.filter((entry) => {
-    const settlementId = SETTLEMENT_OUTCOMES[entry.requiredOutcomeId].settlementId;
-    return state.settlements[settlementId].completedNeedIds.includes(
-      entry.requiredOutcomeId,
-    );
-  }).map((entry) => entry.passageId);
+  const activeEffectIds = new Set(
+    Object.values(state.settlements).flatMap((settlement) => [
+      ...settlement.contributions.map((entry) => entry.materialEffectId),
+      ...settlement.adaptations.map((entry) => entry.materialEffectId),
+    ]),
+  );
+  return [...new Set(
+    SETTLEMENT_MATERIAL_EFFECTS.flatMap((effect) =>
+      effect.communityPassageId && activeEffectIds.has(effect.id)
+        ? [effect.communityPassageId]
+        : [],
+    ),
+  )];
 }
 
 export function isSettlementNeedOutcomeId(value: unknown): value is SettlementNeedOutcomeId {
@@ -204,15 +238,95 @@ export function isSettlementNeedOutcomeId(value: unknown): value is SettlementNe
 export function deriveSettlementWorldLeads(
   state: Pick<GameState, "settlements">,
 ): readonly SettlementWorldLead[] {
-  return SETTLEMENT_WORLD_LEADS.filter((lead) =>
+  const legacyLeads = SETTLEMENT_WORLD_LEADS.filter((lead) =>
     state.settlements[lead.sourceSettlementId].completedNeedIds.includes(lead.requiredOutcomeId),
   );
+  const materialLeads = SETTLEMENTS.flatMap((settlement) => {
+    const record = state.settlements[settlement.id];
+    const effectIds = [
+      ...record.contributions.map((entry) => entry.materialEffectId),
+      ...record.adaptations.map((entry) => entry.materialEffectId),
+    ];
+    return effectIds.flatMap((effectId) => {
+      const effect = settlementMaterialEffect(effectId);
+      if (!effect?.worldLead || effect.settlementId !== settlement.id) return [];
+      return [{
+        id: `material-effect:${effect.id}`,
+        sourceSettlementId: settlement.id,
+        sourceSiteId: settlement.siteId,
+        targetSiteId: effect.worldLead.targetSiteId as WorldSiteId,
+        title: effect.worldLead.title,
+        description: effect.worldLead.description,
+        mapLabel: effect.worldLead.mapLabel,
+      } satisfies SettlementWorldLead];
+    });
+  });
+  return [...legacyLeads, ...materialLeads];
 }
 
 export interface SettlementFieldNote {
   settlementId: SettlementId;
   speaker: string;
   text: string;
+}
+
+/**
+ * Locals interpret the condition of the living systems around their place.
+ * These are observations, not requests: nobody assigns the player a remedy
+ * and the note simply changes as the shared world changes.
+ */
+const SETTLEMENT_ECOLOGY_WITNESSES: readonly {
+  actorId: string;
+  settlementId: SettlementId;
+  describe: (actor: EcologyActorState) => string;
+}[] = [
+  {
+    actorId: "long-furrow-herd",
+    settlementId: "long-furrow",
+    describe: (actor) => actor.recentDisturbance > 0.2
+      ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
+      : actor.vitality < 0.5
+      ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
+      : actor.population < 5
+        ? "Only a few grazers are crossing the furrow now. The pasture is changing faster than we can name it."
+        : "The grazers are working the far pasture again. They know which ground still gives under a hoof.",
+  },
+  {
+    actorId: "sunken-flats-flock",
+    settlementId: "sunken-flats",
+    describe: (actor) => actor.recentDisturbance > 0.2
+      ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
+      : actor.vitality < 0.5
+      ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
+      : actor.population < 6
+        ? "The flats are quieter than usual. Even the waders are choosing their crossings carefully."
+        : "The waders are reading the shallows for us. Watch where they settle before you trust a crossing.",
+  },
+  {
+    actorId: "quarry-run-corvids",
+    settlementId: "rustline-salvage",
+    describe: (actor) => actor.recentDisturbance > 0.2
+      ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
+      : actor.vitality < 0.5
+      ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
+      : actor.population < 4
+        ? "There are fewer corvids over the runout today. The yard notices when its watchers stop circling."
+        : "The corvids still circle Quarry Run. They find loose things before any of us do.",
+  },
+];
+
+export function deriveSettlementEcologyFieldNotes(
+  actors: readonly EcologyActorState[],
+): readonly SettlementFieldNote[] {
+  return SETTLEMENT_ECOLOGY_WITNESSES.flatMap((witness) => {
+    const actor = actors.find((candidate) => candidate.id === witness.actorId);
+    if (!actor) return [];
+    return [{
+      settlementId: witness.settlementId,
+      speaker: settlement(witness.settlementId).contact.name,
+      text: witness.describe(actor),
+    }];
+  });
 }
 
 /**
@@ -293,10 +407,10 @@ function contactVoice(
  * revisitable world memory spoken by named people who live at real sites.
  */
 export function deriveSettlementFieldNotes(
-  state: Pick<GameState, "settlements">,
+  state: Pick<GameState, "settlements" | "infrastructure" | "worldTimeMinutes">,
 ): readonly SettlementFieldNote[] {
   return SETTLEMENTS.map((definition) => {
-    const condition = state.settlements[definition.id].condition;
+    const condition = deriveSettlementCondition(state, definition.id);
     const text = SETTLEMENT_FIELD_VOICES[definition.id]?.[condition]
       ?? `${definition.name} is ${condition.replace("-", " ")}.`;
     return {
@@ -316,7 +430,10 @@ export function deriveSettlementFieldNotes(
  * settlement condition, missions, favor, or player location.
  */
 export function nearbySettlementContact(
-  state: Pick<GameState, "settlements" | "discoveries">,
+  state: Pick<
+    GameState,
+    "settlements" | "infrastructure" | "worldTimeMinutes" | "discoveries"
+  >,
   x: number,
   z: number,
   range = 3,
@@ -340,7 +457,7 @@ export function nearbySettlementContact(
     const distance = Math.hypot(x - contactX, z - contactZ);
     if (distance > nearestDistance) continue;
 
-    const condition = state.settlements[definition.id].condition;
+    const condition = deriveSettlementCondition(state, definition.id);
     nearestDistance = distance;
     nearest = {
       settlementId: definition.id,
@@ -374,12 +491,12 @@ const SETTLEMENT_LAMP_COLORS: Readonly<Record<SettlementCondition, number>> = {
  * settlement. Terrain, discovery, collision, and mission truth stay elsewhere.
  */
 export function settlementLampColor(
-  state: Pick<GameState, "settlements">,
+  state: Pick<GameState, "settlements" | "infrastructure" | "worldTimeMinutes">,
   siteId: WorldSiteId,
 ): number | null {
   const definition = SETTLEMENTS.find((item) => item.siteId === siteId);
   return definition
-    ? SETTLEMENT_LAMP_COLORS[state.settlements[definition.id].condition]
+    ? SETTLEMENT_LAMP_COLORS[deriveSettlementCondition(state, definition.id)]
     : null;
 }
 
@@ -389,12 +506,12 @@ export function settlementLampColor(
  * contact; a working settlement can visibly support its whole local crew.
  */
 export function settlementResidentCount(
-  state: Pick<GameState, "settlements">,
+  state: Pick<GameState, "settlements" | "infrastructure" | "worldTimeMinutes">,
   siteId: WorldSiteId,
 ): number {
   const definition = SETTLEMENTS.find((item) => item.siteId === siteId);
   if (!definition) return 0;
-  const condition = state.settlements[definition.id].condition;
+  const condition = deriveSettlementCondition(state, definition.id);
   const working =
     condition === "stable" ||
     condition === "workable" ||
@@ -410,16 +527,52 @@ function initialLongFurrowCondition(
   return waterworks === "repair-pump" ? "workable" : "waterlogged";
 }
 
+/**
+ * A durable community achievement is not permission to pretend its machinery
+ * can never fail. This is a read-only current-condition projection: the
+ * completed need stays persisted while the lived field condition follows the
+ * actual pump and weather authority already used by terrain physics.
+ */
+export function deriveSettlementCondition(
+  state: Pick<GameState, "settlements" | "infrastructure" | "worldTimeMinutes">,
+  settlementId: SettlementId,
+): SettlementCondition {
+  const durableCondition = state.settlements[settlementId].condition;
+  if (
+    settlementId === "rustline-salvage" &&
+    rustlineServiceStocked(state)
+  ) {
+    return "supplied";
+  }
+  if (settlementId === "sunken-flats" && sunkenCausewayBuilt(state)) {
+    return "connected";
+  }
+  if (
+    settlementId !== "long-furrow" ||
+    (durableCondition !== "workable" && durableCondition !== "cultivated")
+  ) {
+    return durableCondition;
+  }
+
+  const pumpDefinition = INFRASTRUCTURE_DEFINITIONS["long-furrow-drain-pump"];
+  const pump = state.infrastructure.entities[pumpDefinition.id];
+  const weather = deriveWeatherState(state.worldTimeMinutes);
+  const drainageFailed = !infrastructureIsOperating(pumpDefinition, pump);
+  return drainageFailed && weather.soilMoisture >= 0.75
+    ? "waterlogged"
+    : durableCondition;
+}
+
 export function createSettlementState(
   waterworks: FarmWaterworksState["choice"] = "unresolved",
 ): SettlementState {
   return {
-    "home-valley": { condition: waterworks === "unresolved" ? "water-stressed" : "stable", favor: 0, completedNeedIds: [] },
-    "long-furrow": { condition: initialLongFurrowCondition(waterworks), favor: 0, completedNeedIds: [] },
-    "rustline-salvage": { condition: "isolated", favor: 0, completedNeedIds: [] },
-    "sunken-flats": { condition: "cut-off", favor: 0, completedNeedIds: [] },
-    "marsh-depot": { condition: "cut-off", favor: 0, completedNeedIds: [] },
-    "launch-ridge": { condition: "silent", favor: 0, completedNeedIds: [] },
+    "home-valley": { condition: waterworks === "unresolved" ? "water-stressed" : "stable", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "long-furrow": { condition: initialLongFurrowCondition(waterworks), favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "rustline-salvage": { condition: "isolated", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "sunken-flats": { condition: "cut-off", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "marsh-depot": { condition: "cut-off", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "launch-ridge": { condition: "silent", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
   };
 }
 
@@ -445,6 +598,90 @@ export function recoverSettlementState(
     const completedNeedIds = Array.isArray(record.completedNeedIds)
       ? record.completedNeedIds.filter(isSettlementNeedOutcomeId)
       : [];
+    const contributions = Array.isArray(record.contributions)
+      ? record.contributions
+          .filter((entry): entry is Record<string, unknown> =>
+            !!entry && typeof entry === "object",
+          )
+          .filter(
+            (entry) =>
+              typeof entry.responseId === "string" &&
+              /^[a-z0-9:-]{3,96}$/.test(entry.responseId) &&
+              RIG_CAPABILITIES.includes(entry.capability as RigCapability) &&
+              typeof entry.createdAtWorldMinutes === "number" &&
+              Number.isFinite(entry.createdAtWorldMinutes),
+          )
+          .map((entry) => ({
+            responseId: entry.responseId as string,
+            materialEffectId:
+              typeof entry.materialEffectId === "string"
+                ? entry.materialEffectId
+                : materialEffectIdForSourceId(entry.responseId as string) ?? entry.responseId as string,
+            capability: entry.capability as RigCapability,
+            createdAtWorldMinutes: Math.max(0, entry.createdAtWorldMinutes as number),
+          }))
+          .filter(
+            (entry, index, all) =>
+              all.findIndex((candidate) => candidate.responseId === entry.responseId) === index,
+          )
+          .slice(-24)
+      : [];
+    const adaptations = Array.isArray(record.adaptations)
+      ? record.adaptations
+          .filter((entry): entry is Record<string, unknown> =>
+            !!entry && typeof entry === "object",
+          )
+          .filter(
+            (entry) =>
+              typeof entry.id === "string" &&
+              /^[a-z0-9:-]{3,96}$/.test(entry.id) &&
+              typeof entry.createdAtWorldMinutes === "number" &&
+              Number.isFinite(entry.createdAtWorldMinutes),
+          )
+          .map((entry) => ({
+            id: entry.id as string,
+            materialEffectId:
+              typeof entry.materialEffectId === "string"
+                ? entry.materialEffectId
+                : materialEffectIdForSourceId(entry.id as string) ?? entry.id as string,
+            createdAtWorldMinutes: Math.max(0, entry.createdAtWorldMinutes as number),
+          }))
+          .filter(
+            (entry, index, all) =>
+              all.findIndex((candidate) => candidate.id === entry.id) === index,
+          )
+          .slice(-12)
+      : [];
+    const recoveredContributions =
+      id === "rustline-salvage" &&
+      completedNeedIds.includes("rustline-parts-run") &&
+      !contributions.some(
+        (entry) => entry.materialEffectId === RUSTLINE_SERVICE_STOCK_EFFECT_ID,
+      )
+        ? [
+            ...contributions,
+            {
+              responseId: RUSTLINE_SERVICE_STOCK_RESPONSE_ID,
+              materialEffectId: RUSTLINE_SERVICE_STOCK_EFFECT_ID,
+              capability: "tow" as const,
+              createdAtWorldMinutes: 0,
+            },
+          ]
+        : id === "sunken-flats" &&
+            completedNeedIds.includes("sunken-flats-causeway") &&
+            !contributions.some(
+              (entry) => entry.materialEffectId === SUNKEN_CAUSEWAY_EFFECT_ID,
+            )
+          ? [
+              ...contributions,
+              {
+                responseId: SUNKEN_CAUSEWAY_RESPONSE_ID,
+                materialEffectId: SUNKEN_CAUSEWAY_EFFECT_ID,
+                capability: "tow" as const,
+                createdAtWorldMinutes: 0,
+              },
+            ]
+          : contributions;
     recovered[id] = {
       condition: SETTLEMENT_CONDITIONS.includes(record.condition as SettlementCondition)
         ? (record.condition as SettlementCondition)
@@ -453,6 +690,8 @@ export function recoverSettlementState(
         ? Math.max(0, Math.min(10, Math.floor(record.favor)))
         : fallback[id].favor,
       completedNeedIds: [...new Set(completedNeedIds)],
+      contributions: recoveredContributions,
+      adaptations,
     };
   }
   return recovered;
@@ -471,6 +710,86 @@ export function applyFarmWaterworksSettlementOutcome(
       condition: initialLongFurrowCondition(choice),
     },
   };
+}
+
+/** Record partial local help without turning a settlement into a completed node. */
+export function recordSettlementContribution(
+  state: GameState,
+  settlementId: SettlementId,
+  contribution: SettlementContribution,
+): boolean {
+  const current = state.settlements[settlementId];
+  if (current.contributions.some((entry) => entry.responseId === contribution.responseId)) {
+    return false;
+  }
+  state.settlements = {
+    ...state.settlements,
+    [settlementId]: {
+      ...current,
+      favor: Math.min(10, current.favor + 1),
+      contributions: [...current.contributions, contribution],
+    },
+  };
+  return true;
+}
+
+/** Rustline can work because stock physically reached its yard, not because a mission flag says so. */
+export function rustlineServiceStocked(
+  state: Pick<GameState, "settlements">,
+): boolean {
+  return state.settlements["rustline-salvage"].contributions.some(
+    (entry) => entry.materialEffectId === RUSTLINE_SERVICE_STOCK_EFFECT_ID,
+  );
+}
+
+export function recordRustlineServiceStock(
+  state: GameState,
+  createdAtWorldMinutes: number,
+): boolean {
+  return recordSettlementContribution(state, "rustline-salvage", {
+    responseId: RUSTLINE_SERVICE_STOCK_RESPONSE_ID,
+    materialEffectId: RUSTLINE_SERVICE_STOCK_EFFECT_ID,
+    capability: "tow",
+    createdAtWorldMinutes,
+  });
+}
+
+export function sunkenCausewayBuilt(
+  state: Pick<GameState, "settlements">,
+): boolean {
+  return state.settlements["sunken-flats"].contributions.some(
+    (entry) => entry.materialEffectId === SUNKEN_CAUSEWAY_EFFECT_ID,
+  );
+}
+
+export function recordSunkenCauseway(
+  state: GameState,
+  createdAtWorldMinutes: number,
+): boolean {
+  return recordSettlementContribution(state, "sunken-flats", {
+    responseId: SUNKEN_CAUSEWAY_RESPONSE_ID,
+    materialEffectId: SUNKEN_CAUSEWAY_EFFECT_ID,
+    capability: "tow",
+    createdAtWorldMinutes,
+  });
+}
+
+/** Record community agency without treating it as player progress or a lock. */
+export function recordSettlementAdaptation(
+  state: GameState,
+  settlementId: SettlementId,
+  adaptation: SettlementAdaptation,
+): boolean {
+  const current = state.settlements[settlementId];
+  if (current.adaptations.some((entry) => entry.id === adaptation.id)) return false;
+  state.settlements = {
+    ...state.settlements,
+    [settlementId]: {
+      ...current,
+      adaptations: [...current.adaptations, adaptation].slice(-12),
+    },
+  };
+  return true;
 }
 
 /** The first community offer requires actual cultivation at a named place. */
@@ -511,6 +830,7 @@ export function deriveSettlementNeedMissions(
   const rustline = state.settlements["rustline-salvage"];
   if (
     rustline.condition === "isolated" &&
+    !rustlineServiceStocked(state) &&
     !rustline.completedNeedIds.includes("rustline-parts-run") &&
     visibleSites.has("salvage-yard")
   ) {
@@ -560,9 +880,34 @@ export function applySettlementNeedOutcome(
   const outcome = SETTLEMENT_OUTCOMES[outcomeId];
   const current = state.settlements[outcome.settlementId];
   if (current.completedNeedIds.includes(outcomeId)) return null;
+  if (outcomeId === "rustline-parts-run") {
+    const changed = recordRustlineServiceStock(state, state.worldTimeMinutes);
+    const updated = state.settlements["rustline-salvage"];
+    state.settlements = {
+      ...state.settlements,
+      "rustline-salvage": {
+        ...updated,
+        completedNeedIds: [...updated.completedNeedIds, outcomeId],
+      },
+    };
+    return changed ? outcome.summary : null;
+  }
+  if (outcomeId === "sunken-flats-causeway") {
+    const changed = recordSunkenCauseway(state, state.worldTimeMinutes);
+    const updated = state.settlements["sunken-flats"];
+    state.settlements = {
+      ...state.settlements,
+      "sunken-flats": {
+        ...updated,
+        completedNeedIds: [...updated.completedNeedIds, outcomeId],
+      },
+    };
+    return changed ? outcome.summary : null;
+  }
   state.settlements = {
     ...state.settlements,
     [outcome.settlementId]: {
+      ...current,
       condition: outcome.nextCondition,
       favor: Math.min(10, current.favor + outcome.favorGain),
       completedNeedIds: [...current.completedNeedIds, outcomeId],

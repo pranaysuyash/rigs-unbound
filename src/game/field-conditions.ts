@@ -1,11 +1,11 @@
 /**
- * Persistent condition for land the player has actually disturbed.
+ * Persistent condition for land changed by players or autonomous world actors.
  *
  * Terrain remains the authority for geometry and material classification.
  * This module records the slower biological and water response around those
  * canonical terrain edits: saturation, shear strength, vegetation, roots, and
  * soil health. It intentionally tracks only disturbed cells so open-world
- * simulation cost scales with remembered player impact, not map area.
+ * simulation cost scales with remembered world impact, not map area.
  */
 
 import {
