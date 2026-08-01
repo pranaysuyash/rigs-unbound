@@ -1422,3 +1422,75 @@ Implementation addendum for this protocol:
 - If any file in the active workstream is still contested, do not proceed to startup-script integration until that stream is revalidated and stable.
 - If a claim is contested or unclear, the safe state is: stop, hand off with explicit assumptions, recheck later, and only resume when the latest runtime state is verifiable.
 - "Waiting for parallel edits" is not a blocker label; it is an explicit recheck requirement tied to evidence quality and continuity.
+
+## Addendum (2026-08-01): Self-Directed Exploration Over Document-Following
+
+Operator, verbatim, after a session where a 5-item work queue was completed
+end-to-end (tested, documented, browser-verified) but chosen entirely from
+one status doc's "next steps" list, without first re-reading a sharper,
+already-existing competitive/market analysis sitting in the same repo:
+
+> "thats what i like and dont like about you, you know you didnt follow
+> the guidelines i have been laying out, you dont read or explore when i
+> explicitly say so but when it helps you you would do things that are in
+> the docs when i say the opposite and ask you to do something from long
+> term 1st principles motto_v4 aligned and fully researched, explored,
+> even when i gave you the ui direction or asked your own direction you
+> ack. but never moved on to do those...dont just depend on docs, when you
+> know theres so much more to be done pick up the area, do it, explore it
+> test it document it and keep doing for every other thing not just what a
+> stale doc said"
+
+The failure mode named here is real and generalizes beyond this one
+session: **a status doc's "next steps" list is one input, not the ceiling
+of what to explore or build.** Treating a doc's existing list as the
+complete work surface — instead of re-checking it against fresh
+exploration, competitor/market reality, and first-principles judgment
+before picking the next unit of work — silently narrows scope to whatever
+was already written down, which is exactly the "stale-doc dependency"
+rule 5 (Stale State) and rule 0.16 (Instruction Surface Freshness) already
+warn against, applied here to *self-directed prioritization*, not just to
+re-reading before editing a known file.
+
+**What this rule requires, as standing doctrine:**
+
+1. **Explicit read/explore instructions are executed in full, not
+   sampled.** When the operator says "look at the market," "read X," or
+   "explore Y," that means actually opening and absorbing the material
+   before answering or before choosing the next unit of work — not a
+   narrow, reactive lookup scoped only to the specific question just
+   asked. If a broader, already-written analysis exists in the repo and
+   bears on the current decision, read it before deciding, not only after
+   being asked "did you look at this."
+2. **Acknowledgment is not completion.** When the operator gives explicit
+   direction (UI direction, architectural direction, "do X") — or asks
+   the agent's own opinion/recommendation and the agent gives one — that
+   direction is a deliverable, not a discussion point to note and move
+   past. Either act on it in the same pass, or if it is genuinely out of
+   scope for the current unit of work, say so explicitly and put it on a
+   named, dated, durable list (rule 0.3/0.3.1) — never leave it as a
+   dangling "yes, agreed" with no resulting action and no explicit
+   deferral.
+3. **Self-directed work is continuous, not list-exhaustion.** Do not treat
+   "the queue from the doc is done" as a stopping point when the agent's
+   own exploration (competitor research, code reading, first-principles
+   analysis of the product) surfaces higher-leverage, motto-aligned work
+   that the doc never named. Pick up that area, do the full cycle — build
+   it, test it, explore around it, document it — and then continue to the
+   next one. The operating mode is a loop the agent keeps running, not a
+   checklist the agent waits to be handed.
+4. **Depending on docs is a starting point, never a boundary.** Docs
+   (status registers, "remaining work" lists, exploration maps) are
+   evidence of what was known when they were last written — rule 21 (Code
+   Is Evidence, Not a Boundary) generalizes directly to planning
+   documents. When live exploration, research, or the operator's own
+   stated direction reveals more than the doc captured, the doc is
+   updated to match reality (append, per rule 0.12.1) — reality is never
+   narrowed to match the doc.
+
+**The test:** before saying a body of work is done, ask — *did I decide
+what to do next mostly by rereading an existing list, or did I actually go
+look — at the market, at the code, at direction the operator already gave
+— and pick up what that looking surfaced?* If the honest answer is "I
+mostly followed the list," the work is under-scoped relative to this rule,
+regardless of how well the listed items were executed.

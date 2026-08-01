@@ -188,9 +188,9 @@ function makeMoldboardGeometry(): THREE.BufferGeometry {
     const upperIndex = sections.findIndex(
       (section) => section.station >= station,
     );
-    if (upperIndex <= 0) return sections[0];
-    const lower = sections[upperIndex - 1];
-    const upper = sections[upperIndex];
+    if (upperIndex <= 0) return sections[0]!;
+    const lower = sections[upperIndex - 1]!;
+    const upper = sections[upperIndex]!;
     const blend = (station - lower.station) / (upper.station - lower.station);
     return {
       station,

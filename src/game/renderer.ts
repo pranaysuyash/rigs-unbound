@@ -51,6 +51,7 @@ import {
   type Obstacle,
 } from "./collision";
 import { chaseViewportPolicy, RIG_HOOD_CAMERA_MOUNTS } from "./camera";
+import { createFieldPlough01Model } from "../../assets/workbench/field-plough-01/authored/createFieldPloughModel";
 import type { SalvageNode } from "./exploration";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
@@ -492,6 +493,8 @@ export class GameRenderer {
   private dustCursor = 0;
 
   private readonly dummy = new THREE.Object3D();
+  private readonly billboardDirection = new THREE.Vector3();
+  private readonly billboardDefaultNormal = new THREE.Vector3(0, 0, 1);
   private propAnchorX = Number.POSITIVE_INFINITY;
   private propAnchorZ = Number.POSITIVE_INFINITY;
   private renderedFurrows = 0;
@@ -1507,6 +1510,36 @@ export class GameRenderer {
     this.propVisibility = visibility;
   }
 
+  /**
+   * Orient `this.dummy` so its +Z face normal points at the camera's actual
+   * 3D position — full spherical billboarding, not just a horizontal (yaw)
+   * facing.
+   *
+   * A yaw-only facing (rotate around Y so the plane "faces" the camera's
+   * horizontal bearing) still stands the plane vertical. That reads fine
+   * from a roughly-horizontal camera (Chase, Hood, Side) but is geometrically
+   * useless against a steep overhead camera (Tactical, Top-down): a vertical
+   * plane's cross-section viewed from above is a thin line no matter which
+   * way it yaws, because yaw only rotates around the one axis the overhead
+   * camera is looking straight down. Facing the true camera vector — pitch
+   * included — is what actually keeps the flat LOD impostor looking like a
+   * canopy/rock blob instead of a floating stick from every camera mode.
+   *
+   * Far-tier LOD billboards are rebuilt only when the rig moves (not every
+   * frame), so this is a per-rebuild approximation rather than true
+   * per-frame billboarding — sufficient here since the "far" tier is by
+   * definition distant scenery, not something the camera sits on top of.
+   */
+  private faceBillboardAtCamera(x: number, y: number, z: number): void {
+    this.billboardDirection
+      .set(this.camera.position.x - x, this.camera.position.y - y, this.camera.position.z - z)
+      .normalize();
+    this.dummy.quaternion.setFromUnitVectors(
+      this.billboardDefaultNormal,
+      this.billboardDirection,
+    );
+  }
+
   private placeTree(obstacle: Obstacle, index: number): void {
     const trunkHeight = treeTrunkHeight(obstacle);
     // Re-ground on the live height field rather than the cached groundY so trees
@@ -1543,12 +1576,9 @@ export class GameRenderer {
       this.treeBillboards !== undefined &&
       this.treeBillboardCount < MAX_TREE_INSTANCES
     ) {
-      this.dummy.position.set(
-        obstacle.x,
-        treeCrownCenterY(obstacle),
-        obstacle.z,
-      );
-      this.dummy.rotation.set(-Math.PI / 2, 0, 0); // Face up
+      const billboardY = treeCrownCenterY(obstacle);
+      this.dummy.position.set(obstacle.x, billboardY, obstacle.z);
+      this.faceBillboardAtCamera(obstacle.x, billboardY, obstacle.z);
       this.dummy.scale.set(crownRadius * 1.5, crownRadius * 1.5, 1);
       this.dummy.updateMatrix();
       this.treeBillboards.setMatrixAt(
@@ -1606,12 +1636,9 @@ export class GameRenderer {
       this.rockBillboardCount < MAX_ROCK_INSTANCES
     ) {
       const halfHeight = rockVisualHalfHeight(obstacle);
-      this.dummy.position.set(
-        obstacle.x,
-        obstacle.groundY + halfHeight,
-        obstacle.z,
-      );
-      this.dummy.rotation.set(-Math.PI / 2, 0, 0); // Face up
+      const billboardY = obstacle.groundY + halfHeight;
+      this.dummy.position.set(obstacle.x, billboardY, obstacle.z);
+      this.faceBillboardAtCamera(obstacle.x, billboardY, obstacle.z);
       this.dummy.scale.set(obstacle.radius * 1.5, obstacle.radius * 1.5, 1);
       this.dummy.updateMatrix();
       this.rockBillboards.setMatrixAt(
@@ -2608,6 +2635,43 @@ export class GameRenderer {
     return column;
   }
 
+  private shadowGradientTexture: THREE.Texture | null = null;
+
+  /**
+   * Soft radial-falloff alpha map, generated once and reused by every blob
+   * shadow. A uniform-opacity circle (the previous approach) reads as a hard,
+   * unlit disc pasted onto the ground; a soft centre-to-edge falloff is what
+   * actually sells contact-shadow "blob shadows" as shadows rather than decals
+   * — this is the same trick stylised low-poly games (Mario-style blob
+   * shadows) have used for decades specifically because a real shadow map was
+   * too expensive.
+   */
+  private getShadowGradientTexture(): THREE.Texture {
+    if (this.shadowGradientTexture) return this.shadowGradientTexture;
+    const size = 128;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const gradient = ctx.createRadialGradient(
+      size / 2,
+      size / 2,
+      0,
+      size / 2,
+      size / 2,
+      size / 2,
+    );
+    gradient.addColorStop(0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.7, "rgba(255,255,255,0.55)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    this.shadowGradientTexture = texture;
+    return texture;
+  }
+
   private blobShadow(radius: number, opacity: number): THREE.Mesh {
     const shadow = new THREE.Mesh(
       new THREE.CircleGeometry(radius, 24),
@@ -2616,6 +2680,7 @@ export class GameRenderer {
         transparent: true,
         opacity,
         depthWrite: false,
+        alphaMap: this.getShadowGradientTexture(),
       }),
     );
     shadow.rotation.x = -Math.PI / 2;
@@ -2760,6 +2825,56 @@ export class GameRenderer {
    * at −1.25, plough at −3.2. The previous build had the grille, hood, headlights
    * *and* plough all at −Z, which is why it appeared to drive backwards.
    */
+  /**
+   * The plough attachment, built from the studio's own authored procedural
+   * factory (`assets/workbench/field-plough-01/authored/createFieldPloughModel.ts`)
+   * instead of the flat solid-colour box placeholder this used to be.
+   *
+   * That factory is deliberately *not* yet marked `publicRuntimeApproved` in
+   * `assets/asset-manifest.json` — its img2threejs silhouette-accuracy gate
+   * (Tier 1 IoU 0.470 against the reference photo) has not cleared threshold
+   * for hero/production art. This use respects that: the manifest's own notes
+   * describe the factory as a legitimate "repo-local developer derivative for
+   * validating named part boundaries... and customizable rig-part
+   * integration" — exactly this use, an internal placeholder upgrade, not a
+   * claim that this is finished, approved hero art. `root.userData` on the
+   * returned group still carries `visualAuthority`/`collisionAuthority`
+   * markers the factory authored for this exact boundary.
+   *
+   * The factory has its own internal scale/origin convention (built to match
+   * its reference photo, not this rig's pivot space), so the fit here is
+   * computed from its actual bounding box rather than hand-guessed offsets:
+   * scaled to the old placeholder's blade width and grounded so its lowest
+   * point sits where the old teeth tips sat.
+   */
+  private buildPloughAttachment(): THREE.Object3D {
+    const model = createFieldPlough01Model({
+      castShadow: true,
+      receiveShadow: true,
+    });
+    const bounds = new THREE.Box3().setFromObject(model);
+    const size = bounds.getSize(new THREE.Vector3());
+
+    const targetWidth = 4.6; // old blade width, the widest prior element
+    const targetBottomY = -0.82; // old tooth-tip depth in pivot-local space
+    const targetCenterZ = -0.85; // midpoint of the old beam-to-tooth-tip span
+
+    const scale = size.x > 0 ? targetWidth / size.x : 1;
+    model.scale.setScalar(scale);
+
+    // Re-measure after scaling rather than assume the pre-scale bounds times
+    // the scale factor, since RoundedBoxGeometry bevels make that an
+    // approximation, not an identity.
+    const scaledBounds = new THREE.Box3().setFromObject(model);
+    const scaledCenter = scaledBounds.getCenter(new THREE.Vector3());
+    model.position.set(
+      -scaledCenter.x,
+      targetBottomY - scaledBounds.min.y,
+      targetCenterZ - scaledCenter.z,
+    );
+    return model;
+  }
+
   private createTractor(): RigParts {
     const root = new THREE.Group();
     root.name = "persistent-rig";
@@ -2821,17 +2936,7 @@ export class GameRenderer {
 
     const ploughPivot = new THREE.Group();
     ploughPivot.position.set(0, 1, -2.5);
-    const ploughBeam = box(3.7, 0.24, 1.5, 0x583930);
-    ploughBeam.position.z = -0.5;
-    const blade = box(4.6, 1.05, 0.24, 0xa94a36);
-    blade.position.set(0, -0.12, -1.3);
-    blade.rotation.x = 0.22;
-    ploughPivot.add(ploughBeam, blade);
-    for (let index = -2; index <= 2; index += 1) {
-      const tooth = box(0.17, 0.52, 0.52, 0x2f2e2a);
-      tooth.position.set(index * 0.88, -0.56, -1.36);
-      ploughPivot.add(tooth);
-    }
+    ploughPivot.add(this.buildPloughAttachment());
 
     const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xffe7a8 });
     for (const x of [-0.68, 0.68]) {
@@ -2888,7 +2993,7 @@ export class GameRenderer {
       ploughPivot,
       headlights,
       frontMarker: grille,
-      rearMarker: blade,
+      rearMarker: ploughPivot,
       stateShell,
       stateShellMaterial,
     };
