@@ -3053,6 +3053,7 @@ export function publicState(state: GameState, world: GameWorld): object {
               ),
             },
       recovery: { ...state.recovery },
+      farmWaterworks: state.farmWaterworks,
     },
     infrastructure: {
       entities: publicInfrastructureNetwork(

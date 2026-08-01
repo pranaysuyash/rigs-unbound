@@ -1,7 +1,7 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-07-31 (Restoration loop + ghost-replay universe proof implemented and verified; commit pending)
+- Last Updated: 2026-07-31 (Water Before Night decision surface, tests, and browser acceptance implemented and verified; commit pending)
 - Owner: project owner; agents update evidence and status in the same change
 - Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
   ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
@@ -77,8 +77,9 @@ Current runtime metrics:
 - 92 non-test source modules, 77 reachable, **14 unreachable** (down from 25).
 - Reachability budget ≤ 25 — PASS.
 - Tranche 1 (quest semantics) — DONE.
-- Tranche 2 (restoration/crafting loop) — wired but not yet felt as a game loop.
-- Tranches 3–6 (Water Before Night, north field/night variants, dialogue/narration, ridge finale) — not yet complete.
+- Tranche 2 (restoration/crafting loop) — wired and now player-reachable.
+- Tranche 3 (Water Before Night) — DONE; both branches proven with browser acceptance.
+- Tranches 4–6 (north field/night variants, dialogue/narration, ridge finale) — dialogue/narration surface is DONE; north field/night and ridge finale remain.
 
 Highest gaps against the canonical vision:
 
@@ -91,9 +92,8 @@ Highest gaps against the slice:
 
 - First 30 seconds are UI-gated (three workshop clicks before motion).
 - No player-facing customization decision with consequence.
-- No Water Before Night branch or world-memory consequence.
-- No dialogue/narration surface for arrival, bargain, or naming.
-- No end-to-end browser acceptance for the slice.
+- No North Field mystery or first-night hazard pressure.
+- No end-to-end browser acceptance for the full slice.
 
 Four implementation options are offered, from narrowest (prove the 30-second
 loop) to broadest (complete one slice loop plus one universe proof point). The
@@ -179,6 +179,43 @@ New/updated docs:
 Boundaries respected: no edits to parallel-owned settlement/community/ecology
 modules; no new art/audio assets, world classes, or campaign content;
 comprehensive audio direction remains deferred.
+
+## Water Before Night implementation evidence (2026-07-31)
+
+Closed the Water Before Night evidence gap: the decision surface is now
+player-reachable and both branches are proven to produce distinct world memory.
+
+Runtime changes:
+
+- `src/main.ts`: workshop panel actionability now includes the unresolved Water
+  Before Night decision, so the panel stays open after restoration until the
+  player makes the choice.
+- `src/game/state.ts`: `publicState` exposes `progression.farmWaterworks` so the
+  acceptance harness can verify the committed branch.
+- `src/game/state.test.ts`: direct unit tests for `chooseFarmWaterworks` guard
+  clauses and both branches; fixed a nested-describe accident that had placed
+  migration tests inside the waterworks block.
+
+Tests:
+
+- `npm run typecheck` PASS.
+- `npx vitest run` PASS 87 files / 538 tests.
+- `node tools/water-before-night-browser-acceptance.cjs` PASS using system Chrome
+  channel.
+- `node tools/restoration-loop-ghost-acceptance.cjs` PASS (regression).
+- `node tools/dialogue-surface-browser-acceptance.cjs` PASS (regression).
+
+New/updated docs:
+
+- `docs/reviews/WATER_BEFORE_NIGHT_EVIDENCE_2026-07-31.md`
+- `docs/design/WATER_BEFORE_NIGHT_IMPLEMENTATION_PLAN_2026-07-31.md`
+- `tools/water-before-night-browser-acceptance.cjs`
+- `tools/restoration-loop-ghost-acceptance.cjs` (updated for new workshop behavior)
+
+Boundaries respected: no edits to parallel-owned settlement/community/ecology
+modules beyond exposing existing state in `publicState`; no new art/audio assets,
+night-variant visuals, or first-night hazard sequences; north field and ridge
+finale remain out of scope.
 
 ## Vision-hierarchy correction and whole-game execution order (2026-07-29)
 

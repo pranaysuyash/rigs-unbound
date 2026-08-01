@@ -49,6 +49,7 @@ import {
   winchRecover,
   acceptArrivalBargain,
   refuseArrivalBargain,
+  chooseFarmWaterworks,
 } from "./state";
 import { acceptMission } from "./mission-lifecycle";
 import type { MissionProposition } from "./mission-propositions";
@@ -1341,11 +1342,6 @@ describe("cargo relay", () => {
 });
 
 describe("save recovery and migration", () => {
-  let world: GameWorld;
-  beforeEach(() => {
-    world = new GameWorld("RECOVERY");
-  });
-
   it("preserves a selected top-down camera in the current save schema", () => {
     const saved = createInitialState("CAMERA-RECOVERY");
     saved.cameraMode = "top-down";
@@ -1394,6 +1390,81 @@ describe("save recovery and migration", () => {
 
     const recovered = recoverState(legacy);
     expect(recovered?.arrivalBargain.status).toBe("unseen");
+  });
+});
+
+describe("farm waterworks choice", () => {
+  let world: GameWorld;
+  beforeEach(() => {
+    world = new GameWorld("WATERWORKS");
+  });
+
+  it("rejects the waterworks choice before the tractor has started", () => {
+    const state = createInitialState("WATERWORKS-EARLY");
+    state.activeRigId = "utility-tractor";
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    const ok = chooseFarmWaterworks(state, world, "repair-pump");
+    expect(ok).toBe(false);
+    expect(state.farmWaterworks.choice).toBe("unresolved");
+  });
+
+  it("rejects the waterworks choice away from the Home Silo workshop", () => {
+    const state = createInitialState("WATERWORKS-FAR");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = 200;
+    state.rigs["utility-tractor"].z = 200;
+    const ok = chooseFarmWaterworks(state, world, "repair-pump");
+    expect(ok).toBe(false);
+    expect(state.farmWaterworks.choice).toBe("unresolved");
+  });
+
+  it("commits the repair-pump branch and powers the drain pump", () => {
+    const state = createInitialState("WATERWORKS-REPAIR");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    const ok = chooseFarmWaterworks(state, world, "repair-pump");
+    expect(ok).toBe(true);
+    expect(state.farmWaterworks.choice).toBe("repair-pump");
+    expect(state.infrastructure.entities["long-furrow-drain-pump"].commandedOn).toBe(true);
+    expect(state.settlements["long-furrow"].condition).toBe("workable");
+    expect(state.lastDiagnostic).toContain("Pump repaired");
+  });
+
+  it("commits the redirect-channel branch and floods the low approach", () => {
+    const state = createInitialState("WATERWORKS-REDIRECT");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    const ok = chooseFarmWaterworks(state, world, "redirect-channel");
+    expect(ok).toBe(true);
+    expect(state.farmWaterworks.choice).toBe("redirect-channel");
+    expect(state.infrastructure.entities["long-furrow-drain-pump"].commandedOn).toBe(false);
+    expect(state.settlements["long-furrow"].condition).toBe("waterlogged");
+    expect(state.lastDiagnostic).toContain("Channel redirected");
+  });
+
+  it("rejects a second waterworks decision", () => {
+    const state = createInitialState("WATERWORKS-LOCKED");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    chooseFarmWaterworks(state, world, "repair-pump");
+    const ok = chooseFarmWaterworks(state, world, "redirect-channel");
+    expect(ok).toBe(false);
+    expect(state.farmWaterworks.choice).toBe("repair-pump");
+  });
+});
+
+describe("save recovery and migration", () => {
+  let world: GameWorld;
+  beforeEach(() => {
+    world = new GameWorld("RECOVERY");
   });
 
   it("migrates predecessor schemas and filters unknown persisted capabilities", () => {

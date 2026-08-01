@@ -3053,8 +3053,15 @@ function boot(): void {
       !state.restoration.diagnosed ||
       !state.restoration.repaired ||
       !state.restoration.firstStart;
+    // Water Before Night is a one-time workshop decision; keep the panel
+    // actionable after restoration so the player can actually take it.
+    const waterworksPending =
+      workshop !== undefined &&
+      state.restoration.firstStart &&
+      state.farmWaterworks.choice === "unresolved";
     const workshopPanelActionable =
       (workshop !== undefined && restorationPending) ||
+      waterworksPending ||
       workshopActionable(workshop !== undefined, state, firstRung);
     if (workshopPanelActionable && activeOverlay === "none") {
       openOverlay("workshop");

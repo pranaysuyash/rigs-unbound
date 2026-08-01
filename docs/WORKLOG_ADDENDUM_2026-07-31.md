@@ -72,7 +72,25 @@
   - `node tools/dialogue-surface-browser-acceptance.cjs` PASS.
 - Wrote implementation plan `docs/design/DIALOGUE_SURFACE_IMPLEMENTATION_PLAN_2026-07-31.md` and evidence report `docs/reviews/DIALOGUE_SURFACE_EVIDENCE_2026-07-31.md`.
 
+## Water Before Night evidence gap closure (2026-07-31)
+
+- Closed the gap documented in `docs/design/WATER_BEFORE_NIGHT_IMPLEMENTATION_PLAN_2026-07-31.md`.
+- Fixed `src/game/state.test.ts` nested-describe accident that had placed migration tests inside the new `farm waterworks choice` block.
+- Added unit tests for `chooseFarmWaterworks`: reject before first start, reject away from workshop, reject second choice, repair-pump branch, redirect-channel branch.
+- Made the decision player-reachable: `src/main.ts` now keeps the workshop panel actionable after restoration while the waterworks choice is unresolved.
+- Exposed `progression.farmWaterworks` in `publicState` so the acceptance harness can verify the committed branch.
+- Added `tools/water-before-night-browser-acceptance.cjs`: boots a fresh context per branch, accepts the arrival bargain, restores the tractor, makes the workshop choice, and reads player-visible terrain telemetry.
+- Updated `tools/restoration-loop-ghost-acceptance.cjs` to expect the workshop panel to stay open after first start (it remains actionable for Water Before Night).
+- Updated the implementation plan with the corrected Branch B probe coordinate: the literal midpoint `(9, -17)` is hardpan track, so the acceptance probes soft ground at `(21, -11)` to prove the moisture consequence.
+- Wrote evidence report `docs/reviews/WATER_BEFORE_NIGHT_EVIDENCE_2026-07-31.md`.
+- Verification:
+  - `npm run typecheck` PASS;
+  - `npx vitest run` PASS 87 files / 538 tests;
+  - `node tools/restoration-loop-ghost-acceptance.cjs` PASS (regression);
+  - `node tools/dialogue-surface-browser-acceptance.cjs` PASS (regression);
+  - `node tools/water-before-night-browser-acceptance.cjs` PASS.
+
 ## Next step
 
-Operator review of the dialogue surface implementation and evidence. Once accepted, the next slice gap is Water Before Night.
+Water Before Night is now player-reachable and evidence is recorded. The next slice gaps are the North Field mystery / scanner wiring, the first-night hazard pressure, and the ridge finale end-to-end acceptance.
 

@@ -80,7 +80,9 @@ async function main() {
     console.log("after rebuild:", await getActionText());
     await waitForActionText(page, "Start engine");
 
-    // Start engine → overlay closes and the rig is drivable.
+    // Start engine → restoration complete and the rig is drivable. The workshop
+    // panel stays open because the Water Before Night decision is still pending
+    // there; that is verified by the waterworks acceptance script.
     await clickRestoration(page);
     await page.waitForTimeout(500);
     const debugStart = await page.evaluate(() => ({
@@ -89,7 +91,10 @@ async function main() {
       activeOverlay: document.body.dataset.overlay,
     }));
     console.log("after start engine:", debugStart);
-    await page.waitForSelector("#workshop-panel", { state: "hidden", timeout: 5_000 });
+    assert(
+      debugStart.restoration.firstStart === true,
+      "engine started (firstStart true)",
+    );
 
     // Wait a moment so the ghost trail accumulates samples.
     await page.waitForTimeout(500);
