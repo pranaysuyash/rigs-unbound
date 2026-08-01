@@ -94,13 +94,13 @@ the operator explicitly transfers ownership of the in-progress work.
 - §4 (Local Work Preservation): confirmed local/origin sync and the other
   stream's commits before concluding no work was lost.
 
-## Resolution — operator transferred ownership, gap closed
+## Resolution — operator transferred ownership; gap closed by parallel stream
 
 On 2026-08-01 the operator explicitly instructed this session to "proceed and
 complete" the Water Before Night gap closure. That statement satisfied the
 resume condition above (operator explicitly transfers ownership).
 
-Actions taken under the transfer:
+Actions taken under the transfer by this session:
 
 - Re-verified state: `git status --short` showed the same diff listed in the
   hold note; `git log --oneline origin/main..HEAD` remained empty.
@@ -108,10 +108,21 @@ Actions taken under the transfer:
   (538 tests), `tools/restoration-loop-ghost-acceptance.cjs`,
   `tools/dialogue-surface-browser-acceptance.cjs`, and
   `tools/water-before-night-browser-acceptance.cjs` all passed.
-- Filled the `motto_v4` section attestation for the commit gate.
-- Committed the gap-closure changes via the repo's hook-gated commit flow
-  (`git add -A`, commit with required motto trailers, push).
+- Filled the `motto_v4` section attestation for the intended commit gate.
+
+What actually happened next:
+
+- Before this session could run `git commit`, a parallel agent stream committed
+  the same gap-closure diff as `a141b0b` ("feat: Water Before Night gap closure
+  — waterworks choice is now player-reachable") at 2026-08-01 17:38:57 +0530.
+- That same stream then committed `3c009c0` ("fix: real billboard facing, soft
+  blob-shadow falloff, and studio-authored plough model") on top.
+- This left the working tree clean and `origin/main` three commits behind
+  `HEAD` (`a141b0b`, `91239ff`, `3c009c0`).
+- This session therefore did not re-commit the already-committed gap closure.
+  Instead it updated this addendum with the actual resolution and pushed the
+  existing commits to `origin/main`.
 
 This addendum is therefore no longer a blocking handoff; it is retained as a
-historical record of the contested-runtime boundary and the transfer that
-resolved it.
+historical record of the contested-runtime boundary, the operator transfer,
+and the fact that the gap closure was ultimately landed by a parallel stream.
