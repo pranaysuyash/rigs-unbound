@@ -20,6 +20,7 @@ document what changed, what was verified, and what remains open.
 - [Game Visual Polish Approval Package](GAME_VISUAL_POLISH_APPROVAL_PACKAGE_2026-07-30.md)
 - [Game Design Audit and Recommendations](GAME_DESIGN_AUDIT_AND_RECOMMENDATIONS_2026-07-31.md)
 - [Game Design Audit — Vision Correction and Full Re-Check](GAME_DESIGN_AUDIT_VISION_CORRECTION_AND_FULL_RECHECK_2026-07-31.md)
+- [Visual Game-Feel Audit — Does It Look, Flow, and Behave Like a Game?](VISUAL_GAME_FEEL_AUDIT_2026-08-01.md)
 - [Implementation Direction Decision Log](IMPLEMENTATION_DIRECTION_DECISION_LOG_2026-07-31.md)
 - [Restoration Loop + Ghost Replay Evidence](RESTORATION_LOOP_AND_GHOST_REPLAY_EVIDENCE_2026-07-31.md)
 - [Runtime Reachability Ownership Matrix](RUNTIME_REACHABILITY_OWNERSHIP_MATRIX_2026-07-28.md)
