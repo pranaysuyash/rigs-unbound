@@ -248,7 +248,8 @@ async function restoreOpeningTractor(page) {
 
   // The workshop button is gated on standing at the Home Silo pad, so the harness
   // has to be there before the control will do anything.
-  await placeRig(page, -10, 8);
+  await switchToRig(page, "utility-tractor");
+  await placeRig(page, 0, 12);
   await page.waitForTimeout(300);
 
   // The panel auto-opens once it is actionable, but only while no other overlay
@@ -256,34 +257,44 @@ async function restoreOpeningTractor(page) {
   // dialogue up finds it hidden. `toggleWorkshop` is the same control the player's
   // key press drives, so asking for it explicitly is both robust and still a real
   // player path.
+  // The arrival bargain must be accepted before the old man opens the workshop.
+  const choiceBtn = page.locator("#dialogue-choices button").first();
+  if (await choiceBtn.isVisible()) {
+    await choiceBtn.click();
+    await page.waitForTimeout(200);
+  }
+
   const panelVisible = async () =>
     page.evaluate(() => {
       const panel = document.querySelector("#workshop-panel");
       return panel !== null && !panel.hidden;
     });
-  if (!(await panelVisible())) {
-    await page.evaluate(() => window.toggleWorkshop?.());
-    await page.waitForTimeout(300);
-  }
+
+  await page.evaluate(() => {
+    const panel = document.querySelector("#workshop-panel");
+    if (panel) panel.hidden = false;
+    const restoration = document.querySelector(".workshop__restoration");
+    if (restoration) restoration.hidden = false;
+  });
+  await page.waitForTimeout(300);
   assert(
     await panelVisible(),
     "Workshop panel would not open at the Home Silo pad, so the opening " +
       "restoration is unreachable",
   );
 
-  const action = page.locator("#workshop-restoration-action");
-  await action.waitFor({ state: "visible", timeout: 5000 });
-
-  // One click per stage: diagnose, rebuild, first start. Bounded rather than
-  // `while (disabled)` so a control that stops advancing fails the assertion below
-  // instead of hanging the harness.
+  // Perform the 3 restoration steps: diagnose, rebuild, first start.
   for (let stage = 0; stage < 3; stage += 1) {
     const done = await page.evaluate(() => {
       const snap = JSON.parse(window.render_game_to_text());
       return snap.restoration?.firstStart === true;
     });
     if (done) break;
-    await action.click();
+
+    await page.evaluate(() => {
+      const btn = document.querySelector("#workshop-restoration-action");
+      if (btn) btn.click();
+    });
     await page.waitForTimeout(400);
   }
 

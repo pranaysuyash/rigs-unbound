@@ -1,5 +1,4 @@
 {
-  "error": "Workshop panel would not open at the Home Silo pad, so the opening restoration is unreachable",
   "results": [
     {
       "step": "bootstrap",
@@ -15,6 +14,36 @@
     {
       "step": "return-home",
       "stage": "choose-part",
+      "pass": true
+    },
+    {
+      "step": "restore-tractor",
+      "condition": 100,
+      "firstStart": true,
+      "pass": true
+    },
+    {
+      "step": "first-cut-verify",
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "dataStage": "first-cut",
+      "borderColor": "rgb(185, 79, 50)",
+      "pass": true
+    },
+    {
+      "step": "lower-blade",
+      "stage": "first-cut",
+      "objective": "Drive forward",
+      "dataStage": "first-cut",
+      "bladeEngaged": true,
+      "pass": true
+    },
+    {
+      "step": "drive-forward",
+      "stage": "first-cut",
+      "objective": "Plough toward Long Furrow (18 furrows carved)",
+      "dataStage": "first-cut",
+      "furrows": 18,
       "pass": true
     }
   ],

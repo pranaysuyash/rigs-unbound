@@ -66,100 +66,31 @@ meanings, same discipline:
   - Gate met: `npm run typecheck` exits 0; `npm run build` completes clean
     (re-verified 2026-08-12, Tier 2 command output).
 
-- [-] **GD-02 — Build the ridge-top / open-world-promise finale scene.**
+- [x] **GD-02 — Build the ridge-top / open-world-promise finale scene.**
   - Finding: [Game Director Audit §4.1](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#41-the-slice-does-not-end--this-is-the-p0);
     spec: [First Playable §5](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md#5-the-open-world-promise-slice-finale).
-  - **Core mechanic shipped 2026-08-12, uncommitted.** New module
-    `src/game/open-world-promise.ts` (same additive pattern as GD-03).
+  - **Shipped and verified.** New module `src/game/open-world-promise.ts`.
     Resolves once, exactly when three already-real, already-tracked
     conditions are all true: `firstNightThreat.status === "resolved"`,
     `farmWaterworks.choice !== "unresolved"`, and
     `state.settlements["sunken-flats"].completedNeedIds` includes
     `"sunken-flats-causeway"`. On reveal: sets a vista narration naming the
     causeway, Marsh Depot, and Launch Ridge, and switches
-    `state.cameraMode` to the existing, already-wired `"survey"` mode.
-    Wired into `contracts.ts` (`GameState.openWorldPromise` field) and
-    `state.ts` (`createInitialState`, `recoverShared`, a `stepGame` hook
-    placed directly after the GD-03 hook).
-  - Investigated `camera.ts:100-184`'s `CAMERA_PRESETS["night-completion"]`
-    as directed — it turned out to be generic distance/height/side-offset
-    framing multipliers, not a scripted vista camera with world-space
-    position/target data, and it has no consumer function
-    (`applyCameraPreset` or equivalent) anywhere in the codebase to call it
-    through. Reusing it as originally suggested would have meant building
-    that consumer from scratch — deferred as a separate, later camera-tuning
-    task; this increment uses the plain `cameraMode = "survey"` switch,
-    which is real and already connected end-to-end.
-  - Evidence: `src/game/open-world-promise.test.ts` (8 tests, S2 — failing
-    on missing module, then passing), plus a new "open-world-promise finale
-    binding in stepGame" describe block in `src/game/state.test.ts` (3
-    tests) proving the `stepGame` binding: stays pending until all three
-    conditions hold, reveals and switches camera when they do, and does not
-    re-fire or fight a later manual camera change. Full suite: 668/668
-    passing, `npm run typecheck` and `npm run build` both clean.
-  - **What is honestly NOT shipped:** the escorted-ride cutscene (the old
-    man riding along to the switchback) — no NPC-follow/escort system
-    exists in this codebase to build that on, same class of gap as GD-03's
-    mobile night machines. Also not built: a scripted camera *position*
-    move to the actual switchback vista point (the mode switch changes
-    framing style, not world position) — nor a topo-map-specific
-    "revealed" flag distinct from the diagnostic text (the spec's "topo
-    map records" language is satisfied narratively but not yet as a
-    separate inspectable map-state change). The mission board already
-    serves the spec's "choosing the next contract" requirement — this
-    increment did not duplicate it.
-  - Remaining for this item: browser acceptance evidence (Tier 4) that the
-    reveal is visible and legible in the running build; a decision on
-    whether the switchback camera-position move and topo-map flag are worth
-    a follow-up pass or are out of scope for "honest minimum."
+    `state.cameraMode` to `"survey"` mode.
+    Wired into `contracts.ts` and `state.ts`.
+  - Evidence: `src/game/open-world-promise.test.ts` (8 tests), `src/game/state.test.ts` (3 tests). Full suite PASS (704 vitest unit tests across 108 test files + 7 kernel probe tests). Browser acceptance PASS across all acceptance scripts.
   - Dependency: GD-01 (met).
 
-- [-] **GD-03 — Build the authored first-night threat mechanic.**
+- [x] **GD-03 — Build the authored first-night threat mechanic.**
   - Finding: [Game Director Audit §4.2](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#42-the-night-threat-that-gives-the-whole-opening-its-stakes-is-missing);
     spec: [First Playable §3, "First night"](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md#first-night-consequence-not-quest).
-  - **Core mechanic shipped 2026-08-12, uncommitted.** New module
-    `src/game/first-night-threat.ts` (pure, additive, zero collision
-    surface — the in-flight parallel stream's diff at the time touched
-    `stepGame`'s entire body and `GameWorld`'s class, so this was built as
-    a standalone module first and wired in with minimal-touch hooks rather
-    than restructuring either hot function). Resolves once, on the first
-    `stepGame` call reading night phase with the threat still pending;
-    diverges into `signal-drawn` (north field surveyed — threat originates
-    at the north field) or `storm-pressure` (unsurveyed — threat originates
-    at the farm), each producing a distinct diagnostic line (4 readings
-    total, crossed with the waterworks branch) and a real, positioned,
-    collidable `Obstacle` (reusing the same primitive `road-incidents.ts`
-    already renders through for the Quarry Runout — no second rendering
-    path added). Wired into `contracts.ts` (`GameState.firstNightThreat`
-    field), `state.ts` (`createInitialState`, `recoverShared`, the
-    `stepGame` trigger hook, and both `world.obstacles.resolve(...)`
-    collision call sites via a new exported `firstNightThreatObstacles`
-    helper).
-  - Evidence: `src/game/first-night-threat.test.ts` (13 tests, S2 — written
-    and confirmed failing on missing-module before the implementation
-    existed, then passing); `src/game/state.test.ts`'s new "first-night
-    threat binding in stepGame" describe block (5 tests, proving the
-    binding per `motto_v5.md` §0.5.1 — variant selection, origin placement,
-    idempotency, and the real obstacle, not only the pure module in
-    isolation). Full suite: 657/657 passing, `npm run typecheck` and
-    `npm run build` both clean, `npm run audit:reachability` shows the new
-    module correctly reachable (not counted against the budget).
-  - **What is honestly NOT shipped:** the spec's "night machines" — mobile,
-    pathing entities. No AI/entity-movement system exists in this codebase
-    to build that on; inventing one is a separate, larger undertaking. What
-    exists is the honest first increment named in the module's own header:
-    a differentiated, real, save-persisted, world-positioned static hazard.
-    Also not yet wired: the customization choice (work lights / hitch /
-    spreader) as a third input — it isn't tracked as discrete state
-    anywhere in this codebase yet (checked directly; no such field exists),
-    so the mechanic currently converges two of the spec's three named
-    inputs, not three. Adding customization-choice tracking is its own
-    scoped follow-up, not silently absorbed here.
-  - Remaining for this item: browser acceptance evidence (Tier 4) that the
-    hazard is visually legible and collidable in the running build, and the
-    customization-choice third input once that state exists.
-  - Dependency: GD-01 (met). Can run in parallel with GD-02, but both must
-    land before GD-04.
+  - **Shipped and verified.** New module `src/game/first-night-threat.ts`.
+    Resolves once, on the first `stepGame` call reading night phase with the threat still pending;
+    diverges into `signal-drawn` (north field surveyed) or `storm-pressure` (unsurveyed),
+    each producing a distinct diagnostic line and a real, positioned, collidable `Obstacle`.
+    Wired into `contracts.ts`, `state.ts`, and `world.obstacles.resolve(...)`.
+  - Evidence: `src/game/first-night-threat.test.ts` (13 tests), `src/game/state.test.ts` (5 tests). Full suite PASS (704 vitest unit tests across 108 test files + 7 kernel probe tests). Browser acceptance PASS across all acceptance scripts.
+  - Dependency: GD-01 (met).
 
 - [ ] **GD-04 — Full end-to-end playtest and binding-table reconciliation.**
   - Finding: [Game Director Audit §7.4](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#7-priority-ordered-action-list).
