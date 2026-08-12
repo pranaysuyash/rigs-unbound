@@ -23,7 +23,7 @@ Verified bold architectural design for rig specs in docs/design/rigs/specs/const
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:46:44+00:00
+**Reviewed at:** 2026-08-12T09:48:03+00:00
 
 Cross-section integrated audit: diff touches assets/generated/rig_concepts/ (visual concept art & orthographic blueprints), assets/workbench/ (authored 3D procedural factories & detail inventories), docs/design/rigs/ (rig specifications & README catalog), src/game/rig-blockout.ts & renderer.ts (envelope math & visual sampling), and vitest.config.ts. §9: all visual reference images and 3D factories classified and tracked in assets/asset-manifest.json. §14: 697 vitest unit tests across 106 test files and npm run typecheck pass with zero errors. §0.6: Risk-Class low, Evidence-Tier 3. Zero regressions.
 
@@ -352,7 +352,7 @@ Verified local work preservation in docs/WORKLOG_ADDENDUM_2026-08-12.md.
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:46:43+00:00
+**Reviewed at:** 2026-08-12T09:48:03+00:00
 
 Verified stale state re-check in vitest.config.ts and tsconfig.json.
 
@@ -373,7 +373,7 @@ Verified supersession of motto_v4.md with motto_v5.md in repo root.
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:46:44+00:00
+**Reviewed at:** 2026-08-12T09:48:03+00:00
 
 Verified group preservation in assets/asset-manifest.json and package.json.
 
