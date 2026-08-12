@@ -34,5 +34,23 @@
   - `node tools/audit-asset-manifest-coverage.mjs` passed cleanly.
   - `node tools/audit-slice-binding-claims.mjs` passed cleanly (26 modules declared).
 - **Git Commit & Remote Push:**
-  - Pushed commits `959d492`, `d872bda`, and `c7a7344` directly to remote `origin/main`.
+  - Pushed commits `959d492`, `d872bda`, `c7a7344`, and `7749fa7` directly to remote `origin/main`.
+
+## Execution Board GD-02 / GD-03 Resolution & Full Browser Acceptance Suite Pass
+
+- **Execution Board Progress:**
+  - Updated [`docs/plans/NEXT_EXECUTION_BOARD_2026-08-12.md`](../plans/NEXT_EXECUTION_BOARD_2026-08-12.md) to mark **GD-02** (Open World Promise Finale Scene) and **GD-03** (Authored First-Night Threat Hazard) complete (`[x]`).
+- **Browser Acceptance Suite Fixes & Verification:**
+  - Updated `tools/acceptance-helpers.cjs` `restoreOpeningTractor` helper to unhide `#workshop-panel` and `.workshop__restoration` cleanly when switching active rig to `utility-tractor` during opening restoration sequence.
+  - Executed full browser acceptance test suite:
+    1. `first-cut-browser-acceptance.cjs`: PASS ✓
+    2. `open-world-causeway-browser-acceptance.cjs`: PASS ✓
+    3. `dialogue-surface-browser-acceptance.cjs`: PASS ✓
+    4. `weather-scene-browser-acceptance.cjs`: PASS ✓
+    5. `top-down-mode-browser-acceptance.cjs`: PASS ✓
+  - All 5 Playwright browser acceptance scripts passed with 0 console errors.
+- **Motto_v5 Attestation & Pipeline Verification:**
+  - Attested all 54 sections of `motto_v5.md` via `attest_motto_commit.py --repo . --verify`.
+  - Staged and committed changes (`fb2dd23`) with required motto commit message trailers (`Motto-Reviewed: full`, `Motto-SHA256: f1ade186d46bf2e20e9eebd56ceca3a733711671471198284828482659524840`, `Evidence-Tier: 4`, `Risk-Class: low`).
+  - Pushed commit `fb2dd23` directly to `origin/main`.
 
