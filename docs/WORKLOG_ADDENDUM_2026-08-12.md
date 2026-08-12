@@ -26,7 +26,13 @@
   - Authored `createRoadTrainModel.ts` & unit test in `assets/workbench/hauler-road-train-01/authored/`.
   - Authored `createExcavatorModel.ts` & unit test in `assets/workbench/construction-excavator-01/authored/`.
   - Authored `createPipeCrawlerModel.ts` & unit test in `assets/workbench/micro-scout-pipe-crawler-01/authored/`.
-- **Verification:**
+- **Verification & Pipeline Audits:**
   - `npm run typecheck` passed with 0 errors.
-  - `npx vitest run` passed (697 unit & factory tests across 106 test files).
+  - `npm test` passed 704 vitest tests across 108 test files + 7 deterministic kernel probe tests.
   - `node tools/assert-player-build-assets.mjs` passed cleanly.
+  - `node tools/asset-preflight.mjs` passed (44 entries, 0 errors).
+  - `node tools/audit-asset-manifest-coverage.mjs` passed cleanly.
+  - `node tools/audit-slice-binding-claims.mjs` passed cleanly (26 modules declared).
+- **Git Commit & Remote Push:**
+  - Pushed commits `959d492`, `d872bda`, and `c7a7344` directly to remote `origin/main`.
+
