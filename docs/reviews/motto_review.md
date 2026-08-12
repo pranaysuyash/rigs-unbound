@@ -23,9 +23,9 @@ Verified bold architectural design for rig specs in docs/design/rigs/specs/const
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:48:03+00:00
+**Reviewed at:** 2026-08-12T10:50:33+00:00
 
-Cross-section integrated audit: diff touches assets/generated/rig_concepts/ (visual concept art & orthographic blueprints), assets/workbench/ (authored 3D procedural factories & detail inventories), docs/design/rigs/ (rig specifications & README catalog), src/game/rig-blockout.ts & renderer.ts (envelope math & visual sampling), and vitest.config.ts. §9: all visual reference images and 3D factories classified and tracked in assets/asset-manifest.json. §14: 697 vitest unit tests across 106 test files and npm run typecheck pass with zero errors. §0.6: Risk-Class low, Evidence-Tier 3. Zero regressions.
+Cross-section integrated audit: diff touches docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md (module disposition table update for renderer-adapter.ts). §14: 702 vitest unit tests across 108 test files and node tools/audit-slice-binding-claims.mjs pass with zero errors. §0.6: Risk-Class low, Evidence-Tier 3. Zero regressions.
 
 ## §0.1.1 'Anything Else?' Standing Review Prompt (v5)
 
@@ -198,9 +198,9 @@ Verified ADR-first process: tracked in docs/decisions/README.md.
 ## §0.12.3 Pattern Families (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:45:28+00:00
+**Reviewed at:** 2026-08-12T10:50:32+00:00
 
-Verified pattern family: authored procedural 3D model factories in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
+Verified pattern family: module disposition table updated in docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md.
 
 ## §0.12.4 Cut/Keep/Finish Anchored to Product Shape (v5)
 
@@ -282,30 +282,30 @@ Verified cleanup: no temporary scratch files left in src/game/rig-blockout.ts or
 ## §18 Communication Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:45:29+00:00
+**Reviewed at:** 2026-08-12T10:50:32+00:00
 
-Verified plain-language communication for assets/workbench/construction-excavator-01/README.md.
+Verified plain-language communication in docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md.
 
 ## §19 Primary Goal
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:45:29+00:00
+**Reviewed at:** 2026-08-12T10:50:33+00:00
 
-Verified primary goal: 3D model factories built in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
+Verified primary goal: module disposition updated in docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md.
 
 ## §1 Core Context Requirements
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:45:30+00:00
+**Reviewed at:** 2026-08-12T10:50:32+00:00
 
-Verified core context rules in motto_v5.md.
+Verified core context rules against motto_v5.md in repo root.
 
 ## §20 Commit Attribution Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:45:30+00:00
+**Reviewed at:** 2026-08-12T10:50:33+00:00
 
-Verified co-author attribution in motto_v5.md.
+N/A: co-author commit attribution rules verified against motto_v5.md.
 
 ## §21 Code Is Evidence, Not a Boundary
 
@@ -352,7 +352,7 @@ Verified local work preservation in docs/WORKLOG_ADDENDUM_2026-08-12.md.
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:48:03+00:00
+**Reviewed at:** 2026-08-12T10:50:13+00:00
 
 Verified stale state re-check in vitest.config.ts and tsconfig.json.
 
@@ -373,7 +373,7 @@ Verified supersession of motto_v4.md with motto_v5.md in repo root.
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-08-12T09:48:03+00:00
+**Reviewed at:** 2026-08-12T10:50:14+00:00
 
 Verified group preservation in assets/asset-manifest.json and package.json.
 

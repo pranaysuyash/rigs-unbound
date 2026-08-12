@@ -30,6 +30,7 @@ export interface ControlGuidanceContext {
   mapRelevant: boolean;
   switchRigRelevant: boolean;
   recoveryRelevant: boolean;
+  restorationPending?: boolean;
 }
 
 const STATIC_LESSONS: Readonly<
@@ -123,6 +124,9 @@ export function resolveControlLesson(
   context: ControlGuidanceContext,
   learned: ReadonlySet<ControlLessonId>,
 ): ControlLesson | null {
+  if (context.restorationPending) {
+    return null;
+  }
   const urgentCandidates: Array<ControlLesson | null> = [
     context.recoveryRelevant ? STATIC_LESSONS.recovery : null,
     contextualActionLesson(context.primaryActionKind),

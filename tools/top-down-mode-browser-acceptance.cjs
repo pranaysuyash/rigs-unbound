@@ -1,4 +1,7 @@
-const { chromium } = require("playwright");
+const playwrightModule =
+  process.env.RIGS_PLAYWRIGHT_MODULE ||
+  "/Users/pranay/Projects/skills/testing/playwright-skill/node_modules/playwright";
+const { chromium } = require(playwrightModule);
 const path = require("path");
 const fs = require("fs");
 

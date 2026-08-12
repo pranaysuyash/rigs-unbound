@@ -582,7 +582,7 @@
         "fallbackColor": 6052956
       },
       "publicRuntimeApproved": false,
-      "sourceFormInPlayerBuild": true,
+      "sourceFormInPlayerBuild": false,
       "rightsStatus": "repo-authored-internal-derivative",
       "sha256": "fa3681d96758b4808d84061858dd999b79dcc58307f574d2bf248896f356dc20",
       "intendedUse": "Repo-local developer derivative for validating named part boundaries, sockets, material slots, and customizable rig-part integration.",
