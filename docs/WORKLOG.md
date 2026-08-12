@@ -1,3 +1,104 @@
+## 2026-08-12 — Game Director audit and execution board
+
+See [`docs/WORKLOG_ADDENDUM_2026-08-12.md`](WORKLOG_ADDENDUM_2026-08-12.md):
+whole-game audit found the first-playable slice unfinished (no finale scene,
+no authored night-threat, broken typecheck) while a fourth control paradigm
+and procedural-rig research opened concurrently; created
+[`docs/plans/NEXT_EXECUTION_BOARD_2026-08-12.md`](plans/NEXT_EXECUTION_BOARD_2026-08-12.md),
+an 18-item gated task list covering both explicit and implicit findings.
+
+## 2026-08-05 — NPC/community system explored and all docs consolidated
+
+- Explored NPC and community system design: place-bound NPCs with observable
+  needs, memory of player actions, trust-gated access. Communication through
+  visual/environmental cues and radio beats, not dialogue trees. First slice
+  needs one NPC (Sava Nune), one need (harvest before storm), one response,
+  one memory, one access change.
+- Created unified design summary consolidating all 7 exploration documents
+  from this session into a single cross-reference with system map, contradictions
+  resolved, and next steps. See
+  [`docs/research/UNIFIED_DESIGN_SUMMARY_2026-08-05.md`](research/UNIFIED_DESIGN_SUMMARY_2026-08-05.md).
+- Wired NPC/community doc into research/README.md and EXPLORATION_MAP.md.
+- Wired unified summary into research/README.md as the "Start here" entry.
+
+## 2026-08-05 — context switching, episode runtime, module system, and first playable slice explored
+
+- Explored and documented four interconnected design areas:
+  1. **Context Switching Mechanic** — how the same rig transitions between
+     farming, racing, defense, etc. while preserving identity. Recommended
+     approach: place-driven context with episode overlays, capability
+     reinterpretation (same verb, different meaning per context).
+  2. **Episode Runtime Architecture** — how episodes actually execute at
+     runtime: 5-phase lifecycle (proposal → activation → execution → climax →
+     resolution), bounded director, pressure system, discovery system,
+     consequence system, recovery system.
+  3. **Module System Mechanics** — how modules attach to hardpoints, grant
+     capabilities, impose tradeoffs, interact with contexts, and are managed
+     at runtime. Hardpoint-based physical attachment with capability grants
+     and tradeoffs.
+  4. **First Playable Slice Plan** — "First Harvest": Torque-70 harvests a
+     field before a storm arrives, exercising rig movement, module attachment,
+     terrain interaction, weather pressure, and persistent consequence. 12-day
+     implementation plan.
+- All four documents wired into [`docs/research/README.md`](research/README.md)
+  and [`docs/exploration/EXPLORATION_MAP.md`](exploration/EXPLORATION_MAP.md).
+
+## 2026-08-05 — asset pipeline for infinite rig generation documented
+
+- Explored the full asset pipeline landscape: GenAI 3D generation (Tripo P1,
+  Meshy 6, Hyper3D Rodin, Stable Diffusion), texture generation (Meshy AI
+  Textures, Polycam, InstaMAT), sound generation (ElevenLabs SFX, Stable Audio),
+  animation (procedural code, Quaternius), and Blender + AI plugins.
+- Documented the recommended hybrid pipeline: AI generates concepts, 3D models,
+  textures, and sound; Claude/Opus orchestrates; Blender refines; manifest
+  gates quality; renderer loads.
+- Mapped to existing codebase: runtime-assets.ts, renderer.ts, asset-preflight.mjs,
+  and the GLB-only enforcement.
+- Defined first proof slice: 1 archetype, 2 variants, 1 texture set, 1 module,
+  browser load + performance check.
+- Wired into [`docs/research/README.md`](research/README.md).
+
+## 2026-08-05 — procedural world-building primer added
+
+- Documented how procedural world building works, its pros/cons, and mapped it to
+  the repo's hybrid approach in
+  [`docs/research/PROCEDURAL_WORLD_BUILDING_PRIMER_2026-08-05.md`](research/PROCEDURAL_WORLD_BUILDING_PRIMER_2026-08-05.md).
+- Added implementation-depth deep dives for every technique (noise composition,
+  biome mapping, L-systems, WFC, room packing/BSP/CA, agent sims, content
+  composition, validation gates, seed+delta persistence, streaming/residency,
+  determinism/testing) in
+  [`docs/research/PROCEDURAL_WORLD_BUILDING_DEEP_DIVES_2026-08-05.md`](research/PROCEDURAL_WORLD_BUILDING_DEEP_DIVES_2026-08-05.md).
+- Wired both into [`docs/research/README.md`](research/README.md).
+
+## 2026-08-05 — rig generation, evolution, and persistence design exploration
+
+- Explored and documented how rig generation, evolution, and persistence should
+  work — the make-or-break design question for Rigs Unbound's identity.
+- Proposed architecture: authored archetypes (36 vehicles from master catalog) +
+  procedural variants (seed-derived chassis) + concrete parts (salvage/craft/trade)
+  + append-only journey history + game-mode policy layers.
+- First proof slice: 1 archetype, 2 variants, 1 part, 1 deed, save/load
+  round-trip.
+- [`docs/research/RIG_GENERATION_EVOLUTION_AND_PERSISTENCE_2026-08-05.md`](research/RIG_GENERATION_EVOLUTION_AND_PERSISTENCE_2026-08-05.md).
+- Wired into [`docs/research/README.md`](research/README.md).
+
+## 2026-08-05 — rig generation expanded for infinite cross-genre possibilities
+
+- Expanded the rig generation exploration to address the vision's demand for
+  infinite possibilities — not just 36 authored vehicles.
+- Proposed three-layer architecture: archetype DNA (authored, finite) +
+  variant generation (procedural, seed-based) + context adaptation (procedural
+  from episode grammar).
+- Defined capability reinterpretation: same verb, different meaning in different
+  contexts (plough = cultivate in farming, shape barriers in defense).
+- Defined module generation from rules: archetype hardpoints × context module
+  pool × journey phase × mastery gates.
+- Defined visual adaptation: same silhouette, different lighting/camera/weather.
+- Revised first proof slice: cross-context identity persistence (farming +
+  defense).
+- [`docs/research/RIG_GENERATION_INFINITE_POSSIBILITIES_2026-08-05.md`](research/RIG_GENERATION_INFINITE_POSSIBILITIES_2026-08-05.md).
+- Wired into [`docs/research/README.md`](research/README.md).
+
 ## 2026-07-31 — game-design audit and vision-correction moved to dated addendum
 
 - This session's game-design audit, vision-hierarchy correction, and full re-check are in
@@ -7428,4 +7529,969 @@ the horizon doc's six open operator questions.
 
 2026-07-28 vehicle-family atlas expansion: see [WORKLOG_ADDENDUM_2026-07-28.md](WORKLOG_ADDENDUM_2026-07-28.md).
 2026-07-29 open-world settlement contribution history: see [WORKLOG_ADDENDUM_2026-07-29.md](WORKLOG_ADDENDUM_2026-07-29.md).
+2026-08-02 restoration-beat juice verification and staged dialogue camera/scrim: see [WORKLOG_ADDENDUM_2026-08-02.md](WORKLOG_ADDENDUM_2026-08-02.md).
+2026-08-05 acceptance-helper teardown defect fix, weather acceptance hardening, modlens working-tool install: see [WORKLOG_ADDENDUM_2026-08-05.md](WORKLOG_ADDENDUM_2026-08-05.md).
+2026-08-09 top-down game mode exploration and ADR-0053 proposal: see [WORKLOG_ADDENDUM_2026-08-09.md](WORKLOG_ADDENDUM_2026-08-09.md).
+2026-08-11 rig blockout reconciliation — footprint/wheel-spin/vertical-frame drift, the ground-contact measurement, and the rig asset envelope that makes a reconstructed rig checkable against `RIG_PROFILES`: see [WORKLOG_ADDENDUM_2026-08-11.md](WORKLOG_ADDENDUM_2026-08-11.md).
+
+## 2026-08-05 — first-visible-life: signal beams and storm clouds
+
+**Problem:** Playtest found "nothing lives here." The world has rich life systems
+(settlements with NPCs, community traffic, habitat animals, weather) but they are
+gated behind site discovery. The player at Home Silo cannot see Long Furrow's
+signal lamp (0.4 radius, 60 units away). No visual cue to go anywhere.
+
+**Solution:** Two renderer additions that make the world's life visible before
+discovery:
+
+1. **Signal beams** (`renderer.ts:1917-1932`): A tall, semi-transparent cylinder
+   of light above every signal lamp with `discoverySignal: true`. The beam is
+   44 units tall, radius 0.25–0.6, opacity 0.18, and pulses gently. It makes
+   Long Furrow's lamp visible from Home Silo across the valley.
+
+2. **Storm clouds** (`renderer.ts:2702-2756`): A cluster of 7 dark cloud volumes
+   positioned on the horizon near Long Furrow. They start nearly invisible in
+   clear weather and darken through overcast → rain → storm phases. Slow lateral
+   drift makes the mass feel alive. The storm's approach is now visible from
+   the start.
+
+3. **Signal beam animation** (`renderer.ts:2454-2476`): Each frame, beams are
+   shown only when their lamp is lit (not `SIGNAL_LAMP_DARK`). Opacity pulses
+   at 0.12 ± 0.06 to draw the eye without being garish.
+
+4. **Weather phase storage** (`renderer.ts:548`): Added `weatherPhase` field to
+   `GameRenderer` so storm clouds can react to the weather clock without
+   re-deriving state each frame.
+
+**What already existed (confirmed):**
+- Dust particles from wheel slip (renderer.ts:3673-3714)
+- Settlement rendering with NPCs (renderer.ts:1927-1951)
+- Community traffic skiffs (renderer.ts:3760-3772)
+- Habitat life animals (renderer.ts:2366-2433)
+- Physics with slip/grip/terrain traversal (physics.ts)
+- Feedback system with body roll, camera look-ahead (feedback.ts)
+- Weather rain/fog system (renderer.ts:2644-2680)
+
+**Verification:** `npx tsc --noEmit` clean, `npx vitest run` 538/538 pass.
+
+**What remains for first playable slice:**
+- Sava Nune's harvest need as a visible objective (UI overlay)
+- Plow hardpoint and module attachment
+- Crop objects and barn interaction
+- Storm pressure timer
+- Consequence persistence (field state)
 2026-07-29 game visuals discovery and approval gate: see [GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md](reviews/GAME_VISUALS_DISCOVERY_AND_APPROVAL_PACKAGE_2026-07-29.md).
+
+## 2026-08-05 — vision-vs-runtime review: documentation understates shipped work
+
+- Reviewed the design vision against the actual runtime, reachability-first per
+  standing repo memory. Report:
+  `docs/reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md`.
+- Live audit (`node tools/audit-runtime-reachability.mjs`, five entry points):
+  92 non-test modules, 79 entry-reachable, **12 unreachable** against the ≤13
+  budget; zero quarantine violations.
+- Verification run this session: `npm test` PASS (87 files / 538 tests) plus
+  7/7 kernel determinism tests; `npm run test:reachability` PASS (8/8).
+  Typecheck, build, and browser acceptance were **not** run — Tier 4 claims in
+  the report are inherited from earlier WORKLOG evidence, not regenerated.
+- Central finding, opposite to the usual failure mode: the 2026-08-05
+  exploration set understates implementation by three to four evidence tiers.
+  `UNIFIED_DESIGN_SUMMARY_2026-08-05.md` §13 marks all seven foundational
+  systems "Proposed"; four are shipped and player-reachable (context switching,
+  episode runtime, module system, NPC/community).
+  `FIRST_PLAYABLE_SLICE_PLAN_2026-08-05.md` §2 lists those same systems as
+  "not yet working" while the harvest slice it plans is already wired
+  (`state.ts:2780-2796` cultivation, `state.ts:1355-1377` delivery,
+  `state.ts:2260-2268` storm, `main.ts:2741-2748` HUD).
+- Root cause: design status (Proposed/Accepted via ADR) and runtime status
+  (unreachable/reachable/player-verified) are orthogonal and were being
+  conflated into one field.
+- Genuine vision-ahead-of-runtime gaps, named: rig generation (3 authored
+  profiles, no variant layer) and asset pipeline (`asset-manager.ts` — 267
+  lines, untested, unreachable, no named tranche).
+- Defects found while auditing: (1) `state.ts:2783-2787` keeps cultivation
+  dedup in `(state as any)._cultivatedCells`, outside the `GameState` contract
+  and outside save validation, so `cultivatedRows` can inflate after reload;
+  (2) `plow_4_furrow.glb` sits at repo root outside `assets/runtime/` and the
+  manifest; (3) `xp-progression.ts` duplicates authority with the reachable
+  `progression.ts`.
+- The requested `3d-games` skill is installed but empty at both
+  `~/Projects/skills/3d-games/` and `~/.agents/skills/3d-games/`; the review
+  ran as a direct technical audit instead.
+- No `src/` files were modified. No git action taken; the 2026-08-05
+  exploration docs remain staged and uncommitted alongside modified runtime
+  files.
+
+### Anything else?
+
+Yes. motto_v5 §0.5 and §23 stop docs from *overclaiming* implementation and
+they work. Nothing catches *underclaiming* — a "Proposed" label costs nothing
+to write and is never audited against the reachability report. The durable fix
+is to generate status tables from `tools/audit-runtime-reachability.mjs` rather
+than restating them by hand.
+
+## 2026-08-05 — harvest cultivation made real state (defect 1 of the review closed)
+
+Closes defect (1) from the 2026-08-05 vision-vs-runtime review. The audit
+recorded a save-validation gap; tracing the fix showed the blast radius was
+wider than recorded, so the entry below supersedes that description rather
+than restating it.
+
+### What was actually wrong
+
+`state.ts` kept cultivation dedup in `(state as any)._cultivatedCells`, a
+`Set` hung off the state object outside the `GameState` contract. The review
+called this a save-validation gap. It is broader: `JSON.stringify(new Set())`
+is `{}`, and `GameState` crosses a JSON boundary in **three** places, not one.
+
+- `storage.ts:270` — `saveState` serialises the payload.
+- `run-record.ts:83` — `cloneJson` snapshots initial context for replay.
+- `replay-validator.ts:116` — determinism hashing.
+
+So the dedup memory was destroyed on every save, every replay clone, and every
+determinism hash. `cultivatedRows` persisted while the memory behind it did
+not, which let a reload re-credit ground already ploughed and inflate the
+count. That is a correctness bug in the first playable and a breach of the
+kernel's own determinism contract (motto_v5 §23: a module that cannot
+reproduce its own state is not shipped behaviour).
+
+A second, latent defect surfaced while fixing it — see "Schema version" below.
+
+### The fix
+
+Cultivation progress is now modelled as real, contracted state.
+
+- `contracts.ts` — `HarvestState.cultivatedCells: string[]` is the authority;
+  `cultivatedRows` is derived. Added `CULTIVATION_CELLS_PER_ROW`,
+  `MAX_CULTIVATED_CELLS` (2048), and the pure `cultivatedRowsFor()`.
+- `state.ts:2790-2807` — cultivation pushes to the contracted array, bounded
+  by the cap, and derives the row count through `cultivatedRowsFor()`.
+- `state.ts:2269-2277` — storm arrival now clears `cultivatedCells` alongside
+  `cultivatedRows`. Previously only the count was zeroed, which would have
+  left the field un-recultivable while the HUD reported zero rows.
+- `state.ts:3354-3407` — new `recoverHarvest()` validates the block: keys must
+  match `/^-?\d+,-?\d+$/`, duplicates are dropped, the array is capped, and
+  **`cultivatedRows` is recomputed from the cells rather than trusted**. A
+  hand-edited or old-build save cannot restore a row count its remembered
+  ground does not support.
+
+Chose a plain array over a `Set` deliberately. The alternative — deriving
+cultivation from `state.semanticEdits` — was rejected: that array is capped at
+`MAX_FURROWS = 640` and evicts oldest-first, so a long session would silently
+drop early furrows and make cultivation count go *down*. Derived state is only
+safe when the source is lossless; it is not.
+
+### Schema version
+
+`HarvestState` changed shape, so `SAVE_SCHEMA_VERSION` 28 -> 29 and v28 keeps
+a branch as `PREVIOUS_SAVE_SCHEMA_VERSION`.
+
+Bumping it exposed a latent bug in the existing migration ladder: v27 had no
+branch of its own because it was only reachable *as* the previous version.
+Shifting the constant forward would have made every v27 save fall through
+every case and recover as `null`, which the load path reads as "no save at
+all" — silent total progress loss. Added an explicit `V27_SAVE_SCHEMA_VERSION`
+branch and a regression test. This bug was latent before this session and
+would have fired on whichever change next bumped the schema.
+
+### Verification
+
+- `npx tsc --noEmit` — PASS, clean.
+- `npm test` — PASS, 88 files / 550 tests (was 87 / 538; +12 new, no
+  regressions). Kernel determinism probe 7/7.
+- `npm run test:reachability` — PASS 8/8.
+- `npm run build` — PASS, including the player-build asset boundary assert.
+- `node tools/audit-runtime-reachability.mjs` — 92 modules, 79 reachable,
+  **12 unreachable**, unchanged and still inside the <=13 budget.
+- Browser acceptance **not** run this session. The harvest HUD path
+  (`main.ts:2741-2748`) is unchanged by this work, so its Tier 4 status is
+  inherited, not regenerated.
+
+New tests in `src/game/harvest.test.ts` (12). The falsifier they encode: round
+-trip the state through JSON and re-run the same cultivation input; if the row
+count moves, the dedup memory did not survive. Every one of these fails
+against the pre-fix code.
+
+Evidence tier: **2** (targeted tests through the real serialisation path).
+Not Tier 4 — no browser run was made for this change.
+
+### Anything else?
+
+Yes, three things.
+
+1. The review recorded this as one defect in one file. It was one root cause
+   with three separate failure surfaces, and the schema ladder bug next to it
+   was never in the review at all. Static audit found the smell; tracing the
+   data path found the actual size. Worth remembering that `(state as any)` in
+   a persisted kernel is a load-bearing warning, not a style nit.
+2. `MAX_CULTIVATED_CELLS` is 2048 against a field that needs far fewer. It
+   bounds the save; it is not a gameplay limit. If the field is ever enlarged,
+   that constant needs revisiting with it — it is documented in place.
+3. Defects (2) `plow_4_furrow.glb` at repo root and (3) `xp-progression.ts`
+   duplicating `progression.ts` are still open. Neither was touched here.
+
+## 2026-08-05 — serialization guard: the bug class, not just the bug
+
+Immediately follows the harvest entry above. That entry closed one instance;
+this closes the class it belonged to. The counts in the entry above (88 files /
+550 tests) were accurate when written and are superseded here.
+
+### Why a second pass
+
+The harvest fix removed one `Set` from persisted state. It did nothing to stop
+the next one. The failure mode is structural, not incidental:
+
+- `GameState` crosses `JSON.stringify` at three sites (`storage.ts:270`,
+  `run-record.ts:83`, `replay-validator.ts:116`).
+- `JSON.stringify(new Set())` is `{}`; `Map` likewise; `undefined` and
+  functions vanish; `NaN` and `Infinity` become `null`.
+- Every one of those is silent. No throw, no warning, no failing assertion.
+- Any test holding the state object in memory passes while the bug is live.
+
+Neither existing tool sees this. `audit-runtime-reachability.mjs` answers "can
+the player reach this module", which is a different question. Typecheck accepts
+`Set` in a persisted field because the type is legal — it is only the
+*serialisation* that is not.
+
+### The guard
+
+`src/game/state-serialization.test.ts` (8 tests) walks the whole state tree and
+fails on anything JSON would destroy, reporting the offending **path** rather
+than just the type — a bare "found a Set" is not actionable in a tree this size.
+
+Four checks over real state:
+
+1. Nothing non-serialisable at creation.
+2. Nothing non-serialisable after 600 stepped frames. This is the load-bearing
+   one: `_cultivatedCells` did not exist until the player ploughed, so a
+   creation-time check alone would have passed while the bug was live.
+3. Recovery is a fixed point — `recover(save(recover(save(x))))` equals
+   `recover(save(x))`. A failure here means some field is reshaped on every
+   load and the save is drifting.
+4. No top-level key is dropped across recovery — a vanishing key is progress
+   the player loses without being told.
+
+Four more tests pin the walker itself (Set, Map, nested path reporting,
+non-finite numbers, JSON-safe input, cycle termination). A detector that cannot
+fail is not a detector.
+
+### Proof it fails against the real bug
+
+Wrote a temporary test reintroducing `(state as any)._cultivatedCells = new
+Set(["1,2"])` verbatim. The walker located it at path `_cultivatedCells`, and
+the round trip confirmed `JSON.parse(JSON.stringify(state))._cultivatedCells`
+is `{}`. Temporary file deleted after the run; it is not in the tree.
+
+This matters because the guard passed on its first run against current state.
+A green test that has never been shown to go red is not evidence.
+
+### Verification (supersedes the counts in the entry above)
+
+- `npx tsc --noEmit` — PASS, clean.
+- `npx vitest run` — PASS, **89 files / 558 tests**. Baseline before this
+  session's work was 87 / 538, so +20 total: 12 in `harvest.test.ts`, 8 in
+  `state-serialization.test.ts`. No regressions.
+- Kernel determinism probe 7/7. `npm run test:reachability` 8/8.
+- `npm run build` PASS including the player-build asset boundary assert.
+- `node tools/audit-runtime-reachability.mjs` — 92 modules, 79 reachable, 12
+  unreachable, unchanged, still inside the <=13 budget.
+- Browser acceptance **not** run. Evidence tier **2** for this work.
+
+### Anything else?
+
+Three things.
+
+1. **A correction to this session's own reporting.** I stated 570 tests in
+   chat when the real figure is 558. The docs written before that point said
+   88 / 550, which was correct at the time; the number above is the current
+   one. Flagging it because an inflated count is exactly the kind of unaudited
+   claim the review criticised the exploration docs for.
+2. The guard is a test, not a tool in `tools/`. That is deliberate — it needs
+   `stepGame` and a real `GameWorld`, so it belongs with the suite rather than
+   as a standalone script. If a CI surface ever wants it independently, it
+   should call the same walker rather than reimplementing one.
+3. The walker flags `Date` as an offender. Nothing in current state uses one,
+   but in a deterministic kernel a `Date` is also a wall-clock dependency, so
+   the guard doubles as a determinism check there. Noting it so a future
+   author who hits that failure understands it is not only about JSON.
+
+## 2026-08-05 — xp-progression: not a defect, a false positive in the review
+
+The 2026-08-05 vision-vs-runtime review listed "xp-progression.ts duplicating
+authority with progression.ts" as defect (3). That is wrong.
+
+### Ground truth
+
+- `xp-progression.ts` is deliberately quarantined per ADR-0036. The header at
+  line 2 states this explicitly: "⚠️ QUARANTINED — DO NOT IMPORT FROM RUNTIME
+  CODE (ADR-0036)".
+- ADR-0018, with operator sign-off, rejected universal XP and player levels in
+  favor of per-rig Journey, per-verb Mastery, and profile-level Insight.
+- The module is preserved as a record of that explored-and-rejected alternative,
+  not dead code awaiting wiring.
+- Quarantine is enforced by `tools/audit-runtime-reachability.mjs:46` with a
+  hard failure if the module becomes reachable from any entry point. The
+  enforcement is tested: `npm run test:reachability` includes "quarantined
+  modules are excluded from the unreachable budget" and "the live tree has no
+  quarantine violations" — both pass.
+- `progression.ts` is the canonical runtime implementation, imported by
+  `state.ts` and wired into the kernel.
+- `xp-progression.ts` is reachable only via its test through the `vitest.config
+  .ts` entry point, which is why it appears in the audit's five-entry closure
+  but is still excluded from the unreachable budget.
+
+### Why the review was wrong
+
+The review saw two similarly-named files and pattern-matched on "duplicate
+authority" without reading the header or checking the quarantine registry. This
+is the inverse of the `_cultivatedCells` bug: there, `(state as any)` looked
+like a style issue and was a real correctness bug; here, two similar file names
+looked like duplicate authority and are a deliberate, ADR-signed,
+tool-enforced, self-tested quarantine.
+
+**Pattern-matching on shape produces false positives and false negatives.** The
+header would have resolved this in ten seconds.
+
+### Resolution
+
+No action. The system is working as designed. Defect (3) from the review is
+closed as "not a defect."
+
+The review addenda will record this correction separately so the review's own
+accuracy is audited.
+
+### Anything else?
+
+ADR-0036 is recorded in `docs/WORKLOG_ADDENDUM_2026-07-28.md:990` and in the
+design spine at line 207. The quarantine pattern — preserve an
+explored-and-rejected alternative with tool-enforced isolation — is reusable
+elsewhere if the project later explores and rejects other design directions.
+
+## 2026-08-05 — asset manifest coverage audit closes manifest-driven blind spot
+
+Created `tools/audit-asset-manifest-coverage.mjs` and wired it into the
+verification gate to close the blind spot identified in the vision review's
+defect (2).
+
+### The blind spot
+
+`assert-player-build-assets.mjs` (the preflight) and the player-build boundary
+assert both walk **manifest-driven**: they iterate `manifest.entries` and check
+each entry's claims. That direction of traversal has a structural blind spot —
+an asset nobody declared has no entry to iterate, so every manifest-driven
+check passes it silently. The build guard cannot see it.
+
+This tool walks **filesystem-first** and reports three disagreements:
+
+1. **Undeclared runtime binaries** — a `.glb`/`.gltf` on disk that no entry
+   declares. No recorded provenance, rights status, or distribution approval.
+2. **Declared but absent** — an entry whose `runtimePath` points at nothing.
+3. **Export deferred, yet the file exists** — an entry recording `runtimePath:
+   null` while a file sits at the conventional `<assetRoot>/<id>.glb` slot. The
+   subtle one: the rights and approval status recorded against that entry no
+   longer describes bytes that exist.
+
+`node_modules`, `.git`, `dist`, `coverage`, `.vite` are skipped. Only shippable
+runtime formats (`.glb`, `.gltf`) are in scope — source art and reference
+images are tracked with `runtimePath: null` by design and are not distribution
+risks.
+
+### Self-tests and npm wiring
+
+- `tools/audit-asset-manifest-coverage.test.mjs` (9 tests, 9/9 pass). Each
+  builds a throwaway `mkdtemp` fixture tree provoking exactly one finding,
+  because a tool that has only ever reported "clean" is not evidence that it
+  works. Two cases mirror live findings verbatim: a GLB swept into the
+  repository root, and a deferred entry whose GLB exists anyway.
+- Three npm scripts: `audit:asset-coverage` (human-readable, always exits 0),
+  `audit:asset-coverage:strict` (exits 1 on findings), `test:asset-coverage`
+  (self-tests).
+- `verify:head` now runs `npm run test:asset-coverage && npm run
+  audit:asset-coverage &&` after `npm run test:assets`. The **non-strict**
+  audit is deliberately in the gate; the strict form is not. A gate that fails
+  the moment it lands teaches people to bypass gates. Promote strict once the
+  findings below are dispositioned.
+
+### Live findings (not dispositioned)
+
+Running `npm run audit:asset-coverage` reports:
+
+- 2 undeclared runtime binaries: `assets/runtime/field-plough-01.glb` (inside
+  asset root) and `plow_4_furrow.glb` (outside, at repo root).
+- 0 declared-but-absent.
+- 1 deferred-but-present: `field-plough-01` entry records `runtimePath: null`
+  while `assets/runtime/field-plough-01.glb` exists.
+
+Both unregistered GLBs need disposition: register with provenance and relocate
+to `assets/runtime/`, or remove. The deferred-but-present case needs the
+manifest entry reconciled against the file that exists.
+
+### Documentation
+
+Documented in `tools/README.md` as "## Asset manifest coverage audit"
+immediately after "## Asset manifest preflight", since the new tool covers the
+preflight's blind spot. Includes why it exists, the three finding classes with
+detailed explanations, all npm scripts with usage, skip list, why strict is not
+gating yet, that self-tests exist and mirror live findings, and that
+`auditAssetManifestCoverage()` is exported for future CI integration.
+
+### Verification
+
+- `npx tsc --noEmit` — PASS, clean.
+- `npx vitest run` — PASS, 89 files / 558 tests (unchanged from prior entry).
+- `node tools/audit-asset-manifest-coverage.test.mjs` — 9/9 PASS.
+- `npm run audit:asset-coverage` — exits 0, reports 2 undeclared + 1
+  deferred-but-present as documented above.
+- `npm run verify:head` — PASS, now includes the new audit self-tests and
+  non-strict audit in the chain.
+  - **[Corrected 2026-08-06]** This line is false. `verify:head` begins with
+    `format:check`, which is red on committed files, so the chain cannot reach
+    the steps named here. The other bullets in this block stand. See
+    "`verify:head` cannot pass, and three documents say it did" in the
+    2026-08-06 entry below.
+- Browser acceptance not run. Evidence tier **2** for this tool.
+
+### Anything else?
+
+The function is exported so a future CI surface can call it without
+reimplementing the reconciliation. The strict audit is **ready** to gate but
+deliberately held back — the findings are real and need operator decision, not
+a bypass-the-gate workaround.
+
+## 2026-08-06 — a deferral registry, because "unreachable" was three states wearing one label
+
+### What forced this
+
+The 2026-08-05 vision review's §10 listed, as its second-priority action, "wire
+tranche 3 (`electrical-grid.ts` + `world-memory.ts`) to convert Water Before
+Night from design to reachable play." Acting on it meant reading the two
+modules first. All three premises collapsed:
+
+- **Water Before Night was already player-reachable.** It shipped in `a141b0b`.
+  `chooseFarmWaterworks` (`state.ts:566`) is bound to the workshop buttons
+  (`main.ts:1390`), gated on first-start plus workshop proximity, writes a real
+  field condition per branch (`state.ts:592`, `state.ts:603`), toggles the
+  `long-furrow-drain-pump` entity, persists (`state.ts:3166`) and recovers
+  (`state.ts:4163`).
+- **`electrical-grid.ts` is not a pump circuit.** It is a rig 12V accessory
+  budget: alternator output against headlight, winch, and seismic draw. None of
+  those three loads exist as player-driven kernel state. The farm pump was
+  implemented as an infrastructure entity with a `commandedOn` flag, so the
+  quest was never going to route through it.
+- **`world-memory.ts` is not consequence persistence.** Canonical spatial memory
+  is `WorldMemoryRecord` (`gameworld.ts:84`), already snapshotted
+  (`gameworld.ts:884`) and consumed by `storage.ts:46` and `run-record.ts:47`.
+  `world-memory.ts` is an experimental read-only soil-displacement projection
+  whose own header forbids wiring it without a named consumer. Wiring it as
+  instructed would have created a second mutable soil model beside the canonical
+  one — a parallel system.
+
+The wrong binding did not originate in the review. It came from the slice spec's
+§3 table, which the review restated in §7.2, which §10 restated again. Three
+documents, one unread pair of files.
+
+### The actual defect
+
+"Unreachable" was conflating three states with three different correct
+responses: *not yet connected* (wire it), *must not be connected* (quarantine,
+already representable), and *cannot be connected until a named precondition is
+met* (unrepresented). State 3 read as state 1 — so the audit's vocabulary could
+not express the difference and readers supplied the only meaning available.
+
+### DEFERRED registry — `tools/audit-runtime-reachability.mjs`
+
+Each entry carries a **precondition** (what would unblock it) and a
+**rationale** (what the module actually does). The rationale field exists
+because a filename is what misled the review; `world-memory.ts` sounds exactly
+like consequence persistence and `electrical-grid.ts` sounds exactly like
+something a pump plugs into.
+
+Two design properties are load-bearing:
+
+- **Deferred modules stay inside the unreachable budget**, unlike quarantined
+  ones. Quarantine is permanent and decided, so excluding it is right — counting
+  it would create pressure to wire something an ADR forbids. Deferral is
+  temporary and conditional and is *supposed* to resolve, so it must keep
+  counting or the budget stops applying pressure exactly where pressure is still
+  wanted. Excluding deferrals would also make the registry an escape hatch that
+  quietly voids the budget.
+- **A stale entry fails the audit.** Two rot modes: an entry naming a module
+  that no longer exists, and a deferred module that became reachable
+  (precondition met, entry left behind, still asserting a blocker that is gone).
+
+`findStaleRegistryEntries` is exported and pure. It cannot be tested through a
+fixture tree — the registries name paths in this repository, so any fixture root
+reports every entry as stale — so the detector takes `knownPaths`/
+`reachablePaths` as arguments and the live check is gated on the audit root
+being this repository.
+
+### A third deferral, and the finding it exposed
+
+Addendum 5 initially flagged the review's *next* unchecked binding —
+`signature.ts` as "component provenance" — rather than checking it. Leaving it
+flagged would have repeated the failure being documented, so it was read. It is
+wrong the same way: `deriveRigSignature` maps rig speed, strain, and tool
+engagement onto three emission channels. No component identity, no history,
+nothing that distinguishes a storied part from a standard one. Only its own test
+imports it. Registered `DEFERRED` on its header's terms.
+
+With three entries registered, something visible only in aggregate appeared:
+`signature.ts` and `electrical-grid.ts` wait on **the same missing concept** —
+player-owned operating-light state. `electrical-grid.ts` needs
+`isHeadlightsActive` to be real kernel state; `signature.ts`'s header forbids
+production callers inferring its `illumination` input from Three.js objects
+because no such state exists. Measured: `flashHeadlights` (`main.ts:1349`)
+drives a renderer-side transient (`renderer.ts:561`); every other beacon is
+decorative geometry.
+
+Written as free text those read as two unrelated blockers. They are one absent
+capability holding back 147 unreachable lines. Entries now carry an optional
+`sharedBlocker` slug; the audit groups entries sharing one and reports the line
+total. Reported as **necessary, not sufficient** — light state would unblock
+`electrical-grid.ts` outright but `signature.ts` would still want a listener.
+Overstating that would be the same error as the recommendation being withdrawn.
+
+### Also fixed
+
+`tools/README.md` claimed the reachability ceiling was "currently 29";
+`package.json` enforces 25. The document explaining the ratchet was misreporting
+it. Rather than restate the number, the line now points at the script — a
+restated number is a copy that drifts, which is the same defect class this whole
+entry is about.
+
+### Documentation
+
+- `docs/reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md` — Addendum 5
+  withdraws §10 action (2), corrects §7.2's Tranche 3 and Tranche 4 bindings.
+- `docs/design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md` — two dated addenda
+  correcting the Water Before Night and *What the Old Tractor Kept* binding
+  tables (append-only, motto_v5 §1.1).
+- `tools/README.md` — deferral and shared-blocker sections.
+
+### Verification
+
+Run step-by-step rather than through `verify:head`, because `verify:head` cannot
+currently reach its own second step (see below).
+
+- `npm run typecheck` — PASS, clean. Required a fix first: `state-serialization.test.ts`
+  had 5 × TS2532 (`Object is possibly 'undefined'`) from indexing
+  `findNonSerializable(...)[0]` under `noUncheckedIndexedAccess`. Fixed by
+  asserting the whole result array instead of `[0]`, which is both type-safe and
+  a strictly stronger assertion — `expect(arr[0].kind)` passes whether the
+  walker reports one offender or fifty, so the compiler error was pointing at a
+  loose test, not just a missing non-null assertion.
+- `npm run test` — PASS, 89 files / 558 tests.
+- `npm run test:assets` — PASS, 7 tests.
+- `npm run test:asset-coverage` — PASS, 9 tests.
+- `npm run audit:asset-coverage` — EXIT 0. Still reports the known
+  deferred-but-present finding: `field-plough-01` records `runtimePath: null`
+  while `assets/runtime/field-plough-01.glb` exists.
+- `npm run test:reachability` — PASS, 19 tests (8 pre-existing, 11 new).
+- `npm run audit:reachability:budget` — EXIT 0. 92 modules (38303 lines), 79
+  reachable, 12 unreachable (974 lines), ceiling 25.
+- `npm run build` — PASS. Player build asset boundary passed.
+- Browser acceptance not run. Evidence tier **2**.
+
+### `verify:head` cannot pass, and three documents say it did
+
+`verify:head` is an `&&` chain beginning with `format:check`. `format:check` is
+**red on committed files**: of 49 failing files, 41 are unmodified at HEAD.
+*(**[Corrected 2026-08-06]** These counts are stale — the glob was widened later
+the same day and parallel work landed; run `npm run format:check` for the
+current set. The claim that carries the argument is unaffected: the failures are
+on files nobody currently has open. See the later 2026-08-06 entry.)*
+Prettier is version-consistent (lockfile and installed both 3.9.6), no config
+file has ever existed in the repo, and `format:check` has carried its current
+glob since `54c1c37`. The failures are 80-column reflows in files added after
+the gate was written and never formatted against it.
+
+This is *known*: `WORKLOG_ADDENDUM_2026-07-28.md:292` records "Repository-wide
+`npm run format:check` remains red across pre-existing unrelated files; no broad
+reformat was applied." Being known does not make the following claims true:
+
+- `docs/WORKLOG.md:7934` — "`npm run verify:head` — PASS"
+- `docs/exploration/EXPLORATION_MAP.md:3233` — "`npm run verify:head` PASS"
+- `docs/reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md:862` — "`npm run
+  verify:head` — PASS"
+
+None of them can be true as written; the chain stops at step one. Whoever wrote
+them ran the steps that mattered to them and recorded the chain's name. That is
+the same defect this entry is about — a claim entering the durable record
+without being checked — and it is worse than the module-binding errors, because
+it silently downgrades the evidence tier of every session that cited it.
+
+**Concrete unblock path**, not taken here: `npx prettier --write` over the
+`format:check` glob reformats 49 files. It is mechanically safe (deterministic,
+semantics-preserving) and verifiable (typecheck + 558 tests after). It is *not*
+done in this pass for one specific reason: 8 of the 49 failing files are
+currently modified in the working tree by in-flight parallel work. Reformatting
+files another editor has open entangles an unrelated 49-file sweep with someone
+else's uncommitted changes. This wants operator sequencing, not an agent
+deciding unilaterally.
+*(**[Corrected 2026-08-06]** Counts stale — see the later entry. The structure
+of the blocker is unchanged: a minority of the failing files are in-flight, and
+that minority is what makes the sweep an operator decision rather than an agent
+one.)*
+
+Until it is done, no document should claim `verify:head` PASS. Claim the steps
+actually run, as this entry does.
+
+### Anything else?
+
+The rule this yields: **a reachability audit ranks candidates, it does not
+adjudicate them.** Its output is a list of modules worth reading, and the read
+is not optional. Two of the three binding claims checked in this pass were
+wrong, both in the same direction — a module named for a quest's *intent* was
+taken for a module implementing its *mechanism*. The remaining binding tables in
+the slice spec have not been checked and should be read as intent, not
+inventory.
+
+## 2026-08-06 (later) — the formatting gate could not see its own tooling
+
+### What was found
+
+`format:check` globbed `"tools/**/*.cjs"`. Every audit tool in `tools/` written
+as `.mjs` or `.ts` was outside the gate — all 11 of them, including
+`audit-runtime-reachability.mjs`, which is the enforcer `verify:head` calls to
+gate the build. Three were unformatted. Similarly, `index.html` was gated by
+name while `accessibility.html`, `box3d-lab.html`, and `physics-lab.html` were
+not.
+
+The defect is an asymmetry between two halves of one concern. `format` is
+`prettier --write .` — unfiltered, the whole tree. `format:check` was a
+hand-maintained allowlist. A fixer that rewrites everything paired with a
+checker that inspects an enumeration means every extension nobody remembered to
+list is exempt from the gate while still being rewritten by the fixer. The gate
+stays green precisely because it is not looking, so the gap produces no signal
+and is found only by someone auditing the glob itself.
+
+### What changed
+
+- `tools/audit-runtime-reachability.mjs`,
+  `tools/audit-asset-manifest-coverage.mjs`, and
+  `tools/audit-asset-manifest-coverage.test.mjs` formatted. All three are this
+  session's own files; nothing owned by a parallel editor was touched.
+- `format:check` glob: `"tools/**/*.cjs"` → `"tools/**/*.{cjs,mjs,ts}"`, and
+  `index.html` → `"*.html"`.
+- `tools/README.md` documents the gap, the fix, and the better fix not taken
+  (`prettier --check .` + `.prettierignore`, so checker and fixer describe the
+  same set by construction — deferred because it would sweep 100+ hand-wrapped
+  prose files under `docs/`, which is an operator scope decision).
+
+Widening added exactly one new failing file, `accessibility.html`, to a gate
+already failing on 52. The gate's red/green status is unchanged, and `format`
+already fixes it.
+
+### Correction to this morning's entry, and the mechanism behind it
+
+The earlier entry states "of 49 failing files, 41 are unmodified at HEAD," and
+repeats 49 twice more. `EXPLORATION_MAP.md` and the review's Addendum 6 carry
+the same pair. **Those numbers are stale.** Measured after the glob change:
+
+| | count |
+| --- | --- |
+| failing files | 53 |
+| unmodified at HEAD | 44 |
+| modified in working tree by in-flight work | 9 |
+
+Two independent causes, and only one is attributable here. Widening the glob
+accounts for `+1` (`accessibility.html`). The remaining `+3` arrived from
+parallel work landing between the two measurements — the earlier file list was
+not saved, so the delta is known and its membership is not. Naming which files
+would be invention.
+
+This is the failure mode `tools/README.md` describes under the reachability
+ceiling — a number restated in prose is a copy that decays — committed in three
+documents within hours of writing that warning, and then accelerated by
+changing the very glob being measured. The lesson is not "be more careful."
+It is that **a count does not belong in prose at all.** What belongs is the
+condition and the command:
+
+```bash
+npm run format:check   # red; the failing set is the output, not a number here
+```
+
+The load-bearing claim never needed a count. It is: *the gate is red on files
+nobody is currently editing, so it was red before this session and will stay
+red after it.* That survives drift. "49" did not survive four hours.
+
+### Verification
+
+Re-run after the formatting and glob changes, each step's own exit code read
+directly rather than through a pipe:
+
+- `npm run typecheck` — EXIT 0, clean.
+- `npx vitest run` — EXIT 0, 89 files / 558 tests.
+- `npm run test:assets` — EXIT 0, 7 tests.
+- `npm run test:asset-coverage` — EXIT 0, 9 tests.
+- `npm run test:reachability` — EXIT 0, 19 tests.
+- `npm run audit:reachability:budget` — EXIT 0; 92 modules, 79 reachable,
+  12 unreachable, ceiling 25.
+- `npm run audit:asset-coverage` — EXIT 0; `field-plough-01` deferred-but-present
+  finding unchanged.
+- `npm run build` — EXIT 0; player build asset boundary passed.
+- `npm run format:check` — EXIT 1, as above. Pre-existing.
+- Browser acceptance not run. Evidence tier **2**.
+
+`verify:head` is deliberately not cited. It cannot complete, and citing a
+composite gate by name is the practice this session is correcting.
+
+## 2026-08-06 (later still) — the formatting gate is green, and `verify:head` passes for real
+
+### What happened
+
+Operator approved the sweep. Ran `prettier --write` over the **`format:check`
+glob**, not `npm run format`.
+
+That distinction is the whole safety story. `format` is `prettier --write .` —
+the entire tree, including 100+ hand-wrapped prose files under `docs/`,
+`motto_v5.md`, and every addendum written this session. Running the obvious
+command would have reflowed all of them and buried the real diff in thousands of
+lines of prose churn. The sweep must use the same glob the checker uses, so the
+set written equals the set verified.
+
+53 files were failing and all 53 were rewritten: 44 that were previously clean
+in the working tree, plus 9 that already carried in-flight parallel work.
+Prettier 3.9.6.
+
+An earlier draft of this entry said "44 rewritten, 9 of them carrying in-flight
+work," which double-counts — the 44 is precisely the set that did *not* carry
+in-flight work (66 tracked-modified now minus 22 before the sweep). Corrected
+here and in `VISION_IMPLEMENTATION_REVIEW_2026-08-05.md` Addendum 8 so the two
+records agree.
+
+### `format:check` and `verify:head`
+
+```
+npm run format:check   EXIT 0   ← first time in this repo's recorded history
+npm run verify:head    EXIT 0   ← all nine steps, run as one chain
+```
+
+`verify:head`'s exit code was read **directly**, not through a pipe. Piping to
+`tail` reports `tail`'s status and is how the false PASS claims corrected
+earlier today were produced in the first place.
+
+### Proving the sweep was safe, and the two tests that were not good enough
+
+Every file with uncommitted work was copied to a backup before the sweep. Three
+tests were run against it, in increasing strength:
+
+1. **`git diff --ignore-all-space`** — useless here. Prettier *rewraps* lines, so
+   line boundaries legitimately move and the diff counts that as changed content.
+   It reported hundreds of "semantic" changes that were nothing.
+2. **Whitespace-stripped hashing** — better, and it flagged 5 files. Stripping
+   commas and pipes cleared 3 more; stripping parens cleared the last 2. But each
+   of those rounds is *a guess at the alphabet of changes prettier is allowed to
+   make* — trailing commas, collapsed union leaders, arrow-parameter parens — and
+   the method silently passes anything not on the guessed list.
+3. **`prettier --stdin-filepath <path> < backup`, compared byte-for-byte against
+   the file on disk.** This inverts the question. Instead of "are the differences
+   drawn from a safe list?", it asks "is the current file exactly what prettier
+   produces from the pre-sweep content?" It needs no list and cannot miss a
+   category. Run across **all 9** files carrying both the sweep and in-flight
+   work — deliberately not just the 5 test 2 flagged, because trusting that
+   selection would inherit the very incompleteness test 2 was rejected for. All
+   9: **byte-identical.**
+
+   The other 13 backed-up files were either untouched by the sweep or carried no
+   in-flight work. The 7 in-flight files with no backup are all `.md`, outside
+   the glob, so prettier never opened them — which is what makes 9 the complete
+   overlap rather than a sample of it.
+
+`--stdin-filepath` is load-bearing: it tells prettier which parser to use without
+writing a temp file into the tree, avoiding the config-resolution trap that made
+an earlier out-of-repo `--check` pass vacuously.
+
+The method matters more than the result here. Test 2 produced an alarming
+artifact — a `-0.5` / `+0.34` pair in `renderer.ts` — that looks exactly like a
+changed constant. It was not. Per-line token aggregation had merged unrelated
+content when prettier rewrapped. **A heuristic that reports a false value change
+is worse than no heuristic**, because the natural response is to trust it and
+start hunting a bug that does not exist.
+
+### Behavioural verification
+
+- `npm run typecheck` — EXIT 0.
+- `npx vitest run` — EXIT 0, 89 files / 558 tests.
+- `npm run test:assets` / `test:asset-coverage` — EXIT 0.
+- `npm run test:reachability` — EXIT 0, 19 tests.
+- `npm run audit:reachability:budget` — EXIT 0, 12 unreachable, ceiling 25.
+- `npm run audit:asset-coverage` — EXIT 0, findings unchanged.
+- `npm run build` — EXIT 0, player build asset boundary passed.
+- `npm run format:check` — **EXIT 0**.
+- `npm run verify:head` — **EXIT 0**.
+- Browser acceptance not run. Evidence tier **2**.
+
+### What this does and does not settle
+
+**Settled:** the gate runs end to end. Every future session can cite it, and a
+red `format:check` now means someone actually broke formatting rather than
+"that's just how it is." The known-red condition recorded since
+`WORKLOG_ADDENDUM_2026-07-28.md:292` is closed.
+
+**Not settled, and worth saying plainly:** the working tree now carries 66
+modified tracked files. The sweep rewrote 53 of them — 44 that it alone touched,
+plus 9 that were already entangled with in-flight parallel work. Committing is
+the operator's call and was not done; no git write action was taken at any
+point. The natural split is formatting-only in its own commit, separate from the
+parallel feature work — but that separation is not mechanically clean here,
+precisely because of those 9. Whoever commits should decide whether to stage
+them by hunk or accept one mixed commit.
+
+**Also not settled:** the earlier finding that `format:check`'s glob was a
+hand-maintained allowlist while `format` writes everything. Widening it to
+`{cjs,mjs,ts}` and `*.html` closed today's gap; it did not close the mechanism.
+The durable fix is `prettier --check .` plus a `.prettierignore`, so checker and
+fixer describe one set by construction. That remains an operator scope decision
+because it pulls `docs/` into the gate.
+
+## 2026-08-09 — Top-Down Game Mode Exploration & ADR-0053 Proposal
+- Detailed exploration and proposal documented in [docs/WORKLOG_ADDENDUM_2026-08-09.md](WORKLOG_ADDENDUM_2026-08-09.md).
+
+## 2026-08-11 — rig blockouts: every rig was floating, by exactly its ride height
+
+Full detail in [docs/WORKLOG_ADDENDUM_2026-08-11.md](WORKLOG_ADDENDUM_2026-08-11.md).
+The headline, because it generalises past the rigs:
+
+`RigState.y` is the **body origin** elevation — physics rests it at
+`meanContact + rideHeight` and `animation.ts` assigns it straight to
+`root.position.y`, so root-local y = 0 is the body origin. The three rig models
+were authored the way vehicles are normally authored: wheel bottoms and shadow at
+y ≈ 0, heights read as metres above the ground. Two defensible frames, differing
+by exactly `rideHeight`, neither of them named anywhere in the code. Every rig
+therefore rendered floating — tractor 0.95 m, buggy 0.62 m, and the hover rig
+0.63 m above its own shadow with its lift skirt 0.82 m clear of a 0.55 m cushion
+(that one had drifted a *third* way, authored against an assumed 1.00 ride height
+rather than its profile's 1.35).
+
+Alongside it, two more drifts between the hand-authored models and
+`RIG_PROFILES`: footprint (wheelbase/track/hull as stale literals, so the visual
+pivot and the physical pivot were different rectangles) and wheel spin (the
+kernel integrates one reference rotation from a single *mean* rolling radius, so
+larger-than-mean drawn wheels swept more ground than the rig covered — a
+permanent low-grade rear-axle skid, now corrected by a per-wheel
+`wheelRadius / drawnRadius` scale).
+
+Fixes: one authoring frame for all three rigs (a `body` group at
+`groundFrameOffsetY` holds the art; the root keeps the body origin), and
+`rig-blockout.ts` derives the silhouette from the profile with the art declaring
+only ratios — constrained to average 1, which is what makes
+`profile.wheelRadius` genuinely the mean. `hoverSkirt` and `shadowY` derived
+rather than authored.
+
+**The method point, which is the durable part.** The rigs' own 25 geometry tests
+passed throughout the float, and would still pass on a rig mounted a hundred
+metres up. That is not insufficient rigour — it is a limit of the test's inputs:
+authored numbers compared with authored numbers agree with themselves. The
+defect lived in a relationship (scene graph ↔ terrain mesh) in which no authored
+constant participates. It also survived review because the two cues a player
+reads it by were *independently* degraded — weak ground-texture parallax and
+mushy blob-shadow edges, so "shadow not under the rig" read as "shadow is
+mushy." Two soft failures masking a hard one.
+
+So the check is a measurement, following the existing `orientationEvidence`
+pattern of reading world transforms off visible model parts:
+`RigGroundContactEvidence` / `window.getRigGroundContactEvidence()` and
+`npm run test:ground-contact` (3 rigs × 3 terrain places). Measured after the
+fix: `bodyOriginY - terrainY` equals `rideHeight` to three decimals at every
+sample, tyre gaps −0.033…+0.020 m, shadow gaps 0.028–0.045 m against the
+deliberate 0.04 m decal lift, skirt gaps 0.538–0.547 m against the 0.55 m
+cushion. Typecheck clean; vitest 90 files / 585 tests; `verify:head` run
+separately. Evidence tier **4** for the contact claims (measured in a real
+browser against the real terrain), tier **2** for the suite.
+
+Not committed; no git write action taken.
+
+## 2026-08-11 — the rig asset envelope: what "generate a rig from a reference image" is allowed to mean
+
+Follow-on from the entry above, same addendum
+([docs/WORKLOG_ADDENDUM_2026-08-11.md](WORKLOG_ADDENDUM_2026-08-11.md)). The
+brief was to try img2threejs for rig blockouts. The pipeline works — it built
+`field-plough-01` end to end — so the real question was what it means to point it
+at a **rig**, and the answer is a constraint, not a green light.
+
+A plough may estimate its own dimensions from a photograph
+(`{width: 3.8, …, confidence: 0.3}`) because nothing in `physics.ts` reads them.
+A rig's `track` and `wheelbase` place the four terrain samples, `wheelRadius`
+converts distance into rotation, and `rideHeight` is where the kernel rests the
+body. Estimating those from a plate is structurally the same act as hand-writing
+them as literals in `renderer.ts` — the exact drift the entry above removed. So
+the pipeline inverts at the dimensional layer: **the plate supplies form,
+`RIG_PROFILES` supplies dimensions.** Not as a review instruction — as a check:
+
+- `tools/rig-asset-envelope.ts` derives the ground-frame envelope from
+  `blockoutFor()` (root extent, hull, one node per wheel mount, hover skirt,
+  contact decal), each node carrying its derivation and an explicit `authorable`
+  list so "not derived" is distinguishable from "forgotten".
+- `tools/derive-rig-asset-envelope.ts` / `npm run assets:rig-envelope` emits it
+  and audits a candidate spec, exiting 1 on drift so it can gate a step.
+- 33 tests in `tools/rig-asset-envelope.test.ts`, collected by `npm run test`
+  through a widened `vitest.config.ts` include, so the CLI stays a thin shell
+  over tested code.
+
+That location was itself a correction the repo made for me. The module started in
+`src/game/` because `vitest.config.ts` only collected `src/` tests — a test-runner
+convenience deciding an architectural question — and `npm run audit:slice-bindings`
+rejected it on the first run of `verify:head`. Rightly: the reachability audit
+scans `src/` and closes with "a module with tests but no entry path is tested
+behaviour the player cannot reach", which is true of gameplay and false of an
+authoring-time contract checker. At 452 lines it had become the largest entry in
+an unreachable budget that exists to pressure *unwired gameplay*. The stronger
+reason is that **the directory encodes which way dependencies may point**: tools
+may depend on the runtime, the runtime must never depend on a tool, and in
+`src/game/` nothing stopped a gameplay module from importing this and shipping
+authoring-time code to players. Neither escape hatch would have been honest —
+quarantine means "a decision forbids this", and the archived group means "not
+used", and neither describes a tool that is used today.
+
+Moving it exposed a second, older gap: `tsconfig.json` never included `tools`, so
+**every TypeScript tool in the repo has been untypechecked since the first one was
+written.** Adding it caught a real defect in `tools/heatmap-from-ghost-trail.ts`
+immediately (`grid[i] += 1` under `noUncheckedIndexedAccess`), fixed with `?? 0`
+rather than `!` — `!` would have made it `undefined + 1`, i.e. NaN, which
+propagates through `maxCount` and blanks every cell, so the heatmap would still
+render and just be uniformly empty.
+
+Four choices in it each encode a lesson rather than a preference: drift is
+**signed** (a magnitude check passes a model with its left and right wheels
+swapped, and a reconstruction from a three-quarter plate must infer the hidden
+side); an **absent** dimension is drift, not agreement; a uniform offset is
+reported as **one cause, not N**, naming `rideHeight` when it matches, because
+"seven nodes are at the wrong height" gets seven numbers edited and the frame
+stays broken; and it **refuses to scaffold** schema-legal placeholder components,
+since a spec that passes `test:assets` before anyone authored it is a green check
+that is evidence of nothing.
+
+**The blocker it surfaced.** The only rig-scale reference plate in the repo is
+the utility tow recovery truck, and there is no `utility-tow-recovery` in
+`RIG_IDS`. So there is no profile to bind it to, and promoting it to
+`assetFamily: "rig"` would mean inventing a fourth playable rig — physics tuning,
+unlock placement, save migration. That is a design decision, not an art gate, and
+it is the operator's. The repo's own sequencing already points elsewhere
+(`MASTER_EXECUTION_TRACKER.md:2966` — boom, winch, stabilizer, wheel, beacon as
+`rig-part`s first), and `winch` is already a real module with a live
+`requiredCapability: "tow"` seam, so a winch part has somewhere to land where a
+whole truck does not. Recorded in
+`assets/workbench/utility-tow-recovery-01/README.md` too, since that is where
+someone picks the work up.
+
+**And a bug worth recording for the method.** The new `rootExtent()` computed
+depth as `|mount.z| + radius * 2` — a half-wheelbase plus a diameter — where
+width was correctly doubled, so the tractor declared 4.588 m of depth while its
+tyres spanned 4.80. The test that should have caught it compared the root's
+*full* width against a wheel's *distance from centre* and never checked depth at
+all: a containment check that cannot fail. Same shape as the tautological
+geometry tests described in the entry above, arriving in brand-new code written
+immediately after documenting the hazard. Fixed both, and the fix was visible
+because the CLI prints the numbers where a person reads them.
+
+Measured: `verify:head` **EXIT 0**; vitest **91 files / 618 tests** (up from
+90 / 585, the delta being this module's 33); `audit:reachability` **12 unreachable
+/ 974 lines**, down from 13 / 1426 — the audit's objection resolved by moving the
+module rather than suppressed by a quarantine entry; `audit:slice-bindings` "no
+contradictions"; typecheck now covering 5 files under `tools/`. Evidence tier
+**2** (unit tests plus repo audits); the envelope has never been checked against a
+real authored rig spec, because none exists yet.
+
+Not committed; no git write action taken.
+

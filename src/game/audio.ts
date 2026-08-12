@@ -388,6 +388,112 @@ export class RigAudio {
     };
   }
 
+  /** A low rumble for plough engagement — grinding earth, not a clean chirp. */
+  ploughCut(): void {
+    const context = this.context;
+    if (!context || !this.master || !this.enabled) return;
+    const now = context.currentTime;
+    const duration = 0.35;
+
+    const buffer = context.createBuffer(
+      1,
+      Math.ceil(context.sampleRate * duration),
+      context.sampleRate,
+    );
+    const channel = buffer.getChannelData(0);
+    let seed = 0x8c3f1a;
+    for (let index = 0; index < channel.length; index += 1) {
+      seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff;
+      const envelope =
+        index < duration * context.sampleRate * 0.15
+          ? index / (duration * context.sampleRate * 0.15)
+          : 1 -
+            (index - duration * context.sampleRate * 0.15) /
+              (duration * context.sampleRate * 0.85);
+      channel[index] = (seed / 0x3fffffff - 1) * 0.4 * envelope;
+    }
+
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    const filter = context.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 280;
+    const gain = context.createGain();
+    gain.gain.value = 0.22;
+    source.connect(filter).connect(gain).connect(this.master);
+    source.start(now);
+    source.stop(now + duration);
+    source.onended = () => {
+      source.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
+  }
+
+  /** A warm confirmation tone for crop delivery — deeper than chirp, more resonant. */
+  harvestDeliver(): void {
+    const context = this.context;
+    if (!context || !this.master || !this.enabled) return;
+    const now = context.currentTime;
+
+    const osc1 = context.createOscillator();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(330, now);
+    osc1.frequency.exponentialRampToValueAtTime(440, now + 0.15);
+
+    const osc2 = context.createOscillator();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(220, now);
+    osc2.frequency.exponentialRampToValueAtTime(330, now + 0.15);
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+
+    osc1.connect(gain).connect(this.master);
+    osc2.connect(gain);
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.5);
+    osc2.stop(now + 0.5);
+    osc1.onended = () => {
+      osc1.disconnect();
+      osc2.disconnect();
+      gain.disconnect();
+    };
+  }
+
+  /** Low ominous drone that builds as storm approaches. */
+  stormApproach(intensity: number): void {
+    const context = this.context;
+    if (!context || !this.master || !this.enabled) return;
+    const now = context.currentTime;
+
+    const osc = context.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(48 + intensity * 20, now);
+
+    const filter = context.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 120 + intensity * 80;
+    filter.Q.value = 4;
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.08 * intensity, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+    osc.connect(filter).connect(gain).connect(this.master);
+    osc.start(now);
+    osc.stop(now + 1.3);
+    osc.onended = () => {
+      osc.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+    };
+  }
+
   dispose(): void {
     try {
       this.engineA?.stop();

@@ -22,5 +22,4 @@ describe("living frontier habitat in GameWorld", () => {
       expect.objectContaining({ species: "corvid", occupancy: "active" }),
     );
   });
-
 });

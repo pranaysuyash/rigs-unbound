@@ -172,7 +172,9 @@ export function createRumorMapUI(
           rig.x,
           rig.z,
           Object.values(currentGraph.nodes)
-            .filter((node) => node.type === "site" && node.status === "undiscovered")
+            .filter(
+              (node) => node.type === "site" && node.status === "undiscovered",
+            )
             .map((node) => ({ name: node.id, x: node.x, z: node.z })),
         );
         const signalReadout =
@@ -204,9 +206,8 @@ export function createRumorMapUI(
               : edge.active
                 ? "rgba(107, 201, 196, 0.75)"
                 : "rgba(255, 255, 255, 0.15)";
-            const dashAttr = isCommunityLead || !edge.active
-              ? 'stroke-dasharray="4,4"'
-              : "";
+            const dashAttr =
+              isCommunityLead || !edge.active ? 'stroke-dasharray="4,4"' : "";
 
             return `<line x1="${fromNode.x}" y1="${fromNode.z}" x2="${toNode.x}" y2="${toNode.z}" 
               stroke="${strokeColor}" stroke-width="1.8" ${dashAttr} />`;
@@ -251,14 +252,16 @@ export function createRumorMapUI(
           .join("");
 
         // Attach node click listeners to populate inspector card
-        nodesGroup.querySelectorAll(".rumor-node-group[data-id]").forEach((group) => {
-          group.addEventListener("click", () => {
-            const nodeId = group.getAttribute("data-id");
-            if (nodeId && currentGraph && currentGraph.nodes[nodeId]) {
-              showInspector(currentGraph.nodes[nodeId]);
-            }
+        nodesGroup
+          .querySelectorAll(".rumor-node-group[data-id]")
+          .forEach((group) => {
+            group.addEventListener("click", () => {
+              const nodeId = group.getAttribute("data-id");
+              if (nodeId && currentGraph && currentGraph.nodes[nodeId]) {
+                showInspector(currentGraph.nodes[nodeId]);
+              }
+            });
           });
-        });
       }
     },
 

@@ -278,7 +278,9 @@ export function completeMission(
     active.settlementOutcomeId,
   );
   if (world) {
-    world.reconcileCommunityPassages(deriveSettlementCommunityPassageIds(state));
+    world.reconcileCommunityPassages(
+      deriveSettlementCommunityPassageIds(state),
+    );
   }
   removeActiveMission(state, missionId);
   state.lastDiagnostic = settlementSummary

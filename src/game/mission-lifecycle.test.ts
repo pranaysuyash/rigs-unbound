@@ -100,7 +100,12 @@ describe("per-class mission concurrency", () => {
       true,
     );
 
-    const side = acceptMission(state, sideMission("side-1"), "utility-tractor", 1100);
+    const side = acceptMission(
+      state,
+      sideMission("side-1"),
+      "utility-tractor",
+      1100,
+    );
     expect(side.ok).toBe(true);
     expect(state.activeMission?.id).toBe(mission.id);
     expect(state.activeSideMissions.map((m) => m.id)).toEqual(["side-1"]);
@@ -131,8 +136,12 @@ describe("per-class mission concurrency", () => {
     );
     for (let i = 1; i <= 3; i++) {
       expect(
-        acceptMission(state, sideMission(`side-${i}`), "utility-tractor", 1000 + i)
-          .ok,
+        acceptMission(
+          state,
+          sideMission(`side-${i}`),
+          "utility-tractor",
+          1000 + i,
+        ).ok,
       ).toBe(true);
     }
 

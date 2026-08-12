@@ -14,12 +14,14 @@ describe("community traffic", () => {
     state.worldTimeMinutes = 180;
     state.settlements["sunken-flats"] = {
       ...state.settlements["sunken-flats"],
-      contributions: [{
-        responseId: "sunken-flats:sound-crossing",
-        materialEffectId: "sunken-flats:sounded-crossing",
-        capability: "survey",
-        createdAtWorldMinutes: 180,
-      }],
+      contributions: [
+        {
+          responseId: "sunken-flats:sound-crossing",
+          materialEffectId: "sunken-flats:sounded-crossing",
+          capability: "survey",
+          createdAtWorldMinutes: 180,
+        },
+      ],
     };
 
     expect(deriveCommunityTraffic(state)).toEqual([
@@ -31,19 +33,23 @@ describe("community traffic", () => {
         targetSiteId: "marsh-depot",
       }),
     ]);
-    expect(state.discoveries.some((entry) => entry.id === "marsh-depot")).toBe(false);
+    expect(state.discoveries.some((entry) => entry.id === "marsh-depot")).toBe(
+      false,
+    );
   });
 
   it("moves a route reproducibly from world time rather than spawning traffic state", () => {
     const state = createInitialState("COMMUNITY-TRAFFIC-TIME");
     state.settlements["rustline-salvage"] = {
       ...state.settlements["rustline-salvage"],
-      contributions: [{
-        responseId: "rustline-salvage:mark-bypass",
-        materialEffectId: "rustline-salvage:marked-bypass",
-        capability: "survey",
-        createdAtWorldMinutes: 60,
-      }],
+      contributions: [
+        {
+          responseId: "rustline-salvage:mark-bypass",
+          materialEffectId: "rustline-salvage:marked-bypass",
+          capability: "survey",
+          createdAtWorldMinutes: 60,
+        },
+      ],
     };
 
     state.worldTimeMinutes = 60;

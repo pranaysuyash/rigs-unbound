@@ -316,11 +316,7 @@ export function queryCameraObstruction(
     const middleZ = (from.z + to.z) * 0.5;
     const queryRange = distance * 0.5 + 8;
     const obstacles = [
-      ...source.obstacles.near(
-        middleX,
-        middleZ,
-        queryRange,
-      ),
+      ...source.obstacles.near(middleX, middleZ, queryRange),
       ...(source.incidentObstaclesNear?.(middleX, middleZ, queryRange) ?? []),
     ];
     for (const obstacle of obstacles) {

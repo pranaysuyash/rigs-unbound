@@ -20,7 +20,9 @@ describe("persistent field conditions", () => {
   });
 
   it("rejects malformed spatial memory while accepting bounded durable cells", () => {
-    expect(recoverFieldConditionCell({ cx: 2, cz: -3, moistureRatio: 0.5 })).toMatchObject({
+    expect(
+      recoverFieldConditionCell({ cx: 2, cz: -3, moistureRatio: 0.5 }),
+    ).toMatchObject({
       cx: 2,
       cz: -3,
       moistureRatio: 0.5,

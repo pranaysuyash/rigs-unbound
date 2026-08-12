@@ -70,12 +70,16 @@ export function isSettlementCargoManifestAvailable(
     state.cargoRelay.assignment === null;
   if (!relayFree) return false;
   if (manifest.id === "rustline-service-stock") {
-    return state.discoveries.some((entry) => entry.id === "salvage-yard") &&
-      !rustlineServiceStocked(state);
+    return (
+      state.discoveries.some((entry) => entry.id === "salvage-yard") &&
+      !rustlineServiceStocked(state)
+    );
   }
   if (manifest.id === "sunken-causeway-kit") {
-    return state.discoveries.some((entry) => entry.id === "sunken-flats") &&
-      !sunkenCausewayBuilt(state);
+    return (
+      state.discoveries.some((entry) => entry.id === "sunken-flats") &&
+      !sunkenCausewayBuilt(state)
+    );
   }
   return false;
 }
@@ -89,11 +93,13 @@ export function availableSettlementCargoManifest(
     if (!isSettlementCargoManifestAvailable(state, manifest)) return false;
     if (x === undefined || z === undefined) return true;
     const origin = findSite(manifest.originSiteId);
-    return origin !== undefined &&
+    return (
+      origin !== undefined &&
       Math.hypot(
         x - (origin.x + manifest.loadOffsetX),
         z - (origin.z + manifest.loadOffsetZ),
-      ) <= manifest.loadRadius;
+      ) <= manifest.loadRadius
+    );
   });
 }
 
@@ -103,7 +109,11 @@ export function prepareSettlementCargo(
 ): boolean {
   const origin = findSite(manifest.originSiteId);
   const destination = findSite(manifest.destinationSiteId);
-  if (!origin || !destination || state.cargoRelay.cargo.attachedRigId !== null) {
+  if (
+    !origin ||
+    !destination ||
+    state.cargoRelay.cargo.attachedRigId !== null
+  ) {
     return false;
   }
 
@@ -141,11 +151,18 @@ export function completeSettlementCargoDelivery(
   state: GameState,
 ): string | null {
   const assignment = state.cargoRelay.assignment;
-  if (!assignment || assignment.missionId !== null || !state.cargoRelay.cargo.delivered) {
+  if (
+    !assignment ||
+    assignment.missionId !== null ||
+    !state.cargoRelay.cargo.delivered
+  ) {
     return null;
   }
   const manifest = settlementCargoManifest(assignment.manifestId);
-  if (!manifest || assignment.destinationSiteId !== manifest.destinationSiteId) {
+  if (
+    !manifest ||
+    assignment.destinationSiteId !== manifest.destinationSiteId
+  ) {
     return null;
   }
   if (manifest.id === "rustline-service-stock") {

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "spark-dune-runner-02",
+  "rigId": "spark-dune-runner-02",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/spark_dune_runner_02_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "roll-cage-chassis",
+      "level": "macro",
+      "role": "High-clearance electric-cyan tubular steel roll-cage frame",
+      "derivedEnvelope": {
+        "track": 2.15,
+        "wheelbase": 2.75,
+        "rideHeight": 0.45
+      },
+      "sockets": ["battery-tray-bottom", "suspension-mount-corners"]
+    },
+    {
+      "nodeId": "cockpit-seats",
+      "level": "macro",
+      "role": "Twin racing bucket seats with harness straps and steering wheel",
+      "sockets": []
+    },
+    {
+      "nodeId": "battery-belly-pack",
+      "level": "meso",
+      "role": "Low-center-of-gravity battery pack belly tray with skid plate",
+      "sockets": []
+    },
+    {
+      "nodeId": "coilover-suspension",
+      "level": "meso",
+      "role": "Long-travel front & rear dual coilover shock absorbers",
+      "sockets": []
+    },
+    {
+      "nodeId": "sand-paddle-wheels",
+      "level": "macro",
+      "role": "Front ribbed tires and rear wide sand paddle tires",
+      "sockets": []
+    }
+  ]
+}

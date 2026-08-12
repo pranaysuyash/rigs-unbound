@@ -84,27 +84,35 @@ describe("rumor-graph kernel", () => {
     const state = createInitialState("SOUNDER-LINE");
     state.settlements["sunken-flats"] = {
       ...state.settlements["sunken-flats"],
-      contributions: [{
-        responseId: "sunken-flats:sound-crossing",
-        materialEffectId: "sunken-flats:sounded-crossing",
-        capability: "survey",
-        createdAtWorldMinutes: 880,
-      }],
+      contributions: [
+        {
+          responseId: "sunken-flats:sound-crossing",
+          materialEffectId: "sunken-flats:sounded-crossing",
+          capability: "survey",
+          createdAtWorldMinutes: 880,
+        },
+      ],
     };
 
     const unknownSourceGraph = deriveRumorGraph(state);
-    expect(unknownSourceGraph.nodes["marsh-depot"]?.status).toBe("undiscovered");
+    expect(unknownSourceGraph.nodes["marsh-depot"]?.status).toBe(
+      "undiscovered",
+    );
 
     state.discoveries.push({ id: "sunken-flats", discoveredAt: 920 });
     const graph = deriveRumorGraph(state);
 
     expect(graph.nodes["marsh-depot"]?.status).toBe("rumored");
     expect(graph.nodes["marsh-depot"]?.description).toContain("depth reading");
-    expect(graph.edges).toContainEqual(expect.objectContaining({
-      id: "material-effect:sunken-flats:sounded-crossing",
-      type: "community_lead",
-      active: true,
-    }));
-    expect(state.discoveries.some((entry) => entry.id === "marsh-depot")).toBe(false);
+    expect(graph.edges).toContainEqual(
+      expect.objectContaining({
+        id: "material-effect:sunken-flats:sounded-crossing",
+        type: "community_lead",
+        active: true,
+      }),
+    );
+    expect(state.discoveries.some((entry) => entry.id === "marsh-depot")).toBe(
+      false,
+    );
   });
 });

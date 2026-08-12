@@ -100,6 +100,8 @@ describe("persistent field-condition memory", () => {
     expect(after).toEqual(before);
     expect(after?.moistureRatio).toBeLessThan(0.72);
     expect(resistance).toBeLessThan(1);
-    expect(world.fieldConditionRevisionNumber()).toBeGreaterThan(initialRevision);
+    expect(world.fieldConditionRevisionNumber()).toBeGreaterThan(
+      initialRevision,
+    );
   });
 });

@@ -8,10 +8,7 @@
  * simulation cost scales with remembered world impact, not map area.
  */
 
-import {
-  updateSoilEcosystem,
-  type SoilEcosystemCell,
-} from "./soil-ecosystem";
+import { updateSoilEcosystem, type SoilEcosystemCell } from "./soil-ecosystem";
 import {
   updateSurfaceMoistureCell,
   type SurfaceMoistureCell,
@@ -52,7 +49,10 @@ function cellPosition(cell: FieldConditionCell): { x: number; z: number } {
   };
 }
 
-function asSurfaceCell(cell: FieldConditionCell, drainageRate: number): SurfaceMoistureCell {
+function asSurfaceCell(
+  cell: FieldConditionCell,
+  drainageRate: number,
+): SurfaceMoistureCell {
   const { x, z } = cellPosition(cell);
   return {
     x,
@@ -153,10 +153,13 @@ export function advanceFieldCondition(
 }
 
 /** Recover an untrusted persisted field cell without admitting malformed spatial state. */
-export function recoverFieldConditionCell(value: unknown): FieldConditionCell | null {
+export function recoverFieldConditionCell(
+  value: unknown,
+): FieldConditionCell | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<FieldConditionCell>;
-  if (!Number.isFinite(candidate.cx) || !Number.isFinite(candidate.cz)) return null;
+  if (!Number.isFinite(candidate.cx) || !Number.isFinite(candidate.cz))
+    return null;
   const cx = Math.trunc(candidate.cx as number);
   const cz = Math.trunc(candidate.cz as number);
   if (Math.abs(cx) > 100_000 || Math.abs(cz) > 100_000) return null;

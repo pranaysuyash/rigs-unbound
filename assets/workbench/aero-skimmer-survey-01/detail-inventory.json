@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "aero-skimmer-survey-01",
+  "rigId": "aero-skimmer-survey-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/aero_skimmer_survey_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "composite-fuselage",
+      "level": "macro",
+      "role": "Lightweight composite hull with glass bubble canopy and twin tail fins",
+      "derivedEnvelope": {
+        "track": 2.60,
+        "wheelbase": 2.80,
+        "rideHeight": 1.20
+      },
+      "sockets": ["sensor-gimbal-nose", "parachute-pod-roof"]
+    },
+    {
+      "nodeId": "tilt-fan-left",
+      "level": "meso",
+      "role": "Pivoting cyan ducted fan thruster on left wing pylon",
+      "sockets": []
+    },
+    {
+      "nodeId": "tilt-fan-right",
+      "level": "meso",
+      "role": "Pivoting cyan ducted fan thruster on right wing pylon",
+      "sockets": []
+    },
+    {
+      "nodeId": "sensor-gimbal",
+      "level": "meso",
+      "role": "Nose-mounted 3-axis gyro optical/lidar sensor sphere",
+      "sockets": []
+    },
+    {
+      "nodeId": "landing-skids",
+      "level": "meso",
+      "role": "Titanium tubular landing skids with emergency flotation packs",
+      "sockets": []
+    }
+  ]
+}

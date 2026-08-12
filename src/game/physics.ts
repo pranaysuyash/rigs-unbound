@@ -40,6 +40,7 @@ import {
   type InputFrame,
   type MobilityAdapter,
   type RigState,
+  WHEEL_LOCAL_SIGNS,
   WORLD_LIMIT,
 } from "./contracts";
 import { applyWeatherGripPenalty } from "./weather";
@@ -103,13 +104,6 @@ export interface MotionOutcome {
   /** Semantic shared-substrate refusal; null when the requested path is valid. */
   traversalBlockReason: TerrainTraversalBlockReason | null;
 }
-
-const WHEEL_LOCAL: readonly (readonly [number, number])[] = [
-  [-1, 1], // front-left  (x sign, z sign)
-  [1, 1], // front-right
-  [-1, -1], // rear-left
-  [1, -1], // rear-right
-];
 
 export interface RampDefinition {
   x: number;
@@ -324,7 +318,7 @@ function stepGroundMotion(
 
   const wheelHeights: number[] = [0, 0, 0, 0];
   for (let index = 0; index < 4; index += 1) {
-    const [signX, signZ] = WHEEL_LOCAL[index]!;
+    const [signX, signZ] = WHEEL_LOCAL_SIGNS[index]!;
     const localX = signX * halfTrack;
     const localZ = signZ * halfBase;
     const worldX = rig.x + rightX * localX + forwardX * localZ;
@@ -428,7 +422,7 @@ function stepGroundMotion(
 
   let contactCount = 0;
   for (let index = 0; index < 4; index += 1) {
-    const [signX, signZ] = WHEEL_LOCAL[index]!;
+    const [signX, signZ] = WHEEL_LOCAL_SIGNS[index]!;
     // Elevation of this wheel's mounting point once the body is tilted.
     const mountY =
       rig.y +
@@ -912,7 +906,7 @@ function settleGroundRig(
   let rearSum = 0;
   let leftSum = 0;
   let rightSum = 0;
-  for (const [signX, signZ] of WHEEL_LOCAL) {
+  for (const [signX, signZ] of WHEEL_LOCAL_SIGNS) {
     const localX = signX * halfTrack;
     const localZ = signZ * halfBase;
     const groundY = terrain.height(

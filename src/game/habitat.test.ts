@@ -25,11 +25,16 @@ describe("living frontier habitat projection", () => {
 
   it("makes disturbance reversible presentation behavior rather than a permanent penalty", () => {
     const quiet = deriveHabitatProjection(floodplain);
-    const disturbed = deriveHabitatProjection({ ...floodplain, disturbance: 0.9 });
+    const disturbed = deriveHabitatProjection({
+      ...floodplain,
+      disturbance: 0.9,
+    });
     const recovered = deriveHabitatProjection(floodplain);
 
     expect(disturbed.activity).toBe("stirring");
-    expect(disturbed.occupants.find(({ species }) => species === "wading-bird")).toBeUndefined();
+    expect(
+      disturbed.occupants.find(({ species }) => species === "wading-bird"),
+    ).toBeUndefined();
     expect(recovered).toEqual(quiet);
   });
 

@@ -72,7 +72,10 @@ function daylight(worldTimeMinutes: number): number {
   return clamp(solar);
 }
 
-function scoreFor(species: HabitatSpecies, observation: HabitatObservation): number {
+function scoreFor(
+  species: HabitatSpecies,
+  observation: HabitatObservation,
+): number {
   const moisture = clamp(observation.soilMoisture);
   const water = clamp(observation.waterDepthM / 1.5);
   const vegetation = clamp(observation.vegetationCoverage);
@@ -101,7 +104,8 @@ function scoreFor(species: HabitatSpecies, observation: HabitatObservation): num
   }
   if (species === "small-grazer") {
     return clamp(
-      (observation.terrain === "field-margin" || observation.terrain === "woodland"
+      (observation.terrain === "field-margin" ||
+      observation.terrain === "woodland"
         ? 0.3
         : 0) +
         vegetation * 0.36 +
@@ -127,7 +131,11 @@ function occupancyFor(score: number, disturbance: number): HabitatOccupancy {
   return "active";
 }
 
-function countFor(species: HabitatSpecies, score: number, occupancy: HabitatOccupancy): number {
+function countFor(
+  species: HabitatSpecies,
+  score: number,
+  occupancy: HabitatOccupancy,
+): number {
   if (occupancy === "absent") return 0;
   const ceiling = species === "small-grazer" ? 4 : species === "corvid" ? 6 : 8;
   const base = Math.max(1, Math.round(score * ceiling));

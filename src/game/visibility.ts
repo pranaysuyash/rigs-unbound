@@ -54,6 +54,7 @@ export interface PropVisibilityMetrics {
   mid: number;
   far: number;
   culled: number;
+  occluded: number;
 }
 
 export function visibilityProfile(
@@ -85,6 +86,7 @@ export function createPropVisibilityMetrics(
     mid: 0,
     far: 0,
     culled: 0,
+    occluded: 0,
   };
 }
 

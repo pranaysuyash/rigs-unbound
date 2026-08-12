@@ -82,6 +82,10 @@
           "pattern": "^[a-f0-9]{64}$"
         },
         "publicRuntimeApproved": { "type": "boolean" },
+        "sourceFormInPlayerBuild": {
+          "type": "boolean",
+          "description": "True when this asset's SOURCE form (sourcePath) is deliberately compiled into the player bundle, independently of whether its runtime binary (runtimePath) is approved to ship. Only meaningful for sourceType values that are compiled modules, e.g. authored-procedural-factory. Absent means false. This never relaxes byte containment: an unapproved runtimePath must still be absent from the build regardless of this flag."
+        },
         "rightsStatus": { "type": "string", "minLength": 1 },
         "intendedUse": { "type": "string", "minLength": 1 },
         "sha256": {

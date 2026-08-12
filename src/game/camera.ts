@@ -63,6 +63,12 @@ export function chaseViewportPolicy(
  * node names later. They are deliberately rig-specific presentation data:
  * camera policy remains shared, while each silhouette owns where a driver or
  * forward sensor can physically see from.
+ *
+ * `localY` is in the GROUND frame — metres above the surface the rig rests on,
+ * the same frame the models are authored in, since the socket is parented into
+ * the model's ground-frame group. It is *not* relative to the body origin the
+ * way `RigProfile.camera.focusHeight` is; see `rig-blockout.ts` on the two
+ * vertical frames.
  */
 export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
   "utility-tractor": {
@@ -81,7 +87,10 @@ export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
   },
   "marsh-skimmer": {
     localX: 0,
-    localY: 2.75,
+    // Above the cabin roof (ground-frame 2.9), on the mast. The skimmer's model
+    // was the one authored around its body origin rather than the ground, so
+    // this socket moved up with it; at the old 2.75 it now sat inside the cabin.
+    localY: 3.82,
     localZ: 1.72,
     lookDistance: 18,
     lookDrop: 0.12,

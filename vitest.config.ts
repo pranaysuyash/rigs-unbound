@@ -16,7 +16,13 @@ export default defineConfig({
     // signal instead of masking host contention with larger timeouts.
     fileParallelism: false,
     environment: "happy-dom",
-    include: ["src/**/*.test.ts"],
+    // `tools/` is included so that a TypeScript authoring tool's logic is unit
+    // tested by `npm run test` without having to live under `src/`, where the
+    // reachability audit would rightly count it as gameplay the player cannot
+    // reach. The split is by extension and is unambiguous: tool tests written
+    // against `node:test` are `.test.mjs` and cannot match this glob, so nothing
+    // is collected by two runners.
+    include: ["src/**/*.test.ts", "tools/**/*.test.ts", "assets/workbench/**/*.test.ts"],
 
     server: {
       deps: {

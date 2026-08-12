@@ -26,10 +26,7 @@ import {
   type WorldCollisionContact,
 } from "./collision";
 import { calculateErosionResistanceFactor } from "./soil-ecosystem";
-import {
-  deriveHabitatProjection,
-  type HabitatTerrain,
-} from "./habitat";
+import { deriveHabitatProjection, type HabitatTerrain } from "./habitat";
 import {
   advanceEcologyActor,
   createEcologyActor,
@@ -171,7 +168,10 @@ export class GameWorld {
   private ecologyActors: EcologyActorState[];
   private ecologyElapsedWorldMinutes = 0;
   private ecologyRevision = 0;
-  private readonly ecologyDisturbance = new Map<string, EcologyDisturbanceCell>();
+  private readonly ecologyDisturbance = new Map<
+    string,
+    EcologyDisturbanceCell
+  >();
 
   constructor(readonly seed: string) {
     this.terrain = new TerrainField(seed);
@@ -248,7 +248,9 @@ export class GameWorld {
     const sunkenFlats = findSite("sunken-flats");
     const quarryShelf = findSite("quarry-shelf");
     if (!longFurrow || !sunkenFlats || !quarryShelf) {
-      throw new Error("Ecology requires Long Furrow, Sunken Flats, and Quarry Shelf.");
+      throw new Error(
+        "Ecology requires Long Furrow, Sunken Flats, and Quarry Shelf.",
+      );
     }
     return [
       createEcologyActor({
@@ -290,9 +292,17 @@ export class GameWorld {
   }
 
   /** Observation selects nearby groups for streaming, it does not create them. */
-  ecologyActorsNear(x: number, z: number, range: number): readonly EcologyActorState[] {
+  ecologyActorsNear(
+    x: number,
+    z: number,
+    range: number,
+  ): readonly EcologyActorState[] {
     return this.ecologyActors
-      .filter((actor) => Math.hypot(actor.x - x, actor.z - z) <= range + actor.territoryRadiusMeters)
+      .filter(
+        (actor) =>
+          Math.hypot(actor.x - x, actor.z - z) <=
+          range + actor.territoryRadiusMeters,
+      )
       .map((actor) => ({ ...actor }));
   }
 
@@ -323,18 +333,28 @@ export class GameWorld {
     const [cx, cz] = this.ecologyDisturbanceCellOf(x, z);
     const key = `${cx},${cz}`;
     const prior = this.ecologyDisturbance.get(key)?.intensity ?? 0;
-    this.ecologyDisturbance.set(key, { cx, cz, intensity: Math.max(prior, normalized) });
+    this.ecologyDisturbance.set(key, {
+      cx,
+      cz,
+      intensity: Math.max(prior, normalized),
+    });
     trimMap(this.ecologyDisturbance, MAX_ECOLOGY_DISTURBANCE_CELLS);
 
     let displaced = false;
     this.ecologyActors = this.ecologyActors.map((actor) => {
       const distance = Math.hypot(actor.x - x, actor.z - z);
-      if (normalized < 0.22 || distance > Math.min(actor.territoryRadiusMeters, 26)) {
+      if (
+        normalized < 0.22 ||
+        distance > Math.min(actor.territoryRadiusMeters, 26)
+      ) {
         return actor;
       }
-      const fallbackAngle = ((actor.id.length * 0.61803398875) % 1) * Math.PI * 2;
-      const directionX = distance > 0.001 ? (actor.x - x) / distance : Math.cos(fallbackAngle);
-      const directionZ = distance > 0.001 ? (actor.z - z) / distance : Math.sin(fallbackAngle);
+      const fallbackAngle =
+        ((actor.id.length * 0.61803398875) % 1) * Math.PI * 2;
+      const directionX =
+        distance > 0.001 ? (actor.x - x) / distance : Math.cos(fallbackAngle);
+      const directionZ =
+        distance > 0.001 ? (actor.z - z) / distance : Math.sin(fallbackAngle);
       const distanceOut = Math.min(14, 4 + normalized * 12);
       displaced = true;
       return createEcologyActor({
@@ -363,15 +383,26 @@ export class GameWorld {
     const field = this.fieldConditionAt(x, z);
     const nearActiveQuarryRunout =
       this.quarryRunout.status === "active" &&
-      Math.hypot(x - this.quarryRunout.originX, z - this.quarryRunout.originZ) <= 38;
+      Math.hypot(
+        x - this.quarryRunout.originX,
+        z - this.quarryRunout.originZ,
+      ) <= 38;
     return {
       waterDepthM: ground.waterDepth,
-      vegetationCoverage: field?.vegetationCoverage ?? (ground.waterDepth >= 0.08 ? 0.44 : 0.68),
+      vegetationCoverage:
+        field?.vegetationCoverage ?? (ground.waterDepth >= 0.08 ? 0.44 : 0.68),
       rootDensity: field?.rootDensity ?? 0.62,
       soilHealth: field?.soilHealth ?? 0.7,
       disturbance: Math.max(
         field
-          ? Math.min(1, Math.max(0, (1 - field.soilHealth) * 0.62 + (1 - field.vegetationCoverage) * 0.28))
+          ? Math.min(
+              1,
+              Math.max(
+                0,
+                (1 - field.soilHealth) * 0.62 +
+                  (1 - field.vegetationCoverage) * 0.28,
+              ),
+            )
           : 0,
         this.ecologyDisturbanceAt(x, z),
       ),
@@ -387,7 +418,11 @@ export class GameWorld {
     const ground = this.terrain.sample(actor.x, actor.z);
     const current =
       this.fieldConditions.get(key) ??
-      createFieldConditionCell(actor.x, actor.z, Math.min(1, ground.waterDepth / 1.5));
+      createFieldConditionCell(
+        actor.x,
+        actor.z,
+        Math.min(1, ground.waterDepth / 1.5),
+      );
     const next: FieldConditionCell = {
       ...current,
       vegetationCoverage: Math.max(0.08, current.vegetationCoverage - pressure),
@@ -446,12 +481,19 @@ export class GameWorld {
     const boulder = this.quarryRunout.boulder;
     const groundY = boulder
       ? this.terrain.height(boulder.x, boulder.z)
-      : this.terrain.height(this.quarryRunout.originX, this.quarryRunout.originZ);
+      : this.terrain.height(
+          this.quarryRunout.originX,
+          this.quarryRunout.originZ,
+        );
     const obstacle = quarryRunoutObstacle(this.quarryRunout, groundY);
     return obstacle ? [obstacle] : [];
   }
 
-  incidentObstaclesNear(x: number, z: number, range: number): readonly Obstacle[] {
+  incidentObstaclesNear(
+    x: number,
+    z: number,
+    range: number,
+  ): readonly Obstacle[] {
     return this.incidentObstacles().filter(
       (obstacle) => Math.hypot(obstacle.x - x, obstacle.z - z) <= range,
     );
@@ -570,14 +612,13 @@ export class GameWorld {
         x - this.quarryRunout.originX,
         z - this.quarryRunout.originZ,
       ) <= 38;
-    const terrain: HabitatTerrain =
-      nearActiveQuarryRunout
-        ? "quarry-edge"
-        : ground.waterDepth >= 0.08
-          ? "floodplain"
-          : field
-            ? "field-margin"
-            : "woodland";
+    const terrain: HabitatTerrain = nearActiveQuarryRunout
+      ? "quarry-edge"
+      : ground.waterDepth >= 0.08
+        ? "floodplain"
+        : field
+          ? "field-margin"
+          : "woodland";
     const disturbance = field
       ? Math.min(
           1,
@@ -594,7 +635,8 @@ export class GameWorld {
       worldTimeMinutes,
       soilMoisture: field?.moistureRatio ?? soilMoisture,
       waterDepthM: ground.waterDepth,
-      vegetationCoverage: field?.vegetationCoverage ?? (terrain === "woodland" ? 0.82 : 0.56),
+      vegetationCoverage:
+        field?.vegetationCoverage ?? (terrain === "woodland" ? 0.82 : 0.56),
       rootDensity: field?.rootDensity ?? (terrain === "woodland" ? 0.78 : 0.48),
       rainIntensity,
       disturbance,
@@ -890,7 +932,9 @@ export class GameWorld {
       fieldConditions: [...this.fieldConditions.values()],
       quarryRunout: this.quarryRunout,
       ecologyActors: this.ecologySnapshot().map((actor) => ({ ...actor })),
-      ecologyDisturbance: [...this.ecologyDisturbance.values()].map((cell) => ({ ...cell })),
+      ecologyDisturbance: [...this.ecologyDisturbance.values()].map((cell) => ({
+        ...cell,
+      })),
     };
   }
 
@@ -945,7 +989,9 @@ export class GameWorld {
     }
 
     if (Array.isArray(record.fieldConditions)) {
-      for (const entry of record.fieldConditions.slice(-MAX_FIELD_CONDITION_CELLS)) {
+      for (const entry of record.fieldConditions.slice(
+        -MAX_FIELD_CONDITION_CELLS,
+      )) {
         const cell = recoverFieldConditionCell(entry);
         if (!cell) continue;
         this.fieldConditions.set(fieldConditionKey(cell.cx, cell.cz), cell);
@@ -962,7 +1008,9 @@ export class GameWorld {
       }
     }
     if (Array.isArray(record.ecologyDisturbance)) {
-      for (const value of record.ecologyDisturbance.slice(-MAX_ECOLOGY_DISTURBANCE_CELLS)) {
+      for (const value of record.ecologyDisturbance.slice(
+        -MAX_ECOLOGY_DISTURBANCE_CELLS,
+      )) {
         if (!value || typeof value !== "object") continue;
         const cell = value as Partial<EcologyDisturbanceCell>;
         if (
@@ -975,7 +1023,12 @@ export class GameWorld {
         const cx = Math.trunc(cell.cx as number);
         const cz = Math.trunc(cell.cz as number);
         const intensity = Math.min(1, Math.max(0, cell.intensity as number));
-        if (Math.abs(cx) > 100_000 || Math.abs(cz) > 100_000 || intensity < 0.02) continue;
+        if (
+          Math.abs(cx) > 100_000 ||
+          Math.abs(cz) > 100_000 ||
+          intensity < 0.02
+        )
+          continue;
         this.ecologyDisturbance.set(`${cx},${cz}`, { cx, cz, intensity });
       }
     }

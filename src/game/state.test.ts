@@ -50,6 +50,7 @@ import {
   acceptArrivalBargain,
   refuseArrivalBargain,
   chooseFarmWaterworks,
+  firstNightThreatObstacles,
 } from "./state";
 import { acceptMission } from "./mission-lifecycle";
 import type { MissionProposition } from "./mission-propositions";
@@ -169,14 +170,23 @@ describe("rig gameplay kernel", () => {
       kind: "contribute-settlement",
       label: "Move soaked stores",
     });
-    expect(performPrimaryAction(state, world)).toMatchObject({ outcome: "accepted" });
+    expect(performPrimaryAction(state, world)).toMatchObject({
+      outcome: "accepted",
+    });
     expect(state.activeMission).toBeNull();
     expect(state.settlements["long-furrow"].completedNeedIds).toEqual([]);
     expect(state.settlements["long-furrow"].contributions).toEqual([
-      expect.objectContaining({ responseId: "long-furrow:move-soaked-stores", materialEffectId: "long-furrow:staged-stores", capability: "tow" }),
+      expect.objectContaining({
+        responseId: "long-furrow:move-soaked-stores",
+        materialEffectId: "long-furrow:staged-stores",
+        capability: "tow",
+      }),
     ]);
-    expect(recoverState(JSON.parse(JSON.stringify(state)))?.settlements["long-furrow"].contributions)
-      .toEqual(state.settlements["long-furrow"].contributions);
+    expect(
+      recoverState(JSON.parse(JSON.stringify(state)))?.settlements[
+        "long-furrow"
+      ].contributions,
+    ).toEqual(state.settlements["long-furrow"].contributions);
   });
 
   it("lets a community adapt after a sustained world day without creating a mission or removing later help", () => {
@@ -190,7 +200,10 @@ describe("rig gameplay kernel", () => {
     stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
 
     expect(state.settlements["long-furrow"].adaptations).toEqual([
-      expect.objectContaining({ id: "long-furrow:raise-stores-routine", materialEffectId: "long-furrow:self-raised-stores" }),
+      expect.objectContaining({
+        id: "long-furrow:raise-stores-routine",
+        materialEffectId: "long-furrow:self-raised-stores",
+      }),
     ]);
     expect(state.activeMission).toBeNull();
     expect(state.activeSideMissions).toEqual([]);
@@ -198,7 +211,9 @@ describe("rig gameplay kernel", () => {
   });
 
   it("migrates v24 settlement source records into durable material effects", () => {
-    const legacy = JSON.parse(JSON.stringify(createInitialState("SETTLEMENT-EFFECT-MIGRATION"))) as {
+    const legacy = JSON.parse(
+      JSON.stringify(createInitialState("SETTLEMENT-EFFECT-MIGRATION")),
+    ) as {
       schemaVersion: number;
       settlements: {
         "long-furrow": {
@@ -208,23 +223,29 @@ describe("rig gameplay kernel", () => {
       };
     };
     legacy.schemaVersion = PREVIOUS_SAVE_SCHEMA_VERSION;
-    legacy.settlements["long-furrow"].contributions = [{
-      responseId: "long-furrow:move-soaked-stores",
-      capability: "tow",
-      createdAtWorldMinutes: 920,
-    }];
-    legacy.settlements["long-furrow"].adaptations = [{
-      id: "long-furrow:raise-stores-routine",
-      createdAtWorldMinutes: 1440,
-    }];
+    legacy.settlements["long-furrow"].contributions = [
+      {
+        responseId: "long-furrow:move-soaked-stores",
+        capability: "tow",
+        createdAtWorldMinutes: 920,
+      },
+    ];
+    legacy.settlements["long-furrow"].adaptations = [
+      {
+        id: "long-furrow:raise-stores-routine",
+        createdAtWorldMinutes: 1440,
+      },
+    ];
 
     const recovered = recoverState(legacy);
 
     expect(recovered?.schemaVersion).toBe(SAVE_SCHEMA_VERSION);
-    expect(recovered?.settlements["long-furrow"].contributions[0]?.materialEffectId)
-      .toBe("long-furrow:staged-stores");
-    expect(recovered?.settlements["long-furrow"].adaptations[0]?.materialEffectId)
-      .toBe("long-furrow:self-raised-stores");
+    expect(
+      recovered?.settlements["long-furrow"].contributions[0]?.materialEffectId,
+    ).toBe("long-furrow:staged-stores");
+    expect(
+      recovered?.settlements["long-furrow"].adaptations[0]?.materialEffectId,
+    ).toBe("long-furrow:self-raised-stores");
   });
 
   it("starts every rig in a dry, stable, non-overlapping Home berth within switching range", () => {
@@ -1364,7 +1385,9 @@ describe("save recovery and migration", () => {
   });
 
   it("defaults arrival bargain to accepted for saves that already started the tractor", () => {
-    const legacy = JSON.parse(JSON.stringify(createInitialState("V26-ARRIVAL-MIGRATION"))) as {
+    const legacy = JSON.parse(
+      JSON.stringify(createInitialState("V26-ARRIVAL-MIGRATION")),
+    ) as {
       schemaVersion: number;
       restoration: { firstStart: boolean };
       arrivalBargain?: { status: string };
@@ -1379,7 +1402,9 @@ describe("save recovery and migration", () => {
   });
 
   it("defaults arrival bargain to unseen for fresh-looking legacy saves", () => {
-    const legacy = JSON.parse(JSON.stringify(createInitialState("V26-ARRIVAL-FRESH"))) as {
+    const legacy = JSON.parse(
+      JSON.stringify(createInitialState("V26-ARRIVAL-FRESH")),
+    ) as {
       schemaVersion: number;
       restoration: { firstStart: boolean };
       arrivalBargain?: { status: string };
@@ -1429,7 +1454,9 @@ describe("farm waterworks choice", () => {
     const ok = chooseFarmWaterworks(state, world, "repair-pump");
     expect(ok).toBe(true);
     expect(state.farmWaterworks.choice).toBe("repair-pump");
-    expect(state.infrastructure.entities["long-furrow-drain-pump"].commandedOn).toBe(true);
+    expect(
+      state.infrastructure.entities["long-furrow-drain-pump"].commandedOn,
+    ).toBe(true);
     expect(state.settlements["long-furrow"].condition).toBe("workable");
     expect(state.lastDiagnostic).toContain("Pump repaired");
   });
@@ -1443,7 +1470,9 @@ describe("farm waterworks choice", () => {
     const ok = chooseFarmWaterworks(state, world, "redirect-channel");
     expect(ok).toBe(true);
     expect(state.farmWaterworks.choice).toBe("redirect-channel");
-    expect(state.infrastructure.entities["long-furrow-drain-pump"].commandedOn).toBe(false);
+    expect(
+      state.infrastructure.entities["long-furrow-drain-pump"].commandedOn,
+    ).toBe(false);
     expect(state.settlements["long-furrow"].condition).toBe("waterlogged");
     expect(state.lastDiagnostic).toContain("Channel redirected");
   });
@@ -1458,6 +1487,181 @@ describe("farm waterworks choice", () => {
     const ok = chooseFarmWaterworks(state, world, "redirect-channel");
     expect(ok).toBe(false);
     expect(state.farmWaterworks.choice).toBe("repair-pump");
+  });
+});
+
+// Binding proof for GAME_DIRECTOR_AUDIT_2026-08-12.md GD-03: the pure
+// first-night-threat module has its own full unit coverage in
+// first-night-threat.test.ts; these prove stepGame actually calls it, per
+// motto_v5.md §0.5.1 ("prove the binding, not only the contract").
+describe("first-night threat binding in stepGame", () => {
+  it("resolves once stepGame reads night phase, and never before", () => {
+    const { state, world } = scenario("NIGHT-THREAT-BINDING");
+    expect(state.firstNightThreat.status).toBe("pending");
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    expect(state.firstNightThreat.status).toBe("pending");
+
+    state.phase = "night";
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    expect(state.firstNightThreat.status).toBe("resolved");
+  });
+
+  it("orients to the surveyed north-field signal instead of the farm", () => {
+    const { state, world } = scenario("NIGHT-THREAT-SIGNAL");
+    const northField = findSite("north-field");
+    state.northFieldInvestigation = {
+      status: "scanned",
+      scannedAtWorldMinutes: state.worldTimeMinutes,
+      anomalyDepthMeters: null,
+    };
+    state.phase = "night";
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    expect(state.firstNightThreat.variant).toBe("signal-drawn");
+    expect(state.firstNightThreat.originX).toBe(northField?.x);
+    expect(state.firstNightThreat.originZ).toBe(northField?.z);
+    // Not asserting state.lastDiagnostic here: a fresh scenario() state has
+    // an empty discoveries[], so the same stepGame call also fires the
+    // unrelated "Home Silo discovered" landmark message, which overwrites
+    // this single-slot field afterward. In real play Home Silo is discovered
+    // hours before the first night, so that collision cannot occur; the
+    // diagnostic text itself is already covered by
+    // first-night-threat.test.ts's firstNightThreatDiagnostic suite.
+  });
+
+  it("falls back to a farm-directed storm when the north field was never surveyed", () => {
+    const { state, world } = scenario("NIGHT-THREAT-STORM");
+    state.phase = "night";
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    expect(state.firstNightThreat.variant).toBe("storm-pressure");
+    expect(state.firstNightThreat.originX).toBe(HOME_SITE.x);
+    expect(state.firstNightThreat.originZ).toBe(HOME_SITE.z);
+  });
+
+  it("places a real collidable obstacle at the resolved origin once stepGame resolves the threat", () => {
+    const { state, world } = scenario("NIGHT-THREAT-OBSTACLE");
+    const northField = findSite("north-field");
+    state.northFieldInvestigation = {
+      status: "scanned",
+      scannedAtWorldMinutes: state.worldTimeMinutes,
+      anomalyDepthMeters: null,
+    };
+    state.phase = "night";
+
+    expect(firstNightThreatObstacles(state.firstNightThreat, world)).toEqual(
+      [],
+    );
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    const obstacles = firstNightThreatObstacles(
+      state.firstNightThreat,
+      world,
+    );
+    expect(obstacles).toHaveLength(1);
+    const [obstacle] = obstacles;
+    expect(obstacle?.id).toBe("incident:first-night-threat");
+    expect(obstacle?.x).toBe(northField?.x);
+    expect(obstacle?.z).toBe(northField?.z);
+    expect(obstacle?.fellable).toBe(false);
+    // world.incidentObstacles() (the separate Quarry Runout channel) is
+    // untouched — the two hazards are composed at each collision call site
+    // in stepGame, not merged into one authority.
+    expect(world.incidentObstacles()).toHaveLength(0);
+  });
+
+  it("does not re-roll the variant if the survey happens after the threat already resolved", () => {
+    const { state, world } = scenario("NIGHT-THREAT-LOCKED");
+    state.phase = "night";
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    expect(state.firstNightThreat.variant).toBe("storm-pressure");
+
+    state.northFieldInvestigation = {
+      status: "scanned",
+      scannedAtWorldMinutes: state.worldTimeMinutes,
+      anomalyDepthMeters: null,
+    };
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    expect(state.firstNightThreat.variant).toBe("storm-pressure");
+  });
+});
+
+// Binding proof for GAME_DIRECTOR_AUDIT_2026-08-12.md GD-02: the pure
+// open-world-promise module has its own full unit coverage in
+// open-world-promise.test.ts; these prove stepGame actually calls it.
+describe("open-world-promise finale binding in stepGame", () => {
+  function markCausewayReopened(state: GameState): void {
+    const record = state.settlements["sunken-flats"];
+    state.settlements["sunken-flats"] = {
+      condition: record?.condition ?? "workable",
+      favor: record?.favor ?? 0,
+      completedNeedIds: [
+        ...(record?.completedNeedIds ?? []),
+        "sunken-flats-causeway",
+      ],
+      contributions: record?.contributions ?? [],
+      adaptations: record?.adaptations ?? [],
+    };
+  }
+
+  it("stays pending until the night is survived, the waterworks are settled, and the causeway reopens", () => {
+    const { state, world } = scenario("PROMISE-PENDING");
+    state.phase = "night";
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    // firstNightThreat resolves on this step, but waterworks and the
+    // causeway are still unresolved, so the promise must stay pending.
+    expect(state.firstNightThreat.status).toBe("resolved");
+    expect(state.openWorldPromise.status).toBe("pending");
+  });
+
+  it("reveals once all three prior beats are true, switches to survey camera, and narrates the vista", () => {
+    const { state, world } = scenario("PROMISE-REVEALED");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    chooseFarmWaterworks(state, world, "repair-pump");
+    markCausewayReopened(state);
+    state.phase = "night";
+    state.cameraMode = "chase";
+
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    expect(state.openWorldPromise.status).toBe("revealed");
+    expect(state.cameraMode).toBe("survey");
+    // Not asserting state.lastDiagnostic here: a fresh scenario() state has
+    // an empty discoveries[], so the same stepGame call also fires the
+    // unrelated "Home Silo discovered" landmark message afterward, which
+    // overwrites this single-slot field (same artifact documented on the
+    // first-night-threat binding tests above). In real play Home Silo is
+    // discovered hours before this finale can fire; the narration text
+    // itself is covered by open-world-promise.test.ts.
+  });
+
+  it("does not re-narrate or reset the camera on later frames once revealed", () => {
+    const { state, world } = scenario("PROMISE-ONCE");
+    state.activeRigId = "utility-tractor";
+    state.restoration.firstStart = true;
+    state.rigs["utility-tractor"].x = HOME_SITE.x;
+    state.rigs["utility-tractor"].z = HOME_SITE.z;
+    chooseFarmWaterworks(state, world, "repair-pump");
+    markCausewayReopened(state);
+    state.phase = "night";
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+    expect(state.openWorldPromise.status).toBe("revealed");
+
+    state.cameraMode = "hood";
+    state.lastDiagnostic = "unrelated later message";
+    stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
+
+    // The finale does not fight the player's later camera choice or
+    // overwrite unrelated later diagnostics once it has already fired.
+    expect(state.cameraMode).toBe("hood");
+    expect(state.lastDiagnostic).toBe("unrelated later message");
   });
 });
 
@@ -1906,12 +2110,7 @@ describe("public state mission surface", () => {
 
   it("exposes the focus mission with class and giver", () => {
     const { state, world } = scenario("MISSION-PUBLIC-STATE");
-    const accepted = acceptMission(
-      state,
-      mainMission,
-      "utility-tractor",
-      1000,
-    );
+    const accepted = acceptMission(state, mainMission, "utility-tractor", 1000);
     expect(accepted.ok).toBe(true);
 
     const exposed = publicState(state, world) as {
@@ -1936,9 +2135,9 @@ describe("public state mission surface", () => {
     expect(acceptMission(state, mainMission, "utility-tractor", 1000).ok).toBe(
       true,
     );
-    expect(
-      acceptMission(state, sideMission, "utility-tractor", 1100).ok,
-    ).toBe(true);
+    expect(acceptMission(state, sideMission, "utility-tractor", 1100).ok).toBe(
+      true,
+    );
 
     const exposed = publicState(state, world) as {
       mission: { id: string } | null;

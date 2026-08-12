@@ -76,12 +76,17 @@ async function main() {
     );
 
     // Accept the bargain.
-    const acceptButton = page.locator('#dialogue-choices button:has-text("Take the deal")');
+    const acceptButton = page.locator(
+      '#dialogue-choices button:has-text("Take the deal")',
+    );
     await acceptButton.click();
-    await page.waitForSelector("#dialogue-panel", { state: "hidden", timeout: 3_000 });
+    await page.waitForSelector("#dialogue-panel", {
+      state: "hidden",
+      timeout: 3_000,
+    });
 
-    const afterBargain = await page.evaluate(() =>
-      JSON.parse(window.render_game_to_text()).arrivalBargain.status,
+    const afterBargain = await page.evaluate(
+      () => JSON.parse(window.render_game_to_text()).arrivalBargain.status,
     );
     assert(
       afterBargain === "accepted",
@@ -100,12 +105,18 @@ async function main() {
     await clickRestoration(page);
     await waitForRestorationText(page, "Start engine");
     await clickRestoration(page);
-    await page.waitForSelector("#workshop-panel", { state: "hidden", timeout: 5_000 });
+    await page.waitForSelector("#workshop-panel", {
+      state: "hidden",
+      timeout: 5_000,
+    });
 
-    const afterStart = await page.evaluate(() =>
-      JSON.parse(window.render_game_to_text()).restoration,
+    const afterStart = await page.evaluate(
+      () => JSON.parse(window.render_game_to_text()).restoration,
     );
-    assert(afterStart.firstStart === true, "Expected firstStart true after restoration");
+    assert(
+      afterStart.firstStart === true,
+      "Expected firstStart true after restoration",
+    );
     console.log("Restoration complete, engine started.");
 
     // ── Create a furrow so the naming beat becomes ready ──
@@ -139,7 +150,10 @@ async function main() {
     const customName = "Rustbucket";
     await input.fill(customName);
     await page.click('#dialogue-input-form button[type="submit"]');
-    await page.waitForSelector("#dialogue-panel", { state: "hidden", timeout: 3_000 });
+    await page.waitForSelector("#dialogue-panel", {
+      state: "hidden",
+      timeout: 3_000,
+    });
     await page.waitForTimeout(200);
 
     const afterNaming = await page.evaluate(() => {

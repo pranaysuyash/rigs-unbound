@@ -6,6 +6,10 @@ document what changed, what was verified, and what remains open.
 
 ## Start here
 
+- [Game Director Audit — 2026-08-12](GAME_DIRECTOR_AUDIT_2026-08-12.md) —
+  whole-game vision-vs-runtime verdict: the first-playable slice is unfinished
+  (no ridge finale, no authored night-threat) while a fourth control paradigm
+  and procedural-rig research open concurrently; priority-ordered action list.
 - [Trailer and build-in-public release review](../comms/TRAILER_AND_POST_RELEASE_REVIEW_2026-07-26.md)
 - [Trailer and X announcement decision](../comms/TRAILER_AND_X_ANNOUNCEMENT_DECISION_2026-07-26.md)
 - [Decision Provenance and Recommendation Status Audit](DECISION_PROVENANCE_AND_RECOMMENDATION_STATUS_AUDIT_2026-07-26.md)

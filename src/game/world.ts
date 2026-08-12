@@ -67,7 +67,10 @@ export const SURFACES: Readonly<Record<SurfaceId, SurfaceMaterial>> = {
     grip: 1,
     rollingDrag: 0.85,
     deformable: false,
-    color: 0x6c6151,
+    // Warmed and lightened from 0x6c6151: the prior tone sat too close to the
+    // ambient-lit grass value to read as a distinct worn path from any camera
+    // angle. This is presentation-only — grip/drag/deformable are unchanged.
+    color: 0x9c8a68,
     spray: 0.35,
   },
   grass: {
@@ -390,7 +393,8 @@ export function findSite(id: string): WorldSite | undefined {
 /** The optional buried cache is spatial data owned by its authored field site. */
 export const NORTH_FIELD_SEISMIC_CACHE = (() => {
   const site = findSite("north-field");
-  if (!site) throw new Error("North Field seismic cache needs an authored site.");
+  if (!site)
+    throw new Error("North Field seismic cache needs an authored site.");
   return { x: site.x, z: site.z, depthMeters: 6.5 } as const;
 })();
 
@@ -1181,6 +1185,87 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     discoverySignal: true,
   },
 
+  // Long furrow: crop field south of the standpipe. Instanced rows of small
+  // boxes represent the growable area; the barn is the delivery point.
+  {
+    id: "furrow-crop-row-0",
+    siteId: "long-furrow",
+    localX: 5,
+    localY: 0.3,
+    localZ: 12,
+    shape: { kind: "box", width: 1.2, height: 0.6, depth: 8 },
+    color: 0x8baa4e,
+    rotationY: 0.0,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-crop-row-1",
+    siteId: "long-furrow",
+    localX: 7.5,
+    localY: 0.3,
+    localZ: 12,
+    shape: { kind: "box", width: 1.2, height: 0.6, depth: 8 },
+    color: 0x7a9a3e,
+    rotationY: 0.0,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-crop-row-2",
+    siteId: "long-furrow",
+    localX: 10,
+    localY: 0.3,
+    localZ: 12,
+    shape: { kind: "box", width: 1.2, height: 0.6, depth: 8 },
+    color: 0x8baa4e,
+    rotationY: 0.0,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-crop-row-3",
+    siteId: "long-furrow",
+    localX: 12.5,
+    localY: 0.3,
+    localZ: 12,
+    shape: { kind: "box", width: 1.2, height: 0.6, depth: 8 },
+    color: 0x7a9a3e,
+    rotationY: 0.0,
+    cameraOccluder: false,
+    rigCollider: false,
+  },
+  {
+    id: "furrow-barn",
+    siteId: "long-furrow",
+    localX: 14,
+    localY: 2.2,
+    localZ: 2,
+    shape: { kind: "box", width: 5.5, height: 4.4, depth: 6 },
+    color: 0x7d352a,
+    cameraOccluder: true,
+    rigCollider: true,
+  },
+  {
+    id: "furrow-barn-roof",
+    siteId: "long-furrow",
+    localX: 14,
+    localY: 5.2,
+    localZ: 2,
+    shape: {
+      kind: "cone",
+      radius: 4.4,
+      height: 1.8,
+      radialSegments: 4,
+      scaleZ: 0.8,
+    },
+    color: 0x3b3935,
+    roughness: 0.95,
+    rotationY: Math.PI / 4,
+    cameraOccluder: true,
+    rigCollider: false,
+  },
+
   // Long furrow: an irrigation standpipe. A working field needs water more than
   // it needs a marker, and a tank on a pipe is visible over the whole terrace.
   {
@@ -1417,7 +1502,13 @@ export const WORLD_STRUCTURE_PARTS: readonly WorldStructurePart[] = [
     localX: -1.8,
     localY: 6.1,
     localZ: 0.8,
-    shape: { kind: "cone", radius: 4.3, height: 1.8, radialSegments: 4, scaleZ: 0.75 },
+    shape: {
+      kind: "cone",
+      radius: 4.3,
+      height: 1.8,
+      radialSegments: 4,
+      scaleZ: 0.75,
+    },
     color: 0x303438,
     roughness: 0.92,
     rotationY: Math.PI / 4,
@@ -1695,16 +1786,18 @@ export const RESOLVED_COMMUNITY_PASSAGES: readonly ResolvedCommunityPassage[] =
         `Community passage references an unknown site: ${passage.from} -> ${passage.to}.`,
       );
     }
-    return [{
-      id: passage.id,
-      ax: from.x,
-      az: from.z,
-      bx: to.x,
-      bz: to.z,
-      halfWidth: passage.halfWidth,
-      startElevation: passage.startElevation,
-      endElevation: passage.endElevation,
-    }];
+    return [
+      {
+        id: passage.id,
+        ax: from.x,
+        az: from.z,
+        bx: to.x,
+        bz: to.z,
+        halfWidth: passage.halfWidth,
+        startElevation: passage.startElevation,
+        endElevation: passage.endElevation,
+      },
+    ];
   });
 
 /** Squared distance from a point to a finite segment. Hot path; no allocation. */

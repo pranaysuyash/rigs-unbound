@@ -1,8 +1,8 @@
 # Exploration Map
 
-Status: living canonical map
+Status: research/status map feeding the spine (per ADR-0040 — canonical design decisions now live in docs/design/GAME_DESIGN_SPINE.md)
 Started: 2026-07-25
-Last updated: 2026-07-29
+Last updated: 2026-08-05
 
 ## How to use this map
 
@@ -339,6 +339,60 @@ Those boards are also tracked in the
 [Asset Provenance Register](../research/ASSET_PROVENANCE_REGISTER.md) as
 project-owned exploration reference art.
 
+### Context switching mechanic
+
+The core innovation — one rig across 10+ contexts — needs a runtime mechanism
+for transitioning between contexts while preserving identity. The working
+recommendation is place-driven context (the rig inherits context from where
+it is) with episode overlays (bounded pressure, rules, and consequences).
+Capability reinterpretation (same verb, different meaning per context) is the
+key mechanic. See
+[Context Switching Mechanic](CONTEXT_SWITCHING_MECHANIC_2026-08-05.md).
+Status: Proposed; not yet validated with player evidence.
+
+### Episode runtime architecture
+
+The episode runner composes bounded episodes above the contract ledger, but
+the frame-by-frame execution — spawning, pressure escalation, discovery
+seeding, consequence application, and recovery — needed mechanical detail.
+The working recommendation is a 5-phase lifecycle (proposal → activation →
+execution → climax → resolution) with a bounded director that adjusts
+pressure and spawns events. See
+[Episode Runtime Architecture](EPISODE_RUNTIME_ARCHITECTURE_2026-08-05.md).
+Status: Proposed; not yet validated with player evidence.
+
+### Module system mechanics
+
+Modules are the physical attachments that modify rig capabilities, but how
+they attach, grant capabilities, impose tradeoffs, interact with contexts,
+and are managed at runtime needed mechanical detail. The working
+recommendation is hardpoint-based physical attachment with capability grants
+and tradeoffs, context-dependent effectiveness, and workshop-based
+management. See
+[Module System Mechanics](MODULE_SYSTEM_MECHANICS_2026-08-05.md).
+Status: Proposed; not yet validated with player evidence.
+
+### First playable slice plan
+
+The project has extensive design but needs a concrete, buildable first slice.
+The working recommendation is "First Harvest" — Torque-70 harvests a field
+before a storm arrives, exercising rig movement, module attachment, terrain
+interaction, weather pressure, and persistent consequence. This primarily
+validates Q1 (machine attachment) and Q2 (useful work is pleasurable). See
+[First Playable Slice Plan](FIRST_PLAYABLE_SLICE_PLAN_2026-08-05.md).
+Status: Proposed; not yet accepted for implementation.
+
+### NPC and community system
+
+The playtest found "nothing lives here." Q3 asks whether a place can create
+motive — this requires someone who needs something. The working recommendation
+is place-bound NPCs with observable needs, memory of player actions, and
+trust-gated access. Communication through visual cues and radio beats, not
+dialogue trees. The first slice needs one NPC (Sava Nune), one need (harvest
+before storm), one response, one memory, and one trust-gated access change. See
+[NPC and Community System](NPC_AND_COMMUNITY_SYSTEM_2026-08-05.md).
+Status: Proposed; not yet validated with player evidence.
+
 ### Farmfall emission and cultivation boundary
 
 The current Farmfall plan predates save schema v6, blade fill, Reclamation, and
@@ -661,6 +715,17 @@ No premium currency is proposed.
 ### Social and community topics
 
 Co-op roles, crews, shared garages, ghosts, challenges, seed sharing, spectating, photo mode, replays, emotes, chat, reporting, blocking, parental controls, moderation, community events, attribution, creator discovery, and grief recovery.
+
+### NPC and community system
+
+NPCs are machines with agency, not people with dialogue trees. They are
+place-bound, have needs (not quests), remember player actions, and communicate
+through visual/environmental cues and radio beats — not branching dialogue.
+The first slice needs one NPC (Sava Nune), one need (harvest before storm),
+one response, one memory, and one trust-gated access change. This answers Q3
+("can a place create motive?"). See
+[NPC and Community System](NPC_AND_COMMUNITY_SYSTEM_2026-08-05.md).
+Status: Proposed.
 
 ## AI and agents
 
@@ -2874,3 +2939,406 @@ existing fixture for appearances. The next runtime asset must be selected from
 a place need, have a documented scale/pivot/material/LOD/provenance contract,
 and contribute an optional physical affordance or recognizable local condition.
 It must not become a mandatory interaction prop or a disguised tutorial gate.
+
+## Addendum (2026-08-02): External game-design research cross-checked against traversal/exploration reality
+
+A general game-design best-practices report
+([docs/research/GAME_DESIGN_BEST_PRACTICES_2026-08-01.md](../research/GAME_DESIGN_BEST_PRACTICES_2026-08-01.md))
+was cross-checked against the actual traversal and exploration implementation.
+Findings:
+
+- **Traversal feel is genuinely mature and matches Swink's Input/Response/
+  Context/Polish model already**, without anyone having designed it that way
+  on purpose: `physics.ts` (simulation-true pitch/roll, per-rig grip/torque
+  curves) plus `feedback.ts`/`animation.ts` (a presentation-only lean/dive
+  layer on top, per-vehicle-tuned in `MOTION_EXPRESSION`) is exactly the
+  "physics layer + juice layer" split the research recommends. No dedicated
+  drift/powerslide mechanic exists — "Drift" is currently only the marsh
+  skimmer's flavor name, not a mechanic.
+- **The exploration incentive loop is real, not the flat/scripted world the
+  spine's prose sometimes implies**: survey/fog-of-war is genuinely
+  elevation-gated (climbing extends what you can see, not just what you've
+  walked past), and salvage spawn rates are biome-weighted and explicitly
+  excluded from the authored road corridor. This already matches the
+  research's "reward off the beaten path" principle.
+- **Confirmed stale claims found during this pass**, independent of the
+  research cross-check: the spine's line that `radio-scanner.ts` and
+  `seismic-probe.ts` are "currently unreachable" is now false — both are
+  wired through `navigator-ui.ts`/`rumor-map-ui.ts` into `main.ts`. Reachability
+  counts anywhere citing that number should be re-verified against
+  `src/main.ts` imports before being repeated.
+- **The single largest gap against the research is instrumentation, not
+  design.** The report's most-cited actionable technique (Nintendo's BOTW
+  playtest-heatmap methodology — track where players actually walk, treat
+  unvisited regions as a design bug) has zero equivalent here: `rig.telemetry`
+  is an ephemeral per-frame HUD/audio struct, not logged or aggregated, and
+  the existing `PLAYTEST_SIM_*` reports are single-session AI-narrated prose,
+  not position data. There is currently no way to answer "which of the 9
+  `WORLD_SITES` do players actually reach, and which do they never find,"
+  which is exactly the question BOTW's team used instrumentation to answer.
+- **The spine's "landmark hierarchy" (horizon anchors → regional landmarks →
+  local secrets) and unified topo-map/minimap revelation remain vision-only**:
+  today's 9 sites are a flat, single-tier list with no hierarchy field, and
+  `topo-map.ts` is fully implemented but unwired anywhere reachable from
+  `main.ts`. This is the same "built but not player-reachable" pattern the
+  spine's own reachability budget already tracks — the landmark-hierarchy gap
+  and the topo-map gap are the same class of problem, not two new ones.
+
+No decision is proposed here — this is a status/research finding per this
+map's role under ADR-0040. If Pranay wants to act on the instrumentation gap
+or the landmark-hierarchy gap, those decisions belong in the spine or a new
+ADR, not here.
+
+## Correction (2026-08-02): the instrumentation gap above was overstated — raw capture already exists
+
+The addendum immediately above states "no player-behavior telemetry or
+heatmap system of any kind exists" and "zero equivalent here," sourced from a
+sub-agent's repo search that keyed on the literal string `telemetry` and
+found only `rig.telemetry` (an ephemeral per-frame HUD/audio struct). That
+search missed `src/game/ghost.ts`'s `GhostTrailRecorder`: it already samples
+every rig's x/y/z/heading/speed at 10Hz during play (`ghost.ts:19-38`), is
+wired into the live frame loop (`main.ts:3838`, `ghostRecorder.record(rig,
+now)`, called every frame), and is already exportable as JSON via the
+browser console (`window.getGhostTrail()`, `main.ts:3343-3354`) in the exact
+schema-versioned shape (`{schemaVersion, sampledAtHz, seed, activeRigId,
+snapshots}`) needed for offline analysis. This is a textbook instance of the
+motto's own warning: "if another agent gives a summary, treat it as a
+hypothesis" — the claim was re-verified by direct grep and found false.
+
+**What was actually missing** was narrower than "no telemetry": no
+cross-session aggregation and no heatmap/dead-zone analysis of that already-
+captured data. That gap is now closed by
+[`tools/heatmap-from-ghost-trail.ts`](../../tools/heatmap-from-ghost-trail.ts)
+(documented in `tools/README.md`): it takes one or more `window.getGhostTrail()`
+exports, renders an SVG movement heatmap, and reports per-`WORLD_SITE`
+reachability (flagging any site with zero samples inside its
+`discoverRadius` across the supplied sessions as never-reached) — directly
+operationalizing the BOTW playtest-heatmap technique from
+`docs/research/GAME_DESIGN_BEST_PRACTICES_2026-08-01.md` §9. Verified Tier 3
+(ran against a synthetic fixture engineered to only visit Home Silo; the tool
+correctly flagged the other 8 of 9 sites as never-reached and produced a
+valid SVG) and typechecked clean against the project `tsconfig.json`.
+
+**What remains genuinely open** (not solved by this tool, and worth being
+honest about): nothing currently *automates* collecting many organic
+playtest sessions — a human or a scripted `*-browser-acceptance.cjs` run
+still has to call `window.getGhostTrail()` and save the result before the
+tool has anything to read. `GhostTrailRecorder` also clears on every world
+reset (`main.ts:2554`), so it captures one continuous run, not a
+save-spanning history. Wiring one of the existing `*-browser-acceptance.cjs`
+scripts to auto-export the trail on exit, or persisting trail summaries
+across resets, would close that remaining piece — that's a real next
+decision, not done here, and is named rather than implemented because it
+touches the acceptance-test harness pattern rather than being a pure
+offline-analysis addition.
+
+## 2026-08-05 — vision-vs-runtime review: the docs understate the runtime, not the reverse
+
+Full report:
+[`docs/reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md`](../reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md).
+
+Standing memory for this repo says the docs here have previously made false
+claims about the runtime, so the reachability audit ran first. It found the
+opposite failure this time: the 2026-08-05 exploration set **understates**
+implementation by three to four evidence tiers.
+
+**What the audit actually reports** (`node tools/audit-runtime-reachability.mjs`,
+five entry points): 92 non-test source modules, 79 entry-reachable, **12
+unreachable** against the ≤13 budget from
+[`FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md`](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md)
+§6. Zero quarantine violations. `npm test` passes 538 tests across 87 files
+plus 7/7 kernel determinism tests.
+
+**The correction.** `UNIFIED_DESIGN_SUMMARY_2026-08-05.md` §13 marks all seven
+foundational systems "Proposed". Four of them are shipped and player-reachable:
+context switching (`affordances.ts` + `activities.ts`), episode runtime
+(`mission-lifecycle.ts`), module system (`workshop-lab.ts` +
+`rig-tool-projection.ts`), and NPC/community (`settlement-life.ts`,
+`settlement-needs.ts`). `FIRST_PLAYABLE_SLICE_PLAN_2026-08-05.md` §2 lists
+those same systems under "not yet working". The harvest slice it plans is
+already wired: cultivation at `state.ts:2780-2796`, delivery at
+`state.ts:1355-1377`, storm arrival at `state.ts:2260-2268`, HUD at
+`main.ts:2741-2748`, contract at `contracts.ts:774-790`.
+
+Design status and runtime status are orthogonal and were being conflated. A
+doc can be "not an accepted ADR" while the module it describes is Tier 4
+player-reachable; both were true simultaneously and only the first was being
+recorded.
+
+**Where the vision genuinely does lead the runtime** — two systems, named
+honestly: **rig generation** (3 hand-authored profiles, no variant layer;
+"infinite possibilities" is not player-reachable) and **asset pipeline**
+(`asset-manager.ts` is 267 lines, **untested**, unreachable, and the only
+unreachable module with no named tranche — the largest unproven block in the
+tree, and the gate on the whole GenAI→GLB vision).
+
+**Three defects found while auditing, not previously recorded:**
+
+1. `state.ts:2783-2787` stores cultivation dedup as `(state as any)._cultivatedCells`,
+   outside the `GameState` contract and therefore outside save validation at
+   `state.ts:4239-4252`. `cultivatedRows` persists across reload but the dedup
+   set does not, so a reload lets the same cells be re-cultivated and inflate
+   the count. A real correctness bug in the first playable, and a breach of
+   the module's own determinism contract.
+2. `plow_4_furrow.glb` sits at the repository root, outside `assets/runtime/`
+   and unknown to the asset manifest.
+3. `xp-progression.ts` exists alongside the reachable `progression.ts` —
+   duplicate authority for one resource, worth resolving before either grows.
+
+**Method note.** The user asked for this review "through the 3d-games skill".
+`~/Projects/skills/3d-games/` and `~/.agents/skills/3d-games/` are both present
+but **empty** — no `skill.json`, no `skill.md`. An empty skill directory
+degrades silently to no guidance rather than failing loudly. The review ran as
+a direct technical audit instead. Populated alternatives that fit this project:
+`threejs-performance`, `threejs-game-director`, `threejs-gameplay-systems`,
+`game-design`, `game-testing`, `headed-chrome-3d-testing`.
+
+**Anything else?** Yes. motto_v5 §0.5 and §23 exist to stop docs from
+*overclaiming* implementation, and they work. Nothing in the doctrine catches
+*underclaiming*: a "Proposed" label costs nothing to write and is never
+audited against the reachability report. The durable fix is to generate status
+tables from `tools/audit-runtime-reachability.mjs` output rather than restating
+them by hand. Also open: no browser acceptance run was executed during this
+review, so every Tier 4 label here is inherited from WORKLOG evidence rather
+than regenerated.
+
+## 2026-08-05 — harvest cultivation is contracted state; schema ladder had a latent gap
+
+Follow-up to the vision-vs-runtime review entry above. Closes defect (1);
+defects (2) and (3) remain open.
+
+- Cultivation dedup no longer lives in `(state as any)._cultivatedCells`.
+  `HarvestState.cultivatedCells: string[]` is the authority and
+  `cultivatedRows` is derived through the pure `cultivatedRowsFor()`.
+- The review under-described this defect. The `Set` was destroyed at three JSON
+  boundaries, not one: `storage.ts:270` (save), `run-record.ts:83` (replay
+  clone), `replay-validator.ts:116` (determinism hash). A reload could
+  re-credit ground already ploughed.
+- Storm arrival now clears the cells with the count. Zeroing only the count
+  would have left the field un-recultivable while the HUD read zero.
+- `recoverHarvest()` recomputes the row count from remembered cells rather than
+  trusting the persisted number, so no save can restore progress its cells do
+  not support.
+- Rejected deriving cultivation from `state.semanticEdits`: that array is
+  capped at `MAX_FURROWS = 640` and evicts oldest-first, so cultivation could
+  count *down* in a long session. Derived state needs a lossless source.
+- `SAVE_SCHEMA_VERSION` 28 -> 29. This exposed a **pre-existing** ladder bug:
+  v27 had no branch of its own, so shifting `PREVIOUS_SAVE_SCHEMA_VERSION`
+  forward would have recovered every v27 save as `null` — silent total progress
+  loss. Fixed with an explicit branch plus a regression test. Any future schema
+  bump should check the outgoing version keeps a branch.
+- Verified: typecheck clean; `npm test` 88 files / 550 tests PASS (+12, no
+  regressions); kernel 7/7; reachability 8/8 and still 12 unreachable against
+  the <=13 budget; `npm run build` PASS with the asset-boundary assert.
+  Browser acceptance not run — Tier 2 for this change, not Tier 4.
+
+### Anything else?
+
+The reachability audit is good at finding modules the player cannot reach. It
+has nothing to say about state the player *can* reach that does not survive
+persistence. A save/replay round-trip check over every contracted state block
+would have caught this class directly, and would be a better falsifier than
+reading for `as any` casts. Worth considering as a tool alongside
+`audit-runtime-reachability.mjs`.
+
+## 2026-08-05 — serialization guard closes the bug class behind the harvest defect
+
+Supersedes the counts in the entry above (88 files / 550 tests), which were
+correct when written and predate this work.
+
+- Added `src/game/state-serialization.test.ts` (8 tests). Walks the whole state
+  tree and fails on anything `JSON.stringify` destroys — `Set`, `Map`, `Date`,
+  `undefined`, functions, `NaN`, `Infinity` — reporting the offending path.
+- Answers the gap named in the previous entry's "Anything else?": the
+  reachability audit cannot see state that the player *can* reach but that does
+  not survive persistence. This is the falsifier that was missing.
+- Checks run against real state, including **after 600 stepped frames**. The
+  original `_cultivatedCells` Set did not exist until the player ploughed, so a
+  creation-time-only check would have passed while the bug was live.
+- Also asserts recovery is a fixed point and that no top-level state key is
+  dropped across a round trip.
+- Proven to fail: a temporary test reintroduced the pre-fix `(state as any)
+  ._cultivatedCells = new Set(...)` verbatim; the walker found it and confirmed
+  JSON turns it into `{}`. Temp file deleted, not in the tree.
+- Verified: typecheck clean; `npx vitest run` **89 files / 558 tests** PASS
+  (+20 this session over the 87 / 538 baseline); kernel 7/7; reachability 8/8
+  and still 12 unreachable inside the <=13 budget; build PASS. Browser
+  acceptance not run — Tier 2.
+
+### Anything else?
+
+The guard is generic, so state added later is covered without anyone writing a
+test for it. That is the point, but it also means a future author may hit a
+failure they did not cause. The failure message reports the exact path and the
+reason, which should be enough to act on without reading this entry.
+
+## 2026-08-05 — xp-progression is quarantined by design; review defect (3) withdrawn
+
+- `xp-progression.ts` is **not** duplicate authority. It is a quarantined record
+  of an explored-and-rejected policy (universal XP), rejected by ADR-0018 with
+  operator sign-off and isolated per ADR-0036.
+- Enforcement is real, not documentary: `tools/audit-runtime-reachability.mjs:46`
+  registers it, quarantined-and-reachable is a hard failure rather than a budget
+  item, and two self-tests cover the mechanism. Both pass.
+- Quarantined modules are deliberately excluded from the unreachable budget so
+  the budget cannot create pressure to wire them — the tool comment at line 39
+  says so directly.
+- `progression.ts` (Journey / Mastery / Insight) is canonical and wired via
+  `state.ts`. No conflict exists.
+- No code changed. No tests added — the behaviour is already covered by the
+  reachability self-tests.
+
+### Anything else?
+
+The review reached this false positive by matching filenames rather than reading
+the module header, which declares the quarantine in its first two lines. Paired
+with Addendum 1 — where a cast that looked cosmetic was a real bug — the lesson
+is that Tier 1 static inspection ranks candidates and cannot adjudicate them.
+Worth carrying into future audits: a finding is provisional until the file has
+been read.
+
+## 2026-08-05 — filesystem-first asset audit finds what manifest-driven checks cannot
+
+- Added `tools/audit-asset-manifest-coverage.mjs` plus 9 self-tests. Walks the
+  filesystem and reconciles it against `assets/asset-manifest.json`.
+- The gap it closes is structural, not a missing check. Both existing asset
+  guards — the preflight and the player-build boundary assert — iterate
+  `manifest.entries`. An asset nobody declared has no entry to iterate, so it
+  passes every manifest-driven check silently. Direction of traversal decides
+  what is findable.
+- Three finding classes: undeclared runtime binaries on disk; declared
+  `runtimePath` with no file behind it; and entries recording `runtimePath:
+  null` while a file sits at the conventional slot. The third is the subtle
+  one — the rights and approval status recorded against that entry no longer
+  describes bytes that exist.
+- Scope is deliberately narrow: `.glb`/`.gltf` only. Source art and reference
+  images are tracked with `runtimePath: null` by design and are not
+  distribution risks. `node_modules`, `.git`, `dist`, `coverage`, `.vite`
+  skipped.
+- Each self-test builds a throwaway fixture provoking exactly one finding. Two
+  mirror live findings verbatim. A tool that has only ever reported "clean" is
+  not evidence that it can report anything else — same discipline applied to
+  the serialization guard in the entry above.
+- Live findings, **not dispositioned**: 2 undeclared binaries
+  (`assets/runtime/field-plough-01.glb`, `plow_4_furrow.glb` at repo root),
+  0 declared-but-absent, 1 deferred-but-present (`field-plough-01`).
+- `verify:head` runs the self-tests and the **non-strict** audit.
+  `audit:asset-coverage:strict` exists and works but is deliberately not
+  gating: the findings are real and their resolution is an operator decision,
+  and a gate that fails the moment it lands teaches people to bypass gates.
+- Documented in `tools/README.md` under "Asset manifest coverage audit",
+  positioned directly after the preflight section it complements.
+- Verified: typecheck clean; 89 files / 558 tests PASS (unchanged — this work
+  added no vitest tests, the 9 audit tests run under `node:test`); audit
+  self-tests 9/9; `npm run verify:head` PASS. Browser acceptance not run —
+  Tier 2.
+  - **[Corrected 2026-08-06]** The `verify:head` PASS in the line above is
+    false; the chain stops at `format:check`, which is red on committed files.
+    The individually-named results stand. See the verification-integrity
+    finding in the 2026-08-06 entry below.
+
+### Anything else?
+
+`auditAssetManifestCoverage()` is exported rather than living only behind the
+CLI, so a future CI surface can call it without reimplementing the
+reconciliation. That was cheap here and is the difference between a tool and a
+script.
+
+The deferred-but-present finding is worth carrying as a general pattern: a
+manifest field that records *intent* ("export deferred") drifts silently when
+the tree moves past that intent. Any field recording a plan rather than a fact
+needs a reconciliation check, or it decays into a false claim about what
+exists.
+
+## 2026-08-06 — "unreachable" was three states, and the vocabulary gap produced a wrong plan
+
+The reachability audit could say a module was unreachable and could say it was
+quarantined. It had no way to say **"this cannot be wired yet, and here is
+what would unblock it."** That missing third state is not a cosmetic gap. It
+produced a concrete wrong plan.
+
+The 2026-08-05 review's §10 listed as its second-priority action: wire
+`electrical-grid.ts` and `world-memory.ts` to make Water Before Night reachable.
+Reading the modules first — Tier 1 static inspection ranks candidates, it does
+not adjudicate them — all three premises failed:
+
+- The quest was **already player-reachable**, shipped in `a141b0b`.
+- `electrical-grid.ts` is a rig 12V accessory budget (alternator vs. headlight,
+  winch, seismic draw), not a farm pump circuit. The pump was implemented as an
+  infrastructure entity with a `commandedOn` flag.
+- `world-memory.ts` is not consequence persistence. Canonical spatial memory is
+  `WorldMemoryRecord` (`gameworld.ts:84`), already wired to `storage.ts` and
+  `run-record.ts`. Wiring `world-memory.ts` would have created a second mutable
+  soil model beside the canonical one.
+
+The wrong binding did not start in the review. It came from the slice spec's §3
+table, was restated in the review's §7.2, and restated again in §10. Three
+documents deep, one unread pair of files.
+
+### The pattern worth carrying
+
+**A module named for a feature's *intent* gets taken for a module implementing
+its *mechanism*.** Both wrong bindings failed this exact way, and so did the
+next one checked (`signature.ts` as "component provenance" — it maps rig speed,
+strain, and tool engagement onto three emission channels; no component identity
+anywhere). Three for three. `world-memory.ts` *sounds* like consequence
+persistence; `electrical-grid.ts` *sounds* like something a pump plugs into.
+Filenames are the least reliable evidence in the repository and the most
+frequently cited.
+
+The corollary is a process rule: **a reachability audit produces a list of
+modules worth reading, and the read is not optional.** Its output ranks
+candidates; only the source adjudicates.
+
+### What was built
+
+A `DEFERRED` registry in `tools/audit-runtime-reachability.mjs`. Each entry
+carries a precondition (what would unblock it) and a rationale (what the module
+actually does — that field exists because filenames caused this). Three entries:
+`world-memory.ts`, `electrical-grid.ts`, `signature.ts`.
+
+Deferred modules **stay in the unreachable budget**, unlike quarantined ones.
+Quarantine is permanent and decided; deferral is temporary and supposed to
+resolve, so it must keep counting or the budget stops applying pressure exactly
+where pressure is still wanted. Excluding deferrals would also make the registry
+an escape hatch that quietly voids the budget. Stale entries fail the audit, so
+the registry cannot rot into folklore.
+
+### The finding only visible in aggregate
+
+With three entries registered, two turned out to wait on **the same missing
+concept**: player-owned operating-light state. `electrical-grid.ts` needs
+`isHeadlightsActive` as real kernel state; `signature.ts`'s header forbids
+production callers inferring its `illumination` input from Three.js objects
+because no such state exists. Measured: `flashHeadlights` (`main.ts:1349`)
+drives a renderer-side transient; every other beacon is decorative geometry.
+
+Written as free-text preconditions these read as two unrelated blockers. They
+are one absent capability holding back 147 unreachable lines. Entries now carry
+an optional `sharedBlocker` slug and the audit groups them.
+
+**Generalisable:** free-text status fields hide shared causes. Any registry
+where entries explain *why they are blocked* in prose will describe the same
+blocker in different words, and the aggregate — which is the prioritisation
+signal — is invisible. Give the blocker an identifier and group on it.
+
+### Verification integrity finding
+
+Separately, and more seriously: `npm run verify:head` is an `&&` chain whose
+first step is `format:check`, and `format:check` is **red on files nobody is
+currently editing** — most of the failing set is unmodified at HEAD, so the gate
+was red before this session and stays red after it. Documented as known-red
+since `WORKLOG_ADDENDUM_2026-07-28.md:292`. Yet three durable records claim
+"`verify:head` PASS" (`WORKLOG.md:7934`, this map at line 3233, and the review
+at line 862). Those claims cannot be true as written. See the 2026-08-06 WORKLOG
+entry for the corrected per-step numbers and the concrete unblock path.
+
+**A count was here and has been removed.** This paragraph read "41 of 49
+failing files" until 2026-08-06, when the `format:check` glob was widened and
+parallel work landed — the real figures moved to 44 of 53 within hours. Run
+`npm run format:check` for the current set. The claim that carries the argument
+is the condition, not the arithmetic: files nobody has open are failing, so
+this is not something the current session introduced or can wait out. That
+statement survives drift; the numbers did not. Same failure mode this map's own
+entry describes for restated ceilings, committed the same day it was written.
+

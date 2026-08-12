@@ -128,9 +128,15 @@ describe("refreshTerrainNormalsInRegion", () => {
       for (let ix = 0; ix < size; ix += 1) {
         const i = iz * size + ix;
         const inPaddedBox =
-          ix >= minIx - 1 && ix <= maxIx + 1 && iz >= minIz - 1 && iz <= maxIz + 1;
+          ix >= minIx - 1 &&
+          ix <= maxIx + 1 &&
+          iz >= minIz - 1 &&
+          iz <= maxIz + 1;
         if (!inPaddedBox) {
-          untouchedBefore.set(i, new THREE.Vector3().fromBufferAttribute(normal, i));
+          untouchedBefore.set(
+            i,
+            new THREE.Vector3().fromBufferAttribute(normal, i),
+          );
         } else {
           normal.setXYZ(i, sentinel.x, sentinel.y, sentinel.z);
         }
@@ -175,9 +181,9 @@ describe("refreshTerrainNormalsInRegion", () => {
     ).not.toThrow();
 
     const n = new THREE.Vector3().fromBufferAttribute(normal, 0);
-    expect(Number.isFinite(n.x) && Number.isFinite(n.y) && Number.isFinite(n.z)).toBe(
-      true,
-    );
+    expect(
+      Number.isFinite(n.x) && Number.isFinite(n.y) && Number.isFinite(n.z),
+    ).toBe(true);
     expect(n.length()).toBeCloseTo(1, 5);
   });
 

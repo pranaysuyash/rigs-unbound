@@ -93,7 +93,8 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "road-rivalry",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Grove Run",
-    premise: "Take a machine from Toy Grove through Quarry Shelf to Home Silo. The land keeps the record.",
+    premise:
+      "Take a machine from Toy Grove through Quarry Shelf to Home Silo. The land keeps the record.",
     binding: "rally",
     requiredCapabilities: ["rally"],
     worldRefs: ["toy-grove", "quarry-shelf", "home-silo"],

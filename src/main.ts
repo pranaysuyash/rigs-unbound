@@ -76,6 +76,8 @@ import { GhostTrailRecorder } from "./game/ghost";
 import { GameRenderer } from "./game/renderer";
 import type {
   CameraResolutionEvidence,
+  RigGroundContactEvidence,
+  RigModuleVisualEvidence,
   RigOrientationEvidence,
   RigPerceptionEvidence,
   RuntimeAssetBridgeEvidence,
@@ -125,6 +127,7 @@ import { CRAFTING_RECIPES, canCraftRecipe } from "./game/salvage-crafting";
 import { deriveFleetRecoveryAssessment } from "./game/fleet-recovery-assessment";
 import { fleetRecoveryProjection } from "./game/fleet-recovery-command";
 import { deriveWeatherForecast, deriveWeatherState } from "./game/weather";
+import { generateElevationContours } from "./game/topo-map";
 import type { WeatherState } from "./game/weather";
 import {
   clearState,
@@ -183,7 +186,31 @@ declare global {
     getPerformanceSnapshot: () => PerformanceSnapshot;
     getRigOrientationEvidence: (rigId?: RigId) => RigOrientationEvidence;
     getRigPerceptionEvidence: (rigId?: RigId) => RigPerceptionEvidence;
+    /**
+     * Measure whether the rendered rig is touching the rendered ground.
+     *
+     * A presentation-only surface, but the only one that can catch a rig mounted
+     * in the wrong vertical frame: everything else compares authored numbers
+     * with authored numbers and agrees with itself.
+     */
+    getRigGroundContactEvidence: (rigId?: RigId) => RigGroundContactEvidence;
+    /**
+     * Measure the rendered volume of every module visual against the terrain and
+     * against the rig's own hand-authored superstructure.
+     *
+     * The blockout's unit tests cannot reach either: they compare the derived
+     * mount boxes with the table those boxes come from, while the cab, roof, and
+     * plough are position literals in the renderer.
+     */
+    getRigModuleVisualEvidence: (rigId?: RigId) => RigModuleVisualEvidence;
     getCameraResolutionEvidence: () => CameraResolutionEvidence;
+    getWeatherSceneEvidence: () => {
+      easedRain: number;
+      fogDensity: number;
+      phaseBaseFogDensity: number;
+      rainVisible: boolean;
+      rainOpacity: number;
+    };
     getRuntimeBridgeEvidenceList: () => RuntimeAssetBridgeEvidence[];
     getRuntimeBridgeEvidence: (assetId: string) => RuntimeAssetBridgeEvidence;
     /** Acceptance-only visibility preview hook for controlled profile evidence. */
@@ -216,6 +243,17 @@ declare global {
     ) => string;
     setAcceptanceManualStepping: (enabled: boolean) => string;
     installRigModule: (moduleId: ModuleId) => string;
+    /**
+     * Top up the salvage bin so a geometry check can fit a module.
+     *
+     * Deliberately *only* the wallet. `installRigModule` still runs the real
+     * install — workshop proximity, rig compatibility, already-fitted, then the
+     * cost — so an acceptance script that fits a module is still exercising the
+     * path a player takes. Without this, `state.salvage` starts at 0 and every
+     * install silently refuses, which is how `capture-reclamation-walkthrough`
+     * came to screenshot an unmodified tractor and label it "lug-tires fitted".
+     */
+    grantSalvageForAcceptance: (amount: number) => string;
     winchRecoverRig: () => string;
     /** Issue a fleet recovery. Returns the transition reason, then the report. */
     recoverStrandedRig: () => { accepted: boolean; reason: string };
@@ -407,11 +445,7 @@ function selectPresentationMood(
         ? "0.06"
         : "0";
   const rainSpeed =
-    weather.phase === "storm"
-      ? "11s"
-      : weather.phase === "rain"
-        ? "18s"
-        : "0s";
+    weather.phase === "storm" ? "11s" : weather.phase === "rain" ? "18s" : "0s";
 
   return {
     themeColor,
@@ -509,7 +543,12 @@ function syncPresentationMood(
   cameraMode: CameraMode,
   speedKmh: number,
 ): void {
-  const mood = selectPresentationMood(worldPhase, weather, profile, motionEnergy);
+  const mood = selectPresentationMood(
+    worldPhase,
+    weather,
+    profile,
+    motionEnergy,
+  );
   const tone = selectRigPresentationTone(rigId);
   const cameraTone = selectCameraPresentationTone(cameraMode);
   const driveTone = selectDrivePresentationTone(speedKmh);
@@ -1087,6 +1126,9 @@ function boot(): void {
   const driveStateLabel = requiredElement<HTMLElement>("#drive-state-label");
   const surfaceLabel = requiredElement<HTMLElement>("#surface-label");
   const biomeLabel = requiredElement<HTMLElement>("#biome-label");
+  const terrainHazardLabel = requiredElement<HTMLElement>(
+    "#terrain-hazard-label",
+  );
   const surveyContract = requiredElement<HTMLElement>("#survey-contract");
   const surveyContractText = requiredElement<HTMLElement>(
     "#survey-contract-text",
@@ -1117,6 +1159,20 @@ function boot(): void {
   );
   const firstRungObjectiveText = requiredElement<HTMLElement>(
     "#first-rung-objective-text",
+  );
+  const harvestObjective = requiredElement<HTMLElement>("#harvest-objective");
+  const harvestObjectiveText = requiredElement<HTMLElement>(
+    "#harvest-objective-text",
+  );
+  const harvestStormTimer = requiredElement<HTMLElement>(
+    "#harvest-storm-timer",
+  );
+  const harvestCompass = requiredElement<HTMLElement>("#harvest-compass");
+  const harvestCompassArrow = requiredElement<HTMLElement>(
+    "#harvest-compass-arrow",
+  );
+  const harvestCompassDistance = requiredElement<HTMLElement>(
+    "#harvest-compass-distance",
   );
   const emergencyRecover =
     requiredElement<HTMLButtonElement>("#emergency-recover");
@@ -1182,6 +1238,7 @@ function boot(): void {
     "#control-lesson-dismiss",
   );
   const dialoguePanel = requiredElement<HTMLElement>("#dialogue-panel");
+  const dialogueScrim = requiredElement<HTMLElement>("#dialogue-scrim");
   const dialogueSpeaker = requiredElement<HTMLElement>("#dialogue-speaker");
   const dialogueBody = requiredElement<HTMLElement>("#dialogue-body");
   const dialogueChoices = requiredElement<HTMLElement>("#dialogue-choices");
@@ -1296,9 +1353,7 @@ function boot(): void {
     void audio.unlock();
     workshopRestoration.classList.add("workshop__restoration--responding");
     window.setTimeout(() => {
-      workshopRestoration.classList.remove(
-        "workshop__restoration--responding",
-      );
+      workshopRestoration.classList.remove("workshop__restoration--responding");
     }, 460);
     workshopRestorationAction.setAttribute("aria-busy", "true");
     window.setTimeout(() => {
@@ -1331,9 +1386,8 @@ function boot(): void {
     <button type="submit">Record name</button>
   `;
   workshopCondition.insertAdjacentElement("afterend", workshopIdentity);
-  const workshopRigName = workshopIdentity.querySelector<HTMLInputElement>(
-    "#workshop-rig-name",
-  );
+  const workshopRigName =
+    workshopIdentity.querySelector<HTMLInputElement>("#workshop-rig-name");
   const workshopRecordName = workshopIdentity.querySelector<HTMLButtonElement>(
     "button[type=submit]",
   );
@@ -1355,14 +1409,16 @@ function boot(): void {
     </div>
   `;
   workshopIdentity.insertAdjacentElement("afterend", waterworksChoice);
-  waterworksChoice.querySelectorAll<HTMLButtonElement>("button[data-waterworks-choice]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const choice = button.dataset.waterworksChoice;
-      if (choice === "repair-pump" || choice === "redirect-channel") {
-        chooseFarmWaterworks(state, world, choice);
-      }
+  waterworksChoice
+    .querySelectorAll<HTMLButtonElement>("button[data-waterworks-choice]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const choice = button.dataset.waterworksChoice;
+        if (choice === "repair-pump" || choice === "redirect-channel") {
+          chooseFarmWaterworks(state, world, choice);
+        }
+      });
     });
-  });
   const moduleList = requiredElement<HTMLOListElement>("#module-list");
   const radialOverlay = requiredElement<HTMLElement>("#radial-overlay");
   const radialMenuList = requiredElement<HTMLElement>("#radial-menu-list");
@@ -1610,7 +1666,14 @@ function boot(): void {
       );
     }
 
-    const classOrder: MissionClass[] = ["main", "side", "local", "hidden", "repeatable", "emergent"];
+    const classOrder: MissionClass[] = [
+      "main",
+      "side",
+      "local",
+      "hidden",
+      "repeatable",
+      "emergent",
+    ];
     const byClass = new Map<MissionClass, MissionProposition[]>();
     for (const mission of missions) {
       const list = byClass.get(mission.missionClass) ?? [];
@@ -2000,12 +2063,8 @@ function boot(): void {
     <ol id="workshop-parts-bin"></ol>
   `;
   moduleList.insertAdjacentElement("afterend", workshopCrafting);
-  const recipeList = requiredElement<HTMLOListElement>(
-    "#workshop-recipe-list",
-  );
-  const partsBinList = requiredElement<HTMLOListElement>(
-    "#workshop-parts-bin",
-  );
+  const recipeList = requiredElement<HTMLOListElement>("#workshop-recipe-list");
+  const partsBinList = requiredElement<HTMLOListElement>("#workshop-parts-bin");
   CRAFTING_RECIPES.forEach((recipe, recipeIndex) => {
     const item = document.createElement("li");
     const costText = Object.entries(recipe.requiredMaterials)
@@ -2073,7 +2132,12 @@ function boot(): void {
     dialogueInputForm.hidden = true;
     dialogueInput.value = "";
     currentDialogueInputHandler = null;
-    if (document.activeElement && dialoguePanel.contains(document.activeElement)) {
+    dialogueScrim.classList.remove("dialogue-scrim--visible");
+    renderer.setNarrativeFocus(false);
+    if (
+      document.activeElement &&
+      dialoguePanel.contains(document.activeElement)
+    ) {
       canvas.focus();
     }
   };
@@ -2121,6 +2185,8 @@ function boot(): void {
     });
 
     dialoguePanel.hidden = false;
+    dialogueScrim.classList.add("dialogue-scrim--visible");
+    renderer.setNarrativeFocus(true);
     if (input) {
       dialogueInput.focus();
     } else if (choices.length > 0) {
@@ -2662,6 +2728,13 @@ function boot(): void {
   let lastUiUpdate = 0;
   let lastMapUpdate = 0;
   let namingBeatPresented = false;
+  let prevHarvestCultivatedRows = state.harvest.cultivatedRows;
+  let prevHarvestDelivered = state.harvest.delivered;
+  let prevStormArrived = state.harvest.stormArrived;
+  let prevStormMinutesLeft = Math.max(
+    0,
+    state.harvest.stormAtMinutes - state.worldTimeMinutes,
+  );
 
   const updateInterface = (now: number): void => {
     if (now - lastUiUpdate < 100) return;
@@ -2671,6 +2744,7 @@ function boot(): void {
     const profile = effectiveProfile(rig.id, rig.modules);
     const worldPhase = phaseForWorldTime(state.worldTimeMinutes);
     const weather = deriveWeatherState(state.worldTimeMinutes);
+    renderer.setWeather(weather);
     const speedKmh = Math.abs(rig.speed) * 3.6;
     const motionEnergy = Math.min(1, speedKmh / 26);
     if (
@@ -2711,6 +2785,89 @@ function boot(): void {
       "aria-label",
       `Weather forecast: ${forecast.label.toLowerCase()}.`,
     );
+
+    // First playable slice: harvest objective HUD.
+    const harvest = state.harvest;
+    const stormMinutesLeft = Math.max(
+      0,
+      harvest.stormAtMinutes - state.worldTimeMinutes,
+    );
+    const stormHours = Math.floor(stormMinutesLeft / 60);
+    const stormMins = Math.round(stormMinutesLeft % 60);
+    if (harvest.delivered) {
+      harvestObjective.hidden = false;
+      harvestObjectiveText.textContent = `Harvest delivered — ${harvest.cultivatedRows} rows`;
+      harvestStormTimer.textContent = "";
+      harvestObjective.classList.add("is-delivered");
+      harvestObjective.classList.remove("is-storm-arrived");
+    } else if (harvest.stormArrived) {
+      harvestObjective.hidden = false;
+      harvestObjectiveText.textContent =
+        harvest.cultivatedRows > 0
+          ? `${harvest.cultivatedRows}/${harvest.totalRows} rows ploughed — storm arrived`
+          : "Storm arrived — crops lost";
+      harvestStormTimer.textContent = "Storm now";
+      harvestObjective.classList.add("is-storm-arrived");
+      harvestObjective.classList.remove("is-delivered");
+    } else {
+      harvestObjective.hidden = false;
+      harvestObjectiveText.textContent =
+        harvest.cultivatedRows > 0
+          ? `${harvest.cultivatedRows}/${harvest.totalRows} rows ploughed`
+          : "Plough the crop rows before the storm";
+      harvestStormTimer.textContent =
+        stormHours > 0
+          ? `Storm in ${stormHours}h ${stormMins}m`
+          : `Storm in ${stormMins}m`;
+      harvestObjective.classList.remove("is-delivered", "is-storm-arrived");
+    }
+
+    // Audio cues for harvest events.
+    if (harvest.cultivatedRows > prevHarvestCultivatedRows) {
+      audio.ploughCut();
+    }
+    if (harvest.delivered && !prevHarvestDelivered) {
+      audio.harvestDeliver();
+    }
+    if (harvest.stormArrived && !prevStormArrived) {
+      audio.stormApproach(1);
+    } else if (!harvest.delivered && !harvest.stormArrived) {
+      const minutesLeft = Math.max(
+        0,
+        harvest.stormAtMinutes - state.worldTimeMinutes,
+      );
+      const fraction = 1 - minutesLeft / (harvest.stormAtMinutes - 400);
+      if (
+        fraction > 0.7 &&
+        prevStormMinutesLeft / (harvest.stormAtMinutes - 400) <= 0.7
+      ) {
+        audio.stormApproach(0.6);
+      }
+    }
+
+    // Outcome summary: show a summary when harvest is delivered or storm destroys crops.
+    if (harvest.delivered && !prevHarvestDelivered) {
+      showToast(
+        `Harvest complete: ${harvest.cultivatedRows} rows delivered. The community at Long Furrow can eat.`,
+      );
+    } else if (
+      harvest.stormArrived &&
+      !prevStormArrived &&
+      !harvest.delivered
+    ) {
+      showToast(
+        "Storm passed. The uncollected crops are ruined. The community will remember.",
+      );
+    }
+
+    prevHarvestCultivatedRows = harvest.cultivatedRows;
+    prevHarvestDelivered = harvest.delivered;
+    prevStormArrived = harvest.stormArrived;
+    prevStormMinutesLeft = Math.max(
+      0,
+      harvest.stormAtMinutes - state.worldTimeMinutes,
+    );
+
     driveStateLabel.textContent = driveTone.label;
     driveStateLabel.setAttribute(
       "aria-label",
@@ -2720,6 +2877,49 @@ function boot(): void {
       SURFACES[telemetry.surfaceId as SurfaceId]?.displayName ?? "Ground";
     biomeLabel.textContent =
       BIOMES[world.terrain.biomeAt(rig.x, rig.z)].displayName;
+    {
+      // Diegetic terrain hazard readout from the shared contour generator.
+      // Samples a small local height grid around the active rig once per UI
+      // tick and reports the worst slope classification in that footprint, so
+      // the player sees the same ground truth the climb/loss logic reads.
+      const localStep = 6;
+      const localCells = 7; // 7x7 grid => a ~36 m x 36 m footprint.
+      const originX = rig.x - ((localCells - 1) / 2) * localStep;
+      const originZ = rig.z - ((localCells - 1) / 2) * localStep;
+      const grid: number[][] = [];
+      for (let r = 0; r < localCells; r += 1) {
+        const row: number[] = [];
+        for (let c = 0; c < localCells; c += 1) {
+          row.push(
+            world.terrain.height(
+              originX + c * localStep,
+              originZ + r * localStep,
+            ),
+          );
+        }
+        grid.push(row);
+      }
+      const contours = generateElevationContours(grid, localStep, 5);
+      let worst: "safe" | "warning" | "danger" = "safe";
+      for (const segment of contours) {
+        if (segment.hazardLevel === "danger") {
+          worst = "danger";
+          break;
+        }
+        if (segment.hazardLevel === "warning") worst = "warning";
+      }
+      const hazardText =
+        worst === "danger"
+          ? "Steep ground"
+          : worst === "warning"
+            ? "Uneven ground"
+            : "Safe ground";
+      terrainHazardLabel.textContent = `· ${hazardText}`;
+      terrainHazardLabel.setAttribute(
+        "aria-label",
+        `Terrain hazard: ${hazardText.toLowerCase()}.`,
+      );
+    }
     rigValue.textContent = rig.fieldName;
     speedValue.textContent = String(Math.round(Math.abs(rig.speed) * 3.6));
     capabilityValue.textContent = towing
@@ -2880,6 +3080,26 @@ function boot(): void {
         ? firstRungCompletionMessage
         : firstRung.ariaLabel,
     );
+
+    // Compass arrow pointing toward Long Furrow during harvest.
+    const lfSite = WORLD_SITES.find((s) => s.id === "long-furrow");
+    const showCompass =
+      lfSite &&
+      !harvest.delivered &&
+      !harvest.stormArrived &&
+      firstRung.stage === "free-explore";
+    if (showCompass && lfSite) {
+      const dx = lfSite.x - rig.x;
+      const dz = lfSite.z - rig.z;
+      const dist = Math.hypot(dx, dz);
+      const angle = Math.atan2(dx, dz);
+      harvestCompass.hidden = false;
+      harvestCompassArrow.style.transform = `rotate(${angle}rad)`;
+      harvestCompassDistance.textContent = `${Math.round(dist)} m`;
+    } else {
+      harvestCompass.hidden = true;
+    }
+
     if (state.paused) {
       prompt.textContent = "Paused.";
     } else if (rig.condition <= 0) {
@@ -3069,10 +3289,7 @@ function boot(): void {
       closeOverlay();
     }
     if (workshop && activeOverlay === "workshop") {
-      if (
-        state.arrivalBargain.status === "refused" &&
-        dialoguePanel.hidden
-      ) {
+      if (state.arrivalBargain.status === "refused" && dialoguePanel.hidden) {
         showArrivalBargain();
       }
       workshopSalvage.textContent = `${state.salvage} salvage`;
@@ -3164,7 +3381,8 @@ function boot(): void {
         button.disabled = !craftable;
         button.classList.toggle("is-locked", !craftable);
         const stateLabel = button.querySelector<HTMLElement>(".module-state");
-        if (stateLabel) stateLabel.textContent = craftable ? "Craft" : "Need materials";
+        if (stateLabel)
+          stateLabel.textContent = craftable ? "Craft" : "Need materials";
       });
       // The parts bin is a variable-length player inventory, unlike the fixed
       // module roster above, so it is rebuilt rather than diffed in place.
@@ -3386,7 +3604,25 @@ function boot(): void {
     renderer.render(state);
     return renderer.perceptionEvidence(state, rigId);
   };
+  window.getRigGroundContactEvidence = (rigId = state.activeRigId) => {
+    if (!RIG_IDS.includes(rigId)) {
+      throw new Error(`Unknown rig id: ${String(rigId)}`);
+    }
+    renderer.render(state);
+    return renderer.groundContactEvidence(state, rigId);
+  };
+  window.getRigModuleVisualEvidence = (rigId = state.activeRigId) => {
+    if (!RIG_IDS.includes(rigId)) {
+      throw new Error(`Unknown rig id: ${String(rigId)}`);
+    }
+    // Rendered first, so module visibility reflects the current `rigState.modules`
+    // rather than whatever `applyModuleVisuals` last wrote. Measuring a stale
+    // scene graph would make this surface agree with itself and nothing else.
+    renderer.render(state);
+    return renderer.moduleVisualEvidence(state, rigId);
+  };
   window.getCameraResolutionEvidence = () => renderer.cameraEvidence();
+  window.getWeatherSceneEvidence = () => renderer.weatherSceneEvidence();
   window.getRuntimeBridgeEvidenceList = () =>
     renderer.runtimeBridgeEvidenceList();
   window.getRuntimeBridgeEvidence = (assetId: string) =>
@@ -3615,6 +3851,19 @@ function boot(): void {
   };
   window.installRigModule = (moduleId: ModuleId) => {
     return fitModule(moduleId, "acceptance");
+  };
+  window.grantSalvageForAcceptance = (amount: number) => {
+    if (!acceptanceSurface) {
+      throw new Error(
+        "Salvage grants are available only on the field-02 acceptance surface.",
+      );
+    }
+    if (!Number.isFinite(amount) || amount < 0) {
+      throw new Error("A salvage grant must be a finite, non-negative amount.");
+    }
+    state.salvage += Math.floor(amount);
+    recordCommand("grantSalvageForAcceptance", { amount: Math.floor(amount) });
+    return settleAndReport();
   };
   window.toggleBlade = () => {
     markActionReady();

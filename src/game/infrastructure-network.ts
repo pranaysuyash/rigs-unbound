@@ -35,7 +35,8 @@ export const INFRASTRUCTURE_COMPONENTS = [
   "power",
   "control",
 ] as const;
-export type InfrastructureComponent = (typeof INFRASTRUCTURE_COMPONENTS)[number];
+export type InfrastructureComponent =
+  (typeof INFRASTRUCTURE_COMPONENTS)[number];
 
 export type InfrastructureEffect =
   | {
@@ -146,7 +147,8 @@ export interface LocalInfrastructureEffects {
 
 function locationAt(siteId: string, localX: number, localZ: number) {
   const site = findSite(siteId);
-  if (!site) throw new Error(`Infrastructure references unknown world site: ${siteId}.`);
+  if (!site)
+    throw new Error(`Infrastructure references unknown world site: ${siteId}.`);
   return { x: site.x + localX, z: site.z + localZ };
 }
 
@@ -274,7 +276,9 @@ function clamp(value: number, minimum: number, maximum: number): number {
   return Math.min(maximum, Math.max(minimum, value));
 }
 
-function fullComponentState(value: number): Record<InfrastructureComponent, number> {
+function fullComponentState(
+  value: number,
+): Record<InfrastructureComponent, number> {
   return {
     hydraulic: value,
     mechanical: value,
@@ -294,7 +298,9 @@ function conditionFor(
   return Number((total / definition.components.length).toFixed(2));
 }
 
-function entityState(definition: InfrastructureDefinition): InfrastructureEntityState {
+function entityState(
+  definition: InfrastructureDefinition,
+): InfrastructureEntityState {
   const components = fullComponentState(definition.initialCondition);
   return {
     id: definition.id,
@@ -329,18 +335,27 @@ export function infrastructureIsOperating(
   definition: InfrastructureDefinition,
   state: InfrastructureEntityState,
 ): boolean {
-  return state.commandedOn && state.condition >= definition.operationalCondition;
+  return (
+    state.commandedOn && state.condition >= definition.operationalCondition
+  );
 }
 
 function nearestDefinition(
   actor: InfrastructureActorContext,
 ): { definition: InfrastructureDefinition; distanceM: number } | null {
-  let nearest: { definition: InfrastructureDefinition; distanceM: number } | null = null;
+  let nearest: {
+    definition: InfrastructureDefinition;
+    distanceM: number;
+  } | null = null;
   for (const id of INFRASTRUCTURE_ENTITY_IDS) {
     const definition = INFRASTRUCTURE_DEFINITIONS[id];
-    const distanceM = Math.hypot(actor.x - definition.x, actor.z - definition.z);
+    const distanceM = Math.hypot(
+      actor.x - definition.x,
+      actor.z - definition.z,
+    );
     if (distanceM > definition.interactionRadiusM) continue;
-    if (!nearest || distanceM < nearest.distanceM) nearest = { definition, distanceM };
+    if (!nearest || distanceM < nearest.distanceM)
+      nearest = { definition, distanceM };
   }
   return nearest;
 }
@@ -506,7 +521,8 @@ export function advanceInfrastructure(
     const definition = INFRASTRUCTURE_DEFINITIONS[id];
     const prior = network.entities[id];
     const operating = infrastructureIsOperating(definition, prior);
-    const weatherWear = (weather.rainIntensity + stormLoad) * definition.weatherExposure;
+    const weatherWear =
+      (weather.rainIntensity + stormLoad) * definition.weatherExposure;
     const operatingWear = operating ? definition.wearPerWorldMinute : 0;
     const wear = (weatherWear + operatingWear) * worldMinutes;
     if (wear <= 0) continue;
@@ -587,7 +603,9 @@ function finiteNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
-function legacyFloodgateCondition(value: unknown): InfrastructureEntityState | null {
+function legacyFloodgateCondition(
+  value: unknown,
+): InfrastructureEntityState | null {
   if (!value || typeof value !== "object") return null;
   const legacy = value as Record<string, unknown>;
   const status = String(legacy.status ?? "dormant");
@@ -620,7 +638,9 @@ function legacyFloodgateCondition(value: unknown): InfrastructureEntityState | n
         ? legacy.restoredAtMs
         : null,
     lastServicedByRigId:
-      typeof legacy.restoredByRigId === "string" ? legacy.restoredByRigId : null,
+      typeof legacy.restoredByRigId === "string"
+        ? legacy.restoredByRigId
+        : null,
   };
 }
 
@@ -633,7 +653,10 @@ export function recoverInfrastructureNetwork(
   legacyFloodgate: unknown,
 ): InfrastructureNetworkState {
   const network = createInfrastructureNetworkState();
-  const candidate = value && typeof value === "object" ? (value as Record<string, unknown>) : null;
+  const candidate =
+    value && typeof value === "object"
+      ? (value as Record<string, unknown>)
+      : null;
   const entities =
     candidate?.entities && typeof candidate.entities === "object"
       ? (candidate.entities as Record<string, unknown>)
@@ -645,11 +668,11 @@ export function recoverInfrastructureNetwork(
   }
   for (const id of INFRASTRUCTURE_ENTITY_IDS) {
     const definition = INFRASTRUCTURE_DEFINITIONS[id];
-    const raw = entities[id] ?? (
-      id === "sunken-flats-waterworks"
+    const raw =
+      entities[id] ??
+      (id === "sunken-flats-waterworks"
         ? entities[LEGACY_FLOODGATE_ENTITY_ID]
-        : undefined
-    );
+        : undefined);
     if (!raw || typeof raw !== "object") continue;
     const record = raw as Record<string, unknown>;
     const components = { ...network.entities[id].components };
@@ -709,7 +732,9 @@ export function publicInfrastructureNetwork(
       siteId: definition.siteId,
       x: definition.x,
       z: definition.z,
-      distanceMeters: Number(Math.hypot(actorX - definition.x, actorZ - definition.z).toFixed(2)),
+      distanceMeters: Number(
+        Math.hypot(actorX - definition.x, actorZ - definition.z).toFixed(2),
+      ),
       known: entity.known,
       condition: entity.condition,
       operating: infrastructureIsOperating(definition, entity),

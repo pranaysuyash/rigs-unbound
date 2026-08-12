@@ -106,12 +106,72 @@ export interface SettlementDefinition {
 }
 
 export const SETTLEMENTS: readonly SettlementDefinition[] = [
-  { id: "home-valley", name: "Home Valley", siteId: "home-silo", people: "the home valley hands", residentAnchors: [{ x: -5.8, z: -2.8, heading: 0.6 }, { x: 3.4, z: 4.2, heading: 2.8 }, { x: 8, z: -3.8, heading: -0.9 }], contact: { name: "Mara Iles", role: "pump keeper" } },
-  { id: "long-furrow", name: "Long Furrow", siteId: "long-furrow", people: "the Long Furrow growers", residentAnchors: [{ x: -5.6, z: 1.8, heading: 0.2 }, { x: -1.2, z: 4.6, heading: 2.7 }, { x: 5.4, z: -2.2, heading: -1.1 }], contact: { name: "Sava Nune", role: "grower" } },
-  { id: "rustline-salvage", name: "Rustline Salvage", siteId: "salvage-yard", people: "the Rustline salvage crews", residentAnchors: [{ x: -3.4, z: 2.4, heading: 0.8 }, { x: 3.1, z: 4.8, heading: -2.4 }, { x: 6.5, z: -2.8, heading: 2.3 }], contact: { name: "Kellan Voss", role: "yard chief" } },
-  { id: "sunken-flats", name: "Sunken Flats", siteId: "sunken-flats", people: "the Sunken Flats households", residentAnchors: [{ x: 7.8, z: 0.8, heading: -0.4 }, { x: 10.8, z: -2.4, heading: 2.6 }], contact: { name: "Ione Vale", role: "ferry caller" } },
-  { id: "marsh-depot", name: "Marsh Depot", siteId: "marsh-depot", people: "the Marsh Depot ferrymen", residentAnchors: [{ x: -1.2, z: 3.1, heading: 0.2 }, { x: 3.3, z: -2.7, heading: 2.8 }], contact: { name: "Oren Pike", role: "depot ferryman" } },
-  { id: "launch-ridge", name: "Launch Ridge", siteId: "launch-ridge", people: "the ridge signal keepers", residentAnchors: [{ x: 3.2, z: -4.4, heading: 2.4 }], contact: { name: "Sera Tal", role: "signal keeper" } },
+  {
+    id: "home-valley",
+    name: "Home Valley",
+    siteId: "home-silo",
+    people: "the home valley hands",
+    residentAnchors: [
+      { x: -5.8, z: -2.8, heading: 0.6 },
+      { x: 3.4, z: 4.2, heading: 2.8 },
+      { x: 8, z: -3.8, heading: -0.9 },
+    ],
+    contact: { name: "Mara Iles", role: "pump keeper" },
+  },
+  {
+    id: "long-furrow",
+    name: "Long Furrow",
+    siteId: "long-furrow",
+    people: "the Long Furrow growers",
+    residentAnchors: [
+      { x: -5.6, z: 1.8, heading: 0.2 },
+      { x: -1.2, z: 4.6, heading: 2.7 },
+      { x: 5.4, z: -2.2, heading: -1.1 },
+    ],
+    contact: { name: "Sava Nune", role: "grower" },
+  },
+  {
+    id: "rustline-salvage",
+    name: "Rustline Salvage",
+    siteId: "salvage-yard",
+    people: "the Rustline salvage crews",
+    residentAnchors: [
+      { x: -3.4, z: 2.4, heading: 0.8 },
+      { x: 3.1, z: 4.8, heading: -2.4 },
+      { x: 6.5, z: -2.8, heading: 2.3 },
+    ],
+    contact: { name: "Kellan Voss", role: "yard chief" },
+  },
+  {
+    id: "sunken-flats",
+    name: "Sunken Flats",
+    siteId: "sunken-flats",
+    people: "the Sunken Flats households",
+    residentAnchors: [
+      { x: 7.8, z: 0.8, heading: -0.4 },
+      { x: 10.8, z: -2.4, heading: 2.6 },
+    ],
+    contact: { name: "Ione Vale", role: "ferry caller" },
+  },
+  {
+    id: "marsh-depot",
+    name: "Marsh Depot",
+    siteId: "marsh-depot",
+    people: "the Marsh Depot ferrymen",
+    residentAnchors: [
+      { x: -1.2, z: 3.1, heading: 0.2 },
+      { x: 3.3, z: -2.7, heading: 2.8 },
+    ],
+    contact: { name: "Oren Pike", role: "depot ferryman" },
+  },
+  {
+    id: "launch-ridge",
+    name: "Launch Ridge",
+    siteId: "launch-ridge",
+    people: "the ridge signal keepers",
+    residentAnchors: [{ x: 3.2, z: -4.4, heading: 2.4 }],
+    contact: { name: "Sera Tal", role: "signal keeper" },
+  },
 ] as const;
 
 function settlement(id: SettlementId): SettlementDefinition {
@@ -128,8 +188,10 @@ export function settlementContact(id: SettlementId): string {
 export function settlementResidentAnchors(
   siteId: WorldSiteId,
 ): SettlementDefinition["residentAnchors"] {
-  return SETTLEMENTS.find((definition) => definition.siteId === siteId)
-    ?.residentAnchors ?? [];
+  return (
+    SETTLEMENTS.find((definition) => definition.siteId === siteId)
+      ?.residentAnchors ?? []
+  );
 }
 
 const SETTLEMENT_OUTCOMES = {
@@ -137,38 +199,46 @@ const SETTLEMENT_OUTCOMES = {
     settlementId: "long-furrow",
     nextCondition: "cultivated",
     favorGain: 1,
-    summary: "Sava Nune: The furrow is open. We can make food from this ground again.",
+    summary:
+      "Sava Nune: The furrow is open. We can make food from this ground again.",
   },
   "sunken-flats-causeway": {
     settlementId: "sunken-flats",
     nextCondition: "connected",
     favorGain: 2,
-    summary: "Ione Vale: The causeway is carrying. Take our channel mark; Marsh Depot may still have its lamps on.",
+    summary:
+      "Ione Vale: The causeway is carrying. Take our channel mark; Marsh Depot may still have its lamps on.",
   },
   "rustline-parts-run": {
     settlementId: "rustline-salvage",
     nextCondition: "supplied",
     favorGain: 1,
-    summary: "Kellan Voss: You hauled it through. We can turn a wrench at Rustline again.",
+    summary:
+      "Kellan Voss: You hauled it through. We can turn a wrench at Rustline again.",
   },
   "marsh-depot-relief": {
     settlementId: "marsh-depot",
     nextCondition: "supplied",
     favorGain: 2,
-    summary: "Oren Pike: Lamps are lit and the ford is stocked. The basin has a way through tonight.",
+    summary:
+      "Oren Pike: Lamps are lit and the ford is stocked. The basin has a way through tonight.",
   },
   "launch-ridge-repeater": {
     settlementId: "launch-ridge",
     nextCondition: "connected",
     favorGain: 2,
-    summary: "Sera Tal: The ridge is speaking again. Keep your receiver clear and you will hear who answers.",
+    summary:
+      "Sera Tal: The ridge is speaking again. Keep your receiver clear and you will hear who answers.",
   },
-} as const satisfies Record<string, {
-  settlementId: SettlementId;
-  nextCondition: SettlementCondition;
-  favorGain: number;
-  summary: string;
-}>;
+} as const satisfies Record<
+  string,
+  {
+    settlementId: SettlementId;
+    nextCondition: SettlementCondition;
+    favorGain: number;
+    summary: string;
+  }
+>;
 
 export type SettlementNeedOutcomeId = keyof typeof SETTLEMENT_OUTCOMES;
 
@@ -217,16 +287,20 @@ export function deriveSettlementCommunityPassageIds(
       ...settlement.adaptations.map((entry) => entry.materialEffectId),
     ]),
   );
-  return [...new Set(
-    SETTLEMENT_MATERIAL_EFFECTS.flatMap((effect) =>
-      effect.communityPassageId && activeEffectIds.has(effect.id)
-        ? [effect.communityPassageId]
-        : [],
+  return [
+    ...new Set(
+      SETTLEMENT_MATERIAL_EFFECTS.flatMap((effect) =>
+        effect.communityPassageId && activeEffectIds.has(effect.id)
+          ? [effect.communityPassageId]
+          : [],
+      ),
     ),
-  )];
+  ];
 }
 
-export function isSettlementNeedOutcomeId(value: unknown): value is SettlementNeedOutcomeId {
+export function isSettlementNeedOutcomeId(
+  value: unknown,
+): value is SettlementNeedOutcomeId {
   return typeof value === "string" && value in SETTLEMENT_OUTCOMES;
 }
 
@@ -239,7 +313,9 @@ export function deriveSettlementWorldLeads(
   state: Pick<GameState, "settlements">,
 ): readonly SettlementWorldLead[] {
   const legacyLeads = SETTLEMENT_WORLD_LEADS.filter((lead) =>
-    state.settlements[lead.sourceSettlementId].completedNeedIds.includes(lead.requiredOutcomeId),
+    state.settlements[lead.sourceSettlementId].completedNeedIds.includes(
+      lead.requiredOutcomeId,
+    ),
   );
   const materialLeads = SETTLEMENTS.flatMap((settlement) => {
     const record = state.settlements[settlement.id];
@@ -249,16 +325,19 @@ export function deriveSettlementWorldLeads(
     ];
     return effectIds.flatMap((effectId) => {
       const effect = settlementMaterialEffect(effectId);
-      if (!effect?.worldLead || effect.settlementId !== settlement.id) return [];
-      return [{
-        id: `material-effect:${effect.id}`,
-        sourceSettlementId: settlement.id,
-        sourceSiteId: settlement.siteId,
-        targetSiteId: effect.worldLead.targetSiteId as WorldSiteId,
-        title: effect.worldLead.title,
-        description: effect.worldLead.description,
-        mapLabel: effect.worldLead.mapLabel,
-      } satisfies SettlementWorldLead];
+      if (!effect?.worldLead || effect.settlementId !== settlement.id)
+        return [];
+      return [
+        {
+          id: `material-effect:${effect.id}`,
+          sourceSettlementId: settlement.id,
+          sourceSiteId: settlement.siteId,
+          targetSiteId: effect.worldLead.targetSiteId as WorldSiteId,
+          title: effect.worldLead.title,
+          description: effect.worldLead.description,
+          mapLabel: effect.worldLead.mapLabel,
+        } satisfies SettlementWorldLead,
+      ];
     });
   });
   return [...legacyLeads, ...materialLeads];
@@ -283,35 +362,38 @@ const SETTLEMENT_ECOLOGY_WITNESSES: readonly {
   {
     actorId: "long-furrow-herd",
     settlementId: "long-furrow",
-    describe: (actor) => actor.recentDisturbance > 0.2
-      ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
-      : actor.vitality < 0.5
-      ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
-      : actor.population < 5
-        ? "Only a few grazers are crossing the furrow now. The pasture is changing faster than we can name it."
-        : "The grazers are working the far pasture again. They know which ground still gives under a hoof.",
+    describe: (actor) =>
+      actor.recentDisturbance > 0.2
+        ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
+        : actor.vitality < 0.5
+          ? "The herd has pulled away from the furrow. Something out there has made the ground feel wrong to them."
+          : actor.population < 5
+            ? "Only a few grazers are crossing the furrow now. The pasture is changing faster than we can name it."
+            : "The grazers are working the far pasture again. They know which ground still gives under a hoof.",
   },
   {
     actorId: "sunken-flats-flock",
     settlementId: "sunken-flats",
-    describe: (actor) => actor.recentDisturbance > 0.2
-      ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
-      : actor.vitality < 0.5
-      ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
-      : actor.population < 6
-        ? "The flats are quieter than usual. Even the waders are choosing their crossings carefully."
-        : "The waders are reading the shallows for us. Watch where they settle before you trust a crossing.",
+    describe: (actor) =>
+      actor.recentDisturbance > 0.2
+        ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
+        : actor.vitality < 0.5
+          ? "The waders have left the shallows unsettled. Water remembers more than a marked channel does."
+          : actor.population < 6
+            ? "The flats are quieter than usual. Even the waders are choosing their crossings carefully."
+            : "The waders are reading the shallows for us. Watch where they settle before you trust a crossing.",
   },
   {
     actorId: "quarry-run-corvids",
     settlementId: "rustline-salvage",
-    describe: (actor) => actor.recentDisturbance > 0.2
-      ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
-      : actor.vitality < 0.5
-      ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
-      : actor.population < 4
-        ? "There are fewer corvids over the runout today. The yard notices when its watchers stop circling."
-        : "The corvids still circle Quarry Run. They find loose things before any of us do.",
+    describe: (actor) =>
+      actor.recentDisturbance > 0.2
+        ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
+        : actor.vitality < 0.5
+          ? "The corvids have scattered from Quarry Run. Something has changed the shape of that place."
+          : actor.population < 4
+            ? "There are fewer corvids over the runout today. The yard notices when its watchers stop circling."
+            : "The corvids still circle Quarry Run. They find loose things before any of us do.",
   },
 ];
 
@@ -321,11 +403,13 @@ export function deriveSettlementEcologyFieldNotes(
   return SETTLEMENT_ECOLOGY_WITNESSES.flatMap((witness) => {
     const actor = actors.find((candidate) => candidate.id === witness.actorId);
     if (!actor) return [];
-    return [{
-      settlementId: witness.settlementId,
-      speaker: settlement(witness.settlementId).contact.name,
-      text: witness.describe(actor),
-    }];
+    return [
+      {
+        settlementId: witness.settlementId,
+        speaker: settlement(witness.settlementId).contact.name,
+        text: witness.describe(actor),
+      },
+    ];
   });
 }
 
@@ -353,29 +437,41 @@ const SETTLEMENT_FIELD_VOICES: Readonly<
   Partial<Record<SettlementId, Partial<Record<SettlementCondition, string>>>>
 > = {
   "home-valley": {
-    "water-stressed": "The yard is dry where it should not be. Decide where the water goes before the light fails.",
-    stable: "The pump line is holding. Home can spare attention for the road again.",
+    "water-stressed":
+      "The yard is dry where it should not be. Decide where the water goes before the light fails.",
+    stable:
+      "The pump line is holding. Home can spare attention for the road again.",
   },
   "long-furrow": {
-    waterlogged: "The soil is too wet to trust; a wheel rut here becomes a season of trouble.",
-    workable: "One terrace will carry a plough if somebody is willing to make the first cut.",
+    waterlogged:
+      "The soil is too wet to trust; a wheel rut here becomes a season of trouble.",
+    workable:
+      "One terrace will carry a plough if somebody is willing to make the first cut.",
     cultivated: "The furrow is holding its shape. Work has a future here now.",
   },
   "rustline-salvage": {
-    isolated: "The gantry is quiet. Bring fuel and service parts, and we can make machines useful again.",
-    supplied: "The gantry has power, and the yard is listening for hard jobs again.",
+    isolated:
+      "The gantry is quiet. Bring fuel and service parts, and we can make machines useful again.",
+    supplied:
+      "The gantry has power, and the yard is listening for hard jobs again.",
   },
   "sunken-flats": {
-    "cut-off": "The flats have gone inward. Nothing crosses until someone makes a route that can hold.",
-    connected: "The causeway carries. The ferrymen have marked a safer line through the basin.",
+    "cut-off":
+      "The flats have gone inward. Nothing crosses until someone makes a route that can hold.",
+    connected:
+      "The causeway carries. The ferrymen have marked a safer line through the basin.",
   },
   "marsh-depot": {
-    "cut-off": "Our lamps are dark, but the depot is still there if somebody can read the marsh.",
-    supplied: "Fuel is dry, rations are counted, and a traveler can find a light at the depot.",
+    "cut-off":
+      "Our lamps are dark, but the depot is still there if somebody can read the marsh.",
+    supplied:
+      "Fuel is dry, rations are counted, and a traveler can find a light at the depot.",
   },
   "launch-ridge": {
-    silent: "The ridge hears the valley but cannot answer. A relay would change that.",
-    connected: "The receiver is warm. Bring news worth sending and the ridge will carry it.",
+    silent:
+      "The ridge hears the valley but cannot answer. A relay would change that.",
+    connected:
+      "The receiver is warm. Bring news worth sending and the ridge will carry it.",
   },
 };
 
@@ -392,7 +488,10 @@ function contactVoice(
       return "Mara Iles, pump keeper: The rain has moved the hill again. Rustline says the Quarry Run is under stone, but the valley is bigger than one road.";
     }
   }
-  if (world?.quarryRunoutStatus === "cleared" && definition.id === "rustline-salvage") {
+  if (
+    world?.quarryRunoutStatus === "cleared" &&
+    definition.id === "rustline-salvage"
+  ) {
     return "Kellan Voss, yard chief: I heard the runout shift. That is what a working machine sounds like from across the valley.";
   }
   return (
@@ -411,8 +510,9 @@ export function deriveSettlementFieldNotes(
 ): readonly SettlementFieldNote[] {
   return SETTLEMENTS.map((definition) => {
     const condition = deriveSettlementCondition(state, definition.id);
-    const text = SETTLEMENT_FIELD_VOICES[definition.id]?.[condition]
-      ?? `${definition.name} is ${condition.replace("-", " ")}.`;
+    const text =
+      SETTLEMENT_FIELD_VOICES[definition.id]?.[condition] ??
+      `${definition.name} is ${condition.replace("-", " ")}.`;
     return {
       settlementId: definition.id,
       speaker: settlementContact(definition.id),
@@ -518,7 +618,9 @@ export function settlementResidentCount(
     condition === "cultivated" ||
     condition === "supplied" ||
     condition === "connected";
-  return working ? definition.residentAnchors.length : Math.min(1, definition.residentAnchors.length);
+  return working
+    ? definition.residentAnchors.length
+    : Math.min(1, definition.residentAnchors.length);
 }
 
 function initialLongFurrowCondition(
@@ -538,10 +640,7 @@ export function deriveSettlementCondition(
   settlementId: SettlementId,
 ): SettlementCondition {
   const durableCondition = state.settlements[settlementId].condition;
-  if (
-    settlementId === "rustline-salvage" &&
-    rustlineServiceStocked(state)
-  ) {
+  if (settlementId === "rustline-salvage" && rustlineServiceStocked(state)) {
     return "supplied";
   }
   if (settlementId === "sunken-flats" && sunkenCausewayBuilt(state)) {
@@ -567,18 +666,62 @@ export function createSettlementState(
   waterworks: FarmWaterworksState["choice"] = "unresolved",
 ): SettlementState {
   return {
-    "home-valley": { condition: waterworks === "unresolved" ? "water-stressed" : "stable", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
-    "long-furrow": { condition: initialLongFurrowCondition(waterworks), favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
-    "rustline-salvage": { condition: "isolated", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
-    "sunken-flats": { condition: "cut-off", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
-    "marsh-depot": { condition: "cut-off", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
-    "launch-ridge": { condition: "silent", favor: 0, completedNeedIds: [], contributions: [], adaptations: [] },
+    "home-valley": {
+      condition: waterworks === "unresolved" ? "water-stressed" : "stable",
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
+    "long-furrow": {
+      condition: initialLongFurrowCondition(waterworks),
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
+    "rustline-salvage": {
+      condition: "isolated",
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
+    "sunken-flats": {
+      condition: "cut-off",
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
+    "marsh-depot": {
+      condition: "cut-off",
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
+    "launch-ridge": {
+      condition: "silent",
+      favor: 0,
+      completedNeedIds: [],
+      contributions: [],
+      adaptations: [],
+    },
   };
 }
 
 const SETTLEMENT_CONDITIONS: readonly SettlementCondition[] = [
-  "water-stressed", "waterlogged", "workable", "cultivated", "supplied", "isolated",
-  "cut-off", "silent", "connected", "stable",
+  "water-stressed",
+  "waterlogged",
+  "workable",
+  "cultivated",
+  "supplied",
+  "isolated",
+  "cut-off",
+  "silent",
+  "connected",
+  "stable",
 ];
 
 /** Recover bounded community state; missing v18-and-earlier data derives safely. */
@@ -600,8 +743,9 @@ export function recoverSettlementState(
       : [];
     const contributions = Array.isArray(record.contributions)
       ? record.contributions
-          .filter((entry): entry is Record<string, unknown> =>
-            !!entry && typeof entry === "object",
+          .filter(
+            (entry): entry is Record<string, unknown> =>
+              !!entry && typeof entry === "object",
           )
           .filter(
             (entry) =>
@@ -616,20 +760,27 @@ export function recoverSettlementState(
             materialEffectId:
               typeof entry.materialEffectId === "string"
                 ? entry.materialEffectId
-                : materialEffectIdForSourceId(entry.responseId as string) ?? entry.responseId as string,
+                : (materialEffectIdForSourceId(entry.responseId as string) ??
+                  (entry.responseId as string)),
             capability: entry.capability as RigCapability,
-            createdAtWorldMinutes: Math.max(0, entry.createdAtWorldMinutes as number),
+            createdAtWorldMinutes: Math.max(
+              0,
+              entry.createdAtWorldMinutes as number,
+            ),
           }))
           .filter(
             (entry, index, all) =>
-              all.findIndex((candidate) => candidate.responseId === entry.responseId) === index,
+              all.findIndex(
+                (candidate) => candidate.responseId === entry.responseId,
+              ) === index,
           )
           .slice(-24)
       : [];
     const adaptations = Array.isArray(record.adaptations)
       ? record.adaptations
-          .filter((entry): entry is Record<string, unknown> =>
-            !!entry && typeof entry === "object",
+          .filter(
+            (entry): entry is Record<string, unknown> =>
+              !!entry && typeof entry === "object",
           )
           .filter(
             (entry) =>
@@ -643,8 +794,12 @@ export function recoverSettlementState(
             materialEffectId:
               typeof entry.materialEffectId === "string"
                 ? entry.materialEffectId
-                : materialEffectIdForSourceId(entry.id as string) ?? entry.id as string,
-            createdAtWorldMinutes: Math.max(0, entry.createdAtWorldMinutes as number),
+                : (materialEffectIdForSourceId(entry.id as string) ??
+                  (entry.id as string)),
+            createdAtWorldMinutes: Math.max(
+              0,
+              entry.createdAtWorldMinutes as number,
+            ),
           }))
           .filter(
             (entry, index, all) =>
@@ -683,12 +838,15 @@ export function recoverSettlementState(
             ]
           : contributions;
     recovered[id] = {
-      condition: SETTLEMENT_CONDITIONS.includes(record.condition as SettlementCondition)
+      condition: SETTLEMENT_CONDITIONS.includes(
+        record.condition as SettlementCondition,
+      )
         ? (record.condition as SettlementCondition)
         : fallback[id].condition,
-      favor: typeof record.favor === "number" && Number.isFinite(record.favor)
-        ? Math.max(0, Math.min(10, Math.floor(record.favor)))
-        : fallback[id].favor,
+      favor:
+        typeof record.favor === "number" && Number.isFinite(record.favor)
+          ? Math.max(0, Math.min(10, Math.floor(record.favor)))
+          : fallback[id].favor,
       completedNeedIds: [...new Set(completedNeedIds)],
       contributions: recoveredContributions,
       adaptations,
@@ -719,7 +877,11 @@ export function recordSettlementContribution(
   contribution: SettlementContribution,
 ): boolean {
   const current = state.settlements[settlementId];
-  if (current.contributions.some((entry) => entry.responseId === contribution.responseId)) {
+  if (
+    current.contributions.some(
+      (entry) => entry.responseId === contribution.responseId,
+    )
+  ) {
     return false;
   }
   state.settlements = {
@@ -781,7 +943,8 @@ export function recordSettlementAdaptation(
   adaptation: SettlementAdaptation,
 ): boolean {
   const current = state.settlements[settlementId];
-  if (current.adaptations.some((entry) => entry.id === adaptation.id)) return false;
+  if (current.adaptations.some((entry) => entry.id === adaptation.id))
+    return false;
   state.settlements = {
     ...state.settlements,
     [settlementId]: {
@@ -809,11 +972,12 @@ export function deriveSettlementNeedMissions(
       id: "need-long-furrow-first-cut",
       binding: "cultivation",
       missionClass: "side",
-    giverId: settlementContact("long-furrow"),
+      giverId: settlementContact("long-furrow"),
       prerequisites: [{ kind: "discovery", siteId: "long-furrow" }],
       title: "Keep the Furrow Open",
       premise: `${definition.people} need the first pass cut before the soil closes again.`,
-      briefing: "The repaired drainage has made one field workable. Lower a plough at Long Furrow and lay a real cut through the soil; this is food and access, not a calibration exercise.",
+      briefing:
+        "The repaired drainage has made one field workable. Lower a plough at Long Furrow and lay a real cut through the soil; this is food and access, not a calibration exercise.",
       origin: definition.name,
       destination: definition.name,
       targetSiteId: definition.siteId,
@@ -843,7 +1007,8 @@ export function deriveSettlementNeedMissions(
       prerequisites: [{ kind: "discovery", siteId: "salvage-yard" }],
       title: "Bring Rustline Back Online",
       premise: `${definition.people} have a yard full of recoverable machines but no parts or fuel to move them.`,
-      briefing: "Rustline's crews can trade knowledge, salvage, and routes once their gantry has fuel and service parts. Take the crate from Home Valley across the badlands; the yard becomes a working place only when the cargo is actually there.",
+      briefing:
+        "Rustline's crews can trade knowledge, salvage, and routes once their gantry has fuel and service parts. Take the crate from Home Valley across the badlands; the yard becomes a working place only when the cargo is actually there.",
       origin: "Home Valley",
       destination: definition.name,
       targetSiteId: definition.siteId,
@@ -866,7 +1031,11 @@ export function canFulfillCultivationNeed(
   x: number,
   z: number,
 ): boolean {
-  if (mission.binding !== "cultivation" || mission.settlementOutcomeId !== "long-furrow-first-cut") return false;
+  if (
+    mission.binding !== "cultivation" ||
+    mission.settlementOutcomeId !== "long-furrow-first-cut"
+  )
+    return false;
   const site = findSite(mission.targetSiteId);
   return !!site && isWithinSiteServiceArea(site, x, z);
 }

@@ -48,3 +48,49 @@ systems later.
 
 Do not copy a generated factory into `src/game/` from this workbench without a
 separate runtime integration review and explicit ownership clearance.
+
+## Blocker found 2026-08-11: this rig has no `RIG_PROFILES` entry
+
+A dimensional reconciliation of the three shipped rigs found that every one of
+them was floating above the terrain by exactly its ride height, because
+hand-authored geometry had drifted from the profile the simulation drives (full
+detail in
+[`docs/WORKLOG_ADDENDUM_2026-08-11.md`](../../../docs/WORKLOG_ADDENDUM_2026-08-11.md)).
+That finding changes what "reconstruct a rig" is allowed to mean here.
+
+`track`, `wheelbase`, `wheelRadius`, and `rideHeight` are **simulation inputs**:
+they place the four points where the traversal model samples terrain, convert
+distance travelled into wheel rotation, and set the height the kernel rests the
+body at. Estimating them from a reference plate is structurally the same act as
+hand-writing them as literals in the renderer — the drift that was just removed.
+This is the difference between this workbench and `field-plough-01`: a plough is
+`assetFamily: "rig-part"`, so its `confidence: 0.3` dimensions are honest and
+harmless, because nothing in `physics.ts` reads them.
+
+The binding that makes a rig reconstruction safe now exists —
+`tools/rig-asset-envelope.ts` derives the envelope from `RIG_PROFILES`, and
+`npm run assets:rig-envelope -- --check <spec>` refuses a spec that drifts off it
+(documented in [`tools/README.md`](../../../tools/README.md)). But it needs a
+profile to bind to, and there is no `utility-tow-recovery` in `RIG_IDS`
+(`src/game/contracts.ts`): the shipped rigs are `utility-tractor`, `toy-buggy`,
+and `marsh-skimmer`.
+
+So promoting this plate to `assetFamily: "rig"` is blocked on a **design
+decision, not an art gate**: adding a fourth playable rig means physics tuning,
+garage/unlock placement, and save migration. That is the operator's call.
+
+**The sequencing the repo already chose points elsewhere in the meantime.**
+`docs/plans/MASTER_EXECUTION_TRACKER.md:2966`: *"once this module passes, the same
+contract can be reused for the tow boom, winch, stabilizer, wheel, and beacon
+modules before the full utility tow rig is attempted."* Those are `rig-part`
+family — no dimensional contract with the kernel — and they are extractable from
+this same plate, which shows the boom hinge, winch spool and cable, service
+drawers, tow eyes, and beacon as clearly separated subassemblies. `winch` is
+already a real game module (`SECOND_RUNG_RECOMMENDED_MODULE`,
+`src/game/first-rung.ts:21`) with a live capability seam
+(`requiredCapability: "tow"`), so a `winch` part has somewhere to land, whereas
+a whole recovery truck currently does not.
+
+Recommended order, therefore: parts from this plate first, full rig only after a
+profile exists. Recorded here rather than only in the worklog because this
+directory is where someone picks the work up.

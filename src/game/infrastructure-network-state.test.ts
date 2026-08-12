@@ -20,9 +20,15 @@ describe("infrastructure network kernel integration", () => {
     rig.condition = 100;
     state.salvage = 8;
 
-    expect(resolvePrimaryAction(state, world).kind).toBe("inspect-infrastructure");
-    expect(performPrimaryAction(state, world).action).toBe("inspect-infrastructure");
-    expect(performPrimaryAction(state, world).action).toBe("service-infrastructure");
+    expect(resolvePrimaryAction(state, world).kind).toBe(
+      "inspect-infrastructure",
+    );
+    expect(performPrimaryAction(state, world).action).toBe(
+      "inspect-infrastructure",
+    );
+    expect(performPrimaryAction(state, world).action).toBe(
+      "service-infrastructure",
+    );
 
     const restored = recoverState(JSON.parse(JSON.stringify(state)));
     expect(restored?.infrastructure).toEqual(state.infrastructure);
@@ -32,7 +38,10 @@ describe("infrastructure network kernel integration", () => {
         // arrayContaining, not an exact array: the network may grow while this
         // proof only checks that the local waterworks entry is published.
         entities: expect.arrayContaining([
-          expect.objectContaining({ id: "sunken-flats-waterworks", operating: true }),
+          expect.objectContaining({
+            id: "sunken-flats-waterworks",
+            operating: true,
+          }),
         ]),
       },
     });

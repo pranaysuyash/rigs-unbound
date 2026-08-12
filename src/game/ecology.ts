@@ -96,11 +96,15 @@ function suitability(
   );
 }
 
-export function createEcologyActor(actor: EcologyActorState): EcologyActorState {
+export function createEcologyActor(
+  actor: EcologyActorState,
+): EcologyActorState {
   return {
     ...actor,
     territoryRadiusMeters: clamp(actor.territoryRadiusMeters, 8, 160),
-    population: Math.round(clamp(actor.population, 1, populationLimit(actor.kind))),
+    population: Math.round(
+      clamp(actor.population, 1, populationLimit(actor.kind)),
+    ),
     vitality: clamp(actor.vitality, 0, 1),
     recentDisturbance: clamp(actor.recentDisturbance ?? 0, 0, 1),
   };
@@ -137,7 +141,10 @@ export function advanceEcologyActor(
   const phase = stablePhase(`${actor.id}:${hour}`) * Math.PI * 2;
   const candidates = [
     { x: actor.x, z: actor.z },
-    { x: actor.x + Math.cos(phase) * stride, z: actor.z + Math.sin(phase) * stride },
+    {
+      x: actor.x + Math.cos(phase) * stride,
+      z: actor.z + Math.sin(phase) * stride,
+    },
     {
       x: actor.x + Math.cos(phase + Math.PI * 0.5) * stride,
       z: actor.z + Math.sin(phase + Math.PI * 0.5) * stride,
@@ -177,7 +184,8 @@ export function advanceEcologyActor(
     ...actor,
     x: selected.x,
     z: selected.z,
-    population: actor.population + clamp(targetPopulation - actor.population, -1, 1),
+    population:
+      actor.population + clamp(targetPopulation - actor.population, -1, 1),
     vitality: actor.vitality + (selectedScore - actor.vitality) * 0.16,
     recentDisturbance: Math.max(0, actor.recentDisturbance - 0.18),
   });
@@ -186,6 +194,12 @@ export function advanceEcologyActor(
 /** Grazing is the first physical ecology effect. Other kinds may add effects later. */
 export function grazingPressure(actor: EcologyActorState): number {
   return actor.kind === "grazers"
-    ? clamp((actor.population / populationLimit(actor.kind)) * actor.vitality * 0.028, 0, 0.028)
+    ? clamp(
+        (actor.population / populationLimit(actor.kind)) *
+          actor.vitality *
+          0.028,
+        0,
+        0.028,
+      )
     : 0;
 }

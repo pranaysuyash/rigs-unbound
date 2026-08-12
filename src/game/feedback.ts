@@ -106,6 +106,22 @@ export class SpringDamper {
 }
 
 /**
+ * How far this rig's front wheels visibly turn at full steering input, radians.
+ *
+ * Exported because it is not only an animation input: it also defines the volume
+ * a steered wheel sweeps, which is what decides whether a bolt-on module sits
+ * clear of the tyre. `rig-blockout.ts` derives outboard module placement from it.
+ *
+ * Reading it from here rather than restating it there is the whole point. A
+ * pontoon pair placed against the *static* tyre envelope clears the tractor's
+ * front wheel by 1 mm and fouls the buggy's by 15 cm — an error visible only at
+ * full lock, in a turn, from outside the rig.
+ */
+export function maximumSteeringAngleFor(rigId: RigId): number {
+  return (MOTION_EXPRESSION[rigId] ?? DEFAULT_EXPRESSION).maximumSteeringAngle;
+}
+
+/**
  * Convert authoritative rig state into shared perceptual signals.
  *
  * Reduced motion retains essential physical attitude and wheel state, but clamps

@@ -1,7 +1,7 @@
 # Visual Game-Feel Audit — Does It Look, Flow, and Behave Like a Game?
 
 - Date: 2026-08-01
-- Status: **studio judgment call — recorded for operator decision, not yet acted on**
+- Status: **studio judgment call — priority items 1, 2, 3, and 4 below have since been acted on** (see the 2026-08-02 update at the end of this document; original findings preserved unedited above it)
 - Purpose: answer a question the runtime test suite and browser-acceptance probes cannot answer — "working is not the same as what it's working like." This audit judges the live build against the three axes the operator asked for by name: does it **look** like a game, does it **flow** like a game, does it **behave** like a game.
 - Prior audits in this repo (`GAME_DESIGN_AUDIT_AND_RECOMMENDATIONS_2026-07-31.md`, `GAME_DESIGN_AUDIT_VISION_CORRECTION_AND_FULL_RECHECK_2026-07-31.md`) are text/structure/vision-alignment audits — they check the design *document* against the design *spine*. This audit is different and additive: it is grounded entirely in live, rendered pixels captured from the running build across five camera angles, judged as a game-studio creative director would judge a first-playable review. It does not re-litigate vision alignment; it answers a perceptual question the prior audits do not touch.
 - Evidence tier: **Tier 4 (runtime/manual behavior observed)** for everything screenshotted and interacted with directly; explicitly **Tier 0 (assumption only)** for claims sourced from another stream's worklog that could not be perceptually confirmed from this surface (see §5).
@@ -90,3 +90,85 @@ Priority order for the next work:
 - §23 (implementation claims must name their falsifier): applied to both the "juice" claim (§4) and the false resolution claim (§5) — neither is accepted without the check that would confirm or deny it.
 - §0.1.1 ("Anything else?"): answered explicitly in §6, not left implicit.
 - §0.3.1 (Everything Is a Documentation Candidate): this audit itself, and the direction discussion that follows it in chat, are recorded here rather than left in ephemeral conversation.
+
+## Update — 2026-08-02: items 1, 3, and 4 acted on
+
+Full detail in `docs/WORKLOG_ADDENDUM_2026-08-02.md`. Summary, without
+re-litigating the original findings above:
+
+- **Item 1 (juice claim)**: code-confirmed as real, wired, non-stub
+  (`renderer.addShake`/`flashHeadlights`, `RigAudio.chirp`/`impact`), and
+  live-executed through the full restoration flow with zero console errors.
+  The actual sub-350ms on-screen motion/audio still was not independently
+  pixel/audio-confirmed — this session's preview tooling was severely
+  throttled (the device-performance gate alone took ~90s of wall time).
+  Still open for a session with reliable real-time rendering.
+- **Item 2**: already closed by `3c009c0` before this session.
+- **Item 3 (stage dialogue beats)**: implemented — a cinematic dim scrim
+  (`#dialogue-scrim`) plus a camera FOV narrow-on-focus
+  (`GameRenderer.setNarrativeFocus`), both driven from the single
+  `showDialoguePanel`/`hideDialoguePanel` pair every beat already uses.
+- **Item 4 (ground texture/worn path)**: the underlying route/track system
+  already existed (`WORLD_ROUTES`, `routeWeight`, `SURFACES.track`) and was
+  correctly classifying the ground; several renderer-level causes for the
+  flat/dark appearance (sun angle, shadow frustum, visibility profile) were
+  checked and ruled out by reading the code. The confirmed, fixable defect
+  was `SURFACES.track.color` sitting too close to `SURFACES.grass.color` in
+  hue/luminance to read as distinct — retuned, plus a wider per-vertex
+  micro-variation spread. Before/after screenshots in Top-down and Tactical
+  show a clearly readable worn-track disc where there was previously a flat
+  plane.
+
+All changes verified: `npm run typecheck`, `npx vitest run` (538/538),
+`npm run build` clean. Not yet committed as of this update.
+
+## Update — 2026-08-11: the "oversized wheels" and "no crisp shadow edge" observations had a shared cause
+
+This audit recorded three observations it read as stylistic, and one it read as
+a material defect. A dimensional reconciliation of the rigs found that three of
+the four were symptoms of measurable drift between the hand-authored models and
+`RIG_PROFILES`. Full detail in
+[`docs/WORKLOG_ADDENDUM_2026-08-11.md`](../WORKLOG_ADDENDUM_2026-08-11.md);
+what matters for this audit is which findings are now discharged and on what
+evidence.
+
+- **"oversized black wheels" (§2, tractor) and "oversized black cylinder
+  wheels" (§2, buggy)** — not purely stylistic. The drawn radii had drifted from
+  `profile.wheelRadius`, which the kernel treats as the *mean rolling radius*.
+  Two consequences: the silhouette read heavier than intended, and because the
+  kernel integrates one reference rotation from that single mean, the
+  larger-than-mean wheels swept more ground than the rig covered — a permanent
+  low-grade skid. Radii are now derived from the profile with the art declaring
+  only ratios (constrained to average 1), and spin is scaled per wheel by
+  `wheelRadius / drawnRadius`.
+
+- **"an oval blob-shadow … with no crisp edge (reads as an unlit/low-quality
+  shadow decal, not a stylized choice)" (§2, top-down)** — the material read was
+  correct, but it was also **masking a harder defect**. Every rig was floating
+  above the terrain by exactly its ride height (tractor 0.95 m, buggy 0.62 m,
+  and the hover rig 0.63 m above its own shadow with its lift skirt 0.82 m clear
+  of a 0.55 m cushion), because the models were authored with y = 0 at the ground
+  while the simulation positions their root at the body origin. A shadow that is
+  not touching its rig is the single most legible symptom of that — and a mushy
+  shadow edge is exactly what makes it illegible. The rigs are now measured
+  against the terrain rather than asserted: see
+  `npm run test:ground-contact`, which reports shadow gaps of 0.028–0.045 m
+  against the deliberate 0.04 m decal lift at nine rig × terrain samples.
+
+- **"a dark diamond shape floating mid-air behind the tractor with no visible
+  support" (§3, tactical)** — consistent with the same frame error. Attachment
+  and body geometry authored in the ground frame while mounted in the body frame
+  reads as unsupported floating geometry. Now in one frame throughout.
+
+- **"floating stick" and "floating orange gem" (§2)** — **not** explained by
+  this. Those are world props, not rig parts, and item 2 of §6 remains open.
+  Recording that explicitly so this update does not get read as closing more
+  than it does.
+
+Method note worth carrying forward: none of the above was found by reading the
+models, and no unit test could have caught it — the rigs' own 25 geometry tests
+passed throughout, because they compare authored numbers with authored numbers
+and so agree with themselves. It was found by measuring rendered world-space
+geometry against the rendered terrain. Where an audit finding is about *where
+something is*, the falsifier has to be a measurement against something the
+authoring did not produce.

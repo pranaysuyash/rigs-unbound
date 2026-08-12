@@ -1,7 +1,26 @@
 # Rigs Unbound — Next Execution Board
 
+## Superseded (2026-08-12)
+
+This board predates [ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
+(2026-07-29) and the [Game Design Spine](../design/GAME_DESIGN_SPINE.md)'s
+studio operating model. Its RU-ID phases (Sites release freeze, Unbound
+Passage, Farmfall) describe a product framing the spine explicitly corrected.
+Text below is preserved unedited as historical record per the decisions
+register's change protocol (never silently rewrite; append, don't erase).
+
+**Current living board:** [NEXT_EXECUTION_BOARD_2026-08-12.md](NEXT_EXECUTION_BOARD_2026-08-12.md),
+derived from the [Game Director Audit — 2026-08-12](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md).
+
+Any item below still worth reconciling against the current spine (notably the
+open `B3a`/`B4`/`C1` schema-ownership decisions) should be re-proposed there
+against current runtime state, not resumed here as-is — cultivation/schema
+context has moved since 2026-07-26.
+
+---
+
 - Date: 2026-07-26
-- Status: active, living execution board
+- Status: **superseded 2026-08-12 — historical record only, see notice above**
 - Canonical parent: [Master Execution Tracker](MASTER_EXECUTION_TRACKER.md)
 - Product direction: [Exploration Map](../exploration/EXPLORATION_MAP.md)
 - Release evidence: [Sites Version 10 Release](../reviews/SITES_VERSION_10_RELEASE_2026-07-26.md)

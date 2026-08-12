@@ -1,0 +1,51 @@
+# What Prettier must not rewrite.
+#
+# This file is the ONLY place the formatter's scope is narrowed. Both
+# `npm run format` (writer) and `npm run format:check` (gate) run against `.`,
+# so they describe one set by construction.
+#
+# Before this file existed they did not. `format` wrote `.` while `format:check`
+# checked a hand-maintained allowlist glob, so `npm run format` rewrote ~100
+# files the gate had never inspected. A formatter whose writer and checker
+# disagree will silently reformat whatever falls in the gap; that is how a
+# 53-file sweep landed unannounced on 2026-08-06.
+#
+# Prettier already skips `node_modules`, `.git`, and everything in `.gitignore`
+# (so `dist/`, `coverage/`, `.vite/`, `.venv*/` need no entry here). Only add a
+# path below when automatic formatting would actively damage it, and say why.
+
+# --- Hand-wrapped prose -----------------------------------------------------
+# Line breaks in these are authorial. Prettier's markdown printer reflows
+# paragraphs and renormalises tables, which destroys deliberate structure in the
+# design spine, worklogs, and dated addenda — documents whose diffs are read as
+# a historical record.
+*.md
+docs/
+
+# --- Externally owned or machine-generated ----------------------------------
+# npm owns this; Prettier has no legitimate opinion about it.
+package-lock.json
+
+# The img2threejs forge writes these (sculpt specs, camera configs, generated
+# TS factories, review HTML). Reformatting them makes the next tool run produce
+# a spurious diff against its own output.
+assets/workbench/
+
+# --- Captured evidence ------------------------------------------------------
+# Acceptance and audit output. These are records of what a run emitted;
+# rewriting them edits the evidence.
+artifacts/
+.playwright-mcp/
+
+# --- Tool and editor state --------------------------------------------------
+# Machine-written configuration, not source.
+.agent/
+.claude/
+.commandcode/
+.openai/
+.wrangler/
+
+# --- Separate workspace -----------------------------------------------------
+# Has its own package.json, tsconfig, and verification chain
+# (`npm run test:kernel-probe`). Formatting is that workspace's call.
+experiments/

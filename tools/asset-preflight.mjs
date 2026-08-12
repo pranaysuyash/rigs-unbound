@@ -14,6 +14,10 @@ const VALID_STATUSES = new Set([
   "blocked",
 ]);
 
+// Extensions a bundler can compile into the player build. Only a source form
+// with one of these can honestly claim `sourceFormInPlayerBuild: true`.
+const COMPILED_SOURCE_EXTENSIONS = [".ts", ".tsx", ".js", ".mjs", ".jsx"];
+
 function finding(code, message, assetId = null) {
   return { code, message, assetId };
 }
@@ -450,6 +454,30 @@ function validateEntry(entry, index, repoRoot, assetRoot) {
         entry.id ?? null,
       ),
     );
+  }
+  if (entry.sourceFormInPlayerBuild !== undefined) {
+    if (typeof entry.sourceFormInPlayerBuild !== "boolean") {
+      findings.push(
+        finding(
+          "source-form-in-player-build-invalid",
+          `${prefix}.sourceFormInPlayerBuild must be a boolean when present.`,
+          entry.id ?? null,
+        ),
+      );
+    } else if (
+      entry.sourceFormInPlayerBuild === true &&
+      !COMPILED_SOURCE_EXTENSIONS.some((extension) =>
+        (entry.sourcePath ?? "").toLowerCase().endsWith(extension),
+      )
+    ) {
+      findings.push(
+        finding(
+          "source-form-in-player-build-uncompilable",
+          `${prefix}.sourceFormInPlayerBuild is true but sourcePath is not a compiled module (${COMPILED_SOURCE_EXTENSIONS.join(", ")}); only source code can be bundled into the player build.`,
+          entry.id ?? null,
+        ),
+      );
+    }
   }
   if (entry.sourcePath !== undefined) {
     if (!safeRelativePath(entry.sourcePath)) {

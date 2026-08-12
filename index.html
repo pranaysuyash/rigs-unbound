@@ -23,6 +23,8 @@
         tabindex="0"
       ></canvas>
 
+      <div id="dialogue-scrim" class="dialogue-scrim" aria-hidden="true"></div>
+
       <header class="masthead" aria-label="Game status">
         <div class="wordmark">
           <span class="wordmark__eyebrow" id="world-designation">World</span>
@@ -32,7 +34,9 @@
           <div class="world-clock">
             <span id="phase-label">Day</span>
             <span id="time-label">06:40</span>
-            <span id="forecast-label" aria-label="Weather forecast: rain later">Rain later</span>
+            <span id="forecast-label" aria-label="Weather forecast: rain later"
+              >Rain later</span
+            >
             <span id="drive-state-label" aria-label="Driving state">Idle</span>
           </div>
           <div class="masthead__buttons">
@@ -56,6 +60,13 @@
         <p class="field-kit__kicker">
           <span id="surface-label">Pasture</span> ·
           <span id="biome-label">Home Valley</span>
+          <span
+            class="field-kit__hazard"
+            id="terrain-hazard-label"
+            aria-label="Terrain hazard: safe"
+          >
+            · Safe ground
+          </span>
         </p>
         <p
           id="first-rung-objective"
@@ -72,6 +83,51 @@
             >Recover 5 salvage</strong
           >
         </p>
+        <p
+          id="harvest-objective"
+          class="harvest-objective"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label="Harvest objective"
+        >
+          <span id="harvest-objective-label" aria-hidden="true"
+            >Long Furrow</span
+          >
+          <strong id="harvest-objective-text" aria-hidden="true"
+            >Plough the crop rows before the storm</strong
+          >
+          <span
+            id="harvest-storm-timer"
+            aria-hidden="true"
+            class="harvest-storm-timer"
+            >Storm in 8h 0m</span
+          >
+        </p>
+        <div
+          id="harvest-compass"
+          class="harvest-compass"
+          hidden
+          aria-label="Direction to Long Furrow"
+        >
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            id="harvest-compass-arrow"
+          >
+            <polygon
+              points="16,2 22,28 16,22 10,28"
+              fill="#c4a035"
+              stroke="#8a7020"
+              stroke-width="1"
+            />
+          </svg>
+          <span
+            id="harvest-compass-distance"
+            class="harvest-compass-distance"
+          ></span>
+        </div>
         <p
           id="survey-contract"
           class="first-rung-objective survey-contract"
@@ -295,11 +351,7 @@
           >
             Cam
           </button>
-          <button
-            type="button"
-            data-tap-action="map"
-            aria-label="Open map"
-          >
+          <button type="button" data-tap-action="map" aria-label="Open map">
             Map
           </button>
           <button
@@ -342,8 +394,8 @@
           <span id="workshop-salvage">0 salvage</span>
         </header>
         <p class="workshop__hint">
-          Choose a part or use its number key. <kbd>T</kbd> repairs and
-          services from 3 salvage — worn components raise the bill.
+          Choose a part or use its number key. <kbd>T</kbd> repairs and services
+          from 3 salvage — worn components raise the bill.
         </p>
         <p id="workshop-condition" class="workshop__hint"></p>
         <ol id="module-list"></ol>
@@ -461,8 +513,14 @@
             <li><span class="swatch swatch--unknown"></span> unsurveyed</li>
             <li><span class="swatch swatch--track"></span> graded track</li>
             <li><span class="swatch swatch--water"></span> water</li>
-            <li><span class="swatch swatch--infrastructure"></span> machine influence</li>
-            <li><span class="swatch swatch--soil"></span> remembered soil condition</li>
+            <li>
+              <span class="swatch swatch--infrastructure"></span> machine
+              influence
+            </li>
+            <li>
+              <span class="swatch swatch--soil"></span> remembered soil
+              condition
+            </li>
             <li>
               <span class="swatch swatch--salvage"></span> salvage in range
             </li>
@@ -495,15 +553,15 @@
             graded tracks. Spend it at the Home Silo to change what terrain you
             can cross.
           </p>
-        <p
-          id="bootstrap-status"
-          class="welcome-panel__status"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          data-state="loading"
-          aria-label="Loading status"
-        >
+          <p
+            id="bootstrap-status"
+            class="welcome-panel__status"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-state="loading"
+            aria-label="Loading status"
+          >
             Loading field systems…
           </p>
           <button id="enter-world" type="button">Enter the field</button>
@@ -565,11 +623,7 @@
           <span id="dialogue-speaker" class="dialogue-panel__speaker"></span>
           <p id="dialogue-body" class="dialogue-panel__body"></p>
           <div id="dialogue-choices" class="dialogue-panel__choices"></div>
-          <form
-            id="dialogue-input-form"
-            class="dialogue-panel__input"
-            hidden
-          >
+          <form id="dialogue-input-form" class="dialogue-panel__input" hidden>
             <label for="dialogue-input">Name the tractor</label>
             <input
               id="dialogue-input"

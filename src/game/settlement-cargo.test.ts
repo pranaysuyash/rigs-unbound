@@ -75,25 +75,33 @@ describe("voluntary settlement cargo", () => {
     expect(resolvePrimaryAction(state, world).kind).toBe(
       "prepare-settlement-cargo",
     );
-    expect(executePrimaryActionCommand(state, world, {
-      version: 1,
-      type: "primary-action",
-      actorId: state.activeRigId,
-    })).toEqual(expect.objectContaining({
-      action: "prepare-settlement-cargo",
-      outcome: "accepted",
-    }));
+    expect(
+      executePrimaryActionCommand(state, world, {
+        version: 1,
+        type: "primary-action",
+        actorId: state.activeRigId,
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        action: "prepare-settlement-cargo",
+        outcome: "accepted",
+      }),
+    );
     expect(state.cargoRelay.assignment?.missionId).toBeNull();
     expect(state.cargoRelay.assignment?.destinationSiteId).toBe("salvage-yard");
     expect(resolvePrimaryAction(state, world).kind).toBe("attach-cargo");
-    expect(executePrimaryActionCommand(state, world, {
-      version: 1,
-      type: "primary-action",
-      actorId: state.activeRigId,
-    })).toEqual(expect.objectContaining({
-      action: "attach-cargo",
-      outcome: "accepted",
-    }));
+    expect(
+      executePrimaryActionCommand(state, world, {
+        version: 1,
+        type: "primary-action",
+        actorId: state.activeRigId,
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        action: "attach-cargo",
+        outcome: "accepted",
+      }),
+    );
     expect(state.cargoRelay.cargo.attachedRigId).toBe(state.activeRigId);
     expect(state.activeMission).toBeNull();
     expect(state.activeSideMissions).toEqual([]);
@@ -102,7 +110,9 @@ describe("voluntary settlement cargo", () => {
   it("keeps repeated shipment completion idempotent", () => {
     const state = createInitialState("SETTLEMENT-CARGO-IDEMPOTENT");
     state.discoveries = [{ id: "salvage-yard", discoveredAt: 12 }];
-    expect(prepareSettlementCargo(state, availableSettlementCargoManifest(state)!)).toBe(true);
+    expect(
+      prepareSettlementCargo(state, availableSettlementCargoManifest(state)!),
+    ).toBe(true);
     state.cargoRelay.cargo.delivered = true;
 
     completeSettlementCargoDelivery(state);
@@ -160,15 +170,18 @@ describe("voluntary settlement cargo", () => {
   });
 
   it("recovers the legacy Rustline mission outcome into the same material fact", () => {
-    const recovered = recoverSettlementState({
-      "rustline-salvage": {
-        condition: "supplied",
-        favor: 1,
-        completedNeedIds: ["rustline-parts-run"],
-        contributions: [],
-        adaptations: [],
+    const recovered = recoverSettlementState(
+      {
+        "rustline-salvage": {
+          condition: "supplied",
+          favor: 1,
+          completedNeedIds: ["rustline-parts-run"],
+          contributions: [],
+          adaptations: [],
+        },
       },
-    }, "unresolved");
+      "unresolved",
+    );
 
     expect(rustlineServiceStocked({ settlements: recovered })).toBe(true);
     expect(recovered["rustline-salvage"].contributions).toEqual([
@@ -180,19 +193,22 @@ describe("voluntary settlement cargo", () => {
   });
 
   it("recovers the legacy Sunken causeway outcome into the raised-passage fact", () => {
-    const recovered = recoverSettlementState({
-      "sunken-flats": {
-        condition: "connected",
-        favor: 2,
-        completedNeedIds: ["sunken-flats-causeway"],
-        contributions: [],
-        adaptations: [],
+    const recovered = recoverSettlementState(
+      {
+        "sunken-flats": {
+          condition: "connected",
+          favor: 2,
+          completedNeedIds: ["sunken-flats-causeway"],
+          contributions: [],
+          adaptations: [],
+        },
       },
-    }, "unresolved");
+      "unresolved",
+    );
 
     expect(sunkenCausewayBuilt({ settlements: recovered })).toBe(true);
-    expect(deriveSettlementCommunityPassageIds({ settlements: recovered })).toEqual([
-      "sunken-flats-causeway",
-    ]);
+    expect(
+      deriveSettlementCommunityPassageIds({ settlements: recovered }),
+    ).toEqual(["sunken-flats-causeway"]);
   });
 });

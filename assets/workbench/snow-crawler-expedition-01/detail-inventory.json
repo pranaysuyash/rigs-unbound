@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "snow-crawler-expedition-01",
+  "rigId": "snow-crawler-expedition-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/snow_crawler_expedition_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-frame",
+      "level": "macro",
+      "role": "Reinforced arctic steel frame with heated bottom skid plate",
+      "derivedEnvelope": {
+        "track": 3.10,
+        "wheelbase": 3.80,
+        "rideHeight": 0.90
+      },
+      "sockets": ["plow-mount-front", "sled-hitch-rear"]
+    },
+    {
+      "nodeId": "caterpillar-track-left",
+      "level": "macro",
+      "role": "Left continuous rubber crawler track with ice cleats",
+      "sockets": []
+    },
+    {
+      "nodeId": "caterpillar-track-right",
+      "level": "macro",
+      "role": "Right continuous rubber crawler track with ice cleats",
+      "sockets": []
+    },
+    {
+      "nodeId": "pressurized-cab",
+      "level": "macro",
+      "role": "Insulated sage-green cabin with dual searchlights and grab rails",
+      "sockets": ["roof-radar-dome", "exhaust-stack-left"]
+    },
+    {
+      "nodeId": "ice-breaker-plow",
+      "level": "meso",
+      "role": "Front V-shaped steel plow with thermal heating glow strips",
+      "sockets": ["thermal-glow-strip-set"]
+    },
+    {
+      "nodeId": "diesel-power-core",
+      "level": "meso",
+      "role": "Mid-mounted diesel generator block with dual vertical exhaust pipes",
+      "sockets": []
+    }
+  ]
+}

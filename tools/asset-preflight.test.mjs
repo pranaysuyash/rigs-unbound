@@ -464,7 +464,7 @@ test("player build assertion rejects unapproved files and compiled identities", 
     await writeFile(runtimePath, "proof");
     await writeFile(bundlePath, 'const id = "developer-proof";');
 
-    const findings = await assertPlayerBuildAssetBoundary(
+    const { findings } = await assertPlayerBuildAssetBoundary(
       manifestPath,
       path.join(tempRoot, "dist/client"),
     );
@@ -502,7 +502,7 @@ test("player build assertion accepts a distribution with no unapproved exposure"
     await writeFile(bundlePath, 'const player = "ready";');
 
     await assert.doesNotReject(async () => {
-      const findings = await assertPlayerBuildAssetBoundary(
+      const { findings } = await assertPlayerBuildAssetBoundary(
         manifestPath,
         path.join(tempRoot, "dist/client"),
       );

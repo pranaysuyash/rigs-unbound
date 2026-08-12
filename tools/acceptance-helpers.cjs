@@ -138,23 +138,34 @@ async function applyDrivingInput(
 
 /**
  * Tear down browser context with a timeout guard.
+ *
+ * The guard timer is cancelled as soon as the close settles. If it were left
+ * running, the pending setTimeout would keep the Node event loop alive for its
+ * full duration after a successful close, and then fire a false "exceeded"
+ * warning even though teardown completed in milliseconds. Only when the close
+ * genuinely exceeds the guard does the warning fire, so a clean teardown stays
+ * fast and silent.
  */
 async function teardown(browserOrContext, maybeBrowser) {
   // Accept either teardown(browser) or teardown(context, browser).
   const browser = maybeBrowser ?? browserOrContext;
   const context = maybeBrowser ? browserOrContext : null;
-  await Promise.race([
-    (async () => {
-      if (context) await context.close();
-      if (browser) await browser.close();
-    })(),
-    new Promise((resolve) =>
-      setTimeout(() => {
-        console.warn("Chrome teardown exceeded 5 seconds.");
-        resolve();
-      }, 5000),
-    ),
-  ]);
+
+  let guardTimer;
+  const settle = (async () => {
+    if (context) await context.close();
+    if (browser) await browser.close();
+  })();
+  const guard = new Promise((resolve) => {
+    guardTimer = setTimeout(() => resolve("timeout"), 5000);
+  });
+
+  const winner = await Promise.race([settle, guard]);
+  clearTimeout(guardTimer);
+
+  if (winner === "timeout") {
+    console.warn("Chrome teardown exceeded 5 seconds.");
+  }
 }
 
 /**

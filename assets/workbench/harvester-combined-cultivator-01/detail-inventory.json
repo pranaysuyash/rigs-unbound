@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "harvester-combined-cultivator-01",
+  "rigId": "harvester-combined-cultivator-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/harvester_combined_cultivator_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-frame",
+      "level": "macro",
+      "role": "Heavy agricultural green steel body frame with engine compartment",
+      "derivedEnvelope": {
+        "track": 3.20,
+        "wheelbase": 4.00,
+        "rideHeight": 0.95
+      },
+      "sockets": ["header-mount-front", "auger-mount-top"]
+    },
+    {
+      "nodeId": "panoramic-glass-cab",
+      "level": "macro",
+      "role": "High elevated glass operator cabin with access ladder",
+      "sockets": []
+    },
+    {
+      "nodeId": "rotary-header-drum",
+      "level": "meso",
+      "role": "Wide front rotary cutter drum header with crop-reaping teeth",
+      "sockets": []
+    },
+    {
+      "nodeId": "grain-tank-auger",
+      "level": "meso",
+      "role": "Top grain hopper tank with 7.5m folding discharge auger pipe",
+      "sockets": []
+    },
+    {
+      "nodeId": "dual-front-wheels",
+      "level": "macro",
+      "role": "Dual oversized front tractor tires (710/90R30)",
+      "sockets": []
+    },
+    {
+      "nodeId": "rear-steering-wheels",
+      "level": "macro",
+      "role": "Rear steering wheels with rotary chaff-spreader fans",
+      "sockets": []
+    }
+  ]
+}

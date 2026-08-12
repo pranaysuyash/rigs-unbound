@@ -1,7 +1,7 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-07-31 (Water Before Night decision surface, tests, and browser acceptance implemented and verified; commit pending)
+- Last Updated: 2026-08-05 (weather-scene acceptance hardened and verified; acceptance-helper teardown defect fixed; modlens installed as out-of-repo working tool)
 - Owner: project owner; agents update evidence and status in the same change
 - Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
   ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
@@ -23,7 +23,66 @@
   ADR-0031 is historical / superseded; the reserved `ClipActionBindings` contract
   remains explicit for future clip-backed rigs.
 - Focused current board:
-  [Next Execution Board](NEXT_EXECUTION_BOARD_2026-07-26.md)
+  [Next Execution Board (2026-08-12)](NEXT_EXECUTION_BOARD_2026-08-12.md)
+  — supersedes [the 2026-07-26 board](NEXT_EXECUTION_BOARD_2026-07-26.md),
+  preserved as historical record.
+
+## Game Director Audit (2026-08-12)
+
+[Game Director Audit — 2026-08-12](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md)
+found the first-playable slice unfinished at its two highest-leverage beats —
+no ridge-top "open-world promise" finale scene exists (`camera.ts:100-184`'s
+`CAMERA_PRESETS["night-completion"]` is dead code, imported nowhere), and the
+authored first-night threat has zero implementation (a generic storm/landslide
+event fires instead, unrelated to the waterworks/customization/survey
+branches). It also found `npm run typecheck` currently fails on 3 errors in
+`renderer.ts` (5811, 5835, 5922), blocking `npm run build`, and flagged 9
+post-spine ADRs (0042, 0045-0051, 0053) still unsigned while new proposals
+(top-down mode, procedural rig generation) queue behind them. The audit's
+18-item task breakdown (explicit and implicit findings, each with a gate and
+evidence-tier expectation) is now
+[Next Execution Board (2026-08-12)](NEXT_EXECUTION_BOARD_2026-08-12.md);
+that board is the live task list going forward — this section stays as the
+audit's own pointer. Priority-ordered action list is in the audit's §7; P0 is
+finishing the slice's ending before
+any new control paradigm or generation system enters the runtime.
+
+## Top-Down Game Mode exploration and ADR-0053 proposal (2026-08-09)
+
+Explored and documented architecture, control paradigms, camera angles, HUD overlays, and 4 game mode archetypes for Top-Down View Game Mode:
+
+- Canonical vision alignment: Rigs are persistent playable characters; top-down mode is a place- and contract-driven activity context ("same vehicle, many games"), not a menu choice or secondary engine port.
+- Documented in [`docs/exploration/TOP_DOWN_GAME_MODE_EXPLORATION_2026-08-09.md`](../exploration/TOP_DOWN_GAME_MODE_EXPLORATION_2026-08-09.md).
+- Proposed [`ADR-0053: Top-Down Game Mode Architecture and Control Paradigms`](../decisions/ADR-0053-top-down-game-mode-architecture-and-control-paradigms.md) (`Proposed — operator sign-off required`).
+- Full worklog addendum in [`docs/WORKLOG_ADDENDUM_2026-08-09.md`](../WORKLOG_ADDENDUM_2026-08-09.md).
+
+## Weather-scene acceptance hardening and tooling hygiene (2026-08-05)
+
+Hardened `tools/weather-scene-browser-acceptance.cjs` so it produces valid
+evidence on the canonical 4173 dev server:
+
+- Playwright launch switched to `channel: "chrome"` (bundled `chromium` was
+  unavailable in this environment).
+- Snapshot read fixed: `snap.weatherPhase` → `snap.weather?.phase` (state
+  nests weather under `snap.weather` in `src/game/state.ts`).
+- Fixed 400ms blind wait replaced with `pollSceneConvergence` polling until
+  `easedRain > 0.5`, so the run only claims success once the rain actually
+  converges.
+- Verified: `ok:true` against the running 4173 server.
+
+Fixed a false-warning teardown defect in `tools/acceptance-helpers.cjs`:
+
+- The 5s `setTimeout` warning guard was never cancelled on the clean-close
+  path, keeping the event loop alive and firing `"Chrome teardown exceeded
+  5 seconds."` even when close completed in ~90ms.
+- Fix: track the guard handle, `clearTimeout` after the race resolves, warn
+  only when the timeout wins. Measured wall time dropped ~8.78s → ~3.76s and
+  the false warning is gone. Regression check: weather acceptance PASS.
+- Pattern search: only the shared helper had the defect;
+  `tools/add-trailer-audio.cjs` uses its own close without a guard timer and
+  was left alone.
+
+Full evidence: `docs/WORKLOG_ADDENDUM_2026-08-05.md`.
 
 ## Browser-shell visual polish evidence (2026-07-30)
 
@@ -3276,3 +3335,103 @@ clears the current parallel runtime ownership boundary.
 Anything else? Yes. The package records that visual polish must be judged by
 machine capability, place consequence, voluntary possibility, fallback
 readability, and provenance, not by screenshot novelty alone.
+
+## Addendum (2026-08-06): item 9 "Enforced `verify:head`" needs reading as scoped
+
+The Fleet Recovery table above marks item 9 `[x]` with evidence "`npm run
+verify:head` and `verify:head:browser`", and the "Blocked on parallel work"
+note beneath it says the chain "currently fails at the typecheck stage on
+unused `missionBoard*` and `WORLD_SITES` symbols in `src/main.ts`."
+
+Both need qualifying, and the rows are left as written because this file is an
+append-only log and is concurrently edited.
+
+**The `[x]` is defensible but easy to misread.** What was delivered is the
+*script*: `verify:head` and `verify:head:browser` exist and chain the right
+steps. That is done. What the checkmark does **not** assert — and what a reader
+scanning a completed-items table will assume — is that the gate is green. It is
+not, and has not been for the life of the row.
+
+**The blocker note is stale in its cause.** The typecheck failure it names is
+resolved; `npm run typecheck` exits 0 as of 2026-08-06. The chain still cannot
+complete, for an older and unrelated reason: `format:check` is the *first* link
+and fails on files unmodified at HEAD. Fixing the typecheck symbols never could
+have turned the chain green, because the chain never reached typecheck.
+
+That is the substantive point. A blocker was recorded against step 2 of an `&&`
+chain whose step 1 was already failing, which means the recorded blocker was not
+the binding constraint and clearing it produced no observable change. When
+diagnosing a chained gate, find the *first* failing link before attributing the
+failure — an `&&` chain reports only its earliest error, so any later step's
+status is unobserved, not passing.
+
+**Current status of the gate**, re-measured today:
+
+```bash
+npm run format:check   # EXIT 1 — the binding constraint
+npm run typecheck      # EXIT 0 — the blocker this file names is cleared
+```
+
+No count is restated here on purpose; run the command. Every other step in the
+chain was run individually on 2026-08-06 at EXIT 0 — typecheck, 89 files / 558
+tests, asset preflight, asset coverage, reachability self-tests, reachability
+budget, build. Full per-step record in the 2026-08-06 `docs/WORKLOG.md` entries.
+
+**Unblock**, needing operator sequencing rather than an agent decision: a
+`prettier --write` sweep over the `format:check` glob. Blocked because a
+minority of the failing files are currently modified in the working tree by
+in-flight parallel work, and reformatting files another editor has open
+entangles an unrelated repo-wide sweep with someone else's uncommitted changes.
+
+Until that sweep lands, no document should record `verify:head` as passing.
+Record the steps actually run.
+
+## Addendum (2026-08-06, later): the sweep landed; item 9's gate is green
+
+Supersedes the addendum immediately above, which is left as written because this
+file is append-only and concurrently edited.
+
+The operator approved the sweep. `prettier --write` was run over the
+`format:check` glob — deliberately not `npm run format`, which is
+`prettier --write .` and would have reflowed 100+ hand-wrapped prose files
+including this tracker. 53 files were rewritten: 44 previously clean, plus 9
+already carrying in-flight parallel work.
+
+```bash
+npm run format:check   # EXIT 0 — first time in this repo's recorded history
+npm run verify:head    # EXIT 0 — all nine steps, exit code read directly
+```
+
+**Item 9 now reads straight.** The `[x]` asserted only that the *script*
+existed; the gate behind it was red for the life of the row. Both are now true
+at once, so the qualification the previous addendum asked for is no longer
+needed — though the reason it was needed is worth keeping: a checkmark on
+"enforced <gate>" says nothing about whether the gate passes unless someone
+states the exit code separately.
+
+**Withdrawn:** "until that sweep lands, no document should record `verify:head`
+as passing." The sweep landed. Documents may now record it — citing the command
+and reading its exit code directly, never through a pipe. `... | tail -50`
+reports `tail`'s status, which is always 0; that is how the false PASS claims
+corrected earlier on 2026-08-06 were produced, and a green gate does nothing to
+fix a broken way of observing one.
+
+**The entanglement concern was real and was tested, not assumed.** Every file
+with uncommitted work was backed up first. The check that settled it:
+`prettier --stdin-filepath <path> < backup`, compared byte-for-byte against
+disk — which asks "is this file exactly what prettier produces from the
+pre-sweep content?" and so cannot miss a category of change, unlike the
+whitespace-stripped hashing tried first. Run over all 9 overlap files, not the 5
+the weaker test flagged: **all 9 byte-identical**. No in-flight work was
+altered.
+
+**Still open, unchanged by this:** `format:check`'s glob is a hand-maintained
+allowlist while `format` writes the whole tree. Widening it closed today's gap,
+not the mechanism that produced it. The durable fix is `prettier --check .` with
+a `.prettierignore` so checker and fixer describe one set by construction —
+still an operator scope decision, because it pulls `docs/` into the gate.
+
+**Not done:** nothing was committed. No git write action was taken at any point.
+The tree carries 66 modified tracked files; because 9 of them hold both
+formatting and feature work, a clean formatting-only commit needs staging by
+hunk. That is the operator's call.

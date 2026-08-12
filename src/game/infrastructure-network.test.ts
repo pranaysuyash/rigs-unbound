@@ -30,17 +30,41 @@ describe("open-world infrastructure network", () => {
   it("turns serviced Sunken Flats waterworks into a local hydrology authority instead of a route flag", () => {
     let network = createInfrastructureNetworkState();
     const waterworks = INFRASTRUCTURE_DEFINITIONS["sunken-flats-waterworks"];
-    const before = deriveInfrastructureEffects(network, waterworks.x, waterworks.z);
+    const before = deriveInfrastructureEffects(
+      network,
+      waterworks.x,
+      waterworks.z,
+    );
 
-    expect(resolveInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"])).kind).toBe("inspect");
-    network = performInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"]), "inspect").network;
-    const service = performInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["tow"]), "service");
+    expect(
+      resolveInfrastructureAction(
+        network,
+        actorAt("sunken-flats-waterworks", ["tow"]),
+      ).kind,
+    ).toBe("inspect");
+    network = performInfrastructureAction(
+      network,
+      actorAt("sunken-flats-waterworks", ["tow"]),
+      "inspect",
+    ).network;
+    const service = performInfrastructureAction(
+      network,
+      actorAt("sunken-flats-waterworks", ["tow"]),
+      "service",
+    );
     network = service.network;
-    const after = deriveInfrastructureEffects(network, waterworks.x, waterworks.z);
+    const after = deriveInfrastructureEffects(
+      network,
+      waterworks.x,
+      waterworks.z,
+    );
 
     expect(service).toMatchObject({ accepted: true, salvageDelta: -4 });
     expect(after.waterLevelOffsetM).toBeLessThan(before.waterLevelOffsetM);
-    expect(deriveInfrastructureEffects(network, waterworks.x + 100, waterworks.z).waterLevelOffsetM).toBe(0);
+    expect(
+      deriveInfrastructureEffects(network, waterworks.x + 100, waterworks.z)
+        .waterLevelOffsetM,
+    ).toBe(0);
   });
 
   it("keeps multiple authored machines alive under the same deterministic weather clock", () => {
@@ -54,9 +78,17 @@ describe("open-world infrastructure network", () => {
 
     expect(network.entities[pump.id].condition).toBeLessThan(beforePump);
     expect(network.entities[quarry.id].condition).toBeLessThan(beforeQuarry);
-    expect(deriveInfrastructureEffects(network, pump.x, pump.z).soilMoistureOffset).toBeLessThan(0);
-    expect(deriveInfrastructureEffects(network, pump.x, pump.z).soilDrainageRatePerHour).toBeGreaterThan(0);
-    expect(deriveInfrastructureEffects(network, quarry.x, quarry.z).waterLevelOffsetM).toBeLessThan(0);
+    expect(
+      deriveInfrastructureEffects(network, pump.x, pump.z).soilMoistureOffset,
+    ).toBeLessThan(0);
+    expect(
+      deriveInfrastructureEffects(network, pump.x, pump.z)
+        .soilDrainageRatePerHour,
+    ).toBeGreaterThan(0);
+    expect(
+      deriveInfrastructureEffects(network, quarry.x, quarry.z)
+        .waterLevelOffsetM,
+    ).toBeLessThan(0);
   });
 
   it("changes terrain workability without turning field access into an unlock gate", () => {
@@ -96,7 +128,12 @@ describe("open-world infrastructure network", () => {
       known: true,
     };
 
-    expect(resolveInfrastructureAction(network, actorAt("sunken-flats-waterworks", ["plough"]))).toMatchObject({
+    expect(
+      resolveInfrastructureAction(
+        network,
+        actorAt("sunken-flats-waterworks", ["plough"]),
+      ),
+    ).toMatchObject({
       kind: "none",
       reason: "missing-capability",
       affordance: {
@@ -109,18 +146,26 @@ describe("open-world infrastructure network", () => {
   });
 
   it("maps a legacy floodgate entity record into the canonical regional waterworks", () => {
-    const recovered = recoverInfrastructureNetwork({
-      entities: {
-        "floodgate-12": {
-          known: true,
-          commandedOn: true,
-          components: { hydraulic: 80, mechanical: 70, power: 100, control: 75 },
-          lastInspectedAtMs: 0,
-          lastServicedAtMs: 30,
-          lastServicedByRigId: "utility-tractor",
+    const recovered = recoverInfrastructureNetwork(
+      {
+        entities: {
+          "floodgate-12": {
+            known: true,
+            commandedOn: true,
+            components: {
+              hydraulic: 80,
+              mechanical: 70,
+              power: 100,
+              control: 75,
+            },
+            lastInspectedAtMs: 0,
+            lastServicedAtMs: 30,
+            lastServicedByRigId: "utility-tractor",
+          },
         },
       },
-    }, null);
+      null,
+    );
 
     expect(recovered.entities["sunken-flats-waterworks"]).toMatchObject({
       id: "sunken-flats-waterworks",

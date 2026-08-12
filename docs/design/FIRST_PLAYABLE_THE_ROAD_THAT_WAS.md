@@ -129,16 +129,16 @@ not a cutscene.
 
 ## 6. Module dispositions (all 25, explicit)
 
-**Wired by this slice (12):** `campaign.ts`, `world-memory.ts`,
+**Wired by this slice (16):** `campaign.ts`, `world-memory.ts`,
 `vehicle-maintenance.ts`, `workshop-lab.ts`, `salvage-crafting.ts`,
 `electrical-grid.ts`, `surface-moisture.ts`, `soil-ecosystem.ts`,
-`radio-scanner.ts`, `seismic-probe.ts`, `topo-map.ts`, `signature.ts`.
-
-**Wired if the night pressure lands as designed (2):** `landslide-hazard.ts`,
+`radio-scanner.ts`, `seismic-probe.ts`, `topo-map.ts`, `signature.ts`,
+`ghost.ts`, `expedition-economy.ts`, `landslide-hazard.ts`,
 `debris-physics.ts`.
 
-**Re-archived with named future home (11):** `ghost.ts` (async multiplayer
-seed), `fleet-recovery.ts` + `expedition-economy.ts` (Campaign One mid-game),
+**Wired if the night pressure lands as designed (0):** *(All conditions met — both modules now reachable and moved to the wired group above. This group is retained as a zero-count marker so the heading documents that the condition resolved rather than being silently dropped.)*
+
+**Re-archived with named future home (9):** `fleet-recovery.ts`,
 `cargo-crane.ts`, `winch-physics.ts`, `winch-pulley.ts` (salvage verticals),
 `thermal-camera.ts`, `thermal-engine.ts` (night-instrument tier 2),
 `fuel-efficiency.ts` (economy tuning pass), `procedural-missions.ts`
@@ -429,3 +429,145 @@ This makes a completed haul or a restored causeway legible as help to people,
 not merely a state mutation. The player can read the notes when useful and
 continue driving; no conversation is mandatory and no social menu interrupts
 the world.
+
+## Addendum (2026-08-06) - Water Before Night's binding table named the wrong modules
+
+The §3 binding line for *Water Before Night* and the §6 disposition list are
+both wrong, in the same way and for the same reason. They were written as a
+plan — "these are the modules this quest will light up" — and never reconciled
+against what the quest actually became when it shipped. Measured against the
+tree on 2026-08-06:
+
+| Spec claim | Measured reality |
+| --- | --- |
+| `electrical-grid.ts` (wire — pump circuit) | Unreachable, and **not a pump circuit**. It models a rig 12V accessory budget: alternator output against headlight, winch, and seismic draw. Now `DEFERRED` in the reachability audit. |
+| `world-memory.ts` (wire — consequence recorded) | Unreachable, and **not consequence persistence**. Canonical spatial memory is `WorldMemoryRecord` (`gameworld.ts:84`), already snapshotted and consumed by `storage.ts` and `run-record.ts`. Now `DEFERRED`. |
+| `surface-moisture.ts` (wire) | Already reachable — imported by `field-conditions.ts:18`. |
+| `soil-ecosystem.ts` (wire) | Already reachable — `gameworld.ts:28` imports `calculateErosionResistanceFactor`. |
+| `river-hydrology.ts` (reachable) | Correct — `physics.ts:57` imports `calculateRiverHydroState`. |
+
+The quest itself is not blocked on any of this. It shipped in commit `a141b0b`
+and is player-reachable today: `chooseFarmWaterworks` (`state.ts:566`) is bound
+to the workshop buttons (`main.ts:1390`), gated on first-start plus workshop
+proximity, and each branch writes a real field condition through
+`world.applyWaterworksFieldCondition` (`state.ts:592` repair, `state.ts:603`
+redirect). The branch also flips the `long-furrow-drain-pump` infrastructure
+entity's `commandedOn`, feeds `applyFarmWaterworksSettlementOutcome`, persists
+at `state.ts:3166`, and recovers at `state.ts:4163`.
+
+That last detail is the whole explanation. The pump was implemented as an
+**infrastructure entity with a commanded state**, not as an electrical load
+drawing against a battery. Once that modelling choice was made, nothing in the
+quest could ever route through `electrical-grid.ts` — the module measures a
+quantity the game does not simulate for the farm. The binding table was not
+merely stale; it described a design the implementation had already declined.
+
+Both modules are now registered as `DEFERRED` in
+`tools/audit-runtime-reachability.mjs`, each with a named precondition that
+would unblock it. Deferred modules **stay inside the unreachable budget** —
+deferral is temporary and conditional, unlike quarantine, so the pressure to
+resolve it remains. The audit fails on a stale registry entry, so if either
+precondition is met and the module is wired, the entry cannot be left behind
+to keep asserting a blocker that no longer exists.
+
+Anything else? Yes, and it generalises past this quest. Every binding table in
+this document is a set of claims written before the code existed, and none of
+them is checked by anything. The reachability audit can verify the reachable/
+unreachable half of a claim, but not the *which module* half — nothing catches
+a table that names a plausible module which turns out to model something else
+entirely. Reading a module's actual contents before acting on a binding remains
+a manual step, and this addendum exists because that step was skipped once.
+
+## Addendum (2026-08-06) - `signature.ts` does not model provenance either
+
+The addendum above closed by saying nothing checks the *which module* half of a
+binding claim, and that reading the module remains a manual step. Applying that
+immediately to the next unchecked binding in this document found a second error
+of the same kind.
+
+§3 (*What the Old Tractor Kept*) and §6 both bind `signature.ts` to component
+provenance — "the component alters the rig's emission signature." The module
+contains no provenance concept at all. `deriveRigSignature` maps rig speed,
+strain, and tool engagement onto three emission channels (acoustic,
+illumination, thermal proxy). There is no component identity in it, no history,
+and nothing that could tell a storied part from a standard one. Its only
+importer is its own test.
+
+The quest design is not invalidated — a storied component *could* shift an
+emission signature. But that would require a provenance concept the codebase
+does not have, plus a modification to `deriveRigSignature` that does not exist,
+plus a listener that can perceive the shift. "Wire `signature.ts`" is not the
+work; it is at best the last step of it.
+
+`signature.ts` is now `DEFERRED` in the reachability audit on its own header's
+terms: an evidence fixture "until one real listener and accessible player
+feedback land together."
+
+### One missing concept is holding back two of the three deferrals
+
+`signature.ts` and `electrical-grid.ts` both wait on **player-owned operating-
+light state**. `electrical-grid.ts` needs `isHeadlightsActive` to be real kernel
+state; `signature.ts`'s header forbids production callers from inferring its
+`illumination` input from Three.js objects because no such state exists.
+Measured on 2026-08-06: `flashHeadlights` (`main.ts:1349`) drives a renderer-side
+transient (`renderer.ts:561`), and every other beacon in the tree is decorative
+geometry. Nothing player-owned exists.
+
+That is 147 unreachable lines waiting on one absent capability — a fact that was
+invisible while each precondition was written in its own words. The audit now
+groups deferrals by a `sharedBlocker` slug and reports the total directly.
+
+Anything else? Yes. Two of the three binding claims checked in this document so
+far were wrong, and both were wrong in the same direction: a module name that
+described the quest's *intent* was mistaken for a module that implemented its
+*mechanism*. `world-memory.ts`, `electrical-grid.ts`, and `signature.ts` are all
+plausible names for what the quests needed. None of them contained it. The
+remaining binding tables in §3 and §6 have not been checked and should be read
+as intent, not inventory, until each one is opened.
+
+## Addendum (2026-08-07) — four more §6 dispositions corrected by machine, plus the checker that caught them
+
+`tools/audit-slice-binding-claims.mjs` now cross-checks every disposition in
+this document against the import graph the reachability audit already derives.
+Its first run against the real spec found:
+
+- **`ghost.ts`** was listed under "Re-archived with named future home" but is
+  reachable. `src/main.ts:75` imports `GhostTrailRecorder` from `./game/ghost`,
+  and it is instantiated at line 1022. The spec was understating what is live.
+  Moved to "Wired by this slice."
+
+- **`expedition-economy.ts`** was listed under the same archived group but is
+  reachable through `contracts.ts` and `salvage-crafting.ts`. Moved to "Wired by
+  this slice."
+
+- **`landslide-hazard.ts`** and **`debris-physics.ts`** were listed under
+  "Wired if the night pressure lands as designed." Both are reachable — the
+  condition has resolved. Moved to "Wired by this slice." The conditional group
+  is now empty (count 0) and retained as a marker that the condition resolved
+  rather than being silently dropped.
+
+The checker was built because the six previous addenda all recorded binding
+claims checked by hand and found wrong — three in the August 6 addenda, and
+these four more today. Ten wrong binding claims in one document, every one of
+them checked after the fact. The checker makes that check mechanical: it
+compares a hand-maintained table against a machine-derivable set and exits 1 on
+disagreement.
+
+This is the same pattern that `audit:reachability` applies to the import graph
+itself and that `audit:asset-coverage` applies to the manifest — derive the
+comparison instead of trusting the curation. That pattern now covers four of the
+repo's hand-maintained claims:
+
+| Claim | Checked by | Recovery |
+| --- | --- | --- |
+| Reachability budget | `audit:reachability` | Audit + quarantine/deferral |
+| Module disposition table | `audit:slice-bindings` | Audit → edit this document |
+| Asset manifest coverage | `audit:asset-coverage` | Audit → manifest admission |
+| Formatter target set | `format:check` glob (still hand-maintained) | TBD (`.prettierignore` task) |
+
+The checker is wired into `verify:head` as `audit:slice-bindings`. It only
+checks bookkeeping — whether a named module actually models the mechanism the
+quest needs still requires reading the module, as every prior addendum showed.
+
+§6 counts updated: wired 12→16 (ghost, expedition-economy, landslide-hazard,
+debris-physics), conditional 2→0, archived 11→9. Total remains 25.

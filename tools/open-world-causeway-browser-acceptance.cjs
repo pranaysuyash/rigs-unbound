@@ -13,7 +13,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { chromium, assert, state, teardown } = require("./acceptance-helpers.cjs");
+const {
+  chromium,
+  assert,
+  state,
+  teardown,
+} = require("./acceptance-helpers.cjs");
 const { armWatchdog } = require("./browser-watchdog.cjs");
 
 armWatchdog({ minutes: 10, label: "open-world causeway acceptance" });
@@ -42,7 +47,12 @@ async function driveCargoThroughCrossing(page, target, maxSteps = 420) {
   for (let step = 0; step < maxSteps; step += 1) {
     const snapshot = await state(page);
     if (snapshot.activity.delivered) {
-      return { step, delivered: true, x: snapshot.activeRig.x, z: snapshot.activeRig.z };
+      return {
+        step,
+        delivered: true,
+        x: snapshot.activeRig.x,
+        z: snapshot.activeRig.z,
+      };
     }
 
     const rig = snapshot.activeRig;
@@ -90,7 +100,9 @@ async function main() {
     channel: "chrome",
     headless: process.env.RIGS_BROWSER_HEADLESS !== "0",
   });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+  });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -147,12 +159,15 @@ async function main() {
     // not merely the rig's body, passes through the delivery radius.
     const leg = await driveCargoThroughCrossing(page, { x: -128.1, z: -132.0 });
     const delivered = await state(page);
-    const sunken = delivered.settlements.find((entry) => entry.id === "sunken-flats");
+    const sunken = delivered.settlements.find(
+      (entry) => entry.id === "sunken-flats",
+    );
     const waterworks = delivered.infrastructure.entities.find(
       (entry) => entry.id === "sunken-flats-waterworks",
     );
     assert(
-      delivered.activity.delivered && delivered.activity.cargoAttachedTo === null,
+      delivered.activity.delivered &&
+        delivered.activity.cargoAttachedTo === null,
       "The crate must complete delivery and detach",
     );
     assert(
@@ -183,7 +198,9 @@ async function main() {
     await page.waitForTimeout(450);
     await page.evaluate(() => {
       const controls = [...document.querySelectorAll("button")];
-      controls.find((button) => button.textContent?.trim() === "Got it")?.click();
+      controls
+        .find((button) => button.textContent?.trim() === "Got it")
+        ?.click();
     });
     await page.screenshot({ path: screenshotPath, fullPage: false });
     await page.reload({ waitUntil: "networkidle" });

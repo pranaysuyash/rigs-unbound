@@ -9,8 +9,15 @@ import { createInitialState } from "./state";
 
 const RIG: RigId = "utility-tractor";
 
-function buildParts(wheelCount = 4): RigParts {
+function buildParts(
+  wheelCount = 4,
+  wheelSpinScale: number[] = new Array<number>(wheelCount).fill(1),
+): RigParts {
   const root = new THREE.Group();
+  // Mirrors the real rigs: art hangs off a ground-frame child of the root, so
+  // the root keeps carrying the body origin the kernel positions it at.
+  const body = new THREE.Group();
+  root.add(body);
   const wheels: THREE.Group[] = [];
   const steeringPivots: THREE.Group[] = [];
   const wheelRestY: number[] = [];
@@ -20,7 +27,7 @@ function buildParts(wheelCount = 4): RigParts {
     const spin = new THREE.Group();
     steeringPivot.position.y = 1;
     steeringPivot.add(spin);
-    root.add(steeringPivot);
+    body.add(steeringPivot);
     wheels.push(spin);
     steeringPivots.push(steeringPivot);
     wheelRestY.push(1);
@@ -31,20 +38,22 @@ function buildParts(wheelCount = 4): RigParts {
   const steeringWheel = new THREE.Group();
   steeringWheel.name = "steeringWheel";
   steeringColumn.add(steeringWheel);
-  root.add(steeringColumn);
+  body.add(steeringColumn);
 
   const ploughPivot = new THREE.Group();
-  root.add(ploughPivot);
+  body.add(ploughPivot);
 
   const lugVisual = new THREE.Object3D();
   const marker = new THREE.Object3D();
 
   return {
     root,
+    body,
     hoodCameraSocket: new THREE.Object3D(),
     wheels,
     steeringPivots,
     wheelRestY,
+    wheelSpinScale,
     moduleVisuals: { "lug-tires": [lugVisual] },
     ploughPivot,
     headlights: new THREE.SpotLight(),
@@ -125,6 +134,35 @@ describe("vehicle animation system", () => {
 
     expect(first).toBeCloseTo(1.234, 6);
     expect(second).toBe(first);
+  });
+
+  it("scales each wheel's spin to the radius it is actually drawn at", () => {
+    // The kernel integrates one reference rotation from a single mean rolling
+    // radius. A tractor's rear wheels are drawn larger than that mean, so at the
+    // reference rate they would sweep more ground than the rig covers — visible
+    // skid. `wheelSpinScale` is `wheelRadius / drawnRadius`; see rig-blockout.ts.
+    if (rigState.mobility.kind !== "ground") throw new Error("expected ground");
+    const scaled = buildParts(4, [1.22, 1.22, 0.85, 0.85]);
+    system.registerRig(RIG, scaled);
+    rigState.mobility.wheelRotation = 2;
+
+    tick(system, rigState);
+
+    expect(scaled.wheels[0]!.rotation.x).toBeCloseTo(2.44, 6);
+    expect(scaled.wheels[2]!.rotation.x).toBeCloseTo(1.7, 6);
+  });
+
+  it("spins a wheel at the reference rate when no scale was authored", () => {
+    // A rig that forgot to declare scales is an authoring gap, not a reason to
+    // freeze its wheels: a stationary wheel on a moving rig reads far worse.
+    if (rigState.mobility.kind !== "ground") throw new Error("expected ground");
+    const unscaled = buildParts(4, []);
+    system.registerRig(RIG, unscaled);
+    rigState.mobility.wheelRotation = 2;
+
+    tick(system, rigState);
+
+    expect(unscaled.wheels[0]!.rotation.x).toBeCloseTo(2, 6);
   });
 
   it("derives suspension travel from kernel compression, not from drive load", () => {

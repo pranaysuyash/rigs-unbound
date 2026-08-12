@@ -54,8 +54,13 @@ async function acceptArrivalBargain(page) {
     speaker?.includes("Old Man"),
     `Expected bargain speaker "Old Man", got "${speaker}"`,
   );
-  await page.locator('#dialogue-choices button:has-text("Take the deal")').click();
-  await page.waitForSelector("#dialogue-panel", { state: "hidden", timeout: 3_000 });
+  await page
+    .locator('#dialogue-choices button:has-text("Take the deal")')
+    .click();
+  await page.waitForSelector("#dialogue-panel", {
+    state: "hidden",
+    timeout: 3_000,
+  });
 }
 
 async function restoreTractor(page) {
@@ -173,7 +178,11 @@ async function main() {
   const browser = await chromium.launch({ channel: "chrome" });
   const consoleErrors = [];
 
-  async function runBranchInFreshContext(choiceButtonSelector, probe, expectation) {
+  async function runBranchInFreshContext(
+    choiceButtonSelector,
+    probe,
+    expectation,
+  ) {
     const context = await browser.newContext();
     const page = await context.newPage();
     const branchConsoleErrors = collectConsole(page);

@@ -162,9 +162,7 @@ describe("runtime profile policy", () => {
         "mobile-safe",
         true,
       ),
-    ).toBe(
-      "Renderer visibility fallback: mobile-safe (acceptance preview)",
-    );
+    ).toBe("Renderer visibility fallback: mobile-safe (acceptance preview)");
   });
 
   it("selects mobile-safe with every exceeded budget reason", () => {

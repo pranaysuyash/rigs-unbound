@@ -181,7 +181,11 @@ export function recoverQuarryRunout(
   const active = requestedStatus === "active" && boulder !== null;
   return {
     id: "quarry-runout",
-    status: active ? "active" : requestedStatus === "cleared" ? "cleared" : "dormant",
+    status: active
+      ? "active"
+      : requestedStatus === "cleared"
+        ? "cleared"
+        : "dormant",
     originX: isFiniteNumber(candidate.originX)
       ? candidate.originX
       : fallback.originX,

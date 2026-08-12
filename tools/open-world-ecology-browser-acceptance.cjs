@@ -8,7 +8,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { chromium, assert, state, teardown } = require("./acceptance-helpers.cjs");
+const {
+  chromium,
+  assert,
+  state,
+  teardown,
+} = require("./acceptance-helpers.cjs");
 const { armWatchdog } = require("./browser-watchdog.cjs");
 
 armWatchdog({ minutes: 10, label: "open-world ecology acceptance" });
@@ -36,7 +41,9 @@ async function dismissControlLesson(page) {
 async function main() {
   fs.mkdirSync(artifactDirectory, { recursive: true });
   const browser = await chromium.launch({ channel: "chrome", headless: true });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+  });
   const page = await context.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -46,25 +53,37 @@ async function main() {
 
   try {
     await page.goto(targetUrl, { waitUntil: "networkidle" });
-    await page.waitForFunction(() => typeof window.render_game_to_text === "function");
+    await page.waitForFunction(
+      () => typeof window.render_game_to_text === "function",
+    );
     await page.evaluate(() => {
       localStorage.clear();
       sessionStorage.clear();
     });
     await page.reload({ waitUntil: "networkidle" });
-    await page.waitForFunction(() => typeof window.render_game_to_text === "function");
+    await page.waitForFunction(
+      () => typeof window.render_game_to_text === "function",
+    );
     await page.keyboard.press("Space");
     await page.waitForTimeout(450);
     await dismissControlLesson(page);
 
     const before = await state(page);
-    assert(Array.isArray(before.ecology), "Public state must expose ecology actors.");
-    assert(before.ecology.length >= 3, "Fresh world must expose the first three ecology groups.");
+    assert(
+      Array.isArray(before.ecology),
+      "Public state must expose ecology actors.",
+    );
+    assert(
+      before.ecology.length >= 3,
+      "Fresh world must expose the first three ecology groups.",
+    );
     assert(
       before.mission === null && before.activeSideMissions.length === 0,
       "Ecology must not create a mission or side mission.",
     );
-    const herd = before.ecology.find((actor) => actor.id === "long-furrow-herd");
+    const herd = before.ecology.find(
+      (actor) => actor.id === "long-furrow-herd",
+    );
     assert(herd, "Long Furrow herd must exist in persistent ecology state.");
 
     await page.evaluate((actor) => {
@@ -75,7 +94,12 @@ async function main() {
     await page.evaluate(() => {
       for (let step = 0; step < 10; step += 1) {
         window.applyRigInput(
-          { accelerate: true, brake: false, steerLeft: false, steerRight: false },
+          {
+            accelerate: true,
+            brake: false,
+            steerLeft: false,
+            steerRight: false,
+          },
           180,
         );
       }
@@ -83,14 +107,25 @@ async function main() {
     await page.waitForTimeout(1200);
 
     const observed = await state(page);
-    assert(observed.activeRig.id === "marsh-skimmer", "Skimmer must remain player-controlled.");
+    assert(
+      observed.activeRig.id === "marsh-skimmer",
+      "Skimmer must remain player-controlled.",
+    );
     assert(
       observed.ecology.some((actor) => actor.id === herd.id),
       "Observed herd must remain world state after moving the player.",
     );
-    const displacedHerd = observed.ecology.find((actor) => actor.id === herd.id);
-    const displacement = Math.hypot(displacedHerd.x - herd.x, displacedHerd.z - herd.z);
-    assert(displacement > 0.1, "Real Skimmer movement must make the nearby herd relocate.");
+    const displacedHerd = observed.ecology.find(
+      (actor) => actor.id === herd.id,
+    );
+    const displacement = Math.hypot(
+      displacedHerd.x - herd.x,
+      displacedHerd.z - herd.z,
+    );
+    assert(
+      displacement > 0.1,
+      "Real Skimmer movement must make the nearby herd relocate.",
+    );
     assert(
       observed.mission === null && observed.activeSideMissions.length === 0,
       "Approaching ecology must not create a mission or side mission.",
@@ -109,8 +144,7 @@ async function main() {
         herdDisplacementMeters: displacement,
       },
       errors,
-      note:
-        "Screenshot is world-observation evidence, not a final art-composition approval."
+      note: "Screenshot is world-observation evidence, not a final art-composition approval.",
     };
     fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
     console.log("open-world-ecology-browser-acceptance: PASS");

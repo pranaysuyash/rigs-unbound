@@ -51,7 +51,10 @@ async function main() {
 
     // The restoration overlay should open automatically on a fresh field once
     // any volunteered control lesson is dismissed.
-    await page.waitForSelector("#workshop-panel", { state: "attached", timeout: 5_000 });
+    await page.waitForSelector("#workshop-panel", {
+      state: "attached",
+      timeout: 5_000,
+    });
     const dismissBtn = page.locator("#control-lesson-dismiss");
     try {
       await dismissBtn.waitFor({ state: "visible", timeout: 3_000 });
@@ -66,7 +69,8 @@ async function main() {
 
     const getActionText = async () =>
       page.evaluate(
-        () => document.querySelector("#workshop-restoration-action")?.textContent,
+        () =>
+          document.querySelector("#workshop-restoration-action")?.textContent,
       );
 
     // Diagnose → Rebuild

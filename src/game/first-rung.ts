@@ -32,6 +32,7 @@ export type FirstRungStage =
   | "choose-part"
   | "first-cut"
   | "second-fit"
+  | "harvest"
   | "free-explore";
 
 export interface FirstRungResolution {
@@ -678,7 +679,31 @@ export function resolveFirstRung(
       return resolvePostFitRung(state, world);
     }
 
-    // Two or more modules fitted — free-explore.
+    // Two or more modules fitted — free-explore or harvest guidance.
+    if (!state.harvest.delivered && !state.harvest.stormArrived) {
+      const rig = state.rigs[state.activeRigId];
+      const lfSite = findSite("long-furrow");
+      const lfDist = lfSite
+        ? Math.hypot(rig.x - lfSite.x, rig.z - lfSite.z)
+        : Infinity;
+      const nearLongFurrow = lfDist <= 20;
+      return {
+        stage: "harvest",
+        objective: nearLongFurrow
+          ? "Plough the crop rows before the storm"
+          : "Drive to Long Furrow and harvest before the storm",
+        shortLabel: "Harvest Long Furrow",
+        ariaLabel: nearLongFurrow
+          ? "You are at Long Furrow. Plough the crop rows in the south field, then deliver to the barn before the storm arrives."
+          : "Drive to Long Furrow, plough the crop rows in the south field, and deliver to the barn before the storm arrives.",
+        reason: "The harvest at Long Furrow is the next objective.",
+        target: lfSite ? { x: lfSite.x, z: lfSite.z } : null,
+        recommendedModuleId: null,
+        recommendedRigId: null,
+        affordable: false,
+        complete: false,
+      };
+    }
     return {
       stage: "free-explore",
       objective: "Use your fitted parts",

@@ -422,10 +422,10 @@ describe("first progression rung", () => {
     const collected = new Set([FIRST_SALVAGE_NODE.id]);
 
     const resolution = resolveFirstRung(state, collected, world);
-    expect(resolution.stage).toBe("free-explore");
-    expect(resolution.objective).toBe("Use your fitted parts");
-    expect(resolution.complete).toBe(true);
-    expect(resolution.target).toBeNull();
+    expect(resolution.stage).toBe("harvest");
+    expect(resolution.objective).toContain("Long Furrow");
+    expect(resolution.complete).toBe(false);
+    expect(resolution.target).not.toBeNull();
   });
 
   it("is deterministic and does not mutate restored state or world memory", () => {

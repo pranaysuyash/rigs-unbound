@@ -286,6 +286,13 @@ export class VehicleAnimationSystem {
   /**
    * Wheel spin and suspension travel are both read from kernel mobility state.
    * Hover rigs carry no wheel array and are skipped.
+   *
+   * The kernel integrates one reference rotation for the whole rig,
+   * `distance / profile.wheelRadius`, because it models a single mean rolling
+   * radius. A rig whose axles differ — a tractor's drive wheels dwarf its
+   * steering wheels — needs each wheel scaled to its own radius, or the larger
+   * pair visibly skids. `parts.wheelSpinScale` carries that per-wheel factor,
+   * derived in `rig-blockout.ts` from the radius actually drawn.
    */
   private applyWheels(
     parts: RigParts,
@@ -299,7 +306,11 @@ export class VehicleAnimationSystem {
       const rest = parts.wheelRestY[index];
       if (!wheel || !steeringPivot || rest === undefined) continue;
 
-      wheel.rotation.x = rigState.mobility.wheelRotation;
+      // Absent a declared scale, fall back to the reference rate rather than
+      // freezing the wheel: a missing entry is a rig-authoring gap, and a
+      // stationary wheel on a moving rig reads as a worse bug than a fast one.
+      const spinScale = parts.wheelSpinScale[index] ?? 1;
+      wheel.rotation.x = rigState.mobility.wheelRotation * spinScale;
       steeringPivot.rotation.y = index < 2 ? feedback.steeringAngle : 0;
 
       const wheelState = rigState.mobility.wheels[index];

@@ -50,12 +50,7 @@ export type MissionState = "available" | "active" | "completed" | "failed";
  * "repeatable" never writes a completion deed; "emergent" is systems-driven.
  */
 export type MissionClass =
-  | "main"
-  | "side"
-  | "local"
-  | "hidden"
-  | "repeatable"
-  | "emergent";
+  "main" | "side" | "local" | "hidden" | "repeatable" | "emergent";
 
 export const MISSION_CLASSES: readonly MissionClass[] = [
   "main",

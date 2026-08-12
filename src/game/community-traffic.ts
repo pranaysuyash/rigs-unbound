@@ -39,8 +39,12 @@ function stablePhase(id: string): number {
 function activeMaterialEffectIds(state: GameState): ReadonlySet<string> {
   return new Set(
     Object.values(state.settlements).flatMap((settlement) => [
-      ...settlement.contributions.map((contribution) => contribution.materialEffectId),
-      ...settlement.adaptations.map((adaptation) => adaptation.materialEffectId),
+      ...settlement.contributions.map(
+        (contribution) => contribution.materialEffectId,
+      ),
+      ...settlement.adaptations.map(
+        (adaptation) => adaptation.materialEffectId,
+      ),
     ]),
   );
 }
@@ -66,24 +70,28 @@ export function deriveCommunityTraffic(
     if (!source || !target) return [];
 
     const cycle =
-      (state.worldTimeMinutes / effect.traffic.travelMinutes + stablePhase(effect.id)) % 2;
+      (state.worldTimeMinutes / effect.traffic.travelMinutes +
+        stablePhase(effect.id)) %
+      2;
     const outbound = cycle < 1;
     const progress = outbound ? cycle : 2 - cycle;
     const dx = target.x - source.x;
     const dz = target.z - source.z;
     const heading = Math.atan2(dx, dz) + (outbound ? 0 : Math.PI);
 
-    return [{
-      id: `community-traffic:${effect.id}`,
-      materialEffectId: effect.id,
-      kind: effect.traffic.kind,
-      sourceSiteId: source.id,
-      targetSiteId: target.id,
-      x: source.x + dx * progress,
-      z: source.z + dz * progress,
-      heading,
-      outbound,
-      progress,
-    }];
+    return [
+      {
+        id: `community-traffic:${effect.id}`,
+        materialEffectId: effect.id,
+        kind: effect.traffic.kind,
+        sourceSiteId: source.id,
+        targetSiteId: target.id,
+        x: source.x + dx * progress,
+        z: source.z + dz * progress,
+        heading,
+        outbound,
+        progress,
+      },
+    ];
   });
 }

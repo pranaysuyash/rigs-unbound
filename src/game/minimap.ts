@@ -354,7 +354,8 @@ export class FieldMap {
       const operating = infrastructureIsOperating(definition, entity);
       const radius = Math.max(
         7,
-        ((waterEffect?.radiusM ?? definition.interactionRadiusM) / MAP_SPAN) * size,
+        ((waterEffect?.radiusM ?? definition.interactionRadiusM) / MAP_SPAN) *
+          size,
       );
       const color = operating
         ? "rgba(45, 212, 191, 0.72)"

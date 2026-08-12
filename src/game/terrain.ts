@@ -551,9 +551,7 @@ export class TerrainField {
         (site) => site.x === route.bx && site.z === route.bz,
       );
       const startElevation =
-        "startElevation" in route
-          ? route.startElevation
-          : startSite?.elevation;
+        "startElevation" in route ? route.startElevation : startSite?.elevation;
       const endElevation =
         "endElevation" in route ? route.endElevation : endSite?.elevation;
       if (startElevation !== undefined) elevations[0] = startElevation;

@@ -159,7 +159,9 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
         const rumorGraph = deriveRumorGraph(state);
         const knownSites = WORLD_SITES.flatMap((site) => {
           const node = rumorGraph.nodes[site.id];
-          return node && node.status !== "undiscovered" ? [{ site, status: node.status }] : [];
+          return node && node.status !== "undiscovered"
+            ? [{ site, status: node.status }]
+            : [];
         });
         const undiscoveredSites = WORLD_SITES.filter(
           (site) => rumorGraph.nodes[site.id]?.status === "undiscovered",
@@ -176,7 +178,9 @@ export function createNavigatorUI(container: HTMLElement): NavigatorController {
         const trace =
           signal.nearestTargetName === null
             ? null
-            : undiscoveredSites.find((site) => site.id === signal.nearestTargetName) ?? null;
+            : (undiscoveredSites.find(
+                (site) => site.id === signal.nearestTargetName,
+              ) ?? null);
 
         sitesGroup.innerHTML = [
           ...knownSites.map(({ site, status }) => {

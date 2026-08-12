@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "sentinel-mobile-fort-01",
+  "rigId": "sentinel-mobile-fort-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/sentinel_mobile_fort_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-fortress",
+      "level": "macro",
+      "role": "Matte charcoal armored chassis frame with ground anchor pins",
+      "derivedEnvelope": {
+        "track": 3.40,
+        "wheelbase": 4.00,
+        "rideHeight": 0.75
+      },
+      "sockets": ["spotlight-mast-socket", "barrier-hitch-rear"]
+    },
+    {
+      "nodeId": "quad-track-pods",
+      "level": "macro",
+      "role": "4 corner continuous track modules with heavy tread guards",
+      "sockets": []
+    },
+    {
+      "nodeId": "armored-command-core",
+      "level": "macro",
+      "role": "Low-profile sloped armor cabin with vision slits",
+      "sockets": []
+    },
+    {
+      "nodeId": "barricade-wing-left",
+      "level": "meso",
+      "role": "Unfolding hinged side steel blast wall with hydraulic deploy arm",
+      "sockets": ["terrain-clamp-left"]
+    },
+    {
+      "nodeId": "barricade-wing-right",
+      "level": "meso",
+      "role": "Unfolding hinged side steel blast wall with hydraulic deploy arm",
+      "sockets": ["terrain-clamp-right"]
+    },
+    {
+      "nodeId": "spotlight-mast",
+      "level": "meso",
+      "role": "Central steel lattice tower with 360-degree high-output searchlight",
+      "sockets": ["generator-pack"]
+    }
+  ]
+}

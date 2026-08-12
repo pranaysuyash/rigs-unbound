@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "aero-cargo-freighter-02",
+  "rigId": "aero-cargo-freighter-02",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/aero_cargo_freighter_02_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "cargo-fuselage",
+      "level": "macro",
+      "role": "High-capacity steel/composite cargo bay fuselage hull",
+      "derivedEnvelope": {
+        "track": 4.20,
+        "wheelbase": 6.80,
+        "rideHeight": 1.50
+      },
+      "sockets": ["pylon-mount-wings", "ramp-mount-rear"]
+    },
+    {
+      "nodeId": "cockpit-cabin",
+      "level": "macro",
+      "role": "Elevated twin-pilot glass cockpit flight deck",
+      "sockets": []
+    },
+    {
+      "nodeId": "quad-tilt-rotors",
+      "level": "macro",
+      "role": "4 wing nacelle tilt-rotor engines with 3-blade propellers",
+      "sockets": []
+    },
+    {
+      "nodeId": "rear-loading-ramp",
+      "level": "meso",
+      "role": "Rear hydraulic clam-shell cargo loading ramp",
+      "sockets": []
+    },
+    {
+      "nodeId": "multi-wheel-landing-gear",
+      "level": "meso",
+      "role": "Heavy 6-wheel retractable landing gear assembly",
+      "sockets": []
+    }
+  ]
+}

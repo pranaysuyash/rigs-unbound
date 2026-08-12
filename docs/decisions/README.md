@@ -114,6 +114,7 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0049 | Proposed, implementation evidence in progress | Settlement contribution history records voluntary, capability-specific partial help without a mission acceptance funnel, completion state, or route unlock. |
 | ADR-0050 | Proposed — operator sign-off required | Material facts must supersede mission-owned settlement condition, services, passages, and favor; Rustline physical service stock is the first staged migration. |
 | ADR-0051 | Proposed — operator sign-off required; implementation evidence pending | Persistent ecology groups share world memory and field authority. Their long-term interaction, species, and product direction remain open. |
+| ADR-0053 | Proposed — operator sign-off required | Top-Down Game Mode Architecture & Control Paradigms: Defines context-adaptive steering (Vehicle vs Arcade vs Twin-Stick), 75° perspective camera tuning, and Three.js unified activity integration. |
 
 ## Related current surfaces
 

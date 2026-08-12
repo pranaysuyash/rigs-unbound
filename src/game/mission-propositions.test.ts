@@ -63,12 +63,7 @@ describe("mission proposition derivation", () => {
     const completed = completeMission(state, relay!.id, 90_000);
     expect(completed.ok).toBe(true);
 
-    const after = deriveMissions(
-      state,
-      state.progression,
-      "clear",
-      new Set(),
-    );
+    const after = deriveMissions(state, state.progression, "clear", new Set());
     expect(after.some((m) => m.id === "contract-sunken-relay")).toBe(false);
     const ridge = after.find((m) => m.id === "contract-ridge-ascent");
     expect(ridge).toBeDefined();

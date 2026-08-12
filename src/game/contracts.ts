@@ -6,10 +6,17 @@ import type { MissionBinding, MissionClass } from "./mission-propositions";
 import type { ComponentHealthState } from "./vehicle-maintenance";
 import type { CommodityType } from "./expedition-economy";
 import type { InfrastructureNetworkState } from "./infrastructure-network";
-import type { SettlementNeedOutcomeId, SettlementState } from "./settlement-needs";
+import type { FirstNightThreatState } from "./first-night-threat";
+import type { OpenWorldPromiseState } from "./open-world-promise";
+import type {
+  SettlementNeedOutcomeId,
+  SettlementState,
+} from "./settlement-needs";
 
-export const SAVE_SCHEMA_VERSION = 27 as const;
-export const PREVIOUS_SAVE_SCHEMA_VERSION = 26 as const;
+export const SAVE_SCHEMA_VERSION = 29 as const;
+export const PREVIOUS_SAVE_SCHEMA_VERSION = 28 as const;
+export const V28_SAVE_SCHEMA_VERSION = 28 as const;
+export const V27_SAVE_SCHEMA_VERSION = 27 as const;
 export const V26_SAVE_SCHEMA_VERSION = 26 as const;
 export const V24_SAVE_SCHEMA_VERSION = 24 as const;
 export const V18_SAVE_SCHEMA_VERSION = 18 as const;
@@ -341,6 +348,38 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     },
   },
 } as const;
+
+/**
+ * Wheel order and local sign convention, shared by simulation and presentation.
+ *
+ * The traversal model samples the terrain under four contacts at
+ * `(signX * track/2, signZ * wheelbase/2)` in rig-local space, and every
+ * per-wheel array in `RigMobilityState` is indexed in this order. The renderer
+ * must place its visible wheels at the same points, or the wheel a player sees
+ * is not the wheel that reads the ground.
+ *
+ * This lived privately in `physics.ts`, which made the ordering a simulation
+ * implementation detail rather than the shared invariant it actually is: the
+ * renderer duplicated it by hand and drifted (see `rig-blockout.ts`). It is a
+ * contract, so it belongs here.
+ *
+ * Local +Z is the rig's front and local +X its right — stated in full in the
+ * `physics.ts` coordinate contract.
+ */
+export const WHEEL_LOCAL_SIGNS: readonly (readonly [number, number])[] = [
+  [-1, 1], // 0 front-left  (x sign, z sign)
+  [1, 1], // 1 front-right
+  [-1, -1], // 2 rear-left
+  [1, -1], // 3 rear-right
+] as const;
+
+/** Human labels for the wheel indices, in `WHEEL_LOCAL_SIGNS` order. */
+export const WHEEL_LABELS = [
+  "front-left",
+  "front-right",
+  "rear-left",
+  "rear-right",
+] as const;
 
 /**
  * Conservative simple collider enclosing the rig's authored wheel footprint.
@@ -769,6 +808,62 @@ export interface FleetInheritanceRecord {
   persisted: boolean;
 }
 
+/**
+ * The first playable slice: harvest Long Furrow before the storm.
+ *
+ * This state is owned by `stepGame`, never by the renderer or UI. The crop
+ * count and delivered flag are the single source of truth for the harvest
+ * objective; the storm countdown is derived from the weather clock.
+ */
+export interface HarvestState {
+  /**
+   * Quantised field cells already ploughed, as `"<x2>,<z2>"` keys where each
+   * component is the world coordinate rounded to half-metre resolution.
+   *
+   * This is the authority for cultivation progress; `cultivatedRows` is a
+   * derived count kept alongside it for cheap reads. It must be a plain array
+   * rather than a `Set` because `GameState` is persisted with
+   * `JSON.stringify` (see `storage.ts`), which serialises a `Set` as `{}` and
+   * would silently discard every recorded cell on save, replay-clone, and
+   * determinism hashing.
+   *
+   * Bounded by `MAX_CULTIVATED_CELLS` so a long session cannot grow the save
+   * without limit.
+   */
+  cultivatedCells: string[];
+  /**
+   * How many crop rows have been cultivated. Derived from `cultivatedCells`
+   * via `cultivatedRowsFor()`; never assign to it independently.
+   */
+  cultivatedRows: number;
+  /** Total crop rows available to cultivate. */
+  totalRows: number;
+  /** Whether the cultivated crops have been delivered to the barn. */
+  delivered: boolean;
+  /** Whether the storm has arrived and the field is now waterlogged. */
+  stormArrived: boolean;
+  /** World minutes when the storm arrives (derived from weather clock). */
+  stormAtMinutes: number;
+}
+
+/** Field cells that must be ploughed to complete one crop row. */
+export const CULTIVATION_CELLS_PER_ROW = 8;
+
+/**
+ * Upper bound on remembered cultivation cells. The Long Furrow south field is
+ * 10m x 12m sampled at half-metre resolution, so a fully ploughed field needs
+ * well under this; the cap exists to bound the save, not to limit play.
+ */
+export const MAX_CULTIVATED_CELLS = 2048;
+
+/** Derive the crop-row count from remembered cultivation cells. */
+export function cultivatedRowsFor(
+  cellCount: number,
+  totalRows: number,
+): number {
+  return Math.min(totalRows, Math.floor(cellCount / CULTIVATION_CELLS_PER_ROW));
+}
+
 export interface GameState {
   schemaVersion: typeof SAVE_SCHEMA_VERSION;
   seed: string;
@@ -830,6 +925,12 @@ export interface GameState {
   };
   /** Durable advancement state. XP, rungs, and restoration live here. */
   progression: ProgressionState;
+  /** First playable slice: Long Furrow harvest before the storm. */
+  harvest: HarvestState;
+  /** First playable slice: the authored first-night threat (§3 of the slice spec). */
+  firstNightThreat: FirstNightThreatState;
+  /** First playable slice: the open-world-promise finale (§5 of the slice spec). */
+  openWorldPromise: OpenWorldPromiseState;
   saveStatus?: "saved" | "pending" | "restored" | "migrated";
   lastDiagnostic: string | null;
 }
@@ -862,9 +963,7 @@ export interface ArrivalBargainState {
 }
 
 export type FarmWaterworksChoice =
-  | "unresolved"
-  | "repair-pump"
-  | "redirect-channel";
+  "unresolved" | "repair-pump" | "redirect-channel";
 
 /** Save-owned water outcome; field cells and infrastructure provide its effects. */
 export interface FarmWaterworksState {

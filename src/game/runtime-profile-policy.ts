@@ -130,9 +130,8 @@ export function formatRuntimeProfileOperatorSummary(
   }
 
   if (visibilityProfileId === "mobile-safe") {
-    const reasonText = selection.reasons.length > 0
-      ? ` (${selection.reasons.join(",")})`
-      : "";
+    const reasonText =
+      selection.reasons.length > 0 ? ` (${selection.reasons.join(",")})` : "";
     return preview
       ? `Renderer visibility fallback: mobile-safe (acceptance preview)${reasonText}`
       : `Renderer visibility fallback: mobile-safe${reasonText}`;

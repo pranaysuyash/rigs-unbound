@@ -37,7 +37,9 @@ function forecastDurationLabel(minutes: number): string {
  * predict a separate random future: rain and storm remain consequences of the
  * same cycle used by traction, machine wear, and environmental incidents.
  */
-export function deriveWeatherForecast(worldTimeMinutes: number): WeatherForecast {
+export function deriveWeatherForecast(
+  worldTimeMinutes: number,
+): WeatherForecast {
   const cycleMinute = ((worldTimeMinutes % 1440) + 1440) % 1440;
   if (cycleMinute >= 1200 && cycleMinute < 1320) {
     return { targetPhase: "storm", minutesUntil: 0, label: "Storm now" };
@@ -50,9 +52,8 @@ export function deriveWeatherForecast(worldTimeMinutes: number): WeatherForecast
       label: `Storm in ${forecastDurationLabel(minutesUntil)}`,
     };
   }
-  const minutesUntil = cycleMinute < 1020
-    ? 1020 - cycleMinute
-    : 1440 - cycleMinute + 1020;
+  const minutesUntil =
+    cycleMinute < 1020 ? 1020 - cycleMinute : 1440 - cycleMinute + 1020;
   return {
     targetPhase: "rain",
     minutesUntil,

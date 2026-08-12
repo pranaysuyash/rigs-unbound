@@ -39,10 +39,13 @@ import {
   type InputFrame,
   LANDMARKS,
   LEGACY_SAVE_SCHEMA_VERSION,
+  MAX_CULTIVATED_CELLS,
   MAX_FURROWS,
   MODULES,
   MODULE_IDS,
+  cultivatedRowsFor,
   type EffectiveRig,
+  type HarvestState,
   type ModuleId,
   NIGHT_START_MINUTE,
   phaseForWorldTime,
@@ -58,6 +61,7 @@ import {
   DRIFT_BERTH_SAVE_SCHEMA_VERSION,
   SAVE_SCHEMA_VERSION,
   PREVIOUS_SAVE_SCHEMA_VERSION,
+  V27_SAVE_SCHEMA_VERSION,
   V26_SAVE_SCHEMA_VERSION,
   V18_SAVE_SCHEMA_VERSION,
   V24_SAVE_SCHEMA_VERSION,
@@ -84,6 +88,20 @@ import {
   type OpeningNamingState,
   type ArrivalBargainState,
 } from "./contracts";
+import {
+  createFirstNightThreat,
+  firstNightThreatDiagnostic,
+  firstNightThreatObstacle,
+  recoverFirstNightThreat,
+  resolveFirstNightThreat,
+  type FirstNightThreatState,
+} from "./first-night-threat";
+import {
+  createOpenWorldPromise,
+  openWorldPromiseNarration,
+  recoverOpenWorldPromise,
+  resolveOpenWorldPromise,
+} from "./open-world-promise";
 import {
   CRAFTING_RECIPES,
   canCraftRecipe,
@@ -436,11 +454,21 @@ export function createInitialState(seed = "UNBOUND-260725"): GameState {
     },
     openingNaming: { status: "waiting" },
     arrivalBargain: { status: "unseen" },
+    firstNightThreat: createFirstNightThreat(),
+    openWorldPromise: createOpenWorldPromise(),
     recovery: {
       emergencyCount: 0,
       lastEmergencyAtMs: null,
     },
     progression: createInitialProgressionState(RIG_IDS),
+    harvest: {
+      cultivatedCells: [],
+      cultivatedRows: 0,
+      totalRows: 4,
+      delivered: false,
+      stormArrived: false,
+      stormAtMinutes: 1200, // 20:00 in the deterministic weather clock
+    },
     lastDiagnostic: null,
   };
 }
@@ -467,7 +495,11 @@ export function renameRig(
 ): RigRenameResult {
   const rig = state.rigs[rigId];
   if (!rig) {
-    return { accepted: false, reason: "That rig is unavailable.", fieldName: null };
+    return {
+      accepted: false,
+      reason: "That rig is unavailable.",
+      fieldName: null,
+    };
   }
   if (source === "workshop" && !workshopInReach(state)) {
     const reason = "Rig names can be recorded at the Home Silo workshop.";
@@ -544,7 +576,8 @@ export function acceptArrivalBargain(state: GameState): void {
 export function refuseArrivalBargain(state: GameState): void {
   if (state.arrivalBargain.status !== "unseen") return;
   state.arrivalBargain.status = "refused";
-  state.lastDiagnostic = "The old man shrugs. The offer stands if you change your mind.";
+  state.lastDiagnostic =
+    "The old man shrugs. The offer stands if you change your mind.";
 }
 
 /**
@@ -557,20 +590,24 @@ export function chooseFarmWaterworks(
   choice: Exclude<FarmWaterworksChoice, "unresolved">,
 ): boolean {
   if (!state.restoration.firstStart) {
-    state.lastDiagnostic = "Bring the restored tractor to life before deciding the farm waterworks.";
+    state.lastDiagnostic =
+      "Bring the restored tractor to life before deciding the farm waterworks.";
     return false;
   }
   if (!workshopInReach(state)) {
-    state.lastDiagnostic = "The old man needs this waterworks decision at the Home Silo workshop.";
+    state.lastDiagnostic =
+      "The old man needs this waterworks decision at the Home Silo workshop.";
     return false;
   }
   if (state.farmWaterworks.choice !== "unresolved") {
-    state.lastDiagnostic = "The waterworks have already been set for this valley.";
+    state.lastDiagnostic =
+      "The waterworks have already been set for this valley.";
     return false;
   }
   const longFurrow = findSite("long-furrow");
   if (!longFurrow) {
-    state.lastDiagnostic = "Long Furrow is not available for waterworks planning.";
+    state.lastDiagnostic =
+      "Long Furrow is not available for waterworks planning.";
     return false;
   }
 
@@ -603,6 +640,24 @@ export function chooseFarmWaterworks(
   };
   applyFarmWaterworksSettlementOutcome(state, choice);
   return true;
+}
+
+/**
+ * The resolved first-night threat as a real collidable obstacle, reusing the
+ * same `Obstacle` primitive `world.incidentObstacles()` already renders
+ * through. Returns an empty array before the threat resolves or once its
+ * origin cannot be placed on the terrain.
+ */
+export function firstNightThreatObstacles(
+  threat: FirstNightThreatState,
+  world: GameWorld,
+) {
+  if (threat.originX === null || threat.originZ === null) return [];
+  const obstacle = firstNightThreatObstacle(
+    threat,
+    world.terrain.height(threat.originX, threat.originZ),
+  );
+  return obstacle ? [obstacle] : [];
 }
 
 function recoverProgression(value: unknown): ProgressionState {
@@ -783,6 +838,7 @@ export type PrimaryActionKind =
   | "lower-plough"
   | "raise-plough"
   | "contribute-settlement"
+  | "deliver-harvest"
   | "none";
 
 /** Versioned local intent contract for the first command/event proof slice. */
@@ -866,8 +922,7 @@ export function resolvePrimaryAction(
     { capabilities: profile.capabilities },
     {
       available: !cargo.delivered && cargo.attachedRigId === null,
-      inRange:
-        Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= pickup.radius,
+      inRange: Math.hypot(rig.x - cargo.x, rig.z - cargo.z) <= pickup.radius,
     },
   );
 
@@ -894,14 +949,17 @@ export function resolvePrimaryAction(
     };
   }
 
-  const infrastructureAction = resolveInfrastructureAction(state.infrastructure, {
-    rigId: rig.id,
-    x: rig.x,
-    z: rig.z,
-    capabilities: profile.capabilities,
-    salvage: state.salvage,
-    nowMs: state.elapsedMs,
-  });
+  const infrastructureAction = resolveInfrastructureAction(
+    state.infrastructure,
+    {
+      rigId: rig.id,
+      x: rig.x,
+      z: rig.z,
+      capabilities: profile.capabilities,
+      salvage: state.salvage,
+      nowMs: state.elapsedMs,
+    },
+  );
   if (infrastructureAction.kind === "inspect") {
     return {
       kind: "inspect-infrastructure",
@@ -973,13 +1031,18 @@ export function resolvePrimaryAction(
           kind: "lower-plough",
           label: "Lower blade",
           ariaLabel: "Lower field plough",
-      };
+        };
   }
 
   const settlementResponse = resolveSettlementContribution(
     state,
     { quarryRunoutStatus: world.roadIncidentProjection().status },
-    { x: rig.x, z: rig.z, capabilities: profile.capabilities, interaction: "context" },
+    {
+      x: rig.x,
+      z: rig.z,
+      capabilities: profile.capabilities,
+      interaction: "context",
+    },
   );
   if (settlementResponse) {
     return {
@@ -988,6 +1051,21 @@ export function resolvePrimaryAction(
       ariaLabel: `${settlementResponse.label} at the local settlement`,
       settlementResponse,
     };
+  }
+
+  // First playable slice: deliver cultivated crops at the Long Furrow barn.
+  const lfSite = findSite("long-furrow");
+  if (lfSite && !state.harvest.delivered && state.harvest.cultivatedRows > 0) {
+    const barnX = lfSite.x + 14;
+    const barnZ = lfSite.z + 2;
+    const distToBarn = Math.hypot(rig.x - barnX, rig.z - barnZ);
+    if (distToBarn < 6) {
+      return {
+        kind: "deliver-harvest",
+        label: "Deliver harvest",
+        ariaLabel: "Deliver cultivated crops to the Long Furrow barn",
+      };
+    }
   }
 
   // Named locals offer optional, revisitable place knowledge after immediate
@@ -1133,7 +1211,12 @@ export function executePrimaryActionCommand(
   if (resolution.kind === "prepare-settlement-cargo") {
     const manifest = availableSettlementCargoManifest(state, rig.x, rig.z);
     if (!manifest || !prepareSettlementCargo(state, manifest)) {
-      return primaryActionEvent(command, resolution.kind, "rejected", "offer-unavailable");
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
     }
     state.lastDiagnostic = manifest.loadedDiagnostic;
     return primaryActionEvent(command, resolution.kind, "accepted");
@@ -1160,7 +1243,7 @@ export function executePrimaryActionCommand(
     }
     const destination = cargoDeliveryTarget(relay);
     const destinationName = destination.siteId
-      ? findSite(destination.siteId)?.name ?? "the destination"
+      ? (findSite(destination.siteId)?.name ?? "the destination")
       : "Long Furrow";
     state.lastDiagnostic = `${profile.displayName} attached the cargo. Haul it to ${destinationName}.`;
     return primaryActionEvent(command, resolution.kind, "accepted");
@@ -1192,7 +1275,8 @@ export function executePrimaryActionCommand(
 
   if (resolution.kind === "withdraw-road-rivalry") {
     state.roadRivalry = withdrawRoadRivalry(state.roadRivalry);
-    state.lastDiagnostic = "Grove Run withdrawn. The valley keeps your completed records, not unfinished attempts.";
+    state.lastDiagnostic =
+      "Grove Run withdrawn. The valley keeps your completed records, not unfinished attempts.";
     return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
@@ -1200,13 +1284,9 @@ export function executePrimaryActionCommand(
     const localMoisture =
       world.fieldConditionAt(rig.x, rig.z)?.moistureRatio ??
       deriveWeatherState(state.worldTimeMinutes).soilMoisture;
-    const result = fireSeismicPulse(
-      rig.x,
-      rig.z,
-      8,
-      localMoisture,
-      [NORTH_FIELD_SEISMIC_CACHE],
-    );
+    const result = fireSeismicPulse(rig.x, rig.z, 8, localMoisture, [
+      NORTH_FIELD_SEISMIC_CACHE,
+    ]);
     if (result.detectedAnomaly?.type !== "salvage-cache") {
       state.lastDiagnostic =
         "The pulse returned only ordinary strata. Reposition over the field signal.";
@@ -1222,7 +1302,9 @@ export function executePrimaryActionCommand(
       scannedAtWorldMinutes: state.worldTimeMinutes,
       anomalyDepthMeters: result.detectedAnomaly.depthMeters,
     };
-    if (!state.discoveries.some((discovery) => discovery.id === "north-field")) {
+    if (
+      !state.discoveries.some((discovery) => discovery.id === "north-field")
+    ) {
       state.discoveries.push({
         id: "north-field",
         discoveredAt: state.elapsedMs,
@@ -1307,22 +1389,79 @@ export function executePrimaryActionCommand(
     const response = resolveSettlementContribution(
       state,
       { quarryRunoutStatus: world.roadIncidentProjection().status },
-      { x: rig.x, z: rig.z, capabilities: profile.capabilities, interaction: "context" },
+      {
+        x: rig.x,
+        z: rig.z,
+        capabilities: profile.capabilities,
+        interaction: "context",
+      },
     );
     if (!response) {
-      state.lastDiagnostic = "The local work has changed. Read the settlement again before acting.";
-      return primaryActionEvent(command, resolution.kind, "rejected", "offer-unavailable");
+      state.lastDiagnostic =
+        "The local work has changed. Read the settlement again before acting.";
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
     }
-    const accepted = recordSettlementContribution(state, response.settlementId, {
-      responseId: response.id,
-      materialEffectId: response.materialEffectId,
-      capability: response.capability,
-      createdAtWorldMinutes: state.worldTimeMinutes,
-    });
+    const accepted = recordSettlementContribution(
+      state,
+      response.settlementId,
+      {
+        responseId: response.id,
+        materialEffectId: response.materialEffectId,
+        capability: response.capability,
+        createdAtWorldMinutes: state.worldTimeMinutes,
+      },
+    );
     state.lastDiagnostic = accepted
       ? `${response.label}. ${response.explanation} The settlement remembers this help, but other pressures remain.`
       : "That local contribution is already part of the settlement's history.";
-    return primaryActionEvent(command, resolution.kind, accepted ? "accepted" : "rejected", accepted ? undefined : "offer-unavailable");
+    return primaryActionEvent(
+      command,
+      resolution.kind,
+      accepted ? "accepted" : "rejected",
+      accepted ? undefined : "offer-unavailable",
+    );
+  }
+
+  if (resolution.kind === "deliver-harvest") {
+    if (state.harvest.delivered) {
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "offer-unavailable",
+      );
+    }
+    if (state.harvest.cultivatedRows <= 0) {
+      state.lastDiagnostic =
+        "Nothing to deliver yet. Plough the crop rows first.";
+      return primaryActionEvent(
+        command,
+        resolution.kind,
+        "rejected",
+        "no-contextual-action",
+      );
+    }
+    state.harvest.delivered = true;
+    const rows = state.harvest.cultivatedRows;
+    const salvageReward = rows * 3;
+    state.salvage += salvageReward;
+    state.salvageCollected += salvageReward;
+    // Record the long-furrow-first-cut outcome for settlement condition.
+    const recorded = recordSettlementContribution(state, "long-furrow", {
+      responseId: "long-furrow-first-cut",
+      materialEffectId: "long-furrow:cultivated",
+      capability: "plough",
+      createdAtWorldMinutes: state.worldTimeMinutes,
+    });
+    state.lastDiagnostic = recorded
+      ? `Delivered ${rows} rows of harvest. ${salvageReward} salvage earned. Sava Nune: The furrow is open.`
+      : `Delivered ${rows} rows of harvest. ${salvageReward} salvage earned.`;
+    return primaryActionEvent(command, resolution.kind, "accepted");
   }
 
   if (
@@ -1348,9 +1487,7 @@ export function executePrimaryActionCommand(
       command,
       resolution.kind,
       outcome.accepted ? "accepted" : "rejected",
-      outcome.accepted
-        ? undefined
-        : "no-contextual-action",
+      outcome.accepted ? undefined : "no-contextual-action",
     );
   }
 
@@ -1570,7 +1707,8 @@ export function repairRig(state: GameState): void {
   const rig = activeRig(state);
   const service = repairServiceInReach(state);
   if (!service) {
-    state.lastDiagnostic = "Repairs need the Home Silo workshop pad or a supplied Rustline service yard.";
+    state.lastDiagnostic =
+      "Repairs need the Home Silo workshop pad or a supplied Rustline service yard.";
     return;
   }
   const wearDeficit = componentWearDeficit(rig.componentHealth);
@@ -1949,13 +2087,15 @@ function updateCargo(state: GameState, world: GameWorld, rig: RigState): void {
     const deliveryMission = assignedMissionId
       ? state.activeMission?.id === assignedMissionId
         ? state.activeMission
-        : state.activeSideMissions.find(
+        : (state.activeSideMissions.find(
             (mission) => mission.id === assignedMissionId,
-          ) ?? null
+          ) ?? null)
       : activeMissionMatching(state, "delivery");
     const settlementDelivery = completeSettlementCargoDelivery(state);
     if (settlementDelivery) {
-      world.reconcileCommunityPassages(deriveSettlementCommunityPassageIds(state));
+      world.reconcileCommunityPassages(
+        deriveSettlementCommunityPassageIds(state),
+      );
       state.progression = applyActivityCompletionProgression(
         state.progression,
         "cargo-relay",
@@ -2022,7 +2162,10 @@ function resolveAttachedCargoCollisions(
     CARGO_COLLISION_MASS,
     world.felledObstacles,
     previous,
-    world.incidentObstacles(),
+    [
+      ...world.incidentObstacles(),
+      ...firstNightThreatObstacles(state.firstNightThreat, world),
+    ],
   );
   const structureCollision = world.structureCollision(
     cargoMotion,
@@ -2203,6 +2346,24 @@ export function stepGame(
   const towing = state.cargoRelay.cargo.attachedRigId === rig.id;
   const weather = deriveWeatherState(state.worldTimeMinutes);
   advanceInfrastructure(state.infrastructure, weather, dt);
+
+  // First playable slice: detect storm arrival for harvest pressure.
+  if (
+    !state.harvest.stormArrived &&
+    state.worldTimeMinutes >= state.harvest.stormAtMinutes
+  ) {
+    state.harvest.stormArrived = true;
+    if (!state.harvest.delivered) {
+      // Storm destroys uncollected crops — the field is waterlogged. Clear the
+      // remembered cells alongside the derived count so the two cannot drift:
+      // leaving cells behind would make the field un-recultivable while the
+      // HUD reported zero rows.
+      state.harvest.cultivatedCells.length = 0;
+      state.harvest.cultivatedRows = 0;
+      state.lastDiagnostic =
+        "The storm has hit Long Furrow. The crop rows are waterlogged and ruined.";
+    }
+  }
   // Environmental authority is independent of whether the currently selected
   // machine can move. A disabled rig must not freeze rain-fed field changes or
   // persistent road incidents elsewhere in the open world.
@@ -2230,6 +2391,61 @@ export function stepGame(
   if (roadIncident.triggered) {
     state.lastDiagnostic =
       "Storm runoff has brought stone down across the Quarry Run. The road is still open country, but the old line has changed.";
+  }
+  // First playable slice: the authored first-night threat (FIRST_PLAYABLE_THE_
+  // ROAD_THAT_WAS.md §3). Resolves once, the first stepGame call that reads
+  // night phase with the threat still pending; resolveFirstNightThreat is
+  // idempotent so later night-phase frames are a no-op.
+  if (state.phase === "night" && state.firstNightThreat.status === "pending") {
+    const northFieldSite = findSite("north-field");
+    state.firstNightThreat = resolveFirstNightThreat(
+      state.firstNightThreat,
+      state.worldTimeMinutes,
+      {
+        waterworksChoice: state.farmWaterworks.choice,
+        northFieldSurveyed:
+          state.northFieldInvestigation.status !== "unresolved",
+        northFieldX: northFieldSite?.x ?? HOME_SITE.x,
+        northFieldZ: northFieldSite?.z ?? HOME_SITE.z,
+        homeX: HOME_SITE.x,
+        homeZ: HOME_SITE.z,
+      },
+    );
+    const nightThreatDiagnostic = firstNightThreatDiagnostic(
+      state.firstNightThreat,
+      state.farmWaterworks.choice,
+    );
+    if (nightThreatDiagnostic) state.lastDiagnostic = nightThreatDiagnostic;
+  }
+  // First playable slice: the open-world-promise finale (FIRST_PLAYABLE_THE_
+  // ROAD_THAT_WAS.md §5). Resolves once the night is survived, the
+  // waterworks are settled, and the causeway is reopened; sets the vista
+  // narration and switches to the existing, already-wired survey camera
+  // mode rather than leaving the reveal as text only.
+  if (state.openWorldPromise.status === "pending") {
+    const previousPromiseStatus = state.openWorldPromise.status;
+    state.openWorldPromise = resolveOpenWorldPromise(
+      state.openWorldPromise,
+      state.worldTimeMinutes,
+      {
+        firstNightResolved: state.firstNightThreat.status === "resolved",
+        waterworksResolved: state.farmWaterworks.choice !== "unresolved",
+        causewayReopened:
+          state.settlements["sunken-flats"]?.completedNeedIds.includes(
+            "sunken-flats-causeway",
+          ) ?? false,
+      },
+    );
+    if (
+      previousPromiseStatus !== state.openWorldPromise.status &&
+      state.openWorldPromise.status === "revealed"
+    ) {
+      const promiseNarration = openWorldPromiseNarration(
+        state.openWorldPromise,
+      );
+      if (promiseNarration) state.lastDiagnostic = promiseNarration;
+      state.cameraMode = "survey";
+    }
   }
   const disabled = rig.condition <= 0;
   if (
@@ -2305,7 +2521,10 @@ export function stepGame(
     profile.mass,
     world.felledObstacles,
     previousRigPosition,
-    world.incidentObstacles(),
+    [
+      ...world.incidentObstacles(),
+      ...firstNightThreatObstacles(state.firstNightThreat, world),
+    ],
   );
   const displacedIncident = world.displaceRoadIncident(
     collision.blockedBy?.id ?? null,
@@ -2319,7 +2538,8 @@ export function stepGame(
     state.lastDiagnostic =
       "The runout has shifted clear. Quarry Shelf has its old line back, marked by fresh stone scars.";
   } else if (displacedIncident.moved) {
-    state.lastDiagnostic = "The runout shifts under the machine. Keep working it clear.";
+    state.lastDiagnostic =
+      "The runout shifts under the machine. Keep working it clear.";
   }
   const structureCollision = world.structureCollision(
     rig,
@@ -2493,8 +2713,7 @@ export function stepGame(
     }
     const otherName =
       contact.secondRole === "rig"
-        ? (state.rigs[contact.secondId as RigId]?.fieldName ??
-          contact.secondId)
+        ? (state.rigs[contact.secondId as RigId]?.fieldName ?? contact.secondId)
         : "relay cargo";
     state.lastDiagnostic = `${rig.fieldName} contacted ${otherName} at ${contact.impactSpeed.toFixed(1)} m/s.`;
   }
@@ -2615,15 +2834,24 @@ export function stepGame(
         const physicalSettlementResponse = resolveSettlementContribution(
           state,
           { quarryRunoutStatus: world.roadIncidentProjection().status },
-          { x: markX, z: markZ, capabilities: profile.capabilities, interaction: "plough-cut" },
+          {
+            x: markX,
+            z: markZ,
+            capabilities: profile.capabilities,
+            interaction: "plough-cut",
+          },
         );
         if (physicalSettlementResponse) {
-          const recorded = recordSettlementContribution(state, physicalSettlementResponse.settlementId, {
-            responseId: physicalSettlementResponse.id,
-            materialEffectId: physicalSettlementResponse.materialEffectId,
-            capability: physicalSettlementResponse.capability,
-            createdAtWorldMinutes: state.worldTimeMinutes,
-          });
+          const recorded = recordSettlementContribution(
+            state,
+            physicalSettlementResponse.settlementId,
+            {
+              responseId: physicalSettlementResponse.id,
+              materialEffectId: physicalSettlementResponse.materialEffectId,
+              capability: physicalSettlementResponse.capability,
+              createdAtWorldMinutes: state.worldTimeMinutes,
+            },
+          );
           if (recorded) {
             state.lastDiagnostic = `${physicalSettlementResponse.label}. ${physicalSettlementResponse.explanation}`;
           }
@@ -2696,6 +2924,36 @@ export function stepGame(
             0,
             state.semanticEdits.length - MAX_FURROWS,
           );
+        }
+
+        // First playable slice: track cultivation of Long Furrow crop rows.
+        // The south field is between localX 4..14 and localZ 8..20 relative
+        // to the Long Furrow site anchor.
+        if (!state.harvest.delivered && mode === "cut" && lfSite) {
+          const inField =
+            markX >= lfSite.x + 4 &&
+            markX <= lfSite.x + 14 &&
+            markZ >= lfSite.z + 8 &&
+            markZ <= lfSite.z + 20;
+          if (inField) {
+            // Each unique half-metre cell in the field counts once toward
+            // cultivation. The remembered cells live in `state.harvest` rather
+            // than in a module-local Set so they survive save, replay-clone,
+            // and determinism hashing — all three go through JSON, which
+            // cannot represent a Set.
+            const cellKey = `${Math.round(markX * 2)},${Math.round(markZ * 2)}`;
+            const cells = state.harvest.cultivatedCells;
+            if (
+              !cells.includes(cellKey) &&
+              cells.length < MAX_CULTIVATED_CELLS
+            ) {
+              cells.push(cellKey);
+              state.harvest.cultivatedRows = cultivatedRowsFor(
+                cells.length,
+                state.harvest.totalRows,
+              );
+            }
+          }
         }
       }
     }
@@ -2805,7 +3063,8 @@ export function stepGame(
         ? `${rig.fieldName} set a Grove Run personal best: ${seconds}s.`
         : `${rig.fieldName} finished the Grove Run in ${seconds}s. The record still stands.`;
     } else if (evaluation.checkpoint) {
-      const remaining = roadRivalryGateIds().length - evaluation.state.nextGateIndex;
+      const remaining =
+        roadRivalryGateIds().length - evaluation.state.nextGateIndex;
       state.lastDiagnostic =
         remaining > 0
           ? "Quarry Shelf crossed. Home Silo is the finish."
@@ -2842,7 +3101,8 @@ function advanceWorldClock(
   const previousDay = Math.floor(state.worldTimeMinutes / WORLD_DAY_MINUTES);
   state.worldTimeMinutes += minutes;
   state.phase = phaseForWorldTime(state.worldTimeMinutes);
-  if (Math.floor(state.worldTimeMinutes / WORLD_DAY_MINUTES) === previousDay) return;
+  if (Math.floor(state.worldTimeMinutes / WORLD_DAY_MINUTES) === previousDay)
+    return;
   for (const adaptation of communityAdaptationCandidates(state, {
     quarryRunoutStatus: world.roadIncidentProjection().status,
   })) {
@@ -3239,6 +3499,58 @@ export function publicState(state: GameState, world: GameWorld): object {
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
+}
+
+/**
+ * Recover harvest progress from an untrusted save.
+ *
+ * `cultivatedCells` is the authority and `cultivatedRows` is recomputed from
+ * it, so a save that was hand-edited — or written by the earlier build that
+ * stored the cell set outside the contract and lost it to `JSON.stringify` —
+ * cannot restore a row count the remembered cells do not support. Malformed
+ * or duplicate keys are dropped rather than rejecting the whole save, since a
+ * player's other progress should survive a corrupt harvest block.
+ */
+function recoverHarvest(value: unknown): HarvestState {
+  const fallback: HarvestState = {
+    cultivatedCells: [],
+    cultivatedRows: 0,
+    totalRows: 4,
+    delivered: false,
+    stormArrived: false,
+    stormAtMinutes: 1200,
+  };
+  if (!value || typeof value !== "object") return fallback;
+  const candidate = value as Record<string, unknown>;
+
+  const totalRows = isFiniteNumber(candidate.totalRows)
+    ? Math.max(1, Math.floor(candidate.totalRows))
+    : 4;
+
+  const seen = new Set<string>();
+  const cultivatedCells: string[] = [];
+  if (Array.isArray(candidate.cultivatedCells)) {
+    for (const entry of candidate.cultivatedCells) {
+      if (typeof entry !== "string") continue;
+      // Keys are written as "<int>,<int>"; anything else is not ours.
+      if (!/^-?\d+,-?\d+$/.test(entry)) continue;
+      if (seen.has(entry)) continue;
+      seen.add(entry);
+      cultivatedCells.push(entry);
+      if (cultivatedCells.length >= MAX_CULTIVATED_CELLS) break;
+    }
+  }
+
+  return {
+    cultivatedCells,
+    cultivatedRows: cultivatedRowsFor(cultivatedCells.length, totalRows),
+    totalRows,
+    delivered: candidate.delivered === true,
+    stormArrived: candidate.stormArrived === true,
+    stormAtMinutes: isFiniteNumber(candidate.stormAtMinutes)
+      ? candidate.stormAtMinutes
+      : 1200,
+  };
 }
 
 function isRigId(value: unknown): value is RigId {
@@ -3735,7 +4047,10 @@ function recoverRoadRivalry(value: unknown): RoadRivalryState {
   const gateCount = roadRivalryGateIds().length;
   const nextGateIndex =
     isFiniteNumber(candidate.nextGateIndex) && candidate.nextGateIndex >= 0
-      ? Math.min(Math.floor(candidate.nextGateIndex), Math.max(0, gateCount - 1))
+      ? Math.min(
+          Math.floor(candidate.nextGateIndex),
+          Math.max(0, gateCount - 1),
+        )
       : 0;
 
   return {
@@ -3789,7 +4104,8 @@ function recoverShared(
       ? (relay.assignment as Record<string, unknown>)
       : null;
   const assignment = rawAssignment
-    ? (typeof rawAssignment.missionId === "string" || rawAssignment.missionId === null) &&
+    ? (typeof rawAssignment.missionId === "string" ||
+        rawAssignment.missionId === null) &&
       typeof rawAssignment.originSiteId === "string" &&
       typeof rawAssignment.destinationSiteId === "string" &&
       findSite(rawAssignment.originSiteId) !== undefined &&
@@ -4005,7 +4321,8 @@ function recoverShared(
         ? rawFarmWaterworks.choice
         : "unresolved",
     chosenAtWorldMinutes:
-      rawFarmWaterworks && isFiniteNumber(rawFarmWaterworks.chosenAtWorldMinutes)
+      rawFarmWaterworks &&
+      isFiniteNumber(rawFarmWaterworks.chosenAtWorldMinutes)
         ? Math.max(0, rawFarmWaterworks.chosenAtWorldMinutes)
         : null,
   };
@@ -4123,6 +4440,8 @@ function recoverShared(
     restoration,
     openingNaming,
     arrivalBargain,
+    firstNightThreat: recoverFirstNightThreat(candidate.firstNightThreat),
+    openWorldPromise: recoverOpenWorldPromise(candidate.openWorldPromise),
     recovery: {
       emergencyCount:
         recovery && isFiniteNumber(recovery.emergencyCount)
@@ -4134,6 +4453,9 @@ function recoverShared(
           : null,
     },
     progression: recoverProgression(candidate.progression),
+    // First playable slice: harvest state. New saves include it; older saves
+    // restore with default values so the experience starts fresh.
+    harvest: recoverHarvest(candidate.harvest),
     // Preserve the recorded diagnostic verbatim, including null. Recovery used to
     // substitute a "record restored" message here, which meant an identical save
     // round-tripped to a *different* state — breaking deterministic replay at the
@@ -4465,6 +4787,12 @@ export function recoverState(value: unknown): GameState | null {
   }
   if (candidate.schemaVersion === PREVIOUS_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, PREVIOUS_SAVE_SCHEMA_VERSION);
+  }
+  // v27 kept its own branch when v28 became PREVIOUS_SAVE_SCHEMA_VERSION.
+  // Without it a v27 save falls through every case and recovers as null,
+  // which the load path reads as "no save" — silent total progress loss.
+  if (candidate.schemaVersion === V27_SAVE_SCHEMA_VERSION) {
+    return migratePriorSchema(candidate, V27_SAVE_SCHEMA_VERSION);
   }
   if (candidate.schemaVersion === V26_SAVE_SCHEMA_VERSION) {
     return migratePriorSchema(candidate, V26_SAVE_SCHEMA_VERSION);

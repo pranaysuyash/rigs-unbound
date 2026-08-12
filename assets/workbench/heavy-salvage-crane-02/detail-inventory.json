@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "heavy-salvage-crane-02",
+  "rigId": "heavy-salvage-crane-02",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/heavy_salvage_crane_02_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-8x8",
+      "level": "macro",
+      "role": "Heavy 4-axle 8x8 steel chassis frame with 8 off-road tires",
+      "derivedEnvelope": {
+        "track": 2.80,
+        "wheelbase": 4.50,
+        "rideHeight": 0.90
+      },
+      "sockets": ["turntable-mount-center", "outrigger-mount-corners"]
+    },
+    {
+      "nodeId": "operator-cab",
+      "level": "macro",
+      "role": "High-visibility industrial yellow operator cabin",
+      "sockets": []
+    },
+    {
+      "nodeId": "slewing-turntable-crane",
+      "level": "macro",
+      "role": "360-degree slewing ring turntable with 4-stage lattice boom crane",
+      "sockets": ["hook-block-socket"]
+    },
+    {
+      "nodeId": "hook-block-assembly",
+      "level": "meso",
+      "role": "Quad-sheave steel hook block with forged lifting hook",
+      "sockets": []
+    },
+    {
+      "nodeId": "hydraulic-outriggers",
+      "level": "meso",
+      "role": "Four extendable H-style hydraulic stabilizer outrigger foot pads",
+      "sockets": []
+    },
+    {
+      "nodeId": "dual-winch-spools",
+      "level": "meso",
+      "role": "Dual heavy winching drums with braided steel cables",
+      "sockets": []
+    }
+  ]
+}

@@ -6,6 +6,17 @@ evidence registers that keep the analysis grounded.
 
 ## Start here
 
+- [Unified Design Summary](UNIFIED_DESIGN_SUMMARY_2026-08-05.md) — consolidated cross-reference of all exploration work
+- [First Playable Slice Plan](../exploration/FIRST_PLAYABLE_SLICE_PLAN_2026-08-05.md)
+- [NPC and Community System](../exploration/NPC_AND_COMMUNITY_SYSTEM_2026-08-05.md)
+- [Context Switching Mechanic](../exploration/CONTEXT_SWITCHING_MECHANIC_2026-08-05.md)
+- [Episode Runtime Architecture](../exploration/EPISODE_RUNTIME_ARCHITECTURE_2026-08-05.md)
+- [Module System Mechanics](../exploration/MODULE_SYSTEM_MECHANICS_2026-08-05.md)
+- [Asset Pipeline for Infinite Rigs](ASSET_PIPELINE_FOR_INFINITE_RIGS_2026-08-05.md)
+- [Rig Generation, Evolution, and Persistence](RIG_GENERATION_EVOLUTION_AND_PERSISTENCE_2026-08-05.md)
+- [Rig Generation for Infinite Possibilities](RIG_GENERATION_INFINITE_POSSIBILITIES_2026-08-05.md)
+- [Procedural World Building Primer](PROCEDURAL_WORLD_BUILDING_PRIMER_2026-08-05.md)
+- [Procedural World Building Deep Dives](PROCEDURAL_WORLD_BUILDING_DEEP_DIVES_2026-08-05.md)
 - [3D Game Master Synthesis](3D_GAME_MASTER_SYNTHESIS_2026-07-25.md)
 - [3D Game Contract Index](3D_GAME_CONTRACT_INDEX_2026-07-25.md)
 - [Decision Register](../decisions/README.md)
@@ -119,6 +130,7 @@ evidence registers that keep the analysis grounded.
 
 ## Asset intake and fixture evidence
 
+- [Asset Pipeline for Infinite Rigs](ASSET_PIPELINE_FOR_INFINITE_RIGS_2026-08-05.md)
 - [Kenney Asset Library Audit](KENNEY_ASSET_LIBRARY_AUDIT_2026-07-25.md)
 - [Patchwork Tractor Intake](assets/tractor-isolated-intake-2026-07-25/README.md)
 - [Patchwork Tractor Reconstruction Plan](assets/tractor-isolated-intake-2026-07-25/RECONSTRUCTION_PLAN.md)

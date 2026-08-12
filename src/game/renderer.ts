@@ -38,10 +38,13 @@ import {
   type GameState,
   MAX_FURROWS,
   type ModuleId,
+  MODULE_IDS,
+  MODULES,
   RIG_IDS,
   type RigId,
   type WorldPhase,
 } from "./contracts";
+import type { WeatherState } from "./weather";
 import {
   felledTrunkLength,
   rockVisualHalfHeight,
@@ -51,6 +54,13 @@ import {
   type Obstacle,
 } from "./collision";
 import { chaseViewportPolicy, RIG_HOOD_CAMERA_MOUNTS } from "./camera";
+import {
+  blockoutFor,
+  LUG_TREAD_FORM,
+  type RigBlockout,
+  type RigModuleMount,
+  type RigSuperstructureVolume,
+} from "./rig-blockout";
 import { createFieldPlough01Model } from "../../assets/workbench/field-plough-01/authored/createFieldPloughModel";
 import type { SalvageNode } from "./exploration";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
@@ -84,9 +94,7 @@ import {
 } from "./infrastructure-network";
 import { settlementLampColor } from "./settlement-needs";
 import { settlementMaterialEffect } from "./settlement-material-effects";
-import {
-  settlementResidentAnchors,
-} from "./settlement-needs";
+import { settlementResidentAnchors } from "./settlement-needs";
 import { deriveSettlementCommunityPassageIds } from "./settlement-needs";
 import {
   deriveSettlementLife,
@@ -96,10 +104,7 @@ import {
 } from "./settlement-life";
 import { deriveCommunityTraffic } from "./community-traffic";
 import { SETTLEMENT_MATERIAL_EFFECTS } from "./settlement-material-effects";
-import {
-  findSite,
-  RESOLVED_COMMUNITY_PASSAGES,
-} from "./world";
+import { findSite, RESOLVED_COMMUNITY_PASSAGES } from "./world";
 import {
   isSettlementCargoManifestAvailable,
   SETTLEMENT_CARGO_MANIFESTS,
@@ -279,6 +284,14 @@ export function refreshTerrainNormalsInRegion(
 
 export interface RigParts {
   root: THREE.Group;
+  /**
+   * Ground-frame content holder, offset below `root` by the rig's ride height.
+   *
+   * `root` is mounted at `RigState.y`, the body origin. Rig models are authored
+   * in the ground frame — wheel bottoms and blob shadows at y ≈ 0 — so this
+   * group carries the single conversion between the two. See `rig-blockout.ts`.
+   */
+  body: THREE.Group;
   /** Named local-space mount authored on the rendered rig silhouette. */
   hoodCameraSocket: THREE.Object3D;
   /** Wheel spin pivots in physics order: front-left, front-right, rear-L, rear-R. */
@@ -286,6 +299,12 @@ export interface RigParts {
   /** Steering pivots in the same order. Hover rigs expose an empty list. */
   steeringPivots: THREE.Group[];
   wheelRestY: number[];
+  /**
+   * Per-wheel multiplier turning the kernel's single reference wheel rotation
+   * into each wheel's true rotation, in the same order. Derived by
+   * `rig-blockout.ts` so unequal axles roll without visibly skidding.
+   */
+  wheelSpinScale: number[];
   /** Module-owned meshes, toggled from canonical fitted module ids each frame. */
   moduleVisuals: Partial<Record<ModuleId, THREE.Object3D[]>>;
   ploughPivot: THREE.Group | null;
@@ -306,6 +325,45 @@ export interface RigOrientationEvidence {
   visualFrontIsForward: boolean;
 }
 
+/**
+ * Whether the rig a player *sees* is touching the ground they see it on.
+ *
+ * Sibling of {@link RigOrientationEvidence}, and for the same reason: it reads
+ * world transforms off visible model parts rather than re-deriving authored
+ * coordinates, so it catches a rig that has been mounted in the wrong vertical
+ * frame. That failure shipped undetected — both ground rigs floated by exactly
+ * their `rideHeight` and the hover rig by 0.63 m — because every unit test
+ * compared authored numbers with authored numbers, and the two cues a player
+ * would notice it by (ground texture parallax and a crisp shadow edge) were
+ * independently degraded. Measuring rendered geometry against the terrain mesh
+ * is the only check that could have failed.
+ */
+export interface RigGroundContactEvidence {
+  rigId: RigId;
+  /** Terrain height directly beneath the rig's body origin. */
+  terrainY: number;
+  /** Simulated body-origin elevation, i.e. `RigState.y`. */
+  bodyOriginY: number;
+  /** Profile ride height: how far the body origin should sit above contact. */
+  rideHeight: number;
+  /**
+   * Signed gap between each visible tyre's lowest point and the terrain below
+   * it. Positive floats, negative sinks. Empty for hover rigs.
+   */
+  wheelContactGaps: number[];
+  /** Worst absolute tyre gap, or null when the rig draws no wheels. */
+  worstWheelContactGap: number | null;
+  /** Signed gap between the blob shadow and the terrain beneath it. */
+  shadowGap: number;
+  /**
+   * For hover rigs: the visible skirt's lowest point above the terrain, which
+   * should read as the air cushion rather than as an accidental float.
+   */
+  hoverSkirtGap: number | null;
+  /** True when every visible contact cue is on the ground within tolerance. */
+  contactsGround: boolean;
+}
+
 export interface RigPerceptionEvidence {
   rigId: RigId;
   reducedMotion: boolean;
@@ -317,6 +375,163 @@ export interface RigPerceptionEvidence {
   expectedFocusOffset: number;
   cameraFocusContractMet: boolean;
   visibleModules: ModuleId[];
+}
+
+/**
+ * One fitted module's rendered volume.
+ *
+ * Two frames, deliberately. Anything measured against the *world* — where the
+ * module is, how far it is above the ground — is world space. Anything measured
+ * against the *rig* — what it interpenetrates, where it sits on its wheel — is
+ * the rig body's own frame, because an axis-aligned box is only tight when the
+ * thing inside it is axis-aligned, and a rig parked across a slope carries pitch
+ * and roll that inflate every world box on it. The first survey of this surface
+ * reported the tractor's skid plate 23 cm inside the chassis on a hillside and
+ * 0 cm on the flat pad, for geometry that is bolted rigidly to that chassis and
+ * had not moved relative to it at all. Body-local is also where the question is
+ * meaningful: modules, superstructure and wheels are all children of the body,
+ * so the only motion left in that frame is the motion that is really happening —
+ * steering, suspension travel, the plough pivot.
+ */
+export interface RigModuleVisualSample {
+  moduleId: ModuleId;
+  /** Group name, i.e. `module:<id>`, and its index among that module's groups. */
+  label: string;
+  /**
+   * What this visual is bolted to, recorded by whichever builder made it.
+   *
+   * It decides which measurements below mean anything. A hull bolt-on is judged
+   * against the rig: it must clear the ground and touch nothing but its mounting
+   * face. A `wheel` visual is a tread wrapping a tyre, and a tyre already tucks
+   * under its own fender by design, so "overlaps rig structure" carries no signal
+   * for it — {@link hostGap} and {@link hostOffset} are what say whether a tread
+   * is a tread, and they need no terrain and no authored table to be read.
+   */
+  anchoredTo: "hull" | "wheel" | "unknown";
+  /**
+   * Whether the group is visible *and* every ancestor up to the scene is too.
+   * `group.visible` alone would pass on a module hidden by its parent.
+   */
+  visible: boolean;
+  /** World-space axis-aligned bounds. Null when the group draws no geometry. */
+  worldMin: [number, number, number] | null;
+  worldMax: [number, number, number] | null;
+  /** Lowest rendered point minus the terrain beneath the module's centre. */
+  groundGap: number | null;
+  /** Distance from the module's centre to the rig's body origin, in metres. */
+  offsetFromRig: number | null;
+  /**
+   * For a wheel-anchored tread: how far its lowest point hangs below the lowest
+   * point of the tyre it wraps, in the body's frame. Null for anything else.
+   *
+   * The terrain-free way to ask "is this tread sitting right on its wheel". The
+   * lug form reaches `radius * lugReachScale`, so this should come out at about
+   * `radius * (lugReachScale - 1)` — 8.5 cm on the tractor's 0.85 m rear tyre —
+   * plus the ~2.5% of a radius by which the tyre's 14-sided cylinder falls short
+   * of a true circle in its own bounding box. {@link groundGap} cannot answer the
+   * same question: on a slope the terrain under the tread's centre is not the
+   * terrain the tyre is resting on, and suspension travel moves the whole wheel.
+   */
+  hostGap: number | null;
+  /**
+   * For a wheel-anchored tread: distance between its centre and its tyre's, in
+   * the body's frame.
+   *
+   * A tread is concentric with its tyre by construction, so this is ~0. It is the
+   * check that survives the exemption above: because a tread's overlaps with rig
+   * structure are not read as defects, something has to prove the tread is still
+   * *on the wheel* rather than rendered somewhere it would foul the rig freely.
+   */
+  hostOffset: number | null;
+  /**
+   * How far this module's geometry escapes the mount box it was built inside,
+   * metres. Null for a wheel tread, which has no mount box.
+   *
+   * `buildModuleForm` states the contract in prose: every dimension is a ratio of
+   * the mount, so nothing can push the module outside the envelope
+   * `rig-blockout.test.ts` proved clear of the ground, the tyres and the other
+   * modules. Being a *ratio* does not achieve that, and four of six forms were
+   * quietly breaking it — a barrel whose radius came from `height` on a box
+   * narrower than it was tall, a bracket placed at `width * 0.42` with a
+   * half-extent of `width * 0.35`, a drum lying across an axis whose radius was
+   * bounded by the wrong dimension, and a mast whose dish was 1.9× its own box.
+   * Every clearance the blockout derives is void for a module that does not honour
+   * this, so it is measured rather than promised.
+   *
+   * `fitFormToEnvelope` now clamps this to ~0 structurally; the field stays because
+   * a guarantee nobody measures is how the prose contract got away with being
+   * false for four forms. Read it with `envelopeFit`: this says the rig is safe,
+   * that says whether the form was authored that way or rescued.
+   */
+  envelopeBreach: number | null;
+  /**
+   * The uniform scale `fitFormToEnvelope` applied to make the form fit, or null
+   * for a wheel tread. 1 means it was authored to fit.
+   *
+   * Below 1 the module renders legally but smaller than designed, with nothing on
+   * screen to say so — a silent defect, which is why acceptance fails on it rather
+   * than treating the clamp as a success.
+   */
+  envelopeFit: number | null;
+  /**
+   * Solid rig parts this module's meshes interpenetrate, deepest first, measured
+   * in the body's frame. The class of collision no unit test can see, because the
+   * blockout does not model hand-authored superstructure — the tractor's cab and
+   * roof are literals in `createTractor`.
+   *
+   * Measured per *mesh*, not per group. A group's bounding box is a solid cube
+   * around a hollow form: the lug tread is a ring of 12 lugs and 2 bands, and its
+   * group box is a filled block spanning the whole wheel, which reported the
+   * chassis as 0.5 m of penetration when the two are merely side by side.
+   *
+   * `mountSurface` separates the two readings. An overlap with the chassis a
+   * module bolts to is *seating*: a bolt-on modelled with a visible gap under it
+   * reads as falling off the machine, so a centimetre or two is correct art.
+   * An overlap with anything else — a cab, a grille — is a defect at any depth,
+   * for a hull bolt-on. For a wheel tread it is not a defect signal at all: a
+   * tyre passes under its own fender by design and a wider tread passes further.
+   */
+  structureOverlaps: { part: string; depth: number; mountSurface: boolean }[];
+  /**
+   * Other fitted modules this one interpenetrates, deepest first, measured in the
+   * body's frame.
+   *
+   * The failure this exists for: lug tyres grow the tread ~10 cm per side, and
+   * at full lock that put the tractor's flotation pontoons 6.8 cm inside its own
+   * tread bands — on a rig the garage sells both modules to. `rig-blockout.ts`
+   * now derives the wheel's clearance envelope from the tread form and clamps
+   * underbody width to the wheel tunnel, but that is authored numbers checking
+   * authored numbers. This measures the rendered result with every module the
+   * rig can carry fitted at once, per mesh, so a lug passing between two
+   * pontoons is not confused with the pontoon being inside the wheel's box.
+   */
+  moduleOverlaps: { module: string; depth: number }[];
+}
+
+/**
+ * What the player can actually see of the modules they bought.
+ *
+ * Every other check on module placement compares authored numbers with authored
+ * numbers: `rig-blockout.test.ts` proves the derived mount boxes clear each other,
+ * the wheels, and the ground, but it is reasoning about the same table the mounts
+ * come from. Three things live outside that table — the terrain's real height, the
+ * rendered form built inside each mount box, and the hand-authored superstructure
+ * each rig carries — and a module can be wrong against any of them while every
+ * unit test passes.
+ */
+export interface RigModuleVisualEvidence {
+  rigId: RigId;
+  /** Modules currently fitted in `RigState`. */
+  fittedModules: ModuleId[];
+  /** Modules the garage will sell this rig at all. */
+  offeredModules: ModuleId[];
+  /** Front-wheel steering angle at the moment of measurement, radians. */
+  steeringAngle: number;
+  samples: RigModuleVisualSample[];
+  /** Fitted modules with no rendered group — the "bought it, saw nothing" case. */
+  missingVisuals: ModuleId[];
+  /** Groups visible without their module being fitted, and the reverse. */
+  visibilityMismatches: string[];
 }
 
 export interface CameraResolutionEvidence {
@@ -447,6 +662,50 @@ function hoodCameraSocket(rigId: RigId): THREE.Object3D {
   return socket;
 }
 
+/**
+ * A diagnostic label for one rendered part, for evidence surfaces to report.
+ *
+ * Most rig geometry is anonymous — `box(2.4, 2.4, 2.1, COLORS.bone)` sets no
+ * name — so the fallback is the part's geometry type and its local position.
+ * That reads as a grep key rather than as a description: `BoxGeometry@0.00,2.70,-1.05`
+ * finds `cab.position.set(0, 2.7, -1.05)` in one search. A name assigned purely
+ * to make evidence readable can go stale against the object it names; a position
+ * read off the live object cannot.
+ */
+function partLabel(object: THREE.Object3D): string {
+  if (object.name) return object.name;
+  const shape =
+    object instanceof THREE.Mesh ? object.geometry.type : object.type;
+  const { x, y, z } = object.position;
+  return `${shape}@${x.toFixed(2)},${y.toFixed(2)},${z.toFixed(2)}`;
+}
+
+/**
+ * How deep two axis-aligned boxes interpenetrate, or 0 when they are apart.
+ *
+ * The smallest of the three axis overlaps, which is the distance one box would
+ * have to move to be clear — the useful number for "how wrong is this", since an
+ * overlap of 0.002 m is a modelling seam and one of 0.2 m is a module inside a cab.
+ */
+function penetrationDepth(a: THREE.Box3, b: THREE.Box3): number {
+  const x = Math.min(a.max.x, b.max.x) - Math.max(a.min.x, b.min.x);
+  const y = Math.min(a.max.y, b.max.y) - Math.max(a.min.y, b.min.y);
+  const z = Math.min(a.max.z, b.max.z) - Math.max(a.min.z, b.min.z);
+  if (x <= 0 || y <= 0 || z <= 0) return 0;
+  return Math.min(x, y, z);
+}
+
+/**
+ * Interpenetration a module is allowed against solid rig geometry, metres.
+ *
+ * Not zero, because two modules are *meant* to be flush: `standoffScale: 0` bolts
+ * the skid plate and the gearing case directly to the hull's underside, so their
+ * top face and the hull's bottom face are the same plane and float error decides
+ * the sign. Two centimetres is well under the depth of any real mistake — the
+ * survey mast through the tractor's cab was 25 cm.
+ */
+const STRUCTURE_CONTACT_TOLERANCE = 0.02;
+
 export class GameRenderer {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
@@ -506,7 +765,11 @@ export class GameRenderer {
   private readonly habitatLife = new THREE.Group();
   private readonly habitatBodyGeometry = new THREE.SphereGeometry(0.18, 8, 6);
   private readonly habitatWingGeometry = new THREE.ConeGeometry(0.16, 0.54, 3);
-  private readonly habitatLegGeometry = new THREE.BoxGeometry(0.026, 0.28, 0.026);
+  private readonly habitatLegGeometry = new THREE.BoxGeometry(
+    0.026,
+    0.28,
+    0.026,
+  );
   private readonly habitatBirdMaterial = new THREE.MeshStandardMaterial({
     color: 0xe8e0cd,
     roughness: 0.82,
@@ -537,7 +800,35 @@ export class GameRenderer {
   private currentPhase: WorldPhase | null = null;
   private lastFrameTime = performance.now();
   private shake = 0;
+  /**
+   * Eased 0..1 wetness delivered to the scene. `render()` nudges it toward
+   * `weatherTargetRain` each frame so weather arrival reads as arrival — the
+   * air thickens and rain fades in rather than snapping. Gating rain geometry
+   * and fog on one eased value keeps every wet signal in lockstep.
+   */
+  private currentRain = 0;
+  private weatherTargetRain = 0;
+  private weatherPhase: "clear" | "overcast" | "rain" | "storm" = "clear";
+  /** Fog density the current weather wants (from `WeatherState.fogDensity`). */
+  private weatherFogTarget = 0.004;
+  /**
+   * The exp-2 fog density the active presentation phase chose. Weather blends
+   * from this base so clear weather leaves the phase exactly as authored and
+   * rain can only thicken it — never thin the atmosphere below the phase's own
+   * distance falloff.
+   */
+  private phaseBaseFogDensity = 0.0052;
+  private rainPoints: THREE.Points | null = null;
+  private rainPositions: Float32Array | null = null;
   private readonly headlightFlareUntil = new Map<RigId, number>();
+  /**
+   * 0..1 eased toward `narrativeFocusTarget` each frame. A dialogue beat
+   * (a person talking to you) narrows the field of view slightly — a soft
+   * focus pull distinct from the mechanical shake/flare used for
+   * workshop-action feedback, so the camera itself marks the difference.
+   */
+  private narrativeFocus = 0;
+  private narrativeFocusTarget = 0;
   private cameraInitialised = false;
   private cameraRigId: RigId | null = null;
   private lastCameraMode: CameraMode | null = null;
@@ -649,6 +940,8 @@ export class GameRenderer {
     this.buildInfrastructureProps();
     this.buildRuntimeBridgeAssets();
     this.buildStars();
+    this.buildRain();
+    this.buildStormClouds();
 
     const tractor = this.createTractor();
     const buggy = this.createBuggy();
@@ -885,7 +1178,11 @@ export class GameRenderer {
         );
       }
     }
-    return 0.9 + ((ix * 7 + iz * 13) % 11) * 0.018;
+    // A wider, still-natural-looking per-vertex tint spread than the prior
+    // 0.9-1.08 range: at that narrow a swing the ground read as a flat,
+    // single-tone plane from any camera angle pulled back far enough to lose
+    // per-pixel shading (top-down, tactical, survey).
+    return 0.78 + ((ix * 7 + iz * 13) % 13) * 0.028;
   }
 
   /** Refresh only a local terrain-colour patch from authoritative field memory. */
@@ -921,12 +1218,10 @@ export class GameRenderer {
         const x = this.terrainOrigin + ix * TERRAIN_STEP;
         const z = this.terrainOrigin + iz * TERRAIN_STEP;
         const height = this.terrainHeights[index]!;
-        const east = this.terrainHeights[
-          index + (ix < this.terrainCells ? 1 : -1)
-        ]!;
-        const north = this.terrainHeights[
-          index + (iz < this.terrainCells ? size : -size)
-        ]!;
+        const east =
+          this.terrainHeights[index + (ix < this.terrainCells ? 1 : -1)]!;
+        const north =
+          this.terrainHeights[index + (iz < this.terrainCells ? size : -size)]!;
         const slope = Math.hypot(
           (east - height) / TERRAIN_STEP,
           (north - height) / TERRAIN_STEP,
@@ -1007,8 +1302,7 @@ export class GameRenderer {
     position.needsUpdate = true;
 
     const normal = this.terrainMesh.geometry.getAttribute("normal") as
-      | THREE.BufferAttribute
-      | undefined;
+      THREE.BufferAttribute | undefined;
     if (normal === undefined || normal.count !== position.count) {
       // Defensive fallback only: buildTerrain() always creates a matching
       // normal attribute before any refreshTerrainRegion call is reachable,
@@ -1068,9 +1362,13 @@ export class GameRenderer {
           const effect = definition.effects.find(
             (candidate) => candidate.kind === "water-level-offset",
           );
-          return effect && infrastructureIsOperating(definition, initialInfrastructure.entities[id])
+          return effect &&
+            infrastructureIsOperating(
+              definition,
+              initialInfrastructure.entities[id],
+            )
             ? effect.operatingValue
-            : effect?.dormantValue ?? 0;
+            : (effect?.dormantValue ?? 0);
         }),
       },
     };
@@ -1302,9 +1600,10 @@ export class GameRenderer {
       centre.set(definition.x, definition.z);
       uniforms.infrastructureRadii.value[index] = effect?.radiusM ?? 0;
       uniforms.infrastructureWaterOffsets.value[index] =
-        effect && infrastructureIsOperating(definition, state.infrastructure.entities[id])
+        effect &&
+        infrastructureIsOperating(definition, state.infrastructure.entities[id])
           ? effect.operatingValue
-          : effect?.dormantValue ?? 0;
+          : (effect?.dormantValue ?? 0);
     }
   }
 
@@ -1444,6 +1743,17 @@ export class GameRenderer {
     for (const obstacle of obstacles) {
       if (tierFor(obstacle.x, obstacle.z) === "culled") continue;
       const down = this.world.felledObstacles.has(obstacle.id);
+      const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
+      // Terrain occlusion: skip instances hidden behind hills from camera.
+      const testY = down
+        ? groundY + felledTrunkLength(obstacle) * 0.5
+        : obstacle.kind === "tree"
+          ? groundY + treeTrunkHeight(obstacle) * 0.5
+          : groundY + obstacle.radius * 0.35;
+      if (this.isOccludedByTerrain(obstacle.x, testY, obstacle.z)) {
+        visibility.occluded += 1;
+        continue;
+      }
       if (obstacle.kind === "tree" && !down) {
         if (trees >= MAX_TREE_INSTANCES) {
           visibility.capacityLimited += 1;
@@ -1472,6 +1782,12 @@ export class GameRenderer {
     let nodeCount = 0;
     for (const node of nodes) {
       if (tierFor(node.x, node.z) === "culled") continue;
+      const scale = 0.8 + node.variation * 0.4;
+      const testY = node.groundY + scale * 0.5;
+      if (this.isOccludedByTerrain(node.x, testY, node.z)) {
+        visibility.occluded += 1;
+        continue;
+      }
       if (nodeCount >= MAX_NODE_INSTANCES) {
         visibility.capacityLimited += 1;
         continue;
@@ -1508,6 +1824,93 @@ export class GameRenderer {
     this.propAnchorX = rig.x;
     this.propAnchorZ = rig.z;
     this.propVisibility = visibility;
+
+    // Compute aggregate bounds for frustum culling and enable it.
+    this.computeAndSetInstanceBounds(this.treeTrunks, trees);
+    this.computeAndSetInstanceBounds(this.treeCrowns, trees);
+    this.computeAndSetInstanceBounds(this.rocks, rocks);
+    this.computeAndSetInstanceBounds(this.felledTrunks, felled);
+    this.computeAndSetInstanceBounds(this.salvageNodes, nodeCount);
+    if (this.treeBillboards !== undefined) {
+      this.computeAndSetInstanceBounds(
+        this.treeBillboards,
+        this.treeBillboardCount,
+      );
+    }
+    if (this.rockBillboards !== undefined) {
+      this.computeAndSetInstanceBounds(
+        this.rockBillboards,
+        this.rockBillboardCount,
+      );
+    }
+    this.computeAndSetInstanceBounds(this.furrowDecals, this.renderedFurrows);
+  }
+
+  /**
+   * Compute an aggregate bounding sphere from the active instance matrices and
+   * enable frustum culling. InstancedMesh uses the base geometry bounds by
+   * default, which do not reflect the actual instance spread. This must be
+   * called after every rebuild so the renderer can skip off-screen meshes.
+   */
+  private computeAndSetInstanceBounds(
+    mesh: THREE.InstancedMesh,
+    count: number,
+  ): void {
+    if (count === 0) {
+      mesh.boundingSphere = null;
+      mesh.frustumCulled = false;
+      return;
+    }
+    const sphere = new THREE.Sphere();
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+
+    let minX = Infinity,
+      minY = Infinity,
+      minZ = Infinity;
+    let maxX = -Infinity,
+      maxY = -Infinity,
+      maxZ = -Infinity;
+
+    for (let i = 0; i < count; i += 1) {
+      mesh.getMatrixAt(i, matrix);
+      position.setFromMatrixPosition(matrix);
+      if (position.x < minX) minX = position.x;
+      if (position.y < minY) minY = position.y;
+      if (position.z < minZ) minZ = position.z;
+      if (position.x > maxX) maxX = position.x;
+      if (position.y > maxY) maxY = position.y;
+      if (position.z > maxZ) maxZ = position.z;
+    }
+
+    const centerX = (minX + maxX) * 0.5;
+    const centerY = (minY + maxY) * 0.5;
+    const centerZ = (minZ + maxZ) * 0.5;
+    sphere.center.set(centerX, centerY, centerZ);
+
+    const dx = maxX - centerX;
+    const dy = maxY - centerY;
+    const dz = maxZ - centerZ;
+    sphere.radius = Math.hypot(dx, dy, dz) + 1.0; // padding for scale
+
+    mesh.boundingSphere = sphere;
+    mesh.frustumCulled = true;
+  }
+
+  /**
+   * Test if a world position is occluded by terrain from the current camera.
+   * Uses the same raymarch logic as camera obstruction but with fewer samples
+   * for performance. Returns true if the line of sight is blocked.
+   */
+  private isOccludedByTerrain(x: number, y: number, z: number): boolean {
+    if (!this.cameraInitialised) return false;
+    const cam = this.camera.position;
+    // 8 samples is sufficient for prop occlusion; camera uses 14 for pull-in.
+    // Clearance 0.5m accounts for prop size and avoids false hits on slopes.
+    return (
+      this.world.terrain.raymarchBlocked(cam.x, cam.y, cam.z, x, y, z, 8, 0.5) <
+      1
+    );
   }
 
   /**
@@ -1532,7 +1935,11 @@ export class GameRenderer {
    */
   private faceBillboardAtCamera(x: number, y: number, z: number): void {
     this.billboardDirection
-      .set(this.camera.position.x - x, this.camera.position.y - y, this.camera.position.z - z)
+      .set(
+        this.camera.position.x - x,
+        this.camera.position.y - y,
+        this.camera.position.z - z,
+      )
       .normalize();
     this.dummy.quaternion.setFromUnitVectors(
       this.billboardDefaultNormal,
@@ -1887,6 +2294,22 @@ export class GameRenderer {
           object.material = new THREE.MeshBasicMaterial({ color: part.color });
           group.userData.signalLamp = object;
           group.userData.signalLitColor = part.color;
+
+          // Signal beam: a tall, semi-transparent column of light above the
+          // lamp. Visible from across the valley so the player always has a
+          // directional landmark, even before discovery.
+          const beam = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.25, 0.6, 44, 8),
+            new THREE.MeshBasicMaterial({
+              color: part.color,
+              transparent: true,
+              opacity: 0.18,
+              depthWrite: false,
+            }),
+          );
+          beam.position.y = 22;
+          beam.name = `signal-beam:${site.id}`;
+          group.add(beam);
         }
         group.add(object);
       }
@@ -1900,7 +2323,12 @@ export class GameRenderer {
           resident.name = `settlement-resident:${site.id}:${index}`;
           resident.position.set(anchor.x, 0, anchor.z);
           resident.rotation.y = anchor.heading;
-          const body = box(0.52, 1.15, 0.34, index === 0 ? COLORS.rust : COLORS.bone);
+          const body = box(
+            0.52,
+            1.15,
+            0.34,
+            index === 0 ? COLORS.rust : COLORS.bone,
+          );
           body.position.y = 0.86;
           const head = new THREE.Mesh(
             new THREE.SphereGeometry(0.28, 8, 6),
@@ -2056,7 +2484,12 @@ export class GameRenderer {
       const z = origin.z + manifest.loadOffsetZ;
       const pallet = box(2.5, 0.18, 1.7, 0x6e5137);
       pallet.position.y = 0.1;
-      const bundle = box(1.48, 0.82, 1.05, manifest.id === "sunken-causeway-kit" ? COLORS.cyan : COLORS.rust);
+      const bundle = box(
+        1.48,
+        0.82,
+        1.05,
+        manifest.id === "sunken-causeway-kit" ? COLORS.cyan : COLORS.rust,
+      );
       bundle.position.y = 0.58;
       const marker = new THREE.Mesh(
         new THREE.CylinderGeometry(0.11, 0.11, 1.35, 6),
@@ -2073,7 +2506,9 @@ export class GameRenderer {
   private createSettlementConsequence(
     definition: Pick<SettlementResponseDefinition, "id" | "materialEffectId">,
   ): THREE.Group | null {
-    const visual = settlementMaterialEffect(definition.materialEffectId)?.consequence;
+    const visual = settlementMaterialEffect(
+      definition.materialEffectId,
+    )?.consequence;
     if (!visual) return null;
     const root = new THREE.Group();
     root.name = `settlement-consequence:${definition.id}`;
@@ -2102,7 +2537,11 @@ export class GameRenderer {
       secondWheel.position.z = -0.62;
       root.add(chassis, block, wheel, secondWheel);
     } else if (visual.kind === "route-markers") {
-      for (const [index, offset] of [[0, 0], [0.9, 0.45], [-0.82, 0.7]] as const) {
+      for (const [index, offset] of [
+        [0, 0],
+        [0.9, 0.45],
+        [-0.82, 0.7],
+      ] as const) {
         const post = cylinder(0.06, 0.08, 1.36, 6, 0x5b432c);
         post.position.set(offset, 0.68, index === 0 ? 0 : 0.15);
         const flag = box(0.62, 0.35, 0.04, COLORS.gold);
@@ -2145,7 +2584,10 @@ export class GameRenderer {
       group.name = `community-passage:${passage.id}`;
       group.visible = false;
 
-      const length = Math.hypot(passage.bx - passage.ax, passage.bz - passage.az);
+      const length = Math.hypot(
+        passage.bx - passage.ax,
+        passage.bz - passage.az,
+      );
       const segments = Math.max(1, Math.ceil(length / 4));
       const directionX = length > 0 ? (passage.bx - passage.ax) / length : 0;
       const directionZ = length > 0 ? (passage.bz - passage.az) / length : 1;
@@ -2157,7 +2599,12 @@ export class GameRenderer {
         const along = (index + 0.5) * segmentLength;
         const x = passage.ax + directionX * along;
         const z = passage.az + directionZ * along;
-        const deck = box(deckWidth, 0.18, Math.max(0.35, segmentLength - 0.12), 0x6e5137);
+        const deck = box(
+          deckWidth,
+          0.18,
+          Math.max(0.35, segmentLength - 0.12),
+          0x6e5137,
+        );
         deck.name = `community-passage-deck:${passage.id}:${index}`;
         deck.position.set(x, this.world.terrain.height(x, z) + 0.12, z);
         deck.rotation.y = heading;
@@ -2165,7 +2612,12 @@ export class GameRenderer {
         group.add(deck);
 
         for (const side of [-1, 1] as const) {
-          const rail = box(0.12, 0.72, Math.max(0.35, segmentLength - 0.12), 0x43372d);
+          const rail = box(
+            0.12,
+            0.72,
+            Math.max(0.35, segmentLength - 0.12),
+            0x43372d,
+          );
           rail.name = `community-passage-rail:${passage.id}:${index}:${side}`;
           const lateralX = -directionZ * side * (deckWidth * 0.5 - 0.12);
           const lateralZ = directionX * side * (deckWidth * 0.5 - 0.12);
@@ -2251,7 +2703,9 @@ export class GameRenderer {
   private syncCommunityPassageDecks(state: GameState): void {
     const activePassages = new Set(deriveSettlementCommunityPassageIds(state));
     for (const [id, group] of this.communityPassageDecks) {
-      group.visible = activePassages.has(id as typeof activePassages extends Set<infer T> ? T : never);
+      group.visible = activePassages.has(
+        id as typeof activePassages extends Set<infer T> ? T : never,
+      );
       if (!group.visible) continue;
       group.children.forEach((part) => {
         const offsetY = part.userData.terrainOffsetY as number | undefined;
@@ -2318,7 +2772,9 @@ export class GameRenderer {
     const fieldRevision = this.world.fieldConditionRevisionNumber();
     const ecologyRevision = this.world.ecologyRevisionNumber();
     const worldHour = Math.floor(state.worldTimeMinutes / 60);
-    const moved = Math.hypot(rig.x - this.habitatAnchorX, rig.z - this.habitatAnchorZ) >= 18;
+    const moved =
+      Math.hypot(rig.x - this.habitatAnchorX, rig.z - this.habitatAnchorZ) >=
+      18;
     if (
       this.habitatLife.parent &&
       !moved &&
@@ -2340,11 +2796,7 @@ export class GameRenderer {
     this.lastHabitatEcologyRevision = ecologyRevision;
     this.lastHabitatWorldHour = worldHour;
 
-    const ecologyActors = this.world.ecologyActorsNear(
-      rig.x,
-      rig.z,
-      72,
-    );
+    const ecologyActors = this.world.ecologyActorsNear(rig.x, rig.z, 72);
     let visualIndex = 0;
     for (const actor of ecologyActors) {
       if (visualIndex >= 18) break;
@@ -2356,15 +2808,24 @@ export class GameRenderer {
       );
       for (let index = 0; index < count; index += 1) {
         const placement = stableHabitatFraction(`${actor.id}:${index}`);
-        const radius = 2.5 + stableHabitatFraction(`radius:${actor.id}:${index}`) * 7;
+        const radius =
+          2.5 + stableHabitatFraction(`radius:${actor.id}:${index}`) * 7;
         const angle = placement * Math.PI * 2;
         const x = actor.x + Math.cos(angle) * radius;
         const z = actor.z + Math.sin(angle) * radius;
         const ground = this.world.terrain.sample(x, z);
         const creature = this.createHabitatSilhouette(species);
-        creature.position.set(x, ground.height + Math.min(ground.waterDepth, 0.12), z);
+        creature.position.set(
+          x,
+          ground.height + Math.min(ground.waterDepth, 0.12),
+          z,
+        );
         creature.scale.setScalar(
-          species === "small-grazer" ? 3.2 : species === "wading-bird" ? 2.2 : 1.8,
+          species === "small-grazer"
+            ? 3.2
+            : species === "wading-bird"
+              ? 2.2
+              : 1.8,
         );
         creature.rotation.y = angle + Math.PI * 0.5;
         creature.userData.baseHeading = creature.rotation.y;
@@ -2372,7 +2833,9 @@ export class GameRenderer {
         creature.userData.baseY = creature.position.y;
         creature.userData.baseZ = creature.position.z;
         creature.userData.roamRadius =
-          species === "small-grazer" ? 1.5 + placement * 1.4 : 0.45 + placement * 0.75;
+          species === "small-grazer"
+            ? 1.5 + placement * 1.4
+            : 0.45 + placement * 0.75;
         creature.userData.motionRate = 0.7 + (visualIndex % 4) * 0.19;
         creature.userData.phase = placement * Math.PI * 2;
         creature.userData.ecologyActorId = actor.id;
@@ -2393,10 +2856,33 @@ export class GameRenderer {
       const roamRadius = Number(creature.userData.roamRadius ?? 0);
       const roamPhase = elapsedMs * 0.00016 * rate + phase;
       creature.position.x = baseX + Math.cos(roamPhase) * roamRadius;
-      creature.rotation.y = heading + Math.sin(elapsedMs * 0.001 * rate + phase) * 0.12;
+      creature.rotation.y =
+        heading + Math.sin(elapsedMs * 0.001 * rate + phase) * 0.12;
       creature.position.y =
         baseY + Math.sin(elapsedMs * 0.0017 * rate + phase) * 0.035;
       creature.position.z = baseZ + Math.sin(roamPhase * 0.87) * roamRadius;
+    }
+  }
+
+  private animateSignalBeams(elapsedMs: number): void {
+    for (const site of WORLD_SITES) {
+      const group = this.scene.getObjectByName(`site:${site.id}`);
+      if (!group) continue;
+      const beam = group.getObjectByName(`signal-beam:${site.id}`);
+      if (!beam) continue;
+      const lamp = group.userData.signalLamp as THREE.Mesh | undefined;
+      if (!lamp) continue;
+      const mat = lamp.material;
+      if (!(mat instanceof THREE.MeshBasicMaterial)) continue;
+      const isLit =
+        mat.color.getHex() !== SIGNAL_LAMP_DARK && mat.color.getHex() !== 0;
+      beam.visible = isLit;
+      if (isLit && beam instanceof THREE.Mesh) {
+        const beamMat = beam.material;
+        if (beamMat instanceof THREE.MeshBasicMaterial) {
+          beamMat.opacity = 0.12 + Math.sin(elapsedMs * 0.0012) * 0.06;
+        }
+      }
     }
   }
 
@@ -2561,6 +3047,129 @@ export class GameRenderer {
     this.scene.add(stars);
   }
 
+  /**
+   * Build a volume of falling rain streaks around the rig.
+   *
+   * Each particle holds a fixed world-space direction (downward streaks) with a
+   * small authored horizontal lean so rain reads as falling rather than as a
+   * static haze. The whole cloud is re-centred on the active rig every frame by
+   * `render()`, so the precipitation follows the camera's frame of reference
+   * without the player needing to out-drive it.
+   *
+   * The cloud is invisible until `setWeather` raises `weatherTargetRain`, and
+   * `currentRain` is eased so handoff from clear to rain never pops.
+   */
+  private buildRain(): void {
+    const count = 420;
+    const positions = new Float32Array(count * 3);
+    const lean = 0.55;
+    for (let index = 0; index < count; index += 1) {
+      // Deterministic spread across a ~60 m x 40 m box centred on the origin;
+      // the per-instance position is re-based onto the active rig each frame.
+      const px = ((index * 37) % 61) - 30;
+      const py = ((index * 53) % 41) - 20;
+      const pz = ((index * 71) % 61) - 30;
+      positions[index * 3] = px;
+      positions[index * 3 + 1] = py;
+      // A downward-leaning streak instead of a vertical drop: rain blown by the
+      // wind reads as weather with direction, matching `windVector` on the state.
+      positions[index * 3 + 2] = pz + lean;
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(positions, 3),
+    );
+    const rain = new THREE.Points(
+      geometry,
+      new THREE.PointsMaterial({
+        color: 0x8fb2c8,
+        size: 0.09,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      }),
+    );
+    rain.name = "rain";
+    rain.frustumCulled = false;
+    this.rainPositions = positions;
+    this.rainPoints = rain;
+    this.scene.add(rain);
+  }
+
+  private stormClouds!: THREE.Group;
+  private stormCloudMeshes: THREE.Mesh[] = [];
+
+  private buildStormClouds(): void {
+    this.stormClouds = new THREE.Group();
+    this.stormClouds.name = "storm-clouds";
+
+    // A cluster of dark, flat cloud volumes positioned on the horizon near
+    // Long Furrow. They are always present but start nearly invisible; as the
+    // weather clock approaches storm, they darken and thicken so the player
+    // sees the threat building from across the valley.
+    const LONG_FURROW_X = 18;
+    const LONG_FURROW_Z = -46;
+    const cloudCount = 7;
+    for (let i = 0; i < cloudCount; i++) {
+      const angle = (i / cloudCount) * Math.PI * 2;
+      const spread = 28 + (i % 3) * 14;
+      const cloud = new THREE.Mesh(
+        new THREE.SphereGeometry(18 + (i % 3) * 8, 8, 5),
+        new THREE.MeshBasicMaterial({
+          color: 0x2a2a2e,
+          transparent: true,
+          opacity: 0,
+          depthWrite: false,
+        }),
+      );
+      cloud.position.set(
+        LONG_FURROW_X + Math.cos(angle) * spread,
+        52 + (i % 2) * 12,
+        LONG_FURROW_Z + Math.sin(angle) * spread,
+      );
+      cloud.scale.set(1, 0.25, 1);
+      cloud.userData.baseOpacity = 0.08 + (i % 3) * 0.04;
+      cloud.userData.phase = i * 0.7;
+      this.stormCloudMeshes.push(cloud);
+      this.stormClouds.add(cloud);
+    }
+    this.scene.add(this.stormClouds);
+  }
+
+  private updateStormClouds(
+    weatherPhase: string,
+    rainIntensity: number,
+    elapsedMs: number,
+  ): void {
+    // Storm clouds darken as the weather progresses: clear = nearly invisible,
+    // overcast = faint shadow, rain = dark, storm = heavy.
+    const targetOpacity =
+      weatherPhase === "storm"
+        ? 0.72
+        : weatherPhase === "rain"
+          ? 0.45
+          : weatherPhase === "overcast"
+            ? 0.18
+            : 0.06;
+
+    // Rain intensity provides a smooth blend within each phase.
+    const intensityBlend = rainIntensity * 0.15;
+
+    for (const cloud of this.stormCloudMeshes) {
+      const mat = cloud.material as THREE.MeshBasicMaterial;
+      const base = Number(cloud.userData.baseOpacity ?? 0.1);
+      const phase = Number(cloud.userData.phase ?? 0);
+      const drift = Math.sin(elapsedMs * 0.00008 + phase) * 0.03;
+      mat.opacity = Math.min(
+        1,
+        (targetOpacity + intensityBlend) * base * 8 + drift,
+      );
+      // Slow lateral drift so the mass feels alive.
+      cloud.position.x += Math.sin(elapsedMs * 0.00003 + phase) * 0.004;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Rigs
   // ---------------------------------------------------------------------------
@@ -2684,6 +3293,14 @@ export class GameRenderer {
       }),
     );
     shadow.rotation.x = -Math.PI / 2;
+    // The one cue a player reads for "is this touching the ground". Named so
+    // ground-contact evidence can find it on any rig without a parts field.
+    shadow.name = "blob-shadow";
+    // A transparent ground decal with `depthWrite: false` — not solid rig
+    // geometry. It is a plane spanning the whole footprint at ground level, so
+    // any surface reasoning about "which part is this touching" has to skip it or
+    // every underbody answer is "the shadow".
+    shadow.userData.cameraSolid = false;
     return shadow;
   }
 
@@ -2693,6 +3310,13 @@ export class GameRenderer {
    * The stock tyre stays authoritative for wheel size and contact. These outer
    * bands only expose the fitted lug-tyre state through silhouette and material,
    * so presentation never invents a second handling model.
+   *
+   * Every proud dimension comes from {@link LUG_TREAD_FORM} because a tread that
+   * stands outboard of the tyre widens the wheel's clearance envelope, and the
+   * pontoon that has to clear that envelope is derived in `rig-blockout.ts`. When
+   * these were local literals — two of them absolute metres — the tractor's
+   * pontoons sat 6.8 cm inside its own tread bands at full lock, on a rig the
+   * garage sells both modules to.
    */
   private addLugTireVisual(
     spinPivot: THREE.Group,
@@ -2701,35 +3325,365 @@ export class GameRenderer {
   ): THREE.Group {
     const tread = new THREE.Group();
     tread.name = "module:lug-tires";
+    tread.userData.moduleAnchor = "wheel";
     const treadMaterial = material(0x4f5147, 0.96, 0.02);
     for (const side of [-1, 1] as const) {
       const band = new THREE.Mesh(
-        new THREE.TorusGeometry(radius * 0.92, radius * 0.105, 5, 14),
+        new THREE.TorusGeometry(
+          radius * LUG_TREAD_FORM.bandRingScale,
+          radius * LUG_TREAD_FORM.bandTubeScale,
+          5,
+          14,
+        ),
         treadMaterial,
       );
       band.rotation.y = Math.PI / 2;
-      band.position.x = side * (width * 0.5 + 0.035);
+      band.position.x =
+        side * (width * 0.5 + radius * LUG_TREAD_FORM.bandStandoffScale);
       tread.add(band);
     }
     const lugGeometry = new THREE.BoxGeometry(
-      width + 0.18,
-      radius * 0.14,
-      radius * 0.3,
+      width + radius * LUG_TREAD_FORM.lugOverhangScale * 2,
+      radius * LUG_TREAD_FORM.lugThicknessScale,
+      radius * LUG_TREAD_FORM.lugDepthScale,
     );
-    for (let index = 0; index < 12; index += 1) {
-      const angle = (index / 12) * Math.PI * 2;
+    const lugReach =
+      radius *
+      (LUG_TREAD_FORM.lugReachScale - LUG_TREAD_FORM.lugThicknessScale / 2);
+    for (let index = 0; index < LUG_TREAD_FORM.lugCount; index += 1) {
+      const angle = (index / LUG_TREAD_FORM.lugCount) * Math.PI * 2;
       const lug = new THREE.Mesh(lugGeometry, treadMaterial);
-      lug.position.set(
-        0,
-        Math.sin(angle) * radius * 1.03,
-        Math.cos(angle) * radius * 1.03,
-      );
-      lug.rotation.x = angle;
+      lug.position.set(0, Math.sin(angle) * lugReach, Math.cos(angle) * lugReach);
+      // Point the block's *thickness* axis radially outward, so the dimension
+      // named `lugThicknessScale` is the one that decides how proud of the tyre
+      // the tread stands and `lugReachScale` is the outer surface it reaches.
+      //
+      // This was `rotation.x = angle`, which pointed the block's `lugDepthScale`
+      // axis outward instead. The tread then reached `1.03 + 0.30/2 = 1.18` tyre
+      // radii while `treadEnvelope` in `rig-blockout.ts` derived every clearance
+      // around it from `lugReachScale: 1.1` — so the envelope understated the
+      // rendered tread by 8% of a tyre radius, 6.8 cm on the tractor's rear
+      // wheel, which is what kept putting the flotation pontoons inside it. Both
+      // sides agreed with each other; only the browser disagreed with both.
+      //
+      // A rotation of `π/2 - angle` maps local +Y onto the outward radial
+      // direction `(0, sin angle, cos angle)`, leaving `lugDepthScale` as the
+      // block's length along the direction of travel, which is what a lug bar is.
+      lug.rotation.x = Math.PI / 2 - angle;
       tread.add(lug);
     }
     tread.visible = false;
     spinPivot.add(tread);
     return tread;
+  }
+
+  /**
+   * Build the form of one bolt-on module inside the box its mount derives.
+   *
+   * Every dimension below is a ratio of `mount.width` / `.height` / `.depth`, so
+   * nothing here can push the module outside the envelope `rig-blockout.test.ts`
+   * proved clear of the ground, the tyres, the other modules, and the hood
+   * camera. That is the whole contract: the mount owns *where and how big*, this
+   * method owns *what it looks like*, and the two cannot disagree because only
+   * one of them has numbers.
+   *
+   * The alternative — `winch.position.set(0, 1.2, 2.3)` — is exactly the drift
+   * that left every rig in this game floating above the terrain by its ride
+   * height. A literal here would be the same mistake at a smaller scale.
+   */
+  private buildModuleForm(mount: RigModuleMount): THREE.Group {
+    const group = new THREE.Group();
+    group.name = `module:${mount.moduleId}`;
+    const { width, height, depth } = mount;
+
+    switch (mount.moduleId) {
+      case "winch": {
+        // A drum lying across the nose, between two end plates, with a fairlead
+        // and a hook — the parts that read as "this can pull something".
+        //
+        // `rotation.z = π/2` lays the cylinder axis along x, which puts its radial
+        // extent into *both* y and z, so the radius is bounded by the narrower of
+        // the two — not by `height` alone. Taking the plates from `height * 0.46`
+        // put them 2.8 cm outside a box whose depth is smaller than its height.
+        const crossRadius = Math.min(height, depth) * 0.5;
+        const drum = cylinder(
+          crossRadius * 0.84,
+          crossRadius * 0.84,
+          width * 0.58,
+          14,
+          0x6f7a72,
+        );
+        drum.rotation.z = Math.PI / 2;
+        group.add(drum);
+        for (const side of [-1, 1] as const) {
+          const plate = cylinder(
+            crossRadius * 0.96,
+            crossRadius * 0.96,
+            width * 0.06,
+            14,
+            0x3d443f,
+          );
+          plate.rotation.z = Math.PI / 2;
+          plate.position.x = side * width * 0.32;
+          group.add(plate);
+        }
+        const fairlead = box(
+          width * 0.82,
+          height * 0.2,
+          depth * 0.34,
+          0x2f342f,
+        );
+        fairlead.position.set(0, height * 0.34, depth * 0.3);
+        const hook = box(width * 0.12, height * 0.3, depth * 0.3, 0xc9a94f);
+        hook.position.set(0, -height * 0.26, depth * 0.28);
+        group.add(fairlead, hook);
+        break;
+      }
+      case "survey-mast": {
+        // Slim tower, three rungs, sensor head, dish. The rungs matter: a bare
+        // pole at this width reads as an aerial, not as instrumentation worth 7.
+        //
+        // The mount box is deliberately much wider than the pole (see
+        // `RIG_MODULE_FORMS`): the head and dish are the widest parts of this form,
+        // and a box sized to the pole cannot contain them. x is the free axis on the
+        // hull top, so the box takes its room there and the ratios below shrink to
+        // match — the rendered silhouette is the one authored when the box was
+        // pole-sized, but now every part of it is inside.
+        const pole = cylinder(
+          width * 0.052,
+          width * 0.068,
+          height * 0.9,
+          8,
+          0x8d9490,
+        );
+        pole.position.y = -height * 0.05;
+        group.add(pole);
+        for (let rung = 0; rung < 3; rung += 1) {
+          const bar = box(width * 0.204, height * 0.014, depth * 0.78, 0x6d746f);
+          bar.position.y = height * (rung * 0.24 - 0.24);
+          group.add(bar);
+        }
+        // Square in plan, from whichever horizontal dimension is tighter, so the
+        // head reads as an instrument pod on any hull. At `depth * 1.5` it reached
+        // 4.1 cm into the tractor's cab across a mount box that clears the cab by
+        // 2.2 cm — the module was never the thing out of place, its geometry was.
+        const headSpan = Math.min(width * 0.393, depth * 0.96);
+        const head = box(headSpan, height * 0.07, headSpan, 0x2f3a40);
+        head.position.y = height * 0.44;
+        // The dish leans back, so its radius spends most of itself in y and only a
+        // quarter in z. Bounded by the box's half-width and by the room left above
+        // the dish's own centre: 0.49w binds on the tractor's tall box, 0.13h on the
+        // buggy's short one. `fitFormToEnvelope` is the guarantee for a hull whose
+        // proportions make some third axis bind instead.
+        const dishRadius = Math.min(width * 0.49, height * 0.13);
+        const dish = cylinder(
+          dishRadius,
+          width * 0.0786,
+          height * 0.05,
+          12,
+          0xd9d2bd,
+        );
+        dish.rotation.x = Math.PI * 0.42;
+        dish.position.y = height * 0.36;
+        group.add(head, dish);
+        break;
+      }
+      case "flotation-pontoons": {
+        // A sealed float: barrel along Z, capped both ends, on two brackets that
+        // reach back toward the hull so it reads as bolted on rather than welded.
+        //
+        // The barrel's radius is half the *narrower* of the box's two cross-section
+        // dimensions, so it is inscribed in the envelope on both rigs. Taking it
+        // from `height` alone made the float 1.9 cm wider than its box on the
+        // tractor, whose pontoon box is taller than it is wide.
+        const barrelRadius = Math.min(width, height) * 0.5;
+        const float = cylinder(
+          barrelRadius,
+          barrelRadius,
+          depth * 0.82,
+          12,
+          0xd8cdb0,
+        );
+        float.rotation.x = Math.PI / 2;
+        group.add(float);
+        // Brackets reach toward the hull, so the sign of the mount's x says which
+        // way is inboard. This is the only place a mirrored pair's two halves
+        // differ; everything else about them is symmetric by derivation.
+        const inboard = mount.x < 0 ? 1 : -1;
+        for (const end of [-1, 1] as const) {
+          const cap = cylinder(0.001, barrelRadius, depth * 0.09, 12, 0xb8ac8c);
+          cap.rotation.x = end * (Math.PI / 2);
+          cap.position.z = end * depth * 0.455;
+          group.add(cap);
+        }
+        const bracketWidth = width * 0.7;
+        for (const along of [-1, 1] as const) {
+          const bracket = box(
+            bracketWidth,
+            height * 0.16,
+            depth * 0.06,
+            0x4a4f49,
+          );
+          // Flush with the inboard face of the envelope, not `width * 0.42` from
+          // its centre: at that offset a bracket `width * 0.7` wide reached
+          // `width * 0.77` from centre — `width * 0.27` outside its own box, and
+          // the box is only `width * 0.19` clear of the rear tread band. That is
+          // the 3.4 cm the browser measured of pontoon inside tyre at every place
+          // and every steering angle, on a rig the garage sells both modules to.
+          bracket.position.set(
+            inboard * (width - bracketWidth) * 0.5,
+            height * 0.32,
+            along * depth * 0.3,
+          );
+          group.add(bracket);
+        }
+        break;
+      }
+      case "skid-plate": {
+        // Plate on top of its own envelope, ribs hanging under it — both inside
+        // the box, so the lowest point of the module is still the box's floor.
+        const plate = box(width, height * 0.5, depth, 0x77706a);
+        plate.position.y = height * 0.25;
+        group.add(plate);
+        for (let rib = 0; rib < 3; rib += 1) {
+          const runner = box(
+            width * 0.13,
+            height * 0.5,
+            depth * 0.94,
+            0x565b55,
+          );
+          runner.position.set((rib - 1) * width * 0.36, -height * 0.25, 0);
+          group.add(runner);
+        }
+        break;
+      }
+      case "low-range-gearing": {
+        // A transfer case: housing, output barrel, drain plug. No capability and
+        // no silhouette claim, so the read is close-up detail — "something was
+        // fitted here" — rather than a distant outline.
+        //
+        // The housing is held a hair shy of the envelope's depth so the output
+        // barrel can protrude from it and still be inside the box. Sizing both to
+        // the full depth and the barrel to `depth * 1.02` is how it protruded
+        // before, and it put 7 mm of barrel through each end of its own mount.
+        const housing = box(width, height * 0.72, depth * 0.94, 0x4d5250);
+        housing.position.y = height * 0.14;
+        const barrel = cylinder(
+          height * 0.26,
+          height * 0.26,
+          depth,
+          10,
+          0x6a7370,
+        );
+        barrel.rotation.x = Math.PI / 2;
+        barrel.position.y = -height * 0.22;
+        const plug = cylinder(
+          width * 0.07,
+          width * 0.07,
+          height * 0.08,
+          8,
+          0xc0a35a,
+        );
+        // Flush with the envelope floor, not `0.48` — the plug is `height * 0.08`
+        // long, so its own half-length has to come out of the offset.
+        plug.position.y = -height * 0.46;
+        group.add(housing, barrel, plug);
+        break;
+      }
+      case "lug-tires":
+        // Unreachable: `lug-tires` is wheel-mounted, so `rig-blockout.ts` derives
+        // no hull mount for it and `addLugTireVisual` owns its form. Named rather
+        // than defaulted so that adding a seventh module is a type error here.
+        break;
+    }
+
+    group.visible = false;
+    return group;
+  }
+
+  /**
+   * Shrink a module's form until it fits the box its mount derived, and record by
+   * how much.
+   *
+   * The guarantee, not the intent. `buildModuleForm` is supposed to author every
+   * form inside its envelope, and each form below does — but "inside" depends on
+   * the box's aspect ratio, and the tractor's and the buggy's hulls have different
+   * ones, so a single set of ratios cannot be checked by reading it. Two forms were
+   * outside their boxes when this was measured for the first time, and one of them
+   * had put the pontoon brackets 3.4 cm inside the rear tread at every place and
+   * every steering angle.
+   *
+   * Uniform, about the box centre, so proportions survive. Silent shrinkage would
+   * be its own defect — a module rendering smaller than authored with nothing to
+   * show it — so the factor is recorded and module-visual acceptance fails when a
+   * form needed more than a rounding error of it. The clamp is what makes every
+   * clearance `rig-blockout.test.ts` proves true of the rendered rig; the recorded
+   * factor is what stops the clamp from hiding an authoring mistake.
+   */
+  private fitFormToEnvelope(group: THREE.Group, mount: RigModuleMount): number {
+    group.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(group);
+    if (box.isEmpty()) return 1;
+    const half = [mount.width / 2, mount.height / 2, mount.depth / 2] as const;
+    const reach = [
+      Math.max(Math.abs(box.min.x), Math.abs(box.max.x)),
+      Math.max(Math.abs(box.min.y), Math.abs(box.max.y)),
+      Math.max(Math.abs(box.min.z), Math.abs(box.max.z)),
+    ] as const;
+    let fit = 1;
+    for (let axis = 0; axis < 3; axis += 1) {
+      if (reach[axis]! > half[axis]!) {
+        fit = Math.min(fit, half[axis]! / reach[axis]!);
+      }
+    }
+    if (fit < 1) group.scale.setScalar(fit);
+    return fit;
+  }
+
+  /**
+   * Build every module visual this rig can carry, from its derived mounts.
+   *
+   * Driven entirely by `blockout.moduleMounts`, so a rig no module fits gets an
+   * empty record with no branch for it, and a module added to `MODULES` with a
+   * form appears on every rig that lists it in `fits` without touching the three
+   * rig builders.
+   */
+  private buildModuleVisuals(
+    body: THREE.Group,
+    blockout: RigBlockout,
+  ): Partial<Record<ModuleId, THREE.Object3D[]>> {
+    const visuals: Partial<Record<ModuleId, THREE.Object3D[]>> = {};
+    for (const mount of blockout.moduleMounts) {
+      const group = this.buildModuleForm(mount);
+      const fit = this.fitFormToEnvelope(group, mount);
+      group.position.set(mount.x, mount.y, mount.z);
+      // Recorded where it is known rather than inferred later. A hull bolt-on
+      // must not interpenetrate the rig; a wheel tread must. Module-visual
+      // evidence reads this to tell the two apart without restating which
+      // modules are wheel-mounted, which is knowledge `rig-blockout.ts` owns.
+      group.userData.moduleAnchor = "hull";
+      // The box the form promised to stay inside, carried on the group so the
+      // promise can be *measured* instead of trusted. `buildModuleForm`'s
+      // docblock claims that expressing every dimension as a ratio of the mount
+      // keeps the form inside the envelope; that claim is not true on its own — a
+      // radius of `height * 0.5` escapes a box narrower than it is tall, and a
+      // part positioned at `width * 0.42` with a half-extent of `width * 0.35`
+      // escapes by `width * 0.27`. Both of those were live, and the second put
+      // the tractor's pontoon brackets 3.4 cm inside its own rear tread.
+      group.userData.moduleEnvelope = {
+        width: mount.width,
+        height: mount.height,
+        depth: mount.depth,
+      };
+      // How much `fitFormToEnvelope` had to shrink the form to keep that promise.
+      // 1 means the form was authored to fit. Anything less means the clamp saved a
+      // clearance the blockout had already proved, and acceptance says so out loud
+      // rather than letting the module render quietly undersized.
+      group.userData.moduleEnvelopeFit = fit;
+      body.add(group);
+      (visuals[mount.moduleId] ??= []).push(group);
+    }
+    return visuals;
   }
 
   private buildStateShell(
@@ -2875,64 +3829,204 @@ export class GameRenderer {
     return model;
   }
 
+  /**
+   * Look up one authored bodywork volume by label, in GROUND-frame metres.
+   *
+   * The blockout owns where a cab is; this is how the renderer asks. Before, both
+   * owned it — the cab's size and position were literals in `createTractor` *and*
+   * entries in `RIG_SUPERSTRUCTURES`, which is a duplicated constant with the two
+   * copies in different files, the most durable form of drift there is. The
+   * blockout's copy is the one that has to be right, because module placement is
+   * derived from it, so the renderer reads from that and the literals are gone.
+   *
+   * Throws on an unknown label rather than returning a default. A silently-missing
+   * cab would draw a rig with a hole in it while every placement check still passed
+   * against the volume the model believes is there, which is worse than a crash on
+   * first load: the blockout would be reserving space for bodywork nobody can see.
+   */
+  private bodywork(blockout: RigBlockout, label: string): RigSuperstructureVolume {
+    const volume = blockout.superstructure.find((entry) => entry.label === label);
+    if (!volume) {
+      const known = blockout.superstructure.map((entry) => entry.label).join(", ");
+      throw new Error(
+        `${blockout.id} has no authored bodywork volume "${label}"; ` +
+          `RIG_SUPERSTRUCTURES declares [${known}]`,
+      );
+    }
+    return volume;
+  }
+
+  /**
+   * A bodywork box, sized and placed from the blockout's authored volume.
+   *
+   * The common case: most bodywork *is* a box, so the volume the placement search
+   * reasons about and the mesh a player sees are the same six numbers. Volumes
+   * whose real geometry is curved (the buggy's roll bar, the skimmer's prow) take
+   * the volume as their bounding box and invert its dimensions back into the
+   * curve's parameters at the call site — see `createBuggy`.
+   */
+  private bodyworkBox(
+    blockout: RigBlockout,
+    label: string,
+    color: number,
+    roughness?: number,
+    metalness?: number,
+  ): THREE.Mesh {
+    const volume = this.bodywork(blockout, label);
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(volume.width, volume.height, volume.depth),
+      material(color, roughness, metalness),
+    );
+    mesh.position.set(volume.x, volume.y, volume.z);
+    return mesh;
+  }
+
+  /**
+   * Build a rig's wheels from its blockout, in the simulation's wheel order.
+   *
+   * Both ground rigs previously ran their own copy of this loop with their own
+   * hand-written coordinates, which is how the tractor came to sample terrain at
+   * a footprint it never drew. Deriving from the blockout means the visible
+   * wheel and the simulated contact are the same point by construction.
+   *
+   * Mounts are added to `body`, the ground-frame group, so `restY` keeps its
+   * natural reading: a tyre of radius r centred at y = r touches y = 0.
+   */
+  private buildWheels(
+    body: THREE.Group,
+    blockout: RigBlockout,
+    hubColor: number,
+    hubRadiusScale: number,
+  ): {
+    wheels: THREE.Group[];
+    steeringPivots: THREE.Group[];
+    wheelRestY: number[];
+    wheelSpinScale: number[];
+    lugTireVisuals: THREE.Object3D[];
+  } {
+    const wheels: THREE.Group[] = [];
+    const steeringPivots: THREE.Group[] = [];
+    const wheelRestY: number[] = [];
+    const wheelSpinScale: number[] = [];
+    const lugTireVisuals: THREE.Object3D[] = [];
+
+    for (const mount of blockout.wheelMounts) {
+      const steeringPivot = new THREE.Group();
+      steeringPivot.name = `wheel-mount-${mount.label}`;
+      steeringPivot.position.set(mount.x, mount.restY, mount.z);
+      const spinPivot = new THREE.Group();
+      const wheel = cylinder(
+        mount.radius,
+        mount.radius,
+        mount.width,
+        14,
+        COLORS.tire,
+      );
+      // Named so ground-contact evidence can measure the tyre's rendered extent
+      // without counting module tread blocks that may not even be visible.
+      wheel.name = "tyre";
+      wheel.rotation.z = Math.PI / 2;
+      const hubRadius = mount.radius * hubRadiusScale;
+      const hub = cylinder(
+        hubRadius,
+        hubRadius,
+        mount.width * 1.06,
+        10,
+        hubColor,
+      );
+      hub.rotation.z = Math.PI / 2;
+      wheel.add(hub);
+      spinPivot.add(wheel);
+      lugTireVisuals.push(
+        this.addLugTireVisual(spinPivot, mount.radius, mount.width),
+      );
+      steeringPivot.add(spinPivot);
+      wheels.push(spinPivot);
+      steeringPivots.push(steeringPivot);
+      wheelRestY.push(mount.restY);
+      wheelSpinScale.push(mount.spinScale);
+      body.add(steeringPivot);
+    }
+
+    return {
+      wheels,
+      steeringPivots,
+      wheelRestY,
+      wheelSpinScale,
+      lugTireVisuals,
+    };
+  }
+
   private createTractor(): RigParts {
+    const blockout = blockoutFor("utility-tractor");
     const root = new THREE.Group();
     root.name = "persistent-rig";
     root.rotation.order = "YXZ";
+    // Everything below is authored in the ground frame; this carries the single
+    // conversion into the body frame the runtime mounts. See rig-blockout.ts.
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
     const cameraSocket = hoodCameraSocket("utility-tractor");
 
     const shadow = this.blobShadow(2.6, 0.3);
-    shadow.position.set(0, 0.04, -0.2);
+    shadow.position.set(0, blockout.shadowY, -0.2);
     shadow.scale.set(1, 1.65, 1);
 
-    const chassis = box(2.5, 0.7, 4.6, 0x4c3328);
-    chassis.position.y = 0.95;
-    const hood = box(2.1, 1.4, 2.6, COLORS.rust);
-    hood.position.set(0, 1.75, 1.2);
+    const chassis = box(
+      blockout.hull.width,
+      blockout.hull.height,
+      blockout.hull.depth,
+      0x4c3328,
+    );
+    chassis.position.y = blockout.hull.centreY;
+    // The surface hull-anchored modules bolt to. A bolt-on is *meant* to seat a
+    // centimetre or two into it — modelling a gap instead would read as a part
+    // floating off the machine — so module-visual evidence has to tell "seated
+    // against its mounting face" apart from "buried in the cab", which is a
+    // defect. Marked at the three places that build a chassis rather than
+    // inferred from a name or a position, so a rig rebuilt in a different shape
+    // keeps the distinction.
+    chassis.name = "chassis";
+    chassis.userData.moduleMountSurface = true;
+    // Bodywork from the blockout, not from literals here: the placement search
+    // reserves space against these volumes, so the volume it reserves and the mesh
+    // a player sees have to be the same numbers. Trim hangs off the volume it is
+    // attached to for the same reason — a grille pinned at z 2.55 while the hood it
+    // sits on moves is the drift this file exists to stop.
+    const hood = this.bodyworkBox(blockout, "hood", COLORS.rust);
     const grille = box(1.9, 1, 0.2, 0x292824);
-    grille.position.set(0, 1.7, 2.55);
-    const cab = box(2.4, 2.4, 2.1, COLORS.bone);
-    cab.position.set(0, 2.7, -1.05);
+    grille.position.set(0, hood.position.y - 0.05, hood.position.z + 1.35);
+    const cab = this.bodyworkBox(blockout, "cab", COLORS.bone);
+    const cabVolume = this.bodywork(blockout, "cab");
     const windscreen = new THREE.Mesh(
       new THREE.BoxGeometry(2.05, 1.2, 0.1),
       material(0x274d58, 0.3, 0.15),
     );
-    windscreen.position.set(0, 2.95, 0.02);
-    const roof = box(2.9, 0.22, 2.5, 0x8e3328);
-    roof.position.set(0, 4.05, -1.05);
+    // Proud of the cab's forward face by half its own thickness, so the glass reads
+    // as set into a frame rather than sunk behind one, and raised toward the
+    // roofline where a windscreen sits.
+    windscreen.position.set(
+      0,
+      cabVolume.y + 0.25,
+      cabVolume.z + cabVolume.depth / 2 + 0.05,
+    );
+    const roof = this.bodyworkBox(blockout, "roof", 0x8e3328);
+    const roofVolume = this.bodywork(blockout, "roof");
     const beacon = cylinder(0.2, 0.28, 0.4, 10, 0xe7a63b);
-    beacon.position.set(0.7, 4.4, -1);
+    // Standing on the roof, so it rises with the roof rather than through it.
+    beacon.position.set(0.7, roofVolume.y + roofVolume.height / 2 + 0.24, roofVolume.z + 0.05);
     const exhaust = cylinder(0.13, 0.17, 2.4, 8, 0x2d2d29);
     exhaust.position.set(-0.68, 2.9, 1.4);
 
-    const wheels: THREE.Group[] = [];
-    const steeringPivots: THREE.Group[] = [];
-    const wheelRestY: number[] = [];
-    const lugTireVisuals: THREE.Object3D[] = [];
-    // Physics order: front-left, front-right, rear-left, rear-right.
-    const layout: ReadonlyArray<readonly [number, number, number]> = [
-      [-1.36, 1.65, 0.62],
-      [1.36, 1.65, 0.62],
-      [-1.5, -1.25, 1.05],
-      [1.5, -1.25, 1.05],
-    ];
-    for (const [x, z, radius] of layout) {
-      const steeringPivot = new THREE.Group();
-      steeringPivot.position.set(x, radius, z);
-      const spinPivot = new THREE.Group();
-      const wheel = cylinder(radius, radius, 0.66, 14, COLORS.tire);
-      wheel.rotation.z = Math.PI / 2;
-      const hub = cylinder(radius * 0.44, radius * 0.44, 0.7, 10, COLORS.gold);
-      hub.rotation.z = Math.PI / 2;
-      wheel.add(hub);
-      spinPivot.add(wheel);
-      lugTireVisuals.push(this.addLugTireVisual(spinPivot, radius, 0.66));
-      steeringPivot.add(spinPivot);
-      wheels.push(spinPivot);
-      steeringPivots.push(steeringPivot);
-      wheelRestY.push(radius);
-      root.add(steeringPivot);
-    }
+    const {
+      wheels,
+      steeringPivots,
+      wheelRestY,
+      wheelSpinScale,
+      lugTireVisuals,
+    } = this.buildWheels(body, blockout, COLORS.gold, 0.44);
 
     const ploughPivot = new THREE.Group();
     ploughPivot.position.set(0, 1, -2.5);
@@ -2946,13 +4040,13 @@ export class GameRenderer {
       );
       lens.rotation.x = Math.PI / 2;
       lens.position.set(x, 1.85, 2.66);
-      root.add(lens);
+      body.add(lens);
     }
     // A spotlight aimed forward, so night driving actually lights the road ahead.
     const headlights = new THREE.SpotLight(0xffd58a, 0, 46, 0.62, 0.45, 1.2);
     headlights.position.set(0, 2.1, 2.6);
     headlights.target.position.set(0, 0, 22);
-    root.add(headlights.target);
+    body.add(headlights.target);
 
     const { mesh: stateShell, material: stateShellMaterial } =
       this.buildStateShell(3.2, 2.8, 5.2, 0xe89d43);
@@ -2967,7 +4061,7 @@ export class GameRenderer {
     const steeringColumn = this.steeringControl(0.42, 0x30302c, -0.62);
     steeringColumn.position.set(0, 2.72, -0.55);
 
-    root.add(
+    body.add(
       shadow,
       chassis,
       hood,
@@ -2985,11 +4079,16 @@ export class GameRenderer {
     );
     return {
       root,
+      body,
       hoodCameraSocket: cameraSocket,
       wheels,
       steeringPivots,
       wheelRestY,
-      moduleVisuals: { "lug-tires": lugTireVisuals },
+      wheelSpinScale,
+      moduleVisuals: {
+        ...this.buildModuleVisuals(body, blockout),
+        "lug-tires": lugTireVisuals,
+      },
       ploughPivot,
       headlights,
       frontMarker: grille,
@@ -3001,57 +4100,61 @@ export class GameRenderer {
 
   /** The toy buggy, built front-forward: nose and lights at +Z, tow hook at −Z. */
   private createBuggy(): RigParts {
+    const blockout = blockoutFor("toy-buggy");
     const root = new THREE.Group();
     root.name = "toy-buggy";
     root.rotation.order = "YXZ";
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
     const cameraSocket = hoodCameraSocket("toy-buggy");
 
     const shadow = this.blobShadow(2.1, 0.26);
-    shadow.position.y = 0.04;
+    shadow.position.y = blockout.shadowY;
     shadow.scale.set(1, 1.45, 1);
 
-    const chassis = box(2.4, 0.42, 3.4, 0x283d45);
-    chassis.position.y = 0.62;
-    const nose = box(2.15, 0.62, 1.4, 0xe1ad52);
-    nose.position.set(0, 0.95, 1.15);
-    const cockpit = new THREE.Mesh(
-      new THREE.BoxGeometry(1.7, 0.6, 1.35),
-      material(0x315f6b, 0.28, 0.12),
+    const chassis = box(
+      blockout.hull.width,
+      blockout.hull.height,
+      blockout.hull.depth,
+      0x283d45,
     );
-    cockpit.position.set(0, 1.15, -0.55);
+    chassis.position.y = blockout.hull.centreY;
+    // The mounting face for hull-anchored modules; see `createTractor`.
+    chassis.name = "chassis";
+    chassis.userData.moduleMountSurface = true;
+    const nose = this.bodyworkBox(blockout, "nose", 0xe1ad52);
+    const cockpit = this.bodyworkBox(blockout, "cockpit", 0x315f6b, 0.28, 0.12);
+    // The roll bar keeps its curve; only its *size* comes from the blockout. A
+    // half-torus of major radius R and tube t bounds to `2(R+t) × (R+t) × 2t`, so
+    // the authored box inverts cleanly: `R + t = width / 2` and `t = depth / 2`.
+    // That is the whole point of boxing it in `RIG_SUPERSTRUCTURES` — the placement
+    // search needs the space it denies, the player needs the arc, and neither has to
+    // restate the other's numbers.
+    const rollBarVolume = this.bodywork(blockout, "roll bar");
+    const rollBarTube = rollBarVolume.depth / 2;
+    const rollBarRadius = rollBarVolume.width / 2 - rollBarTube;
     const rollBar = new THREE.Mesh(
-      new THREE.TorusGeometry(0.85, 0.1, 6, 16, Math.PI),
+      new THREE.TorusGeometry(rollBarRadius, rollBarTube, 6, 16, Math.PI),
       material(COLORS.bone),
     );
-    rollBar.position.set(0, 1.5, -0.7);
+    // Spun so the arc opens downward, which puts its centre on the volume's floor
+    // rather than at the volume's centre.
+    rollBar.position.set(
+      rollBarVolume.x,
+      rollBarVolume.y - rollBarVolume.height / 2,
+      rollBarVolume.z,
+    );
     rollBar.rotation.z = Math.PI;
 
-    const wheels: THREE.Group[] = [];
-    const steeringPivots: THREE.Group[] = [];
-    const wheelRestY: number[] = [];
-    const lugTireVisuals: THREE.Object3D[] = [];
-    for (const [x, z] of [
-      [-1.45, 1.1],
-      [1.45, 1.1],
-      [-1.45, -1.1],
-      [1.45, -1.1],
-    ] as const) {
-      const steeringPivot = new THREE.Group();
-      steeringPivot.position.set(x, 0.56, z);
-      const spinPivot = new THREE.Group();
-      const wheel = cylinder(0.56, 0.56, 0.46, 12, COLORS.tire);
-      wheel.rotation.z = Math.PI / 2;
-      const hub = cylinder(0.23, 0.23, 0.5, 8, COLORS.cyan);
-      hub.rotation.z = Math.PI / 2;
-      wheel.add(hub);
-      spinPivot.add(wheel);
-      lugTireVisuals.push(this.addLugTireVisual(spinPivot, 0.56, 0.46));
-      steeringPivot.add(spinPivot);
-      wheels.push(spinPivot);
-      steeringPivots.push(steeringPivot);
-      wheelRestY.push(0.56);
-      root.add(steeringPivot);
-    }
+    const {
+      wheels,
+      steeringPivots,
+      wheelRestY,
+      wheelSpinScale,
+      lugTireVisuals,
+    } = this.buildWheels(body, blockout, COLORS.cyan, 0.41);
 
     const towHook = cylinder(0.12, 0.16, 0.6, 8, COLORS.gold);
     towHook.rotation.x = Math.PI / 2;
@@ -3065,12 +4168,12 @@ export class GameRenderer {
       );
       lens.rotation.x = Math.PI / 2;
       lens.position.set(x, 1, 1.9);
-      root.add(lens);
+      body.add(lens);
     }
     const headlights = new THREE.SpotLight(0xc8f8ff, 0, 38, 0.55, 0.4, 1.3);
     headlights.position.set(0, 1.1, 1.9);
     headlights.target.position.set(0, 0, 20);
-    root.add(headlights.target);
+    body.add(headlights.target);
 
     const { mesh: stateShell, material: stateShellMaterial } =
       this.buildStateShell(2.4, 1.8, 4.2, 0xd9aa52);
@@ -3082,7 +4185,7 @@ export class GameRenderer {
     const steeringColumn = this.steeringControl(0.3, 0x1f3b44, -0.78);
     steeringColumn.position.set(0, 1.42, -0.3);
 
-    root.add(
+    body.add(
       shadow,
       chassis,
       nose,
@@ -3096,11 +4199,16 @@ export class GameRenderer {
     );
     return {
       root,
+      body,
       hoodCameraSocket: cameraSocket,
       wheels,
       steeringPivots,
       wheelRestY,
-      moduleVisuals: { "lug-tires": lugTireVisuals },
+      wheelSpinScale,
+      moduleVisuals: {
+        ...this.buildModuleVisuals(body, blockout),
+        "lug-tires": lugTireVisuals,
+      },
       ploughPivot: null,
       headlights,
       frontMarker: nose,
@@ -3116,39 +4224,82 @@ export class GameRenderer {
    * Its silhouette exposes the mobility contract: sealed pontoons, a flexible
    * lift skirt, and twin rear fans instead of decorative wheels. Presentation
    * must not imply ground contacts the simulation does not own.
+   *
+   * Authored in the GROUND frame like the other rigs, so every height below
+   * reads as metres above the marsh. It previously sat in a frame of its own —
+   * y = 0 at the body origin, with the ground assumed 0.72 m below rather than
+   * the profile's 1.35 — which left its blob shadow hovering 0.63 m in the air
+   * and its lift skirt stopping 0.27 m short of the cushion it rides on.
    */
   private createSkimmer(): RigParts {
+    const blockout = blockoutFor("marsh-skimmer");
     const root = new THREE.Group();
     root.name = "marsh-skimmer";
     root.rotation.order = "YXZ";
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
     const cameraSocket = hoodCameraSocket("marsh-skimmer");
 
     const shadow = this.blobShadow(2.6, 0.22);
-    shadow.position.y = -0.72;
+    shadow.position.y = blockout.shadowY;
     shadow.scale.set(1.2, 1.75, 1);
 
+    // A lift skirt has to flare past the deck to trap its cushion, and taper
+    // inward as it rises. Both are art, so both are ratios of derived extents:
+    // retuning the profile widens the skirt with the hull instead of stranding
+    // it at a hand-written radius.
+    const skirtGeometry = blockout.hoverSkirt!;
+    const skirtBottomRadius = (blockout.hull.width / 2) * 1.29;
     const skirt = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.15, 2.45, 0.62, 12),
+      new THREE.CylinderGeometry(
+        skirtBottomRadius * 0.88,
+        skirtBottomRadius,
+        skirtGeometry.height,
+        12,
+      ),
       material(0x242a2b, 0.95, 0),
     );
-    skirt.scale.z = 1.45;
-    skirt.position.y = -0.22;
+    skirt.name = "hover-skirt";
+    skirt.scale.z = blockout.hull.depth / blockout.hull.width;
+    skirt.position.y = skirtGeometry.centreY;
 
-    const deck = box(3.8, 0.42, 5.1, 0x315861);
-    deck.position.y = 0.28;
+    const deck = box(
+      blockout.hull.width,
+      blockout.hull.height,
+      blockout.hull.depth,
+      0x315861,
+    );
+    deck.position.y = blockout.hull.centreY;
+    // The skimmer is sold no modules today, so nothing bolts to this deck. Marked
+    // anyway: the moment a module lists `marsh-skimmer` in `fits`, its mount
+    // surface has to already be declared or the geometry check reads a legitimate
+    // seating as a foul.
+    deck.name = "chassis";
+    deck.userData.moduleMountSurface = true;
+    // Like the buggy's roll bar, the prow keeps its cone and takes its size from the
+    // blockout's bounding box. A 4-sided cone spun 45° presents corner-to-corner, so
+    // its bounding width is the full diagonal — `radius = width / 2` — and its own
+    // length lies along z once it is laid down, giving `height = depth`.
+    const prowVolume = this.bodywork(blockout, "prow");
     const prow = new THREE.Mesh(
-      new THREE.ConeGeometry(1.82, 2.1, 4),
+      new THREE.ConeGeometry(prowVolume.width / 2, prowVolume.depth, 4),
       material(COLORS.cyan, 0.58, 0.16),
     );
     prow.rotation.x = Math.PI / 2;
     prow.rotation.z = Math.PI / 4;
-    prow.position.set(0, 0.48, 3.05);
-    const cabin = box(2.45, 1.25, 2.1, COLORS.bone);
-    cabin.position.set(0, 1.12, 0.35);
+    prow.position.set(prowVolume.x, prowVolume.y, prowVolume.z);
+    const cabin = this.bodyworkBox(blockout, "cabin", COLORS.bone);
+    const cabinVolume = this.bodywork(blockout, "cabin");
     const windscreen = box(2.1, 0.58, 0.12, 0x234d5a);
-    windscreen.position.set(0, 1.35, 1.43);
-    const roof = box(2.8, 0.18, 2.35, COLORS.rust);
-    roof.position.set(0, 1.83, 0.28);
+    // On the cabin's forward face, in its upper half where a screen belongs.
+    windscreen.position.set(
+      0,
+      cabinVolume.y + 0.23,
+      cabinVolume.z + cabinVolume.depth / 2 + 0.03,
+    );
+    const roof = this.bodyworkBox(blockout, "roof", COLORS.rust);
 
     const pontoonMaterial = material(0x476f75, 0.66, 0.14);
     for (const x of [-1.72, 1.72]) {
@@ -3157,14 +4308,14 @@ export class GameRenderer {
         pontoonMaterial,
       );
       pontoon.rotation.x = Math.PI / 2;
-      pontoon.position.set(x, 0.15, 0.05);
-      root.add(pontoon);
+      pontoon.position.set(x, 1.22, 0.05);
+      body.add(pontoon);
     }
 
     const fanMaterial = material(0x26383c, 0.62, 0.25);
     for (const x of [-0.92, 0.92]) {
       const fan = new THREE.Group();
-      fan.position.set(x, 1.28, -2.35);
+      fan.position.set(x, 2.35, -2.35);
       const ring = new THREE.Mesh(
         new THREE.TorusGeometry(0.66, 0.1, 8, 18),
         fanMaterial,
@@ -3175,12 +4326,12 @@ export class GameRenderer {
       const bladeB = bladeA.clone();
       bladeB.rotation.z = Math.PI / 2;
       fan.add(ring, hub, bladeA, bladeB);
-      root.add(fan);
+      body.add(fan);
     }
 
     const towHook = cylinder(0.12, 0.16, 0.62, 8, COLORS.gold);
     towHook.rotation.x = Math.PI / 2;
-    towHook.position.set(0, 0.1, -3);
+    towHook.position.set(0, 1.17, -3);
 
     const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xbdfaff });
     for (const x of [-0.72, 0.72]) {
@@ -3189,19 +4340,19 @@ export class GameRenderer {
         lightMaterial,
       );
       lens.rotation.x = Math.PI / 2;
-      lens.position.set(x, 0.68, 3.45);
-      root.add(lens);
+      lens.position.set(x, 1.75, 3.45);
+      body.add(lens);
     }
     const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
-    headlights.position.set(0, 0.78, 3.3);
-    headlights.target.position.set(0, -0.25, 23);
-    root.add(headlights.target);
+    headlights.position.set(0, 1.85, 3.3);
+    headlights.target.position.set(0, 0.82, 23);
+    body.add(headlights.target);
 
     const { mesh: stateShell, material: stateShellMaterial } =
       this.buildStateShell(4.2, 2.2, 6.2, 0x6bc9c4);
-    stateShell.position.set(0, 0.8, 0.2);
+    stateShell.position.set(0, 1.87, 0.2);
 
-    root.add(
+    body.add(
       shadow,
       skirt,
       deck,
@@ -3216,11 +4367,16 @@ export class GameRenderer {
     );
     return {
       root,
+      body,
       hoodCameraSocket: cameraSocket,
       wheels: [],
       steeringPivots: [],
       wheelRestY: [],
-      moduleVisuals: {},
+      wheelSpinScale: [],
+      // Empty in practice, because no module in `MODULES` fits the skimmer — but
+      // derived rather than hard-coded `{}`, so writing one for it is a data
+      // change in `contracts.ts` and not a renderer change here.
+      moduleVisuals: this.buildModuleVisuals(body, blockout),
       ploughPivot: null,
       headlights,
       frontMarker: prow,
@@ -3298,6 +4454,37 @@ export class GameRenderer {
     }
   }
 
+  private updateCropVisuals(state: GameState): void {
+    const harvest = state.harvest;
+    const totalRows = harvest.totalRows;
+    const CROP_ROW_IDS = [
+      "furrow-crop-row-0",
+      "furrow-crop-row-1",
+      "furrow-crop-row-2",
+      "furrow-crop-row-3",
+    ] as const;
+    for (let i = 0; i < CROP_ROW_IDS.length; i++) {
+      const mesh = this.scene.getObjectByName(CROP_ROW_IDS[i]!) as
+        THREE.Mesh | undefined;
+      if (!mesh) continue;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      const rowThreshold = totalRows - (CROP_ROW_IDS.length - i);
+      if (harvest.delivered) {
+        mat.color.setHex(0x9aaa7e);
+        mesh.scale.y = 0.3;
+      } else if (harvest.stormArrived && !harvest.delivered) {
+        mat.color.setHex(0x5a4a2a);
+        mesh.scale.y = 0.15;
+      } else if (harvest.cultivatedRows > rowThreshold) {
+        mat.color.setHex(0xb09830);
+        mesh.scale.y = 0.8;
+      } else {
+        mat.color.setHex(i % 2 === 0 ? 0x8baa4e : 0x7a9a3e);
+        mesh.scale.y = 1;
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Presentation state
   // ---------------------------------------------------------------------------
@@ -3335,7 +4522,8 @@ export class GameRenderer {
     if (phase === "day") {
       this.scene.background = new THREE.Color(0xbfd5c5);
       (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0xbfd5c5);
-      this.scene.fog = new THREE.FogExp2(0xbfd5c5, 0.0052);
+      this.phaseBaseFogDensity = 0.0052;
+      this.scene.fog = new THREE.FogExp2(0xbfd5c5, this.phaseBaseFogDensity);
       this.sun.color.setHex(0xffdeb0);
       this.sun.intensity = 2.5;
       this.hemisphere.intensity = 1.6;
@@ -3345,7 +4533,8 @@ export class GameRenderer {
     } else if (phase === "gloam") {
       this.scene.background = new THREE.Color(0x9d6b50);
       (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0x9d6b50);
-      this.scene.fog = new THREE.FogExp2(0x9d6b50, 0.0058);
+      this.phaseBaseFogDensity = 0.0058;
+      this.scene.fog = new THREE.FogExp2(0x9d6b50, this.phaseBaseFogDensity);
       this.sun.color.setHex(0xff9d66);
       this.sun.intensity = 1.3;
       this.hemisphere.intensity = 0.9;
@@ -3355,7 +4544,11 @@ export class GameRenderer {
     } else {
       this.scene.background = new THREE.Color(COLORS.night);
       (this.sky.material as THREE.MeshBasicMaterial).color.setHex(COLORS.night);
-      this.scene.fog = new THREE.FogExp2(COLORS.night, 0.007);
+      this.phaseBaseFogDensity = 0.007;
+      this.scene.fog = new THREE.FogExp2(
+        COLORS.night,
+        this.phaseBaseFogDensity,
+      );
       this.sun.color.setHex(0x86a8d6);
       this.sun.intensity = 0.35;
       this.hemisphere.intensity = 0.45;
@@ -3363,6 +4556,80 @@ export class GameRenderer {
       for (const rig of this.rigs.values()) rig.headlights.intensity = 150;
       if (stars) stars.visible = true;
     }
+  }
+
+  /**
+   * Feed the current weather state into the scene.
+   *
+   * The renderer treats weather as a *signal* rather than a parallel palette:
+   * `setWeather` stores the rain target and fog density the weather clock wants,
+   * and `render()` eases `currentRain` toward it each frame. Fog colour stays
+   * welded to the phase background (the invariant documented on `updatePhase`);
+   * weather only thickens density above the phase's own base, so clear weather
+   * is indistinguishable from no weather and rain/storm visibly close in the
+   * view distance.
+   */
+  setWeather(weather: WeatherState): void {
+    this.weatherTargetRain = weather.rainIntensity;
+    this.weatherFogTarget = weather.fogDensity;
+    this.weatherPhase = weather.phase;
+  }
+
+  /**
+   * Ease weather into the scene once per frame using the active rig as the
+   * rain cloud's centre of reference. Runs every render even when dry so the
+   * eased value can settle back toward 0 rather than stalling mid-fade.
+   */
+  private updateWeather(rigX: number, rigZ: number, delta: number): void {
+    const ease = Math.min(1, delta * 1.6);
+    this.currentRain += (this.weatherTargetRain - this.currentRain) * ease;
+    if (this.currentRain < 0.001) this.currentRain = 0;
+
+    const fog = this.scene.fog;
+    if (fog instanceof THREE.FogExp2) {
+      const target =
+        this.currentRain > 0.01
+          ? Math.max(this.phaseBaseFogDensity, this.weatherFogTarget)
+          : this.phaseBaseFogDensity;
+      fog.density += (target - fog.density) * ease;
+    }
+
+    const rain = this.rainPoints;
+    const rainPositions = this.rainPositions;
+    if (!rain || !rainPositions) return;
+    const material = rain.material as THREE.PointsMaterial;
+    material.opacity = this.currentRain * 0.5;
+    if (this.currentRain <= 0.01) {
+      if (rain.visible) rain.visible = false;
+      return;
+    }
+    if (!rain.visible) rain.visible = true;
+
+    // Re-anchor the cloud on the rig and drift the streaks downward so the
+    // precipitation visibly falls rather than hanging in place.
+    rain.position.set(rigX, 0, rigZ);
+    const fallStep = 4.2 * delta;
+    const positions = rainPositions;
+    for (let index = 0; index < positions.length; index += 3) {
+      positions[index + 1]! -= fallStep;
+      // Never let a streak fall through the ground plane; wrap it to the top
+      // of the cloud so the density in view stays constant.
+      if (positions[index + 1]! < -20) {
+        positions[index + 1]! += 40;
+      }
+    }
+    const attribute = rain.geometry.getAttribute("position");
+    attribute.needsUpdate = true;
+  }
+
+  /**
+   * Mark whether a dialogue beat is on screen. The camera eases toward a
+   * narrower field of view while active and releases it on close; this is
+   * the "camera reframes for a character moment" cue the mechanical
+   * shake/flare/toast feedback deliberately does not use.
+   */
+  setNarrativeFocus(active: boolean): void {
+    this.narrativeFocusTarget = active ? 1 : 0;
   }
 
   /** Register an impact so the camera can react to it. */
@@ -3421,11 +4688,20 @@ export class GameRenderer {
     }
 
     this.updateFurrows(state);
+    this.updateCropVisuals(state);
     this.updateInfrastructureWater(state);
     this.updateInfrastructureProps(state, delta);
 
     const activeRigState = state.rigs[state.activeRigId];
+    this.updateWeather(activeRigState.x, activeRigState.z, delta);
     const profile = effectiveProfile(activeRigState.id, activeRigState.modules);
+
+    // Storm clouds darken as the weather progresses.
+    this.updateStormClouds(
+      this.weatherPhase,
+      this.weatherTargetRain,
+      state.elapsedMs,
+    );
 
     // Terrain mesh follows the height field when the plough changes it.
     // Gate on the terrain's mutation revision, never on its cell count. Deepening
@@ -3479,6 +4755,7 @@ export class GameRenderer {
 
     this.syncHabitatLife(state);
     this.animateHabitatLife(state.elapsedMs);
+    this.animateSignalBeams(state.elapsedMs);
 
     if (
       Math.hypot(
@@ -3600,7 +4877,9 @@ export class GameRenderer {
     );
     const communityTraffic = this.scene.getObjectByName("community-traffic");
     communityTraffic?.children.forEach((vehicle) => {
-      const traffic = communityTrafficById.get(vehicle.userData.trafficId as string);
+      const traffic = communityTrafficById.get(
+        vehicle.userData.trafficId as string,
+      );
       vehicle.visible = traffic !== undefined;
       if (!traffic) return;
       vehicle.position.set(
@@ -3612,13 +4891,16 @@ export class GameRenderer {
       vehicle.rotation.y = traffic.heading;
     });
 
-    const settlementCargoBays = this.scene.getObjectByName("settlement-cargo-bays");
+    const settlementCargoBays = this.scene.getObjectByName(
+      "settlement-cargo-bays",
+    );
     settlementCargoBays?.children.forEach((bay) => {
       const manifestId = bay.userData.manifestId as string;
       const manifest = SETTLEMENT_CARGO_MANIFESTS.find(
         (candidate) => candidate.id === manifestId,
       );
-      bay.visible = manifest !== undefined &&
+      bay.visible =
+        manifest !== undefined &&
         isSettlementCargoManifestAvailable(state, manifest);
     });
 
@@ -3644,11 +4926,13 @@ export class GameRenderer {
       if (residents) {
         const life = settlementLifeBySite.get(site.id);
         const anchors = settlementResidentAnchors(site.id);
-        residents.visible = siteKnown && life !== undefined && life.residents.length > 0;
+        residents.visible =
+          siteKnown && life !== undefined && life.residents.length > 0;
         residents.children.forEach((resident, index) => {
           const plan = life?.residents[index];
           const anchor = anchors[index];
-          resident.visible = siteKnown && plan !== undefined && anchor !== undefined;
+          resident.visible =
+            siteKnown && plan !== undefined && anchor !== undefined;
           if (!plan || !anchor) return;
           resident.position.set(
             anchor.x + plan.offsetX,
@@ -3683,7 +4967,9 @@ export class GameRenderer {
       );
       if (adaptations) {
         const active = new Set(
-          settlementLifeBySite.get(site.id)?.adaptations.map((adaptation) => adaptation.id) ?? [],
+          settlementLifeBySite
+            .get(site.id)
+            ?.adaptations.map((adaptation) => adaptation.id) ?? [],
         );
         adaptations.children.forEach((adaptation) => {
           adaptation.visible =
@@ -3706,7 +4992,7 @@ export class GameRenderer {
             ? siteKnown
               ? SIGNAL_LAMP_DARK
               : ((group?.userData.signalLitColor as number | undefined) ??
-                  SIGNAL_LAMP_DARK)
+                SIGNAL_LAMP_DARK)
             : operating
               ? (settlementColor ?? COLORS.cyan)
               : 0xe45b4f,
@@ -3719,7 +5005,7 @@ export class GameRenderer {
         settlementColor ??
           (siteKnown
             ? SIGNAL_LAMP_DARK
-          : ((group?.userData.signalLitColor as number | undefined) ??
+            : ((group?.userData.signalLitColor as number | undefined) ??
               SIGNAL_LAMP_DARK)),
       );
     }
@@ -4059,7 +5345,7 @@ export class GameRenderer {
 
     // Speed opens the field of view slightly; reduced-motion removes the
     // presentation-only expansion while retaining the chosen camera policy.
-    const targetFov =
+    const baseFov =
       state.cameraMode === "chase"
         ? 52 + feedback.speedFovBoost
         : state.cameraMode === "hood"
@@ -4069,6 +5355,10 @@ export class GameRenderer {
             : state.cameraMode === "top-down"
               ? 46
               : 52;
+    this.narrativeFocus +=
+      (this.narrativeFocusTarget - this.narrativeFocus) *
+      (1 - Math.exp(-3 * delta));
+    const targetFov = baseFov - this.narrativeFocus * 5;
     if (Math.abs(this.camera.fov - targetFov) > 0.05) {
       this.camera.fov +=
         (targetFov - this.camera.fov) * (1 - Math.exp(-4 * delta));
@@ -4145,9 +5435,7 @@ export class GameRenderer {
           .expandByScalar(0.35)
           .containsPoint(localPoint)
       ) {
-        intersectionPart =
-          object.name ||
-          `${object.geometry.type}@${object.position.x.toFixed(2)},${object.position.y.toFixed(2)},${object.position.z.toFixed(2)}`;
+        intersectionPart = partLabel(object);
       }
     });
     return intersectionPart;
@@ -4160,6 +5448,35 @@ export class GameRenderer {
       );
     }
     return { ...this.cameraResolution };
+  }
+
+  /**
+   * Report the scene's live weather presentation for browser evidence.
+   *
+   * Returns the eased rain value, the delivered exp-2 fog density (versus the
+   * phase's base), and the rain point cloud's visibility/opacity, so an
+   * acceptance script can assert that weather actually reached the 3D scene —
+   * not just the CSS shell.
+   */
+  weatherSceneEvidence(): {
+    easedRain: number;
+    fogDensity: number;
+    phaseBaseFogDensity: number;
+    rainVisible: boolean;
+    rainOpacity: number;
+  } {
+    const rain = this.rainPoints;
+    const material = rain?.material as THREE.PointsMaterial | undefined;
+    return {
+      easedRain: Number(this.currentRain.toFixed(3)),
+      fogDensity:
+        this.scene.fog instanceof THREE.FogExp2
+          ? Number(this.scene.fog.density.toFixed(4))
+          : 0,
+      phaseBaseFogDensity: this.phaseBaseFogDensity,
+      rainVisible: rain?.visible ?? false,
+      rainOpacity: material ? Number(material.opacity.toFixed(3)) : 0,
+    };
   }
 
   runtimeBridgeEvidenceFor(assetId: string): RuntimeAssetBridgeEvidence {
@@ -4261,6 +5578,471 @@ export class GameRenderer {
       heading: Number(rig.heading.toFixed(4)),
       frontAlongHeadingMetres: Number(frontAlongHeading.toFixed(3)),
       visualFrontIsForward: frontAlongHeading > 0,
+    };
+  }
+
+  /**
+   * Prove that the rendered rig is touching the rendered ground.
+   *
+   * Measures world-space geometry — the tyres' lowest points, the blob shadow,
+   * a hover skirt's lower edge — against the terrain directly beneath each, so
+   * it fails on a rig mounted in the wrong vertical frame. Authored-number tests
+   * cannot: they compare the model's constants with each other and agree.
+   *
+   * The tolerance is deliberately loose. Suspension travel, terrain
+   * interpolation between vertices, and a rig still settling all move a tyre off
+   * the surface legitimately by centimetres. The bug this exists to catch moved
+   * them by 0.62–1.35 m.
+   */
+  groundContactEvidence(
+    state: GameState,
+    rigId: RigId,
+  ): RigGroundContactEvidence {
+    const rig = state.rigs[rigId];
+    const parts = this.rigs.get(rigId);
+    if (!parts) throw new Error(`Missing rendered rig: ${rigId}`);
+    const profile = effectiveProfile(rig.id, rig.modules);
+
+    parts.root.updateWorldMatrix(true, true);
+    const scratch = new THREE.Vector3();
+    const bounds = new THREE.Box3();
+
+    /** Lowest rendered point of a part, and the terrain under its centre. */
+    const gapBelow = (part: THREE.Object3D): number => {
+      bounds.setFromObject(part);
+      bounds.getCenter(scratch);
+      return bounds.min.y - this.world.terrain.height(scratch.x, scratch.z);
+    };
+
+    const wheelContactGaps = parts.wheels.map((spinPivot) => {
+      const tyre = spinPivot.getObjectByName("tyre") ?? spinPivot;
+      return Number(gapBelow(tyre).toFixed(3));
+    });
+
+    const shadow = parts.root.getObjectByName("blob-shadow");
+    const shadowGap = shadow
+      ? Number(
+          (
+            shadow.getWorldPosition(scratch).y -
+            this.world.terrain.height(scratch.x, scratch.z)
+          ).toFixed(3),
+        )
+      : Number.NaN;
+
+    const skirt = parts.root.getObjectByName("hover-skirt");
+    const hoverSkirtGap = skirt ? Number(gapBelow(skirt).toFixed(3)) : null;
+
+    const worstWheelContactGap =
+      wheelContactGaps.length === 0
+        ? null
+        : wheelContactGaps.reduce(
+            (worst, gap) => (Math.abs(gap) > Math.abs(worst) ? gap : worst),
+            0,
+          );
+
+    // A shadow must sit on the surface. Tyres may ride a little on suspension.
+    // A hover skirt is *supposed* to be clear of the ground, so it is checked
+    // against the cushion it should hold rather than against zero.
+    const shadowOnGround =
+      Number.isFinite(shadowGap) && Math.abs(shadowGap) <= 0.25;
+    const wheelsOnGround =
+      worstWheelContactGap === null ||
+      Math.abs(worstWheelContactGap) <= profile.suspensionTravel + 0.25;
+    const skirtOnCushion =
+      hoverSkirtGap === null ||
+      Math.abs(hoverSkirtGap - profile.suspensionTravel) <= 0.3;
+
+    return {
+      rigId,
+      terrainY: Number(this.world.terrain.height(rig.x, rig.z).toFixed(3)),
+      bodyOriginY: Number(rig.y.toFixed(3)),
+      rideHeight: profile.rideHeight,
+      wheelContactGaps,
+      worstWheelContactGap,
+      shadowGap,
+      hoverSkirtGap,
+      contactsGround: shadowOnGround && wheelsOnGround && skirtOnCushion,
+    };
+  }
+
+  /**
+   * Measure what the player can see of the modules they bought.
+   *
+   * Three facts about a module visual live outside every table a unit test can
+   * read, and this is the only surface that reaches them:
+   *
+   *   1. The terrain's real height under the module, rather than the ground plane
+   *      the blockout assumes at y = 0.
+   *   2. The *rendered* form built inside the mount box, rather than the box.
+   *   3. The rig's hand-authored superstructure — `createTractor` sets its cab at
+   *      `(0, 2.7, -1.05)` as a literal, so `rig-blockout.ts` has no idea it is
+   *      there, and the survey mast passes straight through it for any
+   *      `zCentreScale` above about -0.47.
+   *
+   * "Solid rig part" reuses `userData.cameraSolid`, the marker the camera's own
+   * self-intersection test already uses to mean "opaque vehicle geometry". A
+   * second exclusion list would drift from that one; sharing it means marking the
+   * state shell non-solid once fixes both callers.
+   */
+  moduleVisualEvidence(
+    state: GameState,
+    rigId: RigId,
+  ): RigModuleVisualEvidence {
+    const rig = state.rigs[rigId];
+    const parts = this.rigs.get(rigId);
+    if (!parts) throw new Error(`Missing rendered rig parts: ${rigId}`);
+
+    parts.root.updateWorldMatrix(true, true);
+    const moduleGroups = new Set<THREE.Object3D>();
+    for (const visuals of Object.values(parts.moduleVisuals)) {
+      for (const visual of visuals ?? []) moduleGroups.add(visual);
+    }
+
+    /** True when this object is inside any module's group. */
+    const insideAModule = (object: THREE.Object3D): boolean => {
+      for (let node: THREE.Object3D | null = object; node; node = node.parent) {
+        if (moduleGroups.has(node)) return true;
+      }
+      return false;
+    };
+
+    /** True when `ancestor` is on this object's parent chain. */
+    const isUnder = (
+      object: THREE.Object3D,
+      ancestor: THREE.Object3D | null,
+    ): boolean => {
+      if (!ancestor) return false;
+      for (let node: THREE.Object3D | null = object; node; node = node.parent) {
+        if (node === ancestor) return true;
+      }
+      return false;
+    };
+
+    /**
+     * Every "is this inside that" test below runs in the rig body's own frame,
+     * not in world space.
+     *
+     * An axis-aligned box is only tight when the thing inside it is axis-aligned.
+     * Park the rig on a slope and the body picks up pitch and roll, every world
+     * AABB on it inflates, and two parts that are merely flush start reporting
+     * centimetres of penetration — the first survey of this surface showed the
+     * tractor's skid plate 23 cm "swallowed" on a hillside and 0 cm on the pad,
+     * for geometry that had not moved relative to the rig at all.
+     *
+     * Body-local is also the *meaningful* frame: modules, superstructure and
+     * wheels are all children of `body`, so their relationships are rigid there
+     * by construction, and the only motion that survives is the motion that is
+     * really happening — steering, suspension travel, the plough pivot. Terrain
+     * clearance stays in world space, because the ground is not in this frame.
+     */
+    parts.body.updateWorldMatrix(true, true);
+    const toBodyLocal = new THREE.Matrix4().copy(parts.body.matrixWorld).invert();
+    const localMatrix = new THREE.Matrix4();
+    const localBox = (mesh: THREE.Mesh): THREE.Box3 | null => {
+      const geometry = mesh.geometry;
+      if (!geometry.boundingBox) geometry.computeBoundingBox();
+      if (!geometry.boundingBox) return null;
+      const box = new THREE.Box3().copy(geometry.boundingBox);
+      // `Box3.applyMatrix4` rebuilds the box from the eight transformed corners,
+      // which is what makes this exact rather than an approximation.
+      return box.applyMatrix4(
+        localMatrix.multiplyMatrices(toBodyLocal, mesh.matrixWorld),
+      );
+    };
+
+    const structure: {
+      part: string;
+      box: THREE.Box3;
+      host: THREE.Object3D;
+      mountSurface: boolean;
+    }[] = [];
+    parts.root.traverse((object) => {
+      if (
+        !(object instanceof THREE.Mesh) ||
+        object.userData.cameraSolid === false ||
+        insideAModule(object)
+      ) {
+        return;
+      }
+      const box = localBox(object);
+      if (!box || box.isEmpty()) return;
+      structure.push({
+        part: partLabel(object),
+        box,
+        host: object,
+        mountSurface: object.userData.moduleMountSurface === true,
+      });
+    });
+
+    const fitted = [...rig.modules].sort() as ModuleId[];
+    const offered = MODULE_IDS.filter((moduleId) =>
+      MODULES[moduleId].fits.includes(rigId),
+    );
+    const samples: RigModuleVisualSample[] = [];
+    const visibilityMismatches: string[] = [];
+    const centre = new THREE.Vector3();
+    const bodyOrigin = new THREE.Vector3();
+    parts.root.getWorldPosition(bodyOrigin);
+
+    /**
+     * Every module visual measured once, before any of them is compared.
+     *
+     * Module-vs-module fouling is what the pontoon/lug-tread bug was, so the
+     * boxes have to exist as a set before the pairwise pass can run. Invisible
+     * groups are measured too — their bounds are recorded so an unfitted module
+     * still reports its geometry — but only visible ones are eligible to foul,
+     * because a collision the player cannot see is not one they can complain of.
+     *
+     * `meshes` is the list every overlap test actually uses, in the body's frame.
+     * The world-space group box is kept for bounds, ground gap and offset, where
+     * "the whole module's extent, where it actually is" is the honest quantity,
+     * but it is far too coarse to ask "is this inside that": the lug tread's
+     * group box is a filled cube spanning the entire wheel, and against the hull
+     * box it reported half a metre of penetration for two parts that merely sit
+     * side by side. `local` is the union of `meshes` — the same extent as `box`,
+     * read in the frame the tread-vs-tyre comparison needs.
+     */
+    const measured: {
+      moduleId: ModuleId;
+      index: number;
+      visual: THREE.Object3D;
+      visible: boolean;
+      box: THREE.Box3 | null;
+      local: THREE.Box3 | null;
+      meshes: THREE.Box3[];
+    }[] = [];
+
+    for (const moduleId of MODULE_IDS) {
+      const visuals = parts.moduleVisuals[moduleId] ?? [];
+      const isFitted = rig.modules.includes(moduleId);
+      for (const [index, visual] of visuals.entries()) {
+        // Effective visibility, not the flag: a module hidden by an invisible
+        // ancestor is invisible to the player however its own flag reads.
+        let visible = true;
+        for (
+          let node: THREE.Object3D | null = visual;
+          node && visible;
+          node = node.parent
+        ) {
+          visible = node.visible;
+        }
+        if (visible !== isFitted) {
+          visibilityMismatches.push(
+            `${moduleId}[${index}] visible=${visible} fitted=${isFitted}`,
+          );
+        }
+        const box = new THREE.Box3().setFromObject(visual);
+        const meshes: THREE.Box3[] = [];
+        const local = new THREE.Box3();
+        visual.traverse((object) => {
+          if (!(object instanceof THREE.Mesh)) return;
+          const meshBox = localBox(object);
+          if (!meshBox || meshBox.isEmpty()) return;
+          meshes.push(meshBox);
+          local.union(meshBox);
+        });
+        measured.push({
+          moduleId,
+          index,
+          visual,
+          visible,
+          box: box.isEmpty() ? null : box,
+          local: local.isEmpty() ? null : local,
+          meshes,
+        });
+      }
+    }
+
+    /** Deepest penetration of any of `meshes` into `other`. */
+    const deepestInto = (meshes: THREE.Box3[], other: THREE.Box3): number => {
+      let deepest = 0;
+      for (const mesh of meshes) {
+        deepest = Math.max(deepest, penetrationDepth(mesh, other));
+      }
+      return deepest;
+    };
+
+    /**
+     * How far a module's geometry escapes the mount box it was built inside.
+     *
+     * Measured from the same body-local per-mesh boxes every other overlap here
+     * uses, offset by the group's own body-local position — which is the mount
+     * centre, since the builder places the group there. Measuring in the *group's*
+     * frame instead would divide out the scale `fitFormToEnvelope` applies and
+     * report 0 for exactly the forms the clamp had to rescue, which is the one
+     * reading this field exists to prevent.
+     */
+    const envelopeBreach = (
+      visual: THREE.Object3D,
+      meshes: THREE.Box3[],
+    ): number | null => {
+      const envelope = visual.userData.moduleEnvelope as
+        | { width: number; height: number; depth: number }
+        | undefined;
+      if (!envelope) return null;
+      const half = new THREE.Vector3(
+        envelope.width / 2,
+        envelope.height / 2,
+        envelope.depth / 2,
+      );
+      const centre = visual.position;
+      let worst = 0;
+      for (const box of meshes) {
+        worst = Math.max(
+          worst,
+          centre.x - half.x - box.min.x,
+          box.max.x - centre.x - half.x,
+          centre.y - half.y - box.min.y,
+          box.max.y - centre.y - half.y,
+          centre.z - half.z - box.min.z,
+          box.max.z - centre.z - half.z,
+        );
+      }
+      return Number(worst.toFixed(4));
+    };
+
+    /**
+     * The uniform scale `fitFormToEnvelope` had to apply, or null for a tread.
+     *
+     * 1 means the form was authored to fit its box. Less means the clamp shrank it,
+     * and module-visual acceptance treats that as an authoring failure rather than a
+     * success — the module still renders legally, but smaller than designed.
+     */
+    const envelopeFit = (visual: THREE.Object3D): number | null => {
+      const fit = visual.userData.moduleEnvelopeFit;
+      return typeof fit === "number" ? Number(fit.toFixed(4)) : null;
+    };
+
+    for (const entry of measured) {
+      const { moduleId, index, visual, visible, box, local, meshes } = entry;
+      const anchor = visual.userData.moduleAnchor;
+      const anchoredTo: RigModuleVisualSample["anchoredTo"] =
+        anchor === "hull" || anchor === "wheel" ? anchor : "unknown";
+      const label = `${partLabel(visual)}[${index}]`;
+
+      if (!box) {
+        samples.push({
+          moduleId,
+          label,
+          anchoredTo,
+          visible,
+          worldMin: null,
+          worldMax: null,
+          groundGap: null,
+          offsetFromRig: null,
+          hostGap: null,
+          hostOffset: null,
+          envelopeBreach: envelopeBreach(visual, meshes),
+          envelopeFit: envelopeFit(visual),
+          structureOverlaps: [],
+          moduleOverlaps: [],
+        });
+        continue;
+      }
+      box.getCenter(centre);
+
+      // A wheel-anchored tread is *meant* to wrap the tyre and hub it rides on,
+      // so its own wheel's meshes are excluded. What remains is reported but not
+      // treated as a defect by the acceptance script — see `anchoredTo`.
+      const ownWheel = anchoredTo === "wheel" ? visual.parent : null;
+      const structureOverlaps = structure
+        .filter(({ host }) => !isUnder(host, ownWheel))
+        .map(({ part, box: other, mountSurface }) => ({
+          part,
+          depth: Number(deepestInto(meshes, other).toFixed(4)),
+          mountSurface,
+        }))
+        .filter((hit) => hit.depth > STRUCTURE_CONTACT_TOLERANCE)
+        .sort((left, right) => right.depth - left.depth);
+
+      const moduleOverlaps = visible
+        ? measured
+            .filter(
+              (other) => other !== entry && other.visible && other.box !== null,
+            )
+            .map((other) => {
+              let depth = 0;
+              for (const mesh of other.meshes) {
+                depth = Math.max(depth, deepestInto(meshes, mesh));
+              }
+              return {
+                module: `${other.moduleId}[${other.index}]`,
+                depth: Number(depth.toFixed(4)),
+              };
+            })
+            .filter((hit) => hit.depth > STRUCTURE_CONTACT_TOLERANCE)
+            .sort((left, right) => right.depth - left.depth)
+        : [];
+
+      // The tyre this tread wraps, found the same way the ground-contact surface
+      // finds it, and measured in the body's frame like everything else that is
+      // rigid within the rig. Measuring against the tyre rather than the terrain
+      // takes both suspension travel and slope out of the reading; measuring in
+      // the body's frame takes the rig's pitch and roll out of it too.
+      const hostTyre =
+        anchoredTo === "wheel"
+          ? (visual.parent?.getObjectByName("tyre") ?? null)
+          : null;
+      const hostBox =
+        hostTyre instanceof THREE.Mesh ? localBox(hostTyre) : null;
+      const hostCentre =
+        hostBox && !hostBox.isEmpty()
+          ? hostBox.getCenter(new THREE.Vector3())
+          : null;
+      const localCentre = local
+        ? local.getCenter(new THREE.Vector3())
+        : null;
+
+      samples.push({
+        moduleId,
+        label,
+        anchoredTo,
+        visible,
+        worldMin: [
+          Number(box.min.x.toFixed(4)),
+          Number(box.min.y.toFixed(4)),
+          Number(box.min.z.toFixed(4)),
+        ],
+        worldMax: [
+          Number(box.max.x.toFixed(4)),
+          Number(box.max.y.toFixed(4)),
+          Number(box.max.z.toFixed(4)),
+        ],
+        groundGap: Number(
+          (box.min.y - this.world.terrain.height(centre.x, centre.z)).toFixed(4),
+        ),
+        offsetFromRig: Number(centre.distanceTo(bodyOrigin).toFixed(4)),
+        hostGap:
+          hostBox && !hostBox.isEmpty() && local
+            ? Number((local.min.y - hostBox.min.y).toFixed(4))
+            : null,
+        hostOffset:
+          hostCentre && localCentre
+            ? Number(localCentre.distanceTo(hostCentre).toFixed(4))
+            : null,
+        envelopeBreach: envelopeBreach(visual, meshes),
+        envelopeFit: envelopeFit(visual),
+        structureOverlaps,
+        moduleOverlaps,
+      });
+    }
+
+    const rendered = new Set(
+      Object.entries(parts.moduleVisuals)
+        .filter(([, visuals]) => (visuals ?? []).length > 0)
+        .map(([moduleId]) => moduleId as ModuleId),
+    );
+
+    return {
+      rigId,
+      fittedModules: fitted,
+      offeredModules: offered,
+      steeringAngle: Number(
+        (this.feedbackFrames.get(rigId)?.steeringAngle ?? 0).toFixed(4),
+      ),
+      samples,
+      missingVisuals: fitted.filter((moduleId) => !rendered.has(moduleId)),
+      visibilityMismatches,
     };
   }
 
@@ -4368,6 +6150,10 @@ export class GameRenderer {
     this.habitatBirdMaterial.dispose();
     this.habitatCorvidMaterial.dispose();
     this.habitatGrazerMaterial.dispose();
+    if (this.rainPoints) {
+      this.rainPoints.geometry.dispose();
+      (this.rainPoints.material as THREE.Material).dispose();
+    }
     this.renderer.dispose();
   }
 }

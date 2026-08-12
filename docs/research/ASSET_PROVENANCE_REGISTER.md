@@ -736,3 +736,89 @@ development and open-world exploration. This does not grant public distribution
 rights, and `publicRuntimeApproved` remains false until the separate promotion
 package is reviewed. Provenance is therefore a distribution boundary, not a
 reason to suppress useful development assets.
+
+## Addendum (2026-08-11) - `plow_4_furrow.glb`: an unprovenanced binary, and its removal
+
+This entry exists so the record outlives the bytes. The file is being removed,
+and a register that only lists what we kept cannot explain what we rejected or
+why — which is the information a future reader needs when the next stray binary
+appears.
+
+### What it was
+
+- Path: `plow_4_furrow.glb`, at the **repository root**, outside `assets/`.
+- Size: 130,788 bytes. SHA-256:
+  `dca8e21197b6c412ac1c36c2dc23ad1669a0a3373a856f43667bb4dec76e308c`.
+- glTF 2.0, container v2, JSON+BIN.
+- `asset.generator`: `https://github.com/mikedh/trimesh`.
+- `asset.copyright`: **none declared**. No accompanying licence file.
+- Structure: 1 scene, 2 nodes (`world`, `geometry_0`), 1 mesh, 1 primitive.
+- Surfacing: **0 materials, 0 textures, 0 images**; the single primitive
+  references no material at all.
+
+### Why removal, not registration
+
+The repository's own documents had already recorded the accepted dispositions
+three separate times — "register with provenance and relocate to
+`assets/runtime/`, or remove" (`docs/reviews/VISION_IMPLEMENTATION_REVIEW_2026-08-05.md`
+§4 defect (2), and twice in `docs/WORKLOG.md`). The first branch turned out to be
+unavailable, because there is no provenance to register:
+
+1. **The generator is alien to every pipeline here.** This repository exports
+   GLBs with `THREE.GLTFExporter` (`tools/export-field-plough-glb.cjs:97`), and
+   its two external assets are Kenney kit parts stamped `UnityGLTF`. Nothing
+   here emits trimesh output. The `img2threejs` forge is Python but explicitly
+   dependency-light — `forge/requirements.txt` states it uses "struct/zlib
+   directly — no Pillow/numpy/OpenCV/Playwright required" — and never imports
+   trimesh.
+2. **The one in-repo mention of "trimesh" is a false lead.** It appears in
+   `docs/research/DYNAMIC_WORLD_COLLISION_EXPLORATION_2026-07-28.md:76`, where it
+   is Rapier's *trimesh collider shape*, an unrelated use of the same word.
+3. **Nothing referenced it.** No `src/`, `tools/`, or config file named it; the
+   only references were the three documents reporting it as a defect.
+4. **The bytes carry no authorship claim.** No `copyright`, no `extras`, no
+   licence file, and auto-generated node names (`world`, `geometry_0`) rather
+   than authored ones — compare the 78 semantically named nodes in
+   `field-plough-01.glb`. There is nothing in or beside the file to establish who
+   made it or under what terms.
+
+Registering it would have meant writing `rightsStatus: "unknown"` into the
+manifest, which is not provenance — it is a permanent record that the repository
+knowingly retains an unlicensed binary it cannot ship or attribute. For an
+artifact with zero references, removal is the honest disposition. The generator
+string, digest, and structure above are preserved here, so the finding remains
+auditable and the file is recoverable from git history if provenance ever
+surfaces.
+
+### Method note
+
+The evidence above was produced by `tools/inspect-glb-provenance.mjs --all`, a
+tool written during this disposition precisely because the question "where did
+this binary come from" had been asked three times across two weeks and answered
+by hand each time. `asset.generator` is the cheapest provenance signal a GLB
+carries and no tool here was reading it. It now runs over every GLB in the tree
+in one command, and it is the same tool that will vet imported rig blockouts.
+
+### Anything else?
+
+Yes — two things worth stating plainly.
+
+The comparison table this produced is more useful than the single disposition:
+
+| File | Generator | Materials | Origin |
+| --- | --- | --- | --- |
+| `assets/runtime/field-plough-01.glb` | `THREE.GLTFExporter r185` | 22 | repo-authored, this pipeline |
+| `assets/runtime/kenney-car-kit-tractor-preview.glb` | `UnityGLTF` | 1 | Kenney kit, registered |
+| `assets/runtime/kenney-car-kit-breakable-crate-fixture.glb` | `UnityGLTF` | 1 | Kenney kit, registered |
+| `plow_4_furrow.glb` | `trimesh` | 0 | unestablished — removed |
+
+Generator strings partition this set cleanly along the provenance boundary that
+matters. That is worth checking on import rather than after the fact.
+
+Second: the detection gap that let this sit for two weeks is already closed, but
+by a different mechanism than the one that found it. `audit:asset-coverage`
+reports undeclared binaries, and it flagged this file — while
+`audit:asset-coverage:strict` exits 1 on it. The non-strict audit is what
+`verify:head` runs, deliberately, so a stray binary is *reported* without
+failing the build. That choice is sound, but it means the report only works if
+someone reads it. This file was reported correctly, three times, and stayed.

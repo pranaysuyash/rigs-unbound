@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "utility-tow-recovery-01",
+  "rigId": "heavy-utility-tow-recovery-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-frame",
+      "level": "macro",
+      "role": "Heavy 6x6 I-beam frame rails and tandem rear axle housing",
+      "derivedEnvelope": {
+        "track": 2.80,
+        "wheelbase": 4.20,
+        "rideHeight": 0.85
+      },
+      "sockets": ["outrigger-pad-left", "outrigger-pad-right"]
+    },
+    {
+      "nodeId": "operator-cab",
+      "level": "macro",
+      "role": "Weathered industrial orange cab with window grilles and beacon mount",
+      "sockets": ["roof-beacon-bar", "hood-push-bumper"]
+    },
+    {
+      "nodeId": "recovery-boom-assembly",
+      "level": "macro",
+      "role": "Bone-enamel 2-stage telescoping boom crane with hydraulic lift cylinder",
+      "sockets": ["boom-pivot-hinge", "winch-cable-hook"]
+    },
+    {
+      "nodeId": "winch-spool-unit",
+      "level": "meso",
+      "role": "15-ton hydraulic winching drum with steel cable path",
+      "sockets": ["winch-cable-guide"]
+    },
+    {
+      "nodeId": "outrigger-pads",
+      "level": "meso",
+      "role": "Dual hydraulic stabilization pads mounted behind rear axles",
+      "sockets": ["terrain-clamp-left", "terrain-clamp-right"]
+    },
+    {
+      "nodeId": "service-drawers",
+      "level": "micro",
+      "role": "Outboard lockable steel tool cabinets and chain locker",
+      "sockets": []
+    }
+  ]
+}

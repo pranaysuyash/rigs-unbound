@@ -44,7 +44,16 @@
       "type": "object",
       "required": ["status", "runtimeAdmission", "publicApproved"],
       "properties": {
-        "status": { "enum": ["concept", "workbench", "procedural-candidate", "runtime-tested", "public-approved", "blocked"] },
+        "status": {
+          "enum": [
+            "concept",
+            "workbench",
+            "procedural-candidate",
+            "runtime-tested",
+            "public-approved",
+            "blocked"
+          ]
+        },
         "runtimeAdmission": { "type": "string", "minLength": 1 },
         "publicApproved": { "type": "boolean" },
         "owner": { "type": "string", "minLength": 1 }
@@ -68,7 +77,10 @@
       }
     },
     "identity": { "type": "object", "minProperties": 1 },
-    "coordinateFrame": { "type": "object", "required": ["front", "up", "units"] },
+    "coordinateFrame": {
+      "type": "object",
+      "required": ["front", "up", "units"]
+    },
     "components": {
       "type": "array",
       "minItems": 1,
@@ -83,27 +95,83 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/material" }
     },
-    "behaviour": { "type": "object", "required": ["verbs", "states", "animationContracts", "interactionSockets"] },
-    "runtime": { "type": "object", "required": ["visualAuthority", "collisionAuthority", "adapter", "lod", "budgets"] },
-    "compiler": { "type": "object", "required": ["stages", "derivedArtifacts"] },
-    "validation": { "type": "object", "required": ["evidenceRoadmap", "currentEvidence"] },
-    "provenance": { "type": "object", "required": ["sourceType", "rightsStatus", "promptRecord"] }
+    "behaviour": {
+      "type": "object",
+      "required": [
+        "verbs",
+        "states",
+        "animationContracts",
+        "interactionSockets"
+      ]
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "visualAuthority",
+        "collisionAuthority",
+        "adapter",
+        "lod",
+        "budgets"
+      ]
+    },
+    "compiler": {
+      "type": "object",
+      "required": ["stages", "derivedArtifacts"]
+    },
+    "validation": {
+      "type": "object",
+      "required": ["evidenceRoadmap", "currentEvidence"]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["sourceType", "rightsStatus", "promptRecord"]
+    }
   },
   "$defs": {
     "component": {
       "type": "object",
-      "required": ["id", "parent", "level", "role", "topology", "pivot", "sockets", "collider", "materials", "action"],
+      "required": [
+        "id",
+        "parent",
+        "level",
+        "role",
+        "topology",
+        "pivot",
+        "sockets",
+        "collider",
+        "materials",
+        "action"
+      ],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
         "parent": { "type": ["string", "null"] },
         "level": { "enum": ["macro", "meso", "micro"] },
         "role": { "type": "string", "minLength": 1 },
-        "topology": { "type": "object", "required": ["class", "primitiveStrategy"] },
-        "pivot": { "type": "object", "required": ["mode", "localPosition", "axis"] },
-        "sockets": { "type": "array", "items": { "type": "object", "required": ["id", "position", "role"] } },
-        "collider": { "type": "object", "required": ["type", "authority", "isTrigger"] },
-        "materials": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-        "action": { "type": "object", "required": ["animationRole", "states", "detachable"] },
+        "topology": {
+          "type": "object",
+          "required": ["class", "primitiveStrategy"]
+        },
+        "pivot": {
+          "type": "object",
+          "required": ["mode", "localPosition", "axis"]
+        },
+        "sockets": {
+          "type": "array",
+          "items": { "type": "object", "required": ["id", "position", "role"] }
+        },
+        "collider": {
+          "type": "object",
+          "required": ["type", "authority", "isTrigger"]
+        },
+        "materials": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "action": {
+          "type": "object",
+          "required": ["animationRole", "states", "detachable"]
+        },
         "localFeatures": { "type": "array", "items": { "type": "string" } },
         "dimensions": { "type": "object" },
         "evidenceRefs": { "type": "array", "items": { "type": "string" } }
@@ -112,7 +180,13 @@
     },
     "repetition": {
       "type": "object",
-      "required": ["id", "prototypeComponent", "count", "distribution", "uncertainty"],
+      "required": [
+        "id",
+        "prototypeComponent",
+        "count",
+        "distribution",
+        "uncertainty"
+      ],
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "prototypeComponent": { "type": "string", "minLength": 1 },
@@ -128,9 +202,19 @@
       "properties": {
         "id": { "type": "string", "minLength": 1 },
         "layer": { "type": "string", "minLength": 1 },
-        "pbr": { "type": "object", "required": ["baseColor", "roughness", "metalness", "normal", "ao"] },
-        "localOverrides": { "type": "array", "items": { "type": "object", "required": ["id", "kind", "region"] } },
-        "evidenceRefs": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        "pbr": {
+          "type": "object",
+          "required": ["baseColor", "roughness", "metalness", "normal", "ao"]
+        },
+        "localOverrides": {
+          "type": "array",
+          "items": { "type": "object", "required": ["id", "kind", "region"] }
+        },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
       },
       "additionalProperties": false
     }
