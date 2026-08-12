@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "torque-field-cutter-02",
+  "rigId": "torque-field-cutter-02",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/torque_field_cutter_02_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "heavy-tractor-frame",
+      "level": "macro",
+      "role": "Heavy reinforced agricultural chassis frame and diesel engine housing",
+      "derivedEnvelope": {
+        "track": 2.40,
+        "wheelbase": 3.10,
+        "rideHeight": 0.65
+      },
+      "sockets": ["mulcher-mount-front", "wing-mount-sides"]
+    },
+    {
+      "nodeId": "climate-control-cab",
+      "level": "macro",
+      "role": "High-visibility operator cab with protective wire mesh",
+      "sockets": []
+    },
+    {
+      "nodeId": "front-mulcher-head",
+      "level": "meso",
+      "role": "Front-mounted high-speed rotating flail mulcher drum",
+      "sockets": []
+    },
+    {
+      "nodeId": "flail-mower-wings",
+      "level": "meso",
+      "role": "Dual hydraulic folding side mower wings",
+      "sockets": []
+    },
+    {
+      "nodeId": "high-clearance-wheels",
+      "level": "macro",
+      "role": "Heavy 4-wheel drive deep-tread tractor wheels",
+      "sockets": []
+    }
+  ]
+}

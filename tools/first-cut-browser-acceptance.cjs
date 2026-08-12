@@ -19,6 +19,7 @@ const {
   state,
   placeRig,
   bootstrapAndEnter,
+  restoreOpeningTractor,
   teardown,
   applyDrivingInput,
   collectConsole,
@@ -120,6 +121,32 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
       `Expected choose-part, got ${atHome.stage}`,
     );
     results.push({ step: "return-home", stage: atHome.stage, pass: true });
+
+    // Rebuild the wreck before asking it to plough. The campaign opens with the
+    // tractor at condition 0 — disabled, by design — and this harness used to drive
+    // straight past that, then report the immobile rig as "0 furrows" in step 5.
+    // Restoring here rather than at bootstrap is deliberate: the workshop button is
+    // gated on standing at the Home Silo pad, and the harness is standing on it now.
+    await restoreOpeningTractor(page);
+    const restored = await page.evaluate(() => {
+      const snap = JSON.parse(window.render_game_to_text());
+      return {
+        condition: snap.rigs["utility-tractor"].condition,
+        firstStart: snap.restoration?.firstStart ?? false,
+      };
+    });
+    console.log(
+      `  Restored: condition=${restored.condition}, firstStart=${restored.firstStart}`,
+    );
+    results.push({
+      step: "restore-tractor",
+      condition: restored.condition,
+      firstStart: restored.firstStart,
+      // Asserted, not assumed: a disabled rig cannot move, so every later step
+      // would be measuring a rig that is standing still for a reason no later
+      // assertion names.
+      pass: restored.condition > 0 && restored.firstStart,
+    });
 
     // Fit lug-tires via workshop
     await page
@@ -239,6 +266,16 @@ async function waitForFirstRungStage(page, expectedStage, maxWaitMs = 5000) {
     const objEl4 = await objectiveEl(page);
     console.log(
       `  After lower: stage=${afterLower.stage}, objective=${afterLower.objective}`,
+    );
+    // The blade's own state, asserted rather than merely recorded. This step is
+    // named `lower-blade`, and it was reporting `pass: true` on the strength of the
+    // *stage* alone: if the Space keypress had silently missed, the blade would stay
+    // up, this step would pass, and the failure would surface one step later as
+    // "no furrows" — a symptom two steps from its cause. The measurement was already
+    // being taken and written into the evidence; only the assertion was missing.
+    assert(
+      bladeAfter,
+      "Expected the field plough engaged after lowering it, got disengaged",
     );
     assert(
       afterLower.stage === "first-cut",

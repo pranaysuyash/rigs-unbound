@@ -12,35 +12,29 @@ export type { RoadRivalryState, SurveyRouteState };
 
 /**
  * Typed activity definitions.
- *
- * Stage 1 of the refactor named in
- * `docs/research/ACTIVITY_CONTENT_AND_COMMAND_CONTRACT_READINESS_2026-07-26.md`,
- * which deferred this registry until a second materially different activity
- * existed and required that the first stage migrate *both* — wrapping only the new
- * one would create two activity truth paths.
  */
 export const ACTIVITY_CONTRACT_VERSION = 1 as const;
 
-export type ActivityId = "cargo-relay" | "survey-route" | "road-rivalry";
+export type ActivityId =
+  | "cargo-relay"
+  | "survey-route"
+  | "road-rivalry"
+  | "top-down-defense"
+  | "top-down-tactical"
+  | "top-down-stealth"
+  | "top-down-arcade";
 
 /**
  * What the ground *means* while an activity is running.
- *
- * This is the load-bearing idea of the whole project, so it is a named field
- * rather than an implicit consequence of each activity's code.
- *
- * Hauling and surveying run on the same heightfield, the same rig, the same fixed
- * step and the same save file. What differs is which property of the terrain
- * decides success. Under `haul`, elevation is a cost to be avoided: every metre
- * climbed is drive force spent and grip risked. Under `survey`, elevation is the
- * resource being spent *for*: height is what buys sightlines, so the hill that
- * punished the hauler is the thing the surveyor is looking for.
- *
- * A genre change in Rigs Unbound is therefore a change of binding, not a change of
- * scene. Naming it here is what stops the second activity from quietly becoming a
- * second game with its own world, its own physics and its own save format.
  */
-export type ActivityBinding = "haul" | "survey" | "rally";
+export type ActivityBinding =
+  | "haul"
+  | "survey"
+  | "rally"
+  | "defense"
+  | "tactical"
+  | "stealth"
+  | "arcade";
 
 export interface ActivityDefinition {
   id: ActivityId;
@@ -51,9 +45,6 @@ export interface ActivityDefinition {
   binding: ActivityBinding;
   /**
    * Requirements are capability constraints, never rig ids.
-   *
-   * A machine qualifies by what it can do, so a future rig or a fitted module
-   * qualifies automatically without this table being edited.
    */
   requiredCapabilities: readonly RigCapability[];
   /** Authored world anchors this activity resolves against, by site id. */
@@ -82,7 +73,6 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "survey-route",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Survey contract",
-    // Won by seeing, never by arriving. The player is paid for knowledge.
     premise: "Sight every named signal before the light goes.",
     binding: "survey",
     requiredCapabilities: ["survey"],
@@ -98,9 +88,47 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     binding: "rally",
     requiredCapabilities: ["rally"],
     worldRefs: ["toy-grove", "quarry-shelf", "home-silo"],
-    // The record is the reward. A repeatable open-road activity must not turn
-    // into a salvage faucet simply because a player improves a machine.
     reward: { salvage: 0, insight: 0, journeyInvestment: 0 },
+  },
+  {
+    id: "top-down-defense",
+    version: ACTIVITY_CONTRACT_VERSION,
+    name: "Horde Night Defense",
+    premise: "Hold the perimeter silos against nocturnal drone threats using barricades and searchlights.",
+    binding: "defense",
+    requiredCapabilities: ["plough"],
+    worldRefs: ["home-silo"],
+    reward: { salvage: 6, insight: 4, journeyInvestment: 3 },
+  },
+  {
+    id: "top-down-tactical",
+    version: ACTIVITY_CONTRACT_VERSION,
+    name: "Quarry Heavy Logistics",
+    premise: "Dredge channels and position heavy structural components with precision overhead feedback.",
+    binding: "tactical",
+    requiredCapabilities: ["tow"],
+    worldRefs: ["quarry-shelf"],
+    reward: { salvage: 8, insight: 6, journeyInvestment: 5 },
+  },
+  {
+    id: "top-down-stealth",
+    version: ACTIVITY_CONTRACT_VERSION,
+    name: "Sunken Flats Recon",
+    premise: "Infiltrate fog-shrouded ruins without triggering noise or light detectors.",
+    binding: "stealth",
+    requiredCapabilities: ["ford"],
+    worldRefs: ["toy-grove"],
+    reward: { salvage: 7, insight: 7, journeyInvestment: 4 },
+  },
+  {
+    id: "top-down-arcade",
+    version: ACTIVITY_CONTRACT_VERSION,
+    name: "Ridge Demolition Circuit",
+    premise: "Clear high-speed drift checkpoints while evading obstacles across the ridge.",
+    binding: "arcade",
+    requiredCapabilities: ["jump"],
+    worldRefs: ["launch-ridge"],
+    reward: { salvage: 5, insight: 3, journeyInvestment: 3 },
   },
 ];
 
@@ -111,10 +139,6 @@ export interface ActivityDefinitionProblem {
 
 /**
  * Validate the registry against the world it claims to reference.
- *
- * Authored tables are trusted content, but "trusted" means checked at boot rather
- * than assumed: a definition naming a site that has been renamed, or a capability
- * that no longer exists, is a silently dead activity otherwise.
  */
 export function validateActivityDefinitions(
   definitions: readonly ActivityDefinition[] = ACTIVITY_DEFINITIONS,
@@ -140,8 +164,6 @@ export function validateActivityDefinitions(
     }
 
     if (definition.requiredCapabilities.length === 0) {
-      // An activity every machine qualifies for cannot express a machine choice,
-      // which is the entire point of a machine-centric game.
       problems.push({
         activityId: definition.id,
         problem: "no required capability",
@@ -194,10 +216,8 @@ export function activityDefinition(id: ActivityId): ActivityDefinition {
 // Survey route rules
 // -----------------------------------------------------------------------------
 
-/** Diegetic minutes a survey contract allows before the light is gone. */
 export const SURVEY_ROUTE_WINDOW_MINUTES = 240;
 
-/** The sites a survey contract names, derived from the registry. */
 export function surveyRouteTargets(): readonly WorldSiteId[] {
   return activityDefinition("survey-route").worldRefs;
 }
@@ -214,24 +234,11 @@ export function createSurveyRouteState(): SurveyRouteState {
 
 export interface SurveyRouteEvaluation {
   state: SurveyRouteState;
-  /** Sites newly sighted by this evaluation, for feedback and the run record. */
   newlySighted: readonly WorldSiteId[];
   completed: boolean;
   failed: boolean;
 }
 
-/**
- * Advance a survey contract from what the machine can currently see.
- *
- * Deliberately reads `visibleSignals` — present sight — rather than `discoveries`,
- * which records arrival. A surveyor is paid for line of sight, so a contract can be
- * completed from a ridge without the player ever entering the places named in it.
- * That is the mechanical difference between this binding and the haul binding, and
- * it is why the same valley plays as a different game.
- *
- * Pure: equal inputs give equal outputs, so it is replay-safe and testable without
- * a world.
- */
 export function evaluateSurveyRoute(
   state: SurveyRouteState,
   targets: readonly WorldSiteId[],
@@ -251,8 +258,6 @@ export function evaluateSurveyRoute(
       : state.sighted;
 
   const complete = targets.every((target) => sighted.includes(target));
-  // Completion is checked before expiry: sighting the last target on the closing
-  // minute is a win, not a loss.
   const expired =
     !complete &&
     worldMinutes - state.startedAtMinutes >= SURVEY_ROUTE_WINDOW_MINUTES;
@@ -270,7 +275,6 @@ export function evaluateSurveyRoute(
   };
 }
 
-/** Minutes left before the contract lapses; null when it is not running. */
 export function surveyRouteMinutesRemaining(
   state: SurveyRouteState,
   worldMinutes: number,
@@ -286,14 +290,8 @@ export function surveyRouteMinutesRemaining(
 // Open-road rivalry rules
 // -----------------------------------------------------------------------------
 
-/** Course-entry radius. Crossing a gate is deliberately generous, not precise. */
 export const ROAD_RIVALRY_GATE_RADIUS = 12;
 
-/**
- * The first world reference is the voluntary start line. Every later reference
- * is a gate in order. The course uses sites and their existing track network;
- * it does not own terrain, colliders, or a second scene.
- */
 export function roadRivalryCourseSiteIds(): readonly WorldSiteId[] {
   return activityDefinition("road-rivalry").worldRefs;
 }
@@ -365,11 +363,6 @@ export interface RoadRivalryEvaluation {
   personalBest: boolean;
 }
 
-/**
- * Score the run from the authoritative machine position after physics. This is
- * intentionally a pure state transition: visual flags and UI prompts can
- * observe the result, but cannot declare a gate crossed.
- */
 export function evaluateRoadRivalry(
   state: RoadRivalryState,
   rigId: RigId,

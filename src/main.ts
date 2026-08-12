@@ -181,6 +181,8 @@ declare global {
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
+    setControlParadigm: (paradigm: "heading-relative" | "screen-relative" | "twin-stick") => string;
+    getControlParadigm: () => "heading-relative" | "screen-relative" | "twin-stick";
     performRigAction: () => string;
     applyRigInput: (input: Partial<InputFrame>, milliseconds: number) => string;
     getPerformanceSnapshot: () => PerformanceSnapshot;
@@ -3589,6 +3591,13 @@ function boot(): void {
     selectCamera(state, cameraMode);
     cameraSelect.value = cameraMode;
     return settleAndReport();
+  };
+  window.setControlParadigm = (paradigm) => {
+    input.setControlParadigm(paradigm);
+    return settleAndReport();
+  };
+  window.getControlParadigm = () => {
+    return input.getControlParadigm();
   };
   window.getRigOrientationEvidence = (rigId = state.activeRigId) => {
     if (!RIG_IDS.includes(rigId)) {

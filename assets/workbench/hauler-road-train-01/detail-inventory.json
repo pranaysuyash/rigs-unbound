@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "hauler-road-train-01",
+  "rigId": "hauler-road-train-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/hauler_road_train_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "prime-mover-chassis",
+      "level": "macro",
+      "role": "Heavy 6x4/8x4 long-wheelbase steel chassis frame with twin stacks",
+      "derivedEnvelope": {
+        "track": 2.50,
+        "wheelbase": 4.80,
+        "rideHeight": 0.85
+      },
+      "sockets": ["fifth-wheel-center", "bumper-bullbar-front"]
+    },
+    {
+      "nodeId": "sleeper-cab-unit",
+      "level": "macro",
+      "role": "Aerodynamic long-haul sleeper cab with chrome grille and bullbar",
+      "sockets": []
+    },
+    {
+      "nodeId": "fifth-wheel-hitch",
+      "level": "meso",
+      "role": "Heavy 50-ton heavy-duty fifth wheel coupling plate",
+      "sockets": []
+    },
+    {
+      "nodeId": "triple-rear-axles",
+      "level": "macro",
+      "role": "Dual/triple rear drive axle assemblies with 8 off-road tires",
+      "sockets": []
+    },
+    {
+      "nodeId": "primary-flatbed-trailer",
+      "level": "macro",
+      "role": "Heavy steel multi-axle cargo flatbed trailer unit",
+      "sockets": []
+    }
+  ]
+}

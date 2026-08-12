@@ -28,6 +28,10 @@ describe("activity registry", () => {
       "cargo-relay",
       "road-rivalry",
       "survey-route",
+      "top-down-arcade",
+      "top-down-defense",
+      "top-down-stealth",
+      "top-down-tactical",
     ]);
   });
 

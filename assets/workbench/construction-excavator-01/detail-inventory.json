@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "construction-excavator-01",
+  "rigId": "construction-excavator-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/construction_excavator_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "tracked-undercarriage",
+      "level": "macro",
+      "role": "Heavy steel track frame with dual continuous steel track treads",
+      "derivedEnvelope": {
+        "track": 3.00,
+        "wheelbase": 4.20,
+        "rideHeight": 0.90
+      },
+      "sockets": ["slewing-ring-center"]
+    },
+    {
+      "nodeId": "upper-revolving-house",
+      "level": "macro",
+      "role": "360-degree slewing upper house with counterweight and engine shroud",
+      "sockets": ["boom-foot-pin"]
+    },
+    {
+      "nodeId": "operator-glass-cab",
+      "level": "macro",
+      "role": "High-visibility left-hand operator cab with FOPS/ROPS guard",
+      "sockets": []
+    },
+    {
+      "nodeId": "articulated-boom-stick",
+      "level": "macro",
+      "role": "Two-stage hydraulic excavator main boom and dipper stick",
+      "sockets": ["bucket-pin-tip"]
+    },
+    {
+      "nodeId": "heavy-digging-bucket",
+      "level": "meso",
+      "role": "Heavy 1.2m³ reinforced steel rock digging bucket",
+      "sockets": []
+    }
+  ]
+}

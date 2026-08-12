@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "micro-scout-pipe-crawler-01",
+  "rigId": "micro-scout-pipe-crawler-01",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/micro_scout_pipe_crawler_01_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "chassis-tubular-pod",
+      "level": "macro",
+      "role": "Compact sealed titanium cylindrical chassis body pod (0.65m total width)",
+      "derivedEnvelope": {
+        "track": 0.65,
+        "wheelbase": 0.85,
+        "rideHeight": 0.15
+      },
+      "sockets": ["mast-mount-top", "tether-mount-rear"]
+    },
+    {
+      "nodeId": "6-wheeled-magnetic-drive",
+      "level": "macro",
+      "role": "6 independently driven magnetic traction wheels for vertical pipe climbing",
+      "sockets": []
+    },
+    {
+      "nodeId": "pantograph-camera-mast",
+      "level": "meso",
+      "role": "360-degree pantograph elevating HD optical sensor head",
+      "sockets": []
+    },
+    {
+      "nodeId": "dual-led-spotlights",
+      "level": "meso",
+      "role": "Twin high-lumens LED inspection spotlights with optical lenses",
+      "sockets": []
+    },
+    {
+      "nodeId": "tether-spool-connector",
+      "level": "meso",
+      "role": "Rear strain-relieved fiber optic control tether connector spool",
+      "sockets": []
+    }
+  ]
+}

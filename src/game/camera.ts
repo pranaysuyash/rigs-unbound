@@ -22,13 +22,65 @@ export interface ChaseViewportPolicy {
   minimumReadableDistance: number;
 }
 
+export type TopDownPresentationStyle =
+  | "top-down-diorama" // 75° Near-Orthographic Perspective (Diorama View)
+  | "top-down-flat"    // 90° Pure Flat Overhead Orthographic
+  | "top-down-heading"; // Heading-Tracking Overhead
+
+export interface TopDownCameraSpec {
+  style: TopDownPresentationStyle;
+  tiltAngleDeg: number;
+  heightMetres: number;
+  targetLeadSeconds: number; // Lead distance ahead of velocity vector
+  headingLocked: boolean;
+}
+
+export const TOP_DOWN_CAMERA_SPECS: Readonly<Record<TopDownPresentationStyle, TopDownCameraSpec>> = {
+  "top-down-diorama": {
+    style: "top-down-diorama",
+    tiltAngleDeg: 75,
+    heightMetres: 28,
+    targetLeadSeconds: 0.8,
+    headingLocked: false,
+  },
+  "top-down-flat": {
+    style: "top-down-flat",
+    tiltAngleDeg: 90,
+    heightMetres: 35,
+    targetLeadSeconds: 0.5,
+    headingLocked: false,
+  },
+  "top-down-heading": {
+    style: "top-down-heading",
+    tiltAngleDeg: 80,
+    heightMetres: 25,
+    targetLeadSeconds: 1.0,
+    headingLocked: true,
+  },
+};
+
+/**
+ * Calculates predictive target lead offset for smooth top-down camera panning.
+ */
+export function calculateTopDownTargetLead(
+  velocityX: number,
+  velocityZ: number,
+  leadSeconds: number,
+  maxLeadMetres: number = 12,
+): { leadX: number; leadZ: number } {
+  let leadX = velocityX * leadSeconds;
+  let leadZ = velocityZ * leadSeconds;
+  const dist = Math.hypot(leadX, leadZ);
+  if (dist > maxLeadMetres) {
+    const scale = maxLeadMetres / dist;
+    leadX *= scale;
+    leadZ *= scale;
+  }
+  return { leadX, leadZ };
+}
+
 /**
  * Shared chase composition policy.
- *
- * A clear camera ray is necessary but not sufficient: a portrait viewport can
- * pass collision checks while a pulled-in boom fills the screen with the rig.
- * Keep that readability threshold profile-derived so broad rigs and future
- * silhouettes do not need identity-specific branches.
  */
 export function chaseViewportPolicy(
   aspect: number,
@@ -58,17 +110,6 @@ export function chaseViewportPolicy(
 
 /**
  * Canonical hood/cockpit sockets.
- *
- * These records author named Object3D sockets today and can map directly to GLB
- * node names later. They are deliberately rig-specific presentation data:
- * camera policy remains shared, while each silhouette owns where a driver or
- * forward sensor can physically see from.
- *
- * `localY` is in the GROUND frame — metres above the surface the rig rests on,
- * the same frame the models are authored in, since the socket is parented into
- * the model's ground-frame group. It is *not* relative to the body origin the
- * way `RigProfile.camera.focusHeight` is; see `rig-blockout.ts` on the two
- * vertical frames.
  */
 export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
   "utility-tractor": {
@@ -87,9 +128,6 @@ export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
   },
   "marsh-skimmer": {
     localX: 0,
-    // Above the cabin roof (ground-frame 2.9), on the mast. The skimmer's model
-    // was the one authored around its body origin rather than the ground, so
-    // this socket moved up with it; at the old 2.75 it now sat inside the cabin.
     localY: 3.82,
     localZ: 1.72,
     lookDistance: 18,

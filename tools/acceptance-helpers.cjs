@@ -210,6 +210,97 @@ async function measurePortraitLayout(page) {
   });
 }
 
+/**
+ * Walk the campaign-opening restoration so the tractor can actually move.
+ *
+ * ## Why a harness needs this at all
+ *
+ * The game opens with the old man's tractor as a wreck: `condition: 0`, which the
+ * simulation treats as disabled. That is intended design, not a bug — the first
+ * thing a player does is rebuild it. Restoration is three stages behind one
+ * workshop button, gated on standing at the Home Silo pad: diagnose, then rebuild,
+ * then first start.
+ *
+ * A harness that skips it is testing a state the game never presents. That is how
+ * `first-cut-browser-acceptance.cjs` came to drive an immobile rig for four seconds
+ * and report the result as "0 furrows" — a plough symptom for an engine cause,
+ * three steps from where the omission actually was. The rig never moved, because a
+ * disabled rig cannot.
+ *
+ * ## Why it clicks the button instead of setting the flag
+ *
+ * `performRestorationService(state)` is exported and would be one line. It would
+ * also make the harness pass while proving nothing about whether a *player* can
+ * reach the restoration — and unreachable-but-implemented is a defect class this
+ * project has shipped before. Driving the real control means the button's own
+ * existence, its enabled state, and the workshop-reach gate are all covered by the
+ * same call.
+ *
+ * Idempotent: returns immediately if the rig is already serviceable, so a harness
+ * can call it unconditionally.
+ */
+async function restoreOpeningTractor(page) {
+  const disabled = await page.evaluate(() => {
+    const snap = JSON.parse(window.render_game_to_text());
+    return snap.rigs["utility-tractor"].condition <= 0;
+  });
+  if (!disabled) return;
+
+  // The workshop button is gated on standing at the Home Silo pad, so the harness
+  // has to be there before the control will do anything.
+  await placeRig(page, -10, 8);
+  await page.waitForTimeout(300);
+
+  // The panel auto-opens once it is actionable, but only while no other overlay
+  // holds the slot — so a harness that arrives with the control lesson or a
+  // dialogue up finds it hidden. `toggleWorkshop` is the same control the player's
+  // key press drives, so asking for it explicitly is both robust and still a real
+  // player path.
+  const panelVisible = async () =>
+    page.evaluate(() => {
+      const panel = document.querySelector("#workshop-panel");
+      return panel !== null && !panel.hidden;
+    });
+  if (!(await panelVisible())) {
+    await page.evaluate(() => window.toggleWorkshop?.());
+    await page.waitForTimeout(300);
+  }
+  assert(
+    await panelVisible(),
+    "Workshop panel would not open at the Home Silo pad, so the opening " +
+      "restoration is unreachable",
+  );
+
+  const action = page.locator("#workshop-restoration-action");
+  await action.waitFor({ state: "visible", timeout: 5000 });
+
+  // One click per stage: diagnose, rebuild, first start. Bounded rather than
+  // `while (disabled)` so a control that stops advancing fails the assertion below
+  // instead of hanging the harness.
+  for (let stage = 0; stage < 3; stage += 1) {
+    const done = await page.evaluate(() => {
+      const snap = JSON.parse(window.render_game_to_text());
+      return snap.restoration?.firstStart === true;
+    });
+    if (done) break;
+    await action.click();
+    await page.waitForTimeout(400);
+  }
+
+  const after = await page.evaluate(() => {
+    const snap = JSON.parse(window.render_game_to_text());
+    return {
+      condition: snap.rigs["utility-tractor"].condition,
+      restoration: snap.restoration ?? null,
+    };
+  });
+  assert(
+    after.condition > 0,
+    `Restoration left the tractor disabled (condition ${after.condition}); ` +
+      `restoration state ${JSON.stringify(after.restoration)}`,
+  );
+}
+
 module.exports = {
   chromium,
   TARGET_URL,
@@ -224,6 +315,7 @@ module.exports = {
   bootstrapAndEnter,
   collectConsole,
   applyDrivingInput,
+  restoreOpeningTractor,
   teardown,
   measurePortraitLayout,
 };

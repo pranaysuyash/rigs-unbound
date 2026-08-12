@@ -214,9 +214,14 @@ function node(
 /**
  * Widest and longest extents the rig's derived parts occupy, in the ground frame.
  *
- * Height is deliberately reported as a *floor* rather than a total: a cab, roll
- * bar, or mast sits above the hull and is pure art direction, so claiming a
- * total height here would be asserting something the profile does not know.
+ * Height is reported as a *floor* rather than a total, and the floor is the hull's
+ * top face. It used to be described as unknowable — "a cab, roll bar, or mast sits
+ * above the hull and is pure art direction" — which was true when the blockout could
+ * not see a cab. It can now: `RIG_SUPERSTRUCTURES` models each bodywork volume, so
+ * the true total is derivable. It stays a floor anyway, because a *reconstruction* of
+ * this rig is free to restyle its cab, and an envelope that pinned total height would
+ * reject a taller silhouette that is otherwise faithful. What a reconstruction may not
+ * do is come in *under* the hull it stands on.
  */
 function rootExtent(blockout: RigBlockout): Record<string, number> {
   const { hull, wheelMounts } = blockout;
@@ -235,7 +240,10 @@ function rootExtent(blockout: RigBlockout): Record<string, number> {
   return {
     width,
     depth,
-    heightAtLeast: hull.centreY + hull.height / 2,
+    // `hull.topY`, not `centreY + height / 2`. The blockout exposes the face
+    // precisely so this conversion is not written out a sixth time; five copies of
+    // it is how the original drift started.
+    heightAtLeast: hull.topY,
   };
 }
 

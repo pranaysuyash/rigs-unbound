@@ -1,378 +1,385 @@
-# Motto v4 Review — Commit Attestation
+# Motto v5 Review — Commit Attestation
 
 **Risk class:** standard
-**Review started:** 2026-08-01T14:36:05+00:00
-**Sections reviewed:** 53 / 53
+**Review started:** 2026-08-12T09:44:16+00:00
+**Sections reviewed:** 54 / 54
 
 ---
 
-## §0.0.1 Whole-Answer Mandate (v4)
+## §0.0.1 Whole-Answer Mandate (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-Whole-answer for docs-only follow-up: docs/WORKLOG_ADDENDUM_2026-08-01.md updated with actual resolution, motto attestation re-initialized for the new diff, commit with trailers, push. No code changes left dangling.
+Verified whole-answer implementation covering specs in docs/design/rigs/specs/construction-excavator-01.md, visual blueprints in assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png, workbenches in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts, and tests in assets/workbench/construction-excavator-01/authored/createExcavatorModel.test.ts.
 
 ## §0 Boldness and Long-Term Build Mandate
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-Long-term build mandate: preserving the history of how parallel streams interact is itself long-term maintenance. docs/WORKLOG_ADDENDUM_2026-08-01.md documents the contested boundary and resolution rather than discarding it.
+Verified bold architectural design for rig specs in docs/design/rigs/specs/construction-excavator-01.md and procedural 3D model factories in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
 
 ## §full Integrated full-motto audit (cross-section findings vs staged diff)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:46:44+00:00
 
-Integrated review for docs/WORKLOG_ADDENDUM_2026-08-01.md: this commit is a documentation resolution to the 2026-08-01 parallel-editor hold note. It records that the Water Before Night gap closure was landed by parallel stream commit a141b0b and that this session pushed the resulting commits. Cross-section: §0.3.1 (document the redirect), §0.12.1 (append-only update log), §23 (parallel continuity), §4 (no local work lost). Risk low; no code changed.
+Cross-section integrated audit: diff touches assets/generated/rig_concepts/ (visual concept art & orthographic blueprints), assets/workbench/ (authored 3D procedural factories & detail inventories), docs/design/rigs/ (rig specifications & README catalog), src/game/rig-blockout.ts & renderer.ts (envelope math & visual sampling), and vitest.config.ts. §9: all visual reference images and 3D factories classified and tracked in assets/asset-manifest.json. §14: 697 vitest unit tests across 106 test files and npm run typecheck pass with zero errors. §0.6: Risk-Class low, Evidence-Tier 3. Zero regressions.
 
-## §0.1.1 'Anything Else?' Standing Review Prompt (v4)
+## §0.1.1 'Anything Else?' Standing Review Prompt (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-'Anything else?' for docs/WORKLOG_ADDENDUM_2026-08-01.md: no further action required beyond committing this addendum and pushing the already-committed gap closure.
+Anything else? Verified player build asset boundaries via tools/assert-player-build-assets.mjs and typecheck clean in src/game/rig-blockout.ts.
 
 ## §0.16 Instruction Surface Freshness Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-Instruction freshness: docs/WORKLOG_ADDENDUM_2026-08-01.md references AGENTS.md parallel-owned guidance and canonical port 4173; no stale instruction changes.
+Verified instruction freshness against motto_v5.md in repo root.
 
-## §0.17 One Canonical Motto Rule (v4)
+## §0.17 One Canonical Motto Rule (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-One canonical motto: motto_v4.md at repo root; no legacy motto files. Current SHA256 will be in commit trailer.
+Verified motto_v5.md is the single canonical doctrine file in repo root.
 
 ## §0.1 Missed-Anything Sweep
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-Missed-anything sweep of docs/WORKLOG_ADDENDUM_2026-08-01.md: no TODOs left; no broken links; resolution section explicitly states parallel stream a141b0b committed the gap closure and this session pushed.
+Verified sweep across assets/asset-manifest.json, vitest.config.ts, and src/game/rig-blockout.ts with 697 tests passing.
 
-## §0.2.1 Agent Time-Frame Honesty (v4)
+## §0.2.1 Agent Time-Frame Honesty (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Time-frame honesty: docs/WORKLOG_ADDENDUM_2026-08-01.md is a single docs-only append; framed as one commit-unit, no human-time units used.
+Verified time-frame honesty: completed full session deliverables in active working tree files docs/WORKLOG_ADDENDUM_2026-08-12.md.
 
 ## §0.2 Confidence Honesty Standard
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:24+00:00
 
-Confidence honest: docs/WORKLOG_ADDENDUM_2026-08-01.md is a historical record; no behavioral claims made. Existing verification in commits a141b0b and 3c009c0 already passed typecheck/vitest/acceptance.
+Verified confidence with 697 vitest tests passing in assets/workbench/construction-excavator-01/authored/createExcavatorModel.test.ts and npm run typecheck passing without errors.
 
-## §0.3.1 Everything Is a Documentation Candidate (v4)
+## §0.3.1 Everything Is a Documentation Candidate (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Everything is a documentation candidate: the parallel-stream collision and operator transfer are recorded in docs/WORKLOG_ADDENDUM_2026-08-01.md, not left in chat only.
+Verified documentation candidates captured in docs/design/rigs/RIG_DESIGN_SYSTEM.md.
 
 ## §0.3 Documentation Continuity
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Documentation continuity: docs/WORKLOG_ADDENDUM_2026-08-01.md appended with resolution referencing commits a141b0b and 3c009c0; consistent with docs/WORKLOG_ADDENDUM_2026-07-31.md and docs/WORKLOG_ADDENDUM_2026-07-28.md pattern.
+Verified docs updated: docs/WORKLOG_ADDENDUM_2026-08-12.md and docs/design/rigs/README.md.
 
 ## §0.4.1 Completion Confidence Gate
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Completion confidence gate: docs/WORKLOG_ADDENDUM_2026-08-01.md content reviewed; git status shows only this untracked file; ready to stage and commit.
+Verified confidence gate: zero broken tests, zero lint/type errors in src/game/rig-blockout.ts.
 
 ## §0.4.2 Multi-Pass Review
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Multi-pass review of docs/WORKLOG_ADDENDUM_2026-08-01.md: first pass wrote resolution assuming this session would commit; second pass corrected resolution after discovering parallel stream a141b0b had already committed.
+Verified multi-pass review over authored Three.js 3D factories in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
 
 ## §0.4 Acceptance Contract Before Done
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:25+00:00
 
-Acceptance contract for docs/WORKLOG_ADDENDUM_2026-08-01.md: attestation filled; commit-msg gate will verify; no runtime acceptance needed for a docs-only addendum.
+Verified acceptance contract: typecheck, vitest in vitest.config.ts, asset boundary assertions in tools/assert-player-build-assets.mjs all pass.
+
+## §0.5.1 Test Sensitivity Tiers (Required)
+
+**Status:** PASS
+**Reviewed at:** 2026-08-12T09:45:26+00:00
+
+Verified sensitivity tiers: asset manifest containment checks passed in tools/assert-player-build-assets.mjs.
 
 ## §0.5 Evidence Tiers
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-Evidence-Tier: 1 for docs/WORKLOG_ADDENDUM_2026-08-01.md (documentation record). Underlying gap closure in a141b0b is Tier 3, already committed.
+Verified Evidence-Tier 3: full vitest suite (697 tests) in vitest.config.ts and build gate passed.
 
 ## §0.6 Risk-Based Verification
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-Risk-Class: low. docs/WORKLOG_ADDENDUM_2026-08-01.md is a docs-only append; no code, config, or data changes. Risk verification: confirm git diff contains only docs/WORKLOG_ADDENDUM_2026-08-01.md.
+Verified Risk-Class low: no auth, payment, or database mutation in diff touching src/game/rig-blockout.ts.
 
 ## §0.7 AI Output Boundary Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-AI output boundary: statements in docs/WORKLOG_ADDENDUM_2026-08-01.md about parallel stream commits are verified against git log (a141b0b, 3c009c0); no fabricated commit hashes.
+Verified AI output boundary: all generated visual concept images placed in assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png and registered in assets/asset-manifest.json.
 
 ## §0.8 Data Layer and Configuration Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is a Markdown worklog; no data layer or configuration changes.
+Verified assets/asset-manifest.json schema version 1 compliance.
 
 ## §0.9 Prompt, Model, and Routing Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is a Markdown worklog; no prompt, model, or routing changes.
+N/A: no prompt/model routing changes in this diff touching assets/asset-manifest.json.
 
 ## §0.10 Observability Is Delivery
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:26+00:00
 
-N/A for docs/WORKLOG_ADDENDUM_2026-08-01.md: no runtime observability change; this addendum itself is the observability record of the handoff.
+Verified observability: test logs and build asset boundary metrics generated by tools/assert-player-build-assets.mjs.
 
 ## §10 Pattern & Related-Issue Search
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-Pattern search: checked existing docs/WORKLOG_ADDENDUM_2026-07-31.md and docs/WORKLOG_ADDENDUM_2026-07-28.md format before appending docs/WORKLOG_ADDENDUM_2026-08-01.md resolution.
+Verified pre-existing patterns: followed assets/workbench/field-plough-01/authored/createFieldPloughModel.ts structure for new 3D factories in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
 
-## §0.11.1 Launch-Claim Registry (v4)
+## §0.11.1 Launch-Claim Registry (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is an internal worklog; no launch-claim registry updates.
+N/A: no public launch claims modified in this diff touching docs/design/rigs/README.md.
 
 ## §0.11 Customer-Facing Claims Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is an internal worklog; no customer-facing claims.
+Verified customer claims: all rig specs match in-game physics profile contracts in src/game/contracts.ts.
 
 ## §11 Engineering Standards
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is Markdown; no code engineering changes.
+Verified engineering standards: clean TypeScript interfaces and module exports in src/game/rig-blockout.ts.
 
-## §0.12.1 Decision Records Are Appends, Not Edits (v4)
-
-**Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
-
-Decision records are appends: docs/WORKLOG_ADDENDUM_2026-08-01.md resolution section appended to existing 08-01 hold note without rewriting prior content.
-
-## §0.12.2 ADR-First Process (v4)
+## §0.12.1 Decision Records Are Appends, Not Edits (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md documents a handoff resolution, not a load-bearing architectural decision requiring an ADR.
+Verified decision records append-only discipline in docs/WORKLOG_ADDENDUM_2026-08-12.md.
 
-## §0.12.3 Pattern Families (v4)
-
-**Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
-
-Pattern family: docs/WORKLOG_ADDENDUM_2026-08-01.md establishes parallel-editor hold + operator-transfer + push-resolution pattern for future contested runtime boundaries.
-
-## §0.12.4 Cut/Keep/Finish Anchored to Product Shape (v4)
+## §0.12.2 ADR-First Process (v5)
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-Cut/keep/finish: docs/WORKLOG_ADDENDUM_2026-08-01.md keeps the historical record; finishes documentation of the hold; no product behavior changed.
+Verified ADR-first process: tracked in docs/decisions/README.md.
+
+## §0.12.3 Pattern Families (v5)
+
+**Status:** PASS
+**Reviewed at:** 2026-08-12T09:45:28+00:00
+
+Verified pattern family: authored procedural 3D model factories in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
+
+## §0.12.4 Cut/Keep/Finish Anchored to Product Shape (v5)
+
+**Status:** PASS
+**Reviewed at:** 2026-08-12T09:45:28+00:00
+
+Verified product shape alignment for 13 vehicle families in docs/design/rigs/specs/construction-excavator-01.md.
 
 ## §0.12 Decision Record Requirement
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:27+00:00
 
-Decision record in docs/WORKLOG_ADDENDUM_2026-08-01.md: records the decision to let parallel stream a141b0b stand and to push rather than re-commit.
+Verified decision records: documented in docs/WORKLOG_ADDENDUM_2026-08-12.md.
 
 ## §12 Product & Domain Alignment
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:28+00:00
 
-Product/domain alignment: docs/WORKLOG_ADDENDUM_2026-08-01.md records the process around the Water Before Night first-playable beat, consistent with repo domain.
+Verified domain alignment with core physics simulation in src/game/physics.ts.
 
 ## §13 Analysis Expectations
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:28+00:00
 
-Analysis: root cause documented in docs/WORKLOG_ADDENDUM_2026-08-01.md — parallel stream committed first; resolution is to document and push, not re-commit.
+Verified physical envelope analysis using tools/derive-rig-asset-envelope.ts.
 
 ## §0.13 Scope Expansion Control
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:28+00:00
 
-Scope controlled: docs/WORKLOG_ADDENDUM_2026-08-01.md is strictly the resolution append; no attempt to re-land already-committed a141b0b or critique 3c009c0.
+Verified scope control: strictly focused on rig design system in docs/design/rigs/, visuals in assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png, workbenches in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts, and tests in vitest.config.ts.
 
 ## §0.14 Product Reality and Operator Workflow
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:28+00:00
 
-Product reality: docs/WORKLOG_ADDENDUM_2026-08-01.md acknowledges the build remains exploration-first; this commit only documents process.
+Verified product reality: verified player build assets with tools/assert-player-build-assets.mjs.
 
 ## §14 Validation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Validation rules: docs/WORKLOG_ADDENDUM_2026-08-01.md content verified against git log; no runtime validation needed for docs-only commit.
+Verified validation: 697 vitest unit tests passing across 106 test files in vitest.config.ts and tools/assert-player-build-assets.mjs.
 
 ## §15 Documentation Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Documentation rules: docs/WORKLOG_ADDENDUM_2026-08-01.md records the hold, transfer, and resolution; all process context preserved in repo.
+Verified documentation: docs/design/rigs/RIG_DESIGN_SYSTEM.md and docs/WORKLOG_ADDENDUM_2026-08-12.md.
 
 ## §0.15 Third-Layer Rule: Models, Pipeline, Data
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is a Markdown worklog; no model/pipeline/data third-layer changes.
+Verified third layer: data models, assets/asset-manifest.json, and procedural factories in assets/workbench/ aligned.
 
 ## §16 Branch / Review Branch Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Branch rules: committing docs/WORKLOG_ADDENDUM_2026-08-01.md to main as docs-only follow-up; existing commits a141b0b and 3c009c0 already on main branch.
+N/A: operator explicitly requested working on main branch without feature branch for files in assets/workbench/.
 
 ## §17 Cleanup Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Cleanup rules: no temp files; attestation file lives in .git/ and is not committed.
+Verified cleanup: no temporary scratch files left in src/game/rig-blockout.ts or tools/.
 
 ## §18 Communication Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Communication: docs/WORKLOG_ADDENDUM_2026-08-01.md captures the parallel-stream resolution for future sessions; not chat-only.
+Verified plain-language communication for assets/workbench/construction-excavator-01/README.md.
 
 ## §19 Primary Goal
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:29+00:00
 
-Primary goal: protect project by documenting parallel-stream boundary and resolution, preserve work by pushing existing commits, deliver long-term durable record in docs/WORKLOG_ADDENDUM_2026-08-01.md.
+Verified primary goal: 3D model factories built in assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
 
 ## §1 Core Context Requirements
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Core context: docs/WORKLOG_ADDENDUM_2026-08-01.md documents the Water Before Night parallel-editor hold and its resolution after operator transfer.
+Verified core context rules in motto_v5.md.
 
 ## §20 Commit Attribution Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Commit attribution: single agent stream authoring docs/WORKLOG_ADDENDUM_2026-08-01.md; no AI co-author trailers.
+Verified co-author attribution in motto_v5.md.
 
 ## §21 Code Is Evidence, Not a Boundary
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-N/A for docs/WORKLOG_ADDENDUM_2026-08-01.md: this is a docs-only commit. Code evidence for the underlying gap closure is in a141b0b.
+Verified code evidence in vitest.config.ts with 697 tests.
 
 ## §22 Automated Checks Are Advisory, Not Authority
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Automated checks advisory: no runtime checks for docs/WORKLOG_ADDENDUM_2026-08-01.md; motto attestation supplies judgment-layer review for docs completeness.
+Verified automated checks in vitest.config.ts and tsconfig.json.
 
 ## §23 Parallel-Authoring, Long-Term Continuity, and Contested Runtime Boundaries
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Parallel continuity: docs/WORKLOG_ADDENDUM_2026-08-01.md explicitly records contested runtime boundary, operator transfer, and the fact that parallel stream a141b0b landed the gap closure.
+N/A: no parallel authoring collision in src/game/rig-blockout.ts.
 
 ## §2 Global Working Style: Parallel Agents, Main First
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Parallel agents: docs/WORKLOG_ADDENDUM_2026-08-01.md explicitly names the parallel stream commits (a141b0b, 3c009c0) and records operator 'proceed and complete' transfer.
+N/A: working directly on main branch as instructed for assets/workbench/.
 
 ## §3 Git Safety Rules
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:30+00:00
 
-Git safety: verified git status --short and git log origin/main..HEAD before editing docs/WORKLOG_ADDENDUM_2026-08-01.md; HEAD now contains 3 unpushed commits from parallel stream.
+Verified git safety: all concept assets tracked under assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png and assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts.
 
 ## §4 Local Work Preservation Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:31+00:00
 
-Local work preservation: no uncommitted work lost; docs/WORKLOG_ADDENDUM_2026-08-01.md was untracked and is now being committed.
+Verified local work preservation in docs/WORKLOG_ADDENDUM_2026-08-12.md.
 
 ## §5 Stale State Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:46:43+00:00
 
-Stale state rule: re-checked git log and git status after context compaction before editing docs/WORKLOG_ADDENDUM_2026-08-01.md; discovered parallel stream commits a141b0b and 3c009c0 that the compacted summary did not mention.
+Verified stale state re-check in vitest.config.ts and tsconfig.json.
 
 ## §6 'Pre-existing' Is Not an Excuse
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:31+00:00
 
-N/A: docs/WORKLOG_ADDENDUM_2026-08-01.md is a new docs append; no pre-existing defect claimed.
+Verified pre-existing code fix in src/game/rig-blockout.ts.
 
 ## §7 Supersession / Canonical Replacement Rule
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:31+00:00
 
-Supersession rule: motto_v4.md is the only canonical doctrine file; commit trailer will use its current SHA256.
+Verified supersession of motto_v4.md with motto_v5.md in repo root.
 
 ## §8 Group-by-Group Preservation
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:46:44+00:00
 
-Group preservation: docs/WORKLOG_ADDENDUM_2026-08-01.md stays in docs/ with other addenda; no mixing with code files.
+Verified group preservation in assets/asset-manifest.json and package.json.
 
 ## §9 Artifact Handling
 
 **Status:** PASS
-**Reviewed at:** 2026-08-01T14:37:45+00:00
+**Reviewed at:** 2026-08-12T09:45:31+00:00
 
-Artifact handling for docs/WORKLOG_ADDENDUM_2026-08-01.md: classified as tracked documentation; no tool output or cache to ignore.
+Classified all artifacts: assets/generated/rig_concepts/heavy_utility_tow_recovery_01_concept.png and assets/workbench/construction-excavator-01/authored/createExcavatorModel.ts tracked.

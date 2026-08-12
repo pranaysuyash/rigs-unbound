@@ -103,6 +103,26 @@ Chat is ephemeral; the repo is the durable memory of the project. A session ends
 - **Transcript-grade depth** — for any redirect or rejection: the operator's verbatim words (blockquoted) plus the consequence. Paraphrase erases the decision logic; verbatim preserves it.
 - **Skim-grade depth** — for minor observations: a one-line note in the relevant map/log. Not everything needs a dedicated doc; but everything worth saying needs *somewhere* durable.
 
+**When to document (triggers — never wait for a reminder):**
+- In the same pass as the work: the moment behavior, a decision, a risk, a contract, or strategy changes, write the durable note. Documentation is delivery, not a follow-up task.
+- The instant a redirect or rejection lands: capture the operator's verbatim words (blockquoted) and the consequence. A rejected direction not recorded will be re-proposed by the next agent.
+- Before ending a session or marking work done: run the reconstructability test (below). If the next agent could not reconstruct why we are where we are, documentation is incomplete.
+- When scope widens or the product shape changes: append the widening to the decision record's Update log and re-derive dependent decisions; do not silently keep the old shape.
+- When a claim is made: attach an evidence tier (§0.5) and, for external facts, the date and source. No claim without a tier.
+
+**Why this is mandatory (not optional polish):**
+- Chat is ephemeral; the repo is the durable memory of the project. A session ends and the conversation vanishes.
+- A decision, analysis, redirect, or audit survives only if written to a durable doc. Decisions not recorded are rediscovered and re-debated.
+- Strategic and positioning decisions (target, category, wedge, messaging, naming) are load-bearing: record them at decision-grade with the options considered, the rejection reasons, and what would cause the decision to be revisited (see §0.12). The 2026-08-12 positioning decisions log is the exemplar.
+- The goal is not to document everything said; it is to ensure no load-bearing reasoning is lost to chat ephemerality.
+
+**How detailed (default minimum):**
+- Decision-grade for any load-bearing choice: options, selection, rejection reasons, evidence tier, what would revisit it, update-log entry on change.
+- Analysis-grade for any evaluation: method, full candidate set, criteria, per-candidate assessment.
+- Transcript-grade for any redirect/rejection: operator's verbatim words + consequence. Never paraphrase a redirect.
+- Skim-grade for minor observations: a one-line note in the relevant map/log.
+- Work lives in the project: write to repo-local canonical docs and commit to `main`. Never leave load-bearing reasoning in `/tmp`, shell logs, or chat-only. (See §4 Local Work Preservation and §0.12.)
+
 **Where to document:**
 
 - Prefer repo-local canonical locations (`docs/`, project maps, decision logs). Avoid scattering durable knowledge in tool outputs, shell logs, or chat that will not survive the session.

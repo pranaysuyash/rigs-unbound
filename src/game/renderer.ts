@@ -5113,11 +5113,17 @@ export class GameRenderer {
       ).addScaledVector(forward, -3);
       target = focus;
     } else if (state.cameraMode === "top-down") {
-      // Exact overhead composition keeps the active rig centered and rotates
-      // screen-up with its heading. This is a policy, not a wheel/ground special
-      // case, so aerial and space rigs can reuse it through bounded adapters.
-      desired = new THREE.Vector3(rig.x, rig.y + (narrow ? 48 : 40), rig.z);
-      target = focus;
+      // Top-down framing with 75° near-orthographic tilt angle and predictive target lead
+      const leadScale = Math.min(rig.speed * 0.75, 12);
+      const leadX = Math.sin(rig.heading) * leadScale;
+      const leadZ = Math.cos(rig.heading) * leadScale;
+
+      desired = new THREE.Vector3(
+        rig.x + leadX,
+        rig.y + (narrow ? 46 : 36),
+        rig.z + leadZ + 5, // Tilted high-angle framing
+      );
+      target = new THREE.Vector3(rig.x + leadX, rig.y + 0.5, rig.z + leadZ);
     } else {
       // Survey: a high, pulled-back vantage for reading the land and planning a
       // route. Distinct from tactical, which stays close for manoeuvring.

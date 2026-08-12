@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "workbenchId": "marsh-dredger-heavy-02",
+  "rigId": "marsh-dredger-heavy-02",
+  "status": "workbench-intake-complete",
+  "sourceReference": "assets/generated/rig_concepts/marsh_dredger_heavy_02_concept.png",
+  "detailInventory": [
+    {
+      "nodeId": "pontoon-chassis",
+      "level": "macro",
+      "role": "Buoyant dual steel pontoon hull chassis frame",
+      "derivedEnvelope": {
+        "track": 3.60,
+        "wheelbase": 4.80,
+        "rideHeight": 1.10
+      },
+      "sockets": ["boom-pivot-center", "track-mount-sides"]
+    },
+    {
+      "nodeId": "amphibious-track-pods",
+      "level": "macro",
+      "role": "Wide cleats amphibious track pontoon pods with sealed motors",
+      "sockets": []
+    },
+    {
+      "nodeId": "excavator-arm",
+      "level": "macro",
+      "role": "Two-part hydraulic boom and dipper stick arm",
+      "sockets": ["bucket-mount-tip"]
+    },
+    {
+      "nodeId": "dredging-bucket",
+      "level": "meso",
+      "role": "Reinforced mud & silt dredging bucket with cutter teeth",
+      "sockets": []
+    },
+    {
+      "nodeId": "operator-cab",
+      "level": "macro",
+      "role": "Elevated pressurized glass operator cab with safety cage",
+      "sockets": []
+    }
+  ]
+}
