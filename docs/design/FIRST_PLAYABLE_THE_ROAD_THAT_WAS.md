@@ -127,7 +127,7 @@ encodes the locked contracts; this scene makes them *visible promises* instead
 of hidden data. The slice ends with the player choosing the next contract —
 not a cutscene.
 
-## 6. Module dispositions (all 26, explicit)
+## 6. Module dispositions (all 30, explicit)
 
 **Wired by this slice (16):** `campaign.ts`, `world-memory.ts`,
 `vehicle-maintenance.ts`, `workshop-lab.ts`, `salvage-crafting.ts`,
@@ -138,12 +138,14 @@ not a cutscene.
 
 **Wired if the night pressure lands as designed (0):** *(All conditions met — both modules now reachable and moved to the wired group above. This group is retained as a zero-count marker so the heading documents that the condition resolved rather than being silently dropped.)*
 
-**Re-archived with named future home (10):** `fleet-recovery.ts`,
+**Re-archived with named future home (14):** `fleet-recovery.ts`,
 `cargo-crane.ts`, `winch-physics.ts`, `winch-pulley.ts` (salvage verticals),
 `thermal-camera.ts`, `thermal-engine.ts` (night-instrument tier 2),
 `fuel-efficiency.ts` (economy tuning pass), `procedural-missions.ts`
 (post-slice repeatable contracts), `asset-manager.ts` (asset promotion lane),
-`renderer-adapter.ts` (multi-backend 2D/3D renderer interface).
+`renderer-adapter.ts` (multi-backend 2D/3D renderer interface),
+`top-down-tactical-kernel.ts`, `top-down-stealth-kernel.ts`,
+`top-down-defense-kernel.ts`, `tactical-overlay.ts` (top-down game mode probes under ADR-0053).
 
 ## 7. Execution tranches
 
@@ -572,3 +574,16 @@ quest needs still requires reading the module, as every prior addendum showed.
 
 §6 counts updated: wired 12→16 (ghost, expedition-economy, landslide-hazard,
 debris-physics), conditional 2→0, archived 11→9. Total remains 25.
+
+## Addendum (2026-08-13) — four top-down game mode probe kernels dispositioned under ADR-0053
+
+Four experimental top-down game mode probe kernels (`top-down-tactical-kernel.ts`,
+`top-down-stealth-kernel.ts`, `top-down-defense-kernel.ts`, `tactical-overlay.ts`)
+were authored under [ADR-0053](../decisions/ADR-0053-top-down-game-mode-architecture-and-control-paradigms.md).
+These kernels explore tactical twin-stick, stealth line-of-sight, defense wave placement,
+and tactical overlay UI paradigms.
+
+The §6 disposition table has been updated to explicitly register all 4 probe modules
+under **Re-archived with named future home (14)**. `tools/audit-slice-binding-claims.mjs`
+verifies 0 contradictions across all 30 declared modules.
+

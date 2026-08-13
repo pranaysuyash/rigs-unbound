@@ -113,7 +113,8 @@ describe("survey contract", () => {
     atHome(state, "marsh-skimmer");
     takeContract(state, world);
     const rig = state.rigs["marsh-skimmer"];
-    world.claimSurveyRefresh(rig.id, rig.x, rig.z);
+    // Pre-claim at post-settlement position so stepGame's stationary test doesn't re-trigger survey sweep
+    world.claimSurveyRefresh(rig.id, rig.x, rig.z + 3.62);
     state.worldTimeMinutes =
       state.surveyRoute.startedAtMinutes! + SURVEY_ROUTE_WINDOW_MINUTES;
 

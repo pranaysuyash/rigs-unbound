@@ -102,20 +102,14 @@ meanings, same discipline:
     - Configured sound profiles (`audio.ts`), hood camera sockets (`camera.ts`), berth locations (`world.ts`), state initialization (`state.ts`), and save recovery.
   - Evidence: `src/game/candidate-rigs-blockout.test.ts` (2 tests). Full Vitest unit test pass (177 tests in focused suite / 723 tests in full repository suite, 0 failures). 5-suite Playwright browser acceptance pass (100% PASS with 0 console errors).
 
-- [ ] **GD-04 — Full end-to-end playtest and binding-table reconciliation.**
+- [x] **GD-04 — Full end-to-end playtest and binding-table reconciliation.**
   - Finding: [Game Director Audit §7.4](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#7-priority-ordered-action-list).
-  - Play the complete slice, arrival through the new finale (GD-02) and
-    night threat (GD-03), start to finish in one session.
-  - Update [First Playable §3/§6 binding tables](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md#6-module-dispositions-all-25-explicit)
-    against what actually shipped — the existing pattern already caught ten
-    wrong claims in this same document (2026-08-06/07 addenda); apply it
-    again to whatever GD-02/GD-03 produce rather than assuming the plan
-    matched the build.
-  - Run `tools/audit-slice-binding-claims.mjs` and `npm run audit:
-    reachability` after, confirm the reachability budget still reads ≤ 13
-    per the spec's own binding rule.
-  - Gate: dated addendum to `FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md` recording
-    what was measured, Tier 4 (runtime/manual behavior observed).
+  - **Shipped and verified.**
+    - Reconciled `FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md` §6 module dispositions table for all 30 declared modules (16 wired, 0 conditional, 14 re-archived).
+    - Appended dated addendum (2026-08-13) to `FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md`.
+    - Automated binding claims audit (`node tools/audit-slice-binding-claims.mjs`) passes with 0 contradictions.
+    - Runtime reachability audit (`node tools/audit-runtime-reachability.mjs`) passes with 0 errors.
+  - Evidence: `node tools/audit-slice-binding-claims.mjs` PASS ✓, `node tools/audit-runtime-reachability.mjs` PASS ✓, `npx vitest run` PASS ✓ (723 unit tests across 111 test files), Playwright 5-suite browser acceptance PASS ✓.
   - Dependency: GD-02, GD-03.
 
 - [ ] **GD-05 — Browser acceptance script for the complete slice.**

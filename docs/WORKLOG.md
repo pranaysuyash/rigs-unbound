@@ -1,3 +1,10 @@
+## 2026-08-13 — Home berth layout optimization, blockout volume alignment, and full test suite verification
+
+See [`docs/WORKLOG_ADDENDUM_2026-08-13.md`](WORKLOG_ADDENDUM_2026-08-13.md):
+fixed superstructure volume height offsets, optimized 16-rig Home berth layout
+for dry terrain, non-overlap, and 34m switching disc; verified 100% clean
+typecheck and 111/111 vitest test files (723/723 tests passing).
+
 ## 2026-08-12 — Game Director audit and execution board
 
 See [`docs/WORKLOG_ADDENDUM_2026-08-12.md`](WORKLOG_ADDENDUM_2026-08-12.md):
