@@ -133,6 +133,19 @@ export const RIG_HOOD_CAMERA_MOUNTS: Readonly<Record<RigId, RigCameraMount>> = {
     lookDistance: 18,
     lookDrop: 0.12,
   },
+  "heavy-utility-tow-recovery-01": { localX: 0, localY: 3.6, localZ: 1.2, lookDistance: 17, lookDrop: 0.2 },
+  "heavy-salvage-crane-02": { localX: 0, localY: 4.0, localZ: 1.5, lookDistance: 18, lookDrop: 0.22 },
+  "snow-crawler-expedition-01": { localX: 0, localY: 3.2, localZ: 1.0, lookDistance: 16, lookDrop: 0.18 },
+  "harvester-combined-cultivator-01": { localX: 0.5, localY: 3.8, localZ: 1.1, lookDistance: 16.5, lookDrop: 0.2 },
+  "sentinel-mobile-fort-01": { localX: 0, localY: 4.5, localZ: 1.8, lookDistance: 20, lookDrop: 0.25 },
+  "aero-skimmer-survey-01": { localX: 0, localY: 2.8, localZ: 0.9, lookDistance: 18, lookDrop: 0.12 },
+  "aero-cargo-freighter-02": { localX: 0, localY: 3.9, localZ: 1.6, lookDistance: 19, lookDrop: 0.15 },
+  "torque-field-cutter-02": { localX: 0.52, localY: 3.34, localZ: 0.55, lookDistance: 16, lookDrop: 0.25 },
+  "spark-dune-runner-02": { localX: 0, localY: 1.9, localZ: 0.6, lookDistance: 17.5, lookDrop: 0.15 },
+  "marsh-dredger-heavy-02": { localX: 0, localY: 3.7, localZ: 1.4, lookDistance: 17, lookDrop: 0.15 },
+  "hauler-road-train-01": { localX: 0, localY: 3.8, localZ: 1.5, lookDistance: 18, lookDrop: 0.2 },
+  "construction-excavator-01": { localX: -0.4, localY: 3.5, localZ: 1.1, lookDistance: 15.5, lookDrop: 0.22 },
+  "micro-scout-pipe-crawler-01": { localX: 0, localY: 1.05, localZ: 0.3, lookDistance: 12, lookDrop: 0.1 },
 } as const;
 
 export type CameraPresetId =

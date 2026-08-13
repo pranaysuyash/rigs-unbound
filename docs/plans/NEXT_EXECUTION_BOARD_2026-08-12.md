@@ -92,6 +92,16 @@ meanings, same discipline:
   - Evidence: `src/game/first-night-threat.test.ts` (13 tests), `src/game/state.test.ts` (5 tests). Full suite PASS (704 vitest unit tests across 108 test files + 7 kernel probe tests). Browser acceptance PASS across all acceptance scripts.
   - Dependency: GD-01 (met).
 
+- [x] **GD-05 — Complete 3D blocking & codebase-wide vehicle profile integration.**
+  - Finding: User directive to integrate all 16 vehicle families across contracts, blockouts, rendering, audio, camera, world, and state.
+  - **Shipped and verified.**
+    - Extended `RIG_IDS` and `RigId` union in `src/game/rig-ids.ts` with all candidate vehicle profiles.
+    - Derived 1st-principles physical parameters in `src/game/contracts.ts` (`RIG_PROFILES`) for all 16 vehicle families.
+    - Authored 3D blockout geometry & superstructures in `src/game/rig-blockout.ts` (`RIG_SILHOUETTES`, `RIG_SUPERSTRUCTURES`).
+    - Integrated procedural 3D model assembly in `src/game/renderer.ts` (`createCandidateRig`).
+    - Configured sound profiles (`audio.ts`), hood camera sockets (`camera.ts`), berth locations (`world.ts`), state initialization (`state.ts`), and save recovery.
+  - Evidence: `src/game/candidate-rigs-blockout.test.ts` (2 tests). Full Vitest unit test pass (177 tests in focused suite / 723 tests in full repository suite, 0 failures). 5-suite Playwright browser acceptance pass (100% PASS with 0 console errors).
+
 - [ ] **GD-04 — Full end-to-end playtest and binding-table reconciliation.**
   - Finding: [Game Director Audit §7.4](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#7-priority-ordered-action-list).
   - Play the complete slice, arrival through the new finale (GD-02) and

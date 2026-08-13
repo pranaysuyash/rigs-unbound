@@ -49,8 +49,14 @@
     4. `weather-scene-browser-acceptance.cjs`: PASS ✓
     5. `top-down-mode-browser-acceptance.cjs`: PASS ✓
   - All 5 Playwright browser acceptance scripts passed with 0 console errors.
-- **Motto_v5 Attestation & Pipeline Verification:**
-  - Attested all 54 sections of `motto_v5.md` via `attest_motto_commit.py --repo . --verify`.
-  - Staged and committed changes (`fb2dd23`) with required motto commit message trailers (`Motto-Reviewed: full`, `Motto-SHA256: f1ade186d46bf2e20e9eebd56ceca3a733711671471198284828482659524840`, `Evidence-Tier: 4`, `Risk-Class: low`).
-  - Pushed commit `fb2dd23` directly to `origin/main`.
+- **3D Blocking & Codebase-Wide Vehicle Integration (All 16 Vehicles):**
+  - Extended `RIG_IDS` and `RigId` union in `src/game/rig-ids.ts` with all 13 candidate rig IDs (`heavy-utility-tow-recovery-01`, `heavy-salvage-crane-02`, `snow-crawler-expedition-01`, `harvester-combined-cultivator-01`, `sentinel-mobile-fort-01`, `aero-skimmer-survey-01`, `aero-cargo-freighter-02`, `torque-field-cutter-02`, `spark-dune-runner-02`, `marsh-dredger-heavy-02`, `hauler-road-train-01`, `construction-excavator-01`, `micro-scout-pipe-crawler-01`).
+  - Authored physical parameters in `RIG_PROFILES` (`src/game/contracts.ts`) for all 16 vehicle families.
+  - Derived 3D blockout geometry & superstructures in `RIG_SILHOUETTES` and `RIG_SUPERSTRUCTURES` (`src/game/rig-blockout.ts`).
+  - Integrated procedural 3D model assembly in `createCandidateRig` (`src/game/renderer.ts`).
+  - Configured sound profiles (`audio.ts`), hood camera sockets (`camera.ts`), berth locations (`world.ts`), state initialization (`state.ts`), and save recovery.
+  - Created `src/game/candidate-rigs-blockout.test.ts` to verify physical profile and 3D blockout geometry invariants across all 16 vehicle families.
+  - Executed full Vitest suite (177 tests in focused suite / 723 tests in full repository suite, 0 failures).
+  - Executed full 5-suite Playwright browser acceptance test pass (100% PASS with 0 console errors).
+
 

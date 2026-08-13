@@ -1659,16 +1659,11 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
     rigId: "utility-tractor",
     x: HOME_SITE.x,
     z: HOME_SITE.z - 9,
-    // Face roughly toward the guaranteed first cache. A new or recovered player
-    // should see playable terrain and the next useful direction, not look back
-    // through workshop geometry merely to exercise camera collision.
     heading: -Math.PI / 2,
     label: "Torque service berth",
   },
   "toy-buggy": {
     rigId: "toy-buggy",
-    // Keep the guaranteed first-cache departure lane west of Torque clear now
-    // that parked fleet bodies are real colliders rather than pass-through art.
     x: HOME_SITE.x + 7,
     z: HOME_SITE.z - 8,
     heading: Math.PI,
@@ -1676,10 +1671,101 @@ export const RIG_HOME_BERTHS: Readonly<Record<RigId, RigHomeBerth>> = {
   },
   "marsh-skimmer": {
     rigId: "marsh-skimmer",
-    x: HOME_SITE.x + 13,
+    x: HOME_SITE.x + 14,
     z: HOME_SITE.z - 7,
     heading: Math.PI,
     label: "Drift service berth",
+  },
+  "heavy-utility-tow-recovery-01": {
+    rigId: "heavy-utility-tow-recovery-01",
+    x: HOME_SITE.x - 7,
+    z: HOME_SITE.z - 8,
+    heading: 0,
+    label: "Titan-Tow service berth",
+  },
+  "heavy-salvage-crane-02": {
+    rigId: "heavy-salvage-crane-02",
+    x: HOME_SITE.x - 16,
+    z: HOME_SITE.z - 5,
+    heading: 0,
+    label: "Goliath Crane service berth",
+  },
+  "snow-crawler-expedition-01": {
+    rigId: "snow-crawler-expedition-01",
+    x: HOME_SITE.x + 13,
+    z: HOME_SITE.z,
+    heading: Math.PI / 2,
+    label: "Frostbite service berth",
+  },
+  "harvester-combined-cultivator-01": {
+    rigId: "harvester-combined-cultivator-01",
+    x: HOME_SITE.x - 11,
+    z: HOME_SITE.z,
+    heading: -Math.PI / 2,
+    label: "Reaper service berth",
+  },
+  "sentinel-mobile-fort-01": {
+    rigId: "sentinel-mobile-fort-01",
+    x: HOME_SITE.x - 8,
+    z: HOME_SITE.z - 22,
+    heading: 0,
+    label: "Ironclad service berth",
+  },
+  "aero-skimmer-survey-01": {
+    rigId: "aero-skimmer-survey-01",
+    x: HOME_SITE.x + 7,
+    z: HOME_SITE.z - 18,
+    heading: Math.PI,
+    label: "SkyScout service berth",
+  },
+  "aero-cargo-freighter-02": {
+    rigId: "aero-cargo-freighter-02",
+    x: HOME_SITE.x + 14,
+    z: HOME_SITE.z - 19,
+    heading: Math.PI,
+    label: "SkyFreight service berth",
+  },
+  "torque-field-cutter-02": {
+    rigId: "torque-field-cutter-02",
+    x: HOME_SITE.x - 6,
+    z: HOME_SITE.z - 15,
+    heading: -Math.PI / 2,
+    label: "Torque-Max service berth",
+  },
+  "spark-dune-runner-02": {
+    rigId: "spark-dune-runner-02",
+    x: HOME_SITE.x + 1,
+    z: HOME_SITE.z - 15,
+    heading: Math.PI / 2,
+    label: "SandSpark service berth",
+  },
+  "marsh-dredger-heavy-02": {
+    rigId: "marsh-dredger-heavy-02",
+    x: HOME_SITE.x + 16,
+    z: HOME_SITE.z - 14,
+    heading: Math.PI,
+    label: "MudDredger service berth",
+  },
+  "hauler-road-train-01": {
+    rigId: "hauler-road-train-01",
+    x: HOME_SITE.x - 16,
+    z: HOME_SITE.z - 16,
+    heading: 0,
+    label: "RoadKing service berth",
+  },
+  "construction-excavator-01": {
+    rigId: "construction-excavator-01",
+    x: HOME_SITE.x - 2,
+    z: HOME_SITE.z - 15,
+    heading: 0,
+    label: "EarthShifter service berth",
+  },
+  "micro-scout-pipe-crawler-01": {
+    rigId: "micro-scout-pipe-crawler-01",
+    x: HOME_SITE.x + 4,
+    z: HOME_SITE.z - 15,
+    heading: Math.PI,
+    label: "NanoScout service berth",
   },
 } as const;
 

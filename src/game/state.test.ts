@@ -257,7 +257,7 @@ describe("rig gameplay kernel", () => {
       expect(rig.x).toBe(berth.x);
       expect(rig.z).toBe(berth.z);
       expect(rig.heading).toBe(berth.heading);
-      expect(world.terrain.sample(rig.x, rig.z).waterDepth).toBe(0);
+      expect(world.terrain.sample(rig.x, rig.z).waterDepth, `Failed for rig: ${rig.id}`).toBe(0);
       expect(world.terrain.sample(rig.x, rig.z).slope).toBeLessThan(0.18);
     }
 
@@ -268,7 +268,10 @@ describe("rig gameplay kernel", () => {
         const minimum =
           rigCollisionRadius(RIG_PROFILES[a.id]) +
           rigCollisionRadius(RIG_PROFILES[b.id]);
-        expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeGreaterThan(minimum);
+        expect(
+          Math.hypot(a.x - b.x, a.z - b.z),
+          `Overlap between ${a.id} (${a.x},${a.z}) and ${b.id} (${b.x},${b.z})`,
+        ).toBeGreaterThan(minimum);
         expect(Math.hypot(a.x - b.x, a.z - b.z)).toBeLessThan(34);
       }
     }

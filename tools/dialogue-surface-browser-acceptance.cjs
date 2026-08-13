@@ -105,6 +105,8 @@ async function main() {
     await clickRestoration(page);
     await waitForRestorationText(page, "Start engine");
     await clickRestoration(page);
+    await page.locator('button[data-module-id="lug-tires"]').click().catch(() => {});
+    await page.waitForTimeout(300);
     await page.waitForSelector("#workshop-panel", {
       state: "hidden",
       timeout: 5_000,
@@ -121,11 +123,22 @@ async function main() {
 
     // ── Create a furrow so the naming beat becomes ready ──
     await page.locator("#game-canvas").focus();
+    const bladeEngaged = await page.evaluate(() => {
+      const s = JSON.parse(window.render_game_to_text());
+      return (
+        s.activeRig.attachments.find((a) => a.id === "field-plough")?.engaged ??
+        false
+      );
+    });
+    if (!bladeEngaged) {
+      await page.keyboard.press("Space");
+      await page.waitForTimeout(300);
+    }
     // Drive forward with blade engaged to leave a plough mark.
     await page.evaluate(() =>
       window.applyRigInput(
         { accelerate: true, brake: false, steerLeft: false, steerRight: false },
-        2500,
+        4000,
       ),
     );
     await page.waitForTimeout(1000);

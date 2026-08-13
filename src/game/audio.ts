@@ -86,6 +86,19 @@ const VOICES: Readonly<Record<RigId, VoiceProfile>> = {
     level: 0.24,
     shape: "triangle",
   },
+  "heavy-utility-tow-recovery-01": { idleHz: 38, spanHz: 70, detune: 28, cutoffIdleHz: 240, cutoffLoadHz: 1100, level: 0.32, shape: "sawtooth" },
+  "heavy-salvage-crane-02": { idleHz: 34, spanHz: 65, detune: 30, cutoffIdleHz: 220, cutoffLoadHz: 1000, level: 0.35, shape: "sawtooth" },
+  "snow-crawler-expedition-01": { idleHz: 46, spanHz: 85, detune: 22, cutoffIdleHz: 280, cutoffLoadHz: 1300, level: 0.28, shape: "sawtooth" },
+  "harvester-combined-cultivator-01": { idleHz: 40, spanHz: 72, detune: 25, cutoffIdleHz: 250, cutoffLoadHz: 1120, level: 0.3, shape: "sawtooth" },
+  "sentinel-mobile-fort-01": { idleHz: 32, spanHz: 60, detune: 32, cutoffIdleHz: 200, cutoffLoadHz: 950, level: 0.38, shape: "sawtooth" },
+  "aero-skimmer-survey-01": { idleHz: 68, spanHz: 160, detune: 8, cutoffIdleHz: 480, cutoffLoadHz: 2500, level: 0.22, shape: "triangle" },
+  "aero-cargo-freighter-02": { idleHz: 52, spanHz: 110, detune: 10, cutoffIdleHz: 380, cutoffLoadHz: 1900, level: 0.26, shape: "triangle" },
+  "torque-field-cutter-02": { idleHz: 44, spanHz: 80, detune: 24, cutoffIdleHz: 270, cutoffLoadHz: 1200, level: 0.31, shape: "sawtooth" },
+  "spark-dune-runner-02": { idleHz: 105, spanHz: 380, detune: 12, cutoffIdleHz: 580, cutoffLoadHz: 3500, level: 0.18, shape: "square" },
+  "marsh-dredger-heavy-02": { idleHz: 50, spanHz: 100, detune: 9, cutoffIdleHz: 360, cutoffLoadHz: 1800, level: 0.25, shape: "triangle" },
+  "hauler-road-train-01": { idleHz: 36, spanHz: 75, detune: 26, cutoffIdleHz: 230, cutoffLoadHz: 1050, level: 0.33, shape: "sawtooth" },
+  "construction-excavator-01": { idleHz: 42, spanHz: 78, detune: 27, cutoffIdleHz: 260, cutoffLoadHz: 1180, level: 0.32, shape: "sawtooth" },
+  "micro-scout-pipe-crawler-01": { idleHz: 120, spanHz: 400, detune: 15, cutoffIdleHz: 650, cutoffLoadHz: 4000, level: 0.15, shape: "square" },
 };
 
 const FALLBACK_VOICE: VoiceProfile = VOICES["utility-tractor"];

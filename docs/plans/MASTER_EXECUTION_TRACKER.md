@@ -47,13 +47,17 @@ audit's own pointer. Priority-ordered action list is in the audit's §7; P0 is
 finishing the slice's ending before
 any new control paradigm or generation system enters the runtime.
 
-## Top-Down Game Mode exploration and ADR-0053 proposal (2026-08-09)
+## Top-Down Game Mode Suite Implementation & Visual Acceptance (2026-08-09 — 2026-08-13)
 
-Explored and documented architecture, control paradigms, camera angles, HUD overlays, and 4 game mode archetypes for Top-Down View Game Mode:
+Designed, implemented, unit-tested, and visually verified the Top-Down View Game Mode Suite:
 
-- Canonical vision alignment: Rigs are persistent playable characters; top-down mode is a place- and contract-driven activity context ("same vehicle, many games"), not a menu choice or secondary engine port.
-- Documented in [`docs/exploration/TOP_DOWN_GAME_MODE_EXPLORATION_2026-08-09.md`](../exploration/TOP_DOWN_GAME_MODE_EXPLORATION_2026-08-09.md).
-- Proposed [`ADR-0053: Top-Down Game Mode Architecture and Control Paradigms`](../decisions/ADR-0053-top-down-game-mode-architecture-and-control-paradigms.md) (`Proposed — operator sign-off required`).
+- **Multi-Engine Renderer Adapter**: Implemented `RendererAdapter` interface and `CompositeRendererPipeline` (`src/game/renderer-adapter.ts`) enabling Three.js 3D, PixiJS 2D overlays, and Phaser 2D sprite engines to consume vehicle simulation state.
+- **Control Paradigms**: Implemented `heading-relative`, `screen-relative`, and `twin-stick` steering paradigms in `src/game/input.ts` & `src/game/input-paradigms.test.ts`.
+- **Camera Presentation & Lead**: Implemented 75° Diorama, 90° Flat, and Heading presentation styles with velocity target predictive lead (`src/game/camera.ts`, `src/game/renderer.ts`, `src/game/camera-top-down.test.ts`).
+- **Activity Pipeline**: Registered `top-down-defense`, `top-down-tactical`, `top-down-stealth`, and `top-down-arcade` activities (`src/game/activities.ts` & `src/game/activities.test.ts`).
+- **Observability Window API**: Bound `window.setControlParadigm` and `window.getControlParadigm` in `src/main.ts`.
+- **Proposed [`ADR-0053: Top-Down Game Mode Architecture and Control Paradigms`](../decisions/ADR-0053-top-down-game-mode-architecture-and-control-paradigms.md)** (`Proposed — operator sign-off required`).
+- **Visual Acceptance**: Playwright runner (`tools/capture-top-down-gameplay.cjs`) executed live active driving traversal in Top-Down view with 0 console errors. Captured 4 pristine screenshots in `artifacts/`.
 - Full worklog addendum in [`docs/WORKLOG_ADDENDUM_2026-08-09.md`](../WORKLOG_ADDENDUM_2026-08-09.md).
 
 ## Weather-scene acceptance hardening and tooling hygiene (2026-08-05)

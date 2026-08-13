@@ -479,6 +479,110 @@ export const RIG_SILHOUETTES: Readonly<Record<RigId, RigSilhouette>> = {
     hullLengthScale: 1.6,
     hullThicknessScale: 0.31,
   },
+  "heavy-utility-tow-recovery-01": {
+    frontWheelScale: 0.9,
+    rearWheelScale: 1.1,
+    tyreWidthScale: 1.0,
+    hullWidthScale: 1.05,
+    hullLengthScale: 1.4,
+    hullThicknessScale: 0.7,
+  },
+  "heavy-salvage-crane-02": {
+    frontWheelScale: 0.95,
+    rearWheelScale: 1.05,
+    tyreWidthScale: 1.1,
+    hullWidthScale: 1.1,
+    hullLengthScale: 1.5,
+    hullThicknessScale: 0.8,
+  },
+  "snow-crawler-expedition-01": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.2,
+    hullWidthScale: 1.0,
+    hullLengthScale: 1.45,
+    hullThicknessScale: 0.75,
+  },
+  "harvester-combined-cultivator-01": {
+    frontWheelScale: 0.75,
+    rearWheelScale: 1.25,
+    tyreWidthScale: 1.05,
+    hullWidthScale: 1.15,
+    hullLengthScale: 1.35,
+    hullThicknessScale: 0.8,
+  },
+  "sentinel-mobile-fort-01": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.3,
+    hullWidthScale: 1.2,
+    hullLengthScale: 1.6,
+    hullThicknessScale: 0.85,
+  },
+  "aero-skimmer-survey-01": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.0,
+    hullWidthScale: 1.0,
+    hullLengthScale: 1.4,
+    hullThicknessScale: 0.35,
+  },
+  "aero-cargo-freighter-02": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.0,
+    hullWidthScale: 1.25,
+    hullLengthScale: 1.5,
+    hullThicknessScale: 0.4,
+  },
+  "torque-field-cutter-02": {
+    frontWheelScale: 0.85,
+    rearWheelScale: 1.15,
+    tyreWidthScale: 1.1,
+    hullWidthScale: 1.0,
+    hullLengthScale: 1.4,
+    hullThicknessScale: 0.72,
+  },
+  "spark-dune-runner-02": {
+    frontWheelScale: 0.95,
+    rearWheelScale: 1.05,
+    tyreWidthScale: 1.15,
+    hullWidthScale: 0.85,
+    hullLengthScale: 1.5,
+    hullThicknessScale: 0.65,
+  },
+  "marsh-dredger-heavy-02": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.0,
+    hullWidthScale: 1.2,
+    hullLengthScale: 1.55,
+    hullThicknessScale: 0.38,
+  },
+  "hauler-road-train-01": {
+    frontWheelScale: 0.95,
+    rearWheelScale: 1.05,
+    tyreWidthScale: 0.98,
+    hullWidthScale: 0.98,
+    hullLengthScale: 1.6,
+    hullThicknessScale: 0.75,
+  },
+  "construction-excavator-01": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.25,
+    hullWidthScale: 1.1,
+    hullLengthScale: 1.4,
+    hullThicknessScale: 0.82,
+  },
+  "micro-scout-pipe-crawler-01": {
+    frontWheelScale: 1.0,
+    rearWheelScale: 1.0,
+    tyreWidthScale: 1.1,
+    hullWidthScale: 0.9,
+    hullLengthScale: 1.3,
+    hullThicknessScale: 0.6,
+  },
 } as const;
 
 /** Mean of the two axle scales. Must be 1 for `wheelRadius` to mean anything. */
@@ -614,6 +718,53 @@ export const RIG_SUPERSTRUCTURES: Readonly<
       heightScale: 8.69773,
       depthScale: 0.410156,
     },
+  ],
+  "heavy-utility-tow-recovery-01": [
+    { label: "cab", xScale: 0, yAboveTopScale: 1.5, zScale: 0.25, widthScale: 0.95, heightScale: 3.0, depthScale: 0.45 },
+    { label: "boom", xScale: 0, yAboveTopScale: 1.1, zScale: -0.3, widthScale: 0.7, heightScale: 2.2, depthScale: 0.5 },
+  ],
+  "heavy-salvage-crane-02": [
+    { label: "cab", xScale: 0, yAboveTopScale: 1.6, zScale: 0.35, widthScale: 0.9, heightScale: 3.2, depthScale: 0.35 },
+    { label: "crane house", xScale: 0, yAboveTopScale: 1.75, zScale: -0.1, widthScale: 0.85, heightScale: 3.5, depthScale: 0.55 },
+  ],
+  "snow-crawler-expedition-01": [
+    { label: "cabin", xScale: 0, yAboveTopScale: 1.4, zScale: 0.0, widthScale: 0.88, heightScale: 2.8, depthScale: 0.6 },
+  ],
+  "harvester-combined-cultivator-01": [
+    { label: "cab", xScale: 0.25, yAboveTopScale: 1.6, zScale: 0.2, widthScale: 0.45, heightScale: 3.2, depthScale: 0.4 },
+    { label: "grain tank", xScale: 0, yAboveTopScale: 1.3, zScale: -0.15, widthScale: 0.9, heightScale: 2.6, depthScale: 0.5 },
+  ],
+  "sentinel-mobile-fort-01": [
+    { label: "fortress hull", xScale: 0, yAboveTopScale: 1.25, zScale: 0, widthScale: 0.95, heightScale: 2.5, depthScale: 0.8 },
+    { label: "command bridge", xScale: 0, yAboveTopScale: 1.0, zScale: 0.1, widthScale: 0.7, heightScale: 2.0, depthScale: 0.4 },
+  ],
+  "aero-skimmer-survey-01": [
+    { label: "cockpit", xScale: 0, yAboveTopScale: 1.2, zScale: 0.15, widthScale: 0.6, heightScale: 2.4, depthScale: 0.45 },
+  ],
+  "aero-cargo-freighter-02": [
+    { label: "deck house", xScale: 0, yAboveTopScale: 1.3, zScale: 0.2, widthScale: 0.7, heightScale: 2.6, depthScale: 0.35 },
+    { label: "cargo bay", xScale: 0, yAboveTopScale: 1.0, zScale: -0.1, widthScale: 0.9, heightScale: 2.0, depthScale: 0.55 },
+  ],
+  "torque-field-cutter-02": [
+    { label: "hood", xScale: 0, yAboveTopScale: 1.0, zScale: 0.26, widthScale: 0.85, heightScale: 2.0, depthScale: 0.55 },
+    { label: "cab", xScale: 0, yAboveTopScale: 1.7, zScale: -0.22, widthScale: 0.96, heightScale: 3.4, depthScale: 0.46 },
+  ],
+  "spark-dune-runner-02": [
+    { label: "cockpit", xScale: 0, yAboveTopScale: 0.75, zScale: -0.1, widthScale: 0.72, heightScale: 1.5, depthScale: 0.4 },
+    { label: "roll cage", xScale: 0, yAboveTopScale: 1.1, zScale: -0.15, widthScale: 0.8, heightScale: 2.2, depthScale: 0.5 },
+  ],
+  "marsh-dredger-heavy-02": [
+    { label: "control cabin", xScale: 0, yAboveTopScale: 1.4, zScale: 0.1, widthScale: 0.65, heightScale: 2.8, depthScale: 0.4 },
+  ],
+  "hauler-road-train-01": [
+    { label: "sleeper cab", xScale: 0, yAboveTopScale: 1.8, zScale: 0.3, widthScale: 0.92, heightScale: 3.6, depthScale: 0.42 },
+  ],
+  "construction-excavator-01": [
+    { label: "operator cab", xScale: -0.3, yAboveTopScale: 1.5, zScale: 0.1, widthScale: 0.35, heightScale: 3.0, depthScale: 0.45 },
+    { label: "engine housing", xScale: 0.1, yAboveTopScale: 1.2, zScale: -0.2, widthScale: 0.7, heightScale: 2.4, depthScale: 0.5 },
+  ],
+  "micro-scout-pipe-crawler-01": [
+    { label: "sensor shell", xScale: 0, yAboveTopScale: 0.6, zScale: 0, widthScale: 0.8, heightScale: 1.2, depthScale: 0.6 },
   ],
 } as const;
 

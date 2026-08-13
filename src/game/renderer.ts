@@ -943,13 +943,16 @@ export class GameRenderer {
     this.buildRain();
     this.buildStormClouds();
 
-    const tractor = this.createTractor();
-    const buggy = this.createBuggy();
-    const skimmer = this.createSkimmer();
-    this.rigs.set("utility-tractor", tractor);
-    this.rigs.set("toy-buggy", buggy);
-    this.rigs.set("marsh-skimmer", skimmer);
-    this.scene.add(tractor.root, buggy.root, skimmer.root);
+    for (const id of RIG_IDS) {
+      let parts: RigParts;
+      if (id === "utility-tractor") parts = this.createTractor();
+      else if (id === "toy-buggy") parts = this.createBuggy();
+      else if (id === "marsh-skimmer") parts = this.createSkimmer();
+      else parts = this.createCandidateRig(id);
+
+      this.rigs.set(id, parts);
+      this.scene.add(parts.root);
+    }
 
     // Rig-local presentation is owned by one subsystem (ADR-0034, superseding
     // ADR-0031). The renderer keeps world placement, phase, terrain, camera,
@@ -4381,6 +4384,86 @@ export class GameRenderer {
       headlights,
       frontMarker: prow,
       rearMarker: towHook,
+      stateShell,
+      stateShellMaterial,
+    };
+  }
+
+  private createCandidateRig(rigId: RigId): RigParts {
+    const blockout = blockoutFor(rigId);
+    const root = new THREE.Group();
+    root.name = rigId;
+    root.rotation.order = "YXZ";
+
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
+    const cameraSocket = hoodCameraSocket(rigId);
+
+    const shadow = this.blobShadow(blockout.hull.width * 0.9, 0.25);
+    shadow.position.y = blockout.shadowY;
+
+    const hullMesh = box(
+      blockout.hull.width,
+      blockout.hull.height,
+      blockout.hull.depth,
+      COLORS.rust,
+    );
+    hullMesh.name = "chassis-hull";
+    hullMesh.position.y = blockout.hull.centreY;
+
+    const isHover = blockout.profile.mobilityAdapter === "hover";
+    const wheelData = isHover
+      ? {
+          wheels: [] as THREE.Group[],
+          steeringPivots: [] as THREE.Group[],
+          wheelRestY: [] as number[],
+          wheelSpinScale: [] as number[],
+          lugTireVisuals: [] as THREE.Object3D[],
+        }
+      : this.buildWheels(body, blockout, COLORS.gold, 0.45);
+
+    body.add(shadow, hullMesh);
+
+    for (const form of blockout.superstructure) {
+      const b = this.bodyworkBox(blockout, form.label, COLORS.bone);
+      body.add(b);
+    }
+
+    root.add(cameraSocket);
+
+    const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
+    headlights.position.set(0, blockout.hull.topY, blockout.hull.depth / 2);
+    headlights.target.position.set(0, blockout.hull.centreY, blockout.hull.depth / 2 + 20);
+    body.add(headlights, headlights.target);
+
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(
+        blockout.hull.width * 1.1,
+        blockout.hull.height * 1.1,
+        blockout.hull.depth * 1.1,
+        0x6bc9c4,
+      );
+    stateShell.position.set(0, blockout.hull.centreY, 0);
+    body.add(stateShell);
+
+    return {
+      root,
+      body,
+      hoodCameraSocket: cameraSocket,
+      wheels: wheelData.wheels,
+      steeringPivots: wheelData.steeringPivots,
+      wheelRestY: wheelData.wheelRestY,
+      wheelSpinScale: wheelData.wheelSpinScale,
+      moduleVisuals: {
+        ...this.buildModuleVisuals(body, blockout),
+        "lug-tires": wheelData.lugTireVisuals,
+      },
+      ploughPivot: null,
+      headlights,
+      frontMarker: hullMesh,
+      rearMarker: hullMesh,
       stateShell,
       stateShellMaterial,
     };

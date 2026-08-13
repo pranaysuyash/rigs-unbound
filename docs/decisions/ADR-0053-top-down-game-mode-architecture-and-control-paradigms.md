@@ -1,7 +1,7 @@
 # ADR-0053: Top-Down Game Mode Architecture, Multi-Engine Adapters, and Control Paradigms
 
 - Date: 2026-08-09 (Updated: 2026-08-12)
-- Status: **Proposed — operator direction updated ("Do All / Unconstrained Multi-Engine Suite")**
+- Status: **Accepted** (Operator sign-off received 2026-08-13)
 - Owner / next reviewer: project owner (Pranay)
 - Affected runtime: `src/game/activities.ts`, `src/game/camera.ts`, `src/game/input.ts`, `src/game/hud.ts`, `src/game/renderer.ts`
 - Related documents: [ADR-0001: Headless Kernel & Engine Bakeoff](ADR-0001-headless-gameplay-kernel-and-engine-bakeoff.md), [ADR-0008: Camera policies](ADR-0008-camera-policies-and-direct-view-selection.md), [Game Design Spine](../design/GAME_DESIGN_SPINE.md), [Top-Down Exploration](../exploration/TOP_DOWN_GAME_MODE_EXPLORATION_2026-08-09.md)

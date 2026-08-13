@@ -28,11 +28,34 @@ async function main() {
 
   try {
     await page.goto(URL, { waitUntil: "networkidle" });
-    await page.waitForFunction(() => typeof window.selectRig === "function", {
-      timeout: 15000,
-    });
+    await page.waitForFunction(
+      () => typeof window.selectRig === "function" && document.querySelector("#enter-world"),
+      { timeout: 15000 }
+    );
 
-    // 1. Select operational rig (toy-buggy) to bypass disabled starter tractor narrative state
+    // Helper to purge all narrative/tutorial overlays for clean gameplay visual capture
+    const clearOverlays = async () => {
+      await page.evaluate(() => {
+        const enterBtn = document.querySelector("#enter-world");
+        if (enterBtn) enterBtn.click();
+        const welcomePanel = document.querySelector("#welcome-panel");
+        if (welcomePanel) welcomePanel.hidden = true;
+        const lesson = document.querySelector("#control-lesson");
+        if (lesson) lesson.hidden = true;
+        const popovers = document.querySelectorAll(
+          "dialog, .dialogue-card, .welcome-panel, .new-control, #control-lesson, .workshop__waterworks, #workshop-panel, section[role='dialog']"
+        );
+        popovers.forEach((el) => {
+          el.style.display = "none";
+          el.setAttribute("aria-hidden", "true");
+        });
+      });
+    };
+
+    await clearOverlays();
+    await page.waitForTimeout(500);
+
+    // 1. Select operational rig (toy-buggy)
     await page.evaluate(() => {
       window.selectRig("toy-buggy");
     });
@@ -43,27 +66,18 @@ async function main() {
       window.selectCamera("top-down");
     });
     await page.waitForTimeout(500);
-
-    // 3. Dismiss any tutorial popovers or modal overlays from DOM if present
-    await page.evaluate(() => {
-      const overlays = document.querySelectorAll(
-        ".dialogue-scrim, .new-control, .workshop__waterworks, #workshop-panel"
-      );
-      overlays.forEach((el) => {
-        el.style.display = "none";
-        el.setAttribute("aria-hidden", "true");
-      });
-    });
+    await clearOverlays();
 
     // ── SHOT 1: Toy Buggy Active Driving in 75° Diorama Top-Down View (Screen-Relative) ──
-    console.log("[top-down-gameplay] Driving toy-buggy in 75° Diorama Screen-Relative mode...");
+    console.log("[top-down-gameplay] Driving toy-buggy across open field in 75° Diorama mode...");
     await page.evaluate(() => {
       window.setControlParadigm("screen-relative");
-      // Drive forward and turn across pasture
-      window.applyRigInput({ accelerate: true, steerRight: true }, 3000);
-      window.applyRigInput({ accelerate: true }, 1000);
+      // Drive across field with acceleration and turn
+      window.applyRigInput({ accelerate: true, steerRight: true }, 4000);
+      window.applyRigInput({ accelerate: true }, 2000);
     });
 
+    await clearOverlays();
     await page.waitForTimeout(300);
 
     const shot1Path = path.join(ARTIFACT_DIR, "top-down-gameplay-diorama-driving.png");
@@ -71,27 +85,29 @@ async function main() {
     console.log(`[top-down-gameplay] Saved Shot 1 to: ${shot1Path}`);
 
     // ── SHOT 2: Twin-Stick Steering & Active Curve Traversal ──
-    console.log("[top-down-gameplay] Navigating curve in Twin-Stick mode...");
+    console.log("[top-down-gameplay] Navigating terrain in Twin-Stick mode...");
     await page.evaluate(() => {
       window.setControlParadigm("twin-stick");
-      window.applyRigInput({ accelerate: true, steerLeft: true }, 2500);
-      window.applyRigInput({ accelerate: true }, 1200);
+      window.applyRigInput({ accelerate: true, steerLeft: true }, 3000);
+      window.applyRigInput({ accelerate: true }, 1500);
     });
 
+    await clearOverlays();
     await page.waitForTimeout(300);
 
     const shot2Path = path.join(ARTIFACT_DIR, "top-down-gameplay-tactical-twinstick.png");
     await page.screenshot({ path: shot2Path });
     console.log(`[top-down-gameplay] Saved Shot 2 to: ${shot2Path}`);
 
-    // ── SHOT 3: Marsh Skimmer Operational Top-Down Traversal ──
+    // ── SHOT 3: Marsh Skimmer Active Top-Down Traversal ──
     console.log("[top-down-gameplay] Switching to marsh-skimmer for top-down water/marsh traversal...");
     await page.evaluate(() => {
       window.selectRig("marsh-skimmer");
       window.setControlParadigm("heading-relative");
-      window.applyRigInput({ accelerate: true }, 3000);
+      window.applyRigInput({ accelerate: true }, 4000);
     });
 
+    await clearOverlays();
     await page.waitForTimeout(300);
 
     const shot3Path = path.join(ARTIFACT_DIR, "top-down-gameplay-skimmer-marsh.png");
@@ -102,9 +118,10 @@ async function main() {
     console.log("[top-down-gameplay] Capturing mobile narrow viewport active driving...");
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => {
-      window.applyRigInput({ accelerate: true, steerRight: true }, 1500);
+      window.applyRigInput({ accelerate: true, steerRight: true }, 2000);
     });
 
+    await clearOverlays();
     await page.waitForTimeout(300);
 
     const shot4Path = path.join(ARTIFACT_DIR, "top-down-gameplay-mobile-driving.png");

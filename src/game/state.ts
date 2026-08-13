@@ -364,26 +364,18 @@ function createRig(
 }
 
 export function createInitialState(seed = "UNBOUND-260725"): GameState {
-  const rigs = {
-    "utility-tractor": createRig(
-      "utility-tractor",
-      RIG_HOME_BERTHS["utility-tractor"].x,
-      RIG_HOME_BERTHS["utility-tractor"].z,
-      RIG_HOME_BERTHS["utility-tractor"].heading,
-    ),
-    "toy-buggy": createRig(
-      "toy-buggy",
-      RIG_HOME_BERTHS["toy-buggy"].x,
-      RIG_HOME_BERTHS["toy-buggy"].z,
-      RIG_HOME_BERTHS["toy-buggy"].heading,
-    ),
-    "marsh-skimmer": createRig(
-      "marsh-skimmer",
-      RIG_HOME_BERTHS["marsh-skimmer"].x,
-      RIG_HOME_BERTHS["marsh-skimmer"].z,
-      RIG_HOME_BERTHS["marsh-skimmer"].heading,
-    ),
-  };
+  const rigs = RIG_IDS.reduce(
+    (acc, id) => {
+      acc[id] = createRig(
+        id,
+        RIG_HOME_BERTHS[id].x,
+        RIG_HOME_BERTHS[id].z,
+        RIG_HOME_BERTHS[id].heading,
+      );
+      return acc;
+    },
+    {} as Record<RigId, RigState>,
+  );
   // The old man's tractor in Campaign One's opening: disabled but restorable.
   // This is the diegetic reason the workshop exists before the player can work.
   rigs["utility-tractor"].condition = 0;
@@ -4495,18 +4487,21 @@ function recoverCurrent(
   }
 
   const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
-  const tractor = recoverRig(rigValues["utility-tractor"], "utility-tractor");
-  const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy");
-  const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
-  if (!tractor || !buggy || !skimmer) return null;
+  const recoveredRigs = {} as Record<RigId, RigState>;
+  for (const id of RIG_IDS) {
+    if (rigValues[id] !== undefined) {
+      const r = recoverRig(rigValues[id], id);
+      if (!r) return null;
+      recoveredRigs[id] = r;
+    } else {
+      const berth = RIG_HOME_BERTHS[id];
+      recoveredRigs[id] = createRig(id, berth.x, berth.z, berth.heading);
+    }
+  }
 
   return recoverShared(
     candidate,
-    {
-      "utility-tractor": tractor,
-      "toy-buggy": buggy,
-      "marsh-skimmer": skimmer,
-    },
+    recoveredRigs,
     allowMissingSurveyRoute,
   );
 }
@@ -4545,13 +4540,6 @@ function relocatePristineLegacyDrift(state: GameState): boolean {
   return true;
 }
 
-/** Migrate v5 into the canonical three-rig Home berth contract. */
-/**
- * Migrate a v6 record, which predates survey contracts.
- *
- * Purely additive: `recoverSurveyRoute` supplies a fresh contract when the field is
- * absent, so nothing in a v6 save is reinterpreted or lost.
- */
 function migrateV6(candidate: Record<string, unknown>): GameState | null {
   const recovered = recoverCurrent(candidate, true);
   if (!recovered) return null;
@@ -4588,18 +4576,21 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
   }
 
   const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
-  const tractor = recoverRig(rigValues["utility-tractor"], "utility-tractor");
-  const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy");
-  const skimmer = recoverRig(rigValues["marsh-skimmer"], "marsh-skimmer");
-  if (!tractor || !buggy || !skimmer) return null;
+  const recoveredRigs = {} as Record<RigId, RigState>;
+  for (const id of RIG_IDS) {
+    if (rigValues[id] !== undefined) {
+      const r = recoverRig(rigValues[id], id);
+      if (!r) return null;
+      recoveredRigs[id] = r;
+    } else {
+      const berth = RIG_HOME_BERTHS[id];
+      recoveredRigs[id] = createRig(id, berth.x, berth.z, berth.heading);
+    }
+  }
 
   const recovered = recoverShared(
     candidate,
-    {
-      "utility-tractor": tractor,
-      "toy-buggy": buggy,
-      "marsh-skimmer": skimmer,
-    },
+    recoveredRigs,
     true,
   );
   if (recovered) {
@@ -4613,11 +4604,6 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
 
 /**
  * Migrate Field 02 legacy schema into the bounded-adapter state shape.
- *
- * The two ground rigs keep their established identity and motion state, while
- * Drift is introduced at its authored Sunken Flats berth. Adding the new rig
- * here is intentional schema migration, not recovery fallback: a corrupt legacy
- * Field 02 payload still rejects the whole record.
  */
 function migrateField02Legacy(
   candidate: Record<string, unknown>,
@@ -4635,28 +4621,21 @@ function migrateField02Legacy(
   }
 
   const rigValues = candidate.rigs as Partial<Record<RigId, unknown>>;
-  const tractor = recoverRig(
-    rigValues["utility-tractor"],
-    "utility-tractor",
-    true,
-  );
-  const buggy = recoverRig(rigValues["toy-buggy"], "toy-buggy", true);
-  if (!tractor || !buggy) return null;
+  const recoveredRigs = {} as Record<RigId, RigState>;
+  for (const id of RIG_IDS) {
+    if (rigValues[id] !== undefined) {
+      const r = recoverRig(rigValues[id], id, true);
+      if (!r) return null;
+      recoveredRigs[id] = r;
+    } else {
+      const berth = RIG_HOME_BERTHS[id];
+      recoveredRigs[id] = createRig(id, berth.x, berth.z, berth.heading);
+    }
+  }
 
-  const driftBerth = RIG_HOME_BERTHS["marsh-skimmer"];
-  const skimmer = createRig(
-    "marsh-skimmer",
-    driftBerth.x,
-    driftBerth.z,
-    driftBerth.heading,
-  );
   const recovered = recoverShared(
     candidate,
-    {
-      "utility-tractor": tractor,
-      "toy-buggy": buggy,
-      "marsh-skimmer": skimmer,
-    },
+    recoveredRigs,
     true,
   );
   if (recovered) {

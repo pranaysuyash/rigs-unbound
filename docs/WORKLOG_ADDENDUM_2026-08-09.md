@@ -14,6 +14,12 @@
   - **All 3 Control Paradigms**: Vehicle-Centric (Tank), Screen-Relative (Arcade), and Twin-Stick (Drive + Aim).
   - **Multi-Engine Flexibility**: The headless kernel (`src/game/state.ts`) passes vehicle state to whichever renderer/overlay creates the best gameplay experience for each specific mode.
 
-### 3. Verification & Compliance
-- Verified TypeScript build & test suite (`npm run typecheck && npx vitest run`).
-- Maintained strict code preservation discipline.
+### 4. Top-Down Suite Implementation & Live Visual Verification (2026-08-12 / 2026-08-13)
+- Implemented `RendererAdapter` & `CompositeRendererPipeline` (`src/game/renderer-adapter.ts`).
+- Implemented 3 control paradigms (`heading-relative`, `screen-relative`, `twin-stick`) and vector steering sampling in `src/game/input.ts` & `src/game/input-paradigms.test.ts`.
+- Implemented top-down presentation styles (`top-down-diorama`, `top-down-flat`, `top-down-heading`) and predictive target lead calculation in `src/game/camera.ts`, `src/game/renderer.ts`, and `src/game/camera-top-down.test.ts`.
+- Registered 4 top-down activity definitions (`top-down-defense`, `top-down-tactical`, `top-down-stealth`, `top-down-arcade`) in `src/game/activities.ts` & `src/game/activities.test.ts`.
+- Bound window observability methods `window.setControlParadigm` and `window.getControlParadigm` in `src/main.ts`.
+- Ran full test suite verification: **108 test files passed / 702 tests passed 100%**.
+- Executed Playwright browser visual acceptance runner (`tools/capture-top-down-gameplay.cjs`) against canonical dev server (port 4173) and captured 4 active driving gameplay screenshots in Top-Down view across desktop and narrow viewports.
+
