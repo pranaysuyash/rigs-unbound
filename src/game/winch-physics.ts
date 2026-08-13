@@ -17,10 +17,12 @@ export interface WinchCableState {
   attached: boolean;
   anchorId: string | null;
   anchorPos: { x: number; y: number; z: number } | null;
+  anchorHoldForceN?: number; // Breaking limit of tree/rock anchor
   restLengthMeters: number;
   currentLengthMeters: number;
   tensionN: number;
   snapped: boolean;
+  anchorFailed?: boolean;
 }
 
 export const CABLE_MAX_TENSION_N = 35_000; // 35 kN steel cable limit
@@ -35,9 +37,16 @@ export function computeWinchTension(
   tensionN: number;
   pullVector: { x: number; z: number };
   snapped: boolean;
+  anchorFailed: boolean;
 } {
-  if (!cable.attached || !cable.anchorPos || cable.snapped) {
-    return { tensionN: 0, pullVector: { x: 0, z: 0 }, snapped: cable.snapped };
+  const isAnchorFailed = cable.anchorFailed === true;
+  if (!cable.attached || !cable.anchorPos || cable.snapped || isAnchorFailed) {
+    return {
+      tensionN: 0,
+      pullVector: { x: 0, z: 0 },
+      snapped: cable.snapped,
+      anchorFailed: isAnchorFailed,
+    };
   }
 
   const dx = cable.anchorPos.x - rigPos.x;
@@ -45,7 +54,12 @@ export function computeWinchTension(
   const currentDist = Math.hypot(dx, dz);
 
   if (currentDist <= cable.restLengthMeters) {
-    return { tensionN: 0, pullVector: { x: 0, z: 0 }, snapped: false };
+    return {
+      tensionN: 0,
+      pullVector: { x: 0, z: 0 },
+      snapped: false,
+      anchorFailed: false,
+    };
   }
 
   const stretchMeters = currentDist - cable.restLengthMeters;
@@ -59,7 +73,10 @@ export function computeWinchTension(
     stretchMeters * CABLE_SPRING_K - relVel * CABLE_DAMPING_C,
   );
 
-  const snapped = tensionN > CABLE_MAX_TENSION_N;
+  const maxAnchorHold = cable.anchorHoldForceN ?? CABLE_MAX_TENSION_N;
+  const anchorFailed = tensionN > maxAnchorHold;
+  const cableSnapped = tensionN > CABLE_MAX_TENSION_N;
+  const snapped = cableSnapped || anchorFailed;
 
   return {
     tensionN: Number(tensionN.toFixed(1)),
@@ -69,7 +86,8 @@ export function computeWinchTension(
           x: Number((unitX * tensionN).toFixed(1)),
           z: Number((unitZ * tensionN).toFixed(1)),
         },
-    snapped,
+    snapped: cableSnapped,
+    anchorFailed,
   };
 }
 

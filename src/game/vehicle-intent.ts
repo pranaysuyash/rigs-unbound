@@ -56,3 +56,52 @@ export function normalizeVehicleIntent(
     boost: value?.boost === true,
   };
 }
+
+export const TOOL_BUFFER_WINDOW_MS = 150;
+
+export type ToolToggleAction =
+  | "diff-lock"
+  | "headlights"
+  | "tire-pressure"
+  | "winch";
+
+export interface BufferedToolIntent {
+  action: ToolToggleAction;
+  timestampMs: number;
+}
+
+export interface ToolIntentBufferState {
+  queue: BufferedToolIntent[];
+}
+
+export function createToolIntentBuffer(): ToolIntentBufferState {
+  return { queue: [] };
+}
+
+export function bufferToolToggle(
+  buffer: ToolIntentBufferState,
+  action: ToolToggleAction,
+  timestampMs: number,
+): ToolIntentBufferState {
+  return {
+    queue: [...buffer.queue, { action, timestampMs }],
+  };
+}
+
+export function popValidBufferedToolToggle(
+  buffer: ToolIntentBufferState,
+  currentTimestampMs: number,
+  windowMs: number = TOOL_BUFFER_WINDOW_MS,
+): {
+  action: ToolToggleAction | null;
+  nextBuffer: ToolIntentBufferState;
+} {
+  const valid = buffer.queue.filter(
+    (item) => currentTimestampMs - item.timestampMs <= windowMs,
+  );
+  if (valid.length === 0) {
+    return { action: null, nextBuffer: { queue: [] } };
+  }
+  const [first, ...rest] = valid;
+  return { action: first!.action, nextBuffer: { queue: rest } };
+}

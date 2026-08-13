@@ -351,6 +351,7 @@ function createRig(
       tirePressurePsi: DEFAULT_TIRE_PRESSURE_PSI,
       differentialMode: "open",
     },
+    headlightsActive: false,
     telemetry: {
       surfaceId: "grass",
       grade: 0,
@@ -570,6 +571,21 @@ export function refuseArrivalBargain(state: GameState): void {
   state.arrivalBargain.status = "refused";
   state.lastDiagnostic =
     "The old man shrugs. The offer stands if you change your mind.";
+}
+
+/** Toggle headlights operating state for an active vehicle in state. */
+export function toggleHeadlights(state: GameState, rigId?: RigId): boolean {
+  const targetId = rigId ?? state.activeRigId;
+  const rig = state.rigs[targetId];
+  if (!rig || rig.condition <= 0) {
+    state.lastDiagnostic = "Vehicle is not operational.";
+    return false;
+  }
+  rig.headlightsActive = !rig.headlightsActive;
+  state.lastDiagnostic = rig.headlightsActive
+    ? `${rig.fieldName} operating headlights activated.`
+    : `${rig.fieldName} operating headlights deactivated.`;
+  return rig.headlightsActive;
 }
 
 /**

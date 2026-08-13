@@ -1080,6 +1080,8 @@ export interface RigState {
    * Kernel-owned because they change motion and must survive reload and replay.
    */
   tools: RigToolState;
+  /** Player-owned operating headlights state (on/off). Defaults to false during day. */
+  headlightsActive?: boolean;
   /** Cached read-only telemetry for HUD and audio; not authoritative. */
   telemetry: {
     surfaceId: string;

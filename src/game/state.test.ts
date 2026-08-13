@@ -51,6 +51,7 @@ import {
   refuseArrivalBargain,
   chooseFarmWaterworks,
   firstNightThreatObstacles,
+  toggleHeadlights,
 } from "./state";
 import { acceptMission } from "./mission-lifecycle";
 import type { MissionProposition } from "./mission-propositions";
@@ -2154,5 +2155,22 @@ describe("public state mission surface", () => {
       missionClass: "side",
       giverId: null,
     });
+  });
+
+  it("toggles operating headlights on active rig and updates state diagnostic", () => {
+    const { state } = scenario("HEADLIGHTS-TOGGLE");
+    const rig = state.rigs[state.activeRigId];
+    rig.condition = 100;
+    expect(rig.headlightsActive).toBe(false);
+
+    const active = toggleHeadlights(state);
+    expect(active).toBe(true);
+    expect(rig.headlightsActive).toBe(true);
+    expect(state.lastDiagnostic).toContain("activated");
+
+    const deactivated = toggleHeadlights(state);
+    expect(deactivated).toBe(false);
+    expect(rig.headlightsActive).toBe(false);
+    expect(state.lastDiagnostic).toContain("deactivated");
   });
 });
