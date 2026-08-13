@@ -245,6 +245,12 @@ declare global {
     ) => string;
     setAcceptanceManualStepping: (enabled: boolean) => string;
     installRigModule: (moduleId: ModuleId) => string;
+    toggleBlade: () => string;
+    recordWaterworksChoice: (choice: "repair-pump" | "redirect-channel") => {
+      ok: boolean;
+      diagnostic: string | null;
+      choice: string;
+    };
     /**
      * Top up the salvage bin so a geometry check can fit a module.
      *
@@ -259,7 +265,6 @@ declare global {
     winchRecoverRig: () => string;
     /** Issue a fleet recovery. Returns the transition reason, then the report. */
     recoverStrandedRig: () => { accepted: boolean; reason: string };
-    toggleBlade: () => string;
     toggleFieldMap: () => string;
     toggleWorkshop: () => string;
     /**
@@ -3879,6 +3884,14 @@ function boot(): void {
     recordCommand("tap", { action: "blade", source: "acceptance" });
     toggleBladeMode(state);
     return settleAndReport();
+  };
+  window.recordWaterworksChoice = (choice: "repair-pump" | "redirect-channel") => {
+    markActionReady();
+    recordCommand("chooseFarmWaterworks", { choice });
+    const ok = chooseFarmWaterworks(state, world, choice);
+    updateInterface(performance.now() + 1000);
+    renderer.render(state);
+    return { ok, diagnostic: state.lastDiagnostic, choice: state.farmWaterworks.choice };
   };
   window.recoverStrandedRig = () => {
     markActionReady();

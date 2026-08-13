@@ -2,7 +2,7 @@
 
 Status: research/status map feeding the spine (per ADR-0040 — canonical design decisions now live in docs/design/GAME_DESIGN_SPINE.md)
 Started: 2026-07-25
-Last updated: 2026-08-05
+Last updated: 2026-08-13
 
 ## How to use this map
 

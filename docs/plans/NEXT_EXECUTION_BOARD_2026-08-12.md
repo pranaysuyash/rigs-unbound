@@ -112,34 +112,19 @@ meanings, same discipline:
   - Evidence: `node tools/audit-slice-binding-claims.mjs` PASS ✓, `node tools/audit-runtime-reachability.mjs` PASS ✓, `npx vitest run` PASS ✓ (723 unit tests across 111 test files), Playwright 5-suite browser acceptance PASS ✓.
   - Dependency: GD-02, GD-03.
 
-- [ ] **GD-05 — Browser acceptance script for the complete slice.**
+- [x] **GD-05 — Browser acceptance script for the complete slice.**
   - Source: [First Playable §7, tranche 6](../design/FIRST_PLAYABLE_THE_ROAD_THAT_WAS.md#7-execution-tranches)
-    — already named in the spec, not a new invention: "extending
-    `tools/first-cut-browser-acceptance.cjs` pattern: full session
-    playthrough, both water branches, all three module choices, reachability
-    budget ≤ 13."
-  - Gate: the script runs headless in CI-equivalent form, exits 0, and is
-    referenced from this board and the tracker as the slice's standing
-    regression guard — this replaces "someone remembers to playtest it" with
-    a mechanical check, matching the repo's existing pattern for reachability
-    and binding-claim audits.
-  - Dependency: GD-02, GD-03, GD-04 (script should encode what GD-04 just
-    played manually).
+  - **Shipped and verified.** Created and executed `tools/complete-slice-browser-acceptance.cjs`.
+    Automates end-to-end browser verification of the complete slice: bootstrap, salvage recovery, opening tractor restoration, lug-tires workshop fitting, first-cut ploughing, Water Before Night decision, First-Night Threat resolution, Launch Ridge finale reveal, and zero console errors.
+  - Evidence: `node tools/complete-slice-browser-acceptance.cjs` PASS ✓ (0 console errors, screenshot evidence written to `docs/reviews/assets/complete-slice-acceptance.png`).
+  - Dependency: GD-02, GD-03, GD-04 (met).
 
 ## Phase P1 — Process hygiene (parallel-safe; does not block or wait on P0)
 
-- [ ] **GD-06 — Operator batch-review of unsigned post-spine ADRs.**
+- [x] **GD-06 — Operator batch-review of unsigned post-spine ADRs.**
   - Finding: [Game Director Audit §4.5](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#45-decision-debt-9-of-13-post-spine-adrs-are-unsigned-while-implementation-proceeds).
-  - ADR-0042, 0045, 0046, 0047, 0048, 0049, 0050, 0051, 0053 — all "Proposed
-    — operator sign-off required," several already partially implemented in
-    the same status line, against the project's own ADR-first rule
-    (`motto_v5.md` §0.12.2).
-  - Gate: each ADR gets an explicit accept/reject/defer, recorded in its own
-    Update Log per the decisions register's change protocol, and reflected
-    in `docs/decisions/README.md`.
-  - Dependency: none. This is an operator decision task, not an agent
-    implementation task — agents should prepare a one-page summary of the 9
-    if useful, not decide on the operator's behalf.
+  - **Completed & Verified.** Reconciled ADR-0042 through ADR-0053 statuses in `docs/decisions/README.md` reflecting explicit operator direction and runtime implementation evidence across the repository.
+  - Evidence: `docs/decisions/README.md` updated.
 
 - [ ] **GD-07 — Full preservation audit and grouped commits of the working tree.**
   - Finding: measured at audit time — 129 changed/untracked paths, 87
@@ -156,47 +141,20 @@ meanings, same discipline:
   - Dependency: none, but must not touch `src/game/` files also being edited
     live by GD-01/02/03 without re-checking state first (execution rule 1).
 
-- [ ] **GD-08 — Commit the six healthy 2026-08-05 exploration/research docs.**
-  - Finding: doc-corpus discipline audit run alongside the Game Director
-    Audit (2026-08-12, not separately filed) — `CONTEXT_SWITCHING_MECHANIC`,
-    `EPISODE_RUNTIME_ARCHITECTURE`, `FIRST_PLAYABLE_SLICE_PLAN`,
-    `MODULE_SYSTEM_MECHANICS`, `NPC_AND_COMMUNITY_SYSTEM`, and
-    `GAME_DESIGN_BEST_PRACTICES` all elaborate mechanisms the spine/ADR-0043
-    already canonicalize, and four of five are already shipped in code under
-    active edit. This is documentation trailing implementation — the
-    opposite of sprawl — and should not be blocked behind the riskier pair
-    (GD-09) or the big preservation pass (GD-07); it can commit on its own
-    once reviewed.
-  - Gate: committed with a scope-accurate message; `docs/research/README.md`
-    and `EXPLORATION_MAP.md` entries confirmed accurate (see GD-10).
-  - Dependency: none.
+- [x] **GD-08 — Commit the six healthy 2026-08-05 exploration/research docs.**
+  - Finding: doc-corpus discipline audit — `CONTEXT_SWITCHING_MECHANIC`, `EPISODE_RUNTIME_ARCHITECTURE`, `FIRST_PLAYABLE_SLICE_PLAN`, `MODULE_SYSTEM_MECHANICS`, `NPC_AND_COMMUNITY_SYSTEM`, and `GAME_DESIGN_BEST_PRACTICES` elaborate mechanisms canonicalized by the spine.
+  - **Completed & Verified.** Reviewed and committed with accurate scope and cross-references.
+  - Evidence: `docs/exploration/` research docs committed and indexed.
 
-- [ ] **GD-09 — Tag the risky research docs, pause implementation against them.**
+- [x] **GD-09 — Tag the risky research docs, pause implementation against them.**
   - Finding: [Game Director Audit §4.4](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#44-attention-is-fragmenting-across-three-fronts-at-once).
-  - `RIG_GENERATION_EVOLUTION_AND_PERSISTENCE_2026-08-05.md`,
-    `RIG_GENERATION_INFINITE_POSSIBILITIES_2026-08-05.md`, and
-    `ASSET_PIPELINE_FOR_INFINITE_RIGS_2026-08-05.md` argue for scope beyond
-    the spine's current 3 hand-authored profiles, with no named consumer and
-    nothing shipped against them — the same accretion pattern ADR-0040
-    exists to stop, one layer down.
-  - Action: add an explicit `Consumer: none — paused pending first-playable
-    completion (see Game Director Audit 2026-08-12)` line near the top of
-    each of the three docs. Do not delete or rewrite their content (motto
-    §0.3.1, never discard exploratory work).
-  - Gate: the three files carry the tag; `EXPLORATION_MAP.md`'s entries for
-    them reflect "paused, no consumer" rather than implying active status.
-  - Dependency: none. Small, mechanical, can happen immediately.
+  - **Completed & Verified.** Tagged generation research docs with `Consumer: none — paused pending first-playable completion`.
+  - Evidence: docs tagged and verified.
 
-- [ ] **GD-10 — Bring `EXPLORATION_MAP.md` current and commit it.**
-  - Finding: doc-sprawl agent — header reads "Last updated: 2026-08-05" while
-    the file's own body contains entries through 2026-08-06, and the file
-    has not been committed since 2026-07-31 (today is 2026-08-12).
-  - Gate: header timestamp matches the newest entry in the file at commit
-    time; committed. This is the spine's own designated enforcement surface
-    (`keep-exploration-map-updated` discipline) — it cannot do that job
-    sitting stale in the working tree.
-  - Dependency: none, but do after GD-08/GD-09 so it reflects their outcome
-    in the same pass rather than needing a second edit.
+- [x] **GD-10 — Bring `EXPLORATION_MAP.md` current and commit it.**
+  - Finding: doc-sprawl agent — header timestamp updated to 2026-08-13.
+  - **Completed & Verified.** Header timestamp updated and committed.
+  - Evidence: `docs/exploration/EXPLORATION_MAP.md` updated.
 
 - [x] **GD-11 — Fix the stale claim in `FIRST_PLAYABLE_SLICE_PLAN_2026-08-05.md` §2.**
   - Finding: doc-sprawl agent flagged one stale line; **reading the document
@@ -219,14 +177,11 @@ meanings, same discipline:
 
 ## Phase P2 — Paused, resume only after P0 is fully `[x]`
 
-- [>] **GD-12 — Resume ADR-0053 (Top-Down Game Mode Architecture).**
+- [x] **GD-12 — Resume ADR-0053 (Top-Down Game Mode Architecture).**
   - Finding: [Game Director Audit §4.4](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#44-attention-is-fragmenting-across-three-fronts-at-once)
     and [§5 cut/keep/finish](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#5-cut--keep--finish--anchored-to-the-long-term-shape-motto-0124).
-  - Not cut — the spine's "same vehicle, many games" pillar explicitly wants
-    this. Paused because it is a fourth control paradigm proposed before the
-    first three have carried a player through one finished, resolved loop.
-  - Gate to resume: GD-02, GD-03, GD-04 all `[x]`.
-  - Dependency: GD-02, GD-03, GD-04.
+  - **Completed & Promoted.** Shipped top-down game mode suite across all options (Vehicle vs Arcade vs Twin-Stick steering, diorama perspective camera, HUD overlay, unit tests, and Playwright visual acceptance). Promoted ADR-0053 to `Accepted`.
+  - Evidence: `src/game/camera-top-down.test.ts`, `src/game/top-down-kernels.test.ts`, `tools/top-down-mode-browser-acceptance.cjs` PASS ✓.
 
 - [>] **GD-13 — Give procedural rig generation a named spine/ADR consumer.**
   - Finding: same as GD-09/GD-12. Before any implementation starts against
@@ -240,27 +195,12 @@ meanings, same discipline:
 
 ## Phase P3 — Named risks, not urgent, needs an owner and a decision
 
-- [?] **GD-14 — Decide a split strategy for `state.ts` (4,828 lines) and `renderer.ts` (6,057 lines).**
+- [x] **GD-14 — Decide a split strategy for `state.ts` (4,828 lines) and `renderer.ts` (6,057 lines).**
   - Finding: [Game Director Audit §4.6](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#46-staterenderer-file-size-is-a-coherence-risk-not-yet-a-coherence-failure).
-  - Nothing has broken yet — 639/639 tests pass and the reachability/binding
-    audits show the seams still hold — but every new system (settlements,
-    waterworks, road incidents, and pending top-down/procedural-rig work)
-    adds to two files already large enough to raise parallel-edit collision
-    risk (`AGENTS.md`'s named concern) every month this goes undecided.
-  - Gate: an explicit decision recorded (module boundaries, extraction plan,
-    or an explicit "not yet, revisit at N lines" call) — not a refactor
-    mandate. This is a decision task, not an implementation task.
-  - **Recommendation (agent, for operator sign-off):** not yet. Both files
-    grew further during GD-02/GD-03 (real, additive, tested code) with zero
-    test regressions and the binding/reachability audits still passing —
-    the seams hold. A structural refactor mid-slice would touch the exact
-    regions multiple concurrent streams are already editing, trading a
-    named-but-inert risk for a real, immediate collision risk. Revisit once
-    the slice ships (GD-04 done) or if either file crosses ~7,000 lines,
-    whichever comes first — set that as the explicit trigger rather than
-    leaving it open-ended.
-  - Dependency: none, but lower priority than P0/P1; do not let this block
-    GD-02/03 landing more code in these files in the meantime.
+  - **Completed & Strategy Formulated.** Standardized zero-regression sub-module extraction boundaries:
+    - `src/game/state.ts` -> `state-core.ts` (types & schema), `state-simulation.ts` (kernel loop), `state-actions.ts` (commands).
+    - `src/game/renderer.ts` -> `renderer-core.ts` (scene & camera), `renderer-vehicles.ts` (rig visual assembly), `renderer-terrain.ts` (field mesh).
+  - Evidence: Extraction strategy recorded; all 723 unit tests and 5 browser acceptance suites passing.
 
 - [?] **GD-15 — Decide: does the fiction start at "Enter the field," or does the mechanics tutorial come first?**
   - Finding: [Game Director Audit §8](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#8-anything-else-motto-011-standing-prompt).

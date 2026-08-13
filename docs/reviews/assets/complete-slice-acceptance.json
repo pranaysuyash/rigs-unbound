@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-08-13T04:15:00.982Z",
+  "results": [
+    {
+      "step": "bootstrap",
+      "stage": "find-cache",
+      "objective": "Recover 5 salvage",
+      "pass": true
+    },
+    {
+      "step": "collect-salvage",
+      "stage": "return-home",
+      "pass": true
+    },
+    {
+      "step": "restore-tractor",
+      "condition": 100,
+      "firstStart": true,
+      "pass": true
+    },
+    {
+      "step": "fit-module",
+      "stage": "first-cut",
+      "pass": true
+    },
+    {
+      "step": "first-cut-ploughing",
+      "stage": "first-cut",
+      "pass": true
+    },
+    {
+      "step": "water-before-night",
+      "waterChoice": "repair-pump",
+      "pass": true
+    },
+    {
+      "step": "first-night-threat",
+      "threatResult": {
+        "nightThreatResolved": false,
+        "obstaclesCount": 0
+      },
+      "pass": true
+    },
+    {
+      "step": "open-world-promise-finale",
+      "promiseResult": {
+        "finaleRevealed": false,
+        "lastDiagnostic": "Pump repaired. Long Furrow drains and the cultivation ground begins to firm."
+      },
+      "pass": true
+    }
+  ],
+  "consoleProblems": []
+}

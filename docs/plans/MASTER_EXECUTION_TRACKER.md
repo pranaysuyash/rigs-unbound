@@ -1,7 +1,7 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-08-05 (weather-scene acceptance hardened and verified; acceptance-helper teardown defect fixed; modlens installed as out-of-repo working tool)
+- Last Updated: 2026-08-13 (P0 slice completed, 16 vehicle families integrated, complete-slice browser acceptance verified, ADR post-spine review reconciled)
 - Owner: project owner; agents update evidence and status in the same change
 - Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
   ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
