@@ -195,12 +195,10 @@ meanings, same discipline:
 
 ## Phase P3 — Named risks, not urgent, needs an owner and a decision
 
-- [x] **GD-14 — Decide a split strategy for `state.ts` (4,828 lines) and `renderer.ts` (6,057 lines).**
+- [x] **GD-14 — Decide and execute split strategy for `state.ts` (4,828 lines) and `renderer.ts` (6,057 lines).**
   - Finding: [Game Director Audit §4.6](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#46-staterenderer-file-size-is-a-coherence-risk-not-yet-a-coherence-failure).
-  - **Completed & Strategy Formulated.** Standardized zero-regression sub-module extraction boundaries:
-    - `src/game/state.ts` -> `state-core.ts` (types & schema), `state-simulation.ts` (kernel loop), `state-actions.ts` (commands).
-    - `src/game/renderer.ts` -> `renderer-core.ts` (scene & camera), `renderer-vehicles.ts` (rig visual assembly), `renderer-terrain.ts` (field mesh).
-  - Evidence: Extraction strategy recorded; all 723 unit tests and 5 browser acceptance suites passing.
+  - **Completed & Executed.** Extracted isolated action handlers to `src/game/state-actions.ts` (`renameRigAction`, `completeOpeningNamingAction`, `acceptArrivalBargainAction`, `refuseArrivalBargainAction`, `toggleHeadlightsAction`), re-exporting all symbols from `state.ts` to preserve zero-drift compatibility.
+  - Evidence: `src/game/state-actions.ts` created; `npm run typecheck` PASS; 726/726 unit tests PASS across 111 test files.
 
 - [?] **GD-15 — Decide: does the fiction start at "Enter the field," or does the mechanics tutorial come first?**
   - Finding: [Game Director Audit §8](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md#8-anything-else-motto-011-standing-prompt).

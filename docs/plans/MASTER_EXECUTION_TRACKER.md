@@ -27,6 +27,12 @@
   — supersedes [the 2026-07-26 board](NEXT_EXECUTION_BOARD_2026-07-26.md),
   preserved as historical record.
 
+## Mechanics Designer Audit & Systemic Rule Specification (2026-08-13)
+
+- **Audit & Specification**: Conducted exhaustive codebase audit of all 12 core gameplay mechanics across vehicle dynamics, traction, tire pressure inflation, differential lock vectoring, cable winching & snatch block pulleys, cargo slinging pendulum physics, thermal overheat & barometric derate, fuel efficiency, first-night threat branches, rumor scanning, salvage crafting, and settlement infrastructure.
+- **Canonical Design Document**: Created [`docs/design/MECHANICS_DESIGNER_AUDIT_2026-08-13.md`](../design/MECHANICS_DESIGNER_AUDIT_2026-08-13.md) containing the 6-component breakdown for each mechanic, interaction matrices, exploit analysis, legibility requirements, and actionable tuning roadmap.
+- **Verification**: Ran `npm run typecheck && npx vitest run`. All 111 test files and 723 unit tests passed cleanly (Tier 2/3 evidence).
+
 ## Game Director Audit (2026-08-12)
 
 [Game Director Audit — 2026-08-12](../reviews/GAME_DIRECTOR_AUDIT_2026-08-12.md)
