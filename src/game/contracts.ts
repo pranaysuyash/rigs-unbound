@@ -377,7 +377,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 4.5,
     towSpeedMultiplier: 0.92,
     fordDepth: 1.4,
-    camera: { chaseHeight: 8.0, chaseDistance: 13, chaseSide: 4.5, focusHeight: 2.0 },
+    camera: {
+      chaseHeight: 8.0,
+      chaseDistance: 13,
+      chaseSide: 4.5,
+      focusHeight: 2.0,
+    },
   },
   "heavy-salvage-crane-02": {
     id: "heavy-salvage-crane-02",
@@ -409,7 +414,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 3.5,
     towSpeedMultiplier: 0.95,
     fordDepth: 1.6,
-    camera: { chaseHeight: 9.0, chaseDistance: 15, chaseSide: 5.0, focusHeight: 2.4 },
+    camera: {
+      chaseHeight: 9.0,
+      chaseDistance: 15,
+      chaseSide: 5.0,
+      focusHeight: 2.4,
+    },
   },
   "snow-crawler-expedition-01": {
     id: "snow-crawler-expedition-01",
@@ -441,7 +451,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 5.0,
     towSpeedMultiplier: 0.85,
     fordDepth: 1.2,
-    camera: { chaseHeight: 7.5, chaseDistance: 12, chaseSide: 4.0, focusHeight: 1.8 },
+    camera: {
+      chaseHeight: 7.5,
+      chaseDistance: 12,
+      chaseSide: 4.0,
+      focusHeight: 1.8,
+    },
   },
   "harvester-combined-cultivator-01": {
     id: "harvester-combined-cultivator-01",
@@ -473,7 +488,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 4.0,
     towSpeedMultiplier: 0.82,
     fordDepth: 1.0,
-    camera: { chaseHeight: 7.8, chaseDistance: 12.5, chaseSide: 4.2, focusHeight: 1.9 },
+    camera: {
+      chaseHeight: 7.8,
+      chaseDistance: 12.5,
+      chaseSide: 4.2,
+      focusHeight: 1.9,
+    },
   },
   "sentinel-mobile-fort-01": {
     id: "sentinel-mobile-fort-01",
@@ -505,7 +525,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 3.0,
     towSpeedMultiplier: 0.96,
     fordDepth: 1.8,
-    camera: { chaseHeight: 9.5, chaseDistance: 16, chaseSide: 5.2, focusHeight: 2.5 },
+    camera: {
+      chaseHeight: 9.5,
+      chaseDistance: 16,
+      chaseSide: 5.2,
+      focusHeight: 2.5,
+    },
   },
   "aero-skimmer-survey-01": {
     id: "aero-skimmer-survey-01",
@@ -537,7 +562,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 6.0,
     towSpeedMultiplier: 0.62,
     fordDepth: Number.POSITIVE_INFINITY,
-    camera: { chaseHeight: 6.5, chaseDistance: 9.5, chaseSide: 3.5, focusHeight: 1.2 },
+    camera: {
+      chaseHeight: 6.5,
+      chaseDistance: 9.5,
+      chaseSide: 3.5,
+      focusHeight: 1.2,
+    },
   },
   "aero-cargo-freighter-02": {
     id: "aero-cargo-freighter-02",
@@ -569,7 +599,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 5.5,
     towSpeedMultiplier: 0.75,
     fordDepth: Number.POSITIVE_INFINITY,
-    camera: { chaseHeight: 8.5, chaseDistance: 14, chaseSide: 4.8, focusHeight: 2.2 },
+    camera: {
+      chaseHeight: 8.5,
+      chaseDistance: 14,
+      chaseSide: 4.8,
+      focusHeight: 2.2,
+    },
   },
   "torque-field-cutter-02": {
     id: "torque-field-cutter-02",
@@ -601,7 +636,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 4.2,
     towSpeedMultiplier: 0.86,
     fordDepth: 1.2,
-    camera: { chaseHeight: 7.4, chaseDistance: 11.5, chaseSide: 4.0, focusHeight: 1.7 },
+    camera: {
+      chaseHeight: 7.4,
+      chaseDistance: 11.5,
+      chaseSide: 4.0,
+      focusHeight: 1.7,
+    },
   },
   "spark-dune-runner-02": {
     id: "spark-dune-runner-02",
@@ -633,7 +673,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 7.2,
     towSpeedMultiplier: 0.55,
     fordDepth: 0.5,
-    camera: { chaseHeight: 5.0, chaseDistance: 8.0, chaseSide: 3.0, focusHeight: 1.0 },
+    camera: {
+      chaseHeight: 5.0,
+      chaseDistance: 8.0,
+      chaseSide: 3.0,
+      focusHeight: 1.0,
+    },
   },
   "marsh-dredger-heavy-02": {
     id: "marsh-dredger-heavy-02",
@@ -665,7 +710,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 4.8,
     towSpeedMultiplier: 0.72,
     fordDepth: Number.POSITIVE_INFINITY,
-    camera: { chaseHeight: 7.0, chaseDistance: 11, chaseSide: 4.0, focusHeight: 1.5 },
+    camera: {
+      chaseHeight: 7.0,
+      chaseDistance: 11,
+      chaseSide: 4.0,
+      focusHeight: 1.5,
+    },
   },
   "hauler-road-train-01": {
     id: "hauler-road-train-01",
@@ -697,7 +747,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 4.0,
     towSpeedMultiplier: 0.88,
     fordDepth: 0.8,
-    camera: { chaseHeight: 7.5, chaseDistance: 13, chaseSide: 4.2, focusHeight: 1.8 },
+    camera: {
+      chaseHeight: 7.5,
+      chaseDistance: 13,
+      chaseSide: 4.2,
+      focusHeight: 1.8,
+    },
   },
   "construction-excavator-01": {
     id: "construction-excavator-01",
@@ -727,9 +782,14 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     lugBonus: 0.45,
     jumpImpulse: 0,
     landingTolerance: 3.8,
-    towSpeedMultiplier: 0.90,
+    towSpeedMultiplier: 0.9,
     fordDepth: 1.5,
-    camera: { chaseHeight: 8.0, chaseDistance: 13.5, chaseSide: 4.4, focusHeight: 2.1 },
+    camera: {
+      chaseHeight: 8.0,
+      chaseDistance: 13.5,
+      chaseSide: 4.4,
+      focusHeight: 2.1,
+    },
   },
   "micro-scout-pipe-crawler-01": {
     id: "micro-scout-pipe-crawler-01",
@@ -761,7 +821,12 @@ export const RIG_PROFILES: Readonly<Record<RigId, RigProfile>> = {
     landingTolerance: 6.0,
     towSpeedMultiplier: 0.45,
     fordDepth: 0.3,
-    camera: { chaseHeight: 4.0, chaseDistance: 6.0, chaseSide: 2.5, focusHeight: 0.6 },
+    camera: {
+      chaseHeight: 4.0,
+      chaseDistance: 6.0,
+      chaseSide: 2.5,
+      focusHeight: 0.6,
+    },
   },
 } as const;
 

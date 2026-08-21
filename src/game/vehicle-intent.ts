@@ -60,10 +60,7 @@ export function normalizeVehicleIntent(
 export const TOOL_BUFFER_WINDOW_MS = 150;
 
 export type ToolToggleAction =
-  | "diff-lock"
-  | "headlights"
-  | "tire-pressure"
-  | "winch";
+  "diff-lock" | "headlights" | "tire-pressure" | "winch";
 
 export interface BufferedToolIntent {
   action: ToolToggleAction;

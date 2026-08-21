@@ -1,7 +1,14 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-08-13 (P0 slice completed, 16 vehicle families integrated, complete-slice browser acceptance verified, ADR post-spine review reconciled)
+- Last Updated: 2026-08-17 (rig production pipeline documented; inventory/expansion/upgrades roadmap proposed; no runtime code changed)
+- Rig production reference:
+  [Rig Production Pipeline](../design/rigs/RIG_PRODUCTION_PIPELINE.md) —
+  canonical S0–S7 stage map from image reference to runtime rig, with the
+  expansion/upgrades roadmap
+  ([Inventory & Expansion](../design/rigs/RIG_INVENTORY_EXPANSION_AND_UPGRADES_ROADMAP.md),
+  Proposed) naming the sequenced consumer for the paused GD-13
+  procedural-generation scope.
 - Owner: project owner; agents update evidence and status in the same change
 - Design source of truth: [Game Design Spine](../design/GAME_DESIGN_SPINE.md)
   ([ADR-0040](../decisions/ADR-0040-open-vehicle-universe-and-design-spine-hierarchy.md)
@@ -26,6 +33,31 @@
   [Next Execution Board (2026-08-12)](NEXT_EXECUTION_BOARD_2026-08-12.md)
   — supersedes [the 2026-07-26 board](NEXT_EXECUTION_BOARD_2026-07-26.md),
   preserved as historical record.
+
+## Rig Production Pipeline Consolidation (2026-08-17)
+
+- **Documentation**: Created the canonical rig production reference
+  ([`docs/design/rigs/RIG_PRODUCTION_PIPELINE.md`](../design/rigs/RIG_PRODUCTION_PIPELINE.md)):
+  the S0–S7 stage map (reference plates → spec → profile → blockout → model
+  FORM lanes → acceptance gates → renderer wiring → catalog/manifest), the
+  Two-Lane Contract (FORM from image, DIMENSIONS from `RIG_PROFILES`),
+  add-a-rig and add-a-module runbooks, and an honest per-stage state table.
+- **Proposed roadmap**: Created
+  [`docs/design/rigs/RIG_INVENTORY_EXPANSION_AND_UPGRADES_ROADMAP.md`](../design/rigs/RIG_INVENTORY_EXPANSION_AND_UPGRADES_ROADMAP.md)
+  — Waves 1–2 (wire the 13 authored rig factories into the renderer; module
+  fitment matrix + spec-socket realization) consume proven lanes only;
+  Waves 3–4 (variant layer, new families, external GenAI GLB) remain gated
+  behind GD-13. Status: **Proposed — awaiting operator acceptance**.
+- **Key observed findings**: 13 candidate rigs have reference plates, specs,
+  profiles, blockouts, and authored model factories, yet render through the
+  generic `createCandidateRig()` blockout and fit zero of the six shipped
+  modules; the image→runtime forge path is proven once (field-plough-01,
+  including GLB export) with the rig envelope checker ready but not yet
+  exercised against an authored rig spec.
+- **Verification**: documentation-only session; link targets and command
+  citations checked against the live tree (Tier 1). Catalog index
+  (`docs/design/rigs/README.md`) statuses truthed to "Spec Locked / Authored
+  (Wiring Pending)". No `src/` files touched; no git write action taken.
 
 ## Mechanics Designer Audit & Systemic Rule Specification (2026-08-13)
 

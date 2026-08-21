@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  TOP_DOWN_CAMERA_SPECS,
-  calculateTopDownTargetLead,
-} from "./camera";
+import { TOP_DOWN_CAMERA_SPECS, calculateTopDownTargetLead } from "./camera";
 
 describe("Top-Down Camera Specs & Target Lead", () => {
   it("defines specs for diorama, flat, and heading presentation styles", () => {

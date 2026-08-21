@@ -6,7 +6,9 @@ const path = require("path");
 const fs = require("fs");
 
 async function runAcceptanceTest() {
-  console.log("[top-down-acceptance] Starting browser visual acceptance check...");
+  console.log(
+    "[top-down-acceptance] Starting browser visual acceptance check...",
+  );
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const context = await browser.newContext({
     viewport: { width: 1280, height: 720 },
@@ -56,7 +58,10 @@ async function runAcceptanceTest() {
       return results;
     });
 
-    console.log("[top-down-acceptance] Control paradigm window readback:", paradigmResult);
+    console.log(
+      "[top-down-acceptance] Control paradigm window readback:",
+      paradigmResult,
+    );
 
     // Ensure artifacts dir exists
     const artifactsDir = path.join(__dirname, "..", "artifacts");
@@ -65,17 +70,27 @@ async function runAcceptanceTest() {
     }
 
     // Capture Desktop Top-Down Screenshot
-    const desktopScreenshotPath = path.join(artifactsDir, "top-down-acceptance-desktop.png");
+    const desktopScreenshotPath = path.join(
+      artifactsDir,
+      "top-down-acceptance-desktop.png",
+    );
     await page.screenshot({ path: desktopScreenshotPath });
-    console.log(`[top-down-acceptance] Saved desktop screenshot to: ${desktopScreenshotPath}`);
+    console.log(
+      `[top-down-acceptance] Saved desktop screenshot to: ${desktopScreenshotPath}`,
+    );
 
     // Switch to Narrow Viewport (390 x 844)
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(500);
 
-    const narrowScreenshotPath = path.join(artifactsDir, "top-down-acceptance-narrow.png");
+    const narrowScreenshotPath = path.join(
+      artifactsDir,
+      "top-down-acceptance-narrow.png",
+    );
     await page.screenshot({ path: narrowScreenshotPath });
-    console.log(`[top-down-acceptance] Saved narrow screenshot to: ${narrowScreenshotPath}`);
+    console.log(
+      `[top-down-acceptance] Saved narrow screenshot to: ${narrowScreenshotPath}`,
+    );
 
     // Check performance snapshot
     const perfSnapshot = await page.evaluate(() => {
@@ -87,10 +102,15 @@ async function runAcceptanceTest() {
     console.log("[top-down-acceptance] Performance snapshot:", perfSnapshot);
 
     if (consoleErrors.length > 0) {
-      console.error("[top-down-acceptance] Console errors detected:", consoleErrors);
+      console.error(
+        "[top-down-acceptance] Console errors detected:",
+        consoleErrors,
+      );
       process.exitCode = 1;
     } else {
-      console.log("[top-down-acceptance] VISUAL ACCEPTANCE PASSED: 0 console errors, screenshots captured.");
+      console.log(
+        "[top-down-acceptance] VISUAL ACCEPTANCE PASSED: 0 console errors, screenshots captured.",
+      );
     }
   } catch (error) {
     console.error("[top-down-acceptance] Acceptance test failed:", error);

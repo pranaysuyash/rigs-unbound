@@ -22,9 +22,7 @@ import type { Obstacle } from "./collision";
 export type FirstNightThreatStatus = "pending" | "resolved";
 export type FirstNightThreatVariant = "signal-drawn" | "storm-pressure";
 export type FirstNightWaterworksChoice =
-  | "repair-pump"
-  | "redirect-channel"
-  | "unresolved";
+  "repair-pump" | "redirect-channel" | "unresolved";
 
 export interface FirstNightThreatState {
   id: "first-night-threat";
@@ -137,9 +135,7 @@ export function firstNightThreatObstacle(
 }
 
 /** Lenient recovery preserves older saves and rejects malformed/foreign records. */
-export function recoverFirstNightThreat(
-  value: unknown,
-): FirstNightThreatState {
+export function recoverFirstNightThreat(value: unknown): FirstNightThreatState {
   const fallback = createFirstNightThreat();
   if (!value || typeof value !== "object") return fallback;
   const candidate = value as Record<string, unknown>;
@@ -159,12 +155,8 @@ export function recoverFirstNightThreat(
         ? Math.max(0, candidate.resolvedAtWorldMinutes)
         : null,
     originX:
-      resolved && isFiniteNumber(candidate.originX)
-        ? candidate.originX
-        : null,
+      resolved && isFiniteNumber(candidate.originX) ? candidate.originX : null,
     originZ:
-      resolved && isFiniteNumber(candidate.originZ)
-        ? candidate.originZ
-        : null,
+      resolved && isFiniteNumber(candidate.originZ) ? candidate.originZ : null,
   };
 }

@@ -22,16 +22,16 @@ export interface RendererAdapterOptions {
 
 export interface RendererAdapter {
   readonly backend: RendererBackendType;
-  
+
   /** Initialize rendering context and canvas elements */
   init(options: RendererAdapterOptions): Promise<void>;
-  
+
   /** Render frame consuming headless kernel state */
   renderFrame(state: KernelState, deltaSeconds: number): void;
-  
+
   /** Handle window resize events */
   resize(viewport: RenderViewport): void;
-  
+
   /** Dispose WebGL/Canvas resources cleanly without memory leaks */
   dispose(): void;
 }

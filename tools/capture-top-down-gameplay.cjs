@@ -29,8 +29,10 @@ async function main() {
   try {
     await page.goto(URL, { waitUntil: "networkidle" });
     await page.waitForFunction(
-      () => typeof window.selectRig === "function" && document.querySelector("#enter-world"),
-      { timeout: 15000 }
+      () =>
+        typeof window.selectRig === "function" &&
+        document.querySelector("#enter-world"),
+      { timeout: 15000 },
     );
 
     // Helper to purge all narrative/tutorial overlays for clean gameplay visual capture
@@ -43,7 +45,7 @@ async function main() {
         const lesson = document.querySelector("#control-lesson");
         if (lesson) lesson.hidden = true;
         const popovers = document.querySelectorAll(
-          "dialog, .dialogue-card, .welcome-panel, .new-control, #control-lesson, .workshop__waterworks, #workshop-panel, section[role='dialog']"
+          "dialog, .dialogue-card, .welcome-panel, .new-control, #control-lesson, .workshop__waterworks, #workshop-panel, section[role='dialog']",
         );
         popovers.forEach((el) => {
           el.style.display = "none";
@@ -69,7 +71,9 @@ async function main() {
     await clearOverlays();
 
     // ── SHOT 1: Toy Buggy Active Driving in 75° Diorama Top-Down View (Screen-Relative) ──
-    console.log("[top-down-gameplay] Driving toy-buggy across open field in 75° Diorama mode...");
+    console.log(
+      "[top-down-gameplay] Driving toy-buggy across open field in 75° Diorama mode...",
+    );
     await page.evaluate(() => {
       window.setControlParadigm("screen-relative");
       // Drive across field with acceleration and turn
@@ -80,7 +84,10 @@ async function main() {
     await clearOverlays();
     await page.waitForTimeout(300);
 
-    const shot1Path = path.join(ARTIFACT_DIR, "top-down-gameplay-diorama-driving.png");
+    const shot1Path = path.join(
+      ARTIFACT_DIR,
+      "top-down-gameplay-diorama-driving.png",
+    );
     await page.screenshot({ path: shot1Path });
     console.log(`[top-down-gameplay] Saved Shot 1 to: ${shot1Path}`);
 
@@ -95,12 +102,17 @@ async function main() {
     await clearOverlays();
     await page.waitForTimeout(300);
 
-    const shot2Path = path.join(ARTIFACT_DIR, "top-down-gameplay-tactical-twinstick.png");
+    const shot2Path = path.join(
+      ARTIFACT_DIR,
+      "top-down-gameplay-tactical-twinstick.png",
+    );
     await page.screenshot({ path: shot2Path });
     console.log(`[top-down-gameplay] Saved Shot 2 to: ${shot2Path}`);
 
     // ── SHOT 3: Marsh Skimmer Active Top-Down Traversal ──
-    console.log("[top-down-gameplay] Switching to marsh-skimmer for top-down water/marsh traversal...");
+    console.log(
+      "[top-down-gameplay] Switching to marsh-skimmer for top-down water/marsh traversal...",
+    );
     await page.evaluate(() => {
       window.selectRig("marsh-skimmer");
       window.setControlParadigm("heading-relative");
@@ -110,12 +122,17 @@ async function main() {
     await clearOverlays();
     await page.waitForTimeout(300);
 
-    const shot3Path = path.join(ARTIFACT_DIR, "top-down-gameplay-skimmer-marsh.png");
+    const shot3Path = path.join(
+      ARTIFACT_DIR,
+      "top-down-gameplay-skimmer-marsh.png",
+    );
     await page.screenshot({ path: shot3Path });
     console.log(`[top-down-gameplay] Saved Shot 3 to: ${shot3Path}`);
 
     // ── SHOT 4: Mobile Viewport (390 x 844) Active Driving ──
-    console.log("[top-down-gameplay] Capturing mobile narrow viewport active driving...");
+    console.log(
+      "[top-down-gameplay] Capturing mobile narrow viewport active driving...",
+    );
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => {
       window.applyRigInput({ accelerate: true, steerRight: true }, 2000);
@@ -124,7 +141,10 @@ async function main() {
     await clearOverlays();
     await page.waitForTimeout(300);
 
-    const shot4Path = path.join(ARTIFACT_DIR, "top-down-gameplay-mobile-driving.png");
+    const shot4Path = path.join(
+      ARTIFACT_DIR,
+      "top-down-gameplay-mobile-driving.png",
+    );
     await page.screenshot({ path: shot4Path });
     console.log(`[top-down-gameplay] Saved Shot 4 to: ${shot4Path}`);
 

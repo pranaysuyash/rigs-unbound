@@ -38,10 +38,34 @@ export function createInitialDefenseState(): TopDownDefenseState {
     threatsDefeated: 0,
     salvageEarned: 0,
     barricades: [
-      { id: "silo-north-gate", x: 0, z: -15, healthPercent: 100, destroyed: false },
-      { id: "silo-east-wall", x: 15, z: 0, healthPercent: 100, destroyed: false },
-      { id: "silo-south-wall", x: 0, z: 15, healthPercent: 100, destroyed: false },
-      { id: "silo-west-wall", x: -15, z: 0, healthPercent: 100, destroyed: false },
+      {
+        id: "silo-north-gate",
+        x: 0,
+        z: -15,
+        healthPercent: 100,
+        destroyed: false,
+      },
+      {
+        id: "silo-east-wall",
+        x: 15,
+        z: 0,
+        healthPercent: 100,
+        destroyed: false,
+      },
+      {
+        id: "silo-south-wall",
+        x: 0,
+        z: 15,
+        healthPercent: 100,
+        destroyed: false,
+      },
+      {
+        id: "silo-west-wall",
+        x: -15,
+        z: 0,
+        healthPercent: 100,
+        destroyed: false,
+      },
     ],
   };
 }
@@ -52,15 +76,20 @@ export function advanceDefenseWave(
 ): TopDownDefenseState {
   if (state.status !== "active") return state;
 
-  const threatsDefeated = state.threatsDefeated + Math.floor(deltaTimeSeconds * 2);
-  const salvageEarned = state.salvageEarned + Math.floor(deltaTimeSeconds * 1.5);
+  const threatsDefeated =
+    state.threatsDefeated + Math.floor(deltaTimeSeconds * 2);
+  const salvageEarned =
+    state.salvageEarned + Math.floor(deltaTimeSeconds * 1.5);
   const waveCompleted = threatsDefeated >= (state.currentWaveIndex + 1) * 10;
 
   return {
     ...state,
     threatsDefeated,
     salvageEarned,
-    currentWaveIndex: waveCompleted ? state.currentWaveIndex + 1 : state.currentWaveIndex,
-    status: waveCompleted && state.currentWaveIndex >= 3 ? "completed" : "active",
+    currentWaveIndex: waveCompleted
+      ? state.currentWaveIndex + 1
+      : state.currentWaveIndex,
+    status:
+      waveCompleted && state.currentWaveIndex >= 3 ? "completed" : "active",
   };
 }

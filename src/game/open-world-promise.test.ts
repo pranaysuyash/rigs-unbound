@@ -27,16 +27,25 @@ function inputs(
 describe("resolveOpenWorldPromise", () => {
   it("stays pending until all three prior beats are resolved", () => {
     expect(
-      resolveOpenWorldPromise(createOpenWorldPromise(), 1200, inputs({ firstNightResolved: false }))
-        .status,
+      resolveOpenWorldPromise(
+        createOpenWorldPromise(),
+        1200,
+        inputs({ firstNightResolved: false }),
+      ).status,
     ).toBe("pending");
     expect(
-      resolveOpenWorldPromise(createOpenWorldPromise(), 1200, inputs({ waterworksResolved: false }))
-        .status,
+      resolveOpenWorldPromise(
+        createOpenWorldPromise(),
+        1200,
+        inputs({ waterworksResolved: false }),
+      ).status,
     ).toBe("pending");
     expect(
-      resolveOpenWorldPromise(createOpenWorldPromise(), 1200, inputs({ causewayReopened: false }))
-        .status,
+      resolveOpenWorldPromise(
+        createOpenWorldPromise(),
+        1200,
+        inputs({ causewayReopened: false }),
+      ).status,
     ).toBe("pending");
   });
 
@@ -51,7 +60,11 @@ describe("resolveOpenWorldPromise", () => {
   });
 
   it("resolves exactly once and ignores later calls, even with different inputs", () => {
-    const first = resolveOpenWorldPromise(createOpenWorldPromise(), 1200, inputs());
+    const first = resolveOpenWorldPromise(
+      createOpenWorldPromise(),
+      1200,
+      inputs(),
+    );
     const second = resolveOpenWorldPromise(
       first,
       5000,
@@ -63,7 +76,11 @@ describe("resolveOpenWorldPromise", () => {
   });
 
   it("records a non-negative timestamp even for a malformed negative input", () => {
-    const revealed = resolveOpenWorldPromise(createOpenWorldPromise(), -5, inputs());
+    const revealed = resolveOpenWorldPromise(
+      createOpenWorldPromise(),
+      -5,
+      inputs(),
+    );
     expect(revealed.revealedAtWorldMinutes).toBe(0);
   });
 });
@@ -94,13 +111,15 @@ describe("recoverOpenWorldPromise", () => {
       1200,
       inputs(),
     );
-    expect(recoverOpenWorldPromise(JSON.parse(JSON.stringify(revealed)))).toEqual(
-      revealed,
-    );
+    expect(
+      recoverOpenWorldPromise(JSON.parse(JSON.stringify(revealed))),
+    ).toEqual(revealed);
   });
 
   it("falls back to pending for missing, malformed, or foreign records", () => {
-    expect(recoverOpenWorldPromise(undefined)).toEqual(createOpenWorldPromise());
+    expect(recoverOpenWorldPromise(undefined)).toEqual(
+      createOpenWorldPromise(),
+    );
     expect(recoverOpenWorldPromise(null)).toEqual(createOpenWorldPromise());
     expect(
       recoverOpenWorldPromise({ id: "first-night-threat", status: "revealed" }),

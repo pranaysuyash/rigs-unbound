@@ -59,7 +59,10 @@ export class TacticalOverlayRenderer {
     this.canvas.style.zIndex = "10";
 
     const ctx = this.canvas.getContext("2d");
-    if (!ctx) throw new Error("Failed to acquire 2D canvas context for TacticalOverlayRenderer.");
+    if (!ctx)
+      throw new Error(
+        "Failed to acquire 2D canvas context for TacticalOverlayRenderer.",
+      );
     this.ctx = ctx;
   }
 
@@ -121,7 +124,9 @@ export class TacticalOverlayRenderer {
       const screenX = width / 2 + snap.x * 4;
       const screenY = height / 2 + snap.z * 4;
 
-      this.ctx.strokeStyle = snap.valid ? "rgba(100, 220, 160, 0.8)" : "rgba(240, 80, 80, 0.8)";
+      this.ctx.strokeStyle = snap.valid
+        ? "rgba(100, 220, 160, 0.8)"
+        : "rgba(240, 80, 80, 0.8)";
       this.ctx.lineWidth = 2;
       this.ctx.strokeRect(screenX - 12, screenY - 12, 24, 24);
     }

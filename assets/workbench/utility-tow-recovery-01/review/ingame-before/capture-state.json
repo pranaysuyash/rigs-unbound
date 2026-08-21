@@ -1,0 +1,10 @@
+{
+  "rigId": "heavy-utility-tow-recovery-01",
+  "cameraModes": [
+    "chase",
+    "side",
+    "survey",
+    "top-down"
+  ],
+  "consoleProblems": []
+}

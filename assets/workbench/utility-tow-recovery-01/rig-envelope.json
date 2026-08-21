@@ -1,0 +1,135 @@
+{
+  "rigId": "heavy-utility-tow-recovery-01",
+  "displayName": "Heavy Utility Tow & Recovery Rig",
+  "frame": "ground",
+  "coordinateFrame": {
+    "front": "rig forward, positive Z",
+    "up": "world positive Y",
+    "right": "rig right, positive X",
+    "units": "metres, derived from RIG_PROFILES — not estimated from reference imagery",
+    "origin": "centre of the contact patch rectangle, on the ground plane (y = 0). GROUND frame: the runtime lowers the assembly by rideHeight when mounting it under the body origin — see rig-blockout.ts groundFrameOffsetY."
+  },
+  "nodes": [
+    {
+      "id": "root",
+      "parent": null,
+      "level": "macro",
+      "localPosition": [
+        0,
+        0,
+        0
+      ],
+      "dimensions": {
+        "width": 3.935,
+        "depth": 6.07,
+        "heightAtLeast": 1.485
+      },
+      "derivation": "Presentation root, on the contact plane. `heightAtLeast` is the hull top; superstructure above it is art direction and is not derived."
+    },
+    {
+      "id": "hull",
+      "parent": "root",
+      "level": "macro",
+      "localPosition": [
+        0,
+        1.1,
+        0
+      ],
+      "dimensions": {
+        "width": 3.1500000000000004,
+        "height": 0.77,
+        "depth": 5.88
+      },
+      "derivation": "track x hullWidthScale, wheelbase x hullLengthScale, rideHeight x hullThicknessScale; centred on the body origin at y = rideHeight (1.1)."
+    },
+    {
+      "id": "wheel-front-left",
+      "parent": "root",
+      "level": "meso",
+      "localPosition": [
+        -1.5,
+        0.765,
+        2.1
+      ],
+      "dimensions": {
+        "radius": 0.765,
+        "width": 0.765,
+        "spinScale": 1.1111111111111112,
+        "simulationWheelIndex": 0
+      },
+      "derivation": "Simulation wheel 0 (front-left) at ±track/2, ±wheelbase/2 — the exact point terrain is sampled. Centre at y = radius so the tyre touches y = 0. spinScale = wheelRadius / radius. simulationWheelIndex is an ordinal, not a measurement: it binds this mesh to the contact the kernel animates it from, so a mislabelled pair reads as a mirrored axle."
+    },
+    {
+      "id": "wheel-front-right",
+      "parent": "root",
+      "level": "meso",
+      "localPosition": [
+        1.5,
+        0.765,
+        2.1
+      ],
+      "dimensions": {
+        "radius": 0.765,
+        "width": 0.765,
+        "spinScale": 1.1111111111111112,
+        "simulationWheelIndex": 1
+      },
+      "derivation": "Simulation wheel 1 (front-right) at ±track/2, ±wheelbase/2 — the exact point terrain is sampled. Centre at y = radius so the tyre touches y = 0. spinScale = wheelRadius / radius. simulationWheelIndex is an ordinal, not a measurement: it binds this mesh to the contact the kernel animates it from, so a mislabelled pair reads as a mirrored axle."
+    },
+    {
+      "id": "wheel-rear-left",
+      "parent": "root",
+      "level": "meso",
+      "localPosition": [
+        -1.5,
+        0.935,
+        -2.1
+      ],
+      "dimensions": {
+        "radius": 0.935,
+        "width": 0.935,
+        "spinScale": 0.9090909090909091,
+        "simulationWheelIndex": 2
+      },
+      "derivation": "Simulation wheel 2 (rear-left) at ±track/2, ±wheelbase/2 — the exact point terrain is sampled. Centre at y = radius so the tyre touches y = 0. spinScale = wheelRadius / radius. simulationWheelIndex is an ordinal, not a measurement: it binds this mesh to the contact the kernel animates it from, so a mislabelled pair reads as a mirrored axle."
+    },
+    {
+      "id": "wheel-rear-right",
+      "parent": "root",
+      "level": "meso",
+      "localPosition": [
+        1.5,
+        0.935,
+        -2.1
+      ],
+      "dimensions": {
+        "radius": 0.935,
+        "width": 0.935,
+        "spinScale": 0.9090909090909091,
+        "simulationWheelIndex": 3
+      },
+      "derivation": "Simulation wheel 3 (rear-right) at ±track/2, ±wheelbase/2 — the exact point terrain is sampled. Centre at y = radius so the tyre touches y = 0. spinScale = wheelRadius / radius. simulationWheelIndex is an ordinal, not a measurement: it binds this mesh to the contact the kernel animates it from, so a mislabelled pair reads as a mirrored axle."
+    },
+    {
+      "id": "ground-decal",
+      "parent": "root",
+      "level": "micro",
+      "localPosition": [
+        0,
+        0.04,
+        0
+      ],
+      "dimensions": {
+        "lift": 0.04
+      },
+      "derivation": "Contact shadow, lifted off the plane only enough to beat depth precision. This is the cue a player reads to judge contact; it may not be authored higher."
+    }
+  ],
+  "authorable": [
+    "Which subassemblies exist beyond the derived ones (cab, boom, winch, drawers, beacon).",
+    "Superstructure heights above the hull top, and all proportions within a derived extent.",
+    "Materials, surface detail, wear, and emissive treatment.",
+    "Socket placement, collider decomposition, and destruction grouping.",
+    "Silhouette ratios, by editing RIG_SILHOUETTES — which rescales this envelope rather than contradicting it."
+  ]
+}

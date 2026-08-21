@@ -40,6 +40,9 @@ dist/
 build/
 out/
 coverage/
+test-results/
+playwright-report/
+blob-report/
 .vite/
 .next/
 .wrangler/

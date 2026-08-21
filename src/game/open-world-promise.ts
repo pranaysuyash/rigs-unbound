@@ -79,9 +79,7 @@ export function openWorldPromiseNarration(
 }
 
 /** Lenient recovery preserves older saves and rejects malformed/foreign records. */
-export function recoverOpenWorldPromise(
-  value: unknown,
-): OpenWorldPromiseState {
+export function recoverOpenWorldPromise(value: unknown): OpenWorldPromiseState {
   const fallback = createOpenWorldPromise();
   if (!value || typeof value !== "object") return fallback;
   const candidate = value as Record<string, unknown>;

@@ -181,8 +181,11 @@ declare global {
     advanceTime: (milliseconds: number) => string;
     selectRig: (rigId: RigId) => string;
     selectCamera: (cameraMode: CameraMode) => string;
-    setControlParadigm: (paradigm: "heading-relative" | "screen-relative" | "twin-stick") => string;
-    getControlParadigm: () => "heading-relative" | "screen-relative" | "twin-stick";
+    setControlParadigm: (
+      paradigm: "heading-relative" | "screen-relative" | "twin-stick",
+    ) => string;
+    getControlParadigm: () =>
+      "heading-relative" | "screen-relative" | "twin-stick";
     performRigAction: () => string;
     applyRigInput: (input: Partial<InputFrame>, milliseconds: number) => string;
     getPerformanceSnapshot: () => PerformanceSnapshot;
@@ -3885,13 +3888,19 @@ function boot(): void {
     toggleBladeMode(state);
     return settleAndReport();
   };
-  window.recordWaterworksChoice = (choice: "repair-pump" | "redirect-channel") => {
+  window.recordWaterworksChoice = (
+    choice: "repair-pump" | "redirect-channel",
+  ) => {
     markActionReady();
     recordCommand("chooseFarmWaterworks", { choice });
     const ok = chooseFarmWaterworks(state, world, choice);
     updateInterface(performance.now() + 1000);
     renderer.render(state);
-    return { ok, diagnostic: state.lastDiagnostic, choice: state.farmWaterworks.choice };
+    return {
+      ok,
+      diagnostic: state.lastDiagnostic,
+      choice: state.farmWaterworks.choice,
+    };
   };
   window.recoverStrandedRig = () => {
     markActionReady();

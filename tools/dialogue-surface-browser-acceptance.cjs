@@ -105,7 +105,10 @@ async function main() {
     await clickRestoration(page);
     await waitForRestorationText(page, "Start engine");
     await clickRestoration(page);
-    await page.locator('button[data-module-id="lug-tires"]').click().catch(() => {});
+    await page
+      .locator('button[data-module-id="lug-tires"]')
+      .click()
+      .catch(() => {});
     await page.waitForTimeout(300);
     await page.waitForSelector("#workshop-panel", {
       state: "hidden",

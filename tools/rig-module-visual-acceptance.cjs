@@ -213,7 +213,9 @@ function sampleViolations(sample) {
   }
   if (sample.worldMin === null || sample.worldMax === null) {
     // Nothing further is measurable, and every check below would read null.
-    problems.push(`${sample.label} is fitted and visible but draws no geometry`);
+    problems.push(
+      `${sample.label} is fitted and visible but draws no geometry`,
+    );
     return problems;
   }
 
@@ -221,7 +223,10 @@ function sampleViolations(sample) {
   // mount box was proved clear of the ground, the tyres and the other modules by
   // `rig-blockout.test.ts`; a form that renders outside its box makes every one of
   // those proofs a statement about a volume the module no longer occupies.
-  if (sample.envelopeBreach !== null && sample.envelopeBreach > ENVELOPE_BREACH) {
+  if (
+    sample.envelopeBreach !== null &&
+    sample.envelopeBreach > ENVELOPE_BREACH
+  ) {
     problems.push(
       `${sample.label} renders ${sample.envelopeBreach} m outside its own mount box`,
     );
@@ -361,7 +366,8 @@ async function readRig(page, rigId) {
  */
 async function repairIfDisabled(page, rigId) {
   const before = await readRig(page, rigId);
-  if (before.condition > 0) return { repaired: false, condition: before.condition };
+  if (before.condition > 0)
+    return { repaired: false, condition: before.condition };
   await page.keyboard.press("KeyT");
   await page.waitForTimeout(120);
   const after = await readRig(page, rigId);
@@ -484,12 +490,10 @@ async function main() {
             }
           } else {
             const expectedSign = steering.steer === "left" ? 1 : -1;
-            if (
-              !(
-                Math.abs(evidence.steeringAngle) >= LOCK_ANGLE_FLOOR &&
-                Math.sign(evidence.steeringAngle) === expectedSign
-              )
-            ) {
+            if (!(
+              Math.abs(evidence.steeringAngle) >= LOCK_ANGLE_FLOOR &&
+              Math.sign(evidence.steeringAngle) === expectedSign
+            )) {
               violations.push(`Wheels did not reach ${steering.label}`);
             }
           }

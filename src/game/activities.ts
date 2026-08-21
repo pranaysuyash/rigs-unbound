@@ -28,13 +28,7 @@ export type ActivityId =
  * What the ground *means* while an activity is running.
  */
 export type ActivityBinding =
-  | "haul"
-  | "survey"
-  | "rally"
-  | "defense"
-  | "tactical"
-  | "stealth"
-  | "arcade";
+  "haul" | "survey" | "rally" | "defense" | "tactical" | "stealth" | "arcade";
 
 export interface ActivityDefinition {
   id: ActivityId;
@@ -94,7 +88,8 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "top-down-defense",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Horde Night Defense",
-    premise: "Hold the perimeter silos against nocturnal drone threats using barricades and searchlights.",
+    premise:
+      "Hold the perimeter silos against nocturnal drone threats using barricades and searchlights.",
     binding: "defense",
     requiredCapabilities: ["plough"],
     worldRefs: ["home-silo"],
@@ -104,7 +99,8 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "top-down-tactical",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Quarry Heavy Logistics",
-    premise: "Dredge channels and position heavy structural components with precision overhead feedback.",
+    premise:
+      "Dredge channels and position heavy structural components with precision overhead feedback.",
     binding: "tactical",
     requiredCapabilities: ["tow"],
     worldRefs: ["quarry-shelf"],
@@ -114,7 +110,8 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "top-down-stealth",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Sunken Flats Recon",
-    premise: "Infiltrate fog-shrouded ruins without triggering noise or light detectors.",
+    premise:
+      "Infiltrate fog-shrouded ruins without triggering noise or light detectors.",
     binding: "stealth",
     requiredCapabilities: ["ford"],
     worldRefs: ["toy-grove"],
@@ -124,7 +121,8 @@ export const ACTIVITY_DEFINITIONS: readonly ActivityDefinition[] = [
     id: "top-down-arcade",
     version: ACTIVITY_CONTRACT_VERSION,
     name: "Ridge Demolition Circuit",
-    premise: "Clear high-speed drift checkpoints while evading obstacles across the ridge.",
+    premise:
+      "Clear high-speed drift checkpoints while evading obstacles across the ridge.",
     binding: "arcade",
     requiredCapabilities: ["jump"],
     worldRefs: ["launch-ridge"],

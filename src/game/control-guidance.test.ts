@@ -157,7 +157,8 @@ describe("first-use control guidance", () => {
     expect(lesson?.id).toBe("recovery");
   });
 
-  it("decodes only canonical ids and tolerates malformed local preferences", () => {    expect(
+  it("decodes only canonical ids and tolerates malformed local preferences", () => {
+    expect(
       decodeLearnedControlLessons(
         JSON.stringify(["drive", "unknown", "camera", "drive"]),
       ),

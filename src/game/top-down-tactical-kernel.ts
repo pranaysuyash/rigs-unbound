@@ -25,9 +25,30 @@ export function createInitialTacticalState(): TopDownTacticalState {
   return {
     status: "ready",
     segments: [
-      { id: "channel-01", gridX: 10, gridZ: 5, targetDepthMeters: 2.5, currentDepthMeters: 0, complete: false },
-      { id: "channel-02", gridX: 10, gridZ: 6, targetDepthMeters: 2.5, currentDepthMeters: 0, complete: false },
-      { id: "channel-03", gridX: 10, gridZ: 7, targetDepthMeters: 2.5, currentDepthMeters: 0, complete: false },
+      {
+        id: "channel-01",
+        gridX: 10,
+        gridZ: 5,
+        targetDepthMeters: 2.5,
+        currentDepthMeters: 0,
+        complete: false,
+      },
+      {
+        id: "channel-02",
+        gridX: 10,
+        gridZ: 6,
+        targetDepthMeters: 2.5,
+        currentDepthMeters: 0,
+        complete: false,
+      },
+      {
+        id: "channel-03",
+        gridX: 10,
+        gridZ: 7,
+        targetDepthMeters: 2.5,
+        currentDepthMeters: 0,
+        complete: false,
+      },
     ],
     totalDredgedMeters: 0,
   };
@@ -43,7 +64,10 @@ export function applyDredgingProgress(
 
   const updatedSegments = state.segments.map((seg) => {
     if (seg.gridX === gridX && seg.gridZ === gridZ && !seg.complete) {
-      const newDepth = Math.min(seg.targetDepthMeters, seg.currentDepthMeters + dredgeAmount);
+      const newDepth = Math.min(
+        seg.targetDepthMeters,
+        seg.currentDepthMeters + dredgeAmount,
+      );
       dredgedTotal += newDepth - seg.currentDepthMeters;
       return {
         ...seg,

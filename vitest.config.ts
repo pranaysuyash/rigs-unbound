@@ -22,7 +22,11 @@ export default defineConfig({
     // reach. The split is by extension and is unambiguous: tool tests written
     // against `node:test` are `.test.mjs` and cannot match this glob, so nothing
     // is collected by two runners.
-    include: ["src/**/*.test.ts", "tools/**/*.test.ts", "assets/workbench/**/*.test.ts"],
+    include: [
+      "src/**/*.test.ts",
+      "tools/**/*.test.ts",
+      "assets/workbench/**/*.test.ts",
+    ],
 
     server: {
       deps: {

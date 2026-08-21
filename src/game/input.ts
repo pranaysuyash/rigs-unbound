@@ -4,7 +4,8 @@ import {
   type InputFrame,
 } from "./contracts";
 
-export type ControlParadigm = "heading-relative" | "screen-relative" | "twin-stick";
+export type ControlParadigm =
+  "heading-relative" | "screen-relative" | "twin-stick";
 
 export interface PointerAimState {
   screenX: number;
@@ -71,7 +72,7 @@ export class InputController {
     const cy = height / 2;
     const dx = event.clientX - cx;
     const dy = event.clientY - cy;
-    
+
     this.pointerAim.screenX = event.clientX;
     this.pointerAim.screenY = event.clientY;
     // Calculate 2D aim angle relative to screen center (0 rad = up / north)

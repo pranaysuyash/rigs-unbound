@@ -832,10 +832,15 @@ describe("wheel clearance envelope", () => {
     for (const rigId of RIG_IDS) {
       for (const wheel of blockoutFor(rigId).wheelMounts) {
         if (wheel.steerLimit === 0) {
-          expect(wheel.clearanceHalfWidth).toBeCloseTo(wheel.treadHalfWidth, 10);
+          expect(wheel.clearanceHalfWidth).toBeCloseTo(
+            wheel.treadHalfWidth,
+            10,
+          );
           expect(wheel.clearanceHalfDepth).toBeCloseTo(wheel.treadRadius, 10);
         } else {
-          expect(wheel.clearanceHalfWidth).toBeGreaterThan(wheel.treadHalfWidth);
+          expect(wheel.clearanceHalfWidth).toBeGreaterThan(
+            wheel.treadHalfWidth,
+          );
           expect(wheel.clearanceHalfDepth).toBeGreaterThan(wheel.treadRadius);
         }
       }
@@ -881,7 +886,10 @@ describe("wheel clearance envelope", () => {
       wheel.treadHalfWidth - wheel.width / 2;
 
     expect(rear.radius).toBeGreaterThan(front.radius * 1.2);
-    expect(proud(rear) / proud(front)).toBeCloseTo(rear.radius / front.radius, 6);
+    expect(proud(rear) / proud(front)).toBeCloseTo(
+      rear.radius / front.radius,
+      6,
+    );
     expect(rear.treadRadius / rear.radius).toBeCloseTo(
       front.treadRadius / front.radius,
       10,

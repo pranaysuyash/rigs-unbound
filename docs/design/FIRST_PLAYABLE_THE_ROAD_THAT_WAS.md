@@ -127,7 +127,7 @@ encodes the locked contracts; this scene makes them *visible promises* instead
 of hidden data. The slice ends with the player choosing the next contract —
 not a cutscene.
 
-## 6. Module dispositions (all 30, explicit)
+## 6. Module dispositions (all 31, explicit)
 
 **Wired by this slice (16):** `campaign.ts`, `world-memory.ts`,
 `vehicle-maintenance.ts`, `workshop-lab.ts`, `salvage-crafting.ts`,
@@ -138,14 +138,15 @@ not a cutscene.
 
 **Wired if the night pressure lands as designed (0):** *(All conditions met — both modules now reachable and moved to the wired group above. This group is retained as a zero-count marker so the heading documents that the condition resolved rather than being silently dropped.)*
 
-**Re-archived with named future home (14):** `fleet-recovery.ts`,
+**Re-archived with named future home (15):** `fleet-recovery.ts`,
 `cargo-crane.ts`, `winch-physics.ts`, `winch-pulley.ts` (salvage verticals),
 `thermal-camera.ts`, `thermal-engine.ts` (night-instrument tier 2),
 `fuel-efficiency.ts` (economy tuning pass), `procedural-missions.ts`
 (post-slice repeatable contracts), `asset-manager.ts` (asset promotion lane),
 `renderer-adapter.ts` (multi-backend 2D/3D renderer interface),
 `top-down-tactical-kernel.ts`, `top-down-stealth-kernel.ts`,
-`top-down-defense-kernel.ts`, `tactical-overlay.ts` (top-down game mode probes under ADR-0053).
+`top-down-defense-kernel.ts`, `tactical-overlay.ts` (top-down game mode probes under ADR-0053),
+`state-actions.ts` (discrete state mutation action dispatch).
 
 ## 7. Execution tranches
 

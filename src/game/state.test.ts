@@ -258,7 +258,10 @@ describe("rig gameplay kernel", () => {
       expect(rig.x).toBe(berth.x);
       expect(rig.z).toBe(berth.z);
       expect(rig.heading).toBe(berth.heading);
-      expect(world.terrain.sample(rig.x, rig.z).waterDepth, `Failed for rig: ${rig.id}`).toBe(0);
+      expect(
+        world.terrain.sample(rig.x, rig.z).waterDepth,
+        `Failed for rig: ${rig.id}`,
+      ).toBe(0);
       expect(world.terrain.sample(rig.x, rig.z).slope).toBeLessThan(0.18);
     }
 
@@ -1562,10 +1565,7 @@ describe("first-night threat binding in stepGame", () => {
 
     stepGame(state, world, IDLE, FIXED_STEP_SECONDS);
 
-    const obstacles = firstNightThreatObstacles(
-      state.firstNightThreat,
-      world,
-    );
+    const obstacles = firstNightThreatObstacles(state.firstNightThreat, world);
     expect(obstacles).toHaveLength(1);
     const [obstacle] = obstacles;
     expect(obstacle?.id).toBe("incident:first-night-threat");

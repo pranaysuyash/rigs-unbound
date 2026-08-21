@@ -155,7 +155,9 @@ async function firstRung(page) {
     });
 
     // ── Step 5: Water Before Night Choice ──
-    console.log("Step 5: Return to Home Silo site & execute Water Before Night decision...");
+    console.log(
+      "Step 5: Return to Home Silo site & execute Water Before Night decision...",
+    );
     await placeRig(page, 0, 16);
     await page.waitForTimeout(300);
     const waterChoiceResult = await page.evaluate(() => {
@@ -165,9 +167,13 @@ async function firstRung(page) {
       return null;
     });
 
-    console.log(`  Waterworks choice result: ${JSON.stringify(waterChoiceResult)}`);
+    console.log(
+      `  Waterworks choice result: ${JSON.stringify(waterChoiceResult)}`,
+    );
     assert(
-      waterChoiceResult !== null && waterChoiceResult.ok && waterChoiceResult.choice === "repair-pump",
+      waterChoiceResult !== null &&
+        waterChoiceResult.ok &&
+        waterChoiceResult.choice === "repair-pump",
       `Waterworks decision failed: ${waterChoiceResult?.diagnostic ?? "unknown"}`,
     );
     results.push({
@@ -204,7 +210,9 @@ async function firstRung(page) {
         lastDiagnostic: snap.lastDiagnostic ?? "",
       };
     });
-    console.log(`  Open World Promise result: ${JSON.stringify(promiseResult)}`);
+    console.log(
+      `  Open World Promise result: ${JSON.stringify(promiseResult)}`,
+    );
     results.push({
       step: "open-world-promise-finale",
       promiseResult,

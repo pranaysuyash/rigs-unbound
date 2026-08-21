@@ -720,51 +720,219 @@ export const RIG_SUPERSTRUCTURES: Readonly<
     },
   ],
   "heavy-utility-tow-recovery-01": [
-    { label: "cab", xScale: 0, yAboveTopScale: 1.5, zScale: 0.25, widthScale: 0.95, heightScale: 3.0, depthScale: 0.45 },
-    { label: "boom", xScale: 0, yAboveTopScale: 1.1, zScale: -0.3, widthScale: 0.7, heightScale: 2.2, depthScale: 0.5 },
+    {
+      label: "cab",
+      xScale: 0,
+      yAboveTopScale: 1.5,
+      zScale: 0.25,
+      widthScale: 0.95,
+      heightScale: 3.0,
+      depthScale: 0.45,
+    },
+    {
+      label: "boom",
+      xScale: 0,
+      yAboveTopScale: 1.1,
+      zScale: -0.3,
+      widthScale: 0.7,
+      heightScale: 2.2,
+      depthScale: 0.5,
+    },
   ],
   "heavy-salvage-crane-02": [
-    { label: "cab", xScale: 0, yAboveTopScale: 1.6, zScale: 0.35, widthScale: 0.9, heightScale: 3.2, depthScale: 0.35 },
-    { label: "crane house", xScale: 0, yAboveTopScale: 1.75, zScale: -0.1, widthScale: 0.85, heightScale: 3.5, depthScale: 0.55 },
+    {
+      label: "cab",
+      xScale: 0,
+      yAboveTopScale: 1.6,
+      zScale: 0.35,
+      widthScale: 0.9,
+      heightScale: 3.2,
+      depthScale: 0.35,
+    },
+    {
+      label: "crane house",
+      xScale: 0,
+      yAboveTopScale: 1.75,
+      zScale: -0.1,
+      widthScale: 0.85,
+      heightScale: 3.5,
+      depthScale: 0.55,
+    },
   ],
   "snow-crawler-expedition-01": [
-    { label: "cabin", xScale: 0, yAboveTopScale: 1.4, zScale: 0.0, widthScale: 0.88, heightScale: 2.8, depthScale: 0.6 },
+    {
+      label: "cabin",
+      xScale: 0,
+      yAboveTopScale: 1.4,
+      zScale: 0.0,
+      widthScale: 0.88,
+      heightScale: 2.8,
+      depthScale: 0.6,
+    },
   ],
   "harvester-combined-cultivator-01": [
-    { label: "cab", xScale: 0.25, yAboveTopScale: 1.6, zScale: 0.2, widthScale: 0.45, heightScale: 3.2, depthScale: 0.4 },
-    { label: "grain tank", xScale: 0, yAboveTopScale: 1.3, zScale: -0.15, widthScale: 0.9, heightScale: 2.6, depthScale: 0.5 },
+    {
+      label: "cab",
+      xScale: 0.25,
+      yAboveTopScale: 1.6,
+      zScale: 0.2,
+      widthScale: 0.45,
+      heightScale: 3.2,
+      depthScale: 0.4,
+    },
+    {
+      label: "grain tank",
+      xScale: 0,
+      yAboveTopScale: 1.3,
+      zScale: -0.15,
+      widthScale: 0.9,
+      heightScale: 2.6,
+      depthScale: 0.5,
+    },
   ],
   "sentinel-mobile-fort-01": [
-    { label: "fortress hull", xScale: 0, yAboveTopScale: 1.25, zScale: 0, widthScale: 0.95, heightScale: 2.5, depthScale: 0.8 },
-    { label: "command bridge", xScale: 0, yAboveTopScale: 1.0, zScale: 0.1, widthScale: 0.7, heightScale: 2.0, depthScale: 0.4 },
+    {
+      label: "fortress hull",
+      xScale: 0,
+      yAboveTopScale: 1.25,
+      zScale: 0,
+      widthScale: 0.95,
+      heightScale: 2.5,
+      depthScale: 0.8,
+    },
+    {
+      label: "command bridge",
+      xScale: 0,
+      yAboveTopScale: 1.0,
+      zScale: 0.1,
+      widthScale: 0.7,
+      heightScale: 2.0,
+      depthScale: 0.4,
+    },
   ],
   "aero-skimmer-survey-01": [
-    { label: "cockpit", xScale: 0, yAboveTopScale: 1.2, zScale: 0.15, widthScale: 0.6, heightScale: 2.4, depthScale: 0.45 },
+    {
+      label: "cockpit",
+      xScale: 0,
+      yAboveTopScale: 1.2,
+      zScale: 0.15,
+      widthScale: 0.6,
+      heightScale: 2.4,
+      depthScale: 0.45,
+    },
   ],
   "aero-cargo-freighter-02": [
-    { label: "deck house", xScale: 0, yAboveTopScale: 1.3, zScale: 0.2, widthScale: 0.7, heightScale: 2.6, depthScale: 0.35 },
-    { label: "cargo bay", xScale: 0, yAboveTopScale: 1.0, zScale: -0.1, widthScale: 0.9, heightScale: 2.0, depthScale: 0.55 },
+    {
+      label: "deck house",
+      xScale: 0,
+      yAboveTopScale: 1.3,
+      zScale: 0.2,
+      widthScale: 0.7,
+      heightScale: 2.6,
+      depthScale: 0.35,
+    },
+    {
+      label: "cargo bay",
+      xScale: 0,
+      yAboveTopScale: 1.0,
+      zScale: -0.1,
+      widthScale: 0.9,
+      heightScale: 2.0,
+      depthScale: 0.55,
+    },
   ],
   "torque-field-cutter-02": [
-    { label: "hood", xScale: 0, yAboveTopScale: 1.0, zScale: 0.26, widthScale: 0.85, heightScale: 2.0, depthScale: 0.55 },
-    { label: "cab", xScale: 0, yAboveTopScale: 1.7, zScale: -0.22, widthScale: 0.96, heightScale: 3.4, depthScale: 0.46 },
+    {
+      label: "hood",
+      xScale: 0,
+      yAboveTopScale: 1.0,
+      zScale: 0.26,
+      widthScale: 0.85,
+      heightScale: 2.0,
+      depthScale: 0.55,
+    },
+    {
+      label: "cab",
+      xScale: 0,
+      yAboveTopScale: 1.7,
+      zScale: -0.22,
+      widthScale: 0.96,
+      heightScale: 3.4,
+      depthScale: 0.46,
+    },
   ],
   "spark-dune-runner-02": [
-    { label: "cockpit", xScale: 0, yAboveTopScale: 0.75, zScale: -0.1, widthScale: 0.72, heightScale: 1.5, depthScale: 0.4 },
-    { label: "roll cage", xScale: 0, yAboveTopScale: 1.1, zScale: -0.15, widthScale: 0.8, heightScale: 2.2, depthScale: 0.5 },
+    {
+      label: "cockpit",
+      xScale: 0,
+      yAboveTopScale: 0.75,
+      zScale: -0.1,
+      widthScale: 0.72,
+      heightScale: 1.5,
+      depthScale: 0.4,
+    },
+    {
+      label: "roll cage",
+      xScale: 0,
+      yAboveTopScale: 1.1,
+      zScale: -0.15,
+      widthScale: 0.8,
+      heightScale: 2.2,
+      depthScale: 0.5,
+    },
   ],
   "marsh-dredger-heavy-02": [
-    { label: "control cabin", xScale: 0, yAboveTopScale: 1.4, zScale: 0.1, widthScale: 0.65, heightScale: 2.8, depthScale: 0.4 },
+    {
+      label: "control cabin",
+      xScale: 0,
+      yAboveTopScale: 1.4,
+      zScale: 0.1,
+      widthScale: 0.65,
+      heightScale: 2.8,
+      depthScale: 0.4,
+    },
   ],
   "hauler-road-train-01": [
-    { label: "sleeper cab", xScale: 0, yAboveTopScale: 1.8, zScale: 0.3, widthScale: 0.92, heightScale: 3.6, depthScale: 0.42 },
+    {
+      label: "sleeper cab",
+      xScale: 0,
+      yAboveTopScale: 1.8,
+      zScale: 0.3,
+      widthScale: 0.92,
+      heightScale: 3.6,
+      depthScale: 0.42,
+    },
   ],
   "construction-excavator-01": [
-    { label: "operator cab", xScale: -0.3, yAboveTopScale: 1.5, zScale: 0.1, widthScale: 0.35, heightScale: 3.0, depthScale: 0.45 },
-    { label: "engine housing", xScale: 0.1, yAboveTopScale: 1.2, zScale: -0.2, widthScale: 0.7, heightScale: 2.4, depthScale: 0.5 },
+    {
+      label: "operator cab",
+      xScale: -0.3,
+      yAboveTopScale: 1.5,
+      zScale: 0.1,
+      widthScale: 0.35,
+      heightScale: 3.0,
+      depthScale: 0.45,
+    },
+    {
+      label: "engine housing",
+      xScale: 0.1,
+      yAboveTopScale: 1.2,
+      zScale: -0.2,
+      widthScale: 0.7,
+      heightScale: 2.4,
+      depthScale: 0.5,
+    },
   ],
   "micro-scout-pipe-crawler-01": [
-    { label: "sensor shell", xScale: 0, yAboveTopScale: 0.6, zScale: 0, widthScale: 0.8, heightScale: 1.2, depthScale: 0.6 },
+    {
+      label: "sensor shell",
+      xScale: 0,
+      yAboveTopScale: 0.6,
+      zScale: 0,
+      widthScale: 0.8,
+      heightScale: 1.2,
+      depthScale: 0.6,
+    },
   ],
 } as const;
 
@@ -1051,7 +1219,8 @@ function placeOnTopOfRig(
     // coincidence. Requiring the margin on both sides is what stops the buggy's
     // mast being stood on the 20 cm apex of its roll bar — the highest surface it
     // owns, and a worse answer than the clear rear deck one step down.
-    if (support.zMax - support.zMin < depth + HULL_TOP_BODYWORK_MARGIN * 2) continue;
+    if (support.zMax - support.zMin < depth + HULL_TOP_BODYWORK_MARGIN * 2)
+      continue;
 
     const y = support.y + standoff + height / 2;
     const boxMinY = y - height / 2;
@@ -1095,7 +1264,11 @@ function placeOnTopOfRig(
     let bestDistance = Number.POSITIVE_INFINITY;
     for (const gap of gaps) {
       if (gap.max - gap.min < depth) continue;
-      const candidate = clamp(desiredZ, gap.min + depth / 2, gap.max - depth / 2);
+      const candidate = clamp(
+        desiredZ,
+        gap.min + depth / 2,
+        gap.max - depth / 2,
+      );
       const distance = Math.abs(candidate - desiredZ);
       if (distance < bestDistance) {
         bestDistance = distance;
@@ -1190,7 +1363,14 @@ function placeModuleMount(
       // a box on top of the rig, where the cab already is. Every other anchor faces
       // outward — under the hull, ahead of the nose, outboard of the tyres — into
       // space no hand-authored part occupies.
-      const placed = placeOnTopOfRig(z, width, height, depth, standoff, context);
+      const placed = placeOnTopOfRig(
+        z,
+        width,
+        height,
+        depth,
+        standoff,
+        context,
+      );
       if (placed === null) {
         throw new Error(
           `${moduleId} needs a ${width.toFixed(2)}×${depth.toFixed(2)} m surface ` +
@@ -1340,12 +1520,15 @@ export function rigBlockout(
   // Authored, not derived — see `RIG_SUPERSTRUCTURES`. Resolved against the hull
   // this profile produced, so a synthetic profile in a test gets bodywork that
   // scales with it, and hull-top placement always has something to negotiate with.
-  const superstructure = resolveSuperstructure(RIG_SUPERSTRUCTURES[profile.id] ?? [], {
-    width: hullWidth,
-    height: hullHeight,
-    depth: hullDepth,
-    topY: hullTopY,
-  });
+  const superstructure = resolveSuperstructure(
+    RIG_SUPERSTRUCTURES[profile.id] ?? [],
+    {
+      width: hullWidth,
+      height: hullHeight,
+      depth: hullDepth,
+      topY: hullTopY,
+    },
+  );
 
   return {
     id: profile.id,

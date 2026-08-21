@@ -99,7 +99,10 @@ describe("firstNightThreatDiagnostic", () => {
   it("differs by both survey status and waterworks branch (4 distinct readings)", () => {
     const combinations = [
       { northFieldSurveyed: true, waterworksChoice: "repair-pump" as const },
-      { northFieldSurveyed: true, waterworksChoice: "redirect-channel" as const },
+      {
+        northFieldSurveyed: true,
+        waterworksChoice: "redirect-channel" as const,
+      },
       { northFieldSurveyed: false, waterworksChoice: "repair-pump" as const },
       {
         northFieldSurveyed: false,

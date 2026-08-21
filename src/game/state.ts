@@ -4515,11 +4515,7 @@ function recoverCurrent(
     }
   }
 
-  return recoverShared(
-    candidate,
-    recoveredRigs,
-    allowMissingSurveyRoute,
-  );
+  return recoverShared(candidate, recoveredRigs, allowMissingSurveyRoute);
 }
 
 /**
@@ -4604,11 +4600,7 @@ function migrateV4(candidate: Record<string, unknown>): GameState | null {
     }
   }
 
-  const recovered = recoverShared(
-    candidate,
-    recoveredRigs,
-    true,
-  );
+  const recovered = recoverShared(candidate, recoveredRigs, true);
   if (recovered) {
     const relocated = relocatePristineLegacyDrift(recovered);
     recovered.lastDiagnostic = relocated
@@ -4649,11 +4641,7 @@ function migrateField02Legacy(
     }
   }
 
-  const recovered = recoverShared(
-    candidate,
-    recoveredRigs,
-    true,
-  );
+  const recovered = recoverShared(candidate, recoveredRigs, true);
   if (recovered) {
     recovered.lastDiagnostic =
       "Field 02 record migrated. Drift is berthed in the Home Silo proximity chain.";

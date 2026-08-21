@@ -112,6 +112,7 @@ import {
 import { roadRivalryCourseSiteIds } from "./activities";
 import type { HabitatSpecies } from "./habitat";
 import type { EcologyActorKind } from "./ecology";
+import { generateTerrainPbrTextures, createPbrMaterial } from "./pbr-materials";
 
 function stableHabitatFraction(value: string): number {
   let hash = 2166136261;
@@ -316,6 +317,8 @@ export interface RigParts {
   /** State Shell mesh representing surrounding integrity, aura, and hit ripples. */
   stateShell?: THREE.Mesh;
   stateShellMaterial?: THREE.ShaderMaterial;
+  headlightCone?: THREE.Mesh;
+  headlightConeMaterial?: THREE.ShaderMaterial;
 }
 
 export interface RigOrientationEvidence {
@@ -597,12 +600,12 @@ function material(
   roughness = 0.76,
   metalness = 0.08,
 ): THREE.MeshPhysicalMaterial {
-  return new THREE.MeshPhysicalMaterial({
-    color,
+  return createPbrMaterial(color, {
     roughness,
     metalness,
-    clearcoat: 0.3,
-    clearcoatRoughness: 0.4,
+    clearcoat: 0.35,
+    clearcoatRoughness: 0.3,
+    type: "metal",
   });
 }
 
@@ -632,10 +635,13 @@ function box(
   depth: number,
   color: number,
 ): THREE.Mesh {
-  return new THREE.Mesh(
+  const mesh = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, depth),
     material(color),
   );
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
 }
 
 /** A signal lamp that has been visited: the housing, unlit. */
@@ -648,10 +654,13 @@ function cylinder(
   segments: number,
   color: number,
 ): THREE.Mesh {
-  return new THREE.Mesh(
+  const mesh = new THREE.Mesh(
     new THREE.CylinderGeometry(radiusTop, radiusBottom, height, segments),
     material(color),
   );
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
 }
 
 function hoodCameraSocket(rigId: RigId): THREE.Object3D {
@@ -893,10 +902,8 @@ export class GameRenderer {
     this.rendererBackendReason = selectedBackend.reason;
 
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-    // Blob shadows rather than shadow maps: a shadow-map allocation warning was
-    // observed in Chrome during lifecycle testing, and this is also the cheaper
-    // first-frame posture on low-power devices. Revisit when measured value exists.
-    this.renderer.shadowMap.enabled = false;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.06;
@@ -923,6 +930,19 @@ export class GameRenderer {
     );
     this.composer.addPass(fxaaPass);
     this.fxaaPass = fxaaPass;
+
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.width = 2048;
+    this.sun.shadow.mapSize.height = 2048;
+    this.sun.shadow.camera.near = 10;
+    this.sun.shadow.camera.far = 480;
+    const shadowDist = 110;
+    this.sun.shadow.camera.left = -shadowDist;
+    this.sun.shadow.camera.right = shadowDist;
+    this.sun.shadow.camera.top = shadowDist;
+    this.sun.shadow.camera.bottom = -shadowDist;
+    this.sun.shadow.bias = -0.0003;
+    this.sun.shadow.normalBias = 0.025;
 
     this.sun.position.set(-120, 190, -70);
     this.scene.add(this.sun, this.hemisphere);
@@ -1131,19 +1151,36 @@ export class GameRenderer {
       }
     }
 
+    const uvs = new Float32Array(size * size * 2);
+    for (let iz = 0; iz <= cells; iz += 1) {
+      for (let ix = 0; ix <= cells; ix += 1) {
+        const index = iz * size + ix;
+        uvs[index * 2] = ix / cells;
+        uvs[index * 2 + 1] = iz / cells;
+      }
+    }
+
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
     geometry.setIndex(indices);
     geometry.computeVertexNormals();
 
-    this.terrainMesh = new THREE.Mesh(
-      geometry,
-      new THREE.MeshStandardMaterial({
-        vertexColors: true,
-        roughness: 0.95,
-        metalness: 0.02,
-      }),
-    );
+    const terrainPbr = generateTerrainPbrTextures(512);
+    const terrainMaterial = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      roughness: 0.92,
+      metalness: 0.02,
+    });
+    if (terrainPbr.normalMap) {
+      terrainMaterial.normalMap = terrainPbr.normalMap;
+      terrainMaterial.normalScale = new THREE.Vector2(0.75, 0.75);
+    }
+    if (terrainPbr.roughnessMap) {
+      terrainMaterial.roughnessMap = terrainPbr.roughnessMap;
+    }
+
+    this.terrainMesh = new THREE.Mesh(geometry, terrainMaterial);
     this.terrainMesh.name = "terrain";
     this.scene.add(this.terrainMesh);
     this.terrainBuildMs = performance.now() - startedAt;
@@ -1700,6 +1737,8 @@ export class GameRenderer {
     ]) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.frustumCulled = false;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       this.scene.add(mesh);
     }
   }
@@ -3356,7 +3395,11 @@ export class GameRenderer {
     for (let index = 0; index < LUG_TREAD_FORM.lugCount; index += 1) {
       const angle = (index / LUG_TREAD_FORM.lugCount) * Math.PI * 2;
       const lug = new THREE.Mesh(lugGeometry, treadMaterial);
-      lug.position.set(0, Math.sin(angle) * lugReach, Math.cos(angle) * lugReach);
+      lug.position.set(
+        0,
+        Math.sin(angle) * lugReach,
+        Math.cos(angle) * lugReach,
+      );
       // Point the block's *thickness* axis radially outward, so the dimension
       // named `lugThicknessScale` is the one that decides how proud of the tyre
       // the tread stands and `lugReachScale` is the outer surface it reaches.
@@ -3462,7 +3505,12 @@ export class GameRenderer {
         pole.position.y = -height * 0.05;
         group.add(pole);
         for (let rung = 0; rung < 3; rung += 1) {
-          const bar = box(width * 0.204, height * 0.014, depth * 0.78, 0x6d746f);
+          const bar = box(
+            width * 0.204,
+            height * 0.014,
+            depth * 0.78,
+            0x6d746f,
+          );
           bar.position.y = height * (rung * 0.24 - 0.24);
           group.add(bar);
         }
@@ -3773,6 +3821,53 @@ export class GameRenderer {
     return { mesh, material: stateShellMaterial };
   }
 
+  private buildVolumetricLightCone(
+    colorHex = 0xffe29d,
+    length = 26,
+    radius = 5.5,
+  ): { mesh: THREE.Mesh; material: THREE.ShaderMaterial } {
+    const geometry = new THREE.ConeGeometry(radius, length, 16, 1, true);
+    geometry.translate(0, -length / 2, 0);
+    geometry.rotateX(-Math.PI / 2);
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        color: { value: new THREE.Color(colorHex) },
+        intensity: { value: 0.0 },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 color;
+        uniform float intensity;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        void main() {
+          float dotNV = dot(normalize(vNormal), normalize(vViewPosition));
+          float edge = max(0.0, 1.0 - abs(dotNV));
+          float falloff = pow(edge, 1.8) * intensity;
+          gl_FragColor = vec4(color, falloff * 0.32);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.name = "vfx:headlight-cone";
+    mesh.userData.cameraSolid = false;
+    mesh.frustumCulled = false;
+    return { mesh, material };
+  }
+
   /**
    * The utility tractor, built front-forward.
 
@@ -3847,10 +3942,17 @@ export class GameRenderer {
    * against the volume the model believes is there, which is worse than a crash on
    * first load: the blockout would be reserving space for bodywork nobody can see.
    */
-  private bodywork(blockout: RigBlockout, label: string): RigSuperstructureVolume {
-    const volume = blockout.superstructure.find((entry) => entry.label === label);
+  private bodywork(
+    blockout: RigBlockout,
+    label: string,
+  ): RigSuperstructureVolume {
+    const volume = blockout.superstructure.find(
+      (entry) => entry.label === label,
+    );
     if (!volume) {
-      const known = blockout.superstructure.map((entry) => entry.label).join(", ");
+      const known = blockout.superstructure
+        .map((entry) => entry.label)
+        .join(", ");
       throw new Error(
         `${blockout.id} has no authored bodywork volume "${label}"; ` +
           `RIG_SUPERSTRUCTURES declares [${known}]`,
@@ -4019,7 +4121,11 @@ export class GameRenderer {
     const roofVolume = this.bodywork(blockout, "roof");
     const beacon = cylinder(0.2, 0.28, 0.4, 10, 0xe7a63b);
     // Standing on the roof, so it rises with the roof rather than through it.
-    beacon.position.set(0.7, roofVolume.y + roofVolume.height / 2 + 0.24, roofVolume.z + 0.05);
+    beacon.position.set(
+      0.7,
+      roofVolume.y + roofVolume.height / 2 + 0.24,
+      roofVolume.z + 0.05,
+    );
     const exhaust = cylinder(0.13, 0.17, 2.4, 8, 0x2d2d29);
     exhaust.position.set(-0.68, 2.9, 1.4);
 
@@ -4055,6 +4161,10 @@ export class GameRenderer {
       this.buildStateShell(3.2, 2.8, 5.2, 0xe89d43);
     stateShell.position.set(0, 1.8, -0.2);
 
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xffe29d, 28, 6.2);
+    headlightCone.position.set(0, 2.1, 2.6);
+
     // Inside the cab (centre z -1.05, depth 2.1), raked toward the seat, so it
     // is physically where a driver would hold it and reads through the
     // windscreen from the exterior cameras. The hood camera socket sits ahead
@@ -4077,6 +4187,7 @@ export class GameRenderer {
       steeringColumn,
       ploughPivot,
       headlights,
+      headlightCone,
       cameraSocket,
       stateShell,
     );
@@ -4094,6 +4205,8 @@ export class GameRenderer {
       },
       ploughPivot,
       headlights,
+      headlightCone,
+      headlightConeMaterial,
       frontMarker: grille,
       rearMarker: ploughPivot,
       stateShell,
@@ -4435,7 +4548,11 @@ export class GameRenderer {
 
     const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
     headlights.position.set(0, blockout.hull.topY, blockout.hull.depth / 2);
-    headlights.target.position.set(0, blockout.hull.centreY, blockout.hull.depth / 2 + 20);
+    headlights.target.position.set(
+      0,
+      blockout.hull.centreY,
+      blockout.hull.depth / 2 + 20,
+    );
     body.add(headlights, headlights.target);
 
     const { mesh: stateShell, material: stateShellMaterial } =
@@ -4611,7 +4728,14 @@ export class GameRenderer {
       this.sun.intensity = 2.5;
       this.hemisphere.intensity = 1.6;
       setWaterPalette(0x3d6672, 0x0b1720, 0x0f3f5f);
-      for (const rig of this.rigs.values()) rig.headlights.intensity = 0;
+      for (const rig of this.rigs.values()) {
+        rig.headlights.intensity = 0;
+        if (rig.headlightConeMaterial) {
+          (
+            rig.headlightConeMaterial.uniforms.intensity as { value: number }
+          ).value = 0;
+        }
+      }
       if (stars) stars.visible = false;
     } else if (phase === "gloam") {
       this.scene.background = new THREE.Color(0x9d6b50);
@@ -4622,7 +4746,14 @@ export class GameRenderer {
       this.sun.intensity = 1.3;
       this.hemisphere.intensity = 0.9;
       setWaterPalette(0x4a4a58, 0x17202f, 0x2a5a77);
-      for (const rig of this.rigs.values()) rig.headlights.intensity = 60;
+      for (const rig of this.rigs.values()) {
+        rig.headlights.intensity = 60;
+        if (rig.headlightConeMaterial) {
+          (
+            rig.headlightConeMaterial.uniforms.intensity as { value: number }
+          ).value = 0.55;
+        }
+      }
       if (stars) stars.visible = true;
     } else {
       this.scene.background = new THREE.Color(COLORS.night);
@@ -4636,7 +4767,14 @@ export class GameRenderer {
       this.sun.intensity = 0.35;
       this.hemisphere.intensity = 0.45;
       setWaterPalette(0x1c3340, 0x060d14, 0x14364c);
-      for (const rig of this.rigs.values()) rig.headlights.intensity = 150;
+      for (const rig of this.rigs.values()) {
+        rig.headlights.intensity = 150;
+        if (rig.headlightConeMaterial) {
+          (
+            rig.headlightConeMaterial.uniforms.intensity as { value: number }
+          ).value = 1.0;
+        }
+      }
       if (stars) stars.visible = true;
     }
   }
@@ -5091,6 +5229,12 @@ export class GameRenderer {
             : ((group?.userData.signalLitColor as number | undefined) ??
               SIGNAL_LAMP_DARK)),
       );
+    }
+
+    if (activeRigState) {
+      this.sun.target.position.set(activeRigState.x, 0, activeRigState.z);
+      this.sun.target.updateMatrixWorld();
+      this.sun.position.set(activeRigState.x - 110, 180, activeRigState.z - 65);
     }
 
     this.updateCamera(state, delta, profile);
@@ -5825,7 +5969,9 @@ export class GameRenderer {
      * clearance stays in world space, because the ground is not in this frame.
      */
     parts.body.updateWorldMatrix(true, true);
-    const toBodyLocal = new THREE.Matrix4().copy(parts.body.matrixWorld).invert();
+    const toBodyLocal = new THREE.Matrix4()
+      .copy(parts.body.matrixWorld)
+      .invert();
     const localMatrix = new THREE.Matrix4();
     const localBox = (mesh: THREE.Mesh): THREE.Box3 | null => {
       const geometry = mesh.geometry;
@@ -5966,8 +6112,7 @@ export class GameRenderer {
       meshes: THREE.Box3[],
     ): number | null => {
       const envelope = visual.userData.moduleEnvelope as
-        | { width: number; height: number; depth: number }
-        | undefined;
+        { width: number; height: number; depth: number } | undefined;
       if (!envelope) return null;
       const half = new THREE.Vector3(
         envelope.width / 2,
@@ -6078,9 +6223,7 @@ export class GameRenderer {
         hostBox && !hostBox.isEmpty()
           ? hostBox.getCenter(new THREE.Vector3())
           : null;
-      const localCentre = local
-        ? local.getCenter(new THREE.Vector3())
-        : null;
+      const localCentre = local ? local.getCenter(new THREE.Vector3()) : null;
 
       samples.push({
         moduleId,
@@ -6098,7 +6241,9 @@ export class GameRenderer {
           Number(box.max.z.toFixed(4)),
         ],
         groundGap: Number(
-          (box.min.y - this.world.terrain.height(centre.x, centre.z)).toFixed(4),
+          (box.min.y - this.world.terrain.height(centre.x, centre.z)).toFixed(
+            4,
+          ),
         ),
         offsetFromRig: Number(centre.distanceTo(bodyOrigin).toFixed(4)),
         hostGap:

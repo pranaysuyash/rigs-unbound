@@ -1,3 +1,8 @@
+## 2026-08-21 — AAA Visual Overhaul & Graphical Fidelity Pipeline Kickoff
+
+See [`docs/WORKLOG_ADDENDUM_2026-08-21.md`](WORKLOG_ADDENDUM_2026-08-21.md):
+initiated AAA Visual Overhaul & Graphical Fidelity Pipeline; created automated visual parity harness `tools/capture-visual-parity.cjs`; captured and verified Stage 0 baseline screenshots across day, mud winch, night floodlights, and workshop; established tracking register in `docs/reviews/VISUAL_OVERHAUL_PROGRESS.md`.
+
 ## 2026-08-13 — Mechanics Designer audit & systemic rule specification, home berth layout, and full verification
 
 See [`docs/WORKLOG_ADDENDUM_2026-08-13.md`](WORKLOG_ADDENDUM_2026-08-13.md):
@@ -8504,3 +8509,4 @@ real authored rig spec, because none exists yet.
 
 Not committed; no git write action taken.
 
+2026-08-17 rig production pipeline consolidation — the image-reference→runtime stage map (S0–S7), inventory/expansion/upgrades roadmap, and catalog truth-up: see [WORKLOG_ADDENDUM_2026-08-17.md](WORKLOG_ADDENDUM_2026-08-17.md).

@@ -17,7 +17,7 @@ describe("InputController top-down control paradigms", () => {
 
     // Simulate holding W (screen UP / North)
     input.hold("accelerate", true);
-    
+
     // Vehicle facing East (PI / 2): needs to turn Left to face North (0 rad)
     const frame = input.sampleTopDownInput(Math.PI / 2);
     expect(frame.controlParadigm).toBe("screen-relative");
