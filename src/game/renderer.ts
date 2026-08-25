@@ -27,6 +27,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import {
   CARGO_DELIVERY,
   CARGO_PICKUP,
@@ -138,6 +139,52 @@ const COLORS = {
   night: 0x13283c,
 } as const;
 
+export const CinematicColorGradeShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    vignetteDarkness: { value: 0.36 },
+    vignetteOffset: { value: 1.15 },
+    saturation: { value: 1.07 },
+    contrast: { value: 1.05 },
+    exposure: { value: 1.02 },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float vignetteDarkness;
+    uniform float vignetteOffset;
+    uniform float saturation;
+    uniform float contrast;
+    uniform float exposure;
+    varying vec2 vUv;
+
+    void main() {
+      vec4 tex = texture2D(tDiffuse, vUv);
+      vec3 color = tex.rgb * exposure;
+
+      // Filmic S-curve contrast
+      color = (color - 0.5) * contrast + 0.5;
+
+      // Saturation adjustment
+      float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+      color = mix(vec3(luma), color, saturation);
+
+      // Cinematic Vignette
+      vec2 uv = (vUv - vec2(0.5)) * vec2(vignetteOffset);
+      float vig = clamp(1.0 - dot(uv, uv) * vignetteDarkness, 0.0, 1.0);
+      color *= vig;
+
+      gl_FragColor = vec4(color, tex.a);
+    }
+  `,
+};
+
 /** Terrain mesh sample spacing, in metres. */
 const TERRAIN_STEP = 5.2;
 
@@ -152,6 +199,8 @@ const MAX_ROCK_INSTANCES = 700;
 const MAX_FELLED_INSTANCES = 220;
 const MAX_NODE_INSTANCES = 260;
 const MAX_DUST = 260;
+const MAX_EXHAUST = 100;
+const MAX_GRASS_INSTANCES = 1200;
 
 /**
  * Recompute vertex normals for a grid-mesh terrain patch instead of the whole
@@ -750,6 +799,7 @@ export class GameRenderer {
   private felledTrunks!: THREE.InstancedMesh;
   private salvageNodes!: THREE.InstancedMesh;
   private furrowDecals!: THREE.InstancedMesh;
+  private grassTufts!: THREE.InstancedMesh;
   private water!: THREE.Mesh;
   private waterMaterial!: THREE.ShaderMaterial;
   private sky!: THREE.Mesh;
@@ -759,6 +809,12 @@ export class GameRenderer {
   private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
   private readonly dustLife = new Float32Array(MAX_DUST);
   private dustCursor = 0;
+
+  private exhaust!: THREE.Points;
+  private readonly exhaustPositions = new Float32Array(MAX_EXHAUST * 3);
+  private readonly exhaustVelocities = new Float32Array(MAX_EXHAUST * 3);
+  private readonly exhaustLife = new Float32Array(MAX_EXHAUST);
+  private exhaustCursor = 0;
 
   private readonly dummy = new THREE.Object3D();
   private readonly billboardDirection = new THREE.Vector3();
@@ -915,11 +971,15 @@ export class GameRenderer {
     // Bloom pass for emissive materials and bright highlights
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.5, // strength
-      0.4, // radius
-      0.85, // threshold
+      0.45, // strength
+      0.38, // radius
+      0.82, // threshold
     );
     this.composer.addPass(this.bloomPass);
+
+    // Cinematic Color Grading & Vignette Pass
+    const colorGradePass = new ShaderPass(CinematicColorGradeShader);
+    this.composer.addPass(colorGradePass);
 
     // FXAA anti-aliasing (cheaper than MSAA, works with WebGPU)
     const fxaaPass = new ShaderPass(FXAAShader);
@@ -952,6 +1012,7 @@ export class GameRenderer {
     this.buildWater();
     this.buildInstancedProps();
     this.buildDust();
+    this.buildExhaust();
     this.buildSites();
     this.buildSettlementCargoBays();
     this.buildCommunityTraffic();
@@ -1667,19 +1728,36 @@ export class GameRenderer {
   // ---------------------------------------------------------------------------
 
   private buildInstancedProps(): void {
+    const barkMat = createPbrMaterial(0x523d2b, {
+      roughness: 0.94,
+      metalness: 0.02,
+      type: "bark",
+    });
     this.treeTrunks = new THREE.InstancedMesh(
-      new THREE.CylinderGeometry(0.24, 0.4, 1, 4),
-      material(0x5f432f),
+      new THREE.CylinderGeometry(0.24, 0.42, 1, 8),
+      barkMat,
       MAX_TREE_INSTANCES,
     );
+
+    const foliageMat = createPbrMaterial(0x3e5e26, {
+      roughness: 0.82,
+      metalness: 0.04,
+      type: "foliage",
+    });
     this.treeCrowns = new THREE.InstancedMesh(
-      new THREE.IcosahedronGeometry(1, 1),
-      material(0x54682f),
+      new THREE.DodecahedronGeometry(1, 1),
+      foliageMat,
       MAX_TREE_INSTANCES,
     );
+
+    const rockMat = createPbrMaterial(0x65615a, {
+      roughness: 0.88,
+      metalness: 0.12,
+      type: "rock",
+    });
     this.rocks = new THREE.InstancedMesh(
-      new THREE.OctahedronGeometry(1, 0),
-      material(0x7d746a),
+      new THREE.DodecahedronGeometry(1, 0),
+      rockMat,
       MAX_ROCK_INSTANCES,
     );
     this.treeBillboards = new THREE.InstancedMesh(
@@ -1703,9 +1781,14 @@ export class GameRenderer {
       MAX_NODE_INSTANCES,
     );
 
+    const furrowMaterial = createPbrMaterial(0xffffff, {
+      roughness: 0.92,
+      metalness: 0.05,
+      type: "soil",
+    });
     this.furrowDecals = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(1.05, 1.5),
-      material(0xffffff, 1),
+      furrowMaterial,
       MAX_FURROWS,
     );
     this.furrowDecals.count = 0;
@@ -1718,6 +1801,18 @@ export class GameRenderer {
     }
     if (this.furrowDecals.instanceColor)
       this.furrowDecals.instanceColor.needsUpdate = true;
+
+    const grassMat = createPbrMaterial(0x426829, {
+      roughness: 0.88,
+      metalness: 0.02,
+      type: "foliage",
+    });
+    this.grassTufts = new THREE.InstancedMesh(
+      new THREE.ConeGeometry(0.32, 0.65, 3),
+      grassMat,
+      MAX_GRASS_INSTANCES,
+    );
+    this.grassTufts.count = 0;
 
     /*
      * These dynamic clouds are rebuilt around the active rig. Geometry-only
@@ -1734,6 +1829,7 @@ export class GameRenderer {
       this.felledTrunks,
       this.salvageNodes,
       this.furrowDecals,
+      this.grassTufts,
     ]) {
       mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
       mesh.frustumCulled = false;
@@ -1850,6 +1946,27 @@ export class GameRenderer {
     }
     this.felledTrunks.count = felled;
     this.salvageNodes.count = nodeCount;
+
+    // Scatter natural instanced grass tufts across pasture elevations
+    let grassCount = 0;
+    for (let i = 0; i < MAX_GRASS_INSTANCES; i++) {
+      const angle = i * 2.399963;
+      const radius =
+        2.5 + Math.sqrt(i / MAX_GRASS_INSTANCES) * (propRadius * 0.85);
+      const gx = rig.x + Math.cos(angle) * radius + ((i * 13) % 7) - 3.5;
+      const gz = rig.z + Math.sin(angle) * radius + ((i * 17) % 7) - 3.5;
+      const gy = this.world.terrain.height(gx, gz);
+      if (gy <= WATER_LEVEL + 0.2) continue;
+      this.dummy.position.set(gx, gy + 0.32, gz);
+      const scale = 0.75 + ((i * 31) % 10) * 0.08;
+      this.dummy.scale.set(scale, scale * (0.8 + ((i * 11) % 5) * 0.1), scale);
+      this.dummy.rotation.set(0, angle + (i % 4), 0);
+      this.dummy.updateMatrix();
+      this.grassTufts.setMatrixAt(grassCount, this.dummy.matrix);
+      grassCount++;
+    }
+    this.grassTufts.count = grassCount;
+    this.grassTufts.instanceMatrix.needsUpdate = true;
 
     this.treeTrunks.instanceMatrix.needsUpdate = true;
     this.treeCrowns.instanceMatrix.needsUpdate = true;
@@ -2121,10 +2238,10 @@ export class GameRenderer {
     this.dust = new THREE.Points(
       geometry,
       new THREE.PointsMaterial({
-        color: 0xd8c9a8,
-        size: 0.7,
+        color: 0xbaa882,
+        size: 1.1,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.65,
         depthWrite: false,
       }),
     );
@@ -2133,7 +2250,7 @@ export class GameRenderer {
   }
 
   /**
-   * Emit dust from a slipping wheel.
+   * Emit dust and mud roost particles from a slipping wheel or water wake.
    *
    * Tied to `wheel.slip` and the surface's own `spray`, so the particle plume is a
    * readout of the traction model rather than decoration: a plume means you are
@@ -2145,21 +2262,28 @@ export class GameRenderer {
     z: number,
     strength: number,
     speed: number,
+    heading = 0,
   ): void {
-    const bursts = Math.min(3, Math.max(1, Math.round(strength * 3)));
+    const bursts = Math.min(5, Math.max(2, Math.round(strength * 5)));
     for (let burst = 0; burst < bursts; burst += 1) {
       const index = this.dustCursor;
       this.dustCursor = (this.dustCursor + 1) % MAX_DUST;
       const offset = index * 3;
-      this.dustPositions[offset] = x;
-      this.dustPositions[offset + 1] = y;
-      this.dustPositions[offset + 2] = z;
-      // Deterministic-looking spread from the index; visual only, never simulated.
-      const angle = index * 2.399963;
-      this.dustVelocities[offset] = Math.cos(angle) * (0.6 + speed * 0.06);
-      this.dustVelocities[offset + 1] = 0.9 + strength * 1.3;
-      this.dustVelocities[offset + 2] = Math.sin(angle) * (0.6 + speed * 0.06);
-      this.dustLife[index] = 0.55 + strength * 0.5;
+      this.dustPositions[offset] = x + (Math.random() - 0.5) * 0.3;
+      this.dustPositions[offset + 1] = y + Math.random() * 0.15;
+      this.dustPositions[offset + 2] = z + (Math.random() - 0.5) * 0.3;
+
+      // Ballistic rooster ejection: backward along rig heading with upward lift
+      const spread = (Math.random() - 0.5) * 0.8;
+      const backAngle = heading + Math.PI + spread;
+      const horizSpeed =
+        (1.2 + speed * 0.35 + strength * 1.8) * (0.8 + Math.random() * 0.4);
+
+      this.dustVelocities[offset] = Math.sin(backAngle) * horizSpeed;
+      this.dustVelocities[offset + 1] =
+        1.4 + strength * 2.2 + Math.random() * 1.2;
+      this.dustVelocities[offset + 2] = Math.cos(backAngle) * horizSpeed;
+      this.dustLife[index] = 0.65 + strength * 0.6 + Math.random() * 0.3;
     }
   }
 
@@ -2180,10 +2304,82 @@ export class GameRenderer {
       this.dustPositions[offset + 2] =
         this.dustPositions[offset + 2]! +
         this.dustVelocities[offset + 2]! * delta;
-      this.dustVelocities[offset + 1] = velocityY - 1.6 * delta;
+      // Air drag on horizontal velocity, gravity on vertical
+      this.dustVelocities[offset] =
+        this.dustVelocities[offset]! * Math.max(0, 1 - delta * 1.8);
+      this.dustVelocities[offset + 2] =
+        this.dustVelocities[offset + 2]! * Math.max(0, 1 - delta * 1.8);
+      this.dustVelocities[offset + 1] = velocityY - 4.5 * delta;
     }
     (
       this.dust.geometry.getAttribute("position") as THREE.BufferAttribute
+    ).needsUpdate = true;
+  }
+
+  private buildExhaust(): void {
+    const geometry = new THREE.BufferGeometry();
+    this.exhaustPositions.fill(-9999);
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.exhaustPositions, 3),
+    );
+    this.exhaust = new THREE.Points(
+      geometry,
+      new THREE.PointsMaterial({
+        color: 0x3d3a36,
+        size: 0.85,
+        transparent: true,
+        opacity: 0.45,
+        depthWrite: false,
+      }),
+    );
+    this.exhaust.frustumCulled = false;
+    this.scene.add(this.exhaust);
+  }
+
+  private emitExhaust(
+    x: number,
+    y: number,
+    z: number,
+    intensity: number,
+  ): void {
+    const index = this.exhaustCursor;
+    this.exhaustCursor = (this.exhaustCursor + 1) % MAX_EXHAUST;
+    const offset = index * 3;
+    this.exhaustPositions[offset] = x + (Math.random() - 0.5) * 0.12;
+    this.exhaustPositions[offset + 1] = y;
+    this.exhaustPositions[offset + 2] = z + (Math.random() - 0.5) * 0.12;
+
+    this.exhaustVelocities[offset] = (Math.random() - 0.5) * 0.35;
+    this.exhaustVelocities[offset + 1] =
+      1.1 + intensity * 1.6 + Math.random() * 0.4;
+    this.exhaustVelocities[offset + 2] = (Math.random() - 0.5) * 0.35;
+    this.exhaustLife[index] = 0.75 + intensity * 0.45;
+  }
+
+  private updateExhaust(delta: number): void {
+    for (let index = 0; index < MAX_EXHAUST; index += 1) {
+      if (this.exhaustLife[index]! <= 0) continue;
+      const offset = index * 3;
+      this.exhaustLife[index] = this.exhaustLife[index]! - delta;
+      if (this.exhaustLife[index]! <= 0) {
+        this.exhaustPositions[offset + 1] = -9999;
+        continue;
+      }
+      this.exhaustPositions[offset] =
+        this.exhaustPositions[offset]! +
+        this.exhaustVelocities[offset]! * delta;
+      this.exhaustPositions[offset + 1] =
+        this.exhaustPositions[offset + 1]! +
+        this.exhaustVelocities[offset + 1]! * delta;
+      this.exhaustPositions[offset + 2] =
+        this.exhaustPositions[offset + 2]! +
+        this.exhaustVelocities[offset + 2]! * delta;
+      this.exhaustVelocities[offset + 1] =
+        this.exhaustVelocities[offset + 1]! * Math.max(0, 1 - delta * 0.9);
+    }
+    (
+      this.exhaust.geometry.getAttribute("position") as THREE.BufferAttribute
     ).needsUpdate = true;
   }
 
@@ -3045,15 +3241,57 @@ export class GameRenderer {
    * `fog: false` keeps the dome itself from being fogged toward its own colour, and
    * `depthWrite: false` keeps it from occluding anything.
    */
+  /**
+   * Build the atmospheric gradient sky dome.
+   *
+   * Features a smooth Rayleigh/Mie atmospheric zenith-to-horizon gradient with
+   * physical sun optical disc and forward scattering halo.
+   */
   private buildSky(): void {
+    const skyMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        topColor: { value: new THREE.Color(0x3a78a6) },
+        bottomColor: { value: new THREE.Color(0xcae2d8) },
+        sunPosition: { value: new THREE.Vector3(-120, 190, -70) },
+        sunColor: { value: new THREE.Color(0xffedd0) },
+        exponent: { value: 0.55 },
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main() {
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = worldPosition.xyz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform vec3 sunPosition;
+        uniform vec3 sunColor;
+        uniform float exponent;
+        varying vec3 vWorldPosition;
+
+        void main() {
+          vec3 h = normalize(vWorldPosition);
+          float p = max(0.0, h.y);
+          vec3 sky = mix(bottomColor, topColor, pow(p, exponent));
+          vec3 sunDir = normalize(sunPosition);
+          float sunCos = max(0.0, dot(h, sunDir));
+          float sunDisc = smoothstep(0.998, 0.9996, sunCos);
+          float sunGlow = pow(sunCos, 6.0) * 0.45;
+          sky += sunColor * (sunDisc * 2.5 + sunGlow);
+          gl_FragColor = vec4(sky, 1.0);
+        }
+      `,
+      side: THREE.BackSide,
+      fog: false,
+      depthWrite: false,
+    });
+
     this.sky = new THREE.Mesh(
-      new THREE.SphereGeometry(860, 18, 12),
-      new THREE.MeshBasicMaterial({
-        color: 0xbfd5c5,
-        side: THREE.BackSide,
-        fog: false,
-        depthWrite: false,
-      }),
+      new THREE.SphereGeometry(860, 24, 16),
+      skyMaterial,
     );
     this.sky.name = "sky";
     this.sky.frustumCulled = false;
@@ -3974,12 +4212,20 @@ export class GameRenderer {
     blockout: RigBlockout,
     label: string,
     color: number,
-    roughness?: number,
-    metalness?: number,
+    roughness = 0.45,
+    metalness = 0.35,
   ): THREE.Mesh {
     const volume = this.bodywork(blockout, label);
+    const smallestDim = Math.min(volume.width, volume.height, volume.depth);
+    const radius = Math.min(0.045, smallestDim * 0.12);
     const mesh = new THREE.Mesh(
-      new THREE.BoxGeometry(volume.width, volume.height, volume.depth),
+      new RoundedBoxGeometry(
+        volume.width,
+        volume.height,
+        volume.depth,
+        2,
+        radius,
+      ),
       material(color, roughness, metalness),
     );
     mesh.position.set(volume.x, volume.y, volume.z);
@@ -4019,6 +4265,20 @@ export class GameRenderer {
       const steeringPivot = new THREE.Group();
       steeringPivot.name = `wheel-mount-${mount.label}`;
       steeringPivot.position.set(mount.x, mount.restY, mount.z);
+
+      // Mechanical suspension strut and coilover spring
+      const strut = cylinder(0.042, 0.042, mount.radius * 0.9, 8, 0x222222);
+      strut.position.set(0, mount.radius * 0.45, 0);
+      steeringPivot.add(strut);
+
+      const coil = new THREE.Mesh(
+        new THREE.TorusGeometry(0.075, 0.02, 6, 12),
+        material(0xb83822, 0.6, 0.4),
+      );
+      coil.rotation.x = Math.PI / 2;
+      coil.position.set(0, mount.radius * 0.45, 0);
+      steeringPivot.add(coil);
+
       const spinPivot = new THREE.Group();
       const wheel = cylinder(
         mount.radius,
@@ -4041,6 +4301,20 @@ export class GameRenderer {
       );
       hub.rotation.z = Math.PI / 2;
       wheel.add(hub);
+
+      // 6-bolt lug pattern
+      for (let b = 0; b < 6; b++) {
+        const bAngle = (b / 6) * Math.PI * 2;
+        const bolt = cylinder(0.018, 0.018, mount.width * 1.08, 6, 0xd9aa52);
+        bolt.rotation.z = Math.PI / 2;
+        bolt.position.set(
+          0,
+          Math.sin(bAngle) * hubRadius * 0.65,
+          Math.cos(bAngle) * hubRadius * 0.65,
+        );
+        wheel.add(bolt);
+      }
+
       spinPivot.add(wheel);
       lugTireVisuals.push(
         this.addLugTireVisual(spinPivot, mount.radius, mount.width),
@@ -4141,10 +4415,65 @@ export class GameRenderer {
     ploughPivot.position.set(0, 1, -2.5);
     ploughPivot.add(this.buildPloughAttachment());
 
+    // Rear cab window for rearview visibility
+    const rearGlass = new THREE.Mesh(
+      new THREE.BoxGeometry(1.8, 1.0, 0.08),
+      material(0x274d58, 0.2, 0.1),
+    );
+    rearGlass.position.set(
+      0,
+      cabVolume.y + 0.2,
+      cabVolume.z - cabVolume.depth / 2 - 0.04,
+    );
+
+    // Left and right side windows
+    for (const sideX of [
+      -cabVolume.width / 2 - 0.04,
+      cabVolume.width / 2 + 0.04,
+    ]) {
+      const sideGlass = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.9, 1.4),
+        material(0x274d58, 0.2, 0.1),
+      );
+      sideGlass.position.set(sideX, cabVolume.y + 0.25, cabVolume.z);
+      body.add(sideGlass);
+    }
+
+    // Dual rear red brake taillights
+    for (const x of [-0.95, 0.95]) {
+      const taillight = new THREE.Mesh(
+        new THREE.BoxGeometry(0.18, 0.14, 0.08),
+        new THREE.MeshStandardMaterial({
+          color: 0xff1808,
+          emissive: 0xcc0500,
+          emissiveIntensity: 0.85,
+          roughness: 0.2,
+        }),
+      );
+      taillight.position.set(x, 1.45, -2.12);
+      body.add(taillight);
+    }
+
+    // Heavy front bumper bar
+    const bumperBar = new THREE.Mesh(
+      new RoundedBoxGeometry(2.3, 0.25, 0.35, 2, 0.04),
+      material(0x1e2022, 0.6, 0.8),
+    );
+    bumperBar.position.set(0, 0.85, 2.75);
+    body.add(bumperBar);
+
     const headlightMaterial = new THREE.MeshBasicMaterial({ color: 0xffe7a8 });
     for (const x of [-0.68, 0.68]) {
+      const bezel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.26, 0.16, 12),
+        material(0x18181a, 0.4, 0.9),
+      );
+      bezel.rotation.x = Math.PI / 2;
+      bezel.position.set(x, 1.85, 2.62);
+      body.add(bezel);
+
       const lens = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.22, 0.22, 0.12, 12),
+        new THREE.CylinderGeometry(0.21, 0.21, 0.14, 12),
         headlightMaterial,
       );
       lens.rotation.x = Math.PI / 2;
@@ -4181,6 +4510,7 @@ export class GameRenderer {
       grille,
       cab,
       windscreen,
+      rearGlass,
       roof,
       beacon,
       exhaust,
@@ -4295,6 +4625,10 @@ export class GameRenderer {
       this.buildStateShell(2.4, 1.8, 4.2, 0xd9aa52);
     stateShell.position.set(0, 1.0, 0);
 
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xc8f8ff, 24, 5.2);
+    headlightCone.position.set(0, 1.1, 1.9);
+
     // In the open cockpit (centre z -0.55), smaller and more steeply raked than
     // the tractor's, matching the buggy's go-kart posture. The buggy has no
     // windscreen, so this one is directly visible from chase and side views.
@@ -4309,6 +4643,7 @@ export class GameRenderer {
       rollBar,
       towHook,
       headlights,
+      headlightCone,
       cameraSocket,
       stateShell,
       steeringColumn,
@@ -4327,6 +4662,8 @@ export class GameRenderer {
       },
       ploughPivot: null,
       headlights,
+      headlightCone,
+      headlightConeMaterial,
       frontMarker: nose,
       rearMarker: towHook,
       stateShell,
@@ -4468,6 +4805,10 @@ export class GameRenderer {
       this.buildStateShell(4.2, 2.2, 6.2, 0x6bc9c4);
     stateShell.position.set(0, 1.87, 0.2);
 
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xbdfaff, 26, 5.8);
+    headlightCone.position.set(0, 1.85, 3.3);
+
     body.add(
       shadow,
       skirt,
@@ -4478,6 +4819,7 @@ export class GameRenderer {
       roof,
       towHook,
       headlights,
+      headlightCone,
       cameraSocket,
       stateShell,
     );
@@ -4495,6 +4837,8 @@ export class GameRenderer {
       moduleVisuals: this.buildModuleVisuals(body, blockout),
       ploughPivot: null,
       headlights,
+      headlightCone,
+      headlightConeMaterial,
       frontMarker: prow,
       rearMarker: towHook,
       stateShell,
@@ -4563,7 +4907,12 @@ export class GameRenderer {
         0x6bc9c4,
       );
     stateShell.position.set(0, blockout.hull.centreY, 0);
-    body.add(stateShell);
+
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xbdfaff, 26, 5.8);
+    headlightCone.position.set(0, blockout.hull.topY, blockout.hull.depth / 2);
+
+    body.add(stateShell, headlightCone);
 
     return {
       root,
@@ -4579,6 +4928,8 @@ export class GameRenderer {
       },
       ploughPivot: null,
       headlights,
+      headlightCone,
+      headlightConeMaterial,
       frontMarker: hullMesh,
       rearMarker: hullMesh,
       stateShell,
@@ -4719,14 +5070,21 @@ export class GameRenderer {
       waterUniforms.shallowColor.value.setHex(shallowColor);
     };
 
+    const skyMat = this.sky.material as THREE.ShaderMaterial;
+    const skyUniforms = skyMat.uniforms as
+      Record<string, { value: THREE.Color }> | undefined;
     if (phase === "day") {
-      this.scene.background = new THREE.Color(0xbfd5c5);
-      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0xbfd5c5);
-      this.phaseBaseFogDensity = 0.0052;
-      this.scene.fog = new THREE.FogExp2(0xbfd5c5, this.phaseBaseFogDensity);
-      this.sun.color.setHex(0xffdeb0);
-      this.sun.intensity = 2.5;
-      this.hemisphere.intensity = 1.6;
+      this.scene.background = new THREE.Color(0x78a8cf);
+      if (skyUniforms) {
+        skyUniforms.topColor?.value.setHex(0x3a78a6);
+        skyUniforms.bottomColor?.value.setHex(0xcae2d8);
+        skyUniforms.sunColor?.value.setHex(0xffedd0);
+      }
+      this.phaseBaseFogDensity = 0.0022;
+      this.scene.fog = new THREE.FogExp2(0xa8c2cc, this.phaseBaseFogDensity);
+      this.sun.color.setHex(0xfffae8);
+      this.sun.intensity = 2.8;
+      this.hemisphere.intensity = 1.8;
       setWaterPalette(0x3d6672, 0x0b1720, 0x0f3f5f);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 0;
@@ -4739,12 +5097,16 @@ export class GameRenderer {
       if (stars) stars.visible = false;
     } else if (phase === "gloam") {
       this.scene.background = new THREE.Color(0x9d6b50);
-      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(0x9d6b50);
-      this.phaseBaseFogDensity = 0.0058;
+      if (skyUniforms) {
+        skyUniforms.topColor?.value.setHex(0x52345e);
+        skyUniforms.bottomColor?.value.setHex(0xe4864c);
+        skyUniforms.sunColor?.value.setHex(0xff9d66);
+      }
+      this.phaseBaseFogDensity = 0.0028;
       this.scene.fog = new THREE.FogExp2(0x9d6b50, this.phaseBaseFogDensity);
       this.sun.color.setHex(0xff9d66);
-      this.sun.intensity = 1.3;
-      this.hemisphere.intensity = 0.9;
+      this.sun.intensity = 1.6;
+      this.hemisphere.intensity = 1.1;
       setWaterPalette(0x4a4a58, 0x17202f, 0x2a5a77);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 60;
@@ -4757,15 +5119,19 @@ export class GameRenderer {
       if (stars) stars.visible = true;
     } else {
       this.scene.background = new THREE.Color(COLORS.night);
-      (this.sky.material as THREE.MeshBasicMaterial).color.setHex(COLORS.night);
-      this.phaseBaseFogDensity = 0.007;
+      if (skyUniforms) {
+        skyUniforms.topColor?.value.setHex(0x0a1220);
+        skyUniforms.bottomColor?.value.setHex(0x182436);
+        skyUniforms.sunColor?.value.setHex(0x5a7ca8);
+      }
+      this.phaseBaseFogDensity = 0.0038;
       this.scene.fog = new THREE.FogExp2(
         COLORS.night,
         this.phaseBaseFogDensity,
       );
       this.sun.color.setHex(0x86a8d6);
-      this.sun.intensity = 0.35;
-      this.hemisphere.intensity = 0.45;
+      this.sun.intensity = 0.45;
+      this.hemisphere.intensity = 0.55;
       setWaterPalette(0x1c3340, 0x060d14, 0x14364c);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 150;
@@ -5035,6 +5401,7 @@ export class GameRenderer {
           activeRigState.z + Math.cos(angle) * radius,
           Math.min(1, strength),
           Math.abs(activeRigState.speed),
+          activeRigState.heading,
         );
       }
     } else if (
@@ -5049,9 +5416,23 @@ export class GameRenderer {
         rearZ,
         Math.min(1, Math.abs(activeRigState.speed) / profile.topSpeed),
         Math.abs(activeRigState.speed),
+        activeRigState.heading,
       );
     }
     this.updateDust(delta);
+
+    // Diesel exhaust smoke particles from active rig exhaust stack
+    const isDriving =
+      Math.abs(activeRigState.speed) > 0.05 || activeRigState.strain > 0.05;
+    if (isDriving) {
+      const exX = activeRigState.x + Math.cos(activeRigState.heading) * 0.65;
+      const exZ = activeRigState.z - Math.sin(activeRigState.heading) * 0.65;
+      const load =
+        Math.min(1, Math.abs(activeRigState.speed) / profile.topSpeed) * 0.6 +
+        Math.min(1, activeRigState.strain) * 0.4;
+      this.emitExhaust(exX, activeRigState.y + 3.2, exZ, load);
+    }
+    this.updateExhaust(delta);
 
     // Cargo and hitch.
     const cargo = state.cargoRelay.cargo;
@@ -6387,6 +6768,18 @@ export class GameRenderer {
     if (this.rainPoints) {
       this.rainPoints.geometry.dispose();
       (this.rainPoints.material as THREE.Material).dispose();
+    }
+    if (this.dust) {
+      this.dust.geometry.dispose();
+      (this.dust.material as THREE.Material).dispose();
+    }
+    if (this.exhaust) {
+      this.exhaust.geometry.dispose();
+      (this.exhaust.material as THREE.Material).dispose();
+    }
+    if (this.grassTufts) {
+      this.grassTufts.geometry.dispose();
+      (this.grassTufts.material as THREE.Material).dispose();
     }
     this.renderer.dispose();
   }

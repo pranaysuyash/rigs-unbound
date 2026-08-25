@@ -95,6 +95,9 @@ async function main() {
       } catch {}
     });
 
+    page.on("pageerror", (err) => console.error(`[pageerror]`, err));
+    page.on("console", (msg) => console.log(`[page console]`, msg.text()));
+
     console.log(`[visual-parity] Connecting to ${CANONICAL_URL}...`);
     await page.goto(CANONICAL_URL, { waitUntil: "load", timeout: 30000 });
     await page.waitForFunction(() => typeof window.placeRig === "function", {
@@ -173,7 +176,11 @@ async function main() {
       await page.waitForTimeout(500);
 
       const filePath = path.join(REVIEWS_DIR, `${shot.id}.png`);
-      await page.screenshot({ path: filePath });
+      await page.screenshot({
+        path: filePath,
+        timeout: 15000,
+        animations: "disabled",
+      });
       console.log(`[visual-parity] Saved ${filePath}`);
 
       // Copy to brain artifact directory for display

@@ -740,6 +740,42 @@ then run:
 npm run test:campaign-browser
 ```
 
+## Complete-slice acceptance and the night-beat probe
+
+`tools/complete-slice-browser-acceptance.cjs` (GD-05) drives the whole opening
+slice in headless Chrome: salvage, restoration, module fitment, first-cut
+ploughing, the Water Before Night choice, the authored first-night threat, and
+the finale gate. As of 2026-08-25:
+
+- **Step 6 (night threat) is a real assertion.** It advances world time to
+  night via `window.advanceTime` and requires the authored threat diagnostic in
+  `lastDiagnostic`. The previous version read snapshot fields that do not exist
+  in the observability contract (`firstNightThreatResolved`, `obstacles`) and
+  passed vacuously — it had never verified this beat.
+- **Step 7 (finale) fails honestly instead of passing vacuously.** The finale
+  needs the sunken-relay causeway, which this harness does not complete, and
+  the text contract exposes no finale state. The gate names both follow-ups.
+- `tools/probe-night-beat.cjs` is the minimal reusable probe for the night
+  beat alone (fresh save → real restoration path → waterworks branch → forced
+  night → authored diagnostic assertion).
+
+```bash
+node tools/start-canonical-dev-server.cjs
+node tools/probe-night-beat.cjs
+node tools/complete-slice-browser-acceptance.cjs   # currently red: step 7 gap + PCFSoftShadowMap console warnings
+```
+
+## Canonical dev-server launcher (identity-checked)
+
+`tools/start-canonical-dev-server.cjs` does not treat "port responds" as
+healthy. It probes `GET /src/main.ts` and requires a JavaScript transform
+containing the `render_game_to_text` marker, so only this project's Vite dev
+server passes. If another process owns port 4173 (twice in one day a
+`python -m http.server` serving an unrelated project squatted it and made every
+acceptance script fail at bootstrap with a misleading timeout), the launcher
+prints the `lsof` port-owner evidence and the exact kill command, and exits 1.
+It never kills unknown processes itself.
+
 ## Field-plough procedural candidate compiler and review
 
 `npm run assets:build-field-plough` derives the tool-specific `img2threejs`

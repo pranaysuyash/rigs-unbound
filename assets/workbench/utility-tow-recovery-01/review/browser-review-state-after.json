@@ -1,0 +1,20 @@
+{
+  "url": "http://127.0.0.1:4173/assets/workbench/utility-tow-recovery-01/review/index.html",
+  "state": {
+    "currentView": "front-three-quarter",
+    "currentLighting": "grazing",
+    "modelChildren": [
+      "chassis-frame",
+      "operator-cab",
+      "recovery-boom-assembly",
+      "winch-spool-unit",
+      "outrigger-pads",
+      "rear-hazard-bumper",
+      "service-drawers",
+      "fuel-and-chain-locker",
+      "6x6-wheels",
+      "ground-decal"
+    ]
+  },
+  "consoleErrors": []
+}

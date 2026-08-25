@@ -1,7 +1,7 @@
-## 2026-08-21 — AAA Visual Overhaul & Graphical Fidelity Pipeline Kickoff
+## 2026-08-21 — AAA Visual Overhaul, Graphical Fidelity Pipeline, & Refactor Decision Architecture
 
 See [`docs/WORKLOG_ADDENDUM_2026-08-21.md`](WORKLOG_ADDENDUM_2026-08-21.md):
-initiated AAA Visual Overhaul & Graphical Fidelity Pipeline; created automated visual parity harness `tools/capture-visual-parity.cjs`; captured and verified Stage 0 baseline screenshots across day, mud winch, night floodlights, and workshop; established tracking register in `docs/reviews/VISUAL_OVERHAUL_PROGRESS.md`.
+initiated AAA Visual Overhaul & Graphical Fidelity Pipeline; created automated visual parity harness `tools/capture-visual-parity.cjs`; captured and verified Stage 0 baseline and Stage 5 mechanical detailing; conducted formal Refactor Decision Architecture evaluation of large files (`renderer.ts`, `state.ts`, `main.ts`), authored review and proposed ADR-0054 (Level 3 modular renderer decomposition with hard preservation invariants); verified 100% clean typecheck and 112/112 vitest test files (732/732 tests passing).
 
 ## 2026-08-13 — Mechanics Designer audit & systemic rule specification, home berth layout, and full verification
 
@@ -8510,3 +8510,7 @@ real authored rig spec, because none exists yet.
 Not committed; no git write action taken.
 
 2026-08-17 rig production pipeline consolidation — the image-reference→runtime stage map (S0–S7), inventory/expansion/upgrades roadmap, and catalog truth-up: see [WORKLOG_ADDENDUM_2026-08-17.md](WORKLOG_ADDENDUM_2026-08-17.md).
+
+2026-08-23 utility-tow asset lane audited and envelope-bound — audit, drift-guarded factory rewrite, before/after evidence, task list: see [WORKLOG_ADDENDUM_2026-08-23.md](WORKLOG_ADDENDUM_2026-08-23.md).
+
+2026-08-25 gameplay-evaluation follow-up — analyzer verdicts, port-4173 squatter incident + hardened launcher, vacuous acceptance steps 6–7 exposed and made truthful, night-beat probe PASS, PCFSoftShadowMap console regression logged: see [WORKLOG_ADDENDUM_2026-08-25.md](WORKLOG_ADDENDUM_2026-08-25.md).

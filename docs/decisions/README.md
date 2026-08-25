@@ -115,6 +115,7 @@ scope and label them **Implemented and verified for the current runtime**.
 | ADR-0050 | Implemented and verified for the current runtime | Material facts supersede mission-owned settlement condition; Rustline physical service stock active. |
 | ADR-0051 | Implemented and verified for the current runtime | Persistent ecology groups share world memory and field authority. Verified in ecology-world.test.ts. |
 | ADR-0053 | Accepted by explicit operator sign-off; implemented and verified | Top-Down Game Mode Architecture & Control Paradigms: multi-engine renderer adapters, context-adaptive steering, diorama camera, and 4 top-down activities. |
+| ADR-0054 | Proposed — operator sign-off required | Modular renderer subsystem decomposition (Level 3) into cohesive presenters behind GameRenderer façade, with strict preservation invariants. |
 
 ## Related current surfaces
 

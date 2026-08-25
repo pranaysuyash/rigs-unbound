@@ -183,41 +183,72 @@ async function firstRung(page) {
     });
 
     // ── Step 6: First Night Threat Resolution ──
+    // The observability contract does not expose firstNightThreat state, so
+    // this step drives the real beat and asserts on lastDiagnostic, which the
+    // threat resolution writes (src/game/state.ts stepGame night branch,
+    // src/game/first-night-threat.ts:92-101). Fixed 2026-08-25: the previous
+    // version read nonexistent snapshot fields (firstNightThreatResolved,
+    // obstacles) and passed vacuously — it never verified this beat.
     console.log("Step 6: Resolve First Night Threat...");
-    const threatResult = await page.evaluate(() => {
-      const snap = JSON.parse(window.render_game_to_text());
-      return {
-        nightThreatResolved: snap.firstNightThreatResolved ?? false,
-        obstaclesCount: snap.obstacles?.length ?? 0,
-      };
-    });
-    console.log(`  First Night Threat status: ${JSON.stringify(threatResult)}`);
+    const THREAT_LINES = [
+      "Whatever answers under the north field is answering back",
+      "The storm has found the farm on its own tonight",
+    ];
+    let threatState = await state(page);
+    let nightTicks = 0;
+    while (threatState.phase !== "night" && nightTicks < 90) {
+      await page.evaluate(() => window.advanceTime(60_000));
+      await page.waitForTimeout(50);
+      threatState = await state(page);
+      nightTicks += 1;
+    }
+    await page.waitForTimeout(1_200);
+    threatState = await state(page);
+    const threatDiag = String(threatState.lastDiagnostic ?? "");
+    const threatFired = THREAT_LINES.some((needle) =>
+      threatDiag.includes(needle),
+    );
+    console.log(
+      `  First Night Threat: phase=${threatState.phase} ticks=${nightTicks} diag="${threatDiag}"`,
+    );
+    assert(threatState.phase === "night", "never reached night phase");
+    assert(
+      threatFired,
+      `night threat diagnostic did not land (got: "${threatDiag}")`,
+    );
     results.push({
       step: "first-night-threat",
-      threatResult,
-      pass: threatResult !== null,
+      phase: threatState.phase,
+      diagnostic: threatDiag,
+      pass: true,
     });
 
     // ── Step 7: Launch Ridge Finale & Open World Promise ──
+    // NOT VERIFIED — known gap, recorded honestly instead of passed vacuously.
+    // The finale requires firstNightResolved && waterworksResolved &&
+    // causewayReopened (src/game/state.ts openWorldPromise branch). This
+    // harness completes the first two but never completes the sunken-relay
+    // contract, so the finale cannot fire here; and the observability
+    // contract exposes no openWorldPromise state to read even if it did.
+    // Follow-ups: (a) add the relay-contract completion step, (b) expose
+    // firstNightThreat + openWorldPromise in render_game_to_text.
     console.log("Step 7: Launch Ridge finale & open-world promise...");
+    console.log(
+      "  NOT VERIFIED: finale requires the sunken-relay causeway, which this harness does not complete, and the text contract exposes no finale state.",
+    );
     await placeRig(page, 40, 25);
     await page.waitForTimeout(400);
-
-    const promiseResult = await page.evaluate(() => {
-      const snap = JSON.parse(window.render_game_to_text());
-      return {
-        finaleRevealed: snap.openWorldPromiseFinaleRevealed ?? false,
-        lastDiagnostic: snap.lastDiagnostic ?? "",
-      };
-    });
-    console.log(
-      `  Open World Promise result: ${JSON.stringify(promiseResult)}`,
-    );
     results.push({
       step: "open-world-promise-finale",
-      promiseResult,
-      pass: promiseResult !== null,
+      verified: false,
+      reason:
+        "harness lacks relay-contract completion; observability contract lacks openWorldPromise exposure",
+      pass: false,
     });
+    assert(
+      false,
+      "Step 7 finale is not verifiable by this harness: add the sunken-relay contract completion step and expose firstNightThreat/openWorldPromise in render_game_to_text (see step 7 comment, fixed 2026-08-25)",
+    );
 
     // ── Step 8: Console Error & Screenshot Verification ──
     console.log("Step 8: Console error & screenshot verification...");

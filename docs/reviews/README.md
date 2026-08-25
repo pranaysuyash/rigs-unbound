@@ -6,6 +6,8 @@ document what changed, what was verified, and what remains open.
 
 ## Start here
 
+- [Refactor Decision Architect Evaluation — 2026-08-21](REFACTOR_DECISION_ARCHITECT_EVALUATION_2026-08-21.md) —
+  strategic assessment of large files (`renderer.ts`, `state.ts`, `main.ts`), Level 3 module restructuring proposal, and behavioral preservation contract.
 - [Game Director Audit — 2026-08-12](GAME_DIRECTOR_AUDIT_2026-08-12.md) —
   whole-game vision-vs-runtime verdict: the first-playable slice is unfinished
   (no ridge finale, no authored night-threat) while a fourth control paradigm

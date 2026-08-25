@@ -1,7 +1,10 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-08-17 (rig production pipeline documented; inventory/expansion/upgrades roadmap proposed; no runtime code changed)
+- Last Updated: 2026-08-21 (AAA visual fidelity roadmap documented; tasks TASK-VFX-01 through 04 active)
+- AAA Visual Fidelity Reference:
+  [AAA Visual Fidelity Roadmap](../design/AAA_VISUAL_FIDELITY_ROADMAP.md) —
+  canonical multi-stage visual fidelity transformation from concept target to live WebGL engine.
 - Rig production reference:
   [Rig Production Pipeline](../design/rigs/RIG_PRODUCTION_PIPELINE.md) —
   canonical S0–S7 stage map from image reference to runtime rig, with the
@@ -33,6 +36,27 @@
   [Next Execution Board (2026-08-12)](NEXT_EXECUTION_BOARD_2026-08-12.md)
   — supersedes [the 2026-07-26 board](NEXT_EXECUTION_BOARD_2026-07-26.md),
   preserved as historical record.
+
+## Refactor Decision Architecture & Large File Evaluation (2026-08-21 — Active)
+
+- **Evaluation Review**: [`docs/reviews/REFACTOR_DECISION_ARCHITECT_EVALUATION_2026-08-21.md`](../reviews/REFACTOR_DECISION_ARCHITECT_EVALUATION_2026-08-21.md)
+- **Proposed ADR**: [`docs/decisions/ADR-0054-modular-renderer-decomposition-and-behavioral-invariants.md`](../decisions/ADR-0054-modular-renderer-decomposition-and-behavioral-invariants.md) (Proposed — operator sign-off required)
+- **Verdict**:
+  - `src/game/renderer.ts` (6,779 LOC): **Approved for Level 3 Module Restructuring** into cohesive presenters in `src/game/rendering/` behind `GameRenderer` façade.
+  - `src/game/state.ts` (4,908 LOC): **Deferred** (high cohesion, 94 passing kernel tests, low UI coupling).
+  - `src/main.ts` (4,161 LOC): **Deferred** (sequenced after renderer stabilization).
+- **Hard Preservation Invariants**: Zero simulation state mutation, local +Z front forward, single draw-call instanced prop discipline, zero-leak disposal (`disposeObjectGraph`), patch-scoped normal refresh (ADR-0041).
+- **Verification Baseline**: 112 test files and 732 unit tests passing cleanly. Preconditions require golden visual parity captures on port 4173 prior to extraction.
+
+## AAA Visual Fidelity Overhaul Initiative (2026-08-21 — Active)
+
+- **Roadmap & Gap Analysis**: Created [`docs/design/AAA_VISUAL_FIDELITY_ROADMAP.md`](../design/AAA_VISUAL_FIDELITY_ROADMAP.md) establishing the gap analysis between concept vision and WebGL engine across rig mechanics, foliage scattering, wetness shaders, and atmospheric particle sheets.
+- **Active Tasks**:
+  - [x] **Stage 0–4 Foundation**: Procedural PBR engine (`pbr-materials.ts`), PCF soft shadow cascades, volumetric headlight cones, PBR furrow displacement, ballistic wheel roost particles, and cinematic color grading with vignette and calibrated bloom.
+  - [ ] **TASK-VFX-01: Mechanical Rig Detailing & 3D Tread Lugs**: Articulated suspension wishbones, 3D chevron lug tire geometry, hydraulic rams, and exhaust heat shield detailing across all 16 fleet rigs.
+  - [ ] **TASK-VFX-02: High-Density Foliage & Scenery Scattering**: Wind-animated grass tufts, multi-layered branching tree canopies, bark trunk displacement, and micro-pebble scattering.
+  - [ ] **TASK-VFX-03: Dynamic Wetness & Mirror Puddle Reflections**: Specular puddle pooling in wheel ruts and low-lying depressions with sky/headlight reflections.
+  - [ ] **TASK-VFX-04: Atmospheric Volumetric Ground Fog, Rain Sheets & Diesel Smoke**: Multi-layer ground fog, high-speed rain streak particle sheets, and throttle-responsive diesel exhaust puffs.
 
 ## Rig Production Pipeline Consolidation (2026-08-17)
 
@@ -3477,3 +3501,87 @@ still an operator scope decision, because it pulls `docs/` into the gate.
 The tree carries 66 modified tracked files; because 9 of them hold both
 formatting and feature work, a clean formatting-only commit needs staging by
 hunk. That is the operator's call.
+
+## Addendum (2026-08-23): utility-tow asset lane audited and envelope-bound
+
+Full audit: `docs/reviews/UTILITY_TOW_ASSET_AUDIT_2026-08-23.md`. Compressed
+tracker record:
+
+- **Target:** `heavy-utility-tow-recovery-01` — the richest asset lane and the
+  one with maximal authored-vs-runtime gap (runtime still renders the generic
+  candidate proxy; the authored factory predated the rig's admission to
+  `RIG_PROFILES`).
+- **Verified (Codex second opinion, read-only):** rig interaction is
+  command/distance-based (state.ts:1888-1978, main.ts:3582-3586), so asset
+  refinement cannot break picking/collision; the authored factory is unwired;
+  swap break points enumerated with line anchors; pre-existing P1 defects
+  logged (6x6 vs 4-simulated-wheels contract gap; front/rear marker collapse
+  at renderer.ts:4465-4466).
+- **Verified (this session):** derived and committed the dimensional binding
+  `assets/workbench/utility-tow-recovery-01/rig-envelope.json`; rewrote
+  `createUtilityTowModel.ts` against it (four simulated wheels on exact
+  envelope contacts with `simulationWheelIndex` binding; middle axle visual
+  6x6 identity; boom rotation-sign defect found and fixed; deck reshaped
+  between wheel wells); drift-guard test imports the envelope JSON.
+- **Evidence:** in-game before (`review/ingame-before/`, 4 camera modes, zero
+  console problems) and workbench before/after (5 viewpoints each, zero
+  console errors) on the canonical 4173 server via reusable tools
+  (`tools/capture-utility-tow-ingame.cjs`, `tools/capture-utility-tow-review.cjs`).
+- **Gates:** `npm run typecheck` clean; `npx vitest run` exit 0 — 112 files,
+  732 tests; envelope `--check` exit 0.
+- **Boundaries held:** no `src/game/` file edited (P1 wiring tasks listed,
+  blocked on ownership clearance); no git write action.
+- **Open:** pixel-level parity review vs concept plates (analyzer quota),
+  spec/inventory dimensional reconciliation (T-5), runtime wiring (T-1..T-4).
+
+## Addendum (2026-08-23): gameplay long-game evaluation proposed
+
+Full evaluation: `docs/reviews/GAMEPLAY_LONG_GAME_EVALUATION_2026-08-23.md`.
+Compressed tracker record:
+
+- **Prompted by operator:** "current one looks like an experiment lab not a
+  game" — evaluate for full gameplay, long term, not basics.
+- **Verdict (Proposed, awaiting operator read):** the diagnosis is correct
+  and measurable. Four deficits: unproven 30-second core loop (GD-18 still
+  open), undifferentiated beat presentation (2026-08-01 feel audit
+  unaddressed), demo-scale content (3 authored contracts / 4 sites / 3
+  handling rigs), and a process that gates on auditor-verifiable rather than
+  player-felt evidence.
+- **Proposed program:** Phase A (staging + juice + feel playtest — pause
+  TASK-VFX-01..04 until it lands), Phase B (post-finale second horizon:
+  author the two locked contracts, buried-signal Act-2 arc, fleet growth
+  through story beats, economy closure, day-arc rhythm), Phase C (region
+  kit, async ghosts, second campaign vertical, Steam shell).
+- **Process guardrails proposed:** recurring cold-player feel gate on every
+  gameplay tranche; commit-mix ratio surfaced in this tracker's header; one
+  depth front at a time.
+- **Boundaries held:** evaluation only — no `src/game/` edits, no status
+  changes to existing board items, no git write action.
+
+## Addendum (2026-08-25): evaluation follow-up — evidence retried; acceptance-integrity findings
+
+Full record: `docs/reviews/GAMEPLAY_LONG_GAME_EVALUATION_2026-08-23.md` §Addendum
+and `docs/WORKLOG_ADDENDUM_2026-08-25.md`. Compressed:
+
+- **Machine-vision verdicts** on the latest stage-5/6 captures corroborate the
+  2026-08-01 feel audit ("prototype/tech demo"; night threat "purely textual,
+  zero tension") three weeks and two visual overhauls later.
+- **Port-4173 squatter incident (×2):** `python -m http.server` from
+  `~/Projects/pdf_editor` (spawned by a `.workbuddy-ai` tool) squatted the
+  canonical port; freed both times; launcher hardened to identity-check the
+  responder (Vite transform of `/src/main.ts` + `render_game_to_text` marker)
+  and name squatters via `lsof` instead of reporting false health.
+- **Acceptance-integrity finding:** complete-slice acceptance Steps 6–7 read
+  observability fields that do not exist (`firstNightThreatResolved`,
+  `openWorldPromiseFinaleRevealed`, `obstacles`) with vacuous pass conditions —
+  the GD-03 night threat and GD-02 finale were never browser-verified. New
+  probe `tools/probe-night-beat.cjs` verified the night beat live (PASS —
+  runtime sound, harness was broken). Harness patched: Step 6 now drives and
+  asserts the beat; Step 7 fails honestly pending (a) a sunken-relay harness
+  step and (b) exposing `firstNightThreat`/`openWorldPromise` in
+  `render_game_to_text()` (needs `src/game/` clearance).
+- **Live regression logged:** complete-slice console gate fails on
+  `PCFSoftShadowMap has been deprecated` warnings (×2) from the AAA Stage 2
+  shadow work — **complete-slice acceptance is currently red on the working
+  tree**; one-line fix in `renderer.ts` held for ownership clearance.
+- **Boundaries held:** no `src/game/` edits; no git write actions.

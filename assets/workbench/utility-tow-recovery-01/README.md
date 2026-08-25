@@ -1,6 +1,9 @@
 # Utility Tow Recovery 01 — Reconstruction Workbench
 
-Status: `intake-pending`
+Status: `envelope-bound blockout refined` (2026-08-23) — authored factory is
+dimension-bound to `rig-envelope.json` with a drift-guard test; runtime wiring
+still pending. Full audit and task list:
+[`docs/reviews/UTILITY_TOW_ASSET_AUDIT_2026-08-23.md`](../../../docs/reviews/UTILITY_TOW_ASSET_AUDIT_2026-08-23.md).
 
 This directory is the repo-owned workbench for the first object-first asset
 slice. It is intentionally separate from `assets/runtime/`: nothing here is a
@@ -94,3 +97,29 @@ a whole recovery truck currently does not.
 Recommended order, therefore: parts from this plate first, full rig only after a
 profile exists. Recorded here rather than only in the worklog because this
 directory is where someone picks the work up.
+
+## Blocker resolved 2026-08-23: the profile exists, and the factory is bound to it
+
+`heavy-utility-tow-recovery-01` is now in `RIG_IDS` (`src/game/contracts.ts`)
+with a full `RIG_PROFILES` entry (track 3.0, wheelbase 4.2, wheelRadius 0.85,
+rideHeight 1.1). The 2026-08-11 blocker above is historical.
+
+The dimensional binding it demanded now exists in this directory:
+
+- `rig-envelope.json` — derived via
+  `npx vite-node tools/derive-rig-asset-envelope.ts heavy-utility-tow-recovery-01 --out rig-envelope.json`
+- `authored/createUtilityTowModel.ts` — rewritten against that envelope; the
+  four simulated wheel nodes land exactly on the envelope contacts and carry
+  `userData.simulationWheelIndex` 0–3; the two middle-axle wheels are visual
+  6x6 identity only (`simulationWheelIndex: null`)
+- `authored/createUtilityTowModel.test.ts` — drift guard: imports the envelope
+  JSON and fails if wheel placement, tyre radius/width, ground contact, or root
+  extents drift
+- `review/` — browser review harness (`window.utilityTowReview`) plus
+  before/after captures; capture tools live in
+  `tools/capture-utility-tow-review.cjs` and `tools/capture-utility-tow-ingame.cjs`
+
+Still pending before this becomes a runtime asset: wiring into `renderer.ts`
+candidate dispatch (needs `src/game/` ownership clearance), the front/rear
+marker fix at `renderer.ts:4465-4466`, pixel-level parity review against the
+concept plates, and the GLB forge — see the audit doc's task list.

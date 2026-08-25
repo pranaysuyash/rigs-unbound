@@ -23,6 +23,12 @@
 *.pfx
 credentials.json
 
+# Browser automation session state
+.playwright-mcp/
+
+# Agent visual-review screenshot debris at repo root
+/.codex-visual-polish-*.png
+
 # Logs, caches, and temporary output
 *.log
 logs/
