@@ -27,6 +27,7 @@ import {
   PostProcessingPipeline,
 } from "./rendering/post-processing";
 import { ParticleFXPresenter } from "./rendering/particle-fx";
+import { PropsPresenter } from "./rendering/props";
 
 export { CinematicColorGradeShader };
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
@@ -48,14 +49,6 @@ import {
   type WorldPhase,
 } from "./contracts";
 import type { WeatherState } from "./weather";
-import {
-  felledTrunkLength,
-  rockVisualHalfHeight,
-  treeCrownCenterY,
-  treeCrownRadius,
-  treeTrunkHeight,
-  type Obstacle,
-} from "./collision";
 import { chaseViewportPolicy, RIG_HOOD_CAMERA_MOUNTS } from "./camera";
 import {
   blockoutFor,
@@ -65,20 +58,15 @@ import {
   type RigSuperstructureVolume,
 } from "./rig-blockout";
 import { createFieldPlough01Model } from "../../assets/workbench/field-plough-01/authored/createFieldPloughModel";
-import type { SalvageNode } from "./exploration";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
 import type { RuntimeBridgeSpec } from "./runtime-assets";
 import type { CameraObstructionHit } from "./scene-query";
 import {
-  classifyVisibility,
-  createPropVisibilityMetrics,
   DEFAULT_VISIBILITY_PROFILE,
-  recordVisibilityCandidate,
   type PropVisibilityMetrics,
   type VisibilityProfileId,
-  visibilityProfile,
 } from "./visibility";
 import {
   SURFACES,
@@ -149,12 +137,6 @@ const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
 
 /** Rig travel that triggers an obstacle/salvage instance rebuild, in metres. */
 const PROP_REBUILD_DISTANCE = 34;
-
-const MAX_TREE_INSTANCES = 900;
-const MAX_ROCK_INSTANCES = 700;
-const MAX_FELLED_INSTANCES = 220;
-const MAX_NODE_INSTANCES = 260;
-const MAX_GRASS_INSTANCES = 1200;
 
 /**
  * Recompute vertex normals for a grid-mesh terrain patch instead of the whole
@@ -735,17 +717,8 @@ export class GameRenderer {
   private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
   private readonly terrainOrigin = -TERRAIN_SPAN / 2;
 
-  private treeTrunks!: THREE.InstancedMesh;
-  private treeCrowns!: THREE.InstancedMesh;
-  private treeBillboards!: THREE.InstancedMesh;
-  private treeBillboardCount = 0;
-  private rocks!: THREE.InstancedMesh;
-  private rockBillboards!: THREE.InstancedMesh;
-  private rockBillboardCount = 0;
-  private felledTrunks!: THREE.InstancedMesh;
-  private salvageNodes!: THREE.InstancedMesh;
   private furrowDecals!: THREE.InstancedMesh;
-  private grassTufts!: THREE.InstancedMesh;
+  private props!: PropsPresenter;
   private water!: THREE.Mesh;
   private waterMaterial!: THREE.ShaderMaterial;
   private sky!: THREE.Mesh;
@@ -753,10 +726,6 @@ export class GameRenderer {
   private particles!: ParticleFXPresenter;
 
   private readonly dummy = new THREE.Object3D();
-  private readonly billboardDirection = new THREE.Vector3();
-  private readonly billboardDefaultNormal = new THREE.Vector3(0, 0, 1);
-  private propAnchorX = Number.POSITIVE_INFINITY;
-  private propAnchorZ = Number.POSITIVE_INFINITY;
   private renderedFurrows = 0;
   private lastDeformCount = 0;
   private lastRouteRevision = 0;
@@ -843,7 +812,6 @@ export class GameRenderer {
   private readonly loadedRuntimeBridgeRoots = new Map<string, THREE.Object3D>();
   private activeVisibilityProfileId: VisibilityProfileId =
     DEFAULT_VISIBILITY_PROFILE;
-  private propVisibility: PropVisibilityMetrics = createPropVisibilityMetrics();
   private readonly reducedMotionQuery = window.matchMedia(
     "(prefers-reduced-motion: reduce)",
   );
@@ -925,6 +893,13 @@ export class GameRenderer {
     this.buildTerrain();
     this.buildWater();
     this.buildInstancedProps();
+    this.props = new PropsPresenter(this.scene, {
+      world: this.world,
+      profileId: () => this.activeVisibilityProfileId,
+      cameraReady: () => this.cameraInitialised,
+      cameraPosition: () => this.camera.position,
+      occludedByTerrain: (x, y, z) => this.isOccludedByTerrain(x, y, z),
+    });
     this.particles = new ParticleFXPresenter(this.scene);
     this.buildSites();
     this.buildSettlementCargoBays();
@@ -1632,59 +1607,6 @@ export class GameRenderer {
   // ---------------------------------------------------------------------------
 
   private buildInstancedProps(): void {
-    const barkMat = createPbrMaterial(0x523d2b, {
-      roughness: 0.94,
-      metalness: 0.02,
-      type: "bark",
-    });
-    this.treeTrunks = new THREE.InstancedMesh(
-      new THREE.CylinderGeometry(0.24, 0.42, 1, 8),
-      barkMat,
-      MAX_TREE_INSTANCES,
-    );
-
-    const foliageMat = createPbrMaterial(0x3e5e26, {
-      roughness: 0.82,
-      metalness: 0.04,
-      type: "foliage",
-    });
-    this.treeCrowns = new THREE.InstancedMesh(
-      new THREE.DodecahedronGeometry(1, 1),
-      foliageMat,
-      MAX_TREE_INSTANCES,
-    );
-
-    const rockMat = createPbrMaterial(0x65615a, {
-      roughness: 0.88,
-      metalness: 0.12,
-      type: "rock",
-    });
-    this.rocks = new THREE.InstancedMesh(
-      new THREE.DodecahedronGeometry(1, 0),
-      rockMat,
-      MAX_ROCK_INSTANCES,
-    );
-    this.treeBillboards = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(1, 1),
-      material(0x5f7d4d),
-      MAX_TREE_INSTANCES,
-    );
-    this.rockBillboards = new THREE.InstancedMesh(
-      new THREE.PlaneGeometry(1, 1),
-      material(0x7d746a),
-      MAX_ROCK_INSTANCES,
-    );
-    this.felledTrunks = new THREE.InstancedMesh(
-      new THREE.CylinderGeometry(0.3, 0.34, 1, 6),
-      material(0x6a5038),
-      MAX_FELLED_INSTANCES,
-    );
-    this.salvageNodes = new THREE.InstancedMesh(
-      new THREE.BoxGeometry(1, 1, 1),
-      material(0x9a5c39, 0.7, 0.25),
-      MAX_NODE_INSTANCES,
-    );
-
     const furrowMaterial = createPbrMaterial(0xffffff, {
       roughness: 0.92,
       metalness: 0.05,
@@ -1706,41 +1628,17 @@ export class GameRenderer {
     if (this.furrowDecals.instanceColor)
       this.furrowDecals.instanceColor.needsUpdate = true;
 
-    const grassMat = createPbrMaterial(0x426829, {
-      roughness: 0.88,
-      metalness: 0.02,
-      type: "foliage",
-    });
-    this.grassTufts = new THREE.InstancedMesh(
-      new THREE.ConeGeometry(0.32, 0.65, 3),
-      grassMat,
-      MAX_GRASS_INSTANCES,
-    );
-    this.grassTufts.count = 0;
-
     /*
-     * These dynamic clouds are rebuilt around the active rig. Geometry-only
-     * bounds do not include the per-instance transforms, so they can cull
-     * visible scenery. Keep culling disabled until refreshProps computes a
-     * truthful aggregate instance bound after each rebuild.
+     * Furrow decals rebuild as ploughing progresses. Geometry-only bounds do
+     * not include the per-instance transforms, so culling stays disabled until
+     * refreshProps computes a truthful aggregate instance bound.
      */
-    for (const mesh of [
-      this.treeTrunks,
-      this.treeCrowns,
-      this.rocks,
-      this.treeBillboards,
-      this.rockBillboards,
-      this.felledTrunks,
-      this.salvageNodes,
-      this.furrowDecals,
-      this.grassTufts,
-    ]) {
-      mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-      mesh.frustumCulled = false;
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      this.scene.add(mesh);
-    }
+    const mesh = this.furrowDecals;
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    mesh.frustumCulled = false;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    this.scene.add(mesh);
   }
 
   /**
@@ -1752,212 +1650,7 @@ export class GameRenderer {
    */
   private refreshProps(state: GameState): void {
     const rig = state.rigs[state.activeRigId];
-    const profile = visibilityProfile(this.activeVisibilityProfileId);
-    const propRadius = profile.farMeters;
-    const obstacles = [
-      ...this.world.obstacles.near(rig.x, rig.z, propRadius),
-      ...this.world.incidentObstaclesNear(rig.x, rig.z, propRadius),
-    ];
-    const nodes = this.world.exploration.nodesNear(
-      rig.x,
-      rig.z,
-      propRadius,
-      this.world.collectedNodes,
-    );
-    const visibility = createPropVisibilityMetrics(profile);
-    const tierFor = (x: number, z: number) => {
-      const tier = classifyVisibility(
-        Math.hypot(x - rig.x, z - rig.z),
-        profile,
-      );
-      recordVisibilityCandidate(visibility, tier);
-      return tier;
-    };
-
-    // Reset billboard counters for this rebuild
-    this.treeBillboardCount = 0;
-    this.rockBillboardCount = 0;
-
-    let trees = 0;
-    let rocks = 0;
-    let felled = 0;
-
-    for (const obstacle of obstacles) {
-      if (tierFor(obstacle.x, obstacle.z) === "culled") continue;
-      const down = this.world.felledObstacles.has(obstacle.id);
-      const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
-      // Terrain occlusion: skip instances hidden behind hills from camera.
-      const testY = down
-        ? groundY + felledTrunkLength(obstacle) * 0.5
-        : obstacle.kind === "tree"
-          ? groundY + treeTrunkHeight(obstacle) * 0.5
-          : groundY + obstacle.radius * 0.35;
-      if (this.isOccludedByTerrain(obstacle.x, testY, obstacle.z)) {
-        visibility.occluded += 1;
-        continue;
-      }
-      if (obstacle.kind === "tree" && !down) {
-        if (trees >= MAX_TREE_INSTANCES) {
-          visibility.capacityLimited += 1;
-          continue;
-        }
-        this.placeTree(obstacle, trees);
-        trees += 1;
-      } else if (obstacle.kind === "tree") {
-        if (felled >= MAX_FELLED_INSTANCES) {
-          visibility.capacityLimited += 1;
-          continue;
-        }
-        this.placeFelled(obstacle, felled);
-        felled += 1;
-      } else {
-        if (rocks >= MAX_ROCK_INSTANCES) {
-          visibility.capacityLimited += 1;
-          continue;
-        }
-        this.placeRock(obstacle, rocks);
-        rocks += 1;
-      }
-      visibility.submitted += 1;
-    }
-
-    let nodeCount = 0;
-    for (const node of nodes) {
-      if (tierFor(node.x, node.z) === "culled") continue;
-      const scale = 0.8 + node.variation * 0.4;
-      const testY = node.groundY + scale * 0.5;
-      if (this.isOccludedByTerrain(node.x, testY, node.z)) {
-        visibility.occluded += 1;
-        continue;
-      }
-      if (nodeCount >= MAX_NODE_INSTANCES) {
-        visibility.capacityLimited += 1;
-        continue;
-      }
-      this.placeNode(node, nodeCount);
-      nodeCount += 1;
-      visibility.submitted += 1;
-    }
-
-    this.treeTrunks.count = trees;
-    this.treeCrowns.count = trees;
-    this.rocks.count = rocks;
-    if (this.treeBillboards !== undefined) {
-      this.treeBillboards.count = this.treeBillboardCount;
-    }
-    if (this.rockBillboards !== undefined) {
-      this.rockBillboards.count = this.rockBillboardCount;
-    }
-    this.felledTrunks.count = felled;
-    this.salvageNodes.count = nodeCount;
-
-    // Scatter natural instanced grass tufts across pasture elevations
-    let grassCount = 0;
-    for (let i = 0; i < MAX_GRASS_INSTANCES; i++) {
-      const angle = i * 2.399963;
-      const radius =
-        2.5 + Math.sqrt(i / MAX_GRASS_INSTANCES) * (propRadius * 0.85);
-      const gx = rig.x + Math.cos(angle) * radius + ((i * 13) % 7) - 3.5;
-      const gz = rig.z + Math.sin(angle) * radius + ((i * 17) % 7) - 3.5;
-      const gy = this.world.terrain.height(gx, gz);
-      if (gy <= WATER_LEVEL + 0.2) continue;
-      this.dummy.position.set(gx, gy + 0.32, gz);
-      const scale = 0.75 + ((i * 31) % 10) * 0.08;
-      this.dummy.scale.set(scale, scale * (0.8 + ((i * 11) % 5) * 0.1), scale);
-      this.dummy.rotation.set(0, angle + (i % 4), 0);
-      this.dummy.updateMatrix();
-      this.grassTufts.setMatrixAt(grassCount, this.dummy.matrix);
-      grassCount++;
-    }
-    this.grassTufts.count = grassCount;
-    this.grassTufts.instanceMatrix.needsUpdate = true;
-
-    this.treeTrunks.instanceMatrix.needsUpdate = true;
-    this.treeCrowns.instanceMatrix.needsUpdate = true;
-    this.rocks.instanceMatrix.needsUpdate = true;
-    if (this.treeBillboards !== undefined) {
-      this.treeBillboards.instanceMatrix.needsUpdate = true;
-    }
-    if (this.rockBillboards !== undefined) {
-      this.rockBillboards.instanceMatrix.needsUpdate = true;
-    }
-    this.felledTrunks.instanceMatrix.needsUpdate = true;
-    this.salvageNodes.instanceMatrix.needsUpdate = true;
-
-    this.propAnchorX = rig.x;
-    this.propAnchorZ = rig.z;
-    this.propVisibility = visibility;
-
-    // Compute aggregate bounds for frustum culling and enable it.
-    this.computeAndSetInstanceBounds(this.treeTrunks, trees);
-    this.computeAndSetInstanceBounds(this.treeCrowns, trees);
-    this.computeAndSetInstanceBounds(this.rocks, rocks);
-    this.computeAndSetInstanceBounds(this.felledTrunks, felled);
-    this.computeAndSetInstanceBounds(this.salvageNodes, nodeCount);
-    if (this.treeBillboards !== undefined) {
-      this.computeAndSetInstanceBounds(
-        this.treeBillboards,
-        this.treeBillboardCount,
-      );
-    }
-    if (this.rockBillboards !== undefined) {
-      this.computeAndSetInstanceBounds(
-        this.rockBillboards,
-        this.rockBillboardCount,
-      );
-    }
-    this.computeAndSetInstanceBounds(this.furrowDecals, this.renderedFurrows);
-  }
-
-  /**
-   * Compute an aggregate bounding sphere from the active instance matrices and
-   * enable frustum culling. InstancedMesh uses the base geometry bounds by
-   * default, which do not reflect the actual instance spread. This must be
-   * called after every rebuild so the renderer can skip off-screen meshes.
-   */
-  private computeAndSetInstanceBounds(
-    mesh: THREE.InstancedMesh,
-    count: number,
-  ): void {
-    if (count === 0) {
-      mesh.boundingSphere = null;
-      mesh.frustumCulled = false;
-      return;
-    }
-    const sphere = new THREE.Sphere();
-    const matrix = new THREE.Matrix4();
-    const position = new THREE.Vector3();
-
-    let minX = Infinity,
-      minY = Infinity,
-      minZ = Infinity;
-    let maxX = -Infinity,
-      maxY = -Infinity,
-      maxZ = -Infinity;
-
-    for (let i = 0; i < count; i += 1) {
-      mesh.getMatrixAt(i, matrix);
-      position.setFromMatrixPosition(matrix);
-      if (position.x < minX) minX = position.x;
-      if (position.y < minY) minY = position.y;
-      if (position.z < minZ) minZ = position.z;
-      if (position.x > maxX) maxX = position.x;
-      if (position.y > maxY) maxY = position.y;
-      if (position.z > maxZ) maxZ = position.z;
-    }
-
-    const centerX = (minX + maxX) * 0.5;
-    const centerY = (minY + maxY) * 0.5;
-    const centerZ = (minZ + maxZ) * 0.5;
-    sphere.center.set(centerX, centerY, centerZ);
-
-    const dx = maxX - centerX;
-    const dy = maxY - centerY;
-    const dz = maxZ - centerZ;
-    sphere.radius = Math.hypot(dx, dy, dz) + 1.0; // padding for scale
-
-    mesh.boundingSphere = sphere;
-    mesh.frustumCulled = true;
+    this.props.refresh(rig.x, rig.z);
   }
 
   /**
@@ -1974,158 +1667,6 @@ export class GameRenderer {
       this.world.terrain.raymarchBlocked(cam.x, cam.y, cam.z, x, y, z, 8, 0.5) <
       1
     );
-  }
-
-  /**
-   * Orient `this.dummy` so its +Z face normal points at the camera's actual
-   * 3D position — full spherical billboarding, not just a horizontal (yaw)
-   * facing.
-   *
-   * A yaw-only facing (rotate around Y so the plane "faces" the camera's
-   * horizontal bearing) still stands the plane vertical. That reads fine
-   * from a roughly-horizontal camera (Chase, Hood, Side) but is geometrically
-   * useless against a steep overhead camera (Tactical, Top-down): a vertical
-   * plane's cross-section viewed from above is a thin line no matter which
-   * way it yaws, because yaw only rotates around the one axis the overhead
-   * camera is looking straight down. Facing the true camera vector — pitch
-   * included — is what actually keeps the flat LOD impostor looking like a
-   * canopy/rock blob instead of a floating stick from every camera mode.
-   *
-   * Far-tier LOD billboards are rebuilt only when the rig moves (not every
-   * frame), so this is a per-rebuild approximation rather than true
-   * per-frame billboarding — sufficient here since the "far" tier is by
-   * definition distant scenery, not something the camera sits on top of.
-   */
-  private faceBillboardAtCamera(x: number, y: number, z: number): void {
-    this.billboardDirection
-      .set(
-        this.camera.position.x - x,
-        this.camera.position.y - y,
-        this.camera.position.z - z,
-      )
-      .normalize();
-    this.dummy.quaternion.setFromUnitVectors(
-      this.billboardDefaultNormal,
-      this.billboardDirection,
-    );
-  }
-
-  private placeTree(obstacle: Obstacle, index: number): void {
-    const trunkHeight = treeTrunkHeight(obstacle);
-    // Re-ground on the live height field rather than the cached groundY so trees
-    // stay correctly positioned after plough deformation changes the terrain.
-    const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
-    this.dummy.position.set(
-      obstacle.x,
-      groundY + trunkHeight * 0.5,
-      obstacle.z,
-    );
-    this.dummy.rotation.set(0, obstacle.variation * Math.PI, 0);
-    this.dummy.scale.set(
-      obstacle.radius * 1.6,
-      trunkHeight,
-      obstacle.radius * 1.6,
-    );
-    this.dummy.updateMatrix();
-    this.treeTrunks.setMatrixAt(index, this.dummy.matrix);
-
-    const crownRadius = treeCrownRadius(obstacle);
-    this.dummy.position.set(obstacle.x, treeCrownCenterY(obstacle), obstacle.z);
-    this.dummy.rotation.set(0, obstacle.variation * 4.1, 0);
-    this.dummy.scale.set(crownRadius, crownRadius * 1.3, crownRadius);
-    this.dummy.updateMatrix();
-    this.treeCrowns.setMatrixAt(index, this.dummy.matrix);
-
-    // Also place billboard for far-tier LOD
-    const tier = classifyVisibility(
-      Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
-      visibilityProfile(this.activeVisibilityProfileId),
-    );
-    if (
-      tier === "far" &&
-      this.treeBillboards !== undefined &&
-      this.treeBillboardCount < MAX_TREE_INSTANCES
-    ) {
-      const billboardY = treeCrownCenterY(obstacle);
-      this.dummy.position.set(obstacle.x, billboardY, obstacle.z);
-      this.faceBillboardAtCamera(obstacle.x, billboardY, obstacle.z);
-      this.dummy.scale.set(crownRadius * 1.5, crownRadius * 1.5, 1);
-      this.dummy.updateMatrix();
-      this.treeBillboards.setMatrixAt(
-        this.treeBillboardCount,
-        this.dummy.matrix,
-      );
-      this.treeBillboardCount += 1;
-    }
-  }
-
-  private placeFelled(obstacle: Obstacle, index: number): void {
-    const length = felledTrunkLength(obstacle);
-    this.dummy.position.set(
-      obstacle.x,
-      obstacle.groundY + obstacle.radius * 0.9,
-      obstacle.z,
-    );
-    // Lying on its side, so a cleared route is visibly a route you cleared.
-    this.dummy.rotation.set(Math.PI / 2, obstacle.variation * Math.PI, 0.08);
-    this.dummy.scale.set(obstacle.radius * 1.7, length, obstacle.radius * 1.7);
-    this.dummy.updateMatrix();
-    this.felledTrunks.setMatrixAt(index, this.dummy.matrix);
-  }
-
-  private placeRock(obstacle: Obstacle, index: number): void {
-    // Re-ground on the live height field so rocks track the surface after
-    // plough deformation changes the terrain height.
-    const groundY = this.world.terrain.height(obstacle.x, obstacle.z);
-    this.dummy.position.set(
-      obstacle.x,
-      groundY + obstacle.radius * 0.35,
-      obstacle.z,
-    );
-    this.dummy.rotation.set(
-      obstacle.variation * 0.6,
-      obstacle.variation * Math.PI * 2,
-      obstacle.variation * 0.4,
-    );
-    this.dummy.scale.set(
-      obstacle.radius,
-      rockVisualHalfHeight(obstacle),
-      obstacle.radius * (0.85 + obstacle.variation * 0.3),
-    );
-    this.dummy.updateMatrix();
-    this.rocks.setMatrixAt(index, this.dummy.matrix);
-
-    // Also place billboard for far-tier LOD
-    const tier = classifyVisibility(
-      Math.hypot(obstacle.x - this.propAnchorX, obstacle.z - this.propAnchorZ),
-      visibilityProfile(this.activeVisibilityProfileId),
-    );
-    if (
-      tier === "far" &&
-      this.rockBillboards !== undefined &&
-      this.rockBillboardCount < MAX_ROCK_INSTANCES
-    ) {
-      const halfHeight = rockVisualHalfHeight(obstacle);
-      const billboardY = obstacle.groundY + halfHeight;
-      this.dummy.position.set(obstacle.x, billboardY, obstacle.z);
-      this.faceBillboardAtCamera(obstacle.x, billboardY, obstacle.z);
-      this.dummy.scale.set(obstacle.radius * 1.5, obstacle.radius * 1.5, 1);
-      this.dummy.updateMatrix();
-      this.rockBillboards.setMatrixAt(
-        this.rockBillboardCount,
-        this.dummy.matrix,
-      );
-      this.rockBillboardCount += 1;
-    }
-  }
-
-  private placeNode(node: SalvageNode, index: number): void {
-    const scale = 0.8 + node.variation * 0.4;
-    this.dummy.position.set(node.x, node.groundY + scale * 0.5, node.z);
-    this.dummy.rotation.set(0, node.variation * Math.PI, 0);
-    this.dummy.scale.set(scale, scale * 0.8, scale);
-    this.dummy.updateMatrix();
-    this.salvageNodes.setMatrixAt(index, this.dummy.matrix);
   }
 
   // ---------------------------------------------------------------------------
@@ -5047,8 +4588,7 @@ export class GameRenderer {
       // Event-driven prop invalidation: terrain deformation changes the
       // ground beneath nearby props, so force a prop rebuild on the next
       // frame rather than waiting for the rig to travel PROP_REBUILD_DISTANCE.
-      this.propAnchorX = Number.POSITIVE_INFINITY;
-      this.propAnchorZ = Number.POSITIVE_INFINITY;
+      this.props.resetAnchor();
     }
 
     // A community passage changes terrain height, surface material, and the
@@ -5059,14 +4599,12 @@ export class GameRenderer {
       this.lastRouteRevision = routeRevision;
       this.rebuildTerrainHeights();
       this.syncCommunityPassageDecks(state);
-      this.propAnchorX = Number.POSITIVE_INFINITY;
-      this.propAnchorZ = Number.POSITIVE_INFINITY;
+      this.props.resetAnchor();
     }
     const roadIncidentRevision = this.world.roadIncidentRevisionNumber();
     if (roadIncidentRevision !== this.lastRoadIncidentRevision) {
       this.lastRoadIncidentRevision = roadIncidentRevision;
-      this.propAnchorX = Number.POSITIVE_INFINITY;
-      this.propAnchorZ = Number.POSITIVE_INFINITY;
+      this.props.resetAnchor();
     }
 
     const fieldConditionRevision = this.world.fieldConditionRevisionNumber();
@@ -5091,8 +4629,8 @@ export class GameRenderer {
 
     if (
       Math.hypot(
-        activeRigState.x - this.propAnchorX,
-        activeRigState.z - this.propAnchorZ,
+        activeRigState.x - this.props.anchorXValue,
+        activeRigState.z - this.props.anchorZValue,
       ) > PROP_REBUILD_DISTANCE
     ) {
       this.refreshProps(state);
@@ -5864,8 +5402,7 @@ export class GameRenderer {
   ): boolean {
     if (profileId === this.activeVisibilityProfileId) return false;
     this.activeVisibilityProfileId = profileId;
-    this.propAnchorX = Number.POSITIVE_INFINITY;
-    this.propAnchorZ = Number.POSITIVE_INFINITY;
+    this.props.resetAnchor();
     this.refreshProps(state);
     return true;
   }
@@ -5891,7 +5428,7 @@ export class GameRenderer {
       textures: this.renderer.info.memory.textures,
       terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
       terrainRegionRefreshMs: Number(this.terrainRegionRefreshMs.toFixed(2)),
-      visibility: { ...this.propVisibility },
+      visibility: this.props.snapshotVisibility(),
       gpuMemoryMb: this.estimateGpuMemoryMb(),
       rendererBackend: this.rendererBackend,
       rendererRequestedBackend: this.rendererRequestedBackend,
@@ -6465,8 +6002,7 @@ export class GameRenderer {
     this.habitatAnchorZ = Number.POSITIVE_INFINITY;
     this.fieldColourAnchorX = Number.POSITIVE_INFINITY;
     this.fieldColourAnchorZ = Number.POSITIVE_INFINITY;
-    this.propAnchorX = Number.POSITIVE_INFINITY;
-    this.propAnchorZ = Number.POSITIVE_INFINITY;
+    this.props.resetAnchor();
     this.refreshProps(state);
     this.rebuildTerrainHeights();
     this.syncCommunityPassageDecks(state);
@@ -6515,10 +6051,7 @@ export class GameRenderer {
       (this.rainPoints.material as THREE.Material).dispose();
     }
     this.particles.dispose();
-    if (this.grassTufts) {
-      this.grassTufts.geometry.dispose();
-      (this.grassTufts.material as THREE.Material).dispose();
-    }
+    this.props.dispose();
     this.renderer.dispose();
   }
 }

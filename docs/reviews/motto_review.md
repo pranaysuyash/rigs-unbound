@@ -2,7 +2,7 @@
 
 - Doctrine path: /Users/pranay/Projects/Game_dev/rigs-unbound/OPERATING_DOCTRINE.md
 - SHA-256: 93dc8e76f2c264898cd5adaa3ccd3bbd045275b653696460bc32ed5064479823
-- Generated: 2026-08-25T11:02:23Z
+- Generated: 2026-08-25T11:08:09Z
 - This is a generated review artifact, not an instruction source.
 
 ## SECTION_0
