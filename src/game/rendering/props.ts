@@ -50,6 +50,57 @@ function material(
 }
 
 /**
+ * Compute an aggregate bounding sphere from the active instance matrices and
+ * enable frustum culling. InstancedMesh uses the base geometry bounds by
+ * default, which do not reflect the actual instance spread. This must be
+ * called after every rebuild so the renderer can skip off-screen meshes.
+ */
+export function computeAndSetInstanceBounds(
+  mesh: THREE.InstancedMesh,
+  count: number,
+): void {
+  if (count === 0) {
+    mesh.boundingSphere = null;
+    mesh.frustumCulled = false;
+    return;
+  }
+  const sphere = new THREE.Sphere();
+  const matrix = new THREE.Matrix4();
+  const position = new THREE.Vector3();
+
+  let minX = Infinity,
+    minY = Infinity,
+    minZ = Infinity;
+  let maxX = -Infinity,
+    maxY = -Infinity,
+    maxZ = -Infinity;
+
+  for (let i = 0; i < count; i += 1) {
+    mesh.getMatrixAt(i, matrix);
+    position.setFromMatrixPosition(matrix);
+    if (position.x < minX) minX = position.x;
+    if (position.y < minY) minY = position.y;
+    if (position.z < minZ) minZ = position.z;
+    if (position.x > maxX) maxX = position.x;
+    if (position.y > maxY) maxY = position.y;
+    if (position.z > maxZ) maxZ = position.z;
+  }
+
+  const centerX = (minX + maxX) * 0.5;
+  const centerY = (minY + maxY) * 0.5;
+  const centerZ = (minZ + maxZ) * 0.5;
+  sphere.center.set(centerX, centerY, centerZ);
+
+  const dx = maxX - centerX;
+  const dy = maxY - centerY;
+  const dz = maxZ - centerZ;
+  sphere.radius = Math.hypot(dx, dy, dz) + 1.0; // padding for scale
+
+  mesh.boundingSphere = sphere;
+  mesh.frustumCulled = true;
+}
+
+/**
  * Owns every instanced scenery mesh: tree trunks/crowns/billboards, rocks and
  * rock billboards, felled trunks, salvage nodes, and grass tufts. Extracted
  * from GameRenderer (ADR-0054 unit 3). Instancing discipline invariant: each
@@ -328,75 +379,18 @@ export class PropsPresenter {
     this.propVisibility = visibility;
 
     // Compute aggregate bounds for frustum culling and enable it.
-    this.computeAndSetInstanceBounds(this.treeTrunks, trees);
-    this.computeAndSetInstanceBounds(this.treeCrowns, trees);
-    this.computeAndSetInstanceBounds(this.rocks, rocks);
-    this.computeAndSetInstanceBounds(this.felledTrunks, felled);
-    this.computeAndSetInstanceBounds(this.salvageNodes, nodeCount);
+    computeAndSetInstanceBounds(this.treeTrunks, trees);
+    computeAndSetInstanceBounds(this.treeCrowns, trees);
+    computeAndSetInstanceBounds(this.rocks, rocks);
+    computeAndSetInstanceBounds(this.felledTrunks, felled);
+    computeAndSetInstanceBounds(this.salvageNodes, nodeCount);
     if (this.treeBillboards !== undefined) {
-      this.computeAndSetInstanceBounds(
-        this.treeBillboards,
-        this.treeBillboardCount,
-      );
+      computeAndSetInstanceBounds(this.treeBillboards, this.treeBillboardCount);
     }
     if (this.rockBillboards !== undefined) {
-      this.computeAndSetInstanceBounds(
-        this.rockBillboards,
-        this.rockBillboardCount,
-      );
+      computeAndSetInstanceBounds(this.rockBillboards, this.rockBillboardCount);
     }
     return visibility;
-  }
-
-  /**
-   * Compute an aggregate bounding sphere from the active instance matrices and
-   * enable frustum culling. InstancedMesh uses the base geometry bounds by
-   * default, which do not reflect the actual instance spread. This must be
-   * called after every rebuild so the renderer can skip off-screen meshes.
-   */
-  private computeAndSetInstanceBounds(
-    mesh: THREE.InstancedMesh,
-    count: number,
-  ): void {
-    if (count === 0) {
-      mesh.boundingSphere = null;
-      mesh.frustumCulled = false;
-      return;
-    }
-    const sphere = new THREE.Sphere();
-    const matrix = new THREE.Matrix4();
-    const position = new THREE.Vector3();
-
-    let minX = Infinity,
-      minY = Infinity,
-      minZ = Infinity;
-    let maxX = -Infinity,
-      maxY = -Infinity,
-      maxZ = -Infinity;
-
-    for (let i = 0; i < count; i += 1) {
-      mesh.getMatrixAt(i, matrix);
-      position.setFromMatrixPosition(matrix);
-      if (position.x < minX) minX = position.x;
-      if (position.y < minY) minY = position.y;
-      if (position.z < minZ) minZ = position.z;
-      if (position.x > maxX) maxX = position.x;
-      if (position.y > maxY) maxY = position.y;
-      if (position.z > maxZ) maxZ = position.z;
-    }
-
-    const centerX = (minX + maxX) * 0.5;
-    const centerY = (minY + maxY) * 0.5;
-    const centerZ = (minZ + maxZ) * 0.5;
-    sphere.center.set(centerX, centerY, centerZ);
-
-    const dx = maxX - centerX;
-    const dy = maxY - centerY;
-    const dz = maxZ - centerZ;
-    sphere.radius = Math.hypot(dx, dy, dz) + 1.0; // padding for scale
-
-    mesh.boundingSphere = sphere;
-    mesh.frustumCulled = true;
   }
 
   /**

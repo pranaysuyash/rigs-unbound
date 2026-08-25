@@ -27,9 +27,11 @@ import {
   PostProcessingPipeline,
 } from "./rendering/post-processing";
 import { ParticleFXPresenter } from "./rendering/particle-fx";
-import { PropsPresenter } from "./rendering/props";
+import { computeAndSetInstanceBounds, PropsPresenter } from "./rendering/props";
+import { EnvironmentPresenter, TERRAIN_SPAN } from "./rendering/environment";
 
 export { CinematicColorGradeShader };
+export { refreshTerrainNormalsInRegion } from "./terrain-normals";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import {
   CARGO_DELIVERY,
@@ -71,7 +73,6 @@ import {
 import {
   SURFACES,
   WATER_LEVEL,
-  WORLD_RADIUS,
   WORLD_SITES,
   WORLD_STRUCTURE_PARTS,
   type WorldStructurePart,
@@ -103,7 +104,7 @@ import {
 import { roadRivalryCourseSiteIds } from "./activities";
 import type { HabitatSpecies } from "./habitat";
 import type { EcologyActorKind } from "./ecology";
-import { generateTerrainPbrTextures, createPbrMaterial } from "./pbr-materials";
+import { createPbrMaterial } from "./pbr-materials";
 
 function stableHabitatFraction(value: string): number {
   let hash = 2166136261;
@@ -128,12 +129,6 @@ const COLORS = {
   tire: 0x242421,
   night: 0x13283c,
 } as const;
-
-/** Terrain mesh sample spacing, in metres. */
-const TERRAIN_STEP = 5.2;
-
-/** Span of the terrain mesh, in metres. Slightly wider than the world disc. */
-const TERRAIN_SPAN = (WORLD_RADIUS + 12) * 2;
 
 /** Rig travel that triggers an obstacle/salvage instance rebuild, in metres. */
 const PROP_REBUILD_DISTANCE = 34;
@@ -173,100 +168,6 @@ const PROP_REBUILD_DISTANCE = 34;
  * `position` and `normal` must be the terrain mesh's own attributes — this
  * mutates `normal` in place and does not resize or reallocate it.
  */
-export function refreshTerrainNormalsInRegion(
-  position: THREE.BufferAttribute,
-  normal: THREE.BufferAttribute,
-  cells: number,
-  minIx: number,
-  maxIx: number,
-  minIz: number,
-  maxIz: number,
-): void {
-  const size = cells + 1;
-  const vertMinIx = Math.max(0, minIx - 1);
-  const vertMaxIx = Math.min(size - 1, maxIx + 1);
-  const vertMinIz = Math.max(0, minIz - 1);
-  const vertMaxIz = Math.min(size - 1, maxIz + 1);
-
-  for (let iz = vertMinIz; iz <= vertMaxIz; iz += 1) {
-    for (let ix = vertMinIx; ix <= vertMaxIx; ix += 1) {
-      normal.setXYZ(iz * size + ix, 0, 0, 0);
-    }
-  }
-
-  // Source region: cells that touch any write-region vertex. A cell at
-  // column/row `ix`/`iz` spans vertex columns `ix..ix+1` / rows `iz..iz+1`,
-  // so the cell range is the write-vertex range widened by one more cell.
-  const cellMinIx = Math.max(0, vertMinIx - 1);
-  const cellMaxIx = Math.min(cells - 1, vertMaxIx);
-  const cellMinIz = Math.max(0, vertMinIz - 1);
-  const cellMaxIz = Math.min(cells - 1, vertMaxIz);
-
-  const inWriteRegion = (ix: number, iz: number): boolean =>
-    ix >= vertMinIx && ix <= vertMaxIx && iz >= vertMinIz && iz <= vertMaxIz;
-
-  const pA = new THREE.Vector3();
-  const pB = new THREE.Vector3();
-  const pC = new THREE.Vector3();
-  const nA = new THREE.Vector3();
-  const cb = new THREE.Vector3();
-  const ab = new THREE.Vector3();
-
-  const accumulate = (
-    vA: number,
-    vB: number,
-    vC: number,
-    writeA: boolean,
-    writeB: boolean,
-    writeC: boolean,
-  ): void => {
-    if (!writeA && !writeB && !writeC) return;
-    pA.fromBufferAttribute(position, vA);
-    pB.fromBufferAttribute(position, vB);
-    pC.fromBufferAttribute(position, vC);
-    cb.subVectors(pC, pB);
-    ab.subVectors(pA, pB);
-    cb.cross(ab);
-    if (writeA) {
-      nA.fromBufferAttribute(normal, vA).add(cb);
-      normal.setXYZ(vA, nA.x, nA.y, nA.z);
-    }
-    if (writeB) {
-      nA.fromBufferAttribute(normal, vB).add(cb);
-      normal.setXYZ(vB, nA.x, nA.y, nA.z);
-    }
-    if (writeC) {
-      nA.fromBufferAttribute(normal, vC).add(cb);
-      normal.setXYZ(vC, nA.x, nA.y, nA.z);
-    }
-  };
-
-  for (let iz = cellMinIz; iz <= cellMaxIz; iz += 1) {
-    for (let ix = cellMinIx; ix <= cellMaxIx; ix += 1) {
-      // Same winding as buildTerrain's index buffer: (a, c, b), (b, c, d).
-      const a = iz * size + ix;
-      const b = a + 1;
-      const c = a + size;
-      const d = c + 1;
-      const wA = inWriteRegion(ix, iz);
-      const wB = inWriteRegion(ix + 1, iz);
-      const wC = inWriteRegion(ix, iz + 1);
-      const wD = inWriteRegion(ix + 1, iz + 1);
-      accumulate(a, c, b, wA, wC, wB);
-      accumulate(b, c, d, wB, wC, wD);
-    }
-  }
-
-  for (let iz = vertMinIz; iz <= vertMaxIz; iz += 1) {
-    for (let ix = vertMinIx; ix <= vertMaxIx; ix += 1) {
-      const i = iz * size + ix;
-      nA.fromBufferAttribute(normal, i).normalize();
-      normal.setXYZ(i, nA.x, nA.y, nA.z);
-    }
-  }
-
-  normal.needsUpdate = true;
-}
 
 export interface RigParts {
   root: THREE.Group;
@@ -712,10 +613,7 @@ export class GameRenderer {
     InfrastructurePropParts
   >();
 
-  private terrainMesh!: THREE.Mesh;
-  private terrainHeights!: Float32Array;
-  private readonly terrainCells = Math.round(TERRAIN_SPAN / TERRAIN_STEP);
-  private readonly terrainOrigin = -TERRAIN_SPAN / 2;
+  private environment!: EnvironmentPresenter;
 
   private furrowDecals!: THREE.InstancedMesh;
   private props!: PropsPresenter;
@@ -764,9 +662,6 @@ export class GameRenderer {
   private readonly furrowCutColor = new THREE.Color(0x3a2c1e);
   private readonly furrowFillColor = new THREE.Color(0x8a7a5a);
   private readonly tempColor = new THREE.Color();
-  private readonly wetFieldColour = new THREE.Color(0x49351f);
-  private readonly damagedFieldColour = new THREE.Color(0x8f6934);
-  private readonly recoveringFieldColour = new THREE.Color(0x5f8c48);
   private currentPhase: WorldPhase | null = null;
   private lastFrameTime = performance.now();
   private shake = 0;
@@ -821,9 +716,7 @@ export class GameRenderer {
   private lastCameraFocusY: number | null = null;
 
   /** Boot cost of terrain mesh generation, in ms. Surfaced through metrics(). */
-  terrainBuildMs = 0;
   /** Cost of the most recent ploughing-triggered terrain patch refresh, in ms. */
-  terrainRegionRefreshMs = 0;
 
   private readonly backendPolicy: RendererBackendPolicyConfig;
   private readonly rendererRequestedBackend: RendererBackendRequest;
@@ -890,7 +783,7 @@ export class GameRenderer {
     this.scene.add(this.sun, this.hemisphere);
 
     this.buildSky();
-    this.buildTerrain();
+    this.environment = new EnvironmentPresenter(this.scene, this.world);
     this.buildWater();
     this.buildInstancedProps();
     this.props = new PropsPresenter(this.scene, {
@@ -1017,290 +910,6 @@ export class GameRenderer {
   // ---------------------------------------------------------------------------
   // Terrain
   // ---------------------------------------------------------------------------
-
-  /**
-   * Build the terrain mesh from the height field.
-   *
-   * Heights come from one bulk `sampleHeightGrid` call and normals are derived
-   * from grid neighbours, which costs one `height()` per vertex instead of the
-   * five a per-vertex `sample()` would need. Vertex colours carry the surface
-   * material, so the world is readable with zero texture assets and zero asset
-   * provenance obligations.
-   */
-  private buildTerrain(): void {
-    const startedAt = performance.now();
-    const cells = this.terrainCells;
-    const size = cells + 1;
-
-    this.terrainHeights = this.world.terrain.sampleHeightGrid(
-      this.terrainOrigin,
-      this.terrainOrigin,
-      cells,
-      TERRAIN_STEP,
-    );
-
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(size * size * 3);
-    const colors = new Float32Array(size * size * 3);
-    const colour = new THREE.Color();
-
-    for (let iz = 0; iz < size; iz += 1) {
-      for (let ix = 0; ix < size; ix += 1) {
-        const index = iz * size + ix;
-        const x = this.terrainOrigin + ix * TERRAIN_STEP;
-        const z = this.terrainOrigin + iz * TERRAIN_STEP;
-        const y = this.terrainHeights[index]!;
-        positions[index * 3] = x;
-        positions[index * 3 + 1] = y;
-        positions[index * 3 + 2] = z;
-
-        // Slope from the grid neighbours we already sampled. Calling `surfaceFor`
-        // without it makes the field fall back to `slope()`, which is four more
-        // `height()` queries per vertex — measured at ~300 ms of the terrain build
-        // on its own, for a number that is sitting in the array beside us.
-        const east = this.terrainHeights[index + (ix < cells ? 1 : -1)]!;
-        const north = this.terrainHeights[index + (iz < cells ? size : -size)]!;
-        const slope = Math.hypot(
-          (east - y) / TERRAIN_STEP,
-          (north - y) / TERRAIN_STEP,
-        );
-
-        const tint = this.resolveTerrainVertexColour(
-          x,
-          z,
-          y,
-          slope,
-          ix,
-          iz,
-          colour,
-        );
-        colors[index * 3] = colour.r * tint;
-        colors[index * 3 + 1] = colour.g * tint;
-        colors[index * 3 + 2] = colour.b * tint;
-      }
-    }
-
-    const indices: number[] = [];
-    for (let iz = 0; iz < cells; iz += 1) {
-      for (let ix = 0; ix < cells; ix += 1) {
-        const a = iz * size + ix;
-        const b = a + 1;
-        const c = a + size;
-        const d = c + 1;
-        indices.push(a, c, b, b, c, d);
-      }
-    }
-
-    const uvs = new Float32Array(size * size * 2);
-    for (let iz = 0; iz <= cells; iz += 1) {
-      for (let ix = 0; ix <= cells; ix += 1) {
-        const index = iz * size + ix;
-        uvs[index * 2] = ix / cells;
-        uvs[index * 2 + 1] = iz / cells;
-      }
-    }
-
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-
-    const terrainPbr = generateTerrainPbrTextures(512);
-    const terrainMaterial = new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 0.92,
-      metalness: 0.02,
-    });
-    if (terrainPbr.normalMap) {
-      terrainMaterial.normalMap = terrainPbr.normalMap;
-      terrainMaterial.normalScale = new THREE.Vector2(0.75, 0.75);
-    }
-    if (terrainPbr.roughnessMap) {
-      terrainMaterial.roughnessMap = terrainPbr.roughnessMap;
-    }
-
-    this.terrainMesh = new THREE.Mesh(geometry, terrainMaterial);
-    this.terrainMesh.name = "terrain";
-    this.scene.add(this.terrainMesh);
-    this.terrainBuildMs = performance.now() - startedAt;
-  }
-
-  /**
-   * Presentation-only terrain colour derived from canonical geometry and
-   * GameWorld field memory. No renderer value can change traction, vegetation,
-   * or terrain deformation.
-   */
-  private resolveTerrainVertexColour(
-    x: number,
-    z: number,
-    height: number,
-    slope: number,
-    ix: number,
-    iz: number,
-    target: THREE.Color,
-  ): number {
-    const surface = this.world.terrain.surfaceFor(x, z, height, slope);
-    target.setHex(surface.color);
-    const field = this.world.fieldConditionAt(x, z);
-    if (field) {
-      const wetness = Math.max(
-        0,
-        Math.min(1, (field.moistureRatio - 0.3) / 0.7),
-      );
-      const damage = Math.max(0, Math.min(1, 1 - field.soilHealth));
-      if (wetness > 0) target.lerp(this.wetFieldColour, wetness * 0.62);
-      if (damage > 0) target.lerp(this.damagedFieldColour, damage * 0.28);
-      if (wetness < 0.45 && field.soilHealth > 0.55) {
-        target.lerp(
-          this.recoveringFieldColour,
-          (field.soilHealth - 0.55) * 0.28,
-        );
-      }
-    }
-    // A wider, still-natural-looking per-vertex tint spread than the prior
-    // 0.9-1.08 range: at that narrow a swing the ground read as a flat,
-    // single-tone plane from any camera angle pulled back far enough to lose
-    // per-pixel shading (top-down, tactical, survey).
-    return 0.78 + ((ix * 7 + iz * 13) % 13) * 0.028;
-  }
-
-  /** Refresh only a local terrain-colour patch from authoritative field memory. */
-  private refreshTerrainColourRegion(
-    centreX: number,
-    centreZ: number,
-    radius: number,
-  ): void {
-    const size = this.terrainCells + 1;
-    const minIx = Math.max(
-      0,
-      Math.floor((centreX - radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const maxIx = Math.min(
-      size - 1,
-      Math.ceil((centreX + radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const minIz = Math.max(
-      0,
-      Math.floor((centreZ - radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const maxIz = Math.min(
-      size - 1,
-      Math.ceil((centreZ + radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    if (minIx > maxIx || minIz > maxIz) return;
-    const colour = this.terrainMesh.geometry.getAttribute(
-      "color",
-    ) as THREE.BufferAttribute;
-    for (let iz = minIz; iz <= maxIz; iz += 1) {
-      for (let ix = minIx; ix <= maxIx; ix += 1) {
-        const index = iz * size + ix;
-        const x = this.terrainOrigin + ix * TERRAIN_STEP;
-        const z = this.terrainOrigin + iz * TERRAIN_STEP;
-        const height = this.terrainHeights[index]!;
-        const east =
-          this.terrainHeights[index + (ix < this.terrainCells ? 1 : -1)]!;
-        const north =
-          this.terrainHeights[index + (iz < this.terrainCells ? size : -size)]!;
-        const slope = Math.hypot(
-          (east - height) / TERRAIN_STEP,
-          (north - height) / TERRAIN_STEP,
-        );
-        const tint = this.resolveTerrainVertexColour(
-          x,
-          z,
-          height,
-          slope,
-          ix,
-          iz,
-          this.tempColor,
-        );
-        colour.setXYZ(
-          index,
-          this.tempColor.r * tint,
-          this.tempColor.g * tint,
-          this.tempColor.b * tint,
-        );
-      }
-    }
-    colour.needsUpdate = true;
-  }
-
-  /**
-   * Re-sample terrain vertices inside a box.
-   *
-   * Ploughing writes into the height field, so the mesh has to be told. Only the
-   * neighbourhood of the cut is rebuilt — without this the ground would deform
-   * for physics while looking untouched, which is the worst of both.
-   *
-   * Normals are rebuilt with `refreshTerrainNormalsInRegion` (scoped to the
-   * changed box plus one vertex ring), not `computeVertexNormals()` (whole
-   * mesh). Ploughing fires on every deformation tick while a player holds the
-   * plough control, and a full recompute costs ~10ms on a 102x102 grid to
-   * update the ~130 triangles (0.6% of the mesh) that could have changed —
-   * see ADR-0040.
-   */
-  private refreshTerrainRegion(
-    centreX: number,
-    centreZ: number,
-    radius: number,
-  ): void {
-    const startedAt = performance.now();
-    const size = this.terrainCells + 1;
-    const minIx = Math.max(
-      0,
-      Math.floor((centreX - radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const maxIx = Math.min(
-      size - 1,
-      Math.ceil((centreX + radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const minIz = Math.max(
-      0,
-      Math.floor((centreZ - radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    const maxIz = Math.min(
-      size - 1,
-      Math.ceil((centreZ + radius - this.terrainOrigin) / TERRAIN_STEP),
-    );
-    if (minIx > maxIx || minIz > maxIz) return;
-
-    const position = this.terrainMesh.geometry.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-
-    for (let iz = minIz; iz <= maxIz; iz += 1) {
-      for (let ix = minIx; ix <= maxIx; ix += 1) {
-        const index = iz * size + ix;
-        const x = this.terrainOrigin + ix * TERRAIN_STEP;
-        const z = this.terrainOrigin + iz * TERRAIN_STEP;
-        const y = this.world.terrain.height(x, z);
-        this.terrainHeights[index] = y;
-        position.setY(index, y);
-      }
-    }
-    position.needsUpdate = true;
-
-    const normal = this.terrainMesh.geometry.getAttribute("normal") as
-      THREE.BufferAttribute | undefined;
-    if (normal === undefined || normal.count !== position.count) {
-      // Defensive fallback only: buildTerrain() always creates a matching
-      // normal attribute before any refreshTerrainRegion call is reachable,
-      // so this path is not expected to run in the live game.
-      this.terrainMesh.geometry.computeVertexNormals();
-    } else {
-      refreshTerrainNormalsInRegion(
-        position,
-        normal,
-        this.terrainCells,
-        minIx,
-        maxIx,
-        minIz,
-        maxIz,
-      );
-    }
-    this.terrainRegionRefreshMs = performance.now() - startedAt;
-  }
 
   private buildWater(): void {
     // Custom water shader with wave animation, foam, depth-based color, and specular highlights
@@ -1651,6 +1260,7 @@ export class GameRenderer {
   private refreshProps(state: GameState): void {
     const rig = state.rigs[state.activeRigId];
     this.props.refresh(rig.x, rig.z);
+    computeAndSetInstanceBounds(this.furrowDecals, this.renderedFurrows);
   }
 
   /**
@@ -4584,7 +4194,11 @@ export class GameRenderer {
     const deformCount = this.world.terrain.deformationRevision();
     if (deformCount !== this.lastDeformCount) {
       this.lastDeformCount = deformCount;
-      this.refreshTerrainRegion(activeRigState.x, activeRigState.z, 9);
+      this.environment.refreshTerrainRegion(
+        activeRigState.x,
+        activeRigState.z,
+        9,
+      );
       // Event-driven prop invalidation: terrain deformation changes the
       // ground beneath nearby props, so force a prop rebuild on the next
       // frame rather than waiting for the rig to travel PROP_REBUILD_DISTANCE.
@@ -4597,7 +4211,7 @@ export class GameRenderer {
     const routeRevision = this.world.terrain.routeRevisionNumber();
     if (routeRevision !== this.lastRouteRevision) {
       this.lastRouteRevision = routeRevision;
-      this.rebuildTerrainHeights();
+      this.environment.rebuildTerrainHeights();
       this.syncCommunityPassageDecks(state);
       this.props.resetAnchor();
     }
@@ -4620,7 +4234,11 @@ export class GameRenderer {
       this.lastFieldConditionRevision = fieldConditionRevision;
       this.fieldColourAnchorX = activeRigState.x;
       this.fieldColourAnchorZ = activeRigState.z;
-      this.refreshTerrainColourRegion(activeRigState.x, activeRigState.z, 18);
+      this.environment.refreshTerrainColourRegion(
+        activeRigState.x,
+        activeRigState.z,
+        18,
+      );
     }
 
     this.syncHabitatLife(state);
@@ -5426,8 +5044,10 @@ export class GameRenderer {
       triangles: this.renderer.info.render.triangles,
       geometries: this.renderer.info.memory.geometries,
       textures: this.renderer.info.memory.textures,
-      terrainBuildMs: Number(this.terrainBuildMs.toFixed(1)),
-      terrainRegionRefreshMs: Number(this.terrainRegionRefreshMs.toFixed(2)),
+      terrainBuildMs: Number(this.environment.terrainBuildMs.toFixed(1)),
+      terrainRegionRefreshMs: Number(
+        this.environment.terrainRegionRefreshMs.toFixed(2),
+      ),
       visibility: this.props.snapshotVisibility(),
       gpuMemoryMb: this.estimateGpuMemoryMb(),
       rendererBackend: this.rendererBackend,
@@ -6004,29 +5624,9 @@ export class GameRenderer {
     this.fieldColourAnchorZ = Number.POSITIVE_INFINITY;
     this.props.resetAnchor();
     this.refreshProps(state);
-    this.rebuildTerrainHeights();
+    this.environment.rebuildTerrainHeights();
     this.syncCommunityPassageDecks(state);
     this.syncHabitatLife(state);
-  }
-
-  /** Re-sample the whole terrain mesh. Used after a reset clears deformation. */
-  private rebuildTerrainHeights(): void {
-    const size = this.terrainCells + 1;
-    const position = this.terrainMesh.geometry.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-    this.terrainHeights = this.world.terrain.sampleHeightGrid(
-      this.terrainOrigin,
-      this.terrainOrigin,
-      this.terrainCells,
-      TERRAIN_STEP,
-    );
-    for (let index = 0; index < size * size; index += 1) {
-      position.setY(index, this.terrainHeights[index]!);
-    }
-    position.needsUpdate = true;
-    this.terrainMesh.geometry.computeVertexNormals();
-    this.refreshTerrainColourRegion(0, 0, WORLD_RADIUS + 12);
   }
 
   dispose(): void {

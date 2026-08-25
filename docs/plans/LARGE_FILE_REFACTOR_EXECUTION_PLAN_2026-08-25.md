@@ -155,3 +155,48 @@ command block in §2.
 Awaiting: P1 fix authorization (`src/game/` clearance), then ADR-0054 sign-off.
 No implementation under this plan has occurred. Evidence tiers above are labels
 on planned checks, not claims they have run.
+
+---
+
+## Addendum (2026-08-25, session 3): execution log + supersession audit
+
+Operator cleared the `src/game/` boundary and accepted ADR-0054 this session.
+Execution status per §5 sequence:
+
+| Unit | Scope | Status | Evidence |
+|---|---|---|---|
+| P1 | PCFSoftShadowMap deprecation fix | DONE (`857ba28`) | S2 red->green console probe |
+| 1/7 | PostProcessingPipeline -> rendering/post-processing.ts | DONE | tsc+vitest+parity noise-floor |
+| 2/7 | ParticleFXPresenter -> rendering/particle-fx.ts | DONE | same |
+| 3/7 | PropsPresenter -> rendering/props.ts | DONE | same |
+| 4a | Terrain subsystem -> rendering/environment.ts (+ terrain-normals.ts canonical home) | this commit | below |
+
+### Supersession audit (Doctrine §6, operator-directed)
+
+Method: every symbol removed from renderer.ts was extracted from the
+pre-refactor baseline (`857ba28`), whitespace/prettier-normalized, declared
+mechanical transforms applied, and compared body-by-body against its new home.
+
+Declared transforms (value-identical by construction):
+- dependency injection: `this.world` -> `this.deps.world` / local `world`;
+  `this.activeVisibilityProfileId` -> `deps.profileId()`; 
+  `isOccludedByTerrain()` -> injected closure; camera position injection.
+- field renames: propAnchorX/Z -> anchorX/Z; terrainCells/Origin -> cells/origin;
+  tempColor -> scratchColor; terrainBuildMs -> buildMs.
+- visibility: class-private methods became public presenter API.
+- dust/exhaust pool construction inlined into presenter constructor.
+
+Findings:
+1. **REAL LOSS FOUND + RESTORED:** the furrow-decal aggregate-bounds call
+   (`computeAndSetInstanceBounds(furrowDecals, renderedFurrows)`) was dropped
+   when refreshProps moved. Without it furrow decals never regain frustum
+   culling. Restored: bounds helper is now one exported function in props.ts,
+   called by both presenter and renderer's refreshProps. Lesson recorded: a
+   moved method's *tail lines* are as load-bearing as its head.
+2. **MISTRANSCRIPTION CAUGHT PRE-COMMIT:** rebuildTerrainHeights was first
+   written from memory (wrong: invented per-index sampling loop); replaced with
+   verbatim original before any gate ran. Memory is not an extraction tool.
+
+Rule reaffirmed: nothing is removed unless its full semantic content is proven
+present at the canonical new home. Unused import bindings left behind by a move
+are removed only after the symbol is confirmed live at the destination.
