@@ -28,7 +28,7 @@ import {
 } from "./rendering/post-processing";
 import { ParticleFXPresenter } from "./rendering/particle-fx";
 import { computeAndSetInstanceBounds, PropsPresenter } from "./rendering/props";
-import { EnvironmentPresenter, TERRAIN_SPAN } from "./rendering/environment";
+import { EnvironmentPresenter } from "./rendering/environment";
 
 export { CinematicColorGradeShader };
 export { refreshTerrainNormalsInRegion } from "./terrain-normals";
@@ -71,7 +71,6 @@ import {
   type VisibilityProfileId,
 } from "./visibility";
 import {
-  SURFACES,
   WATER_LEVEL,
   WORLD_SITES,
   WORLD_STRUCTURE_PARTS,
@@ -80,7 +79,6 @@ import {
 import {
   INFRASTRUCTURE_DEFINITIONS,
   INFRASTRUCTURE_ENTITY_IDS,
-  createInfrastructureNetworkState,
   infrastructureIsOperating,
   type InfrastructureEntityId,
 } from "./infrastructure-network";
@@ -617,9 +615,6 @@ export class GameRenderer {
 
   private furrowDecals!: THREE.InstancedMesh;
   private props!: PropsPresenter;
-  private water!: THREE.Mesh;
-  private waterMaterial!: THREE.ShaderMaterial;
-  private sky!: THREE.Mesh;
 
   private particles!: ParticleFXPresenter;
 
@@ -683,8 +678,6 @@ export class GameRenderer {
    * distance falloff.
    */
   private phaseBaseFogDensity = 0.0052;
-  private rainPoints: THREE.Points | null = null;
-  private rainPositions: Float32Array | null = null;
   private readonly headlightFlareUntil = new Map<RigId, number>();
   /**
    * 0..1 eased toward `narrativeFocusTarget` each frame. A dialogue beat
@@ -782,9 +775,10 @@ export class GameRenderer {
     this.sun.position.set(-120, 190, -70);
     this.scene.add(this.sun, this.hemisphere);
 
-    this.buildSky();
     this.environment = new EnvironmentPresenter(this.scene, this.world);
-    this.buildWater();
+    this.environment.buildSky();
+    this.environment.buildTerrain();
+    this.environment.buildWater();
     this.buildInstancedProps();
     this.props = new PropsPresenter(this.scene, {
       world: this.world,
@@ -801,9 +795,9 @@ export class GameRenderer {
     this.buildRoadRivalryMarkers();
     this.buildInfrastructureProps();
     this.buildRuntimeBridgeAssets();
-    this.buildStars();
-    this.buildRain();
-    this.buildStormClouds();
+    this.environment.buildStars();
+    this.environment.buildRain();
+    this.environment.buildStormClouds();
 
     for (const id of RIG_IDS) {
       let parts: RigParts;
@@ -910,291 +904,6 @@ export class GameRenderer {
   // ---------------------------------------------------------------------------
   // Terrain
   // ---------------------------------------------------------------------------
-
-  private buildWater(): void {
-    // Custom water shader with wave animation, foam, depth-based color, and specular highlights
-    const initialInfrastructure = createInfrastructureNetworkState();
-    const waterUniforms = {
-      time: { value: 0 },
-      waterColor: { value: new THREE.Color(SURFACES.water.color) },
-      waterLevel: { value: WATER_LEVEL },
-      sunDirection: { value: new THREE.Vector3(-0.6, 0.8, -0.4).normalize() },
-      sunColor: { value: new THREE.Color(0xffd58a) },
-      foamColor: { value: new THREE.Color(0xffffff) },
-      deepColor: { value: new THREE.Color(0x0a1f2e) },
-      shallowColor: { value: new THREE.Color(0x2a6b8a) },
-      waveScale: { value: 1.0 },
-      waveSpeed: { value: 0.8 },
-      foamThreshold: { value: 0.65 },
-      foamStrength: { value: 0.35 },
-      specularPower: { value: 40.0 },
-      specularIntensity: { value: 0.6 },
-      // These inputs are presentation copies of canonical infrastructure
-      // effects. The simulation still owns condition and waterline truth.
-      infrastructureCenters: {
-        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
-          const definition = INFRASTRUCTURE_DEFINITIONS[id];
-          return new THREE.Vector2(definition.x, definition.z);
-        }),
-      },
-      infrastructureRadii: {
-        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
-          const effect = INFRASTRUCTURE_DEFINITIONS[id].effects.find(
-            (candidate) => candidate.kind === "water-level-offset",
-          );
-          return effect?.radiusM ?? 0;
-        }),
-      },
-      infrastructureWaterOffsets: {
-        value: INFRASTRUCTURE_ENTITY_IDS.map((id) => {
-          const definition = INFRASTRUCTURE_DEFINITIONS[id];
-          const effect = definition.effects.find(
-            (candidate) => candidate.kind === "water-level-offset",
-          );
-          return effect &&
-            infrastructureIsOperating(
-              definition,
-              initialInfrastructure.entities[id],
-            )
-            ? effect.operatingValue
-            : (effect?.dormantValue ?? 0);
-        }),
-      },
-    };
-
-    const waterMaterial = new THREE.ShaderMaterial({
-      uniforms: waterUniforms,
-      vertexShader: `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        varying vec3 vNormal;
-
-        uniform float time;
-        uniform float waveScale;
-        uniform float waveSpeed;
-
-        // Gerstner wave function
-        vec3 gerstnerWave(vec2 position, vec2 direction, float amplitude, float wavelength, float speed, float time) {
-          float k = 2.0 * 3.14159265 / wavelength;
-          float c = sqrt(9.81 / k);
-          float f = k * dot(direction, position) - speed * time;
-          float a = amplitude / k;
-
-          float sinF = sin(f);
-          float cosF = cos(f);
-
-          return vec3(
-            direction.x * a * sinF,
-            a * cosF,
-            direction.y * a * sinF
-          );
-        }
-
-        void main() {
-          vUv = uv;
-          vec3 pos = position;
-
-          // Sum multiple Gerstner waves
-          vec3 waveOffset = vec3(0.0);
-          waveOffset += gerstnerWave(pos.xz, normalize(vec2(1.0, 0.3)), 0.15 * waveScale, 12.0, 1.2 * waveSpeed, time);
-          waveOffset += gerstnerWave(pos.xz, normalize(vec2(0.7, -0.7)), 0.1 * waveScale, 8.0, 1.5 * waveSpeed, time);
-          waveOffset += gerstnerWave(pos.xz, normalize(vec2(0.3, 1.0)), 0.08 * waveScale, 5.0, 1.8 * waveSpeed, time);
-          waveOffset += gerstnerWave(pos.xz, normalize(vec2(-0.5, 0.8)), 0.05 * waveScale, 3.0, 2.2 * waveSpeed, time);
-
-          pos += waveOffset;
-
-          // Calculate normal from wave derivatives (simplified)
-          vec2 eps = vec2(0.1, 0.0);
-          float h0 = pos.y;
-          float hx = h0;
-          float hy = h0;
-          
-          // Approximate normal from finite differences
-          vec3 normal = normalize(vec3(
-            -waveOffset.x / 0.1,
-            1.0,
-            -waveOffset.z / 0.1
-          ));
-
-          vNormal = normalize(normalMatrix * normal);
-
-          vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
-          vWorldPosition = worldPosition.xyz;
-
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-        }
-      `,
-      fragmentShader: `
-        varying vec2 vUv;
-        varying vec3 vWorldPosition;
-        varying vec3 vNormal;
-
-        uniform float time;
-        uniform vec3 waterColor;
-        uniform float waterLevel;
-        uniform vec3 sunDirection;
-        uniform vec3 sunColor;
-        uniform vec3 foamColor;
-        uniform vec3 deepColor;
-        uniform vec3 shallowColor;
-        uniform float foamThreshold;
-        uniform float foamStrength;
-        uniform float specularPower;
-        uniform float specularIntensity;
-        uniform vec2 infrastructureCenters[3];
-        uniform float infrastructureRadii[3];
-        uniform float infrastructureWaterOffsets[3];
-
-        // Fresnel-Schlick approximation
-        float fresnelSchlick(float cosTheta, float roughness) {
-          float f0 = 0.02;
-          return f0 + (1.0 - f0) * pow(1.0 - cosTheta, 5.0);
-        }
-
-        // Value noise for foam
-        float random(vec2 st) {
-          return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
-        }
-
-        float noise(vec2 st) {
-          vec2 i = floor(st);
-          vec2 f = fract(st);
-
-          float a = random(i);
-          float b = random(i + vec2(1.0, 0.0));
-          float c = random(i + vec2(0.0, 1.0));
-          float d = random(i + vec2(1.0, 1.0));
-
-          vec2 u = f * f * (3.0 - 2.0 * f);
-
-          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-        }
-
-        // Fractal Brownian Motion
-        float fbm(vec2 st, float time) {
-          float value = 0.0;
-          float amplitude = 0.5;
-          for (int i = 0; i < 5; i++) {
-            value += amplitude * noise(st);
-            st *= 2.0;
-            amplitude *= 0.5;
-          }
-          return value;
-        }
-
-        void main() {
-          float drainageMask = 0.0;
-          float pressureTint = 0.0;
-          for (int index = 0; index < 3; index++) {
-            float radius = infrastructureRadii[index];
-            if (radius <= 0.0) continue;
-            float distanceToMachine = distance(vWorldPosition.xz, infrastructureCenters[index]);
-            float t = clamp(1.0 - distanceToMachine / radius, 0.0, 1.0);
-            float influence = t * t * (3.0 - 2.0 * t);
-            float offset = infrastructureWaterOffsets[index];
-            if (offset < 0.0) {
-              drainageMask = max(drainageMask, influence * clamp(-offset / 2.6, 0.0, 1.0));
-            } else {
-              pressureTint = max(pressureTint, influence * clamp(offset / 1.1, 0.0, 1.0));
-            }
-          }
-          // The terrain remains present behind a drained basin. This is a visual
-          // consequence of the simulation's local waterline, not a new terrain
-          // or collision shape owned by the renderer.
-          if (drainageMask > 0.72) discard;
-
-          // Depth-based color blending
-          float depth = max(0.0, waterLevel - vWorldPosition.y);
-          float depthFactor = smoothstep(0.0, 8.0, depth);
-          vec3 baseColor = mix(shallowColor, deepColor, depthFactor);
-          baseColor = mix(baseColor, deepColor, pressureTint * 0.55);
-
-          // Fresnel effect for surface reflection
-          vec3 viewDir = normalize(cameraPosition - vWorldPosition);
-          float cosTheta = dot(vNormal, viewDir);
-          float fresnel = pow(1.0 - max(0.0, cosTheta), 4.0);
-
-          // Foam generation using noise
-          float foamNoise = fbm(vUv * 20.0 + vec2(time * 0.1, time * 0.05), time);
-          float foamEdge = smoothstep(0.6, 0.8, foamNoise);
-          
-          // Wave crest foam (based on normal angle)
-          float waveFoam = smoothstep(0.7, 0.95, vNormal.y);
-          
-          // Combine foam sources
-          float foam = max(foamEdge, waveFoam) * 0.35;
-          foam = clamp(foam, 0.0, 1.0);
-
-          // Specular highlight from sun
-          vec3 halfVector = normalize(sunDirection + viewDir);
-          float spec = max(0.0, dot(vNormal, halfVector));
-          float sunSpec = pow(spec, specularPower) * specularIntensity;
-
-          // Final color composition
-          vec3 color = baseColor;
-          
-          // Add sun specular
-          color += sunColor * sunSpec * max(0.0, dot(vNormal, sunDirection));
-          
-          // Add foam
-          color = mix(baseColor, vec3(1.0, 1.0, 1.0), foam * 0.8);
-          
-          // Add sun specular
-          color += sunColor * sunSpec * max(0.0, dot(vNormal, sunDirection));
-          
-          // Fresnel reflection
-          color = mix(color, vec3(0.2, 0.4, 0.6) * sunColor, fresnel * 0.3);
-          
-          // Final opacity based on depth and angle
-          float opacity = 0.75;
-          opacity *= 1.0 - fresnel * 0.3;
-          opacity *= 1.0 - drainageMask * 0.88;
-          
-          gl_FragColor = vec4(color, opacity);
-        }
-      `,
-      transparent: true,
-      side: THREE.DoubleSide,
-    });
-    this.water = new THREE.Mesh(
-      new THREE.PlaneGeometry(TERRAIN_SPAN, TERRAIN_SPAN, 128, 128),
-      waterMaterial,
-    );
-    this.water.rotation.x = -Math.PI / 2;
-    this.water.position.y = WATER_LEVEL;
-    this.water.name = "water";
-    this.scene.add(this.water);
-
-    this.waterMaterial = waterMaterial;
-  }
-
-  /**
-   * Presentation consumes network-owned state once per frame. The shader has
-   * the same authored centres/radii as the effect resolver, but cannot mutate
-   * an entity or decide whether a machine is operating.
-   */
-  private updateInfrastructureWater(state: GameState): void {
-    const uniforms = this.waterMaterial.uniforms as {
-      infrastructureCenters: { value: THREE.Vector2[] };
-      infrastructureRadii: { value: number[] };
-      infrastructureWaterOffsets: { value: number[] };
-    };
-    for (let index = 0; index < INFRASTRUCTURE_ENTITY_IDS.length; index += 1) {
-      const id = INFRASTRUCTURE_ENTITY_IDS[index]!;
-      const definition = INFRASTRUCTURE_DEFINITIONS[id];
-      const effect = definition.effects.find(
-        (candidate) => candidate.kind === "water-level-offset",
-      );
-      const centre = uniforms.infrastructureCenters.value[index]!;
-      centre.set(definition.x, definition.z);
-      uniforms.infrastructureRadii.value[index] = effect?.radiusM ?? 0;
-      uniforms.infrastructureWaterOffsets.value[index] =
-        effect &&
-        infrastructureIsOperating(definition, state.infrastructure.entities[id])
-          ? effect.operatingValue
-          : (effect?.dormantValue ?? 0);
-    }
-  }
 
   /** Keep machine motion and status light strictly downstream of network state. */
   private updateInfrastructureProps(state: GameState, delta: number): void {
@@ -2120,230 +1829,6 @@ export class GameRenderer {
           );
         });
     });
-  }
-
-  /**
-   * The sky, as geometry rather than a clear colour.
-   *
-   * `scene.background` as a `THREE.Color` is written by a buffer clear, which does
-   * **not** pass through tone mapping or the sRGB output encode. Fogged geometry
-   * does. The result was a hard dark band around the whole horizon in broad
-   * daylight: distant terrain resolved to a correctly-encoded light fog colour while
-   * the sky behind it stayed dark and linear.
-   *
-   * An inside-out sphere with a tone-mapped basic material travels the same path as
-   * everything else, so the horizon and the sky are guaranteed to agree by
-   * construction instead of by matching two numbers through two different pipelines.
-   * `fog: false` keeps the dome itself from being fogged toward its own colour, and
-   * `depthWrite: false` keeps it from occluding anything.
-   */
-  /**
-   * Build the atmospheric gradient sky dome.
-   *
-   * Features a smooth Rayleigh/Mie atmospheric zenith-to-horizon gradient with
-   * physical sun optical disc and forward scattering halo.
-   */
-  private buildSky(): void {
-    const skyMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        topColor: { value: new THREE.Color(0x3a78a6) },
-        bottomColor: { value: new THREE.Color(0xcae2d8) },
-        sunPosition: { value: new THREE.Vector3(-120, 190, -70) },
-        sunColor: { value: new THREE.Color(0xffedd0) },
-        exponent: { value: 0.55 },
-      },
-      vertexShader: `
-        varying vec3 vWorldPosition;
-        void main() {
-          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-          vWorldPosition = worldPosition.xyz;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 topColor;
-        uniform vec3 bottomColor;
-        uniform vec3 sunPosition;
-        uniform vec3 sunColor;
-        uniform float exponent;
-        varying vec3 vWorldPosition;
-
-        void main() {
-          vec3 h = normalize(vWorldPosition);
-          float p = max(0.0, h.y);
-          vec3 sky = mix(bottomColor, topColor, pow(p, exponent));
-          vec3 sunDir = normalize(sunPosition);
-          float sunCos = max(0.0, dot(h, sunDir));
-          float sunDisc = smoothstep(0.998, 0.9996, sunCos);
-          float sunGlow = pow(sunCos, 6.0) * 0.45;
-          sky += sunColor * (sunDisc * 2.5 + sunGlow);
-          gl_FragColor = vec4(sky, 1.0);
-        }
-      `,
-      side: THREE.BackSide,
-      fog: false,
-      depthWrite: false,
-    });
-
-    this.sky = new THREE.Mesh(
-      new THREE.SphereGeometry(860, 24, 16),
-      skyMaterial,
-    );
-    this.sky.name = "sky";
-    this.sky.frustumCulled = false;
-    this.scene.add(this.sky);
-  }
-
-  private buildStars(): void {
-    const positions: number[] = [];
-    for (let index = 0; index < 260; index += 1) {
-      const angle = index * 2.399963;
-      const radius = 300 + ((index * 37) % 200);
-      positions.push(
-        Math.sin(angle) * radius,
-        90 + ((index * 53) % 160),
-        Math.cos(angle) * radius,
-      );
-    }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(positions, 3),
-    );
-    const stars = new THREE.Points(
-      geometry,
-      new THREE.PointsMaterial({
-        color: 0xdbeeff,
-        size: 1.4,
-        transparent: true,
-        opacity: 0.85,
-      }),
-    );
-    stars.name = "night-stars";
-    this.scene.add(stars);
-  }
-
-  /**
-   * Build a volume of falling rain streaks around the rig.
-   *
-   * Each particle holds a fixed world-space direction (downward streaks) with a
-   * small authored horizontal lean so rain reads as falling rather than as a
-   * static haze. The whole cloud is re-centred on the active rig every frame by
-   * `render()`, so the precipitation follows the camera's frame of reference
-   * without the player needing to out-drive it.
-   *
-   * The cloud is invisible until `setWeather` raises `weatherTargetRain`, and
-   * `currentRain` is eased so handoff from clear to rain never pops.
-   */
-  private buildRain(): void {
-    const count = 420;
-    const positions = new Float32Array(count * 3);
-    const lean = 0.55;
-    for (let index = 0; index < count; index += 1) {
-      // Deterministic spread across a ~60 m x 40 m box centred on the origin;
-      // the per-instance position is re-based onto the active rig each frame.
-      const px = ((index * 37) % 61) - 30;
-      const py = ((index * 53) % 41) - 20;
-      const pz = ((index * 71) % 61) - 30;
-      positions[index * 3] = px;
-      positions[index * 3 + 1] = py;
-      // A downward-leaning streak instead of a vertical drop: rain blown by the
-      // wind reads as weather with direction, matching `windVector` on the state.
-      positions[index * 3 + 2] = pz + lean;
-    }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(positions, 3),
-    );
-    const rain = new THREE.Points(
-      geometry,
-      new THREE.PointsMaterial({
-        color: 0x8fb2c8,
-        size: 0.09,
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-      }),
-    );
-    rain.name = "rain";
-    rain.frustumCulled = false;
-    this.rainPositions = positions;
-    this.rainPoints = rain;
-    this.scene.add(rain);
-  }
-
-  private stormClouds!: THREE.Group;
-  private stormCloudMeshes: THREE.Mesh[] = [];
-
-  private buildStormClouds(): void {
-    this.stormClouds = new THREE.Group();
-    this.stormClouds.name = "storm-clouds";
-
-    // A cluster of dark, flat cloud volumes positioned on the horizon near
-    // Long Furrow. They are always present but start nearly invisible; as the
-    // weather clock approaches storm, they darken and thicken so the player
-    // sees the threat building from across the valley.
-    const LONG_FURROW_X = 18;
-    const LONG_FURROW_Z = -46;
-    const cloudCount = 7;
-    for (let i = 0; i < cloudCount; i++) {
-      const angle = (i / cloudCount) * Math.PI * 2;
-      const spread = 28 + (i % 3) * 14;
-      const cloud = new THREE.Mesh(
-        new THREE.SphereGeometry(18 + (i % 3) * 8, 8, 5),
-        new THREE.MeshBasicMaterial({
-          color: 0x2a2a2e,
-          transparent: true,
-          opacity: 0,
-          depthWrite: false,
-        }),
-      );
-      cloud.position.set(
-        LONG_FURROW_X + Math.cos(angle) * spread,
-        52 + (i % 2) * 12,
-        LONG_FURROW_Z + Math.sin(angle) * spread,
-      );
-      cloud.scale.set(1, 0.25, 1);
-      cloud.userData.baseOpacity = 0.08 + (i % 3) * 0.04;
-      cloud.userData.phase = i * 0.7;
-      this.stormCloudMeshes.push(cloud);
-      this.stormClouds.add(cloud);
-    }
-    this.scene.add(this.stormClouds);
-  }
-
-  private updateStormClouds(
-    weatherPhase: string,
-    rainIntensity: number,
-    elapsedMs: number,
-  ): void {
-    // Storm clouds darken as the weather progresses: clear = nearly invisible,
-    // overcast = faint shadow, rain = dark, storm = heavy.
-    const targetOpacity =
-      weatherPhase === "storm"
-        ? 0.72
-        : weatherPhase === "rain"
-          ? 0.45
-          : weatherPhase === "overcast"
-            ? 0.18
-            : 0.06;
-
-    // Rain intensity provides a smooth blend within each phase.
-    const intensityBlend = rainIntensity * 0.15;
-
-    for (const cloud of this.stormCloudMeshes) {
-      const mat = cloud.material as THREE.MeshBasicMaterial;
-      const base = Number(cloud.userData.baseOpacity ?? 0.1);
-      const phase = Number(cloud.userData.phase ?? 0);
-      const drift = Math.sin(elapsedMs * 0.00008 + phase) * 0.03;
-      mat.opacity = Math.min(
-        1,
-        (targetOpacity + intensityBlend) * base * 8 + drift,
-      );
-      // Slow lateral drift so the mass feels alive.
-      cloud.position.x += Math.sin(elapsedMs * 0.00003 + phase) * 0.004;
-    }
   }
 
   // ---------------------------------------------------------------------------
@@ -3949,39 +3434,15 @@ export class GameRenderer {
   private updatePhase(phase: WorldPhase): void {
     if (phase === this.currentPhase) return;
     this.currentPhase = phase;
-    const stars = this.scene.getObjectByName("night-stars");
-    const waterMaterial = this.waterMaterial;
-    const waterUniforms = waterMaterial.uniforms as {
-      waterColor: { value: THREE.Color };
-      deepColor: { value: THREE.Color };
-      shallowColor: { value: THREE.Color };
-    };
-    const setWaterPalette = (
-      waterColor: number,
-      deepColor: number,
-      shallowColor: number,
-    ): void => {
-      waterUniforms.waterColor.value.setHex(waterColor);
-      waterUniforms.deepColor.value.setHex(deepColor);
-      waterUniforms.shallowColor.value.setHex(shallowColor);
-    };
-
-    const skyMat = this.sky.material as THREE.ShaderMaterial;
-    const skyUniforms = skyMat.uniforms as
-      Record<string, { value: THREE.Color }> | undefined;
     if (phase === "day") {
       this.scene.background = new THREE.Color(0x78a8cf);
-      if (skyUniforms) {
-        skyUniforms.topColor?.value.setHex(0x3a78a6);
-        skyUniforms.bottomColor?.value.setHex(0xcae2d8);
-        skyUniforms.sunColor?.value.setHex(0xffedd0);
-      }
+      this.environment.setSkyPhaseColors(0x3a78a6, 0xcae2d8, 0xffedd0);
       this.phaseBaseFogDensity = 0.0022;
       this.scene.fog = new THREE.FogExp2(0xa8c2cc, this.phaseBaseFogDensity);
       this.sun.color.setHex(0xfffae8);
       this.sun.intensity = 2.8;
       this.hemisphere.intensity = 1.8;
-      setWaterPalette(0x3d6672, 0x0b1720, 0x0f3f5f);
+      this.environment.setWaterPalette(0x3d6672, 0x0b1720, 0x0f3f5f);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 0;
         if (rig.headlightConeMaterial) {
@@ -3990,20 +3451,16 @@ export class GameRenderer {
           ).value = 0;
         }
       }
-      if (stars) stars.visible = false;
+      this.environment.setStarsVisible(false);
     } else if (phase === "gloam") {
       this.scene.background = new THREE.Color(0x9d6b50);
-      if (skyUniforms) {
-        skyUniforms.topColor?.value.setHex(0x52345e);
-        skyUniforms.bottomColor?.value.setHex(0xe4864c);
-        skyUniforms.sunColor?.value.setHex(0xff9d66);
-      }
+      this.environment.setSkyPhaseColors(0x52345e, 0xe4864c, 0xff9d66);
       this.phaseBaseFogDensity = 0.0028;
       this.scene.fog = new THREE.FogExp2(0x9d6b50, this.phaseBaseFogDensity);
       this.sun.color.setHex(0xff9d66);
       this.sun.intensity = 1.6;
       this.hemisphere.intensity = 1.1;
-      setWaterPalette(0x4a4a58, 0x17202f, 0x2a5a77);
+      this.environment.setWaterPalette(0x4a4a58, 0x17202f, 0x2a5a77);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 60;
         if (rig.headlightConeMaterial) {
@@ -4012,14 +3469,10 @@ export class GameRenderer {
           ).value = 0.55;
         }
       }
-      if (stars) stars.visible = true;
+      this.environment.setStarsVisible(true);
     } else {
       this.scene.background = new THREE.Color(COLORS.night);
-      if (skyUniforms) {
-        skyUniforms.topColor?.value.setHex(0x0a1220);
-        skyUniforms.bottomColor?.value.setHex(0x182436);
-        skyUniforms.sunColor?.value.setHex(0x5a7ca8);
-      }
+      this.environment.setSkyPhaseColors(0x0a1220, 0x182436, 0x5a7ca8);
       this.phaseBaseFogDensity = 0.0038;
       this.scene.fog = new THREE.FogExp2(
         COLORS.night,
@@ -4028,7 +3481,7 @@ export class GameRenderer {
       this.sun.color.setHex(0x86a8d6);
       this.sun.intensity = 0.45;
       this.hemisphere.intensity = 0.55;
-      setWaterPalette(0x1c3340, 0x060d14, 0x14364c);
+      this.environment.setWaterPalette(0x1c3340, 0x060d14, 0x14364c);
       for (const rig of this.rigs.values()) {
         rig.headlights.intensity = 150;
         if (rig.headlightConeMaterial) {
@@ -4037,7 +3490,7 @@ export class GameRenderer {
           ).value = 1.0;
         }
       }
-      if (stars) stars.visible = true;
+      this.environment.setStarsVisible(true);
     }
   }
 
@@ -4077,32 +3530,7 @@ export class GameRenderer {
       fog.density += (target - fog.density) * ease;
     }
 
-    const rain = this.rainPoints;
-    const rainPositions = this.rainPositions;
-    if (!rain || !rainPositions) return;
-    const material = rain.material as THREE.PointsMaterial;
-    material.opacity = this.currentRain * 0.5;
-    if (this.currentRain <= 0.01) {
-      if (rain.visible) rain.visible = false;
-      return;
-    }
-    if (!rain.visible) rain.visible = true;
-
-    // Re-anchor the cloud on the rig and drift the streaks downward so the
-    // precipitation visibly falls rather than hanging in place.
-    rain.position.set(rigX, 0, rigZ);
-    const fallStep = 4.2 * delta;
-    const positions = rainPositions;
-    for (let index = 0; index < positions.length; index += 3) {
-      positions[index + 1]! -= fallStep;
-      // Never let a streak fall through the ground plane; wrap it to the top
-      // of the cloud so the density in view stays constant.
-      if (positions[index + 1]! < -20) {
-        positions[index + 1]! += 40;
-      }
-    }
-    const attribute = rain.geometry.getAttribute("position");
-    attribute.needsUpdate = true;
+    this.environment.updateRain(rigX, rigZ, delta, this.currentRain);
   }
 
   /**
@@ -4172,7 +3600,7 @@ export class GameRenderer {
 
     this.updateFurrows(state);
     this.updateCropVisuals(state);
-    this.updateInfrastructureWater(state);
+    this.environment.updateInfrastructureWater(state);
     this.updateInfrastructureProps(state, delta);
 
     const activeRigState = state.rigs[state.activeRigId];
@@ -4180,7 +3608,7 @@ export class GameRenderer {
     const profile = effectiveProfile(activeRigState.id, activeRigState.modules);
 
     // Storm clouds darken as the weather progresses.
-    this.updateStormClouds(
+    this.environment.updateStormClouds(
       this.weatherPhase,
       this.weatherTargetRain,
       state.elapsedMs,
@@ -4886,7 +4314,7 @@ export class GameRenderer {
       this.camera.up.set(0, 1, 0);
     }
     this.camera.lookAt(target);
-    this.sky.position.copy(this.camera.position);
+    this.environment.positionSkyAt(this.camera.position);
 
     const selfIntersectionPart = this.rigIntersectionPart(
       parts,
@@ -4980,8 +4408,6 @@ export class GameRenderer {
     rainVisible: boolean;
     rainOpacity: number;
   } {
-    const rain = this.rainPoints;
-    const material = rain?.material as THREE.PointsMaterial | undefined;
     return {
       easedRain: Number(this.currentRain.toFixed(3)),
       fogDensity:
@@ -4989,8 +4415,8 @@ export class GameRenderer {
           ? Number(this.scene.fog.density.toFixed(4))
           : 0,
       phaseBaseFogDensity: this.phaseBaseFogDensity,
-      rainVisible: rain?.visible ?? false,
-      rainOpacity: material ? Number(material.opacity.toFixed(3)) : 0,
+      rainVisible: this.environment.rainVisible(),
+      rainOpacity: this.environment.rainOpacity(),
     };
   }
 
@@ -5646,10 +5072,7 @@ export class GameRenderer {
     this.habitatBirdMaterial.dispose();
     this.habitatCorvidMaterial.dispose();
     this.habitatGrazerMaterial.dispose();
-    if (this.rainPoints) {
-      this.rainPoints.geometry.dispose();
-      (this.rainPoints.material as THREE.Material).dispose();
-    }
+    this.environment.disposeRain();
     this.particles.dispose();
     this.props.dispose();
     this.renderer.dispose();
