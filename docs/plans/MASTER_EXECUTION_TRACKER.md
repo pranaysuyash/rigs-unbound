@@ -3585,3 +3585,25 @@ and `docs/WORKLOG_ADDENDUM_2026-08-25.md`. Compressed:
   shadow work — **complete-slice acceptance is currently red on the working
   tree**; one-line fix in `renderer.ts` held for ownership clearance.
 - **Boundaries held:** no `src/game/` edits; no git write actions.
+
+## Addendum (2026-08-25, later): session committed and large-file refactor plan published
+
+- **Session committed:** all parallel Stage 3–6 visual work (`renderer.ts`,
+  `pbr-materials.ts`), tools, docs, and evidence sets committed as `5e6790f`
+  after the full `verify:head` chain passed (prettier normalization applied to
+  4 files; typecheck/vitest/audits/build green); hook attestation 19/19
+  sections with diff-aware evidence; follow-up attestation render committed as
+  `586c45f`. Both pushed to `origin/main`.
+- **.gitignore updated:** `.playwright-mcp/` browser-session state and root
+  `.codex-visual-polish-*.png` debris now ignored (legacy tracked copies left
+  in place; untracking was out of scope).
+- **Large-file refactor plan published:**
+  `docs/plans/LARGE_FILE_REFACTOR_EXECUTION_PLAN_2026-08-25.md` — re-verifies
+  the 2026-08-21 evaluation against live truth (112 files / 732 tests green;
+  renderer 6,786 LOC / 89 methods / top churn), confirms renderer = decompose
+  (L3 per ADR-0054), state/main = defer, and sequences seven presenter
+  extractions behind golden-frame parity gates.
+- **Blocking preconditions recorded:** P1 known-red complete-slice console gate
+  (`PCFSoftShadowMap` deprecation ×2) needs the one-line fix under `src/game/`
+  ownership clearance; P2 operator sign-off on ADR-0054 (still Proposed).
+- **Statuses unchanged:** ADR-0054 remains Proposed; no implementation started.

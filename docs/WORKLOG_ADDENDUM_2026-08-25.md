@@ -78,3 +78,25 @@ Compressed tracker record appended to `docs/plans/MASTER_EXECUTION_TRACKER.md`.
 9. **Boundaries held.** No `src/game/` edits; no git write actions.
 
 Not committed; no git write action taken.
+
+---
+
+## Session 3 (2026-08-25, later): commit/push of parallel visual work + refactor planning
+
+1. **Gitignore updated.** Added `.playwright-mcp/` and root
+   `.codex-visual-polish-*.png` debris patterns; classified all untracked
+   artifacts before `git add -A` (evidence PNGs and docs justified for
+   tracking; logs/session state excluded).
+2. **Full gate run.** `npm run verify:head` initially failed prettier on 4
+   files; ran `npm run format` (whitespace-only, no semantic change to the
+   parallel-owned `src/game/` files) and re-ran: full chain green.
+3. **Committed and pushed** as `5e6790f` (Stage 3–6 visuals, tools, docs,
+   evidence sets; trailers + 19/19 section attestation with diff-aware
+   evidence) and `586c45f` (hook-rendered motto review artifact). Tree clean.
+4. **Large-file refactor plan published**
+   (`docs/plans/LARGE_FILE_REFACTOR_EXECUTION_PLAN_2026-08-25.md`): live-truth
+   re-verification of the 2026-08-21 evaluation, per-file verdicts
+   (renderer decompose / state defer / main defer), seven-presenter extraction
+   order, zero-loss preservation contract, regression matrix, and blockers P1
+   (PCFSoftShadowMap red acceptance fix) and P2 (ADR-0054 sign-off). Tracker
+   addendum updated. No implementation performed; statuses unchanged.
