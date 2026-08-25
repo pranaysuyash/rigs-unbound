@@ -1,6 +1,6 @@
 # ADR-0054: Modular Renderer Subsystem Decomposition and Behavioral Invariants
 
-- **Status:** Proposed — operator sign-off required
+- **Status:** Accepted — operator sign-off received in session 2026-08-25 ("accepted, make sure no regressions, all features/functionalities etc either remain intact or enhanced"). Execution plan: [`docs/plans/LARGE_FILE_REFACTOR_EXECUTION_PLAN_2026-08-25.md`](../plans/LARGE_FILE_REFACTOR_EXECUTION_PLAN_2026-08-25.md)
 - **Date:** 2026-08-21
 - **Author:** Refactor Decision Architect
 - **Target File:** `src/game/renderer.ts` (6,779 LOC)
