@@ -3607,3 +3607,17 @@ and `docs/WORKLOG_ADDENDUM_2026-08-25.md`. Compressed:
   (`PCFSoftShadowMap` deprecation ×2) needs the one-line fix under `src/game/`
   ownership clearance; P2 operator sign-off on ADR-0054 (still Proposed).
 - **Statuses unchanged:** ADR-0054 remains Proposed; no implementation started.
+
+## Addendum (2026-08-25, evening): ADR-0054 execution underway — 5 of 7 seams extracted
+
+- Operator accepted ADR-0054 and cleared `src/game/`; refactor executing under
+  docs/plans/LARGE_FILE_REFACTOR_EXECUTION_PLAN_2026-08-25.md (see its session-3
+  addenda for per-unit evidence tables).
+- Landed: P1 shadow fix; PostFX, ParticleFX, Props, Environment(terrain+sky/
+  water/rain), Infrastructure presenters; shared primitives module; terrain-
+  normals canonical home. renderer.ts 6,786 -> 4,751 LOC.
+- Every unit gated by tsc + vitest(112/732) + golden-frame pixel parity +
+  live console probe; supersession audits body-level vs pre-refactor baseline;
+  one real loss (furrow-decals bounds) found by audit and restored.
+- Remaining: VehicleVisualPresenter, CameraDirector (re-sequenced last), final
+  audit + closeout.

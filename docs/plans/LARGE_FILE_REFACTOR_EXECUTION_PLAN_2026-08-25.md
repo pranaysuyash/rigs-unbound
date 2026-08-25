@@ -200,3 +200,25 @@ Findings:
 Rule reaffirmed: nothing is removed unless its full semantic content is proven
 present at the canonical new home. Unused import bindings left behind by a move
 are removed only after the symbol is confirmed live at the destination.
+
+## Addendum (session 3, cont.): units 4b + 6 landed; re-sequencing note
+
+- **4b** (`44b7685`): water/sky/stars/rain/storm-clouds lifted VERBATIM (7/7
+  script-verified) into EnvironmentPresenter; phase palettes split cleanly
+  (renderer keeps fog/background/sun/headlights). Scene-add order preserved.
+- **Re-sequencing:** CameraDirector moved to LAST. Reason recorded: its
+  dependency fan-in (rigs-map sockets, cameraResolution evidence struct,
+  reduced-motion, narrative/shake fields) is the widest seam in the file;
+  extracting it on a shrunk host after vehicle-visual lowers risk. Plan §5
+  order intent (cheapest-first) preserved otherwise.
+- **6** (`3002bf4`): InfrastructurePresenter + canonical primitives.ts
+  (COLORS/box/cylinder/material). buildSites/settlement consequences stayed
+  renderer-side per ADR boundary. Night-scene parity validated against a
+  same-code control run (99.40% d12 noise floor on that scene).
+- **Incident:** port-4173 squatter (`python -m http.server`, PID 87520)
+  detected during verification via directory-listing response; freed per
+  AGENTS.md. Captures before that point were hitting the wrong server.
+- **State:** renderer.ts 6,786 -> 4,751 LOC. Remaining: unit 7
+  VehicleVisualPresenter (largest family), unit 5 CameraDirector (re-sequenced),
+  final audit (<600 facade target unreachable without them; current facade is
+  transitional), tracker/worklog closeout.
