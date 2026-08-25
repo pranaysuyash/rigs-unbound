@@ -24,14 +24,18 @@ async function main() {
   await page.goto("http://localhost:4173/", { waitUntil: "networkidle" });
   await page.waitForTimeout(2500);
   // Enter the world so the renderer and shadow map actually initialize.
-  const enter = page.locator("button", { hasText: /enter|start|begin/i }).first();
+  const enter = page
+    .locator("button", { hasText: /enter|start|begin/i })
+    .first();
   if (await enter.count()) {
     await enter.click().catch(() => {});
     await page.waitForTimeout(3000);
   }
   await page.waitForTimeout(2000);
 
-  console.log(hits.length ? "FAIL — deprecation/page errors:" : "PASS — clean console");
+  console.log(
+    hits.length ? "FAIL — deprecation/page errors:" : "PASS — clean console",
+  );
   for (const h of hits) console.log("  ", h);
   await browser.close();
   process.exitCode = hits.length ? 1 : 0;
