@@ -26,6 +26,7 @@ import {
   CinematicColorGradeShader,
   PostProcessingPipeline,
 } from "./rendering/post-processing";
+import { ParticleFXPresenter } from "./rendering/particle-fx";
 
 export { CinematicColorGradeShader };
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
@@ -153,8 +154,6 @@ const MAX_TREE_INSTANCES = 900;
 const MAX_ROCK_INSTANCES = 700;
 const MAX_FELLED_INSTANCES = 220;
 const MAX_NODE_INSTANCES = 260;
-const MAX_DUST = 260;
-const MAX_EXHAUST = 100;
 const MAX_GRASS_INSTANCES = 1200;
 
 /**
@@ -751,17 +750,7 @@ export class GameRenderer {
   private waterMaterial!: THREE.ShaderMaterial;
   private sky!: THREE.Mesh;
 
-  private dust!: THREE.Points;
-  private readonly dustPositions = new Float32Array(MAX_DUST * 3);
-  private readonly dustVelocities = new Float32Array(MAX_DUST * 3);
-  private readonly dustLife = new Float32Array(MAX_DUST);
-  private dustCursor = 0;
-
-  private exhaust!: THREE.Points;
-  private readonly exhaustPositions = new Float32Array(MAX_EXHAUST * 3);
-  private readonly exhaustVelocities = new Float32Array(MAX_EXHAUST * 3);
-  private readonly exhaustLife = new Float32Array(MAX_EXHAUST);
-  private exhaustCursor = 0;
+  private particles!: ParticleFXPresenter;
 
   private readonly dummy = new THREE.Object3D();
   private readonly billboardDirection = new THREE.Vector3();
@@ -936,8 +925,7 @@ export class GameRenderer {
     this.buildTerrain();
     this.buildWater();
     this.buildInstancedProps();
-    this.buildDust();
-    this.buildExhaust();
+    this.particles = new ParticleFXPresenter(this.scene);
     this.buildSites();
     this.buildSettlementCargoBays();
     this.buildCommunityTraffic();
@@ -2138,165 +2126,6 @@ export class GameRenderer {
     this.dummy.scale.set(scale, scale * 0.8, scale);
     this.dummy.updateMatrix();
     this.salvageNodes.setMatrixAt(index, this.dummy.matrix);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Dust
-  // ---------------------------------------------------------------------------
-
-  private buildDust(): void {
-    const geometry = new THREE.BufferGeometry();
-    this.dustPositions.fill(-9999);
-    geometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(this.dustPositions, 3),
-    );
-    this.dust = new THREE.Points(
-      geometry,
-      new THREE.PointsMaterial({
-        color: 0xbaa882,
-        size: 1.1,
-        transparent: true,
-        opacity: 0.65,
-        depthWrite: false,
-      }),
-    );
-    this.dust.frustumCulled = false;
-    this.scene.add(this.dust);
-  }
-
-  /**
-   * Emit dust and mud roost particles from a slipping wheel or water wake.
-   *
-   * Tied to `wheel.slip` and the surface's own `spray`, so the particle plume is a
-   * readout of the traction model rather than decoration: a plume means you are
-   * losing grip right now, on this ground.
-   */
-  private emitDust(
-    x: number,
-    y: number,
-    z: number,
-    strength: number,
-    speed: number,
-    heading = 0,
-  ): void {
-    const bursts = Math.min(5, Math.max(2, Math.round(strength * 5)));
-    for (let burst = 0; burst < bursts; burst += 1) {
-      const index = this.dustCursor;
-      this.dustCursor = (this.dustCursor + 1) % MAX_DUST;
-      const offset = index * 3;
-      this.dustPositions[offset] = x + (Math.random() - 0.5) * 0.3;
-      this.dustPositions[offset + 1] = y + Math.random() * 0.15;
-      this.dustPositions[offset + 2] = z + (Math.random() - 0.5) * 0.3;
-
-      // Ballistic rooster ejection: backward along rig heading with upward lift
-      const spread = (Math.random() - 0.5) * 0.8;
-      const backAngle = heading + Math.PI + spread;
-      const horizSpeed =
-        (1.2 + speed * 0.35 + strength * 1.8) * (0.8 + Math.random() * 0.4);
-
-      this.dustVelocities[offset] = Math.sin(backAngle) * horizSpeed;
-      this.dustVelocities[offset + 1] =
-        1.4 + strength * 2.2 + Math.random() * 1.2;
-      this.dustVelocities[offset + 2] = Math.cos(backAngle) * horizSpeed;
-      this.dustLife[index] = 0.65 + strength * 0.6 + Math.random() * 0.3;
-    }
-  }
-
-  private updateDust(delta: number): void {
-    for (let index = 0; index < MAX_DUST; index += 1) {
-      if (this.dustLife[index]! <= 0) continue;
-      const offset = index * 3;
-      this.dustLife[index] = this.dustLife[index]! - delta;
-      if (this.dustLife[index]! <= 0) {
-        this.dustPositions[offset + 1] = -9999;
-        continue;
-      }
-      const velocityY = this.dustVelocities[offset + 1]!;
-      this.dustPositions[offset] =
-        this.dustPositions[offset]! + this.dustVelocities[offset]! * delta;
-      this.dustPositions[offset + 1] =
-        this.dustPositions[offset + 1]! + velocityY * delta;
-      this.dustPositions[offset + 2] =
-        this.dustPositions[offset + 2]! +
-        this.dustVelocities[offset + 2]! * delta;
-      // Air drag on horizontal velocity, gravity on vertical
-      this.dustVelocities[offset] =
-        this.dustVelocities[offset]! * Math.max(0, 1 - delta * 1.8);
-      this.dustVelocities[offset + 2] =
-        this.dustVelocities[offset + 2]! * Math.max(0, 1 - delta * 1.8);
-      this.dustVelocities[offset + 1] = velocityY - 4.5 * delta;
-    }
-    (
-      this.dust.geometry.getAttribute("position") as THREE.BufferAttribute
-    ).needsUpdate = true;
-  }
-
-  private buildExhaust(): void {
-    const geometry = new THREE.BufferGeometry();
-    this.exhaustPositions.fill(-9999);
-    geometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(this.exhaustPositions, 3),
-    );
-    this.exhaust = new THREE.Points(
-      geometry,
-      new THREE.PointsMaterial({
-        color: 0x3d3a36,
-        size: 0.85,
-        transparent: true,
-        opacity: 0.45,
-        depthWrite: false,
-      }),
-    );
-    this.exhaust.frustumCulled = false;
-    this.scene.add(this.exhaust);
-  }
-
-  private emitExhaust(
-    x: number,
-    y: number,
-    z: number,
-    intensity: number,
-  ): void {
-    const index = this.exhaustCursor;
-    this.exhaustCursor = (this.exhaustCursor + 1) % MAX_EXHAUST;
-    const offset = index * 3;
-    this.exhaustPositions[offset] = x + (Math.random() - 0.5) * 0.12;
-    this.exhaustPositions[offset + 1] = y;
-    this.exhaustPositions[offset + 2] = z + (Math.random() - 0.5) * 0.12;
-
-    this.exhaustVelocities[offset] = (Math.random() - 0.5) * 0.35;
-    this.exhaustVelocities[offset + 1] =
-      1.1 + intensity * 1.6 + Math.random() * 0.4;
-    this.exhaustVelocities[offset + 2] = (Math.random() - 0.5) * 0.35;
-    this.exhaustLife[index] = 0.75 + intensity * 0.45;
-  }
-
-  private updateExhaust(delta: number): void {
-    for (let index = 0; index < MAX_EXHAUST; index += 1) {
-      if (this.exhaustLife[index]! <= 0) continue;
-      const offset = index * 3;
-      this.exhaustLife[index] = this.exhaustLife[index]! - delta;
-      if (this.exhaustLife[index]! <= 0) {
-        this.exhaustPositions[offset + 1] = -9999;
-        continue;
-      }
-      this.exhaustPositions[offset] =
-        this.exhaustPositions[offset]! +
-        this.exhaustVelocities[offset]! * delta;
-      this.exhaustPositions[offset + 1] =
-        this.exhaustPositions[offset + 1]! +
-        this.exhaustVelocities[offset + 1]! * delta;
-      this.exhaustPositions[offset + 2] =
-        this.exhaustPositions[offset + 2]! +
-        this.exhaustVelocities[offset + 2]! * delta;
-      this.exhaustVelocities[offset + 1] =
-        this.exhaustVelocities[offset + 1]! * Math.max(0, 1 - delta * 0.9);
-    }
-    (
-      this.exhaust.geometry.getAttribute("position") as THREE.BufferAttribute
-    ).needsUpdate = true;
   }
 
   // ---------------------------------------------------------------------------
@@ -5311,7 +5140,7 @@ export class GameRenderer {
         const angle =
           activeRigState.heading + (index < 2 ? 0.4 : Math.PI - 0.4);
         const radius = profile.track * 0.5;
-        this.emitDust(
+        this.particles.emitDust(
           activeRigState.x + Math.sin(angle) * radius,
           ground.height + 0.3,
           activeRigState.z + Math.cos(angle) * radius,
@@ -5326,7 +5155,7 @@ export class GameRenderer {
     ) {
       const rearX = activeRigState.x - Math.sin(activeRigState.heading) * 2.2;
       const rearZ = activeRigState.z - Math.cos(activeRigState.heading) * 2.2;
-      this.emitDust(
+      this.particles.emitDust(
         rearX,
         WATER_LEVEL + 0.15,
         rearZ,
@@ -5335,7 +5164,7 @@ export class GameRenderer {
         activeRigState.heading,
       );
     }
-    this.updateDust(delta);
+    this.particles.updateDust(delta);
 
     // Diesel exhaust smoke particles from active rig exhaust stack
     const isDriving =
@@ -5346,9 +5175,9 @@ export class GameRenderer {
       const load =
         Math.min(1, Math.abs(activeRigState.speed) / profile.topSpeed) * 0.6 +
         Math.min(1, activeRigState.strain) * 0.4;
-      this.emitExhaust(exX, activeRigState.y + 3.2, exZ, load);
+      this.particles.emitExhaust(exX, activeRigState.y + 3.2, exZ, load);
     }
-    this.updateExhaust(delta);
+    this.particles.updateExhaust(delta);
 
     // Cargo and hitch.
     const cargo = state.cargoRelay.cargo;
@@ -6685,14 +6514,7 @@ export class GameRenderer {
       this.rainPoints.geometry.dispose();
       (this.rainPoints.material as THREE.Material).dispose();
     }
-    if (this.dust) {
-      this.dust.geometry.dispose();
-      (this.dust.material as THREE.Material).dispose();
-    }
-    if (this.exhaust) {
-      this.exhaust.geometry.dispose();
-      (this.exhaust.material as THREE.Material).dispose();
-    }
+    this.particles.dispose();
     if (this.grassTufts) {
       this.grassTufts.geometry.dispose();
       (this.grassTufts.material as THREE.Material).dispose();
