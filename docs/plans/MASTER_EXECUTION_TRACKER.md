@@ -3632,3 +3632,24 @@ variant=storm-pressure). Gates: typecheck clean; 735/735 vitest. Complete-slice
 Step 7 now reads real preconditions; sole remaining harness gap: the
 sunken-relay cargo-delivery step. Note: `.workbuddy-ai` python squatter on
 4173 respawned a third time — permanent fix belongs on the pdf_editor side.
+
+## Addendum (2026-08-27) — Wave 1 fleet wiring in progress
+
+- **Landed and pushed** (`9379cff`, `ed35798`, `fcb50f0`): crawler integration
+  (parallel session's diff, operator-approved), then Wave 1a (spark-dune-
+  runner-02) and Wave 1b (torque-field-cutter-02, heavy-utility-tow-
+  recovery-01, harvester-combined-cultivator-01). Eight of sixteen roster
+  rigs now render authored models; eight remain on `createCandidateRig`.
+- **New shared surfaces**: `assets/workbench/shared/rig-review.html` (any
+  authored factory via `?rig=<dir>`, window key `rigReview`) feeding
+  `tools/capture-rig-model-review.cjs`; renderer-side consolidation via
+  `createAuthoredWheeledRig` (blockout-authoritative columns, hub
+  compensation, mount.spinScale).
+- **Remaining Wave 1c/1d** (unstarted, factories exist): heavy-salvage-crane-02,
+  sentinel-mobile-fort-01, construction-excavator-01, hauler-road-train-01,
+  marsh-dredger-heavy-02, micro-scout-pipe-crawler-01 — boom/articulated/
+  tracked variants need the same wheel-pivot + marker contract, and the two
+  aerials (aero-skimmer-survey-01, aero-cargo-freighter-02) still need the
+  kernel motion-model decision before wiring.
+- **Gates per batch**: `npm run typecheck` clean; `npx vitest run` 743/743;
+  zero console errors on all captures.
