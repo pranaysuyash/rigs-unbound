@@ -125,3 +125,26 @@ Not committed; no git write action taken.
     comment): preconditions, assignment shape (missionId===null), and the
     completeSettlementCargoDelivery path. Implementation + verification run
     is the next session's first move; not half-landed unverified.
+
+## 2026-08-27 (session 2) — Wave 1 fleet wiring begins
+
+15. **Crawler integration landed** (`9379cff`): authored snow-crawler
+    factory wired into the renderer parts factory; observability slice,
+    capture harness, workbench v5 evidence, and doctrine copies all pushed
+    after full gates (typecheck clean, vitest 742/742). Port-4173 python
+    squatter respawned a fifth time (PID 17749); killed per canonical-port
+    doctrine.
+16. **Wave 1a — spark-dune-runner-02 wired** (template proof for the
+    remaining ten parked factories): factory wheels converted to named
+    kernel-consumable spin pivots (`duneRunnerWheelPivots`, physics order
+    FL/FR/RL/RR), visible axis markers added (`front-marker` bull-bar,
+    `rear-marker` tow hitch); renderer adapter reparents factory wheels
+    under blockout-positioned steering columns with hub compensation so
+    kernel yaw and suspension travel move the visible tyres; spin scale
+    read from blockout mounts.
+17. **Shared generic review surface** added at
+    `assets/workbench/shared/rig-review.html` (`?rig=<workbench-id>`,
+    window key `rigReview`) so every remaining Wave-1 rig gets evidence
+    captures without a bespoke review page. Dune-runner v1 captures taken
+    through it (front-three-quarter, side, rear-three-quarter; zero console
+    errors).

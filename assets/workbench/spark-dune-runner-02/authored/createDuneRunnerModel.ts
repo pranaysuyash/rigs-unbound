@@ -160,28 +160,89 @@ export function createDuneRunnerModel(
   root.add(suspensionGroup);
 
   // 5. Sand Paddle Wheels (Front: Ribbed, Rear: Paddle)
+  //
+  // Each tyre lives inside a named pivot group so the renderer can hand the
+  // kernel real spin pivots (FL, FR, RL, RR physics order) and parent the
+  // front pair into its steering columns. Tyres sit at each pivot's origin.
   const wheelsGroup = new THREE.Group();
   wheelsGroup.name = "sand-paddle-wheels";
 
+  const wheelPivot = (
+    name: string,
+    x: number,
+    y: number,
+    z: number,
+    tyre: THREE.Mesh,
+  ): THREE.Group => {
+    const pivot = new THREE.Group();
+    pivot.name = name;
+    pivot.position.set(x, y, z);
+    tyre.position.set(0, 0, 0);
+    pivot.add(tyre);
+    wheelsGroup.add(pivot);
+    return pivot;
+  };
+
   // Front Wheels (z=1.35)
   const frontTyreGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.3, 20);
-  for (const side of [-1, 1]) {
+  for (const [side, suffix] of [
+    [-1, "fl"],
+    [1, "fr"],
+  ] as const) {
     const tyre = finishMesh(new THREE.Mesh(frontTyreGeo, rubberBlack), options);
     tyre.rotation.z = Math.PI / 2;
-    tyre.position.set(side * 1.05, 0.45, 1.35);
-    wheelsGroup.add(tyre);
+    wheelPivot(`wheel-${suffix}`, side * 1.05, 0.45, 1.35, tyre);
   }
 
   // Rear Wheels (z=-1.4, Wider Sand Paddles)
   const rearTyreGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.45, 20);
-  for (const side of [-1, 1]) {
+  for (const [side, suffix] of [
+    [-1, "rl"],
+    [1, "rr"],
+  ] as const) {
     const tyre = finishMesh(new THREE.Mesh(rearTyreGeo, rubberBlack), options);
     tyre.rotation.z = Math.PI / 2;
-    tyre.position.set(side * 1.15, 0.5, -1.4);
-    wheelsGroup.add(tyre);
+    wheelPivot(`wheel-${suffix}`, side * 1.15, 0.5, -1.4, tyre);
   }
 
   root.add(wheelsGroup);
 
+  // 6. Axis markers for the renderer's visual/physics orientation evidence:
+  // a visible nose bull-bar and a rear tow hitch, both real parts a player
+  // can see, at opposite ends of the driving axis.
+  const bullBar = finishMesh(
+    new THREE.Mesh(fabricatedBoxGeometry(1.5, 0.16, 0.18), frameDark),
+    options,
+  );
+  bullBar.name = "front-marker";
+  bullBar.position.set(0, 0.62, 1.95);
+  root.add(bullBar);
+
+  const towHitch = finishMesh(
+    new THREE.Mesh(fabricatedBoxGeometry(0.5, 0.16, 0.22), frameDark),
+    options,
+  );
+  towHitch.name = "rear-marker";
+  towHitch.position.set(0, 0.5, -2.0);
+  root.add(towHitch);
+
   return root;
+}
+
+/**
+ * Wheel spin pivots in kernel physics order: front-left, front-right,
+ * rear-left, rear-right. The kernel rotates each about its local X; the
+ * tyres inside carry the cylinder's axle alignment, so pivot X-spin rolls
+ * them without skid.
+ */
+export function duneRunnerWheelPivots(model: THREE.Group): THREE.Group[] {
+  const pivots = ["wheel-fl", "wheel-fr", "wheel-rl", "wheel-rr"].map((name) =>
+    model.getObjectByName(name),
+  );
+  if (pivots.some((pivot) => !(pivot instanceof THREE.Group))) {
+    throw new Error(
+      "spark-dune-runner-02: authored model is missing its wheel pivots",
+    );
+  }
+  return pivots as THREE.Group[];
 }

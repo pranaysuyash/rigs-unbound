@@ -68,6 +68,10 @@ import {
   snowCrawlerRollerSpinScale,
   snowCrawlerSpinPivots,
 } from "../../assets/workbench/snow-crawler-expedition-01/authored/createSnowCrawlerModel";
+import {
+  createDuneRunnerModel,
+  duneRunnerWheelPivots,
+} from "../../assets/workbench/spark-dune-runner-02/authored/createDuneRunnerModel";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
@@ -747,6 +751,8 @@ export class GameRenderer {
       else if (id === "marsh-skimmer") parts = this.createSkimmer();
       else if (id === "snow-crawler-expedition-01")
         parts = this.createSnowCrawler();
+      else if (id === "spark-dune-runner-02")
+        parts = this.createDuneRunner();
       else parts = this.createCandidateRig(id);
 
       this.rigs.set(id, parts);
@@ -3072,6 +3078,119 @@ export class GameRenderer {
     if (!frontMarker || !rearMarker) {
       throw new Error(
         "snow-crawler-expedition-01: authored model is missing its axis markers",
+      );
+    }
+
+    return {
+      root,
+      body,
+      hoodCameraSocket: cameraSocket,
+      wheels: spinPivots,
+      steeringPivots,
+      wheelRestY,
+      wheelSpinScale,
+      moduleVisuals: {
+        ...this.buildModuleVisuals(body, blockout),
+        "lug-tires": [],
+      },
+      ploughPivot: null,
+      headlights,
+      headlightCone,
+      headlightConeMaterial,
+      frontMarker,
+      rearMarker,
+      stateShell,
+      stateShellMaterial,
+    };
+  }
+
+  /**
+   * The dune runner renders through its authored factory — second candidate
+   * promoted off the generic blockout (Rig Production Pipeline Wave 1).
+   * Unlike the tracked crawler, this is a steered wheeled rig: the factory's
+   * wheel pivots are reparented under the kernel's blockout-positioned
+   * steering columns, so kernel yaw (front pair) and suspension travel move
+   * the visible tyres. Factory positions are compensated inside each column
+   * so steering rotates about the blockout mount, not the wheel hub offset.
+   */
+  private createDuneRunner(): RigParts {
+    const blockout = blockoutFor("spark-dune-runner-02");
+    const root = new THREE.Group();
+    root.name = "spark-dune-runner-02";
+    root.rotation.order = "YXZ";
+
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
+    const cameraSocket = hoodCameraSocket("spark-dune-runner-02");
+
+    const shadow = this.blobShadow(blockout.hull.width * 0.95, 0.25);
+    shadow.position.y = blockout.shadowY;
+
+    const model = createDuneRunnerModel();
+    body.add(shadow, model, cameraSocket);
+
+    const spinPivots = duneRunnerWheelPivots(model);
+    const steeringPivots: THREE.Group[] = [];
+    const wheelRestY: number[] = [];
+    const wheelSpinScale: number[] = [];
+    for (const [index, mount] of blockout.wheelMounts.entries()) {
+      const steeringPivot = new THREE.Group();
+      steeringPivot.name = `wheel-mount-${mount.label}`;
+      steeringPivot.position.set(mount.x, mount.restY, mount.z);
+      body.add(steeringPivot);
+
+      // Compensate the authored wheel position inside the column: the kernel
+      // owns the column origin (steering yaw + suspension travel), the
+      // factory owns where the tyre sits relative to the hull.
+      const wheel = spinPivots[index];
+      if (!wheel) {
+        throw new Error(
+          `spark-dune-runner-02: factory returned fewer wheel pivots than the blockout has mounts (${index})`,
+        );
+      }
+      wheel.position.set(
+        wheel.position.x - mount.x,
+        wheel.position.y - mount.restY,
+        wheel.position.z - mount.z,
+      );
+      steeringPivot.add(wheel);
+
+      steeringPivots.push(steeringPivot);
+      wheelRestY.push(mount.restY);
+      wheelSpinScale.push(mount.spinScale);
+    }
+
+    const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
+    headlights.position.set(0, blockout.hull.topY * 0.82, blockout.hull.depth / 2);
+    headlights.target.position.set(
+      0,
+      blockout.hull.centreY,
+      blockout.hull.depth / 2 + 20,
+    );
+    body.add(headlights, headlights.target);
+
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(
+        blockout.hull.width * 1.06,
+        blockout.hull.height * 1.06,
+        blockout.hull.depth * 1.04,
+        0x59d6da,
+      );
+    stateShell.position.set(0, blockout.hull.centreY, 0);
+
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xbdfaff, 26, 5.8);
+    headlightCone.position.set(0, blockout.hull.topY, blockout.hull.depth / 2);
+
+    body.add(stateShell, headlightCone);
+
+    const frontMarker = model.getObjectByName("front-marker");
+    const rearMarker = model.getObjectByName("rear-marker");
+    if (!frontMarker || !rearMarker) {
+      throw new Error(
+        "spark-dune-runner-02: authored model is missing its axis markers",
       );
     }
 
