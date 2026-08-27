@@ -148,3 +148,17 @@ Not committed; no git write action taken.
     captures without a bespoke review page. Dune-runner v1 captures taken
     through it (front-three-quarter, side, rear-three-quarter; zero console
     errors).
+
+## 2026-08-27 (session 2, cont.) — Wave 1b: three more rigs wired
+
+18. **Wave 1b complete** — torque-field-cutter-02, heavy-utility-tow-
+    recovery-01, harvester-combined-cultivator-01 all render through their
+    authored factories. Each factory gained named kernel-consumable spin
+    pivots + axis markers; the four adapters were consolidated into a shared
+    `createAuthoredWheeledRig` helper (blockout-authoritative columns, hub
+    compensation, per-rig marker names + shell tint). Utility-tow keeps its
+    6x6 identity: four simulated contacts map to kernel columns, cosmetic
+    middle axle stays visual-only. Harvester duals ride one pivot per side.
+19. **Evidence**: v1 neutral-lighting captures for cutter, utility-tow
+    (v2-shared), harvester via the shared review surface; zero console
+    errors. Gates: tsc clean; vitest 743/743.

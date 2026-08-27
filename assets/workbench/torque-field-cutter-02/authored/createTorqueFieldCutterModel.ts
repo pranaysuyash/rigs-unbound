@@ -165,28 +165,79 @@ export function createTorqueFieldCutterModel(
   root.add(wingsGroup);
 
   // 5. High-Clearance Wheels
+  //
+  // Each tyre lives inside a named pivot group so the renderer can hand the
+  // kernel real spin pivots (FL, FR, RL, RR physics order) and parent the
+  // front pair into its steering columns. Tyres sit at each pivot's origin.
   const wheelsGroup = new THREE.Group();
   wheelsGroup.name = "high-clearance-wheels";
 
+  const wheelPivot = (
+    name: string,
+    x: number,
+    y: number,
+    z: number,
+    tyre: THREE.Mesh,
+  ): THREE.Group => {
+    const pivot = new THREE.Group();
+    pivot.name = name;
+    pivot.position.set(x, y, z);
+    tyre.position.set(0, 0, 0);
+    pivot.add(tyre);
+    wheelsGroup.add(pivot);
+    return pivot;
+  };
+
   // Front Wheels (smaller: r=0.5m)
   const frontTyreGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 20);
-  for (const side of [-1, 1]) {
+  for (const [side, suffix] of [
+    [-1, "fl"],
+    [1, "fr"],
+  ] as const) {
     const tyre = finishMesh(new THREE.Mesh(frontTyreGeo, rubberBlack), options);
     tyre.rotation.z = Math.PI / 2;
-    tyre.position.set(side * 1.15, 0.5, 1.3);
-    wheelsGroup.add(tyre);
+    wheelPivot(`wheel-${suffix}`, side * 1.15, 0.5, 1.3, tyre);
   }
 
   // Rear Wheels (larger: r=0.75m)
   const rearTyreGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.5, 24);
-  for (const side of [-1, 1]) {
+  for (const [side, suffix] of [
+    [-1, "rl"],
+    [1, "rr"],
+  ] as const) {
     const tyre = finishMesh(new THREE.Mesh(rearTyreGeo, rubberBlack), options);
     tyre.rotation.z = Math.PI / 2;
-    tyre.position.set(side * 1.2, 0.75, -1.2);
-    wheelsGroup.add(tyre);
+    wheelPivot(`wheel-${suffix}`, side * 1.2, 0.75, -1.2, tyre);
   }
 
   root.add(wheelsGroup);
 
+  // 6. Rear axis marker: a real tow hitch at the tail of the driving axis.
+  // The front marker is the existing mulcher head (a real nose part).
+  const towHitch = finishMesh(
+    new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.18, 0.24), frameDark),
+    options,
+  );
+  towHitch.name = "rear-marker";
+  towHitch.position.set(0, 0.5, -2.0);
+  root.add(towHitch);
+
   return root;
+}
+
+/**
+ * Wheel spin pivots in kernel physics order: front-left, front-right,
+ * rear-left, rear-right. The kernel rotates each about its local X; the
+ * unequal axle radii are compensated by each blockout mount's spinScale.
+ */
+export function torqueFieldCutterWheelPivots(model: THREE.Group): THREE.Group[] {
+  const pivots = ["wheel-fl", "wheel-fr", "wheel-rl", "wheel-rr"].map((name) =>
+    model.getObjectByName(name),
+  );
+  if (pivots.some((pivot) => !(pivot instanceof THREE.Group))) {
+    throw new Error(
+      "torque-field-cutter-02: authored model is missing its wheel pivots",
+    );
+  }
+  return pivots as THREE.Group[];
 }

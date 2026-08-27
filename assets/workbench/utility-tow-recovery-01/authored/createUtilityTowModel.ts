@@ -577,5 +577,38 @@ export function createUtilityTowModel(
   groundDecal.receiveShadow = false;
   root.add(groundDecal);
 
+  // 10. Front axis marker: a real brush guard at the nose. The rear marker is
+  // the existing rear-hazard-bumper.
+  const brushGuard = finishMesh(
+    new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.22, 0.2), frameDark),
+    options,
+  );
+  brushGuard.name = "front-marker";
+  brushGuard.position.set(0, 0.7, halfWheelbase + 0.42);
+  root.add(brushGuard);
+
   return root;
+}
+
+/**
+ * Wheel spin pivots in kernel physics order: front-left, front-right,
+ * rear-left, rear-right — the four wheels carrying
+ * `userData.simulationWheelIndex`. The cosmetic middle axle of the 6x6 stays
+ * out; it rolls with the visual deck, not the simulated contacts.
+ */
+export function utilityTowWheelPivots(model: THREE.Group): THREE.Group[] {
+  const wheels: { index: number; group: THREE.Group }[] = [];
+  model.traverse((object) => {
+    const index = object.userData.simulationWheelIndex;
+    if (typeof index === "number" && object instanceof THREE.Group) {
+      wheels.push({ index, group: object });
+    }
+  });
+  wheels.sort((a, b) => a.index - b.index);
+  if (wheels.length !== 4 || wheels.some((w, i) => w.index !== i)) {
+    throw new Error(
+      "heavy-utility-tow-recovery-01: authored model is missing its simulated wheel pivots",
+    );
+  }
+  return wheels.map((w) => w.group);
 }

@@ -72,6 +72,18 @@ import {
   createDuneRunnerModel,
   duneRunnerWheelPivots,
 } from "../../assets/workbench/spark-dune-runner-02/authored/createDuneRunnerModel";
+import {
+  createTorqueFieldCutterModel,
+  torqueFieldCutterWheelPivots,
+} from "../../assets/workbench/torque-field-cutter-02/authored/createTorqueFieldCutterModel";
+import {
+  createUtilityTowModel,
+  utilityTowWheelPivots,
+} from "../../assets/workbench/utility-tow-recovery-01/authored/createUtilityTowModel";
+import {
+  createHarvesterModel,
+  harvesterWheelPivots,
+} from "../../assets/workbench/harvester-combined-cultivator-01/authored/createHarvesterModel";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
@@ -753,6 +765,12 @@ export class GameRenderer {
         parts = this.createSnowCrawler();
       else if (id === "spark-dune-runner-02")
         parts = this.createDuneRunner();
+      else if (id === "torque-field-cutter-02")
+        parts = this.createTorqueFieldCutter();
+      else if (id === "heavy-utility-tow-recovery-01")
+        parts = this.createUtilityTow();
+      else if (id === "harvester-combined-cultivator-01")
+        parts = this.createHarvester();
       else parts = this.createCandidateRig(id);
 
       this.rigs.set(id, parts);
@@ -3104,34 +3122,43 @@ export class GameRenderer {
     };
   }
 
+
   /**
-   * The dune runner renders through its authored factory — second candidate
-   * promoted off the generic blockout (Rig Production Pipeline Wave 1).
-   * Unlike the tracked crawler, this is a steered wheeled rig: the factory's
-   * wheel pivots are reparented under the kernel's blockout-positioned
-   * steering columns, so kernel yaw (front pair) and suspension travel move
-   * the visible tyres. Factory positions are compensated inside each column
-   * so steering rotates about the blockout mount, not the wheel hub offset.
+   * Shared Wave-1 promotion path for authored steered-wheeled rig factories.
+   *
+   * The blockout stays the dimensional authority: kernel steering columns
+   * mount at blockout wheel positions, and each factory spin pivot is
+   * reparented under its column with hub compensation, so kernel yaw (front
+   * pair) and suspension travel move the visible tyres while the factory
+   * keeps full authority over the rig's form. Per-rig differences come in as
+   * the pivot accessor, axis-marker node names, and state-shell tint.
    */
-  private createDuneRunner(): RigParts {
-    const blockout = blockoutFor("spark-dune-runner-02");
+  private createAuthoredWheeledRig(
+    rigId: RigId,
+    options: {
+      model: THREE.Group;
+      spinPivots: THREE.Group[];
+      frontMarkerName: string;
+      rearMarkerName: string;
+      shellColor: number;
+    },
+  ): RigParts {
+    const blockout = blockoutFor(rigId);
     const root = new THREE.Group();
-    root.name = "spark-dune-runner-02";
+    root.name = rigId;
     root.rotation.order = "YXZ";
 
     const body = new THREE.Group();
     body.name = "rig-body-ground-frame";
     body.position.y = blockout.groundFrameOffsetY;
     root.add(body);
-    const cameraSocket = hoodCameraSocket("spark-dune-runner-02");
+    const cameraSocket = hoodCameraSocket(rigId);
 
     const shadow = this.blobShadow(blockout.hull.width * 0.95, 0.25);
     shadow.position.y = blockout.shadowY;
 
-    const model = createDuneRunnerModel();
-    body.add(shadow, model, cameraSocket);
+    body.add(shadow, options.model, cameraSocket);
 
-    const spinPivots = duneRunnerWheelPivots(model);
     const steeringPivots: THREE.Group[] = [];
     const wheelRestY: number[] = [];
     const wheelSpinScale: number[] = [];
@@ -3141,13 +3168,10 @@ export class GameRenderer {
       steeringPivot.position.set(mount.x, mount.restY, mount.z);
       body.add(steeringPivot);
 
-      // Compensate the authored wheel position inside the column: the kernel
-      // owns the column origin (steering yaw + suspension travel), the
-      // factory owns where the tyre sits relative to the hull.
-      const wheel = spinPivots[index];
+      const wheel = options.spinPivots[index];
       if (!wheel) {
         throw new Error(
-          `spark-dune-runner-02: factory returned fewer wheel pivots than the blockout has mounts (${index})`,
+          `${rigId}: factory returned fewer wheel pivots than the blockout has mounts (${index})`,
         );
       }
       wheel.position.set(
@@ -3176,7 +3200,7 @@ export class GameRenderer {
         blockout.hull.width * 1.06,
         blockout.hull.height * 1.06,
         blockout.hull.depth * 1.04,
-        0x59d6da,
+        options.shellColor,
       );
     stateShell.position.set(0, blockout.hull.centreY, 0);
 
@@ -3186,19 +3210,17 @@ export class GameRenderer {
 
     body.add(stateShell, headlightCone);
 
-    const frontMarker = model.getObjectByName("front-marker");
-    const rearMarker = model.getObjectByName("rear-marker");
+    const frontMarker = options.model.getObjectByName(options.frontMarkerName);
+    const rearMarker = options.model.getObjectByName(options.rearMarkerName);
     if (!frontMarker || !rearMarker) {
-      throw new Error(
-        "spark-dune-runner-02: authored model is missing its axis markers",
-      );
+      throw new Error(`${rigId}: authored model is missing its axis markers`);
     }
 
     return {
       root,
       body,
       hoodCameraSocket: cameraSocket,
-      wheels: spinPivots,
+      wheels: options.spinPivots,
       steeringPivots,
       wheelRestY,
       wheelSpinScale,
@@ -3215,6 +3237,68 @@ export class GameRenderer {
       stateShell,
       stateShellMaterial,
     };
+  }
+
+  /**
+   * The dune runner renders through its authored factory — second candidate
+   * promoted off the generic blockout (Rig Production Pipeline Wave 1).
+   */
+  private createDuneRunner(): RigParts {
+    const model = createDuneRunnerModel();
+    return this.createAuthoredWheeledRig("spark-dune-runner-02", {
+      model,
+      spinPivots: duneRunnerWheelPivots(model),
+      frontMarkerName: "front-marker",
+      rearMarkerName: "rear-marker",
+      shellColor: 0x59d6da,
+    });
+  }
+
+  /**
+   * Torque field cutter — third Wave-1 promotion; the authored mulcher head
+   * serves as the front axis marker.
+   */
+  private createTorqueFieldCutter(): RigParts {
+    const model = createTorqueFieldCutterModel();
+    return this.createAuthoredWheeledRig("torque-field-cutter-02", {
+      model,
+      spinPivots: torqueFieldCutterWheelPivots(model),
+      frontMarkerName: "front-mulcher-head",
+      rearMarkerName: "rear-marker",
+      shellColor: 0xb7c46a,
+    });
+  }
+
+  /**
+   * Heavy utility tow — fourth Wave-1 promotion. 6x6 identity: the four
+   * factory wheels carrying `userData.simulationWheelIndex` map onto the
+   * kernel columns; the cosmetic middle axle stays visual-only.
+   */
+  private createUtilityTow(): RigParts {
+    const model = createUtilityTowModel();
+    return this.createAuthoredWheeledRig("heavy-utility-tow-recovery-01", {
+      model,
+      spinPivots: utilityTowWheelPivots(model),
+      frontMarkerName: "front-marker",
+      rearMarkerName: "rear-hazard-bumper",
+      shellColor: 0xd08a3e,
+    });
+  }
+
+  /**
+   * Harvester — fifth Wave-1 promotion. Dual front drive tyres ride inside
+   * one pivot per side; the authored header drum is the front marker and the
+   * chaff spreader the rear marker.
+   */
+  private createHarvester(): RigParts {
+    const model = createHarvesterModel();
+    return this.createAuthoredWheeledRig("harvester-combined-cultivator-01", {
+      model,
+      spinPivots: harvesterWheelPivots(model),
+      frontMarkerName: "rotary-header-drum",
+      rearMarkerName: "rear-marker",
+      shellColor: 0xc9a53f,
+    });
   }
 
   private createCargo(): THREE.Group {

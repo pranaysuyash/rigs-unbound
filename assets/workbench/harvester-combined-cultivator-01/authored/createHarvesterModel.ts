@@ -176,41 +176,78 @@ export function createHarvesterModel(
   root.add(augerGroup);
 
   // 5. Dual Front Drive Wheels
+  //
+  // Each side's dual tyres live inside one named pivot group so the renderer
+  // can hand the kernel real spin pivots (FL, FR, RL, RR physics order) and
+  // parent them into its steering columns. Tyre offsets are relative to the
+  // pivot; the pivot sits at the dual-set's mean track position.
   const frontWheelsGroup = new THREE.Group();
   frontWheelsGroup.name = "dual-front-wheels";
 
   const frontTyreGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.5, 24);
-  for (const side of [-1, 1]) {
-    for (const dual of [0, 0.55]) {
+  for (const [side, suffix] of [
+    [-1, "fl"],
+    [1, "fr"],
+  ] as const) {
+    const pivot = new THREE.Group();
+    pivot.name = `wheel-${suffix}`;
+    pivot.position.set(side * 1.575, 0.75, 1.2);
+    for (const dual of [-0.275, 0.275]) {
       const tyre = finishMesh(new THREE.Mesh(frontTyreGeo, rubberBlack), options);
       tyre.rotation.z = Math.PI / 2;
-      tyre.position.set(side * (1.3 + dual), 0.75, 1.2);
-      frontWheelsGroup.add(tyre);
+      tyre.position.set(dual, 0, 0);
+      pivot.add(tyre);
     }
+    frontWheelsGroup.add(pivot);
   }
   root.add(frontWheelsGroup);
 
-  // 6. Rear Steering Wheels
+  // 6. Rear Wheels
   const rearWheelsGroup = new THREE.Group();
   rearWheelsGroup.name = "rear-steering-wheels";
 
   const rearTyreGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 24);
-  for (const side of [-1, 1]) {
+  for (const [side, suffix] of [
+    [-1, "rl"],
+    [1, "rr"],
+  ] as const) {
+    const pivot = new THREE.Group();
+    pivot.name = `wheel-${suffix}`;
+    pivot.position.set(side * 1.2, 0.5, -1.8);
     const tyre = finishMesh(new THREE.Mesh(rearTyreGeo, rubberBlack), options);
     tyre.rotation.z = Math.PI / 2;
-    tyre.position.set(side * 1.2, 0.5, -1.8);
-    rearWheelsGroup.add(tyre);
+    pivot.add(tyre);
+    rearWheelsGroup.add(pivot);
   }
+  root.add(rearWheelsGroup);
 
-  // Chaff spreader fan housing at rear
+  // Chaff spreader fan housing at rear — doubles as the rear axis marker.
+  // (The kernel sim steers the front pair; the authored rear-steer identity
+  // stays in the geometry naming.)
   const spreader = finishMesh(
     new THREE.Mesh(fabricatedBoxGeometry(1.8, 0.5, 0.6), frameDark),
     options,
   );
+  spreader.name = "rear-marker";
   spreader.position.set(0, 0.65, -2.2);
-  rearWheelsGroup.add(spreader);
-
-  root.add(rearWheelsGroup);
+  root.add(spreader);
 
   return root;
+}
+
+/**
+ * Wheel spin pivots in kernel physics order: front-left, front-right,
+ * rear-left, rear-right. Front pivots carry both dual tyres; the kernel
+ * spins each pivot about its local X.
+ */
+export function harvesterWheelPivots(model: THREE.Group): THREE.Group[] {
+  const pivots = ["wheel-fl", "wheel-fr", "wheel-rl", "wheel-rr"].map((name) =>
+    model.getObjectByName(name),
+  );
+  if (pivots.some((pivot) => !(pivot instanceof THREE.Group))) {
+    throw new Error(
+      "harvester-combined-cultivator-01: authored model is missing its wheel pivots",
+    );
+  }
+  return pivots as THREE.Group[];
 }

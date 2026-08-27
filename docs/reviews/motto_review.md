@@ -2,7 +2,7 @@
 
 - Doctrine path: /Users/pranay/Projects/Game_dev/rigs-unbound/OPERATING_DOCTRINE.md
 - SHA-256: ff848618a7431a3b06c7409caa45683bd27c64263d45b93f9fcd36a89803466a
-- Generated: 2026-08-27T17:06:26Z
+- Generated: 2026-08-27T17:13:47Z
 - This is a generated review artifact, not an instruction source.
 
 ## SECTION_0
@@ -63,13 +63,13 @@
 
 - Label: §16 Specialist doctrine routing
 - Reviewed: True
-- Evidence: Specialist routing reflected in staged changes: canonical 4173 dev surface preserved (squatter killed per AGENTS.md), rig work follows RIG_PRODUCTION_PIPELINE two-lane contract (blockout dims authority in renderer.ts wiring), capture harness generalization reuses existing window-key protocol.
+- Evidence: Specialist routing in staged diff: renderer.ts dune-runner adapter keeps rig-blockout.ts as dimensional authority (mount positions, restY, mount.spinScale) per RIG_PRODUCTION_PIPELINE two-lane contract; captures run against canonical port 4173 via node tools/capture-rig-model-review.cjs with zero console errors.
 
 ## SECTION_17
 
 - Label: §17 Propagation contract
 - Reviewed: True
-- Evidence: Propagation satisfied in staged diff: OPERATING_DOCTRINE.md and AGENTS.md copies refreshed; commit trailers carry motto digest ff848618a7431a3b06c7409caa45683bd27c64263d45b93f9fcd36a89803466a for traceability.
+- Evidence: Propagation in staged diff: docs/WORKLOG_ADDENDUM_2026-08-25.md gains Wave-1a entries 15-17 documenting the landed integration, the dune-runner kernel contract, and the shared review surface; commit trailers carry the attested motto digest.
 
 ## SECTION_2
 
@@ -93,13 +93,13 @@
 
 - Label: §5 Canonical paths and ownership
 - Reviewed: True
-- Evidence: Canonical port 4173 preserved: identified and stopped orphaned python -m http.server squatter (PID 17749) per AGENTS.md; canonical launcher reports healthy Vite; no fallback ports used.
+- Evidence: Canonical paths honored in staged diff: captures served from the single canonical Vite surface http://127.0.0.1:4173 (tools/start-canonical-dev-server.cjs, port squatter already cleared this session); evidence lands under assets/workbench/spark-dune-runner-02/review/ per workbench ownership; no fallback ports or duplicate tool routes.
 
 ## SECTION_6
 
 - Label: §6 Semantic salvage and supersession
 - Reviewed: True
-- Evidence: Extended existing .gitignore debris section instead of parallel mechanism; capture tool reuses field-plough review-page contract (window key protocol), no duplicate pipeline introduced.
+- Evidence: Staged diff extends rather than forks: new shared review surface assets/workbench/shared/rig-review.html+rig-review-main.ts reuses the existing window-key contract consumed by tools/capture-rig-model-review.cjs; dune-runner factory edits extend the existing authored file (no parallel factory), renderer.ts routing extends the existing if-chain; worklog addendum extends the existing dated file.
 
 ## SECTION_7
 
