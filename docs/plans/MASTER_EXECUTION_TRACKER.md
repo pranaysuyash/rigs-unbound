@@ -3621,3 +3621,14 @@ and `docs/WORKLOG_ADDENDUM_2026-08-25.md`. Compressed:
   one real loss (furrow-decals bounds) found by audit and restored.
 - Remaining: VehicleVisualPresenter, CameraDirector (re-sequenced last), final
   audit + closeout.
+
+## Addendum (2026-08-25, later session): slice-beat observability landed
+
+Operator standing direction applied as src/game clearance. `publicState` now
+exposes `firstNightThreat`, `openWorldPromise`, `campaignProgress`
+(`src/game/state.ts`; pinned by `public-state-slice-contract.test.ts`, 3
+tests). Live probe verifies the night beat end-to-end (status=resolved,
+variant=storm-pressure). Gates: typecheck clean; 735/735 vitest. Complete-slice
+Step 7 now reads real preconditions; sole remaining harness gap: the
+sunken-relay cargo-delivery step. Note: `.workbuddy-ai` python squatter on
+4173 respawned a third time — permanent fix belongs on the pdf_editor side.

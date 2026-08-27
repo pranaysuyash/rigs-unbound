@@ -100,3 +100,28 @@ Not committed; no git write action taken.
    order, zero-loss preservation contract, regression matrix, and blockers P1
    (PCFSoftShadowMap red acceptance fix) and P2 (ADR-0054 sign-off). Tracker
    addendum updated. No implementation performed; statuses unchanged.
+
+## Entry — operator-cleared execution (same date, later session)
+
+10. **Operator standing direction applied** ("everything should be done long
+    term, first principles, doctrine aligned") — treated as `src/game/`
+    clearance for the two named follow-ups. Parallel-stream state first
+    verified: ADR-0054 renderer decomposition units 1–6 and the PCFSoftShadowMap
+    fix (`857ba28`) already committed; prior session's tools/docs committed in
+    `5e6790f`.
+11. **Observability contract extended** (`src/game/state.ts` publicState):
+    now exposes `firstNightThreat` (status/variant/resolvedAtWorldMinutes),
+    `openWorldPromise` (status/revealedAtWorldMinutes), and `campaignProgress`
+    (causewayReopened, waterworksChoice). New contract tests
+    `src/game/public-state-slice-contract.test.ts` (3) pin the shape.
+12. **Probe upgraded** to assert the resolved state, not just the diagnostic.
+    Third python-squatter respawn (PID 58670) raced and cleared; probe PASS:
+    `firstNightThreat.status=resolved variant=storm-pressure`.
+13. **Harness Step 7** updated: precondition readout via real fields; single
+    remaining gap named (sunken-relay cargo-delivery step). Gates:
+    `npm run typecheck` clean; `npx vitest run` 735/735.
+    Not committed; no git write action taken.
+14. **Relay-step mechanics traced and baked into the harness** (Step 7
+    comment): preconditions, assignment shape (missionId===null), and the
+    completeSettlementCargoDelivery path. Implementation + verification run
+    is the next session's first move; not half-landed unverified.

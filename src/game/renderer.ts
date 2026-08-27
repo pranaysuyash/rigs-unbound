@@ -62,6 +62,12 @@ import {
   type RigSuperstructureVolume,
 } from "./rig-blockout";
 import { createFieldPlough01Model } from "../../assets/workbench/field-plough-01/authored/createFieldPloughModel";
+import {
+  createSnowCrawlerModel,
+  snowCrawlerDimensionsFromBlockout,
+  snowCrawlerRollerSpinScale,
+  snowCrawlerSpinPivots,
+} from "../../assets/workbench/snow-crawler-expedition-01/authored/createSnowCrawlerModel";
 import { vehicleAnimationSystem, type RigPresentationFrame } from "./animation";
 import { deriveRigFeedback, type RigFeedbackFrame } from "./feedback";
 import type { GameWorld } from "./gameworld";
@@ -739,6 +745,8 @@ export class GameRenderer {
       if (id === "utility-tractor") parts = this.createTractor();
       else if (id === "toy-buggy") parts = this.createBuggy();
       else if (id === "marsh-skimmer") parts = this.createSkimmer();
+      else if (id === "snow-crawler-expedition-01")
+        parts = this.createSnowCrawler();
       else parts = this.createCandidateRig(id);
 
       this.rigs.set(id, parts);
@@ -2984,6 +2992,107 @@ export class GameRenderer {
       headlightConeMaterial,
       frontMarker: hullMesh,
       rearMarker: hullMesh,
+      stateShell,
+      stateShellMaterial,
+    };
+  }
+
+  /**
+   * The snow crawler renders through its authored Lane-A factory — the first
+   * candidate promoted off the generic blockout (Rig Production Pipeline S6).
+   * The blockout stays the dimensional authority: the factory receives its
+   * metres through `snowCrawlerDimensionsFromBlockout`, and every operational
+   * peripheral (blob shadow, camera socket, headlights, state shell, light
+   * cone) uses blockout-derived values exactly as `createCandidateRig` does.
+   */
+  private createSnowCrawler(): RigParts {
+    const blockout = blockoutFor("snow-crawler-expedition-01");
+    const dims = snowCrawlerDimensionsFromBlockout(blockout);
+    const root = new THREE.Group();
+    root.name = "snow-crawler-expedition-01";
+    root.rotation.order = "YXZ";
+
+    const body = new THREE.Group();
+    body.name = "rig-body-ground-frame";
+    body.position.y = blockout.groundFrameOffsetY;
+    root.add(body);
+    const cameraSocket = hoodCameraSocket("snow-crawler-expedition-01");
+
+    const shadow = this.blobShadow(blockout.hull.width * 0.95, 0.25);
+    shadow.position.y = blockout.shadowY;
+
+    const model = createSnowCrawlerModel({ dimensions: dims });
+    body.add(shadow, model, cameraSocket);
+
+    // Kernel wheel order (FL, FR, RL, RR) maps onto the track's spin pivots.
+    // Steering pivots are present-but-empty by design: the kernel's per-wheel
+    // suspension channel has nothing to move on a tracked undercarriage, and
+    // yawing a roller about its hub would read as a bug, not as steering.
+    const spinPivots = snowCrawlerSpinPivots(model);
+    const spinScale = snowCrawlerRollerSpinScale(dims);
+    const steeringPivots: THREE.Group[] = [];
+    const wheelRestY: number[] = [];
+    const wheelSpinScale: number[] = [];
+    for (const mount of blockout.wheelMounts) {
+      const steeringPivot = new THREE.Group();
+      steeringPivot.name = `wheel-mount-${mount.label}`;
+      steeringPivot.position.set(mount.x, mount.restY, mount.z);
+      body.add(steeringPivot);
+      steeringPivots.push(steeringPivot);
+      wheelRestY.push(mount.restY);
+      wheelSpinScale.push(spinScale);
+    }
+
+    const headlights = new THREE.SpotLight(0xbdfaff, 0, 42, 0.62, 0.45, 1.2);
+    headlights.position.set(0, dims.roofY * 0.72, blockout.hull.depth / 2);
+    headlights.target.position.set(
+      0,
+      blockout.hull.centreY,
+      blockout.hull.depth / 2 + 20,
+    );
+    body.add(headlights, headlights.target);
+
+    const { mesh: stateShell, material: stateShellMaterial } =
+      this.buildStateShell(
+        dims.bodyWidth * 1.06,
+        (dims.roofY - blockout.hull.bottomY) * 1.06,
+        dims.bodyLength * 1.04,
+        0x6bc9c4,
+      );
+    stateShell.position.set(0, (dims.roofY + blockout.hull.bottomY) / 2, 0);
+
+    const { mesh: headlightCone, material: headlightConeMaterial } =
+      this.buildVolumetricLightCone(0xbdfaff, 26, 5.8);
+    headlightCone.position.set(0, blockout.hull.topY, blockout.hull.depth / 2);
+
+    body.add(stateShell, headlightCone);
+
+    const frontMarker = model.getObjectByName("ice-breaker-plow");
+    const rearMarker = model.getObjectByName("rear-marker");
+    if (!frontMarker || !rearMarker) {
+      throw new Error(
+        "snow-crawler-expedition-01: authored model is missing its axis markers",
+      );
+    }
+
+    return {
+      root,
+      body,
+      hoodCameraSocket: cameraSocket,
+      wheels: spinPivots,
+      steeringPivots,
+      wheelRestY,
+      wheelSpinScale,
+      moduleVisuals: {
+        ...this.buildModuleVisuals(body, blockout),
+        "lug-tires": [],
+      },
+      ploughPivot: null,
+      headlights,
+      headlightCone,
+      headlightConeMaterial,
+      frontMarker,
+      rearMarker,
       stateShell,
       stateShellMaterial,
     };

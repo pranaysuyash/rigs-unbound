@@ -3497,6 +3497,27 @@ export function publicState(state: GameState, world: GameWorld): object {
     restoration: { ...state.restoration },
     arrivalBargain: { ...state.arrivalBargain },
     openingNaming: { ...state.openingNaming },
+    // Slice-beat exposure for the browser observability contract: the
+    // complete-slice acceptance harness verifies the authored first-night
+    // threat and the open-world-promise finale through these. Previously the
+    // harness read fields that never existed and passed vacuously (2026-08-25
+    // evidence-integrity finding).
+    firstNightThreat: {
+      status: state.firstNightThreat.status,
+      variant: state.firstNightThreat.variant ?? null,
+      resolvedAtWorldMinutes:
+        state.firstNightThreat.resolvedAtWorldMinutes ?? null,
+    },
+    openWorldPromise: {
+      status: state.openWorldPromise.status,
+      revealedAtWorldMinutes: state.openWorldPromise.revealedAtWorldMinutes ?? null,
+    },
+    campaignProgress: {
+      causewayReopened: (
+        state.settlements["sunken-flats"]?.completedNeedIds ?? []
+      ).includes("sunken-flats-causeway"),
+      waterworksChoice: state.farmWaterworks.choice,
+    },
     lastDiagnostic: state.lastDiagnostic,
   };
 }

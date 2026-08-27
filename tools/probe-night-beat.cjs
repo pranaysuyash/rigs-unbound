@@ -113,6 +113,17 @@ const THREAT_LINES = [
       `night threat diagnostic did not land (got: "${diag}")`,
     );
 
+    // The 2026-08-25 publicState exposure makes the beat state itself
+    // observable — assert both the diagnostic and the resolved state.
+    const resolved = await state(page);
+    assert(
+      resolved.firstNightThreat?.status === "resolved",
+      `firstNightThreat.status expected "resolved", got "${resolved.firstNightThreat?.status}"`,
+    );
+    console.log(
+      `firstNightThreat.status=${resolved.firstNightThreat.status} variant=${resolved.firstNightThreat.variant}`,
+    );
+
     console.log(
       "PROBE PASS: authored first-night threat fires in the live runtime.",
     );

@@ -226,28 +226,45 @@ async function firstRung(page) {
     // ── Step 7: Launch Ridge Finale & Open World Promise ──
     // NOT VERIFIED — known gap, recorded honestly instead of passed vacuously.
     // The finale requires firstNightResolved && waterworksResolved &&
-    // causewayReopened (src/game/state.ts openWorldPromise branch). This
-    // harness completes the first two but never completes the sunken-relay
-    // contract, so the finale cannot fire here; and the observability
-    // contract exposes no openWorldPromise state to read even if it did.
-    // Follow-ups: (a) add the relay-contract completion step, (b) expose
-    // firstNightThreat + openWorldPromise in render_game_to_text.
+    // causewayReopened (src/game/state.ts openWorldPromise branch). As of
+    // 2026-08-25 the observability contract DOES expose firstNightThreat,
+    // openWorldPromise, and campaignProgress (see
+    // public-state-slice-contract.test.ts); the single remaining gap is that
+    // this harness never completes the sunken-relay cargo delivery, so the
+    // finale cannot fire here. Follow-up: add the relay-contract completion
+    // step (accept the sunken-causeway-kit manifest, tow the crate to
+    // Sunken Flats, release). Traced mechanics for the implementer
+    // (2026-08-25): preconditions are relay-free + `sunken-flats` discovered
+    // + causeway not built (settlement-cargo.ts:78-82) — discovery happens by
+    // placing the rig near the site; the assignment must have
+    // `missionId === null` and completes in stepGame via
+    // `completeSettlementCargoDelivery` (settlement-cargo.ts:150) when the
+    // crate is delivered, which records the causeway into completedNeedIds
+    // and arms the finale's third precondition.
     console.log("Step 7: Launch Ridge finale & open-world promise...");
+    const preFinale = await state(page);
     console.log(
-      "  NOT VERIFIED: finale requires the sunken-relay causeway, which this harness does not complete, and the text contract exposes no finale state.",
+      `  preconditions: threat=${preFinale.firstNightThreat?.status} waterworks=${preFinale.campaignProgress?.waterworksChoice} causeway=${preFinale.campaignProgress?.causewayReopened}`,
+    );
+    console.log(
+      "  NOT VERIFIED: this harness does not complete the sunken-relay cargo delivery, so the finale cannot fire.",
     );
     await placeRig(page, 40, 25);
     await page.waitForTimeout(400);
     results.push({
       step: "open-world-promise-finale",
       verified: false,
-      reason:
-        "harness lacks relay-contract completion; observability contract lacks openWorldPromise exposure",
+      reason: "harness lacks the sunken-relay cargo-delivery step",
+      preconditions: {
+        threat: preFinale.firstNightThreat?.status,
+        waterworks: preFinale.campaignProgress?.waterworksChoice,
+        causeway: preFinale.campaignProgress?.causewayReopened,
+      },
       pass: false,
     });
     assert(
       false,
-      "Step 7 finale is not verifiable by this harness: add the sunken-relay contract completion step and expose firstNightThreat/openWorldPromise in render_game_to_text (see step 7 comment, fixed 2026-08-25)",
+      "Step 7 finale is not verifiable by this harness yet: add the sunken-relay cargo-delivery step (accept the causeway-kit manifest, tow the crate to Sunken Flats, release) so the finale fires and openWorldPromise.status can be asserted",
     );
 
     // ── Step 8: Console Error & Screenshot Verification ──

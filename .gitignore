@@ -28,6 +28,14 @@ credentials.json
 
 # Agent visual-review screenshot debris at repo root
 /.codex-visual-polish-*.png
+/boot-welcome.png
+/driving-day.png
+/fresh-boot-welcome.png
+/fresh-welcome.png
+/in-game-live-now.png
+/in-world-recovered.png
+/lab-basilisk-ref.png
+/post-reset-state.png
 
 # Logs, caches, and temporary output
 *.log

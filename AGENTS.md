@@ -48,3 +48,13 @@ maintainable:
 - Run `npm run typecheck && npx vitest run` before claiming implementation work
   is complete.
 - Report test failures honestly; do not hide regressions in parallel-owned code.
+
+## Shared doctrine contract
+
+This `AGENTS.md` is the canonical editable instruction surface for this directory.
+Before substantial work, read the Operating Doctrine at
+`/Users/pranay/Projects/agent-start/doctrines/OPERATING_DOCTRINE.md`, then load
+only the task-relevant specialist doctrine(s) from that same canonical family.
+Use `Docs/context/agent-start/AGENT_KICKOFF_PROMPT.txt` and `SESSION_CONTEXT.md`
+as derived context after the local instructions. `agent-start` compiles context;
+it is not a doctrine authority.
