@@ -254,3 +254,33 @@ are removed only after the symbol is confirmed live at the destination.
 - Parity vs current-tree baseline: 92.6-99.9% (animated drive scenes inside
   the calibrated noise band; stable scenes 99.9%+). tsc 0, vitest 743/743.
 - renderer.ts: 6,786 -> ~2,760 LOC. Remaining: final audit + closeout.
+
+## Final audit (all 7 seams landed): COMPLETE with Wave-2 follow-up proposed
+
+Committed state: tsc 0 errors; vitest 114/114 files, 743/743 tests; full
+audit suites green; build + player-build boundary green; per-unit pixel
+parity at calibrated noise floors; console-clean boots throughout.
+renderer.ts: 6,786 -> 2,758 LOC across 7 landed units (P1 + PostFX +
+ParticleFX + Props + Environment(terrain) + Environment(sky/water/rain) +
+Infrastructure + VehicleVisual + CameraDirector).
+
+Stop-condition assessment (honest): the plan's "<600 LOC facade" target is
+NOT met (2,758). The estimate predated Wave 1a/1b growth and undercounted
+non-visual domains living in the file. The structural goal IS met: every
+named subsystem seam is extracted behind stable contracts with zero
+behavioral loss proven per unit.
+
+Remaining domains in renderer.ts (~2,758 LOC), proposed as Wave 2:
+1. SitesPresenter — buildSites/createStructurePart/consequences/rivalry
+   markers (cross-settlement scope; needs settlement-life boundary review).
+2. HabitatPresenter — silhouettes + sync/animate life (ecology coupling).
+3. RuntimeBridgePresenter — bridge assets + evidence (GLB/provenance coupling).
+4. FieldPresenter — updateFurrows/updateCropVisuals (furrow-decals ownership
+   moves here from the facade).
+5. Facade remainder — backend bootstrap, phase/weather orchestration, public
+   delegates, metrics/evidence, dispose/invalidate (<600 target then holds).
+
+Wave-2 preconditions: green tree (snow-crawler lane landed), fresh
+same-tree baselines (Wave drift invalidated older ones), operator go-ahead.
+Supersession-audit scripts and parity harness from this program are reusable
+as-is. No implementation beyond this audit has occurred for Wave 2.

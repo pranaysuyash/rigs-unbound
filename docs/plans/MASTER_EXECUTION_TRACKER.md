@@ -1,7 +1,7 @@
 # Rigs Unbound — Master Execution Tracker
 
 - Status: canonical living task list
-- Last Updated: 2026-08-21 (AAA visual fidelity roadmap documented; tasks TASK-VFX-01 through 04 active)
+- Last Updated: 2026-09-01 (Technical Director audit addendum appended — boot-crash evidence, findings register, implementation plan; all Proposed)
 - AAA Visual Fidelity Reference:
   [AAA Visual Fidelity Roadmap](../design/AAA_VISUAL_FIDELITY_ROADMAP.md) —
   canonical multi-stage visual fidelity transformation from concept target to live WebGL engine.
@@ -3653,3 +3653,59 @@ sunken-relay cargo-delivery step. Note: `.workbuddy-ai` python squatter on
   kernel motion-model decision before wiring.
 - **Gates per batch**: `npm run typecheck` clean; `npx vitest run` 743/743;
   zero console errors on all captures.
+
+## Addendum (2026-08-29) — snow crawler end-to-end proof + gate truthing
+
+- Snow crawler promoted off the generic blockout (landed `9379cff`; Wave 1a/1b
+  followed as `ed35798`/`fcb50f0`). In-game evidence:
+  `tools/capture-snow-crawler-ingame-evidence.cjs` →
+  `docs/reviews/assets/snow-crawler-expedition-01-ingame/` (zero console
+  problems; placement stability-gated after observing placeRig transients
+  slide on slope lips).
+- Gates: typecheck clean; vitest 742/742 on the crawler tree (743/743 recorded
+  for Wave 1b); envelope derivation pass; ground-contact pass (launch rigs;
+  crawler contact pinned by the workbench tyre-frame unit test).
+- **rig-lab red, pre-existing, unrelated to rig visuals**: the harness's
+  tractor keyboard drive produces zero motion (speed 0, wheelRotation 0,
+  distanceTravelled 0) with identical signature on the crawler tree and the
+  Wave-1b tree; game boot constructs all 16 rigs (ground-contact proves it).
+  Follow-up named: root-cause the keyboard driver before rig-lab is next used
+  as a gate. Full worklog:
+  [`docs/WORKLOG_ADDENDUM_2026-08-29.md`](../WORKLOG_ADDENDUM_2026-08-29.md).
+- Catalog rows truthed: five wired candidates now "Runtime Implemented".
+
+## Addendum (2026-09-01) — Technical Director audit: boot-crash evidence, six-stream audit, findings register + plan
+
+- **Boot hard-crash proven player-facing (Tier 4 playtest):** uncommitted working-tree edit to
+  `assets/workbench/snow-crawler-expedition-01/authored/createSnowCrawlerModel.ts` references five
+  undefined locals (`profileTop`, `wsTopZ`, `wsBottomY`, `halfL`) → typecheck RED (5 TS errors),
+  vitest RED (736/743), and every player crashes at ENTER THE FIELD because the renderer builds all
+  16 rigs unconditionally (confirms the 2026-08-29 note). **HEAD is healthy.** Error panel is
+  unreachable behind the welcome modal (z 110 vs 10) — recovery dead-end documented.
+- **Six-stream audit delivered** (persona PER-20746): docs/process, code architecture, assets
+  (8/16 rigs authored/bespoke; 3 rigs lack workbench lanes), tools/harness (**`verify:head` contains
+  zero browser gates; no gate asserts `#error-panel`; no CI**), game design/content, boot RCA.
+- **New canonical docs (Proposed, not signed off):**
+  [`docs/reviews/TECHNICAL_DIRECTOR_AUDIT_2026-09-01.md`](../reviews/TECHNICAL_DIRECTOR_AUDIT_2026-09-01.md) ·
+  [`docs/plans/READY_GAME_FINDINGS_REGISTER_2026-09-01.md`](READY_GAME_FINDINGS_REGISTER_2026-09-01.md)
+  (31 explicit + 9 implicit findings, FP/LT/doctrine-scored, 22 tasks) ·
+  [`docs/plans/READY_GAME_IMPLEMENTATION_PLAN_2026-09-01.md`](READY_GAME_IMPLEMENTATION_PLAN_2026-09-01.md)
+  (Phase 0 unstuck → 1 docs truth-up → 2 strategy decisions → 3 first-60-seconds → 4 content → 5 long game).
+- **Operator decisions requested:** dirty snow-crawler file disposition (revert / finish / clear collision);
+  P0 boot-flow go (waiting since 2026-08-27); second-game residue archive; physics-stack quarantine;
+  CI-or-hook; parallel-work registry. Full session evidence:
+  [`docs/WORKLOG_ADDENDUM_2026-09-01.md`](../WORKLOG_ADDENDUM_2026-09-01.md).
+
+## Addendum: ADR-0054 program complete (7/7 seams) — Wave-2 follow-up proposed
+
+- All seven presenter extractions landed with per-unit gates (tsc 0, 743/743,
+  parity, console): rendering/{post-processing,particle-fx,props,
+  environment,terrain-normals,primitives,infrastructure,vehicle-visual,
+  camera-director}. renderer.ts 6,786 -> 2,758 LOC. See the plan's final
+  audit addendum for evidence tables and the Wave-2 proposal (sites, habitat,
+  runtime bridges, field systems) — the <600 facade target needs that wave.
+- Cross-lane notes: repaired the blocking snow-crawler rename (bindings
+  derived from file equations; lane's tests green; files left uncommitted
+  for its owner); freed a port-4173 squatter during verification; Playwright
+  browser cache missing — verifications used system Chrome via temp env
+  override (reverted; consider pinning a browser source).
