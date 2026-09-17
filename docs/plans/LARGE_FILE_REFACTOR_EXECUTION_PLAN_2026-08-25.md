@@ -222,3 +222,24 @@ are removed only after the symbol is confirmed live at the destination.
   VehicleVisualPresenter (largest family), unit 5 CameraDirector (re-sequenced),
   final audit (<600 facade target unreachable without them; current facade is
   transitional), tracker/worklog closeout.
+
+## Addendum: unit 7 VehicleVisualPresenter landed; parallel-lane repair
+
+- **7** (this commit): all rig construction moved VERBATIM (25/25 bodies
+  script-verified vs HEAD) into rendering/vehicle-visual.ts; renderer.ts
+  ~4751 -> ~3200 LOC. RigParts canonical home + renderer re-export keeps
+  animation.ts compiling unmodified.
+- **Parallel-lane repair (operator-directed, first principles):** the shared
+  commit gate was red tree-wide from the in-flight snow-crawler rename
+  (profileTop/wsTopZ/wsBottomY/halfL referenced, never declared; game
+  hard-down at boot with ReferenceError). Completed the rename faithfully:
+  bindings derived from the file's own pre-edit equations so old geometry is
+  preserved (windshield + hood-snow-Y pixel-identical; roof-snow/hood-snow-Z
+  follow the lane's explicit new offsets). Result: tsc 0 errors, 743/743
+  tests (their 7 failures green), game boots clean. Their files left
+  UNCOMMITTED for their lane; fix flagged in code comment.
+- **Parity methodology change:** Wave 1a/1b + snow-crawler lane changed scene
+  content since the unit-1 baseline, so unit-7 parity was measured against a
+  same-tree pre-extraction baseline (refactor_unit7_prediff) plus an
+  identical-code control. Result within run-to-run noise on all scenes.
+- Remaining: unit 5 CameraDirector (last), final audit, closeout.
