@@ -243,3 +243,14 @@ are removed only after the symbol is confirmed live at the destination.
   same-tree pre-extraction baseline (refactor_unit7_prediff) plus an
   identical-code control. Result within run-to-run noise on all scenes.
 - Remaining: unit 5 CameraDirector (last), final audit, closeout.
+
+## Addendum: unit 5 CameraDirector landed — all 7 seams complete
+
+- **5** (this commit): updateCamera + rigIntersectionPart + shake/narrative
+  fields + cameraResolution evidence moved 5/5 verbatim into
+  rendering/camera-director.ts. GameRenderer keeps identical public API
+  (addShake/setNarrativeFocus/cameraEvidence) for src/main.ts; evidence type
+  re-exported. Deps injected: world/camera/rigs/reducedMotion/sky-sync/label.
+- Parity vs current-tree baseline: 92.6-99.9% (animated drive scenes inside
+  the calibrated noise band; stable scenes 99.9%+). tsc 0, vitest 743/743.
+- renderer.ts: 6,786 -> ~2,760 LOC. Remaining: final audit + closeout.
